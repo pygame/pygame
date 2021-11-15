@@ -18,9 +18,8 @@ import os
 
 import pygame as pg
 import pygame.scrap as scrap
-from pygame.compat import as_bytes
 
-BytesIO = pg.compat.get_BytesIO()
+from io import BytesIO
 
 
 def usage():
@@ -69,7 +68,7 @@ while going:
         elif e.type == pg.KEYDOWN and e.key == pg.K_p:
             # Place some text into the selection.
             print("Placing clipboard text.")
-            scrap.put(pg.SCRAP_TEXT, as_bytes("Hello. This is a message from scrap."))
+            scrap.put(pg.SCRAP_TEXT, b"Hello. This is a message from scrap.")
 
         elif e.type == pg.KEYDOWN and e.key == pg.K_a:
             # Get all available types.

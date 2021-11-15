@@ -44,12 +44,8 @@ import warnings
 
 
 __all__ = [
-    "array",
-    "samples",
-    "make_sound",
-    "use_arraytype",
-    "get_arraytype",
-    "get_arraytypes",
+    "array", "samples", "make_sound", "use_arraytype", "get_arraytype",
+    "get_arraytypes"
 ]
 
 
@@ -97,15 +93,11 @@ def use_arraytype(arraytype):
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(
-        DeprecationWarning(
-            "only numpy arrays are now supported, "
-            "this function will be removed in a "
-            "future version of the module"
-        )
-    )
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
     arraytype = arraytype.lower()
-    if arraytype != "numpy":
+    if arraytype != 'numpy':
         raise ValueError("invalid array type")
 
 
@@ -114,14 +106,10 @@ def get_arraytype():
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(
-        DeprecationWarning(
-            "only numpy arrays are now supported, "
-            "this function will be removed in a "
-            "future version of the module"
-        )
-    )
-    return "numpy"
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
+    return 'numpy'
 
 
 def get_arraytypes():
@@ -129,11 +117,7 @@ def get_arraytypes():
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(
-        DeprecationWarning(
-            "only numpy arrays are now supported, "
-            "this function will be removed in a "
-            "future version of the module"
-        )
-    )
-    return ("numpy",)
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
+    return 'numpy',

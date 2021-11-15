@@ -4,38 +4,31 @@ import time
 
 import pygame
 
-
 def list_cameras():
     return [0]
-
 
 def list_cameras_darwin():
     import subprocess
     import xml.etree.ElementTree as ElementTree
 
-    flout, _ = subprocess.Popen(
-        "system_profiler -xml SPCameraDataType",
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    ).communicate()
+    flout, _ = subprocess.Popen("system_profiler -xml SPCameraDataType", shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     last_text = None
     cameras = []
 
-    for node in ElementTree.fromstring(flout).iterfind("./array/dict/array/dict/*"):
+    for node in ElementTree.fromstring(flout).iterfind('./array/dict/array/dict/*'):
         if last_text == "_name":
             cameras.append(node.text)
         last_text = node.text
 
     return cameras
 
-
 class Camera(object):
     def __init__(self, device=0, size=(640, 480), mode="RGB"):
         self._device_index = device
         self._size = size
-
+        
         if mode == "RGB":
             self._fmt = cv2.COLOR_BGR2RGB
         elif mode == "YUV":
@@ -53,7 +46,7 @@ class Camera(object):
     def start(self):
         if self._open:
             return
-
+        
         self._cam = cv2.VideoCapture(self._device_index)
 
         if not self._cam.isOpened():
@@ -83,33 +76,33 @@ class Camera(object):
 
     def _check_open(self):
         if not self._open:
-            raise pygame.error("Camera must be started")
+            raise pygame.error("Camera must be started")        
 
     def get_size(self):
         self._check_open()
-
+        
         return self._size
 
-    def set_controls(self, hflip=None, vflip=None, brightness=None):
+    def set_controls(self, hflip = None, vflip = None, brightness = None):
         self._check_open()
-
+        
         if hflip is not None:
             self._flipx = bool(hflip)
         if vflip is not None:
             self._flipy = bool(vflip)
         if brightness is not None:
             self._cam.set(cv2.CAP_PROP_BRIGHTNESS, brightness)
-
+            
         return self.get_controls()
-
+        
     def get_controls(self):
         self._check_open()
-
+        
         return (self._flipx, self._flipy, self._cam.get(cv2.CAP_PROP_BRIGHTNESS))
 
     def query_image(self):
         self._check_open()
-
+        
         current_time = time.time()
         if current_time - self._last_frame_time > self._frametime:
             return True
@@ -117,12 +110,12 @@ class Camera(object):
 
     def get_image(self, dest_surf=None):
         self._check_open()
-
+        
         self._last_frame_time = time.time()
-
+        
         _, image = self._cam.read()
-
-        image = cv2.cvtColor(image, self._fmt)
+        
+        image = cv2.cvtColor(image, self._fmt) 
 
         flip_code = None
         if self._flipx:
@@ -135,16 +128,16 @@ class Camera(object):
 
         if flip_code is not None:
             image = cv2.flip(image, flip_code)
-
+        
         image = numpy.fliplr(image)
         image = numpy.rot90(image)
 
         surf = pygame.surfarray.make_surface(image)
 
         if dest_surf:
-            dest_surf.blit(surf, (0, 0))
+            dest_surf.blit(surf, (0,0))
             return dest_surf
-
+            
         return surf
 
     def get_raw(self):
@@ -164,9 +157,6 @@ class CameraMac(Camera):
         elif isinstance(device, str):
             _dev = list_cameras_darwin().index(device)
         else:
-            raise TypeError(
-                "OpenCV-Mac backend can take device indices or names, ints or strings, not ",
-                str(type(device)),
-            )
-
+            raise TypeError("OpenCV-Mac backend can take device indices or names, ints or strings, not ", str(type(device)))
+        
         super().__init__(_dev, *args, **kwargs)

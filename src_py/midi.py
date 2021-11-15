@@ -233,7 +233,7 @@ def get_default_output_id():
 
 
 def get_device_info(an_id):
-    """returns information about a midi device
+    """ returns information about a midi device
     pygame.midi.get_device_info(an_id): return (interf, name,
                                                 input, output,
                                                 opened)
@@ -267,11 +267,9 @@ class Input(object):
         _check_init()
 
         if device_id == -1:
-            raise MidiException(
-                "Device id is -1, not a valid output id.  "
-                "-1 usually means there were no default "
-                "Output devices."
-            )
+            raise MidiException("Device id is -1, not a valid output id.  "
+                                "-1 usually means there were no default "
+                                "Output devices.")
 
         try:
             result = get_device_info(device_id)
@@ -293,8 +291,8 @@ class Input(object):
 
             elif is_output:
                 raise MidiException(
-                    "Device id given is not a valid" " input id, it is an output id."
-                )
+                    "Device id given is not a valid"
+                    " input id, it is an output id.")
             else:
                 raise MidiException("Device id given is not a valid input id.")
         else:
@@ -305,7 +303,7 @@ class Input(object):
             raise MidiException("midi not open.")
 
     def close(self):
-        """closes a midi stream, flushing any pending buffers.
+        """ closes a midi stream, flushing any pending buffers.
         Input.close(): return None
 
         PortMidi attempts to close open streams when the application
@@ -406,11 +404,9 @@ class Output(object):
         self._aborted = 0
 
         if device_id == -1:
-            raise MidiException(
-                "Device id is -1, not a valid output id."
-                "  -1 usually means there were no default "
-                "Output devices."
-            )
+            raise MidiException("Device id is -1, not a valid output id."
+                                "  -1 usually means there were no default "
+                                "Output devices.")
 
         try:
             result = get_device_info(device_id)
@@ -425,17 +421,18 @@ class Output(object):
             _, _, is_input, is_output, _ = result
             if is_output:
                 try:
-                    self._output = _pypm.Output(device_id, latency, buffer_size)
+                    self._output = _pypm.Output(device_id, latency,
+                                                buffer_size)
                 except TypeError:
                     raise TypeError("an integer is required")
                 self.device_id = device_id
 
             elif is_input:
-                raise MidiException(
-                    "Device id given is not a valid output " "id, it is an input id."
-                )
+                raise MidiException("Device id given is not a valid output "
+                                    "id, it is an input id.")
             else:
-                raise MidiException("Device id given is not a" " valid output id.")
+                raise MidiException("Device id given is not a"
+                                    " valid output id.")
         else:
             raise MidiException("Device id invalid, out of range.")
 
@@ -447,7 +444,7 @@ class Output(object):
             raise MidiException("midi aborted.")
 
     def close(self):
-        """closes a midi stream, flushing any pending buffers.
+        """ closes a midi stream, flushing any pending buffers.
         Output.close(): return None
 
         PortMidi attempts to close open streams when the application
@@ -581,7 +578,7 @@ class Output(object):
         if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
 
-        self.write_short(0xC0 + channel, instrument_id)
+        self.write_short(0xc0 + channel, instrument_id)
 
     def pitch_bend(self, value=0, channel=0):
         """modify the pitch of a channel.
@@ -599,17 +596,16 @@ class Output(object):
             raise ValueError("Channel not between 0 and 15.")
 
         if not -8192 <= value <= 8191:
-            raise ValueError(
-                "Pitch bend value must be between " "-8192 and +8191, not %d." % value
-            )
+            raise ValueError("Pitch bend value must be between "
+                             "-8192 and +8191, not %d." % value)
 
         # "The 14 bit value of the pitch bend is defined so that a value of
         # 0x2000 is the center corresponding to the normal pitch of the note
         # (no pitch change)." so value=0 should send 0x2000
         value = value + 0x2000
-        lsb = value & 0x7F  # keep least 7 bits
+        lsb = value & 0x7f  # keep least 7 bits
         msb = value >> 7
-        self.write_short(0xE0 + channel, lsb, msb)
+        self.write_short(0xe0 + channel, lsb, msb)
 
 
 # MIDI commands
@@ -644,15 +640,13 @@ def midis2events(midis, device_id):
     for midi in midis:
         ((status, data1, data2, data3), timestamp) = midi
 
-        event = pygame.event.Event(
-            MIDIIN,
-            status=status,
-            data1=data1,
-            data2=data2,
-            data3=data3,
-            timestamp=timestamp,
-            vice_id=device_id,
-        )
+        event = pygame.event.Event(MIDIIN,
+                                   status=status,
+                                   data1=data1,
+                                   data2=data2,
+                                   data3=data3,
+                                   timestamp=timestamp,
+                                   vice_id=device_id)
         evs.append(event)
 
     return evs
@@ -672,7 +666,7 @@ class MidiException(Exception):
 
 
 def frequency_to_midi(frequency):
-    """converts a frequency into a MIDI note.
+    """ converts a frequency into a MIDI note.
 
     Rounds to the closest midi note.
 
@@ -685,11 +679,17 @@ def frequency_to_midi(frequency):
     >>> frequency_to_midi(4186.0)
     108
     """
-    return int(round(69 + (12 * math.log(frequency / 440.0)) / math.log(2)))
+    return int(
+        round(
+            69 + (
+                12 * math.log(frequency / 440.0)
+            ) / math.log(2)
+        )
+    )
 
 
 def midi_to_frequency(midi_note):
-    """Converts a midi note to a frequency.
+    """ Converts a midi note to a frequency.
 
     ::Examples::
 
@@ -700,11 +700,11 @@ def midi_to_frequency(midi_note):
     >>> midi_to_frequency(108)
     4186.0
     """
-    return round(440.0 * 2 ** ((midi_note - 69) * (1.0 / 12.0)), 1)
+    return round(440.0 * 2 ** ((midi_note - 69) * (1. / 12.)), 1)
 
 
 def midi_to_ansi_note(midi_note):
-    """returns the Ansi Note name for a midi number.
+    """ returns the Ansi Note name for a midi number.
 
     ::Examples::
 
@@ -715,8 +715,8 @@ def midi_to_ansi_note(midi_note):
     >>> midi_to_ansi_note(108)
     'C8'
     """
-    notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+    notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
     num_notes = 12
     note_name = notes[int(((midi_note - 21) % num_notes))]
     note_number = (midi_note - 12) // num_notes
-    return "%s%s" % (note_name, note_number)
+    return '%s%s' % (note_name, note_number)

@@ -3,7 +3,6 @@ import unittest
 from numpy import int8, int16, uint8, uint16, float32, array, alltrue
 
 import pygame
-from pygame.compat import as_bytes
 import pygame.sndarray
 
 
@@ -92,7 +91,7 @@ class SndarrayTest(unittest.TestCase):
 
     def test_samples(self):
 
-        null_byte = as_bytes("\x00")
+        null_byte = b"\x00"
 
         def check_sample(size, channels, test_data):
             try:
@@ -140,7 +139,8 @@ class SndarrayTest(unittest.TestCase):
         self.assertRaises(ValueError, do_use_arraytype, "not an option")
 
     def test_float32(self):
-        """sized arrays work with Sounds and 32bit float arrays."""
+        """ sized arrays work with Sounds and 32bit float arrays.
+        """
         try:
             pygame.mixer.init(22050, 32, 2, allowedchanges=0)
         except pygame.error:

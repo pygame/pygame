@@ -1,11 +1,7 @@
 import unittest
-import os
-import sys
-import time
+
 
 import pygame
-import pygame.compat
-from pygame.locals import *
 
 
 class MidiInputTest(unittest.TestCase):
@@ -82,7 +78,6 @@ class MidiOutputTest(unittest.TestCase):
 
     def setUp(self):
         import pygame.midi
-
         pygame.midi.init()
         m_out_id = pygame.midi.get_default_output_id()
         if m_out_id != -1:
@@ -247,7 +242,6 @@ class MidiModuleTest(unittest.TestCase):
 
     def setUp(self):
         import pygame.midi
-
         pygame.midi.init()
 
     def tearDown(self):
@@ -451,7 +445,8 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
             events = pygame.midi.midis2events([midi_event_extra_data_no_timestamp], 0)
 
     def test_conversions(self):
-        """of frequencies to midi note numbers and ansi note names."""
+        """ of frequencies to midi note numbers and ansi note names.
+        """
         from pygame.midi import frequency_to_midi, midi_to_frequency, midi_to_ansi_note
 
         self.assertEqual(frequency_to_midi(27.5), 21)

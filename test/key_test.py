@@ -32,10 +32,10 @@ class KeyModuleTest(unittest.TestCase):
         # This test fails in SDL2 in some linux
         # This test was skipped in SDL1.
         focused = pygame.key.get_focused()
-        self.assertFalse(focused)  # No window to focus
+        self.assertFalse(focused)   # No window to focus
         self.assertIsInstance(focused, int)
         # Dummy video driver never gets keyboard focus.
-        if os.environ.get("SDL_VIDEODRIVER") != "dummy":
+        if os.environ.get("SDL_VIDEODRIVER") != 'dummy':
             # Positive test, fullscreen with events grabbed
             display_sizes = pygame.display.list_modes()
             if display_sizes == -1:
@@ -50,7 +50,7 @@ class KeyModuleTest(unittest.TestCase):
             # Now test negative, iconify takes away focus
             pygame.event.clear()
             # TODO: iconify test fails in windows
-            if os.name != "nt":
+            if os.name != 'nt':
                 pygame.display.iconify()
                 # Apparent need to pump event queue in order to make sure iconify
                 # happens. See display_test.py's test_get_active_iconify

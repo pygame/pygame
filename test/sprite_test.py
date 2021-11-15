@@ -129,7 +129,9 @@ class SpriteCollideTest(unittest.TestCase):
         # if it had been called without the radius being set.
         collided_func = sprite.collide_circle_ratio(20.0)
 
-        sprite.spritecollide(self.s1, self.ag2, dokill=False, collided=collided_func)
+        sprite.spritecollide(
+            self.s1, self.ag2, dokill=False, collided=collided_func
+        )
 
         self.assertEqual(
             sprite.spritecollide(
@@ -528,7 +530,7 @@ class AbstractGroupTypeTest(unittest.TestCase):
         self.scr.fill(pygame.Color("grey"))
 
     def test_has(self):
-        "See if AbstractGroup.has() works as expected."
+        " See if AbstractGroup.has() works as expected. "
 
         self.assertEqual(True, self.s1 in self.ag)
 
@@ -925,6 +927,7 @@ class LayeredGroupBase:
         self.LG.add(sprites)
         result = self.LG.get_sprites_at((50, 50))
         self.assertEqual(result, expected_sprites)
+
 
     def test_get_top_layer(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]

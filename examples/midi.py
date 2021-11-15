@@ -42,6 +42,9 @@ def _print_device_info():
 
 def input_main(device_id=None):
     pg.init()
+    pg.fastevent.init()
+    event_get = pg.fastevent.get
+    event_post = pg.fastevent.post
 
     pygame.midi.init()
 

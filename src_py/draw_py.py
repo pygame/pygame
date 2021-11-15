@@ -7,37 +7,12 @@ and debugging.
 from __future__ import absolute_import, division
 from collections import namedtuple
 import sys
-
-if sys.version_info >= (3, 0, 0):
-    from math import floor, ceil
-else:
-    # Python2.7
-    # FIXME : the import of the builtin math module is broken ...
-    def floor(value):
-        """
-        Get the floor int from a float.
-
-        :param value:
-        :return: an int
-        """
-        int_value = int(value)
-        return int_value if (value == int_value or value > 0) else int_value - 1
-
-    def ceil(value):
-        """
-        Get the ceil int from a float.
-
-        :param value:
-        :return: an int
-        """
-        int_value = int(value)
-        return int_value if (int_value == value or value < 0) else int_value + 1
+from math import floor, ceil
 
 
 #   H E L P E R   F U N C T I O N S    #
 
 # fractional part of x
-
 
 def frac(value):
     """return fractional part of x"""
@@ -49,16 +24,15 @@ def inv_frac(value):
     return 1 - (value - floor(value))  # eg, 1 - frac(x)
 
 
-BoundingBox = namedtuple("BoundingBox", ["left", "top", "right", "bottom"])
-Point = namedtuple("Point", ["x", "y"])
+BoundingBox = namedtuple('BoundingBox', ['left', 'top', 'right', 'bottom'])
+Point = namedtuple('Point', ['x', 'y'])
 
 
 #   L O W   L E V E L   D R A W   F U N C T I O N S   #
 # (They are too low-level to be translated into python, right?)
 
-
 def set_at(surf, in_x, in_y, color):
-    """Set the color of a pixel in a surface"""
+    """ Set the color of a pixel in a surface"""
     surf.set_at((in_x, in_y), color)
 
 
@@ -68,9 +42,8 @@ def draw_pixel(surf, pos, color, bright, blend=True):
         other_col = surf.get_at(pos) if blend else (0, 0, 0, 0)
     except IndexError:  # pixel outside the surface
         return
-    new_color = tuple(
-        (bright * col + (1 - bright) * pix) for col, pix in zip(color, other_col)
-    )
+    new_color = tuple((bright * col + (1 - bright) * pix)
+                      for col, pix in zip(color, other_col))
     # FIXME what should happen if only one, color or surf_col, has alpha?
     surf.set_at(pos, new_color)
 
@@ -96,7 +69,6 @@ def _drawvertline(surf, color, in_x, y_from, y_to):
 
 
 #    I N T E R N A L   D R A W   L I N E   F U N C T I O N S    #
-
 
 def _clip_and_draw_horizline(surf, color, x_from, in_y, x_to):
     """draw clipped horizontal line."""
@@ -144,12 +116,10 @@ def encode(pos, b_box):
     """returns a code that defines position with respect to a bounding box"""
     # we use the fact that python interprets booleans (the inequalities)
     # as 0/1, and then multiply them with the xxx_EDGE flags
-    return (
-        (pos[0] < b_box.left) * LEFT_EDGE
-        + (pos[0] > b_box.right) * RIGHT_EDGE
-        + (pos[1] < b_box.top) * TOP_EDGE
-        + (pos[1] > b_box.bottom) * BOTTOM_EDGE
-    )
+    return ((pos[0] < b_box.left) * LEFT_EDGE +
+            (pos[0] > b_box.right) * RIGHT_EDGE +
+            (pos[1] < b_box.top) * TOP_EDGE +
+            (pos[1] > b_box.bottom) * BOTTOM_EDGE)
 
 
 def clip_line(line, b_box, use_float=False):
@@ -309,8 +279,10 @@ def _draw_aaline(surf, color, start, end, blend):
 
         def draw_two_pixel(in_x, float_y, factor):
             flr_y = floor(float_y)
-            draw_pixel(surf, (in_x, flr_y), color, factor * inv_frac(float_y), blend)
-            draw_pixel(surf, (in_x, flr_y + 1), color, factor * frac(float_y), blend)
+            draw_pixel(surf, (in_x, flr_y), color,
+                       factor * inv_frac(float_y), blend)
+            draw_pixel(surf, (in_x, flr_y + 1), color,
+                       factor * frac(float_y), blend)
 
         _draw_aaline_dx(d_x, slope, end, start, draw_two_pixel)
     else:
@@ -318,8 +290,10 @@ def _draw_aaline(surf, color, start, end, blend):
 
         def draw_two_pixel(float_x, in_y, factor):
             fl_x = floor(float_x)
-            draw_pixel(surf, (fl_x, in_y), color, factor * inv_frac(float_x), blend)
-            draw_pixel(surf, (fl_x + 1, in_y), color, factor * frac(float_x), blend)
+            draw_pixel(surf, (fl_x, in_y), color,
+                       factor * inv_frac(float_x), blend)
+            draw_pixel(surf, (fl_x + 1, in_y), color,
+                       factor * frac(float_x), blend)
 
         _draw_aaline_dy(d_y, slope, end, start, draw_two_pixel)
 
@@ -373,7 +347,6 @@ def _draw_aaline_dx(d_x, slope, end, start, draw_two_pixel):
 
 #   C L I P   A N D   D R A W   L I N E   F U N C T I O N S    #
 
-
 def _clip_and_draw_line(surf, rect, color, pts):
     """clip the line into the rectangle and draw if needed.
 
@@ -381,9 +354,9 @@ def _clip_and_draw_line(surf, rect, color, pts):
     # "pts" is a list with the four coordinates of the two endpoints
     # of the line to be drawn : pts = x1, y1, x2, y2.
     # The data format is like that to stay closer to the C-algorithm.
-    if not clip_line(
-        pts, BoundingBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
-    ):
+    if not clip_line(pts, BoundingBox(rect.x, rect.y,
+                                      rect.x + rect.w - 1,
+                                      rect.y + rect.h - 1)):
         # The line segment defined by "pts" is not crossing the rectangle
         return 0
     if pts[1] == pts[3]:  # eg y1 == y2
@@ -438,18 +411,20 @@ def _clip_and_draw_line_width(surf, rect, color, line, width):
 
 def _clip_and_draw_aaline(surf, rect, color, line, blend):
     """draw anti-aliased line between two endpoints."""
-    if not clip_line(
-        line,
-        BoundingBox(rect.x - 1, rect.y - 1, rect.x + rect.w, rect.y + rect.h),
-        use_float=True,
-    ):
+    if not clip_line(line,
+                     BoundingBox(rect.x - 1, rect.y - 1,
+                                 rect.x + rect.w,
+                                 rect.y + rect.h),
+                     use_float=True):
         return  # TODO Rect(rect.x, rect.y, 0, 0)
-    _draw_aaline(surf, color, Point(line[0], line[1]), Point(line[2], line[3]), blend)
+    _draw_aaline(surf, color,
+                 Point(line[0], line[1]),
+                 Point(line[2], line[3]),
+                 blend)
     return  # TODO Rect(-- affected area --)
 
 
 #    D R A W   L I N E   F U N C T I O N S    #
-
 
 def draw_aaline(surf, color, from_point, to_point, blend=True):
     """draw anti-aliased line between two endpoints."""
@@ -465,16 +440,9 @@ def draw_line(surf, color, from_point, to_point, width=1):
 
 #   M U L T I L I N E   F U N C T I O N S   #
 
-
-def _multi_lines(
-    surf,
-    color,
-    closed,  # pylint: disable=too-many-arguments
-    points,
-    width=1,
-    blend=False,
-    aaline=False,
-):
+def _multi_lines(surf, color, closed,  # pylint: disable=too-many-arguments
+                 points, width=1, blend=False,
+                 aaline=False):
     """draw several lines, either anti-aliased or not."""
     # The code for anti-aliased or not is almost identical, so it's factorized
     if len(points) <= 2:
@@ -485,7 +453,8 @@ def _multi_lines(
     ylist = [pt[1] for pt in points]
     line[0] = xlist[0]
     line[1] = ylist[0]
-    b_box = BoundingBox(left=xlist[0], right=xlist[0], top=ylist[0], bottom=ylist[0])
+    b_box = BoundingBox(left=xlist[0], right=xlist[0],
+                        top=ylist[0], bottom=ylist[0])
 
     for line_x, line_y in points[1:]:
         b_box.left = min(b_box.left, line_x)
@@ -529,7 +498,7 @@ def draw_aalines(surf, color, closed, points, blend=True):
 
 
 def draw_polygon(surface, color, points, width):
-    """Draw a polygon"""
+    """ Draw a polygon"""
     if width:
         draw_lines(surface, color, 1, points, width)
         return  # TODO Rect(...)
@@ -549,21 +518,20 @@ def draw_polygon(surface, color, points, width):
     for y_coord in range(miny, maxy + 1):
         x_intersect = []
         for i in range(num_points):
-            _draw_polygon_inner_loop(i, point_x, point_y, y_coord, x_intersect)
+            _draw_polygon_inner_loop(i, point_x, point_y,
+                                     y_coord, x_intersect)
 
         x_intersect.sort()
         for i in range(0, len(x_intersect), 2):
-            _clip_and_draw_horizline(
-                surface, color, x_intersect[i], y_coord, x_intersect[i + 1]
-            )
+            _clip_and_draw_horizline(surface, color, x_intersect[i], y_coord,
+                                     x_intersect[i + 1])
 
     # special case : horizontal border lines
     for i in range(num_points):
         i_prev = i - 1 if i else num_points - 1
         if miny < point_y[i] == point_y[i_prev] < maxy:
-            _clip_and_draw_horizline(
-                surface, color, point_x[i], point_y[i], point_x[i_prev]
-            )
+            _clip_and_draw_horizline(surface, color, point_x[i], point_y[i],
+                                     point_x[i_prev])
 
     return  # TODO Rect(...)
 
@@ -585,5 +553,8 @@ def _draw_polygon_inner_loop(index, point_x, point_y, y_coord, x_intersect):
     else:  # special case handled below
         return
 
-    if (y_2 > y_coord >= y_1) or ((y_coord == max(point_y)) and (y_coord <= y_2)):
-        x_intersect.append((y_coord - y_1) * (x_2 - x_1) // (y_2 - y_1) + x_1)
+    if ((y_2 > y_coord >= y_1) or
+            ((y_coord == max(point_y)) and (y_coord <= y_2))):
+        x_intersect.append((y_coord - y_1) *
+                           (x_2 - x_1) //
+                           (y_2 - y_1) + x_1)
