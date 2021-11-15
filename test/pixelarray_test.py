@@ -230,16 +230,14 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             pixelarray_result.close()
 
     def test_close(self):
-        """ does not crash when it is deleted.
-        """
+        """does not crash when it is deleted."""
         s = pygame.Surface((10, 10))
         a = pygame.PixelArray(s)
         a.close()
         del a
 
     def test_close_raises(self):
-        """ when you try to do an operation after it is closed.
-        """
+        """when you try to do an operation after it is closed."""
         s = pygame.Surface((10, 10))
         a = pygame.PixelArray(s)
         a.close()
@@ -266,8 +264,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         self.assertRaises(ValueError, do_operation4)
 
     def test_context_manager(self):
-        """ closes properly.
-        """
+        """closes properly."""
         s = pygame.Surface((10, 10))
         with pygame.PixelArray(s) as a:
             a[:]
@@ -679,16 +676,38 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
 
             # Test simple slicing
             self.assertEqual(len(ar[:, :]), 6)
-            self.assertEqual(len(ar[:,]), 6)
+            self.assertEqual(
+                len(
+                    ar[
+                        :,
+                    ]
+                ),
+                6,
+            )
             self.assertEqual(len(ar[1, :]), 8)
             self.assertEqual(len(ar[:, 2]), 6)
             # Empty slices
-            self.assertEqual(ar[4:4,], None)
+            self.assertEqual(
+                ar[
+                    4:4,
+                ],
+                None,
+            )
             self.assertEqual(ar[4:4, ...], None)
             self.assertEqual(ar[4:4, 2:2], None)
             self.assertEqual(ar[4:4, 1:4], None)
-            self.assertEqual(ar[4:4:2,], None)
-            self.assertEqual(ar[4:4:-2,], None)
+            self.assertEqual(
+                ar[
+                    4:4:2,
+                ],
+                None,
+            )
+            self.assertEqual(
+                ar[
+                    4:4:-2,
+                ],
+                None,
+            )
             self.assertEqual(ar[4:4:1, ...], None)
             self.assertEqual(ar[4:4:-1, ...], None)
             self.assertEqual(ar[4:4:1, 2:2], None)
@@ -817,7 +836,9 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar[0, 0], 0)
             self.assertEqual(ar[1, 0], 0)
             self.assertEqual(ar[-1, -1], 0)
-            ar[...,] = (0, 0, 255)
+            ar[
+                ...,
+            ] = (0, 0, 255)
             self.assertEqual(ar[0, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[1, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[-1, -1], sf.map_rgb((0, 0, 255)))

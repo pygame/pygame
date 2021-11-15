@@ -21,7 +21,7 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
 
 FREQUENCIES = [11025, 22050, 44100, 48000]
-SIZES = [-16, -8, 8, 16]    # fixme
+SIZES = [-16, -8, 8, 16]  # fixme
 # size 32 failed in test_get_init__returns_exact_values_used_for_init
 CHANNELS = [1, 2]
 BUFFERS = [3024]
@@ -124,8 +124,8 @@ class MixerModuleTest(unittest.TestCase):
             self.assertEqual(mixer.get_num_channels(), i)
 
     def test_quit(self):
-        """ get_num_channels() Should throw pygame.error if uninitialized
-        after mixer.quit() """
+        """get_num_channels() Should throw pygame.error if uninitialized
+        after mixer.quit()"""
         mixer.init()
         mixer.quit()
         self.assertRaises(pygame.error, mixer.get_num_channels)
@@ -521,9 +521,6 @@ class MixerModuleTest(unittest.TestCase):
             found_channel = mixer.find_channel()
             self.assertIsNotNone(found_channel)
 
-
-
-
     def todo_test_get_busy(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.get_busy:
@@ -574,9 +571,9 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(result, 0)
 
         # try reserving half
-        result = mixer.set_reserved(int(default_num_channels/2))
+        result = mixer.set_reserved(int(default_num_channels / 2))
         # should still be default
-        self.assertEqual(result, int(default_num_channels/2))
+        self.assertEqual(result, int(default_num_channels / 2))
 
     def todo_test_stop(self):
 
@@ -655,8 +652,7 @@ class MixerModuleTest(unittest.TestCase):
             version = pygame.mixer.get_sdl_mixer_version(linked=invalid_bool)
 
     def test_get_sdl_mixer_version__linked_equals_compiled(self):
-        """Ensures get_sdl_mixer_version's linked/compiled versions are equal.
-        """
+        """Ensures get_sdl_mixer_version's linked/compiled versions are equal."""
         linked_version = pygame.mixer.get_sdl_mixer_version(linked=True)
         complied_version = pygame.mixer.get_sdl_mixer_version(linked=False)
 
@@ -1009,7 +1005,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             Bytes_FromString.restype = c_void_p
             Bytes_FromString.argtypes = [py_object]
-            samples = b"abcdefgh"   # keep byte size a multiple of 4
+            samples = b"abcdefgh"  # keep byte size a multiple of 4
             sample_bytes = Bytes_FromString(samples)
 
             snd = mixer.Sound(buffer=samples)
@@ -1048,7 +1044,9 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 sound_bytes = sound.get_raw()
                 mix_freq, mix_bits, mix_channels = pygame.mixer.get_init()
                 mix_bytes = abs(mix_bits) / 8
-                expected_length = float(len(sound_bytes)) / mix_freq / mix_bytes / mix_channels
+                expected_length = (
+                    float(len(sound_bytes)) / mix_freq / mix_bytes / mix_channels
+                )
                 self.assertAlmostEqual(expected_length, sound.get_length())
         finally:
             pygame.mixer.quit()

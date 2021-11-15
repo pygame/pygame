@@ -196,8 +196,7 @@ def group(s, n):
 
 
 def isarray(x):
-    """Same as ``isinstance(x, array)``.
-    """
+    """Same as ``isinstance(x, array)``."""
     return isinstance(x, array)
 
 
@@ -516,8 +515,9 @@ class Writer:
             bitdepth = int(8 * bytes_per_sample)
         del bytes_per_sample
         if not isinteger(bitdepth) or bitdepth < 1 or 16 < bitdepth:
-            raise ValueError("bitdepth (%r) must be a positive integer <= 16"
-                             % bitdepth)
+            raise ValueError(
+                "bitdepth (%r) must be a positive integer <= 16" % bitdepth
+            )
 
         self.rescale = None
         if palette:

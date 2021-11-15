@@ -799,12 +799,8 @@ class FreeTypeFontTest(unittest.TestCase):
             font2.ucs4 = ucs4
 
         # malformed surrogate pairs
-        self.assertRaises(
-            UnicodeEncodeError, font.render, "\uD80C", color, size=24
-        )
-        self.assertRaises(
-            UnicodeEncodeError, font.render, "\uDCA7", color, size=24
-        )
+        self.assertRaises(UnicodeEncodeError, font.render, "\uD80C", color, size=24)
+        self.assertRaises(UnicodeEncodeError, font.render, "\uDCA7", color, size=24)
         self.assertRaises(
             UnicodeEncodeError, font.render, "\uD7FF\uDCA7", color, size=24
         )
@@ -1636,7 +1632,7 @@ class FreeTypeFontTest(unittest.TestCase):
             o = font.get_metrics("AB")
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):
-                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
+                self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
             o = font.get_sizes()
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):

@@ -64,9 +64,7 @@ class ScrapModuleTest(unittest.TestCase):
             scrap.put(pygame.SCRAP_TEXT, b"text to clipboard")
 
             if scrap.lost():
-                self.skipTest(
-                    "requires the pygame application to own the clipboard"
-                )
+                self.skipTest("requires the pygame application to own the clipboard")
 
         data = scrap.get(DATA_TYPE)
 
@@ -97,10 +95,7 @@ class ScrapModuleTest(unittest.TestCase):
 
         self.assertEqual(scrap.get(pygame.SCRAP_TEXT), b"Another String")
 
-    @unittest.skipIf(
-        "pygame.image" not in sys.modules,
-        "requires pygame.image module"
-    )
+    @unittest.skipIf("pygame.image" not in sys.modules, "requires pygame.image module")
     def test_put__bmp_image(self):
         """Ensures put can place a BMP image into the clipboard."""
         sf = pygame.image.load(trunk_relative_path("examples/data/asprite.bmp"))
@@ -145,9 +140,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
         # Skip test if the pygame application owns the clipboard. Currently,
         # there is no way to give up ownership.
         if not scrap.lost():
-            self.skipTest(
-                "requires the pygame application to not own the clipboard"
-            )
+            self.skipTest("requires the pygame application to not own the clipboard")
 
     def test_get__not_owned(self):
         """Ensures get works when there is no data of the requested type
@@ -213,8 +206,8 @@ class X11InteractiveTest(unittest.TestCase):
     def test_issue_208(self):
         """PATCH: pygame.scrap on X11, fix copying into PRIMARY selection
 
-           Copying into theX11 PRIMARY selection (mouse copy/paste) would not
-           work due to a confusion between content type and clipboard type.
+        Copying into theX11 PRIMARY selection (mouse copy/paste) would not
+        work due to a confusion between content type and clipboard type.
 
         """
 

@@ -64,8 +64,7 @@ class RectTypeTest(unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__positive_height(self):
-        """Ensures normalize works with a negative width and a positive height.
-        """
+        """Ensures normalize works with a negative width and a positive height."""
         test_rect = Rect((1, 2), (-3, 6))
         expected_normalized_rect = (
             (test_rect.x + test_rect.w, test_rect.y),
@@ -78,8 +77,7 @@ class RectTypeTest(unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__positive_width(self):
-        """Ensures normalize works with a positive width and a negative height.
-        """
+        """Ensures normalize works with a positive width and a negative height."""
         test_rect = Rect((1, 2), (3, -6))
         expected_normalized_rect = (
             (test_rect.x, test_rect.y + test_rect.h),
@@ -134,7 +132,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_x(self):
         """Ensures changing the x attribute moves the rect and does not change
-           the rect's size.
+        the rect's size.
         """
         expected_x = 10
         expected_y = 2
@@ -165,7 +163,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_y(self):
         """Ensures changing the y attribute moves the rect and does not change
-           the rect's size.
+        the rect's size.
         """
         expected_x = 1
         expected_y = 20
@@ -196,7 +194,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_left(self):
         """Changing the left attribute moves the rect and does not change
-           the rect's width
+        the rect's width
         """
         r = Rect(1, 2, 3, 4)
         new_left = 10
@@ -222,7 +220,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_right(self):
         """Changing the right attribute moves the rect and does not change
-           the rect's width
+        the rect's width
         """
         r = Rect(1, 2, 3, 4)
         new_right = r.right + 20
@@ -251,7 +249,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_top(self):
         """Changing the top attribute moves the rect and does not change
-           the rect's width
+        the rect's width
         """
         r = Rect(1, 2, 3, 4)
         new_top = 10
@@ -277,7 +275,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_bottom(self):
         """Changing the bottom attribute moves the rect and does not change
-           the rect's height
+        the rect's height
         """
         r = Rect(1, 2, 3, 4)
         new_bottom = r.bottom + 20
@@ -306,7 +304,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_centerx(self):
         """Changing the centerx attribute moves the rect and does not change
-           the rect's width
+        the rect's width
         """
         r = Rect(1, 2, 3, 4)
         new_centerx = r.centerx + 20
@@ -335,7 +333,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_centery(self):
         """Changing the centery attribute moves the rect and does not change
-           the rect's width
+        the rect's width
         """
         r = Rect(1, 2, 3, 4)
         new_centery = r.centery + 20
@@ -364,7 +362,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_topleft(self):
         """Changing the topleft attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_topleft = (r.left + 20, r.top + 30)
@@ -391,7 +389,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_bottomleft(self):
         """Changing the bottomleft attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_bottomleft = (r.left + 20, r.bottom + 30)
@@ -404,8 +402,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(old_size, r.size)
 
     def test_bottomleft__invalid_value(self):
-        """Ensures the bottomleft attribute handles invalid values correctly.
-        """
+        """Ensures the bottomleft attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
         for value in (None, [], "1", 1, (1,), [1, 2, 3]):
@@ -421,7 +418,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_topright(self):
         """Changing the topright attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_topright = (r.right + 20, r.top + 30)
@@ -450,7 +447,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_bottomright(self):
         """Changing the bottomright attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_bottomright = (r.right + 20, r.bottom + 30)
@@ -463,8 +460,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(old_size, r.size)
 
     def test_bottomright__invalid_value(self):
-        """Ensures the bottomright attribute handles invalid values correctly.
-        """
+        """Ensures the bottomright attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
         for value in (None, [], "1", 1, (1,), [1, 2, 3]):
@@ -480,7 +476,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_center(self):
         """Changing the center attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_center = (r.centerx + 20, r.centery + 30)
@@ -509,7 +505,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_midleft(self):
         """Changing the midleft attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_midleft = (r.left + 20, r.centery + 30)
@@ -538,7 +534,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_midright(self):
         """Changing the midright attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_midright = (r.right + 20, r.centery + 30)
@@ -567,7 +563,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_midtop(self):
         """Changing the midtop attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_midtop = (r.centerx + 20, r.top + 30)
@@ -596,7 +592,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_midbottom(self):
         """Changing the midbottom attribute moves the rect and does not change
-           the rect's size
+        the rect's size
         """
         r = Rect(1, 2, 3, 4)
         new_midbottom = (r.centerx + 20, r.bottom + 30)
@@ -624,8 +620,7 @@ class RectTypeTest(unittest.TestCase):
             del r.midbottom
 
     def test_width(self):
-        """Changing the width resizes the rect from the top-left corner
-        """
+        """Changing the width resizes the rect from the top-left corner"""
         r = Rect(1, 2, 3, 4)
         new_width = 10
         old_topleft = r.topleft
@@ -652,8 +647,7 @@ class RectTypeTest(unittest.TestCase):
             del r.width
 
     def test_height(self):
-        """Changing the height resizes the rect from the top-left corner
-        """
+        """Changing the height resizes the rect from the top-left corner"""
         r = Rect(1, 2, 3, 4)
         new_height = 10
         old_topleft = r.topleft
@@ -680,8 +674,7 @@ class RectTypeTest(unittest.TestCase):
             del r.height
 
     def test_size(self):
-        """Changing the size resizes the rect from the top-left corner
-        """
+        """Changing the size resizes the rect from the top-left corner"""
         r = Rect(1, 2, 3, 4)
         new_size = (10, 20)
         old_topleft = r.topleft
@@ -756,8 +749,7 @@ class RectTypeTest(unittest.TestCase):
         )
 
     def test_inflate__larger(self):
-        """The inflate method inflates around the center of the rectangle
-        """
+        """The inflate method inflates around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = r.inflate(4, 6)
 
@@ -770,8 +762,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.height + 6, r2.height)
 
     def test_inflate__smaller(self):
-        """The inflate method inflates around the center of the rectangle
-        """
+        """The inflate method inflates around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = r.inflate(-4, -6)
 
@@ -784,8 +775,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.height - 6, r2.height)
 
     def test_inflate_ip__larger(self):
-        """The inflate_ip method inflates around the center of the rectangle
-        """
+        """The inflate_ip method inflates around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = Rect(r)
         r2.inflate_ip(-4, -6)
@@ -799,8 +789,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.height - 6, r2.height)
 
     def test_inflate_ip__smaller(self):
-        """The inflate method inflates around the center of the rectangle
-        """
+        """The inflate method inflates around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = Rect(r)
         r2.inflate_ip(-4, -6)
@@ -1095,8 +1084,7 @@ class RectTypeTest(unittest.TestCase):
             self.assertTupleEqual(clipped_line, expected_line)
 
     def test_clipline__edges(self):
-        """Ensures clipline properly clips line that are along the rect edges.
-        """
+        """Ensures clipline properly clips line that are along the rect edges."""
         rect = Rect((10, 25), (15, 20))
 
         # Create a dict of edges and expected results.
@@ -1407,8 +1395,7 @@ class RectTypeTest(unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "fails on pypy3 sometimes")
     def testEquals(self):
-        """ check to see how the rect uses __eq__
-        """
+        """check to see how the rect uses __eq__"""
         r1 = Rect(1, 2, 3, 4)
         r2 = Rect(10, 20, 30, 40)
         r3 = (10, 20, 30, 40)
@@ -1634,8 +1621,7 @@ class RectTypeTest(unittest.TestCase):
             self.assertIn(collide_item, collide_items)
 
     def test_collidedict__negative_sized_rects_as_args(self):
-        """Ensures collidedict works correctly with negative sized rect args.
-        """
+        """Ensures collidedict works correctly with negative sized rect args."""
         rect = Rect(0, 0, 10, 10)
 
         collide_item1 = ("collide 1", Rect(1, 1, -1, -1))
@@ -1690,8 +1676,7 @@ class RectTypeTest(unittest.TestCase):
             collide_item = rect.collidedict(rect_values)
 
     def test_collidedict__invalid_use_values_format(self):
-        """Ensures collidedict correctly handles invalid use_values parameters.
-        """
+        """Ensures collidedict correctly handles invalid use_values parameters."""
         rect = Rect(0, 0, 1, 1)
         d = {}
 
@@ -1754,8 +1739,7 @@ class RectTypeTest(unittest.TestCase):
             self._assertCountEqual(collide_items, expected_items)
 
     def test_collidedictall__barely_touching(self):
-        """Ensures collidedictall works correctly for rects that barely touch.
-        """
+        """Ensures collidedictall works correctly for rects that barely touch."""
         rect = Rect(1, 1, 10, 10)
         # Small rect to test barely touching collisions.
         collide_rect = Rect(0, 0, 1, 1)
@@ -1941,8 +1925,7 @@ class RectTypeTest(unittest.TestCase):
                 collide_item = rect.collidedictall(d, use_values)
 
     def test_collidedictall__invalid_dict_value_format(self):
-        """Ensures collidedictall correctly handles dicts with invalid values.
-        """
+        """Ensures collidedictall correctly handles dicts with invalid values."""
         rect = Rect(0, 0, 10, 10)
         rect_keys = {tuple(rect): "collide"}
 
