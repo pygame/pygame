@@ -684,4 +684,4 @@ THECOLORS = {
 }
 
 for k, v in THECOLORS.items():
-    THECOLORS[str(k)] = v
+    THECOLORS[k] = v

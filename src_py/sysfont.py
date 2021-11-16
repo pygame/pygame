@@ -428,9 +428,9 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
     fontname = None
     if name:
         if isinstance(name, (str, bytes)):
-            name = name.split(b"," if str != bytes and isinstance(name, bytes) else ",")
+            name = name.split(b"," if isinstance(name, bytes) else ",")
         for single_name in name:
-            if str != bytes and isinstance(single_name, bytes):
+            if isinstance(single_name, bytes):
                 single_name = single_name.decode()
 
             single_name = _simplename(single_name)
@@ -500,10 +500,10 @@ def match_font(name, bold=0, italic=0):
 
     fontname = None
     if isinstance(name, (str, bytes)):
-        name = name.split(b"," if str != bytes and isinstance(name, bytes) else ",")
+        name = name.split(b"," if isinstance(name, bytes) else ",")
 
     for single_name in name:
-        if str != bytes and isinstance(single_name, bytes):
+        if isinstance(single_name, bytes):
             single_name = single_name.decode()
 
         single_name = _simplename(single_name)
