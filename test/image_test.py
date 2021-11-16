@@ -368,8 +368,8 @@ class ImageModuleTest(unittest.TestCase):
     def test_load_unicode_path(self):
         import shutil
 
-        orig = str(example_path("data/asprite.bmp"))
-        temp = os.path.join(str(example_path("data")), u"你好.bmp")
+        orig = example_path("data/asprite.bmp")
+        temp = os.path.join(example_path("data"), u"你好.bmp")
         shutil.copy(orig, temp)
         try:
             im = pygame.image.load(temp)

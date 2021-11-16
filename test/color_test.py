@@ -289,7 +289,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, c.set_length, 5)
         self.assertRaises(ValueError, c.set_length, -1)
         self.assertRaises(ValueError, c.set_length, 0)
-        self.assertRaises(ValueError, c.set_length, pow(2, int(33)))
+        self.assertRaises(ValueError, c.set_length, pow(2, 33))
 
     def test_case_insensitivity_of_string_args(self):
         self.assertEqual(pygame.color.Color("red"), pygame.color.Color("Red"))

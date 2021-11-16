@@ -1013,7 +1013,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # bug with non-printable characters: this would cause a crash
         # because the text length was not adjusted for skipped characters.
-        text = str("").join([chr(i) for i in range(31, 64)])
+        text = "".join([chr(i) for i in range(31, 64)])
         rend = font.render_raw(text, size=10)
 
     def test_freetype_Font_render_raw_to(self):
