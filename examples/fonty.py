@@ -73,8 +73,8 @@ def main():
 
     # Get some metrics.
     print("Font metrics for 'Fonty':  %s" % a_sys_font.metrics(text))
-    ch = str("%c") % 0x3060
-    msg = str("Font metrics for '%s':  %s") % (ch, a_sys_font.metrics(ch))
+    ch = "\u3060"
+    msg = "Font metrics for '%s':  %s" % (ch, a_sys_font.metrics(ch))
     print_unicode(msg)
 
     ## #some_japanese_unicode = u"\u304b\u3070\u306b"
@@ -86,7 +86,7 @@ def main():
 
     # show the surface and await user quit
     pg.display.flip()
-    while 1:
+    while True:
         # use event.wait to keep from polling 100% cpu
         if pg.event.wait().type in (pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN):
             break
