@@ -682,6 +682,3 @@ THECOLORS = {
     "yellow4": (139, 139, 0, 255),
     "yellowgreen": (154, 205, 50, 255),
 }
-
-for k, v in THECOLORS.items():
-    THECOLORS[k] = v
