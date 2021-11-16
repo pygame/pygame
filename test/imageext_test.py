@@ -46,15 +46,15 @@ class ImageextModuleTest(unittest.TestCase):
         self.assertRaises(FileNotFoundError, imageext.load_extended, s)
 
     def test_load_unicode_path_0(self):
-        u = str(example_path("data/alien1.png"))
+        u = example_path("data/alien1.png")
         im = imageext.load_extended(u)
 
     def test_load_unicode_path_1(self):
         """non-ASCII unicode"""
         import shutil
 
-        orig = str(example_path("data/alien1.png"))
-        temp = os.path.join(str(example_path("data")), u"你好.png")
+        orig = example_path("data/alien1.png")
+        temp = os.path.join(example_path("data"), u"你好.png")
         shutil.copy(orig, temp)
         try:
             im = imageext.load_extended(temp)

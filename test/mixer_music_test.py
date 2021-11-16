@@ -89,7 +89,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         """test non-ASCII unicode path"""
         import shutil
 
-        ep = str(example_path("data"))
+        ep = example_path("data")
         temp_file = os.path.join(ep, u"你好.wav")
         org_file = os.path.join(ep, u"house_lo.wav")
         try:
@@ -109,7 +109,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         import shutil
         import tempfile
 
-        ep = str(example_path("data"))
+        ep = example_path("data")
         org_file = os.path.join(ep, u"house_lo.wav")
         tmpfd, tmppath = tempfile.mkstemp(".wav")
         os.close(tmpfd)

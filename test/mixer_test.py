@@ -214,7 +214,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init()
         import shutil
 
-        ep = str(example_path("data"))
+        ep = example_path("data")
         temp_file = os.path.join(ep, u"你好.wav")
         org_file = os.path.join(ep, u"house_lo.wav")
         shutil.copy(org_file, temp_file)
