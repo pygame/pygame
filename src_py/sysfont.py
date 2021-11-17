@@ -185,7 +185,8 @@ def _parse_font_entry_darwin(name, filepath, fonts):
 
 
 def _font_finder_darwin():
-    locations = ["/Library/Fonts", "/Network/Library/Fonts", "/System/Library/Fonts"]
+    locations = ["/Library/Fonts", "/Network/Library/Fonts", "/System/Library/Fonts", 
+                 "/System/Library/Fonts/Supplemental"]
 
     username = os.getenv("USER")
     if username:
