@@ -77,6 +77,7 @@ class MissingModule:
 
 # we need to import like this, each at a time. the cleanest way to import
 # our modules is with the import command (not the __import__ function)
+# isort: skip_file
 
 # first, the "required" modules
 from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
