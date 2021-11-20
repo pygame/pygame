@@ -7,31 +7,7 @@ and debugging.
 from __future__ import absolute_import, division
 from collections import namedtuple
 import sys
-
-if sys.version_info >= (3, 0, 0):
-    from math import floor, ceil
-else:
-    # Python2.7
-    # FIXME : the import of the builtin math module is broken ...
-    def floor(value):
-        """
-        Get the floor int from a float.
-
-        :param value:
-        :return: an int
-        """
-        int_value = int(value)
-        return int_value if (value == int_value or value > 0) else int_value - 1
-
-    def ceil(value):
-        """
-        Get the ceil int from a float.
-
-        :param value:
-        :return: an int
-        """
-        int_value = int(value)
-        return int_value if (int_value == value or value < 0) else int_value + 1
+from math import floor, ceil
 
 
 #   H E L P E R   F U N C T I O N S    #

@@ -4,7 +4,6 @@ import unittest
 import collections
 
 import pygame
-from pygame.compat import as_unicode
 
 
 EVENT_TYPES = (
@@ -132,7 +131,7 @@ class EventTypeTest(unittest.TestCase):
         # For Python 3.x str(event) to raises an UnicodeEncodeError when
         # an event attribute is a string with a non-ascii character.
         try:
-            str(pygame.event.Event(EVENT_TYPES[0], a=as_unicode(r"\xed")))
+            str(pygame.event.Event(EVENT_TYPES[0], a="\xed"))
         except UnicodeEncodeError:
             self.fail("Event object raised exception for non-ascii character")
         # Passed.

@@ -23,8 +23,6 @@
 See https://www.pygame.org/docs/ref/color_list.html for sample swatches.
 """
 
-from pygame.compat import unicode_
-
 THECOLORS = {
     "aliceblue": (240, 248, 255, 255),
     "antiquewhite": (250, 235, 215, 255),
@@ -684,6 +682,3 @@ THECOLORS = {
     "yellow4": (139, 139, 0, 255),
     "yellowgreen": (154, 205, 50, 255),
 }
-
-for k, v in THECOLORS.items():
-    THECOLORS[unicode_(k)] = v

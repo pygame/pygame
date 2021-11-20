@@ -1962,7 +1962,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(m.count(), 0)
 
     def test_outline(self):
-        """"""
+        """ """
 
         m = pygame.Mask((20, 20))
         self.assertEqual(m.outline(), [])
@@ -2316,7 +2316,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(original_mask.get_size(), original_size)
 
     def test_connected_components(self):
-        """"""
+        """ """
         m = pygame.Mask((10, 10))
 
         self.assertListEqual(m.connected_components(), [])

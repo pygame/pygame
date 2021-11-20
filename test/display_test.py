@@ -5,8 +5,7 @@ import os
 import time
 
 import pygame, pygame.transform
-from pygame.compat import unicode_
-from pygame.locals import *
+
 from pygame.tests.test_utils import question
 
 from pygame import display

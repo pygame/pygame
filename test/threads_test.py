@@ -1,7 +1,7 @@
 import unittest
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
 from pygame import threads, Surface, transform
-from pygame.compat import xrange_
+
 
 import time
 
@@ -63,7 +63,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         for t in wq.pool:
             self.assertTrue(t.is_alive())
 
-        for i in xrange_(200):
+        for i in range(200):
             wq.do(lambda x: x + 1, i)
 
         wq.stop()
@@ -109,7 +109,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
         wq = WorkerQueue()
 
-        for i in xrange_(2000):
+        for i in range(2000):
             wq.do(lambda x: x + 1, i)
         wq.wait()
 
@@ -172,7 +172,7 @@ class ThreadsModuleTest(unittest.TestCase):
         # stop_on_error -
 
         ## test that the outcomes of map and tmap are the same
-        func, data = lambda x: x + 1, xrange_(100)
+        func, data = lambda x: x + 1, range(100)
 
         tmapped = list(tmap(func, data))
         mapped = list(map(func, data))
@@ -180,7 +180,7 @@ class ThreadsModuleTest(unittest.TestCase):
         self.assertEqual(tmapped, mapped)
 
         ## Test that setting tmap to not stop on errors produces the expected result
-        data2 = xrange_(100)
+        data2 = range(100)
         always_excepts = lambda x: 1 / 0
 
         tmapped2 = list(tmap(always_excepts, data2, stop_on_error=False))

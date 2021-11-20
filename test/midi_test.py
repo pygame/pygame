@@ -1,11 +1,7 @@
 import unittest
-import os
-import sys
-import time
+
 
 import pygame
-import pygame.compat
-from pygame.locals import *
 
 
 class MidiInputTest(unittest.TestCase):

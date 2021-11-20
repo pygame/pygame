@@ -161,7 +161,6 @@ And now, my famous members
 
 __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 228 $"
 
-from pygame.compat import geterror, imap_
 from array import array
 from pygame.tests.test_utils import tostring
 import itertools
@@ -1644,7 +1643,7 @@ class Reader:
                 out.extend(map(lambda i: mask & (o >> i), shifts))
             return out[:width]
 
-        return imap_(asvalues, rows)
+        return map(asvalues, rows)
 
     def serialtoflat(self, bytes, width=None):
         """Convert serial format (byte stream) pixel data to flat row
@@ -1896,8 +1895,7 @@ class Reader:
             while True:
                 try:
                     type, data = self.chunk()
-                except ValueError:
-                    e = geterror()
+                except ValueError as e:
                     raise ChunkError(e.args[0])
                 if type == "IEND":
                     # http://www.w3.org/TR/PNG/#11IEND
@@ -1935,7 +1933,7 @@ class Reader:
             arraycode = "BH"[self.bitdepth > 8]
             # Like :meth:`group` but producing an array.array object for
             # each row.
-            pixels = imap_(
+            pixels = map(
                 lambda *row: array(arraycode, row),
                 *[iter(self.deinterlace(raw))] * self.width * self.planes
             )
@@ -2743,7 +2741,7 @@ class Test(unittest.TestCase):
         import itertools
 
         i = itertools.islice(itertools.count(10), 20)
-        i = imap_(lambda x: [x, x, x], i)
+        i = map(lambda x: [x, x, x], i)
         img = from_array(i, "RGB;5", dict(height=20))
         f = open("testiter.png", "wb")
         img.save(f)
@@ -4000,6 +3998,5 @@ def _main(argv):
 if __name__ == "__main__":
     try:
         _main(sys.argv)
-    except Error:
-        e = geterror()
+    except Error as e:
         sys.stderr.write("%s\n" % (e,))

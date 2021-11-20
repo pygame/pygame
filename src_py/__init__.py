@@ -78,12 +78,12 @@ class MissingModule:
 # we need to import like this, each at a time. the cleanest way to import
 # our modules is with the import command (not the __import__ function)
 # isort: skip_file
+
 # first, the "required" modules
 from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.rect import Rect
-from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
@@ -333,10 +333,8 @@ def packager_imports():
 
 
 # make Rects pickleable
-if PY_MAJOR_VERSION >= 3:
-    import copyreg as copy_reg
-else:
-    import copy_reg
+
+import copyreg
 
 
 def __rect_constructor(x, y, w, h):
@@ -348,7 +346,7 @@ def __rect_reduce(r):
     return __rect_constructor, (r.x, r.y, r.w, r.h)
 
 
-copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
+copyreg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 
 # make Colors pickleable
@@ -361,8 +359,7 @@ def __color_reduce(c):
     return __color_constructor, (c.r, c.g, c.b, c.a)
 
 
-copy_reg.pickle(Color, __color_reduce, __color_constructor)
-
+copyreg.pickle(Color, __color_reduce, __color_constructor)
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
@@ -373,6 +370,5 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     )
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
-
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
+del pygame, os, sys, surflock, MissingModule, copyreg

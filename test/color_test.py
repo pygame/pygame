@@ -4,7 +4,6 @@ import operator
 import platform
 
 import pygame
-from pygame.compat import long_
 from pygame.colordict import THECOLORS
 
 
@@ -290,7 +289,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, c.set_length, 5)
         self.assertRaises(ValueError, c.set_length, -1)
         self.assertRaises(ValueError, c.set_length, 0)
-        self.assertRaises(ValueError, c.set_length, pow(2, long_(33)))
+        self.assertRaises(ValueError, c.set_length, pow(2, 33))
 
     def test_case_insensitivity_of_string_args(self):
         self.assertEqual(pygame.color.Color("red"), pygame.color.Color("Red"))
@@ -759,7 +758,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c.g, 0)
         self.assertEqual(c.b, 204)
         self.assertEqual(c.a, 0)
-        self.assertEqual(long_(c), long_(0xCC00CC00))
+        self.assertEqual(int(c), int(0xCC00CC00))
 
         # This will be an int
         c = pygame.Color(0x33727592)
@@ -767,7 +766,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c.g, 114)
         self.assertEqual(c.b, 117)
         self.assertEqual(c.a, 146)
-        self.assertEqual(long_(c), long_(0x33727592))
+        self.assertEqual(int(c), int(0x33727592))
 
     def test_normalize(self):
         c = pygame.Color(204, 38, 194, 55)

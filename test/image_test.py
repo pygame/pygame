@@ -10,7 +10,6 @@ import glob
 
 from pygame.tests.test_utils import example_path, png, tostring
 import pygame, pygame.image, pygame.pkgdata
-from pygame.compat import xrange_, ord_, unicode_
 
 
 try:
@@ -25,7 +24,7 @@ def test_magic(f, magic_hexes):
     if len(data) != len(magic_hexes):
         return 0
     for i, magic_hex in enumerate(magic_hexes):
-        if magic_hex != ord_(data[i]):
+        if magic_hex != data[i]:
             return 0
     return 1
 
@@ -369,8 +368,8 @@ class ImageModuleTest(unittest.TestCase):
     def test_load_unicode_path(self):
         import shutil
 
-        orig = unicode_(example_path("data/asprite.bmp"))
-        temp = os.path.join(unicode_(example_path("data")), u"你好.bmp")
+        orig = example_path("data/asprite.bmp")
+        temp = os.path.join(example_path("data"), u"你好.bmp")
         shutil.copy(orig, temp)
         try:
             im = pygame.image.load(temp)
@@ -406,7 +405,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(len(string1), len(string2))
         block_size = 20
         if string1 != string2:
-            for block_start in xrange_(0, len(string1), block_size):
+            for block_start in range(0, len(string1), block_size):
                 block_end = min(block_start + block_size, len(string1))
                 block1 = string1[block_start:block_end]
                 block2 = string2[block_start:block_end]
@@ -429,8 +428,8 @@ class ImageModuleTest(unittest.TestCase):
         """test to make sure we can export a surface to a premultiplied alpha string"""
 
         def convertRGBAtoPremultiplied(surface_to_modify):
-            for x in xrange_(surface_to_modify.get_width()):
-                for y in xrange_(surface_to_modify.get_height()):
+            for x in range(surface_to_modify.get_width()):
+                for y in range(surface_to_modify.get_height()):
                     color = surface_to_modify.get_at((x, y))
                     premult_color = (
                         color[0] * color[3] / 255,
@@ -441,8 +440,8 @@ class ImageModuleTest(unittest.TestCase):
                     surface_to_modify.set_at((x, y), premult_color)
 
         test_surface = pygame.Surface((256, 256), pygame.SRCALPHA, 32)
-        for x in xrange_(test_surface.get_width()):
-            for y in xrange_(test_surface.get_height()):
+        for x in range(test_surface.get_width()):
+            for y in range(test_surface.get_height()):
                 i = x + y * test_surface.get_width()
                 test_surface.set_at(
                     (x, y), ((i * 7) % 256, (i * 13) % 256, (i * 27) % 256, y)
@@ -484,8 +483,8 @@ class ImageModuleTest(unittest.TestCase):
         # Making the method lookups local for a possible speed up.
         surf_a_get_at = surf_a.get_at
         surf_b_get_at = surf_b.get_at
-        for y in xrange_(a_height):
-            for x in xrange_(a_width):
+        for y in range(a_height):
+            for x in range(a_width):
                 self.assertEqual(
                     surf_a_get_at((x, y)),
                     surf_b_get_at((x, y)),
@@ -499,7 +498,7 @@ class ImageModuleTest(unittest.TestCase):
         def RotateRGBAtoARGB(str_buf):
             byte_buf = array.array("B", str_buf)
             num_quads = len(byte_buf) // 4
-            for i in xrange_(num_quads):
+            for i in range(num_quads):
                 alpha = byte_buf[i * 4 + 3]
                 byte_buf[i * 4 + 3] = byte_buf[i * 4 + 2]
                 byte_buf[i * 4 + 2] = byte_buf[i * 4 + 1]
@@ -511,7 +510,7 @@ class ImageModuleTest(unittest.TestCase):
         def RotateARGBtoRGBA(str_buf):
             byte_buf = array.array("B", str_buf)
             num_quads = len(byte_buf) // 4
-            for i in xrange_(num_quads):
+            for i in range(num_quads):
                 alpha = byte_buf[i * 4 + 0]
                 byte_buf[i * 4 + 0] = byte_buf[i * 4 + 1]
                 byte_buf[i * 4 + 1] = byte_buf[i * 4 + 2]
@@ -521,8 +520,8 @@ class ImageModuleTest(unittest.TestCase):
 
         ####################################################################
         test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
-        for i in xrange_(256):
-            for j in xrange_(16):
+        for i in range(256):
+            for j in range(16):
                 intensity = j * 16 + 15
                 test_surface.set_at((j + 0, i), (intensity, i, i, i))
                 test_surface.set_at((j + 16, i), (i, intensity, i, i))
@@ -578,8 +577,8 @@ class ImageModuleTest(unittest.TestCase):
 
     def test_tostring_depth_24(self):
         test_surface = pygame.Surface((64, 256), depth=24)
-        for i in xrange_(256):
-            for j in xrange_(16):
+        for i in range(256):
+            for j in range(16):
                 intensity = j * 16 + 15
                 test_surface.set_at((j + 0, i), (intensity, i, i, i))
                 test_surface.set_at((j + 16, i), (i, intensity, i, i))

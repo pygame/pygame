@@ -13,7 +13,6 @@ except (ImportError, NameError):
     pass
 import pygame
 from pygame.locals import *
-from pygame.compat import xrange_, as_bytes, as_unicode
 from pygame.bufferproxy import BufferProxy
 
 import platform
@@ -566,8 +565,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_get_width__size_and_height(self):
         """Ensure a surface's size, width and height can be retrieved."""
-        for w in xrange_(0, 255, 32):
-            for h in xrange_(0, 127, 15):
+        for w in range(0, 255, 32):
+            for h in range(0, 127, 15):
                 s = pygame.Surface((w, h))
                 self.assertEqual(s.get_width(), w)
                 self.assertEqual(s.get_height(), h)
@@ -703,8 +702,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # Both unicode and bytes strings are allowed for kind.
         s = pygame.Surface((2, 4), 0, 32)
-        s.get_view(as_unicode("2"))
-        s.get_view(as_bytes("2"))
+        s.get_view("2")
+        s.get_view(b"2")
 
         # Garbage collection
         s = pygame.Surface((2, 4), 0, 32)

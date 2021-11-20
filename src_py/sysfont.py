@@ -25,33 +25,24 @@ import sys
 from os.path import basename, dirname, exists, join, splitext
 
 from pygame.font import Font
-from pygame.compat import xrange_, PY_MAJOR_VERSION, unicode_
+
 
 OpenType_extensions = frozenset((".ttf", ".ttc", ".otf"))
 Sysfonts = {}
 Sysalias = {}
 
 # Python 3 compatibility
-if PY_MAJOR_VERSION >= 3:
 
-    def toascii(raw):
-        """convert bytes to ASCII-only string"""
-        return raw.decode("ascii", "ignore")
 
-    if os.name == "nt":
-        import winreg as _winreg
-    else:
-        import subprocess
+def toascii(raw):
+    """convert bytes to ASCII-only string"""
+    return raw.decode("ascii", "ignore")
+
+
+if os.name == "nt":
+    import winreg as _winreg
 else:
-
-    def toascii(raw):
-        """return ASCII characters of a given unicode or 8-bit string"""
-        return raw.decode("ascii", "ignore")
-
-    if os.name == "nt":
-        import _winreg
-    else:
-        import subprocess
+    import subprocess
 
 
 def _simplename(name):
@@ -88,7 +79,7 @@ def initsysfonts_win32():
         key_name = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"
     key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key_name)
 
-    for i in xrange_(_winreg.QueryInfoKey(key)[1]):
+    for i in range(_winreg.QueryInfoKey(key)[1]):
         try:
             # name is the font's name e.g. Times New Roman (TrueType)
             # font is the font's filename e.g. times.ttf
@@ -98,19 +89,19 @@ def initsysfonts_win32():
 
         # try to handle windows unicode strings for file names with
         # international characters
-        if PY_MAJOR_VERSION < 3:
-            # here are two documents with some information about it:
-            # http://www.python.org/peps/pep-0277.html
-            # https://www.microsoft.com/technet/archive/interopmigration/linux/mvc/lintowin.mspx#ECAA
+
+        # here are two documents with some information about it:
+        # http://www.python.org/peps/pep-0277.html
+        # https://www.microsoft.com/technet/archive/interopmigration/linux/mvc/lintowin.mspx#ECAA
+        try:
+            font = str(font)
+        except UnicodeEncodeError:
+            # MBCS is the windows encoding for unicode file names.
             try:
-                font = str(font)
+                font = font.encode("MBCS")
             except UnicodeEncodeError:
-                # MBCS is the windows encoding for unicode file names.
-                try:
-                    font = font.encode("MBCS")
-                except UnicodeEncodeError:
-                    # no success with str or MBCS encoding... skip this font.
-                    continue
+                # no success with str or MBCS encoding... skip this font.
+                continue
 
         if splitext(font)[1].lower() not in OpenType_extensions:
             continue
@@ -437,10 +428,10 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
     gotbold = gotitalic = False
     fontname = None
     if name:
-        if isinstance(name, (str, bytes, unicode_)):
-            name = name.split(b"," if str != bytes and isinstance(name, bytes) else ",")
+        if isinstance(name, (str, bytes)):
+            name = name.split(b"," if isinstance(name, bytes) else ",")
         for single_name in name:
-            if str != bytes and isinstance(single_name, bytes):
+            if isinstance(single_name, bytes):
                 single_name = single_name.decode()
 
             single_name = _simplename(single_name)
@@ -509,11 +500,11 @@ def match_font(name, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    if isinstance(name, (str, bytes, unicode_)):
-        name = name.split(b"," if str != bytes and isinstance(name, bytes) else ",")
+    if isinstance(name, (str, bytes)):
+        name = name.split(b"," if isinstance(name, bytes) else ",")
 
     for single_name in name:
-        if str != bytes and isinstance(single_name, bytes):
+        if isinstance(single_name, bytes):
             single_name = single_name.decode()
 
         single_name = _simplename(single_name)

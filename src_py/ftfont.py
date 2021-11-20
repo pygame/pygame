@@ -16,7 +16,6 @@ from pygame._freetype import quit, get_default_font, get_init as _get_init
 from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
-from pygame.compat import bytes_, unicode_, as_unicode, as_bytes
 
 
 class Font(_Font):
@@ -32,19 +31,19 @@ class Font(_Font):
     __get_default_resolution = staticmethod(get_default_resolution)
     __default_font = encode_file_path(get_default_font())
 
-    __unull = as_unicode(r"\x00")
-    __bnull = as_bytes("\x00")
+    __unull = "\x00"
+    __bnull = b"\x00"
 
     def __init__(self, file, size=-1):
         size = max(size, 1)
-        if isinstance(file, unicode_):
+        if isinstance(file, str):
             try:
                 bfile = self.__encode_file_path(file, ValueError)
             except ValueError:
                 bfile = ""
         else:
             bfile = file
-        if isinstance(bfile, bytes_) and bfile == self.__default_font:
+        if isinstance(bfile, bytes) and bfile == self.__default_font:
             file = None
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
@@ -66,9 +65,9 @@ class Font(_Font):
 
         if text is None:
             text = ""
-        if isinstance(text, unicode_) and self.__unull in text:
+        if isinstance(text, str) and self.__unull in text:
             raise ValueError("A null character was found in the text")
-        if isinstance(text, bytes_) and self.__bnull in text:
+        if isinstance(text, bytes) and self.__bnull in text:
             raise ValueError("A null character was found in the text")
         save_antialiased = self.antialiased
         self.antialiased = bool(antialias)
@@ -199,4 +198,4 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     return _SysFont(name, size, bold, italic, constructor)
 
 
-del _Font, get_default_resolution, encode_file_path, as_unicode, as_bytes
+del _Font, get_default_resolution, encode_file_path

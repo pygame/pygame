@@ -16,7 +16,6 @@ from random import randint
 from time import time
 
 import pygame as pg
-from pygame.compat import xrange_
 
 
 if "-psyco" in sys.argv:
@@ -218,7 +217,7 @@ def main(
         else:
             sprites = pg.sprite.Group()
 
-    for i in xrange_(0, numsprites):
+    for i in range(0, numsprites):
         if use_static and i % 2 == 0:
             sprites.add(Static())
         sprites.add(Thingy())

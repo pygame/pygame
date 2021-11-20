@@ -20,9 +20,8 @@ object (such as StringIO).
 __all__ = ["getResource"]
 import sys
 import os
-from pygame.compat import get_BytesIO
 
-BytesIO = get_BytesIO()
+from io import BytesIO
 
 try:
     from pkg_resources import resource_stream, resource_exists

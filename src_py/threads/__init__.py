@@ -12,16 +12,9 @@ __author__ = "Rene Dudfield"
 __version__ = "0.3.0"
 __license__ = "Python license"
 
-import traceback, sys
-
-from pygame.compat import geterror
-
-if sys.version_info[0] == 3:
-    from queue import Queue, Empty
-else:
-    from Queue import Queue, Empty
-
+from queue import Queue, Empty
 import threading
+
 
 Thread = threading.Thread
 
@@ -208,8 +201,8 @@ class FuncResult:
             self.result = self.f(*args, **kwargs)
             if self.callback:
                 self.callback(self.result)
-        except Exception:
-            self.exception = geterror()
+        except Exception as e:
+            self.exception = e
             if self.errback:
                 self.errback(self.exception)
 

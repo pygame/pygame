@@ -18,7 +18,6 @@ except NameError:
     pass
 
 import pygame
-from pygame.compat import xrange_
 
 
 IS_PYPY = "PyPy" == platform.python_implementation()
@@ -372,7 +371,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             ar = pygame.PixelArray(sf)
 
             ar_y = ar.__getitem__(1)
-            for y in xrange_(h):
+            for y in range(h):
                 ar2 = ar_y.__getitem__(y)
                 self.assertEqual(
                     ar2,
@@ -391,7 +390,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
                 )
 
             sf.set_at((1, 1), bg_color)
-            for x in xrange_(w):
+            for x in range(w):
                 ar2 = ar.__getitem__(x).__getitem__(1)
                 self.assertEqual(
                     ar2,

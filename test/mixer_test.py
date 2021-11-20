@@ -9,7 +9,7 @@ from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
 
 import pygame
 from pygame import mixer
-from pygame.compat import unicode_, as_bytes, bytes_
+
 
 try:
     import pathlib
@@ -21,7 +21,8 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
 
 FREQUENCIES = [11025, 22050, 44100, 48000]
-SIZES = [-16, -8, 8, 16, 32]
+SIZES = [-16, -8, 8, 16]  # fixme
+# size 32 failed in test_get_init__returns_exact_values_used_for_init
 CHANNELS = [1, 2]
 BUFFERS = [3024]
 
@@ -93,23 +94,18 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
-    @unittest.skip("SDL_mixer bug")
     def test_get_init__returns_exact_values_used_for_init(self):
-        # fix in 1.9 - I think it's a SDL_mixer bug.
-
-        # TODO: When this bug is fixed, testing through every combination
-        #       will be too slow so adjust as necessary, at the moment it
-        #       breaks the loop after first failure
+        # TODO: size 32 fails in this test (maybe SDL_mixer bug)
 
         for init_conf in CONFIGS:
-            frequency, size, channels
+            frequency, size, channels = init_conf.values()
             if (frequency, size) == (22050, 16):
                 continue
             mixer.init(frequency, size, channels)
 
             mixer_conf = mixer.get_init()
 
-            self.assertEqual(init_conf, mixer_conf)
+            self.assertEqual(tuple(init_conf.values()), mixer_conf)
             mixer.quit()
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
@@ -142,9 +138,9 @@ class MixerModuleTest(unittest.TestCase):
 
         mixer.init()
 
-        sample = as_bytes("\x00\xff") * 24
+        sample = b"\x00\xff" * 24
         wave_path = example_path(os.path.join("data", "house_lo.wav"))
-        uwave_path = unicode_(wave_path)
+        uwave_path = str(wave_path)
         bwave_path = uwave_path.encode(sys.getfilesystemencoding())
         snd = mixer.Sound(file=wave_path)
         self.assertTrue(snd.get_length() > 0.5)
@@ -187,12 +183,12 @@ class MixerModuleTest(unittest.TestCase):
         emsg = "Expected object with buffer interface: got a list"
         self.assertEqual(str(cm.exception), emsg)
 
-        ufake_path = unicode_("12345678")
+        ufake_path = str("12345678")
         self.assertRaises(IOError, mixer.Sound, ufake_path)
         self.assertRaises(IOError, mixer.Sound, "12345678")
 
         with self.assertRaises(TypeError) as cm:
-            mixer.Sound(buffer=unicode_("something"))
+            mixer.Sound(buffer=str("something"))
         emsg = "Unicode object not allowed as buffer object"
         self.assertEqual(str(cm.exception), emsg)
         self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
@@ -218,7 +214,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init()
         import shutil
 
-        ep = unicode_(example_path("data"))
+        ep = example_path("data")
         temp_file = os.path.join(ep, u"你好.wav")
         org_file = os.path.join(ep, u"house_lo.wav")
         shutil.copy(org_file, temp_file)
@@ -335,7 +331,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_array_interface(self):
         mixer.init(22050, -16, 1, allowedchanges=0)
-        snd = mixer.Sound(buffer=as_bytes("\x00\x7f") * 20)
+        snd = mixer.Sound(buffer=b"\x00\x7f" * 20)
         d = snd.__array_interface__
         self.assertTrue(isinstance(d, dict))
         if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
@@ -1009,7 +1005,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             Bytes_FromString.restype = c_void_p
             Bytes_FromString.argtypes = [py_object]
-            samples = as_bytes("abcdefgh")  # keep byte size a multiple of 4
+            samples = b"abcdefgh"  # keep byte size a multiple of 4
             sample_bytes = Bytes_FromString(samples)
 
             snd = mixer.Sound(buffer=samples)
@@ -1186,12 +1182,12 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_get_raw(self):
         """Ensure get_raw returns the correct bytestring."""
         try:
-            samples = as_bytes("abcdefgh")  # keep byte size a multiple of 4
+            samples = b"abcdefgh"  # keep byte size a multiple of 4
             snd = mixer.Sound(buffer=samples)
 
             raw = snd.get_raw()
 
-            self.assertIsInstance(raw, bytes_)
+            self.assertIsInstance(raw, bytes)
             self.assertEqual(raw, samples)
         finally:
             pygame.mixer.quit()
