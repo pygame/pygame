@@ -306,8 +306,6 @@ struct pgColorObject {
  */
 #include "include/_pygame.h"
 
-#include "pgimport.h"
-
 /* Slot counts.
  * Remember to keep these constants up to date.
  */

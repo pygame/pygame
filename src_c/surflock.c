@@ -189,7 +189,7 @@ static PyTypeObject pgLifetimeLock_Type = {
     NULL,                              /* tp_getattro */
     NULL,                              /* tp_setattro */
     NULL,                              /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     NULL,                                     /* tp_doc */
     NULL,                                     /* tp_traverse */
     NULL,                                     /* tp_clear */

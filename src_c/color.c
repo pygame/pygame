@@ -281,12 +281,6 @@ static PyMappingMethods _color_as_mapping = {
 };
 
 static PyBufferProcs _color_as_buffer = {
-#if HAVE_OLD_BUFPROTO
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-#endif
     (getbufferproc)_color_getbuffer,
     NULL};
 

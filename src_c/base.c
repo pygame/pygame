@@ -658,16 +658,10 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
         return -1;
     }
 
-#if PG_HAVE_COBJECT
-    if (PyCObject_Check(cobj)) {
-        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
-    }
-#endif
-#if PG_HAVE_CAPSULE
     if (PyCapsule_IsValid(cobj, NULL)) {
         inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
     }
-#endif
+
     if (inter == NULL || inter->two != 2 /* conditional or */) {
         Py_DECREF(cobj);
         PyErr_SetString(PyExc_ValueError, "invalid array interface");

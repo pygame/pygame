@@ -5,9 +5,6 @@
 
 #include "include/pgcompat.h"
 
-/* Weakrefs flags changed in 3.x */
-#define Py_TPFLAGS_HAVE_WEAKREFS 0
-
 /* Module init function returns new module instance. */
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name (void)
 
@@ -25,28 +22,7 @@
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
 #endif
 
-/* Pep 3123: Making PyObject_HEAD conform to standard C */
-#if !defined(Py_TYPE)
-#define Py_TYPE(o)    (((PyObject *)(o))->ob_type)
-#define Py_REFCNT(o)  (((PyObject *)(o))->ob_refcnt)
-#define Py_SIZE(o)    (((PyVarObject *)(o))->ob_size)
-#endif
-
-/* Encode a unicode file path */
-#define Unicode_AsEncodedPath(u) \
-    PyUnicode_AsEncodedString ((u), Py_FileSystemDefaultEncoding, UNICODE_DEF_FS_ERROR)
-
 #define RELATIVE_MODULE(m) ("." m)
-
-#define HAVE_OLD_BUFPROTO 0
-
-#if !defined(PG_ENABLE_OLDBUF)  /* allow for command line override */
-#if HAVE_OLD_BUFPROTO
-#define PG_ENABLE_OLDBUF 1
-#else
-#define PG_ENABLE_OLDBUF 0
-#endif
-#endif
 
 #ifndef Py_TPFLAGS_HAVE_NEWBUFFER
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0

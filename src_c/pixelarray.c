@@ -263,12 +263,6 @@ static PyMappingMethods _pxarray_mapping = {
 };
 
 static PyBufferProcs _pxarray_bufferprocs = {
-#if HAVE_OLD_BUFPROTO
-    0,
-    0,
-    0,
-    0,
-#endif
     (getbufferproc)_pxarray_getbuffer,
     0};
 

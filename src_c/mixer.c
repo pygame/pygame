@@ -943,9 +943,6 @@ snd_releasebuffer(PyObject *obj, Py_buffer *view)
 
 
 static PyBufferProcs sound_as_buffer[] = {{
-#if HAVE_OLD_BUFPROTO
-    0, 0, 0, 0,
-#endif
     snd_getbuffer, snd_releasebuffer}};
 
 /*sound object internals*/
