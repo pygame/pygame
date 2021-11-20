@@ -12,6 +12,7 @@ from pygame.event import Event
 
 _ft_init = False
 
+
 def _ft_init_check():
     """
     Raises error if module is not init
@@ -19,12 +20,14 @@ def _ft_init_check():
     if not _ft_init:
         raise error("fastevent system not initialized")
 
+
 def _quit_hook():
     """
     Hook that gets run to quit module
     """
     global _ft_init
     _ft_init = False
+
 
 def init():
     """init() -> None
@@ -44,12 +47,14 @@ def get_init():
     """
     return _ft_init
 
+
 def pump():
     """pump() -> None
     internally process pygame event handlers
     """
     _ft_init_check()
     pygame.event.pump()
+
 
 def wait():
     """wait() -> Event
@@ -73,6 +78,7 @@ def get():
     """
     _ft_init_check()
     return pygame.event.get()
+
 
 def post(event: Event):
     """post(Event) -> None
