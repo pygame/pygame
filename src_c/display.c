@@ -1592,7 +1592,7 @@ pg_num_displays(PyObject *self)
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static SDL_Rect *
-pg_screencroprect(GAME_Rect *r, int w, int h, SDL_Rect *cur)
+pg_screencroprect(SDL_Rect *r, int w, int h, SDL_Rect *cur)
 {
     if (r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
         return 0;
@@ -1612,7 +1612,7 @@ pg_update(PyObject *self, PyObject *arg)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     _DisplayState *state = DISPLAY_MOD_STATE(self);
-    GAME_Rect *gr, temp = {0};
+    SDL_Rect *gr, temp = {0};
     int wide, high;
     PyObject *obj;
 

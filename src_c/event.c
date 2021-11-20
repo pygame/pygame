@@ -1052,22 +1052,18 @@ dict_from_event(SDL_Event *event)
                                                  SDL_BUTTON(3)) != 0));
                 _pg_insobj(dict, "buttons", tuple);
             }
-#if !IS_SDLv1
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->motion.which == SDL_TOUCH_MOUSEID)));
-#endif
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
-#if !IS_SDLv1
+            _pg_insobj(dict, "button", PyLong_FromLong(event->button.button));
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->button.which == SDL_TOUCH_MOUSEID)));
-#endif
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));

@@ -47,20 +47,6 @@
 #ifdef PG_ENABLE_ARM_NEON
     // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
     #include "include/sse2neon.h"
-#else
-    #if IS_SDLv1
-        // MSVC uses these defines for SSE2 support for some reason
-        #if defined(_M_IX86_FP) || (defined(_M_AMD64) || defined(_M_X64))
-            #if (_M_IX86_FP == 2) || (defined(_M_AMD64) || defined(_M_X64))
-                #define __SSE2__ 1
-            #endif
-        #endif
-        // SDL 1 doesn't import the latest intrinsics, this should should pull
-        // them all in for us
-        #ifdef __SSE2__ // don't import this file on non-SSE platforms.
-            #include <immintrin.h>
-        #endif /* __SSE2__ */
-    #endif /* IS_SDLv1 */
 #endif /* PG_ENABLE_ARM_NEON */
 
 /* The structure passed to the low level blit functions */
@@ -89,7 +75,7 @@ static void alphablit_alpha (SDL_BlitInfo * info);
 static void alphablit_alpha_sse2_argb_surf_alpha (SDL_BlitInfo * info);
 static void alphablit_alpha_sse2_argb_no_surf_alpha (SDL_BlitInfo * info);
 static void alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info);
-#endif /* IS_SDLv2 && (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 static void alphablit_colorkey (SDL_BlitInfo * info);
 static void alphablit_solid (SDL_BlitInfo * info);
@@ -328,21 +314,12 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
             }
             case PYGAME_BLEND_PREMULTIPLIED:
             {
-        #if IS_SDLv1
-                if (src->format->BytesPerPixel == 4 &&
-                    dst->format->BytesPerPixel == 4 &&
-                    src->format->Rmask == dst->format->Rmask &&
-                    src->format->Gmask == dst->format->Gmask &&
-                    src->format->Bmask == dst->format->Bmask &&
-                    info.src_flags & SDL_SRCALPHA)
-        #else /* IS_SDLv2 */
                 if (src->format->BytesPerPixel == 4 &&
                     dst->format->BytesPerPixel == 4 &&
                     src->format->Rmask == dst->format->Rmask &&
                     src->format->Gmask == dst->format->Gmask &&
                     src->format->Bmask == dst->format->Bmask &&
                     info.src_blend != SDL_BLENDMODE_NONE)
-        #endif /* IS_SDLv2 */
                 {
     #if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
         #if PG_ENABLE_ARM_NEON
@@ -3126,7 +3103,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
 
 }
 
-#endif /* IS_SDLv2 && (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 static void
 alphablit_alpha (SDL_BlitInfo * info)

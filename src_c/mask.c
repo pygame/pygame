@@ -1345,12 +1345,12 @@ cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
  */
 static int
 get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
-                   GAME_Rect **ret_rects)
+                   SDL_Rect **ret_rects)
 {
     unsigned int *image, *ufind, *largest, *buf;
     unsigned int x_uf, label = 0;
     int x, y, w, h, temp, relabel;
-    GAME_Rect *rects;
+    SDL_Rect *rects;
 
     rects = NULL;
 
@@ -1411,7 +1411,7 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
     }
 
     /* the bounding rects, need enough space for the number of labels */
-    rects = (GAME_Rect *)malloc(sizeof(GAME_Rect) * (relabel + 1));
+    rects = (SDL_Rect *)malloc(sizeof(SDL_Rect) * (relabel + 1));
     if (!rects) {
         free(image);
         free(ufind);
@@ -1460,8 +1460,8 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
 static PyObject *
 mask_get_bounding_rects(PyObject *self, PyObject *args)
 {
-    GAME_Rect *regions;
-    GAME_Rect *aregion;
+    SDL_Rect *regions;
+    SDL_Rect *aregion;
     int num_bounding_boxes, i, r;
     PyObject *rect_list;
     PyObject *rect;
@@ -2231,8 +2231,8 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
             y_dest = tempy;
         }
         else {
-            GAME_Rect temp_rect;
-            GAME_Rect *dest_rect = pgRect_FromObject(destobj, &temp_rect);
+            SDL_Rect temp_rect;
+            SDL_Rect *dest_rect = pgRect_FromObject(destobj, &temp_rect);
 
             if (NULL != dest_rect) {
                 x_dest = dest_rect->x;

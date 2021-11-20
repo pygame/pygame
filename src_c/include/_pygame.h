@@ -64,19 +64,6 @@
     (PG_VERSIONNUM(PG_MAJOR_VERSION, PG_MINOR_VERSION, PG_PATCH_VERSION) >= \
      PG_VERSIONNUM(MAJOR, MINOR, PATCH))
 
-/* SDL 1.x/2.x and pygame 1.x/2.x
- */
-#if defined(SDL_VERSION_ATLEAST)
-#if (SDL_VERSION_ATLEAST(2, 0, 0))
-#define PG_API_VERSION 2
-#else /* SDL 1 */
-/* for now: allow pygame 2 to be compiled with SDL 1. */
-#define PG_API_VERSION 1
-#endif /* SDL 1 */
-#else  /* NO SDL */
-#define PG_API_VERSION ((PG_MAJOR_VERSION == 1) ? 1 : 2)
-#endif /* NO SDL */
-
 #include "pgcompat.h"
 
 /* Flag indicating a pg_buffer; used for assertions within callbacks */
@@ -157,7 +144,6 @@ typedef struct pg_bufferinfo_s {
 
 #define pgExc_BufferError ((PyObject *)PYGAMEAPI_GET_SLOT(base, 18))
 
-#if PG_API_VERSION == 2
 #define pg_GetDefaultWindow \
     (*(SDL_Window * (*)(void)) PYGAMEAPI_GET_SLOT(base, 19))
 
@@ -173,25 +159,11 @@ typedef struct pg_bufferinfo_s {
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
-#endif /* PG_API_VERSION == 2 */
-
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
-/*
- * RECT module
- */
-#if !defined(SDL_VERSION_ATLEAST) || PG_API_VERSION == 1
 typedef struct {
-    int x, y;
-    int w, h;
-} GAME_Rect;
-#else  /* SDL 2+ */
-typedef SDL_Rect GAME_Rect;
-#endif /* SDL 2+ */
-
-typedef struct {
-    PyObject_HEAD GAME_Rect r;
+    PyObject_HEAD SDL_Rect r;
     PyObject *weakreflist;
 } pgRectObject;
 
@@ -206,9 +178,9 @@ typedef struct {
     (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
 
 #define pgRect_FromObject \
-    (*(GAME_Rect * (*)(PyObject *, GAME_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
+    (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
-#define pgRect_Normalize (*(void (*)(GAME_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
+#define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)
 #endif /* ~PYGAMEAPI_RECT_INTERNAL */
@@ -263,9 +235,6 @@ typedef struct pgJoystickObject {
  * DISPLAY module
  */
 
-#if defined(SDL_VERSION_ATLEAST)
-
-#if PG_API_VERSION == 2
 typedef struct {
     Uint32 hw_available : 1;
     Uint32 wm_available : 1;
@@ -282,31 +251,19 @@ typedef struct {
     int current_w;
     int current_h;
 } pg_VideoInfo;
-#endif /* PG_API_VERSION == 2 */
 
 typedef struct {
-#if PG_API_VERSION == 1
-    PyObject_HEAD SDL_VideoInfo info;
-#else
     PyObject_HEAD pg_VideoInfo info;
-#endif
 } pgVidInfoObject;
 
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
-#endif /* defined(SDL_VERSION_ATLEAST) */
 
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
 #define pgVidInfo_Check(x) ((x)->ob_type == &pgVidInfo_Type)
-
-#if PG_API_VERSION == 1
-#define pgVidInfo_New \
-    (*(PyObject * (*)(SDL_VideoInfo *)) PYGAMEAPI_GET_SLOT(display, 1))
-#else
 #define pgVidInfo_New \
     (*(PyObject * (*)(pg_VideoInfo *)) PYGAMEAPI_GET_SLOT(display, 1))
-#endif
 
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display)
 #endif /* ~PYGAMEAPI_DISPLAY_INTERNAL */
@@ -319,9 +276,7 @@ struct SDL_Surface;
 
 typedef struct {
     PyObject_HEAD struct SDL_Surface *surf;
-#if PG_API_VERSION == 2
     int owner;
-#endif                                    /* PG_API_VERSION == 2 */
     struct pgSubSurface_Data *subsurface; /* ptr to subsurface data (if a
                                            * subsurface)*/
     PyObject *weakreflist;
@@ -335,15 +290,6 @@ typedef struct {
 
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
-#if PG_API_VERSION == 1
-#define pgSurface_New \
-    (*(pgSurfaceObject * (*)(SDL_Surface *)) PYGAMEAPI_GET_SLOT(surface, 1))
-
-#define pgSurface_SetSurface                                                 \
-    (*(int (*)(pgSurfaceObject *, SDL_Surface *))PYGAMEAPI_GET_SLOT(surface, \
-                                                                    3))
-
-#else /* PG_API_VERSION == 2 */
 #define pgSurface_New2                            \
     (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
          PYGAMEAPI_GET_SLOT(surface, 1))
@@ -352,10 +298,9 @@ typedef struct {
     (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))PYGAMEAPI_GET_SLOT( \
         surface, 3))
 
-#endif /* PG_API_VERSION == 2 */
 #define pgSurface_Blit                                            \
-    (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, GAME_Rect *, \
-               GAME_Rect *, int))PYGAMEAPI_GET_SLOT(surface, 2))
+    (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, SDL_Rect *, \
+               SDL_Rect *, int))PYGAMEAPI_GET_SLOT(surface, 2))
 
 #define import_pygame_surface()         \
     do {                                \
@@ -365,10 +310,8 @@ typedef struct {
         IMPORT_PYGAME_MODULE(surflock); \
     } while (0)
 
-#if PG_API_VERSION == 2
 #define pgSurface_New(surface) pgSurface_New2((surface), 1)
 #define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
-#endif /* PG_API_VERSION == 2 */
 
 #endif /* ~PYGAMEAPI_SURFACE_INTERNAL */
 
@@ -424,11 +367,9 @@ typedef struct pgEventObject pgEventObject;
 #define pgEvent_FillUserEvent \
     (*(int (*)(pgEventObject *, SDL_Event *))PYGAMEAPI_GET_SLOT(event, 3))
 
-#if PG_API_VERSION == 2
 #define pg_EnableKeyRepeat (*(int (*)(int, int))PYGAMEAPI_GET_SLOT(event, 4))
 
 #define pg_GetKeyRepeat (*(void (*)(int *, int *))PYGAMEAPI_GET_SLOT(event, 5))
-#endif /* PG_API_VERSION == 2 */
 
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event)
 #endif

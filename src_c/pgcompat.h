@@ -181,7 +181,7 @@
 #endif
 
 #if defined(SDL_VERSION_ATLEAST)
-#if (SDL_VERSION_ATLEAST(2, 0, 0)) && !(SDL_VERSION_ATLEAST(2, 0, 5))
+#if !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.
 
   https://wiki.libsdl.org/SDL_SetWindowResizable
@@ -193,7 +193,7 @@ int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window);
 int SDL_SetWindowInputFocus(SDL_Window *window);
 SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format);
-#endif
+#endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
 #endif /* defined(SDL_VERSION_ATLEAST) */
 
 // Currently needed to build scrap.c, event.c, display.c

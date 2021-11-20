@@ -245,7 +245,7 @@ static PyObject *
 _gfx_rectanglecolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
@@ -286,7 +286,7 @@ static PyObject *
 _gfx_boxcolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 

@@ -164,39 +164,35 @@ static PyObject *
 mouse_set_visible(PyObject *self, PyObject *args)
 {
     int toggle;
-    #if IS_SDLv2
-        int mode;
-        SDL_Window *win = NULL;
-        Uint32 window_flags = 0;
-    #endif
+    int mode;
+    SDL_Window *win = NULL;
+    Uint32 window_flags = 0;
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
         return NULL;
     VIDEO_INIT_CHECK();
 
-    #if IS_SDLv2
-        win = pg_GetDefaultWindow();
-        if (win) {
-            mode = SDL_GetWindowGrab(win);
-            if ((mode == SDL_ENABLE) & !toggle) {
-                SDL_SetRelativeMouseMode(1);
-            } else {
-                SDL_SetRelativeMouseMode(0);
-            }
-            window_flags = SDL_GetWindowFlags(win);
-            if (!toggle && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
-                            window_flags & SDL_WINDOW_FULLSCREEN))
-            {
-                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
-                            "0");
-            }
-            else
-            {
-                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
-                            "1");
-            }
+    win = pg_GetDefaultWindow();
+    if (win) {
+        mode = SDL_GetWindowGrab(win);
+        if ((mode == SDL_ENABLE) & !toggle) {
+            SDL_SetRelativeMouseMode(1);
+        } else {
+            SDL_SetRelativeMouseMode(0);
         }
-    #endif
+        window_flags = SDL_GetWindowFlags(win);
+        if (!toggle && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
+                        window_flags & SDL_WINDOW_FULLSCREEN))
+        {
+            SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                        "0");
+        }
+        else
+        {
+            SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                        "1");
+        }
+    }
 
     toggle = SDL_ShowCursor(toggle);
     return PyBool_FromLong(toggle);

@@ -506,7 +506,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -584,7 +584,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -857,7 +857,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
     PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;

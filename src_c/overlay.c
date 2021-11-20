@@ -34,7 +34,7 @@
 
 typedef struct {
     PyObject_HEAD SDL_Overlay *cOverlay;
-    GAME_Rect cRect;
+    SDL_Rect cRect;
 } PyGameOverlay;
 
 static void
@@ -49,7 +49,7 @@ overlay_dealloc(PyGameOverlay *self)
 static PyObject *
 Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
 {
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
 
     rect = pgRect_FromObject(args, &temp);
     if (!rect)

@@ -49,7 +49,6 @@ key_set_repeat(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-#if SDL_VERSION_ATLEAST(1, 2, 10)
 static PyObject *
 key_get_repeat(PyObject *self, PyObject *args)
 {
@@ -59,14 +58,6 @@ key_get_repeat(PyObject *self, PyObject *args)
     pg_GetKeyRepeat(&delay, &interval);
     return Py_BuildValue("(ii)", delay, interval);
 }
-#else  /* not SDL_VERSION_ATLEAST(1, 2, 10) */
-static PyObject *
-key_get_repeat(PyObject *self, PyObject *args)
-{
-    Py_RETURN_NONE;
-}
-#endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
-
 
 /*
 * pgScancodeWrapper is for key_get_pressed in SDL2.

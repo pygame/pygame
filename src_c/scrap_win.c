@@ -160,20 +160,11 @@ pygame_scrap_init(void)
     SDL_SetError("SDL is not running on known window manager");
 
     SDL_VERSION(&info.version);
-
-#if IS_SDLv1
-    if (SDL_GetWMInfo(&info)) {
-        /* Save the information for later use */
-        window_handle = info.window;
-        retval = 1;
-    }
-#else
     if (SDL_GetWindowWMInfo(pg_GetDefaultWindow(), &info)) {
         /* Save the information for later use */
         window_handle = info.info.win.window;
         retval = 1;
     }
-#endif
 
     if (retval)
         _scrapinitialized = 1;

@@ -285,11 +285,11 @@ pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
         return SDL_MapRGBA(surf->format, r, g, b, a);
     return pg_map_rgb(surf, r, g, b);
 }
-#else /* IS_SDLv1 || SDL_VERSION_ATLEAST(2, 0, 10) */
+#else /* SDL_VERSION_ATLEAST(2, 0, 10) */
 #define pg_map_rgb(surf, r, g, b) SDL_MapRGB((surf)->format, (r), (g), (b))
 #define pg_map_rgba(surf, r, g, b, a) \
     SDL_MapRGBA((surf)->format, (r), (g), (b), (a))
-#endif /* IS_SDLv1 || SDL_VERSION_ATLEAST(2, 0, 10) */
+#endif /* SDL_VERSION_ATLEAST(2, 0, 10) */
 
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
@@ -1724,7 +1724,7 @@ surf_set_clip(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *item;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Rect sdlrect;
     int result;
 
@@ -1771,7 +1771,7 @@ static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
     PyObject *r = NULL;
     Uint32 color;
     int result;
@@ -1866,7 +1866,7 @@ static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
-    GAME_Rect *src_rect, temp;
+    SDL_Rect *src_rect, temp;
     PyObject *argpos, *argrect = NULL;
     pgSurfaceObject *srcobject;
     int dx, dy, result;
@@ -1938,7 +1938,7 @@ static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
-    GAME_Rect *src_rect, temp;
+    SDL_Rect *src_rect, temp;
     PyObject *srcobject = NULL, *argpos = NULL, *argrect = NULL;
     int dx, dy, result;
     SDL_Rect dest_rect;
@@ -2454,7 +2454,7 @@ surf_subsurface(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_PixelFormat *format;
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
     SDL_Surface *sub;
     PyObject *subobj;
     int pixeloffset;

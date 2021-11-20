@@ -30,7 +30,7 @@
 
 #include "doc/image_doc.h"
 
-#if PG_COMPILE_SSE4_2 && SDL_VERSION_ATLEAST(2, 0, 0)
+#if PG_COMPILE_SSE4_2
 #include <emmintrin.h>
 /* SSSE 3 */
 #include <tmmintrin.h>
@@ -248,7 +248,7 @@ image_get_sdl_image_version(PyObject *self)
         return PyObject_CallObject(extverobj, NULL);
 }
 
-#if PG_COMPILE_SSE4_2 && SDL_VERSION_ATLEAST(2, 0, 0)
+#if PG_COMPILE_SSE4_2
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
@@ -404,7 +404,7 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
         }
     }
 }
-#endif /* PG_COMPILE_SSE4_2  && SDL_VERSION_ATLEAST(2, 0, 0) */
+#endif /* PG_COMPILE_SSE4_2 */
 
 
 static void
@@ -429,7 +429,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
     Uint32 Bloss = surf->format->Bloss;
     Uint32 Aloss = surf->format->Aloss;
 
-#if PG_COMPILE_SSE4_2 && SDL_VERSION_ATLEAST(2, 0, 0)
+#if PG_COMPILE_SSE4_2
     if (/* SDL uses Uint32, SSE uses int for building vectors.
          * Related, we assume that Uint32 is packed so 4 of
          * them perfectly matches an __m128i.
@@ -461,7 +461,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
                                   color_offset, alpha_offset);
         return;
     }
-#endif /* PG_COMPILE_SSE4_2 && SDL_VERSION_ATLEAST(2, 0, 0) */
+#endif /* PG_COMPILE_SSE4_2 */
 
     for (h = 0; h < surf->h; ++h) {
         Uint32 *pixel_row = (Uint32 *)DATAROW(

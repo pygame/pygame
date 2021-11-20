@@ -993,7 +993,7 @@ surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj, *rectobj;
     SDL_Surface *surf, *newsurf;
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
     static char *keywords[] = {"surface", "rect", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords,
@@ -2713,7 +2713,7 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurfaceObject *surfobj = NULL;
     PyObject *rectobj = NULL;
     SDL_Surface *surf;
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
     Uint8 r, g, b, a;
     int x, y, w, h;
     static char *keywords[] = {"surface", "rect", NULL};
