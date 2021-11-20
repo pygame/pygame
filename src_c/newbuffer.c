@@ -125,7 +125,7 @@ set_void_ptr(void **vpp, PyObject *o, const char *name)
     if (check_value(o, name)) {
         return -1;
     }
-    if (INT_CHECK(o)) {
+    if (PyLong_Check(o)) {
         vp = PyLong_AsVoidPtr(o);
         if (PyErr_Occurred()) {
             return -1;
@@ -152,7 +152,7 @@ set_py_ssize_t(Py_ssize_t *ip, PyObject *o, const char *name)
     if (check_value(o, name)) {
         return -1;
     }
-    if (!INT_CHECK(o)) {
+    if (!PyLong_Check(o)) {
         PyErr_Format(PyExc_TypeError,
                      "property %100s must be a Python integer, not '%400s'",
                      name, Py_TYPE(o)->tp_name);
@@ -224,7 +224,7 @@ buffer_init(BufferObject *self, PyObject *args, PyObject *kwds)
         py_address = 0;
     }
     if (py_address) {
-        if (INT_CHECK(py_address)) {
+        if (PyLong_Check(py_address)) {
             view_p = (Py_buffer *)PyLong_AsVoidPtr(py_address);
             if (PyErr_Occurred()) {
                 return -1;
@@ -959,10 +959,10 @@ MODINIT_DEFINE(newbuffer)
 
     /* prepare exported types */
     if (PyType_Ready(&Py_buffer_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
     if (PyType_Ready(&BufferMixin_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
 #define bufferproxy_docs ""
@@ -974,14 +974,14 @@ MODINIT_DEFINE(newbuffer)
     if (PyModule_AddObject(module, "BufferMixin",
                            (PyObject *)&BufferMixin_Type)) {
         Py_DECREF(&BufferMixin_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     Py_INCREF(&Py_buffer_Type);
     if (PyModule_AddObject(module, "Py_buffer", (PyObject *)&Py_buffer_Type)) {
         Py_DECREF(&Py_buffer_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (Module_AddSsize_tConstant(module, "PyBUFFER_SIZEOF",
                                   sizeof(Py_buffer)) ||
@@ -1002,8 +1002,8 @@ MODINIT_DEFINE(newbuffer)
         PyModule_AddIntMacro(module, PyBUF_FULL_RO) ||
         PyModule_AddIntMacro(module, PyBUF_CONTIG) ||
         PyModule_AddIntMacro(module, PyBUF_CONTIG_RO)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

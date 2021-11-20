@@ -45,30 +45,11 @@ struct _module_state {
     SMOOTHSCALE_FILTER_P filter_expand_Y;
 };
 
-#if defined(SCALE_MMX_SUPPORT)
+#define GETSTATE(m) ((struct _module_state *)PyModule_GetState(m))
 
+#ifdef SCALE_MMX_SUPPORT
 #include <SDL_cpuinfo.h>
-
-#define GETSTATE(m) PY3_GETSTATE(_module_state, m)
-
-#else /* if defined(SCALE_MMX_SUPPORT) */
-
-static void
-filter_shrink_X_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
-static void
-filter_shrink_Y_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
-static void
-filter_expand_X_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
-static void
-filter_expand_Y_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
-
-static struct _module_state _state = {
-    "GENERIC", filter_shrink_X_ONLYC, filter_shrink_Y_ONLYC,
-    filter_expand_X_ONLYC, filter_expand_Y_ONLYC};
-#define GETSTATE(m) PY2_GETSTATE(_state)
-#define smoothscale_init(st)
-
-#endif /* if defined(SCALE_MMX_SUPPORT) */
+#endif /* SCALE_MMX_SUPPORT */
 
 void
 scale2x(SDL_Surface *src, SDL_Surface *dst);
@@ -76,7 +57,6 @@ void
 scale2xraw(SDL_Surface *src, SDL_Surface *dst);
 extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
-
 
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
@@ -1221,35 +1201,45 @@ filter_expand_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     }
 }
 
-#if defined(SCALE_MMX_SUPPORT)
+
 static void
 smoothscale_init(struct _module_state *st)
 {
-    if (st->filter_shrink_X == 0) {
-        if (SDL_HasSSE()) {
-            st->filter_type = "SSE";
-            st->filter_shrink_X = filter_shrink_X_SSE;
-            st->filter_shrink_Y = filter_shrink_Y_SSE;
-            st->filter_expand_X = filter_expand_X_SSE;
-            st->filter_expand_Y = filter_expand_Y_SSE;
-        }
-        else if (SDL_HasMMX()) {
-            st->filter_type = "MMX";
-            st->filter_shrink_X = filter_shrink_X_MMX;
-            st->filter_shrink_Y = filter_shrink_Y_MMX;
-            st->filter_expand_X = filter_expand_X_MMX;
-            st->filter_expand_Y = filter_expand_Y_MMX;
-        }
-        else {
-            st->filter_type = "GENERIC";
-            st->filter_shrink_X = filter_shrink_X_ONLYC;
-            st->filter_shrink_Y = filter_shrink_Y_ONLYC;
-            st->filter_expand_X = filter_expand_X_ONLYC;
-            st->filter_expand_Y = filter_expand_Y_ONLYC;
-        }
+    if (st->filter_shrink_X) {
+        return;
     }
+
+#ifdef SCALE_MMX_SUPPORT
+    if (SDL_HasSSE()) {
+        st->filter_type = "SSE";
+        st->filter_shrink_X = filter_shrink_X_SSE;
+        st->filter_shrink_Y = filter_shrink_Y_SSE;
+        st->filter_expand_X = filter_expand_X_SSE;
+        st->filter_expand_Y = filter_expand_Y_SSE;
+    }
+    else if (SDL_HasMMX()) {
+        st->filter_type = "MMX";
+        st->filter_shrink_X = filter_shrink_X_MMX;
+        st->filter_shrink_Y = filter_shrink_Y_MMX;
+        st->filter_expand_X = filter_expand_X_MMX;
+        st->filter_expand_Y = filter_expand_Y_MMX;
+    }
+    else {
+        st->filter_type = "GENERIC";
+        st->filter_shrink_X = filter_shrink_X_ONLYC;
+        st->filter_shrink_Y = filter_shrink_Y_ONLYC;
+        st->filter_expand_X = filter_expand_X_ONLYC;
+        st->filter_expand_Y = filter_expand_Y_ONLYC;
+    }
+#else /* ~SCALE_MMX_SUPPORT */
+    st->filter_type = "GENERIC";
+    st->filter_shrink_X = filter_shrink_X_ONLYC;
+    st->filter_shrink_Y = filter_shrink_Y_ONLYC;
+    st->filter_expand_X = filter_expand_X_ONLYC;
+    st->filter_expand_Y = filter_expand_Y_ONLYC;
+#endif /* ~SCALE_MMX_SUPPORT */
 }
-#endif
+
 
 static void
 convert_24_32(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
@@ -1479,7 +1469,7 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_get_smoothscale_backend(PyObject *self, PyObject *args)
 {
-    return Text_FromUTF8(GETSTATE(self)->filter_type);
+    return PyUnicode_FromString(GETSTATE(self)->filter_type);
 }
 
 static PyObject *
@@ -1707,8 +1697,8 @@ _color_from_obj(PyObject *color_obj, SDL_PixelFormat *format,
     if (color_obj) {
         Uint8 rgba_color[4];
 
-        if (PyInt_Check(color_obj))
-            *color = (Uint32)PyInt_AsLong(color_obj);
+        if (PyLong_Check(color_obj))
+            *color = (Uint32)PyLong_AsLong(color_obj);
         else if (PyLong_Check(color_obj))
             *color = (Uint32)PyLong_AsUnsignedLong(color_obj);
         else if (pg_RGBAFromColorObj(color_obj, rgba_color))
@@ -1887,7 +1877,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     if (search_surf)
         pgSurface_Unlock((pgSurfaceObject*)search_surf_obj);
 
-    return PyInt_FromLong(num_threshold_pixels);
+    return PyLong_FromLong(num_threshold_pixels);
 }
 
 /*
@@ -2797,31 +2787,31 @@ MODINIT_DEFINE(transform)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
 
     if (module == 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     st = GETSTATE(module);
     if (st->filter_type == 0) {
         smoothscale_init(st);
     }
-    MODINIT_RETURN(module);
+    return module;
 }

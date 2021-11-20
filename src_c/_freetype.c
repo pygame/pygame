@@ -781,13 +781,13 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (!file) {
         goto end;
     }
-    if (Bytes_Check(file)) {
+    if (PyBytes_Check(file)) {
         if (PyUnicode_Check(original_file)) {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
              */
-            self->path = Object_Unicode(original_file);
+            self->path = PyObject_Str(original_file);
         }
         else {
             self->path = PyUnicode_FromEncodedObject(
@@ -797,7 +797,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
             goto end;
         }
 
-        if (_PGFT_TryLoadFont_Filename(ft, self, Bytes_AS_STRING(file),
+        if (_PGFT_TryLoadFont_Filename(ft, self, PyBytes_AS_STRING(file),
                                        font_index)) {
             goto end;
         }
@@ -815,7 +815,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         path = PyObject_GetAttrString(original_file, "name");
         if (!path) {
             PyErr_Clear();
-            str = Bytes_FromFormat("<%s instance at %p>",
+            str = PyBytes_FromFormat("<%s instance at %p>",
                                    Py_TYPE(file)->tp_name, (void *)file);
             if (str) {
                 self->path =
@@ -828,14 +828,14 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
              */
-            self->path = Object_Unicode(path);
+            self->path = PyObject_Str(path);
         }
-        else if (Bytes_Check(path)) {
+        else if (PyBytes_Check(path)) {
             self->path = PyUnicode_FromEncodedObject(
                 path, "UTF-8", NULL);
         }
         else {
-            self->path = Object_Unicode(path);
+            self->path = PyObject_Str(path);
         }
         Py_XDECREF(path);
         if (!self->path) {
@@ -867,7 +867,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         if (!path) {
             PyObject *str;
             PyErr_Clear();
-            str = Bytes_FromFormat("<%s instance at %p>",
+            str = PyBytes_FromFormat("<%s instance at %p>",
                                    Py_TYPE(file)->tp_name, (void *)file);
             if (str) {
                 self->path =
@@ -880,14 +880,14 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
              */
-            self->path = Object_Unicode(path);
+            self->path = PyObject_Str(path);
         }
-        else if (Bytes_Check(path)) {
+        else if (PyBytes_Check(path)) {
             self->path = PyUnicode_FromEncodedObject(
                 path, "UTF-8", NULL);
         }
         else {
-            self->path = Object_Unicode(path);
+            self->path = PyObject_Str(path);
         }
         Py_XDECREF(path);
         if (!self->path) {
@@ -931,7 +931,7 @@ _ftfont_repr(pgFontObject *self)
     if (pgFont_IS_ALIVE(self)) {
         return PyUnicode_FromFormat("Font('%.1024U')", self->path);
     }
-    return Text_FromFormat("<uninitialized Font object at %p>", (void *)self);
+    return PyUnicode_FromFormat("<uninitialized Font object at %p>", (void *)self);
 }
 
 /****************************************************
@@ -982,7 +982,7 @@ _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getstyle(pgFontObject *self, void *closure)
 {
-    return PyInt_FromLong(self->style);
+    return PyLong_FromLong(self->style);
 }
 
 static int
@@ -990,14 +990,14 @@ _ftfont_setstyle(pgFontObject *self, PyObject *value, void *closure)
 {
     FT_UInt32 style;
 
-    if (!PyInt_Check(value)) {
+    if (!PyLong_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
                         "The style value must be an integer"
                         " from the FT constants module");
         return -1;
     }
 
-    style = (FT_UInt32)PyInt_AsLong(value);
+    style = (FT_UInt32)PyLong_AsLong(value);
 
     if (style == FT_STYLE_DEFAULT) {
         /* The Font object's style property is the Font's default style,
@@ -1127,7 +1127,7 @@ _ftfont_getfontmetric(pgFontObject *self, void *closure)
     if (!height && PyErr_Occurred()) {
         return 0;
     }
-    return PyInt_FromLong(height);
+    return PyLong_FromLong(height);
 }
 
 static PyObject *
@@ -1135,7 +1135,7 @@ _ftfont_getname(pgFontObject *self, void *closure)
 {
     if (pgFont_IS_ALIVE(self)) {
         const char *name = _PGFT_Font_GetName(self->freetype, self);
-        return name ? Text_FromUTF8(name) : 0;
+        return name ? PyUnicode_FromString(name) : 0;
     }
     return PyObject_Repr((PyObject *)self);
 }
@@ -1178,7 +1178,7 @@ _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 
     ASSERT_SELF_IS_ALIVE(self);
     num_fixed_sizes = _PGFT_Font_NumFixedSizes(self->freetype, self);
-    return num_fixed_sizes >= 0 ? PyInt_FromLong(num_fixed_sizes) : 0;
+    return num_fixed_sizes >= 0 ? PyLong_FromLong(num_fixed_sizes) : 0;
 }
 
 /** Generic render flag attributes */
@@ -1485,7 +1485,7 @@ _ftfont_getsizedascender(pgFontObject *self, PyObject *args)
     if (!value && PyErr_Occurred()) {
         return 0;
     }
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -1513,7 +1513,7 @@ _ftfont_getsizeddescender(pgFontObject *self, PyObject *args)
     if (!value && PyErr_Occurred()) {
         return 0;
     }
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -1540,7 +1540,7 @@ _ftfont_getsizedheight(pgFontObject *self, PyObject *args)
     if (!value && PyErr_Occurred()) {
         return 0;
     }
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -1568,7 +1568,7 @@ _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
     if (!value && PyErr_Occurred()) {
         return 0;
     }
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -2095,7 +2095,7 @@ _ft_get_error(PyObject *self, PyObject *args)
     ASSERT_GRAB_FREETYPE(ft, 0);
 
     if (ft->_error_msg[0]) {
-        return Text_FromUTF8(ft->_error_msg);
+        return PyUnicode_FromString(ft->_error_msg);
     }
 
     Py_RETURN_NONE;
@@ -2147,7 +2147,7 @@ _ft_get_init(PyObject *self, PyObject *args)
 static PyObject *
 _ft_get_default_font(PyObject *self, PyObject *args)
 {
-    return Text_FromUTF8(DEFAULT_FONT_NAME);
+    return PyUnicode_FromString(DEFAULT_FONT_NAME);
 }
 
 static int
@@ -2189,38 +2189,38 @@ MODINIT_DEFINE(_freetype)
 
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     import_pygame_rwobject();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgFont_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     module = PyModule_Create(&_freetypemodule);
 
     if (!module) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     FREETYPE_MOD_STATE(module)->freetype = 0;
@@ -2231,14 +2231,14 @@ MODINIT_DEFINE(_freetype)
     if (PyModule_AddObject(module, FONT_TYPE_NAME, (PyObject *)&pgFont_Type) ==
         -1) {
         Py_DECREF((PyObject *)&pgFont_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
 #define DEC_CONST(x)                                        \
     if (PyModule_AddIntConstant(module, #x, (int)FT_##x)) { \
-        DECREF_MOD(module);                                 \
-        MODINIT_ERROR;                                      \
+        Py_DECREF(module);                                 \
+        return NULL;                                      \
     }
 
     DEC_CONST(STYLE_NORMAL);
@@ -2262,15 +2262,15 @@ MODINIT_DEFINE(_freetype)
 
     apiobj = encapsulate_api(c_api, "freetype");
     if (!apiobj) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
         Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
-    MODINIT_RETURN(module);
+    return module;
 }

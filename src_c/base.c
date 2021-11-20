@@ -460,12 +460,12 @@ pg_IntFromObj(PyObject *obj, int *val)
 
     if (PyFloat_Check(obj)) {
         /* Python3.8 complains with deprecation warnings if we pass
-         * floats to PyInt_AsLong.
+         * floats to PyLong_AsLong.
          */
         double dv = PyFloat_AsDouble(obj);
         tmp_val = (int)dv;
     } else {
-        tmp_val = PyInt_AsLong(obj);
+        tmp_val = PyLong_AsLong(obj);
     }
 
     if (tmp_val == -1 && PyErr_Occurred()) {
@@ -620,7 +620,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self)
 {
-    return Text_FromUTF8(SDL_GetError());
+    return PyUnicode_FromString(SDL_GetError());
 }
 
 static PyObject *
@@ -798,7 +798,7 @@ _pg_as_arrayinter_flags(Py_buffer *view_p)
 static PyObject *
 pg_view_get_typestr_obj(Py_buffer *view)
 {
-    return Text_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
+    return PyUnicode_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
                            _pg_as_arrayinter_typekind(view),
                            (int)view->itemsize);
 }
@@ -814,7 +814,7 @@ pg_view_get_shape_obj(Py_buffer *view)
         return 0;
     }
     for (i = 0; i < view->ndim; ++i) {
-        lengthobj = PyInt_FromLong((long)view->shape[i]);
+        lengthobj = PyLong_FromLong((long)view->shape[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -835,7 +835,7 @@ pg_view_get_strides_obj(Py_buffer *view)
         return 0;
     }
     for (i = 0; i < view->ndim; ++i) {
-        lengthobj = PyInt_FromLong((long)view->strides[i]);
+        lengthobj = PyLong_FromLong((long)view->strides[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -935,7 +935,7 @@ _pg_shape_as_tuple(PyArrayInterface *inter_p)
         return 0;
     }
     for (i = 0; i < inter_p->nd; ++i) {
-        lengthobj = PyInt_FromLong((long)inter_p->shape[i]);
+        lengthobj = PyLong_FromLong((long)inter_p->shape[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -948,7 +948,7 @@ _pg_shape_as_tuple(PyArrayInterface *inter_p)
 static PyObject *
 _pg_typekind_as_str(PyArrayInterface *inter_p)
 {
-    return Text_FromFormat(
+    return PyUnicode_FromFormat(
         "%c%c%i",
         inter_p->itemsize > 1
             ? ((inter_p->flags & PAI_NOTSWAPPED) ? PAI_MY_ENDIAN
@@ -968,7 +968,7 @@ _pg_strides_as_tuple(PyArrayInterface *inter_p)
         return 0;
     }
     for (i = 0; i < inter_p->nd; ++i) {
-        lengthobj = PyInt_FromLong((long)inter_p->strides[i]);
+        lengthobj = PyLong_FromLong((long)inter_p->strides[i]);
         if (!lengthobj) {
             Py_DECREF(stridesobj);
             return 0;
@@ -1498,8 +1498,8 @@ _pg_typestr_check(PyObject *op)
             return -1;
         }
     }
-    else if (Bytes_Check(op)) {
-        if (Bytes_GET_SIZE(op) != 3) {
+    else if (PyBytes_Check(op)) {
+        if (PyBytes_GET_SIZE(op) != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
             return -1;
@@ -1531,7 +1531,7 @@ _pg_data_check(PyObject *op)
         return -1;
     }
     item = PyTuple_GET_ITEM(op, 0);
-    if (!INT_CHECK(item)) {
+    if (!PyLong_Check(item)) {
         PyErr_SetString(PyExc_ValueError,
                         "expected an int for item 0 of 'data'");
         return -1;
@@ -1563,7 +1563,7 @@ _pg_is_int_tuple(PyObject *op)
     n = PyTuple_GET_SIZE(op);
     for (i = 0; i != n; ++i) {
         ip = PyTuple_GET_ITEM(op, i);
-        if (!INT_CHECK(ip)) {
+        if (!PyLong_Check(ip)) {
             return 0;
         }
     }
@@ -1692,7 +1692,7 @@ _pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t *arr)
     Py_ssize_t n = PyTuple_GET_SIZE(tp);
 
     for (i = 0; i != n; ++i) {
-        arr[i] = PyInt_AsSsize_t(PyTuple_GET_ITEM(tp, i));
+        arr[i] = PyLong_AsSsize_t(PyTuple_GET_ITEM(tp, i));
         if (arr[i] == -1 && PyErr_Occurred()) {
             return -1;
         }
@@ -1717,7 +1717,7 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     else {
         Py_INCREF(sp);
     }
-    typestr = Bytes_AsString(sp);
+    typestr = PyBytes_AsString(sp);
     switch (typestr[0]) {
         case PAI_MY_ENDIAN:
         case '|':
@@ -2089,19 +2089,19 @@ MODINIT_DEFINE(base)
         PyObject *atexit = PyImport_ImportModule("atexit");
 
         if (!atexit) {
-            MODINIT_ERROR;
+            return NULL;
         }
         atexit_register = PyObject_GetAttrString(atexit, "register");
         Py_DECREF(atexit);
         if (!atexit_register) {
-            MODINIT_ERROR;
+            return NULL;
         }
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
@@ -2110,15 +2110,15 @@ MODINIT_DEFINE(base)
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
     if (pgExc_SDLError == NULL) {
         Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, "error", pgExc_SDLError);
     Py_DECREF(pgExc_SDLError);
     if (ecode) {
         Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     pgExc_BufferError =
@@ -2126,15 +2126,15 @@ MODINIT_DEFINE(base)
 
     if (pgExc_SDLError == NULL) {
         Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, "BufferError", pgExc_BufferError);
     if (ecode) {
         Py_DECREF(pgExc_BufferError);
         Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -2172,23 +2172,23 @@ MODINIT_DEFINE(base)
     if (apiobj == NULL) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (!is_loaded) {
@@ -2199,16 +2199,16 @@ MODINIT_DEFINE(base)
         if (quit == NULL) { /* assertion */
             Py_DECREF(atexit_register);
             Py_DECREF(pgExc_BufferError);
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            Py_DECREF(module);
+            return NULL;
         }
         rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
         Py_DECREF(atexit_register);
         Py_DECREF(quit);
         if (rval == NULL) {
-            DECREF_MOD(module);
+            Py_DECREF(module);
             Py_DECREF(pgExc_BufferError);
-            MODINIT_ERROR;
+            return NULL;
         }
         Py_DECREF(rval);
         Py_AtExit(pg_atexit_quit);
@@ -2226,5 +2226,5 @@ MODINIT_DEFINE(base)
 #endif
     }
     is_loaded = 1;
-    MODINIT_RETURN(module);
+    return module;
 }

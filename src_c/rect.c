@@ -632,14 +632,14 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
             break;
         }
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            ret = PyInt_FromLong(loop);
+            ret = PyLong_FromLong(loop);
             Py_DECREF(obj);
             break;
         }
         Py_DECREF(obj);
     }
     if (loop == size) {
-        ret = PyInt_FromLong(-1);
+        ret = PyLong_FromLong(-1);
     }
 
     return ret;
@@ -680,7 +680,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            PyObject *num = PyInt_FromLong(loop);
+            PyObject *num = PyLong_FromLong(loop);
             if (!num) {
                 Py_DECREF(ret);
                 Py_DECREF(obj);
@@ -984,7 +984,7 @@ static int
 pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
 {
     if (PyLong_Check(arg)) {
-        int coord = (int)PyInt_AsLong(arg);
+        int coord = (int)PyLong_AsLong(arg);
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
     }
@@ -1160,7 +1160,7 @@ pg_rect_item(pgRectObject *self, Py_ssize_t i)
             return RAISE(PyExc_IndexError, "Invalid rect Index");
         }
     }
-    return PyInt_FromLong(data[i]);
+    return PyLong_FromLong(data[i]);
 }
 
 static int
@@ -1234,7 +1234,7 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
             return NULL;
         }
         for (i = 0; i < slicelen; ++i) {
-            n = PyInt_FromSsize_t(data[start + (step * i)]);
+            n = PyLong_FromSsize_t(data[start + (step * i)]);
             if (n == NULL) {
                 Py_DECREF(slice);
                 return NULL;
@@ -1374,9 +1374,9 @@ pg_rect_bool(pgRectObject *self)
 }
 
 static PyNumberMethods pg_rect_as_number = {
-    (binaryfunc)NULL, /*add*/
-    (binaryfunc)NULL, /*subtract*/
-    (binaryfunc)NULL, /*multiply*/
+    (binaryfunc)NULL,      /*add*/
+    (binaryfunc)NULL,      /*subtract*/
+    (binaryfunc)NULL,      /*multiply*/
     (binaryfunc)NULL,      /*remainder*/
     (binaryfunc)NULL,      /*divmod*/
     (ternaryfunc)NULL,     /*power*/
@@ -1390,8 +1390,8 @@ static PyNumberMethods pg_rect_as_number = {
     (binaryfunc)NULL,      /*and*/
     (binaryfunc)NULL,      /*xor*/
     (binaryfunc)NULL,      /*or*/
-    (unaryfunc)NULL, /*int*/
-    (unaryfunc)NULL, /*float*/
+    (unaryfunc)NULL,       /*int*/
+    (unaryfunc)NULL,       /*float*/
 };
 
 static PyObject *
@@ -1401,7 +1401,7 @@ pg_rect_repr(pgRectObject *self)
 
     sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w,
             self->r.h);
-    return Text_FromUTF8(string);
+    return PyUnicode_FromString(string);
 }
 
 static PyObject *
@@ -1467,7 +1467,7 @@ Unimplemented:
 static PyObject *
 pg_rect_getwidth(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.w);
+    return PyLong_FromLong(self->r.w);
 }
 
 static int
@@ -1493,7 +1493,7 @@ pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getheight(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.h);
+    return PyLong_FromLong(self->r.h);
 }
 
 static int
@@ -1519,7 +1519,7 @@ pg_rect_setheight(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_gettop(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.y);
+    return PyLong_FromLong(self->r.y);
 }
 
 static int
@@ -1545,7 +1545,7 @@ pg_rect_settop(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getleft(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.x);
+    return PyLong_FromLong(self->r.x);
 }
 
 static int
@@ -1571,7 +1571,7 @@ pg_rect_setleft(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getright(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.x + self->r.w);
+    return PyLong_FromLong(self->r.x + self->r.w);
 }
 
 static int
@@ -1597,7 +1597,7 @@ pg_rect_setright(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getbottom(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.y + self->r.h);
+    return PyLong_FromLong(self->r.y + self->r.h);
 }
 
 static int
@@ -1623,7 +1623,7 @@ pg_rect_setbottom(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getcenterx(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.x + (self->r.w >> 1));
+    return PyLong_FromLong(self->r.x + (self->r.w >> 1));
 }
 
 static int
@@ -1649,7 +1649,7 @@ pg_rect_setcenterx(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getcentery(pgRectObject *self, void *closure)
 {
-    return PyInt_FromLong(self->r.y + (self->r.h >> 1));
+    return PyLong_FromLong(self->r.y + (self->r.h >> 1));
 }
 
 static int
@@ -2075,27 +2075,27 @@ MODINIT_DEFINE(rect)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* Create the module and add the functions */
     if (PyType_Ready(&pgRect_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
     if (PyDict_SetItemString(dict, "RectType", (PyObject *)&pgRect_Type)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyDict_SetItemString(dict, "Rect", (PyObject *)&pgRect_Type)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -2106,14 +2106,14 @@ MODINIT_DEFINE(rect)
     c_api[4] = pgRect_Normalize;
     apiobj = encapsulate_api(c_api, "rect");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

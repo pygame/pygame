@@ -120,7 +120,7 @@ Overlay_Display(PyGameOverlay *self, PyObject *args)
 static PyObject *
 Overlay_GetHardware(PyGameOverlay *self, PyObject *args)
 {
-    return PyInt_FromLong(self->cOverlay->hw_overlay);
+    return PyLong_FromLong(self->cOverlay->hw_overlay);
 }
 
 PyObject *
@@ -234,21 +234,21 @@ MODINIT_DEFINE(overlay)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     if (PyType_Ready(&PyOverlay_Type) == -1) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module reference */
@@ -256,8 +256,8 @@ MODINIT_DEFINE(overlay)
     if (PyModule_AddObject(module, "Overlay", (PyObject *)&PyOverlay_Type) ==
         -1) {
         Py_DECREF((PyObject *)&PyOverlay_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

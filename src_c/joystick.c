@@ -110,7 +110,7 @@ static PyObject *
 get_count(PyObject *self, PyObject *args)
 {
     JOYSTICK_INIT_CHECK();
-    return PyInt_FromLong(SDL_NumJoysticks());
+    return PyLong_FromLong(SDL_NumJoysticks());
 }
 
 
@@ -147,8 +147,8 @@ _joy_map_insert(pgJoystickObject *jstick) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
-    k = PyInt_FromLong(instance_id);
-    v = PyInt_FromLong(jstick->id);
+    k = PyLong_FromLong(instance_id);
+    v = PyLong_FromLong(jstick->id);
     if (k && v) {
         PyDict_SetItem(joy_instance_map, k, v);
     }
@@ -182,7 +182,7 @@ static PyObject *
 joy_get_id(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
-    return PyInt_FromLong(joy_id);
+    return PyLong_FromLong(joy_id);
 }
 
 
@@ -196,7 +196,7 @@ joy_get_instance_id(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickInstanceID(joy));
+    return PyLong_FromLong(SDL_JoystickInstanceID(joy));
 }
 
 
@@ -216,7 +216,7 @@ joy_get_guid(PyObject *self, PyObject *args)
 
     SDL_JoystickGetGUIDString(guid, strguid, 33);
 
-    return Text_FromUTF8(strguid);
+    return PyUnicode_FromString(strguid);
 }
 
 
@@ -255,7 +255,7 @@ joy_get_power_level(PyObject *self, PyObject *args)
     level = SDL_JoystickCurrentPowerLevel(joy);
     leveltext = _pg_powerlevel_string(level);
 
-    return Text_FromUTF8(leveltext);
+    return PyUnicode_FromString(leveltext);
 }
 
 static PyObject *
@@ -328,7 +328,7 @@ static PyObject *
 joy_get_name(PyObject *self, PyObject *args)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
-    return Text_FromUTF8(SDL_JoystickName(joy));
+    return PyUnicode_FromString(SDL_JoystickName(joy));
 }
 
 static PyObject *
@@ -340,7 +340,7 @@ joy_get_numaxes(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumAxes(joy));
+    return PyLong_FromLong(SDL_JoystickNumAxes(joy));
 }
 
 static PyObject *
@@ -379,7 +379,7 @@ joy_get_numbuttons(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumButtons(joy));
+    return PyLong_FromLong(SDL_JoystickNumButtons(joy));
 }
 
 static PyObject *
@@ -404,7 +404,7 @@ joy_get_button(PyObject *self, PyObject *args)
 #ifdef DEBUG
     /*printf("SDL_JoystickGetButton value:%d:\n", value);*/
 #endif
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -417,7 +417,7 @@ joy_get_numballs(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumBalls(joy));
+    return PyLong_FromLong(SDL_JoystickNumBalls(joy));
 }
 
 static PyObject *
@@ -462,7 +462,7 @@ joy_get_numhats(PyObject *self, PyObject *args)
 #ifdef DEBUG
     /*printf("SDL_JoystickNumHats value:%d:\n", value);*/
 #endif
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -654,18 +654,18 @@ MODINIT_DEFINE(joystick)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgJoystick_Type) == -1) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* Grab the instance -> device id mapping */
     module = PyImport_ImportModule("pygame.event");
     if (!module) {
-        MODINIT_ERROR;
+        return NULL;
     }
     joy_instance_map = PyObject_GetAttrString(module, "_joy_instance_map");
     Py_DECREF(module);
@@ -673,14 +673,14 @@ MODINIT_DEFINE(joystick)
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
     if (PyDict_SetItemString(dict, "JoystickType",
                              (PyObject *)&pgJoystick_Type) == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -688,14 +688,14 @@ MODINIT_DEFINE(joystick)
     c_api[1] = pgJoystick_New;
     apiobj = encapsulate_api(c_api, "joystick");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

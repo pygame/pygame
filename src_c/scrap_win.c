@@ -246,7 +246,7 @@ pygame_scrap_get(char *type, unsigned long *count)
     }
 
     if (!pygame_scrap_lost())
-        return Bytes_AsString(PyDict_GetItemString(_clipdata, type));
+        return PyBytes_AsString(PyDict_GetItemString(_clipdata, type));
 
     if (!OpenClipboard(window_handle))
         return NULL;

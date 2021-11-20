@@ -55,8 +55,8 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
         return 0;
     }
 
-    if (PyInt_Check(val)) {
-        long intval = PyInt_AsLong (val);
+    if (PyLong_Check(val)) {
+        long intval = PyLong_AsLong (val);
         if (intval == -1 && PyErr_Occurred()) {
             PyErr_SetString (PyExc_ValueError, "invalid color argument");
             return 0;
@@ -133,7 +133,7 @@ _get_single_pixel(pgPixelArrayObject *array, Uint32 x, Uint32 y)
         pixel = *((Uint32 *)pixel_p);
     }
 
-    return PyInt_FromLong((long)pixel);
+    return PyLong_FromLong((long)pixel);
 }
 
 /**
@@ -308,8 +308,8 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
                     rgb[i] = (float)PyFloat_AsDouble(num);
                     Py_DECREF(num);
                 }
-                else if (PyErr_Clear(), (num = PyNumber_Int(item))) {
-                    rgb[i] = (float)PyInt_AsLong (num);
+                else if (PyErr_Clear(), (num = PyNumber_Long(item))) {
+                    rgb[i] = (float)PyLong_AsLong (num);
                     success = rgb[i] != -1 || !PyErr_Occurred();
                     Py_DECREF(num);
                 }

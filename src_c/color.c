@@ -637,7 +637,7 @@ _parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
     PyObject *name1 = NULL, *name2 = NULL;
 
     /* We assume the caller handled this check for us. */
-    assert(Text_Check(str_obj) || PyUnicode_Check(str_obj));
+    assert(PyUnicode_Check(str_obj));
 
     name1 = PyObject_CallMethod(str_obj, "replace", "(ss)", " ", "");
     if (!name1) {
@@ -670,7 +670,7 @@ _parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
 static int
 _parse_color_from_single_object(PyObject *obj, Uint8 *rgba) {
 
-    if (Text_Check(obj) || PyUnicode_Check(obj)) {
+    if (PyUnicode_Check(obj)) {
         if (_parse_color_from_text(obj, rgba)) {
             return -1;
         }
@@ -776,7 +776,7 @@ _color_repr(pgColorObject *color)
     char buf[21];
     PyOS_snprintf(buf, sizeof(buf), "(%d, %d, %d, %d)", color->data[0],
                   color->data[1], color->data[2], color->data[3]);
-    return Text_FromUTF8(buf);
+    return PyUnicode_FromString(buf);
 }
 
 /**
@@ -931,7 +931,7 @@ _color_update(pgColorObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 _color_get_r(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[0]);
+    return PyLong_FromLong(color->data[0]);
 }
 
 /**
@@ -961,7 +961,7 @@ _color_set_r(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_g(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[1]);
+    return PyLong_FromLong(color->data[1]);
 }
 
 /**
@@ -991,7 +991,7 @@ _color_set_g(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_b(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[2]);
+    return PyLong_FromLong(color->data[2]);
 }
 
 /**
@@ -1021,7 +1021,7 @@ _color_set_b(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_a(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[3]);
+    return PyLong_FromLong(color->data[3]);
 }
 
 /**
@@ -1768,13 +1768,13 @@ _color_item(pgColorObject *color, Py_ssize_t _index)
 
     switch (_index) {
         case 0:
-            return PyInt_FromLong(color->data[0]);
+            return PyLong_FromLong(color->data[0]);
         case 1:
-            return PyInt_FromLong(color->data[1]);
+            return PyLong_FromLong(color->data[1]);
         case 2:
-            return PyInt_FromLong(color->data[2]);
+            return PyLong_FromLong(color->data[2]);
         case 3:
-            return PyInt_FromLong(color->data[3]);
+            return PyLong_FromLong(color->data[3]);
         default:
             return RAISE(PyExc_IndexError, "invalid index");
     }
@@ -2119,7 +2119,7 @@ MODINIT_DEFINE(color)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     colordict = PyImport_ImportModule("pygame.colordict");
@@ -2131,35 +2131,35 @@ MODINIT_DEFINE(color)
         Py_DECREF(colordict);
     }
     else {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgColor_Type) < 0) {
         Py_DECREF(_COLORDICT);
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
         Py_DECREF(_COLORDICT);
-        MODINIT_ERROR;
+        return NULL;
     }
     pgColor_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF(&pgColor_Type);
     if (PyModule_AddObject(module, "Color", (PyObject *)&pgColor_Type)) {
         Py_DECREF(&pgColor_Type);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     Py_INCREF(_COLORDICT);
     if (PyModule_AddObject(module, "THECOLORS", _COLORDICT)) {
         Py_DECREF(_COLORDICT);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     c_api[0] = &pgColor_Type;
@@ -2171,14 +2171,14 @@ MODINIT_DEFINE(color)
     apiobj = encapsulate_api(c_api, "color");
     if (apiobj == NULL) {
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_DECREF(apiobj);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -375,7 +375,7 @@ proxy_get_raw(pgBufproxyObject *self, PyObject *closure)
         PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
         return 0;
     }
-    py_raw = Bytes_FromStringAndSize((char *)view_p->buf, view_p->len);
+    py_raw = PyBytes_FromStringAndSize((char *)view_p->buf, view_p->len);
     if (!py_raw) {
         _proxy_release_view(self);
         return 0;
@@ -390,7 +390,7 @@ proxy_get_length(pgBufproxyObject *self, PyObject *closure)
     PyObject *py_length = 0;
 
     if (view_p) {
-        py_length = PyInt_FromSsize_t(view_p->len);
+        py_length = PyLong_FromSsize_t(view_p->len);
         if (!py_length) {
             _proxy_release_view(self);
         }
@@ -411,7 +411,7 @@ proxy_repr(pgBufproxyObject *self)
     if (!view_p) {
         return 0;
     }
-    return Text_FromFormat("<BufferProxy(%zd)>", view_p->len);
+    return PyUnicode_FromFormat("<BufferProxy(%zd)>", view_p->len);
 }
 
 /**
@@ -843,12 +843,12 @@ MODINIT_DEFINE(bufferproxy)
     /* imported needed apis */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* prepare exported types */
     if (PyType_Ready(&pgBufproxy_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
 #define bufferproxy_docs ""
@@ -860,8 +860,8 @@ MODINIT_DEFINE(bufferproxy)
     if (PyModule_AddObject(module, PROXY_TYPE_NAME,
                            (PyObject *)&pgBufproxy_Type)) {
         Py_DECREF(&pgBufproxy_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 #if PYGAMEAPI_BUFPROXY_NUMSLOTS != 4
 #error export slot count mismatch
@@ -872,13 +872,13 @@ MODINIT_DEFINE(bufferproxy)
     c_api[3] = pgBufproxy_Trip;
     apiobj = encapsulate_api(c_api, PROXY_MODNAME);
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

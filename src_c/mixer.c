@@ -266,7 +266,7 @@ _pg_push_mixer_event(int type, int code)
     dict = PyDict_New();
     if (dict) {
         if (type >= PGE_USEREVENT && type < PG_NUMEVENTS) {
-            dictcode = PyInt_FromLong(code);
+            dictcode = PyLong_FromLong(code);
             PyDict_SetItemString(dict, "code", dictcode);
             Py_DECREF(dictcode);
         }
@@ -647,7 +647,7 @@ snd_get_num_channels(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
-    return PyInt_FromLong(Mix_GroupCount((intptr_t)chunk));
+    return PyLong_FromLong(Mix_GroupCount((intptr_t)chunk));
 }
 
 static PyObject *
@@ -731,7 +731,7 @@ snd_get_raw(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    return Bytes_FromStringAndSize((const char *)chunk->abuf,
+    return PyBytes_FromStringAndSize((const char *)chunk->abuf,
                                    (Py_ssize_t)chunk->alen);
 }
 
@@ -1247,7 +1247,7 @@ chan_get_endevent(PyObject *self)
 {
     int channelnum = pgChannel_AsInt(self);
 
-    return PyInt_FromLong(channeldata[channelnum].endevent);
+    return PyLong_FromLong(channeldata[channelnum].endevent);
 }
 
 static PyMethodDef channel_methods[] = {
@@ -1329,7 +1329,7 @@ static PyObject *
 get_num_channels(PyObject *self)
 {
     MIXER_INIT_CHECK();
-    return PyInt_FromLong(Mix_GroupCount(-1));
+    return PyLong_FromLong(Mix_GroupCount(-1));
 }
 
 static PyObject *
@@ -1374,7 +1374,7 @@ set_reserved(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     numchans_reserved = Mix_ReserveChannels(numchans_requested);
-    return PyInt_FromLong(numchans_reserved);
+    return PyLong_FromLong(numchans_reserved);
 }
 
 static PyObject *
@@ -1740,7 +1740,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             }
             PyErr_Format(PyExc_TypeError,
                          "Unrecognized keyword argument '%.1024s'",
-                         Bytes_AS_STRING(kencoded));
+                         PyBytes_AS_STRING(kencoded));
             Py_DECREF(kencoded);
             return -1;
         }
@@ -1781,7 +1781,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             }
             else {
                 PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
-                             Bytes_AS_STRING(obj));
+                             PyBytes_AS_STRING(obj));
             }
             Py_XDECREF(obj);
             return -1;
@@ -1944,46 +1944,46 @@ MODINIT_DEFINE(mixer)
     /*imported needed apis*/
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rwobject();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_event();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgSound_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
     if (PyType_Ready(&pgChannel_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     pgSound_Type.tp_new = &PyType_GenericNew;
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
     if (PyDict_SetItemString(dict, "Sound", (PyObject *)&pgSound_Type) < 0) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyDict_SetItemString(dict, "SoundType", (PyObject *)&pgSound_Type) <
         0) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyDict_SetItemString(dict, "ChannelType",
                              (PyObject *)&pgChannel_Type) < 0) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -1994,26 +1994,26 @@ MODINIT_DEFINE(mixer)
     c_api[4] = pgChannel_New;
     apiobj = encapsulate_api(c_api, "mixer");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode < 0) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     music = import_music();
     if (music != NULL) {
         if (PyModule_AddObject(module, "music", music) < 0) {
-            DECREF_MOD(module);
+            Py_DECREF(module);
             Py_DECREF(music);
-            MODINIT_ERROR;
+            return NULL;
         }
     }
     else {
         PyErr_Clear();
     }
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -144,7 +144,7 @@ _encode_bytes_string(PyObject *obj)
     int i;
     char *src;
 
-    Bytes_AsStringAndSize(obj, &src, &len);
+    PyBytes_AsStringAndSize(obj, &src, &len);
     utf32_buffer = (PGFT_String *)_PGFT_malloc(SIZEOF_PGFT_STRING(len));
     if (!utf32_buffer) {
         PyErr_NoMemory();
@@ -165,7 +165,7 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
 {
     if (PyUnicode_Check(obj))
         return _encode_unicode_string(obj, ucs4);
-    else if (Bytes_Check(obj))
+    else if (PyBytes_Check(obj))
         return _encode_bytes_string(obj);
     else
         PyErr_Format(PyExc_TypeError,

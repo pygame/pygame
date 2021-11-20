@@ -92,7 +92,7 @@ mask_copy(PyObject *self, PyObject *args)
 static PyObject *
 mask_call_copy(PyObject *self, PyObject *args)
 {
-    return PyObject_CallMethodObjArgs(self, Text_FromUTF8("__copy__"), args);
+    return PyObject_CallMethodObjArgs(self, PyUnicode_FromString("__copy__"), args);
 }
 
 static PyObject *
@@ -169,7 +169,7 @@ mask_get_at(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    return PyInt_FromLong(val);
+    return PyLong_FromLong(val);
 }
 
 static PyObject *
@@ -254,7 +254,7 @@ mask_overlap_area(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     val = bitmask_overlap_area(mask, othermask, x, y);
-    return PyInt_FromLong(val);
+    return PyLong_FromLong(val);
 }
 
 static PyObject *
@@ -401,7 +401,7 @@ mask_count(PyObject *self, PyObject *args)
 {
     bitmask_t *m = pgMask_AsBitmap(self);
 
-    return PyInt_FromLong(bitmask_count(m));
+    return PyLong_FromLong(bitmask_count(m));
 }
 
 static PyObject *
@@ -425,12 +425,12 @@ mask_centroid(PyObject *self, PyObject *args)
     }
 
     if (m00) {
-        xobj = PyInt_FromLong(m10 / m00);
-        yobj = PyInt_FromLong(m01 / m00);
+        xobj = PyLong_FromLong(m10 / m00);
+        yobj = PyLong_FromLong(m01 / m00);
     }
     else {
-        xobj = PyInt_FromLong(0);
-        yobj = PyInt_FromLong(0);
+        xobj = PyLong_FromLong(0);
+        yobj = PyLong_FromLong(0);
     }
 
     return Py_BuildValue("(NN)", xobj, yobj);
@@ -1069,8 +1069,8 @@ mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
         surf2 = pgSurface_AsSurface(surfobj2);
     }
 
-    if (PyInt_Check(rgba_obj_color)) {
-        color = (Uint32)PyInt_AsLong(rgba_obj_color);
+    if (PyLong_Check(rgba_obj_color)) {
+        color = (Uint32)PyLong_AsLong(rgba_obj_color);
     }
     else if (PyLong_Check(rgba_obj_color)) {
         color = (Uint32)PyLong_AsUnsignedLong(rgba_obj_color);
@@ -1084,8 +1084,8 @@ mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (rgba_obj_threshold) {
-        if (PyInt_Check(rgba_obj_threshold))
-            color_threshold = (Uint32)PyInt_AsLong(rgba_obj_threshold);
+        if (PyLong_Check(rgba_obj_threshold))
+            color_threshold = (Uint32)PyLong_AsLong(rgba_obj_threshold);
         else if (PyLong_Check(rgba_obj_threshold))
             color_threshold =
                 (Uint32)PyLong_AsUnsignedLong(rgba_obj_threshold);
@@ -1876,8 +1876,8 @@ extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
         return 1;
     }
 
-    if (PyInt_Check(color_obj)) {
-        long intval = PyInt_AsLong(color_obj);
+    if (PyLong_Check(color_obj)) {
+        long intval = PyLong_AsLong(color_obj);
 
         if ((-1 == intval && PyErr_Occurred()) || intval > (long)0xFFFFFFFF) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
@@ -2411,7 +2411,7 @@ static PyObject *
 mask_repr(PyObject *self)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
-    return Text_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
+    return PyUnicode_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
 }
 
 static PyObject *
@@ -2610,54 +2610,54 @@ MODINIT_DEFINE(mask)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the mask type */
     if (PyType_Ready(&pgMask_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
     if (PyDict_SetItemString(dict, "MaskType", (PyObject *)&pgMask_Type) ==
         -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyDict_SetItemString(dict, "Mask", (PyObject *)&pgMask_Type) == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
     c_api[0] = &pgMask_Type;
     apiobj = encapsulate_api(c_api, "mask");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
         Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

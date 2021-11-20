@@ -863,7 +863,7 @@ windows_read_raw(pgCameraObject *self)
                                          &buf_max_length, &buf_length);
         CHECKHR(hr);
 
-        data = Bytes_FromStringAndSize(buf_data, buf_length);
+        data = PyBytes_FromStringAndSize(buf_data, buf_length);
         if (!data) {
             PyErr_SetString(pgExc_SDLError,
                             "Error constructing bytes from data");

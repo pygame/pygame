@@ -5,32 +5,11 @@
 
 #include "include/pgcompat.h"
 
-/* Define some aliases for the removed PyInt_* functions */
-#define PyInt_Check(op) PyLong_Check(op)
-#define PyInt_FromString PyLong_FromString
-#define PyInt_FromLong PyLong_FromLong
-#define PyInt_FromSize_t PyLong_FromSize_t
-#define PyInt_FromSsize_t PyLong_FromSsize_t
-#define PyInt_AsLong PyLong_AsLong
-#define PyInt_AsSsize_t PyLong_AsSsize_t
-#define PyInt_AsUnsignedLongMask PyLong_AsUnsignedLongMask
-#define PyInt_AsUnsignedLongLongMask PyLong_AsUnsignedLongLongMask
-#define PyInt_AS_LONG PyLong_AS_LONG
-#define PyNumber_Int PyNumber_Long
-/* Int and Long are identical in Py3 so only check one */
-#define INT_CHECK(op) PyLong_Check(op)
-
 /* Weakrefs flags changed in 3.x */
 #define Py_TPFLAGS_HAVE_WEAKREFS 0
 
 /* Module init function returns new module instance. */
-#define MODINIT_RETURN(x) return x
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name (void)
-#define DECREF_MOD(mod) Py_DECREF (mod)
-
-/* Text interface. Use unicode strings. */
-#define Text_Type PyUnicode_Type
-#define Text_Check PyUnicode_Check
 
 #ifndef PYPY_VERSION
 #define Text_FromLocale(s) PyUnicode_DecodeLocale((s), "strict")
@@ -39,47 +18,12 @@
 #define Text_FromLocale PyUnicode_FromString
 #endif /* PYPY_VERSION */
 
-#define Text_FromUTF8 PyUnicode_FromString
-#define Text_FromUTF8AndSize PyUnicode_FromStringAndSize
-#define Text_FromFormat PyUnicode_FromFormat
-#define Text_GetSize PyUnicode_GetSize
-#define Text_GET_SIZE PyUnicode_GET_SIZE
-
-/* Binary interface. Use bytes. */
-#define Bytes_Type PyBytes_Type
-#define Bytes_Check PyBytes_Check
-#define Bytes_Size PyBytes_Size
-#define Bytes_AsString PyBytes_AsString
-#define Bytes_AsStringAndSize PyBytes_AsStringAndSize
-#define Bytes_FromStringAndSize PyBytes_FromStringAndSize
-#define Bytes_FromFormat PyBytes_FromFormat
-#define Bytes_AS_STRING PyBytes_AS_STRING
-#define Bytes_GET_SIZE PyBytes_GET_SIZE
-#define Bytes_AsDecodeObject PyBytes_AsDecodedObject
-
-#define Object_Unicode PyObject_Str
-
-#define IsTextObj(x) (PyUnicode_Check(x) || PyBytes_Check(x))
-
-/* Renamed builtins */
-#define BUILTINS_MODULE "builtins"
-#define BUILTINS_UNICODE "str"
-#define BUILTINS_UNICHR "chr"
-
 /* Defaults for unicode file path encoding */
-#define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #if defined(MS_WIN32)
 #define UNICODE_DEF_FS_ERROR "replace"
 #else
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
 #endif
-
-#define MODINIT_ERROR MODINIT_RETURN (NULL)
-
-/* Module state. These macros are used to define per-module macros.
- * s - global state structure (Python 3.x)
- */
-#define PY3_GETSTATE(s, m) ((struct s *) PyModule_GetState (m))
 
 /* Pep 3123: Making PyObject_HEAD conform to standard C */
 #if !defined(Py_TYPE)
@@ -90,7 +34,7 @@
 
 /* Encode a unicode file path */
 #define Unicode_AsEncodedPath(u) \
-    PyUnicode_AsEncodedString ((u), UNICODE_DEF_FS_CODEC, UNICODE_DEF_FS_ERROR)
+    PyUnicode_AsEncodedString ((u), Py_FileSystemDefaultEncoding, UNICODE_DEF_FS_ERROR)
 
 #define RELATIVE_MODULE(m) ("." m)
 

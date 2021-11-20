@@ -1528,7 +1528,7 @@ vector_repr(pgVector *self)
                         buffer[(bufferIdx + 1) % 2], self->coords[i]);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
-    return Text_FromUTF8(buffer[bufferIdx % 2]);
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
@@ -1554,7 +1554,7 @@ vector_str(pgVector *self)
                         buffer[(bufferIdx + 1) % 2], self->coords[i]);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
-    return Text_FromUTF8(buffer[bufferIdx % 2]);
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
@@ -3266,7 +3266,7 @@ vectoriter_len(vectoriter *it)
     if (it && it->vec) {
         len = it->vec->dim - it->it_index;
     }
-    return PyInt_FromSsize_t(len);
+    return PyLong_FromSsize_t(len);
 }
 
 static PyMethodDef vectoriter_methods[] = {
@@ -4055,14 +4055,14 @@ MODINIT_DEFINE(math)
         (PyType_Ready(&pgVectorIter_Type) < 0) ||
         (PyType_Ready(&pgVectorElementwiseProxy_Type) < 0) /*||
         (PyType_Ready(&pgVector4_Type) < 0)*/) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* initialize the module */
     module = PyModule_Create(&_module);
 
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* add extension types to module */
@@ -4090,8 +4090,8 @@ MODINIT_DEFINE(math)
         if (!PyObject_HasAttrString(module, "Vector4"))
             Py_DECREF(&pgVector4_Type);
         */
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the C api */
@@ -4104,15 +4104,15 @@ MODINIT_DEFINE(math)
     */
     apiobj = encapsulate_api(c_api, "math");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
         Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -135,13 +135,13 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
         }
         ch = PyUnicode_READ_CHAR(obj, 0);
     }
-    else if (Bytes_Check(obj)) {
-        if (Bytes_GET_SIZE(obj) != 1) {
+    else if (PyBytes_Check(obj)) {
+        if (PyBytes_GET_SIZE(obj) != 1) {
             PyErr_SetString(PyExc_TypeError,
                             "expected a length 1 string for argument 3");
             return 0;
         }
-        ch = *Bytes_AS_STRING(obj);
+        ch = *PyBytes_AS_STRING(obj);
     }
     else {
         PyErr_Format(PyExc_TypeError,
@@ -1223,11 +1223,11 @@ MODINIT_DEFINE(pixelcopy)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     return PyModule_Create(&_module);

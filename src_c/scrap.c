@@ -262,7 +262,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     if (!scrap)
         Py_RETURN_NONE;
 
-    retval = Bytes_FromStringAndSize(scrap, count);
+    retval = PyBytes_FromStringAndSize(scrap, count);
 #if defined(PYGAME_SCRAP_FREE_STRING)
     free(scrap);
 #endif
@@ -298,14 +298,14 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
     /* Add or replace the set value. */
     switch (_currentmode) {
         case SCRAP_SELECTION: {
-            tmp = Bytes_FromStringAndSize(scrap, scraplen);
+            tmp = PyBytes_FromStringAndSize(scrap, scraplen);
             PyDict_SetItemString(_selectiondata, scrap_type, tmp);
             Py_DECREF(tmp);
             break;
         }
         case SCRAP_CLIPBOARD:
         default: {
-            tmp = Bytes_FromStringAndSize(scrap, scraplen);
+            tmp = PyBytes_FromStringAndSize(scrap, scraplen);
             PyDict_SetItemString(_clipdata, scrap_type, tmp);
             Py_DECREF(tmp);
             break;
@@ -393,7 +393,7 @@ MODINIT_DEFINE(scrap)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */

@@ -360,9 +360,9 @@ MODINIT_DEFINE (sdlmain_osx)
     /*imported needed apis*/
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     module = PyModule_Create(&_module);
-    MODINIT_RETURN(module);
+    return module;
 }

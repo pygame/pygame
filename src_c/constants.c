@@ -29,12 +29,12 @@
 /* macros used to create each constant */
 #define ADD_ERROR(x)                                \
     {                                               \
-        DECREF_MOD(module);                         \
-        MODINIT_ERROR;                              \
+        Py_DECREF(module);                         \
+        return NULL;                              \
     }                                               \
     else                                            \
     {                                               \
-        PyList_Append(all_list, Text_FromUTF8(x)); \
+        PyList_Append(all_list, PyUnicode_FromString(x)); \
     }
 #define STRINGIZE(x) #x
 #define DEC_CONSTS_(x, y)                           \
@@ -82,7 +82,7 @@ MODINIT_DEFINE(constants)
 
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     // Attempt to create __all__ variable for constants module
@@ -594,5 +594,5 @@ MODINIT_DEFINE(constants)
 
     PyModule_AddObject(module, "__all__", all_list);
 
-    MODINIT_RETURN(module);
+    return module;
 }

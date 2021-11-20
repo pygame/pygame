@@ -165,7 +165,7 @@ image_save(PyObject *self, PyObject *arg)
             name = (namehint ? namehint: "tga");
         }
         else {
-            name = Bytes_AS_STRING(oencoded);
+            name = PyBytes_AS_STRING(oencoded);
         }
         
         ext = find_extension(name);
@@ -524,10 +524,10 @@ image_tostring(PyObject *self, PyObject *arg)
             return RAISE(
                 PyExc_ValueError,
                 "Can only create \"P\" format data with 8bit Surfaces");
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h);
+        string = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
         pixels = (char *)surf->pixels;
@@ -538,10 +538,10 @@ image_tostring(PyObject *self, PyObject *arg)
     }
     else if (!strcmp(format, "RGB")) {
         string =
-            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 3);
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 3);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
 
@@ -613,10 +613,10 @@ image_tostring(PyObject *self, PyObject *arg)
             hascolorkey = 0;
 
         string =
-            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
         pixels = (char *)surf->pixels;
@@ -690,10 +690,10 @@ image_tostring(PyObject *self, PyObject *arg)
         hascolorkey = 0;
 
         string =
-            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
         pixels = (char *)surf->pixels;
@@ -765,10 +765,10 @@ image_tostring(PyObject *self, PyObject *arg)
         hascolorkey = 0;
 
         string =
-            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
         pixels = (char *)surf->pixels;
@@ -858,10 +858,10 @@ image_tostring(PyObject *self, PyObject *arg)
         hascolorkey = 0;
 
         string =
-            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        Bytes_AsStringAndSize(string, &data, &len);
+        PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
         pixels = (char *)surf->pixels;
@@ -961,14 +961,14 @@ image_fromstring(PyObject *self, PyObject *arg)
     Py_ssize_t len;
     int loopw, looph;
 
-    if (!PyArg_ParseTuple(arg, "O!(ii)s|i", &Bytes_Type, &string, &w, &h,
+    if (!PyArg_ParseTuple(arg, "O!(ii)s|i", &PyBytes_Type, &string, &w, &h,
                           &format, &flipped))
         return NULL;
 
     if (w < 1 || h < 1)
         return RAISE(PyExc_ValueError, "Resolution must be positive values");
 
-    Bytes_AsStringAndSize(string, &data, &len);
+    PyBytes_AsStringAndSize(string, &data, &len);
 
     if (!strcmp(format, "P")) {
         if (len != (Py_ssize_t)w * h)
@@ -1492,21 +1492,21 @@ MODINIT_DEFINE(image)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rwobject();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* try to get extended formats */
@@ -1530,13 +1530,13 @@ MODINIT_DEFINE(image)
         // if the module could not be loaded, dont treat it like an error
         PyErr_Clear();
     }
-    MODINIT_RETURN(module);
+    return module;
     
     error:
         Py_XDECREF(extloadobj);
         Py_XDECREF(extsaveobj);
         Py_XDECREF(extverobj);
         Py_DECREF(extmodule);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
 }
