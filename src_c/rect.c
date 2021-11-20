@@ -1225,16 +1225,10 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
         Py_ssize_t i;
         PyObject *n;
 
-#if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
             return NULL;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject *)op, 4, &start, &stop, &step,
-                                 &slicelen)) {
-            return NULL;
-        }
-#endif
+
         slice = PyList_New(slicelen);
         if (slice == NULL) {
             return NULL;
@@ -1322,16 +1316,10 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         int val;
         Py_ssize_t i;
 
-#if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
             return -1;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject *)op, 4, &start, &stop, &step,
-                                 &slicelen)) {
-            return -1;
-        }
-#endif
+
         if (pg_IntFromObj(value, &val)) {
             for (i = 0; i < slicelen; ++i) {
                 data[start + step * i] = val;
@@ -1385,47 +1373,10 @@ pg_rect_bool(pgRectObject *self)
     return self->r.w != 0 && self->r.h != 0;
 }
 
-#if !PY3
-static int
-pg_rect_coerce(PyObject **o1, PyObject **o2)
-{
-    PyObject *new1;
-    PyObject *new2;
-    SDL_Rect *r, temp;
-
-    if (pgRect_Check(*o1)) {
-        new1 = *o1;
-        Py_INCREF(new1);
-    }
-    else if ((r = pgRect_FromObject(*o1, &temp)))
-        new1 = pgRect_New4(r->x, r->y, r->w, r->h);
-    else
-        return 1;
-
-    if (pgRect_Check(*o2)) {
-        new2 = *o2;
-        Py_INCREF(new2);
-    }
-    else if ((r = pgRect_FromObject(*o2, &temp)))
-        new2 = pgRect_New4(r->x, r->y, r->w, r->h);
-    else {
-        Py_DECREF(new1);
-        return 1;
-    }
-
-    *o1 = new1;
-    *o2 = new2;
-    return 0;
-}
-#endif
-
 static PyNumberMethods pg_rect_as_number = {
     (binaryfunc)NULL, /*add*/
     (binaryfunc)NULL, /*subtract*/
     (binaryfunc)NULL, /*multiply*/
-#if !PY3
-    (binaryfunc)NULL, /*divide*/
-#endif
     (binaryfunc)NULL,      /*remainder*/
     (binaryfunc)NULL,      /*divmod*/
     (ternaryfunc)NULL,     /*power*/
@@ -1439,13 +1390,7 @@ static PyNumberMethods pg_rect_as_number = {
     (binaryfunc)NULL,      /*and*/
     (binaryfunc)NULL,      /*xor*/
     (binaryfunc)NULL,      /*or*/
-#if !PY3
-    (coercion)pg_rect_coerce, /*coerce*/
-#endif
     (unaryfunc)NULL, /*int*/
-#if !PY3
-    (unaryfunc)NULL, /*long*/
-#endif
     (unaryfunc)NULL, /*float*/
 };
 

@@ -5,10 +5,6 @@
 
 #include "include/pgcompat.h"
 
-#if PY_MAJOR_VERSION >= 3
-
-#define PY3 1
-
 /* Define some aliases for the removed PyInt_* functions */
 #define PyInt_Check(op) PyLong_Check(op)
 #define PyInt_FromString PyLong_FromString
@@ -78,62 +74,11 @@
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
 #endif
 
-#else /* #if PY_MAJOR_VERSION >= 3 */
-
-#define PY3 0
-
-/* Check both Int and Long in PY2 */
-#define INT_CHECK(op) (PyInt_Check(op) || PyLong_Check(op))
-
-/* Module init function returns nothing. */
-#define MODINIT_RETURN(x) return
-#define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC init##mod_name (void)
-#define DECREF_MOD(mod)
-
-/* Text interface. Use ascii strings. */
-#define Text_Type PyString_Type
-#define Text_Check PyString_Check
-#define Text_FromLocale PyString_FromString
-#define Text_FromUTF8 PyString_FromString
-#define Text_FromUTF8AndSize PyString_FromStringAndSize
-#define Text_FromFormat PyString_FromFormat
-#define Text_GetSize PyString_GetSize
-#define Text_GET_SIZE PyString_GET_SIZE
-
-/* Binary interface. Use ascii strings. */
-#define Bytes_Type PyString_Type
-#define Bytes_Check PyString_Check
-#define Bytes_Size PyString_Size
-#define Bytes_AsString PyString_AsString
-#define Bytes_AsStringAndSize PyString_AsStringAndSize
-#define Bytes_FromStringAndSize PyString_FromStringAndSize
-#define Bytes_FromFormat PyString_FromFormat
-#define Bytes_AS_STRING PyString_AS_STRING
-#define Bytes_GET_SIZE PyString_GET_SIZE
-#define Bytes_AsDecodedObject PyString_AsDecodedObject
-
-#define Object_Unicode PyObject_Unicode
-
-/* Renamed builtins */
-#define BUILTINS_MODULE "__builtin__"
-#define BUILTINS_UNICODE "unicode"
-#define BUILTINS_UNICHR "unichr"
-
-/* Defaults for unicode file path encoding */
-#define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
-#define UNICODE_DEF_FS_ERROR "strict"
-
-#endif /* #if PY_MAJOR_VERSION >= 3 */
-
-#define PY2 (!PY3)
-
 #define MODINIT_ERROR MODINIT_RETURN (NULL)
 
 /* Module state. These macros are used to define per-module macros.
- * v - global state variable (Python 2.x)
  * s - global state structure (Python 3.x)
  */
-#define PY2_GETSTATE(v) (&(v))
 #define PY3_GETSTATE(s, m) ((struct s *) PyModule_GetState (m))
 
 /* Pep 3123: Making PyObject_HEAD conform to standard C */
@@ -149,7 +94,7 @@
 
 #define RELATIVE_MODULE(m) ("." m)
 
-#define HAVE_OLD_BUFPROTO PY2
+#define HAVE_OLD_BUFPROTO 0
 
 #if !defined(PG_ENABLE_OLDBUF)  /* allow for command line override */
 #if HAVE_OLD_BUFPROTO
@@ -171,14 +116,8 @@
 #define Py_TPFLAGS_CHECKTYPES 0
 #endif
 
-#if PY_VERSION_HEX >= 0x03020000
 #define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
     PySlice_GetIndicesEx(slice, length, start, stop, step, slicelength)
-#else
-#define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
-    PySlice_GetIndicesEx((PySliceObject *)(slice), length, \
-                         start, stop, step, slicelength)
-#endif
 
 #if defined(SDL_VERSION_ATLEAST)
 #if !(SDL_VERSION_ATLEAST(2, 0, 5))

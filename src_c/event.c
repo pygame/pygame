@@ -1390,9 +1390,6 @@ static PyNumberMethods pg_event_as_number = {
     (binaryfunc)NULL, /*Add*/
     (binaryfunc)NULL, /*subtract*/
     (binaryfunc)NULL, /*multiply*/
-#if !PY3
-    (binaryfunc)NULL, /*divide*/
-#endif
     (binaryfunc)NULL,       /*remainder*/
     (binaryfunc)NULL,       /*divmod*/
     (ternaryfunc)NULL,      /*power*/
@@ -1406,13 +1403,7 @@ static PyNumberMethods pg_event_as_number = {
     (binaryfunc)NULL,       /*and*/
     (binaryfunc)NULL,       /*xor*/
     (binaryfunc)NULL,       /*or*/
-#if !PY3
-    (coercion)NULL, /*coerce*/
-#endif
     (unaryfunc)NULL, /*int*/
-#if !PY3
-    (unaryfunc)NULL, /*long*/
-#endif
     (unaryfunc)NULL, /*float*/
 };
 

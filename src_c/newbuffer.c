@@ -117,12 +117,6 @@ check_value(PyObject *o, const char *name)
     return 0;
 }
 
-#if PY_MAJOR_VERSION < 3
-#define INT_AS_PY_SSIZE_T(o) (PyInt_AsSsize_t(o))
-#else
-#define INT_AS_PY_SSIZE_T(o) (PyLong_AsSsize_t(o))
-#endif
-
 static int
 set_void_ptr(void **vpp, PyObject *o, const char *name)
 {
@@ -164,7 +158,7 @@ set_py_ssize_t(Py_ssize_t *ip, PyObject *o, const char *name)
                      name, Py_TYPE(o)->tp_name);
         return -1;
     }
-    i = INT_AS_PY_SSIZE_T(o);
+    i = PyLong_AsSsize_t(o);
     if (PyErr_Occurred()) {
         return -1;
     }
@@ -706,9 +700,6 @@ static PyNumberMethods buffer_as_number = {
     (binaryfunc)0, /* nb_add */
     (binaryfunc)0, /* nb_subtract */
     (binaryfunc)0, /* nb_multiply */
-#if PY_MAJOR_VERSION < 3
-    (binaryfunc)0, /* nb_divide */
-#endif
     (binaryfunc)0,        /* nb_remainder */
     (binaryfunc)0,        /* nb_divmod */
     (ternaryfunc)0,       /* nb_power */
@@ -722,26 +713,12 @@ static PyNumberMethods buffer_as_number = {
     (binaryfunc)0,        /* nb_and */
     (binaryfunc)0,        /* nb_xor */
     (binaryfunc)0,        /* nb_or */
-#if PY_MAJOR_VERSION < 3
-    (coercion)0, /* nb_coerce */
-#endif
     (unaryfunc)0, /* nb_int */
-#if PY_MAJOR_VERSION < 3
-    (unaryfunc)0, /* nb_long */
-#else
     0, /* nb_reserved */
-#endif
     (unaryfunc)0, /* nb_float */
-#if PY_MAJOR_VERSION < 3
-    (unaryfunc)0, /* nb_oct */
-    (unaryfunc)0, /* nb_hex */
-#endif
     (binaryfunc)0, /* nb_inplace_add */
     (binaryfunc)0, /* nb_inplace_subtract */
     (binaryfunc)0, /* nb_inplace_multiply */
-#if PY_MAJOR_VERSION < 3
-    (binaryfunc)0, /* nb_inplace_divide */
-#endif
     (binaryfunc)0,  /* nb_inplace_remainder */
     (ternaryfunc)0, /* nb_inplace_power */
     (binaryfunc)0,  /* nb_inplace_lshift */
@@ -907,22 +884,11 @@ mixin_releasebuffer(PyObject *self, Py_buffer *view_p)
 }
 
 static PyBufferProcs mixin_bufferprocs = {
-#if PY_VERSION_HEX < 0x03000000
-    0,
-    0,
-    0,
-    0,
-#endif
     (getbufferproc)mixin_getbuffer,
     (releasebufferproc)mixin_releasebuffer};
 
-#if PY_VERSION_HEX < 0x03000000
-#define MIXIN_TPFLAGS \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
-#define MIXIN_TPFLAGS (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
-#endif
 
+#define MIXIN_TPFLAGS (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
 #define BUFFER_MIXIN_TYPE_FULLNAME "newbuffer.BufferMixin"
 
 static PyTypeObject BufferMixin_Type = {
