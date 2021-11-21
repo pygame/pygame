@@ -69,10 +69,12 @@ class Font(_Font):
             raise ValueError("A null character was found in the text")
         if isinstance(text, bytes) and self.__bnull in text:
             raise ValueError("A null character was found in the text")
-        save_antialiased = self.antialiased
+        save_antialiased = (
+            self.antialiased  # pylint: disable = access-member-before-definition
+        )
         self.antialiased = bool(antialias)
         try:
-            s, r = super(Font, self).render(text, color, background)
+            s, _ = super(Font, self).render(text, color, background)
             return s
         finally:
             self.antialiased = save_antialiased

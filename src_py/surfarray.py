@@ -141,7 +141,7 @@ def array2d(surface):
     try:
         dtype = (numpy.uint8, numpy.uint16, numpy.int32, numpy.int32)[bpp - 1]
     except IndexError:
-        raise ValueError("unsupported bit depth %i for 2D array" % (bpp * 8,))
+        raise ValueError(f"unsupported bit depth {bpp * 8} for 2D array")
     size = surface.get_size()
     array = numpy.empty(size, dtype)
     surface_to_array(array, surface)
@@ -170,7 +170,7 @@ def pixels2d(surface):
         return numpy_array(surface.get_view("2"), copy=False)
     except (ValueError, TypeError):
         raise ValueError(
-            "bit depth %i unsupported for 2D reference array" % (surface.get_bitsize(),)
+            f"bit depth {surface.get_bitsize()} unsupported for 2D reference array"
         )
 
 

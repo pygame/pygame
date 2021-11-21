@@ -176,8 +176,12 @@ def _parse_font_entry_darwin(name, filepath, fonts):
 
 
 def _font_finder_darwin():
-    locations = ["/Library/Fonts", "/Network/Library/Fonts", "/System/Library/Fonts", 
-                 "/System/Library/Fonts/Supplemental"]
+    locations = [
+        "/Library/Fonts",
+        "/Network/Library/Fonts",
+        "/System/Library/Fonts",
+        "/System/Library/Fonts/Supplemental",
+    ]
 
     username = os.getenv("USER")
     if username:
@@ -234,7 +238,7 @@ def initsysfonts_unix(path="fc-list"):
         # note, we capture stderr so if fc-list isn't there to stop stderr
         # printing.
         flout, _ = subprocess.Popen(
-            "%s : file family style" % path,
+            f"{path} : file family style",
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
