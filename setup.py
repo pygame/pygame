@@ -890,9 +890,8 @@ if STRIPPED:
     data_files = [('pygame', ["src_py/freesansbold.ttf",
                               "src_py/pygame.ico",
                               "src_py/pygame_icon.icns",
-                              "src_py/pygame_icon.svg",
                               "src_py/pygame_icon.bmp",
-                              "src_py/pygame_icon.tiff"])]
+                              "src_py/pygame_icon_mac.bmp"])]
 
 
     PACKAGEDATA = {
