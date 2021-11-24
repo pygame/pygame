@@ -3579,127 +3579,127 @@ surf_get_pixels_address_attrib(PyObject *self, PyObject *closure)
 static PyObject *
 surf_get_width_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_width(self, closure)
+    return surf_get_width(self, closure);
 }
 
 static PyObject *
 surf_get_height_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_height(self, closure)
+    return surf_get_height(self, closure);
 }
 
 static PyObject *
 surf_get_alpha_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_alpha(self, closure)
+    return surf_get_alpha(self, closure);
 }
 
 static PyObject *
 surf_get_colorkey_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_colorkey(self, closure)
+    return surf_get_colorkey(self, closure);
 }
 
 static PyObject *
 surf_get_locked_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_locked(self, closure)
+    return surf_get_locked(self, closure);
 }
 
 static PyObject *
 surf_get_locks_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_locks(self, closure)
+    return surf_get_locks(self, closure);
 }
 
 static PyObject *
 surf_get_palette_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_palette(self, closure)
+    return surf_get_palette(self, closure);
 }
 
 static PyObject *
 surf_get_clip_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_clip(self, closure)
+    return surf_get_clip(self, closure);
 }
 
 static PyObject *
 surf_get_parent_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_parent(self, closure)
+    return surf_get_parent(self, closure);
 }
 
 static PyObject *
 surf_get_abs_parent_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_abs_parent(self, closure)
+    return surf_get_abs_parent(self, closure);
 }
 
 static PyObject *
 surf_get_offset_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_offset(self, closure)
+    return surf_get_offset(self, closure);
 }
 
 static PyObject *
 surf_get_abs_offset_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_abs_offset(self, closure)
+    return surf_get_abs_offset(self, closure);
 }
 
 static PyObject *
 surf_get_size_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_size(self, closure)
+    return surf_get_size(self, closure);
 }
 
 static PyObject *
 surf_get_bitsize_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_bitsize(self, closure)
+    return surf_get_bitsize(self, closure);
 }
 
 static PyObject *
 surf_get_bytesize_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_bytesize(self, closure)
+    return surf_get_bytesize(self, closure);
 }
 
 static PyObject *
 surf_get_flags_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_flags(self, closure)
+    return surf_get_flags(self, closure);
 }
 
 static PyObject *
 surf_get_pitch_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_pitch_attrib(self, closure)
+    return surf_get_pitch_attrib(self, closure);
 }
 
 static PyObject *
 surf_get_masks_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_masks(self, closure)
+    return surf_get_masks(self, closure);
 }
 
 static PyObject *
 surf_get_shifts_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_shifts_attrib(self, closure)
+    return surf_get_shifts_attrib(self, closure);
 }
 
 static PyObject *
 surf_get_losses_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_losses(self, closure)
+    return surf_get_losses(self, closure);
 }
 
 static PyObject *
 surf_get_buffer_attrib(PyObject *self, PyObject *closure)
 {
-    return surf_get_buffer(self, closure)
+    return surf_get_buffer(self, closure);
 }
 
 static void
