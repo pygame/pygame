@@ -32,7 +32,7 @@ class Surface(object):
     width: int
     height: int
     w: int
-    height: int
+    h: int
     @overload
     def __init__(
         self,
