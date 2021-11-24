@@ -223,6 +223,10 @@ static PyObject *
 surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_pixels_address(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_width_property(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_height_property(PyObject *self, PyObject *closure);
 static int
 _view_kind(PyObject *obj, void *view_kind_vptr);
 static int
