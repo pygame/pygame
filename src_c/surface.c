@@ -294,6 +294,10 @@ pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
      "pixel buffer address (readonly)", NULL},
+    {"w", (getter)surf_get_width_property, NULL, NULL, NULL},
+    {"width", (getter)surf_get_width_property, NULL, NULL, NULL},
+    {"h", (getter)surf_get_height_property, NULL, NULL, NULL},
+    {"height", (getter)surf_get_height_property, NULL, NULL, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static struct PyMethodDef surface_methods[] = {
@@ -3509,6 +3513,26 @@ surf_get_pixels_address(PyObject *self, PyObject *closure)
 #else
     return PyLong_FromUnsignedLong((unsigned long)address);
 #endif
+}
+
+static PyObject *
+surf_get_width_property(PyObject *self, PyObject *closure)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    return PyInt_FromLong(surf->w);
+}
+
+static PyObject *
+surf_get_height_property(PyObject *self, PyObject *closure)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    return PyInt_FromLong(surf->h);
 }
 
 static void
