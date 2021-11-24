@@ -192,15 +192,11 @@ surf_get_flags(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_height(PyObject *self, PyObject *args);
 static PyObject *
-surf_get_height_property(PyObject *self, PyObject *args);
-static PyObject *
 surf_get_pitch(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_width(PyObject *self, PyObject *args);
-static PyObject *
-surf_get_width_property(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_shifts(PyObject *self, PyObject *args);
 static PyObject *
@@ -3517,6 +3513,26 @@ surf_get_pixels_address(PyObject *self, PyObject *closure)
 #else
     return PyLong_FromUnsignedLong((unsigned long)address);
 #endif
+}
+
+static PyObject *
+surf_get_width_property(PyObject *self, PyObject *closure)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    return PyInt_FromLong(surf->w);
+}
+
+static PyObject *
+surf_get_height_property(PyObject *self, PyObject *closure)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    return PyInt_FromLong(surf->h);
 }
 
 static void

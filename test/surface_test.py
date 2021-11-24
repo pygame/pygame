@@ -178,6 +178,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.width, surf.get_width())
         self.assertEqual(bound_rect.height, surf.get_height())
+        self.assertEqual(bound_rect.width, surf.width)
+        self.assertEqual(bound_rect.height, surf.height)
 
         surf.set_colorkey((0, 0, 0))
         bound_rect = surf.get_bounding_rect()
