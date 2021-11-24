@@ -17,15 +17,16 @@ getResource to its get_data implementation and return it as a file-like
 object (such as StringIO).
 """
 
-__all__ = ['getResource']
+__all__ = ["getResource"]
 import sys
 import os
-from pygame.compat import get_BytesIO
-BytesIO = get_BytesIO()
+
+from io import BytesIO
 
 try:
     from pkg_resources import resource_stream, resource_exists
 except ImportError:
+
     def resource_exists(_package_or_requirement, _resource_name):
         """
         A stub for when we fail to import this function.
@@ -69,12 +70,12 @@ def getResource(identifier, pkgname=__name__):
         pass
 
     mod = sys.modules[pkgname]
-    path_to_file = getattr(mod, '__file__', None)
+    path_to_file = getattr(mod, "__file__", None)
     if path_to_file is None:
         raise IOError("%s has no __file__!" % repr(mod))
     path = os.path.join(os.path.dirname(path_to_file), identifier)
     if sys.version_info < (3, 3):
-        loader = getattr(mod, '__loader__', None)
+        loader = getattr(mod, "__loader__", None)
         if loader is not None:
             try:
                 data = loader.get_data(path)
@@ -83,4 +84,4 @@ def getResource(identifier, pkgname=__name__):
             else:
                 return BytesIO(data)
     # pylint: disable=consider-using-with
-    return open(os.path.normpath(path), 'rb')
+    return open(os.path.normpath(path), "rb")

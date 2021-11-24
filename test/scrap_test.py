@@ -8,7 +8,6 @@ from pygame.tests.test_utils import trunk_relative_path
 
 import pygame
 from pygame import scrap
-from pygame.compat import as_bytes
 
 
 class ScrapModuleTest(unittest.TestCase):
@@ -33,7 +32,7 @@ class ScrapModuleTest(unittest.TestCase):
     def test_init__reinit(self):
         """Ensures reinitializing the scrap module doesn't clear its data."""
         data_type = pygame.SCRAP_TEXT
-        expected_data = as_bytes("test_init__reinit")
+        expected_data = b"test_init__reinit"
         scrap.put(data_type, expected_data)
 
         scrap.init()
@@ -65,7 +64,7 @@ class ScrapModuleTest(unittest.TestCase):
             scrap.put(pygame.SCRAP_TEXT, b"text to clipboard")
 
             if scrap.lost():
-                self.skipTest("requires the pygame application to own the " "clipboard")
+                self.skipTest("requires the pygame application to own the clipboard")
 
         data = scrap.get(DATA_TYPE)
 
@@ -88,13 +87,13 @@ class ScrapModuleTest(unittest.TestCase):
 
     def test_put__text(self):
         """Ensures put can place text into the clipboard."""
-        scrap.put(pygame.SCRAP_TEXT, as_bytes("Hello world"))
+        scrap.put(pygame.SCRAP_TEXT, b"Hello world")
 
-        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), as_bytes("Hello world"))
+        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), b"Hello world")
 
-        scrap.put(pygame.SCRAP_TEXT, as_bytes("Another String"))
+        scrap.put(pygame.SCRAP_TEXT, b"Another String")
 
-        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), as_bytes("Another String"))
+        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), b"Another String")
 
     @unittest.skipIf("pygame.image" not in sys.modules, "requires pygame.image module")
     def test_put__bmp_image(self):
@@ -111,10 +110,10 @@ class ScrapModuleTest(unittest.TestCase):
         """
         DATA_TYPE = "arbitrary buffer"
 
-        scrap.put(DATA_TYPE, as_bytes("buf"))
+        scrap.put(DATA_TYPE, b"buf")
         r = scrap.get(DATA_TYPE)
 
-        self.assertEqual(r, as_bytes("buf"))
+        self.assertEqual(r, b"buf")
 
 
 class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
@@ -141,7 +140,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
         # Skip test if the pygame application owns the clipboard. Currently,
         # there is no way to give up ownership.
         if not scrap.lost():
-            self.skipTest("requires the pygame application to not own the " "clipboard")
+            self.skipTest("requires the pygame application to not own the clipboard")
 
     def test_get__not_owned(self):
         """Ensures get works when there is no data of the requested type
@@ -207,8 +206,8 @@ class X11InteractiveTest(unittest.TestCase):
     def test_issue_208(self):
         """PATCH: pygame.scrap on X11, fix copying into PRIMARY selection
 
-           Copying into theX11 PRIMARY selection (mouse copy/paste) would not
-           work due to a confusion between content type and clipboard type.
+        Copying into theX11 PRIMARY selection (mouse copy/paste) would not
+        work due to a confusion between content type and clipboard type.
 
         """
 

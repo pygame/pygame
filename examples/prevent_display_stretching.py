@@ -31,11 +31,9 @@ import ctypes
 if os.path.basename(sys.executable) == "pythonw.exe":
     selection = "y"
 else:
-    from pygame.compat import raw_input_
-
     selection = None
     while selection not in ("y", "n"):
-        selection = raw_input_("Prevent stretching? (y/n): ").strip().lower()
+        selection = input("Prevent stretching? (y/n): ").strip().lower()
 
 if selection == "y":
     msg = "Stretching is prevented."

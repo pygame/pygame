@@ -161,7 +161,6 @@ And now, my famous members
 
 __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 228 $"
 
-from pygame.compat import geterror, imap_
 from array import array
 from pygame.tests.test_utils import tostring
 import itertools
@@ -197,8 +196,7 @@ def group(s, n):
 
 
 def isarray(x):
-    """Same as ``isinstance(x, array)``.
-    """
+    """Same as ``isinstance(x, array)``."""
     return isinstance(x, array)
 
 
@@ -428,9 +426,9 @@ class Writer:
         connexions interlaced images can be partially decoded by the
         browser to give a rough view of the image that is successively
         refined as more image data appears.
-        
+
         .. note ::
-        
+
           Enabling the `interlace` option requires the entire image
           to be processed in working memory.
 
@@ -517,8 +515,9 @@ class Writer:
             bitdepth = int(8 * bytes_per_sample)
         del bytes_per_sample
         if not isinteger(bitdepth) or bitdepth < 1 or 16 < bitdepth:
-            raise ValueError("bitdepth (%r) must be a positive integer <= 16"
-                             % bitdepth)
+            raise ValueError(
+                "bitdepth (%r) must be a positive integer <= 16" % bitdepth
+            )
 
         self.rescale = None
         if palette:
@@ -613,7 +612,7 @@ class Writer:
         If `interlace` is specified (when creating the instance), then
         an interlaced PNG file will be written.  Supply the rows in the
         normal image order; the interlacing is carried out internally.
-        
+
         .. note ::
 
           Interlacing will require the entire image to be in working memory.
@@ -637,7 +636,7 @@ class Writer:
 
         Most users are expected to find the :meth:`write` or
         :meth:`write_array` method more convenient.
-        
+
         The rows should be given to this method in the order that
         they appear in the output file.  For straightlaced images,
         this is the usual top to bottom ordering, but for interlaced
@@ -1091,7 +1090,7 @@ def from_array(a, mode=None, info={}):
       only.  It doesn't actually work.  Please bear with us.  Meanwhile
       enjoy the complimentary snacks (on request) and please use a
       2-dimensional array.
-    
+
     Unless they are specified using the *info* parameter, the PNG's
     height and width are taken from the array size.  For a 3 dimensional
     array the first axis is the height; the second axis is the width;
@@ -1146,7 +1145,7 @@ def from_array(a, mode=None, info={}):
     metadata (in the same style as the arguments to the
     :class:``png.Writer`` class).  For this function the keys that are
     useful are:
-    
+
     height
       overrides the height derived from the array dimensions and allows
       *a* to be an iterable.
@@ -1288,7 +1287,7 @@ class Image:
     def __init__(self, rows, info):
         """
         .. note ::
-        
+
           The constructor is not public.  Please do not call it.
         """
 
@@ -1644,7 +1643,7 @@ class Reader:
                 out.extend(map(lambda i: mask & (o >> i), shifts))
             return out[:width]
 
-        return imap_(asvalues, rows)
+        return map(asvalues, rows)
 
     def serialtoflat(self, bytes, width=None):
         """Convert serial format (byte stream) pixel data to flat row
@@ -1896,8 +1895,7 @@ class Reader:
             while True:
                 try:
                     type, data = self.chunk()
-                except ValueError:
-                    e = geterror()
+                except ValueError as e:
                     raise ChunkError(e.args[0])
                 if type == "IEND":
                     # http://www.w3.org/TR/PNG/#11IEND
@@ -1935,7 +1933,7 @@ class Reader:
             arraycode = "BH"[self.bitdepth > 8]
             # Like :meth:`group` but producing an array.array object for
             # each row.
-            pixels = imap_(
+            pixels = map(
                 lambda *row: array(arraycode, row),
                 *[iter(self.deinterlace(raw))] * self.width * self.planes
             )
@@ -2146,7 +2144,7 @@ class Reader:
         This function returns a 4-tuple:
         (*width*, *height*, *pixels*, *metadata*).
         *width*, *height*, *metadata* are as per the :meth:`read` method.
-        
+
         *pixels* is the pixel data in boxed row flat pixel format.
         """
 
@@ -2743,7 +2741,7 @@ class Test(unittest.TestCase):
         import itertools
 
         i = itertools.islice(itertools.count(10), 20)
-        i = imap_(lambda x: [x, x, x], i)
+        i = map(lambda x: [x, x, x], i)
         img = from_array(i, "RGB;5", dict(height=20))
         f = open("testiter.png", "wb")
         img.save(f)
@@ -4000,6 +3998,5 @@ def _main(argv):
 if __name__ == "__main__":
     try:
         _main(sys.argv)
-    except Error:
-        e = geterror()
+    except Error as e:
         sys.stderr.write("%s\n" % (e,))

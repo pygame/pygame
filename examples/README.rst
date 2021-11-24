@@ -39,9 +39,6 @@ eventlist.py
    Watch the events fly by.  Click the mouse, and see the mouse
    event come up.  Press a keyboard key, and see the key up event.
 
-fastevents.py
-   Posting events from other threads? Check this out.
-
 font_viewer.py
    Display all available fonts in a scrolling window.
 

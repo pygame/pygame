@@ -9,11 +9,15 @@
 
 | :sl:`pygame module for interacting with events and queues`
 
-pygame.fastevent is a wrapper for Bob Pendleton's fastevent library.  It
-provides fast events for use in multithreaded environments.  When using
-pygame.fastevent, you can not use any of the pump, wait, poll, post, get,
-peek, etc. functions from pygame.event, but you should use the Event objects.
+IMPORTANT NOTE: THIS MODULE IS DEPRECATED IN PYGAME 2.2
 
+In older pygame versions before pygame 2, :mod:`pygame.event` was not well
+suited for posting events from different threads. This module served as a
+replacement (with less features) for multithreaded use. Now, the usage of this
+module is highly discouraged in favour of use of the main :mod:`pygame.event`
+module. This module will be removed in a future pygame version.
+
+Below, the legacy docs of the module is provided
 
 .. function:: init
 

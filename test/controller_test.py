@@ -3,6 +3,7 @@ import pygame
 import pygame._sdl2.controller as controller
 from pygame.tests.test_utils import prompt, question
 
+
 class ControllerModuleTest(unittest.TestCase):
     def setUp(self):
         controller.init()
@@ -55,7 +56,7 @@ class ControllerModuleTest(unittest.TestCase):
                     c = controller.Controller(i)
 
         with self.assertRaises(TypeError):
-            controller.is_controller('Test')
+            controller.is_controller("Test")
 
     def test_name_forindex(self):
         self.assertIsNone(controller.name_forindex(-1))
@@ -161,16 +162,20 @@ class ControllerInteractiveTest(unittest.TestCase):
         controller.quit()
 
     def test__get_count_interactive(self):
-        prompt("Please connect at least one controller "
-               "before the test for controller.get_count() starts")
+        prompt(
+            "Please connect at least one controller "
+            "before the test for controller.get_count() starts"
+        )
 
         # Reset the number of joysticks counted
         controller.quit()
         controller.init()
 
         joystick_num = controller.get_count()
-        ans = question("get_count() thinks there are {} joysticks "
-                       "connected. Is that correct?".format(joystick_num))
+        ans = question(
+            "get_count() thinks there are {} joysticks "
+            "connected. Is that correct?".format(joystick_num)
+        )
 
         self.assertTrue(ans)
 
@@ -187,9 +192,10 @@ class ControllerInteractiveTest(unittest.TestCase):
         running = True
 
         screen.fill((255, 255, 255))
-        screen.blit(font.render(
-            "Press button 'x' (on ps4) or 'a' (on xbox).",
-        True, (0, 0, 0)), (0, 0))
+        screen.blit(
+            font.render("Press button 'x' (on ps4) or 'a' (on xbox).", True, (0, 0, 0)),
+            (0, 0),
+        )
         pygame.display.update()
 
         controller.set_eventstate(True)
@@ -218,9 +224,10 @@ class ControllerInteractiveTest(unittest.TestCase):
         running = True
 
         screen.fill((255, 255, 255))
-        screen.blit(font.render(
-            "Press button 'x' (on ps4) or 'a' (on xbox).",
-            True, (0, 0, 0)), (0, 0))
+        screen.blit(
+            font.render("Press button 'x' (on ps4) or 'a' (on xbox).", True, (0, 0, 0)),
+            (0, 0),
+        )
         pygame.display.update()
 
         controller.set_eventstate(False)
@@ -254,15 +261,16 @@ class ControllerInteractiveTest(unittest.TestCase):
         running = True
 
         label1 = font.render(
-            "Press button 'x' (on ps4) or 'a' (on xbox).",
-            True, (0, 0, 0))
+            "Press button 'x' (on ps4) or 'a' (on xbox).", True, (0, 0, 0)
+        )
 
         label2 = font.render(
             'The two values should match up. Press "y" or "n" to confirm.',
-            True, (0, 0, 0))
+            True,
+            (0, 0, 0),
+        )
 
-
-        is_pressed = [False, False] # event, get_button()
+        is_pressed = [False, False]  # event, get_button()
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -283,13 +291,11 @@ class ControllerInteractiveTest(unittest.TestCase):
 
             is_pressed[1] = c.get_button(pygame.CONTROLLER_BUTTON_A)
 
-
             screen.fill((255, 255, 255))
             screen.blit(label1, (0, 0))
             screen.blit(label2, (0, 20))
             screen.blit(font.render(str(is_pressed), True, (0, 0, 0)), (0, 40))
             pygame.display.update()
-
 
         pygame.display.quit()
         pygame.font.quit()
@@ -307,16 +313,18 @@ class ControllerInteractiveTest(unittest.TestCase):
         running = True
 
         label1 = font.render(
-            "Press down the right trigger. The value on-screen should",
-            True, (0, 0, 0))
+            "Press down the right trigger. The value on-screen should", True, (0, 0, 0)
+        )
 
         label2 = font.render(
             "indicate how far the trigger is pressed down. This value should",
-            True, (0, 0, 0))
+            True,
+            (0, 0, 0),
+        )
 
         label3 = font.render(
-            'be in the range of 0-32767. Press "y" or "n" to confirm.',
-            True, (0, 0, 0))
+            'be in the range of 0-32767. Press "y" or "n" to confirm.', True, (0, 0, 0)
+        )
 
         while running:
             for event in pygame.event.get():

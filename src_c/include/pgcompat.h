@@ -28,17 +28,17 @@
  */
 #if !defined(PyBUF_SIMPLE)
 typedef struct bufferinfo {
-	void *buf;
-	PyObject *obj;
-	Py_ssize_t len;
-	Py_ssize_t itemsize;
-	int readonly;
-	int ndim;
-	char *format;
-	Py_ssize_t *shape;
-	Py_ssize_t *strides;
-	Py_ssize_t *suboffsets;
-	void *internal;
+    void *buf;
+    PyObject *obj;
+    Py_ssize_t len;
+    Py_ssize_t itemsize;
+    int readonly;
+    int ndim;
+    char *format;
+    Py_ssize_t *shape;
+    Py_ssize_t *strides;
+    Py_ssize_t *suboffsets;
+    void *internal;
 } Py_buffer;
 
 /* Flags for getting buffers */
@@ -70,8 +70,8 @@ typedef struct bufferinfo {
 #define PyBUF_WRITE 0x200
 #define PyBUF_SHADOW 0x400
 
-typedef int(*getbufferproc)(PyObject *, Py_buffer *, int);
-typedef void(*releasebufferproc)(Py_buffer *);
+typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
+typedef void (*releasebufferproc)(Py_buffer *);
 #endif /* ~defined(PyBUF_SIMPLE) */
 
 /* define common types where SDL is not included */
@@ -85,7 +85,6 @@ typedef unsigned __int32 uint32_t;
 typedef uint32_t Uint32;
 typedef uint8_t Uint8;
 #endif /* no SDL */
-
 
 #if defined(SDL_VERSION_ATLEAST)
 
@@ -112,7 +111,6 @@ typedef uint8_t Uint8;
 #ifndef SDL_WINDOW_POPUP_MENU
 #define SDL_WINDOW_POPUP_MENU 0
 #endif
-
 
 #ifndef SDL_WINDOW_INPUT_GRABBED
 #define SDL_WINDOW_INPUT_GRABBED 0
@@ -173,8 +171,6 @@ typedef uint8_t Uint8;
 #define NO_SDL_MOUSEWHEEL_FLIPPED
 #endif
 
-
 #endif /* defined(SDL_VERSION_ATLEAST) */
-
 
 #endif /* ~defined(PGCOMPAT_H) */

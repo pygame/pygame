@@ -42,9 +42,6 @@ def _print_device_info():
 
 def input_main(device_id=None):
     pg.init()
-    pg.fastevent.init()
-    event_get = pg.fastevent.get
-    event_post = pg.fastevent.post
 
     pygame.midi.init()
 
@@ -62,7 +59,7 @@ def input_main(device_id=None):
 
     going = True
     while going:
-        events = event_get()
+        events = pygame.event.get()
         for e in events:
             if e.type in [pg.QUIT]:
                 going = False
@@ -77,7 +74,7 @@ def input_main(device_id=None):
             midi_evs = pygame.midi.midis2events(midi_events, i.device_id)
 
             for m_e in midi_evs:
-                event_post(m_e)
+                pygame.event.post(m_e)
 
     del i
     pygame.midi.quit()

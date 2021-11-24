@@ -4,7 +4,7 @@ import platform
 import warnings
 import pygame
 
-SDL1 = pygame.get_sdl_version()[0] < 2
+
 DARWIN = "Darwin" in platform.platform()
 
 
@@ -23,10 +23,9 @@ class MouseModuleInteractiveTest(MouseTests):
 
     __tags__ = ["interactive"]
 
-    @unittest.skipIf(SDL1 and DARWIN, "Can fails on Mac SDL1, window not focused")
     def test_set_pos(self):
-        """ Ensures set_pos works correctly.
-            Requires tester to move the mouse to be on the window.
+        """Ensures set_pos works correctly.
+        Requires tester to move the mouse to be on the window.
         """
         pygame.display.set_mode((500, 500))
         pygame.event.get()  # Pump event queue to make window get focus on macos.
@@ -57,9 +56,10 @@ class MouseModuleInteractiveTest(MouseTests):
 
 
 class MouseModuleTest(MouseTests):
-    @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
         "Cursors not supported on headless test machines",
-    )    
+    )
     def test_get_cursor(self):
         """Ensures get_cursor works correctly."""
 
@@ -105,7 +105,7 @@ class MouseModuleTest(MouseTests):
 
         with warnings.catch_warnings(record=True) as w:
             """From Pygame 2.0.1, set_system_cursor() should raise a deprecation warning"""
-            #Cause all warnings to always be triggered.
+            # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
 
             # Error should be raised when the display is uninitialized
@@ -132,11 +132,14 @@ class MouseModuleTest(MouseTests):
                 pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW), None
             )
 
-            #Making sure the warnings are working properly
+            # Making sure the warnings are working properly
             self.assertEqual(len(w), 6)
-            self.assertTrue(all([issubclass(warn.category, DeprecationWarning) for warn in w]))
+            self.assertTrue(
+                all([issubclass(warn.category, DeprecationWarning) for warn in w])
+            )
 
-    @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
         "Cursors not supported on headless test machines",
     )
     def test_set_cursor(self):
@@ -154,7 +157,7 @@ class MouseModuleTest(MouseTests):
         system_cursor = pygame.cursors.Cursor(constant)
 
         # Color cursor information (also uses hotspot variable from Bitmap cursor info)
-        surface = pygame.Surface((10,10))
+        surface = pygame.Surface((10, 10))
         color_cursor = pygame.cursors.Cursor(hotspot, surface)
 
         pygame.display.quit()
@@ -214,40 +217,38 @@ class MouseModuleTest(MouseTests):
         pygame.mouse.set_cursor(size, hotspot, list(xormask), list(andmask))
         self.assertEqual(pygame.mouse.get_cursor(), bitmap_cursor)
 
-        # Skip system cursor and color cursor testing on SDL1
-        if not SDL1:
-            # System: TypeError raised when constant is invalid
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(-50021232)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor("yellow")
+        # System: TypeError raised when constant is invalid
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(-50021232)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor("yellow")
 
-            # System: Working as intended
-            self.assertEqual(pygame.mouse.set_cursor(constant), None)
-            pygame.mouse.set_cursor(constant)
-            self.assertEqual(pygame.mouse.get_cursor(), system_cursor)
-            pygame.mouse.set_cursor(system_cursor)
-            self.assertEqual(pygame.mouse.get_cursor(), system_cursor)  
+        # System: Working as intended
+        self.assertEqual(pygame.mouse.set_cursor(constant), None)
+        pygame.mouse.set_cursor(constant)
+        self.assertEqual(pygame.mouse.get_cursor(), system_cursor)
+        pygame.mouse.set_cursor(system_cursor)
+        self.assertEqual(pygame.mouse.get_cursor(), system_cursor)
 
-            # Color: TypeError raised with invalid parameters
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(("x", "y"), surface)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(hotspot, "not_a_surface")
+        # Color: TypeError raised with invalid parameters
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(("x", "y"), surface)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(hotspot, "not_a_surface")
 
-            # Color: Working as intended
-            self.assertEqual(pygame.mouse.set_cursor(hotspot, surface), None)
-            pygame.mouse.set_cursor(hotspot, surface)
-            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
-            pygame.mouse.set_cursor(color_cursor)
-            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
+        # Color: Working as intended
+        self.assertEqual(pygame.mouse.set_cursor(hotspot, surface), None)
+        pygame.mouse.set_cursor(hotspot, surface)
+        self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
+        pygame.mouse.set_cursor(color_cursor)
+        self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
 
-            #Color: Working as intended + Surface with no references is returned okay
-            pygame.mouse.set_cursor((0,0), pygame.Surface((20,20)))
-            cursor = pygame.mouse.get_cursor()
-            self.assertEqual(cursor.type, "color")
-            self.assertEqual(cursor.data[0], (0,0))
-            self.assertEqual(cursor.data[1].get_size(), (20,20))     
+        # Color: Working as intended + Surface with no references is returned okay
+        pygame.mouse.set_cursor((0, 0), pygame.Surface((20, 20)))
+        cursor = pygame.mouse.get_cursor()
+        self.assertEqual(cursor.type, "color")
+        self.assertEqual(cursor.data[0], (0, 0))
+        self.assertEqual(cursor.data[1].get_size(), (20, 20))
 
     def test_get_focused(self):
         """Ensures get_focused returns the correct type."""

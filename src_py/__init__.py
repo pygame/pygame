@@ -28,15 +28,15 @@ import sys
 import os
 
 # Choose Windows display driver
-if os.name == 'nt':
-    #pypy does not find the dlls, so we add package folder to PATH.
+if os.name == "nt":
+    # pypy does not find the dlls, so we add package folder to PATH.
     pygame_dir = os.path.split(__file__)[0]
-    os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
+    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
-elif 'DISPLAY' in os.environ and 'SDL_VIDEO_X11_WMCLASS' not in os.environ:
-    os.environ['SDL_VIDEO_X11_WMCLASS'] = os.path.basename(sys.argv[0])
+elif "DISPLAY" in os.environ and "SDL_VIDEO_X11_WMCLASS" not in os.environ:
+    os.environ["SDL_VIDEO_X11_WMCLASS"] = os.path.basename(sys.argv[0])
 
 
 class MissingModule:
@@ -64,10 +64,11 @@ class MissingModule:
     __bool__ = __nonzero__
 
     def warn(self):
-        msg_type = 'import' if self.urgent else 'use'
-        message = '%s %s: %s\n(%s)' % (msg_type, self.name, self.info, self.reason)
+        msg_type = "import" if self.urgent else "use"
+        message = "%s %s: %s\n(%s)" % (msg_type, self.name, self.info, self.reason)
         try:
             import warnings
+
             level = 4 if self.urgent else 3
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
@@ -76,20 +77,23 @@ class MissingModule:
 
 # we need to import like this, each at a time. the cleanest way to import
 # our modules is with the import command (not the __import__ function)
+# isort: skip_file
 
 # first, the "required" modules
-from pygame.base import * # pylint: disable=wildcard-import; lgtm[py/polluting-import]
+from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
-from pygame.version import * # pylint: disable=wildcard-import; lgtm[py/polluting-import]
+from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.rect import Rect
-from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
+
 Color = color.Color
 import pygame.bufferproxy
+
 BufferProxy = bufferproxy.BufferProxy
 import pygame.math
+
 Vector2 = pygame.math.Vector2
 Vector3 = pygame.math.Vector3
 
@@ -182,9 +186,9 @@ def warn_unwanted_files():
     # See if any of the files are there.
     extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
 
-    py_files = ["%s%s" % (x, py_ext)
-                for py_ext in [".py", ".pyc", ".pyo"]
-                for x in py_to_remove]
+    py_files = [
+        "%s%s" % (x, py_ext) for py_ext in [".py", ".pyc", ".pyo"] for x in py_to_remove
+    ]
 
     files = py_files + extension_files
 
@@ -206,6 +210,7 @@ def warn_unwanted_files():
 
         try:
             import warnings
+
             level = 4
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
@@ -249,15 +254,17 @@ except (ImportError, IOError):
     transform = MissingModule("transform", urgent=1)
 
 # lastly, the "optional" pygame modules
-if 'PYGAME_FREETYPE' in os.environ:
+if "PYGAME_FREETYPE" in os.environ:
     try:
         import pygame.ftfont as font
-        sys.modules['pygame.font'] = font
+
+        sys.modules["pygame.font"] = font
     except (ImportError, IOError):
         pass
 try:
     import pygame.font
     import pygame.sysfont
+
     pygame.font.SysFont = pygame.sysfont.SysFont
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
@@ -267,8 +274,9 @@ except (ImportError, IOError):
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music
-    #del pygame.mixer_music
-    #print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
+
+    # del pygame.mixer_music
+    # print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
 except (ImportError, IOError):
     pass
 
@@ -308,6 +316,7 @@ except (ImportError, IOError):
 # programs get everything they need (like py2exe)
 try:
     import pygame.imageext
+
     del pygame.imageext
 except (ImportError, IOError):
     pass
@@ -322,11 +331,10 @@ def packager_imports():
     import pygame.bufferproxy
     import pygame.colordict
 
+
 # make Rects pickleable
-if PY_MAJOR_VERSION >= 3:
-    import copyreg as copy_reg
-else:
-    import copy_reg
+
+import copyreg
 
 
 def __rect_constructor(x, y, w, h):
@@ -336,7 +344,9 @@ def __rect_constructor(x, y, w, h):
 def __rect_reduce(r):
     assert type(r) == Rect
     return __rect_constructor, (r.x, r.y, r.w, r.h)
-copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
+
+
+copyreg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 
 # make Colors pickleable
@@ -347,16 +357,18 @@ def __color_constructor(r, g, b, a):
 def __color_reduce(c):
     assert type(c) == Color
     return __color_constructor, (c.r, c.g, c.b, c.a)
-copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
+
+copyreg.pickle(Color, __color_reduce, __color_constructor)
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
-if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
-    print('pygame {} (SDL {}.{}.{}, Python {}.{}.{})'.format(
-        ver, *get_sdl_version() + sys.version_info[0:3]
-    ))
-    print('Hello from the pygame community. https://www.pygame.org/contribute.html')
-
+if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
+    print(
+        "pygame {} (SDL {}.{}.{}, Python {}.{}.{})".format(
+            ver, *get_sdl_version() + sys.version_info[0:3]
+        )
+    )
+    print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
+del pygame, os, sys, surflock, MissingModule, copyreg

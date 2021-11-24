@@ -7,7 +7,6 @@ import unittest
 
 from pygame.tests.test_utils import example_path
 import pygame
-from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
@@ -44,8 +43,8 @@ class MixerMusicModuleTest(unittest.TestCase):
         path = os.path.join(data_fname, "house_lo.%s" % format)
         if os.sep == "\\":
             path = path.replace("\\", "\\\\")
-        umusfn = as_unicode(path)
-        bmusfn = filesystem_encode(umusfn)
+        umusfn = str(path)
+        bmusfn = umusfn.encode()
 
         pygame.mixer.music.load(umusfn)
         pygame.mixer.music.load(bmusfn)
@@ -58,7 +57,7 @@ class MixerMusicModuleTest(unittest.TestCase):
             path = os.path.join(data_fname, "house_lo.%s" % f)
             if os.sep == "\\":
                 path = path.replace("\\", "\\\\")
-            bmusfn = filesystem_encode(path)
+            bmusfn = path.encode()
 
             with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.load(musf)
@@ -71,7 +70,7 @@ class MixerMusicModuleTest(unittest.TestCase):
             path = os.path.join(data_fname, "house_lo.%s" % f)
             if os.sep == "\\":
                 path = path.replace("\\", "\\\\")
-            bmusfn = filesystem_encode(path)
+            bmusfn = path.encode()
 
             # these two "with open" blocks need to be separate, which is kinda weird
             with open(bmusfn, "rb") as musf:
@@ -90,7 +89,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         """test non-ASCII unicode path"""
         import shutil
 
-        ep = unicode_(example_path("data"))
+        ep = example_path("data")
         temp_file = os.path.join(ep, u"你好.wav")
         org_file = os.path.join(ep, u"house_lo.wav")
         try:
@@ -110,7 +109,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         import shutil
         import tempfile
 
-        ep = unicode_(example_path("data"))
+        ep = example_path("data")
         org_file = os.path.join(ep, u"house_lo.wav")
         tmpfd, tmppath = tempfile.mkstemp(".wav")
         os.close(tmpfd)

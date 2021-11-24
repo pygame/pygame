@@ -128,15 +128,10 @@ def run(*args, **kwds):
         option_exclude += ("subprocess_ignore",)
     elif "ignore" not in option_exclude:
         option_exclude += ("ignore",)
-    if sys.version_info < (3, 0, 0):
-        option_exclude += ("python2_ignore",)
-    else:
-        option_exclude += ("python3_ignore",)
 
-    if pygame.get_sdl_version() < (2, 0, 0):
-        option_exclude += ("SDL1_ignore",)
-    else:
-        option_exclude += ("SDL2_ignore",)
+    option_exclude += ("python3_ignore",)
+    option_exclude += ("SDL2_ignore",)
+
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
     ###########################################################################

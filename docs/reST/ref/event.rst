@@ -12,9 +12,6 @@ Pygame handles all its event messaging through an event queue. The routines in
 this module help you manage that event queue. The input queue is heavily
 dependent on the :mod:`pygame.display` module. If the display has not been
 initialized and a video mode not set, the event queue may not work properly.
-The event subsystem should be called from the main thread. If you want to post
-events into the queue from other threads, please use the
-:mod:`pygame.fastevent` module.
 
 The event queue has an upper limit on the number of events it can hold
 (128 for standard SDL 1.2). When the queue becomes full new events are quietly
