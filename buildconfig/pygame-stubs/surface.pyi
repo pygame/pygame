@@ -33,6 +33,26 @@ class Surface(object):
     height: int
     w: int
     h: int
+    alpha: Optional[int]
+    colorkey: Optional[_RgbaOutput]
+    is_locked: bool
+    locks: Tuple[Any, ...]
+    palette: List[_RgbaOutput]
+    clip: Rect
+    parent: Surface
+    abs_parent: Surface
+    offset: Tuple[int, int]
+    abs_offset: Tuple[int, int]
+    size: Tuple[int, int]
+    bitsize: int
+    bytesize: int
+    flags: int
+    pitch: int
+    masks: _RgbaOutput
+    shifts: _RgbaOutput
+    losses: _RgbaOutput
+    buffer: BufferProxy
+
     @overload
     def __init__(
         self,

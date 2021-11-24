@@ -222,11 +222,49 @@ surf_get_buffer(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
-surf_get_pixels_address(PyObject *self, PyObject *closure);
+surf_get_pixels_address_attrib(PyObject *self, PyObject *closure);
 static PyObject *
-surf_get_width_property(PyObject *self, PyObject *closure);
+surf_get_width_attrib(PyObject *self, PyObject *closure);
 static PyObject *
-surf_get_height_property(PyObject *self, PyObject *closure);
+surf_get_height_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_alpha_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_colorkey_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_locked_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_locks_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_palette_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_clip_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_parent_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_abs_parent_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_offset_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_abs_offset_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_size_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_bitsize_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_bytesize_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_flags_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_pitch_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_masks_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_shifts_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_losses_attrib(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_buffer_attrib(PyObject *self, PyObject *closure);
 static int
 _view_kind(PyObject *obj, void *view_kind_vptr);
 static int
@@ -296,12 +334,31 @@ pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 #endif /* IS_SDLv1 || SDL_VERSION_ATLEAST(2, 0, 10) */
 
 static PyGetSetDef surface_getsets[] = {
-    {"_pixels_address", (getter)surf_get_pixels_address, NULL,
+    {"_pixels_address", (getter)surf_get_pixels_address_attrib, NULL,
      "pixel buffer address (readonly)", NULL},
-    {"w", (getter)surf_get_width_property, NULL, NULL, NULL},
-    {"width", (getter)surf_get_width_property, NULL, NULL, NULL},
-    {"h", (getter)surf_get_height_property, NULL, NULL, NULL},
-    {"height", (getter)surf_get_height_property, NULL, NULL, NULL},
+    {"w", (getter)surf_get_width_attrib, NULL, NULL, NULL},
+    {"width", (getter)surf_get_width_attrib, NULL, NULL, NULL},
+    {"h", (getter)surf_get_height_attrib, NULL, NULL, NULL},
+    {"height", (getter)surf_get_height_attrib, NULL, NULL, NULL},
+    {"alpha", (getter)surf_get_alpha_attrib, NULL, NULL, NULL},
+    {"colorkey", (getter)surf_get_colorkey_attrib, NULL, NULL, NULL},
+    {"is_locked", (getter)surf_get_locked_attrib, NULL, NULL, NULL},
+    {"locks", (getter)surf_get_locks_attrib, NULL, NULL, NULL},
+    {"palette", (getter)surf_get_palette_attrib, NULL, NULL, NULL},
+    {"clip", (getter)surf_get_clip_attrib, NULL, NULL, NULL},
+    {"parent", (getter)surf_get_parent_attrib, NULL, NULL, NULL},
+    {"abs_parent", (getter)surf_get_abs_parent_attrib, NULL, NULL, NULL},
+    {"offset", (getter)surf_get_offset_attrib, NULL, NULL, NULL},
+    {"abs_offset", (getter)surf_get_abs_offset_attrib, NULL, NULL, NULL},
+    {"size", (getter)surf_get_size_attrib, NULL, NULL, NULL},
+    {"bitsize", (getter)surf_get_bitsize_attrib, NULL, NULL, NULL},
+    {"bytesize", (getter)surf_get_bytesize_attrib, NULL, NULL, NULL},
+    {"flags", (getter)surf_get_flags_attrib, NULL, NULL, NULL},
+    {"pitch", (getter)surf_get_pitch_attrib, NULL, NULL, NULL},
+    {"masks", (getter)surf_get_masks_attrib, NULL, NULL, NULL},
+    {"shifts", (getter)surf_get_shifts_attrib, NULL, NULL, NULL},
+    {"losses", (getter)surf_get_losses_attrib, NULL, NULL, NULL},
+    {"buffer", (getter)surf_get_buffer_attrib, NULL, NULL, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static struct PyMethodDef surface_methods[] = {
@@ -3500,7 +3557,7 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
 }
 
 static PyObject *
-surf_get_pixels_address(PyObject *self, PyObject *closure)
+surf_get_pixels_address_attrib(PyObject *self, PyObject *closure)
 {
     SDL_Surface *surface = pgSurface_AsSurface(self);
     void *address;
@@ -3520,23 +3577,129 @@ surf_get_pixels_address(PyObject *self, PyObject *closure)
 }
 
 static PyObject *
-surf_get_width_property(PyObject *self, PyObject *closure)
+surf_get_width_attrib(PyObject *self, PyObject *closure)
 {
-    SDL_Surface *surf = pgSurface_AsSurface(self);
-
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return PyInt_FromLong(surf->w);
+    return surf_get_width(self, closure)
 }
 
 static PyObject *
-surf_get_height_property(PyObject *self, PyObject *closure)
+surf_get_height_attrib(PyObject *self, PyObject *closure)
 {
-    SDL_Surface *surf = pgSurface_AsSurface(self);
+    return surf_get_height(self, closure)
+}
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return PyInt_FromLong(surf->h);
+static PyObject *
+surf_get_alpha_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_alpha(self, closure)
+}
+
+static PyObject *
+surf_get_colorkey_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_colorkey(self, closure)
+}
+
+static PyObject *
+surf_get_locked_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_locked(self, closure)
+}
+
+static PyObject *
+surf_get_locks_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_locks(self, closure)
+}
+
+static PyObject *
+surf_get_palette_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_palette(self, closure)
+}
+
+static PyObject *
+surf_get_clip_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_clip(self, closure)
+}
+
+static PyObject *
+surf_get_parent_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_parent(self, closure)
+}
+
+static PyObject *
+surf_get_abs_parent_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_abs_parent(self, closure)
+}
+
+static PyObject *
+surf_get_offset_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_offset(self, closure)
+}
+
+static PyObject *
+surf_get_abs_offset_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_abs_offset(self, closure)
+}
+
+static PyObject *
+surf_get_size_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_size(self, closure)
+}
+
+static PyObject *
+surf_get_bitsize_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_bitsize(self, closure)
+}
+
+static PyObject *
+surf_get_bytesize_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_bytesize(self, closure)
+}
+
+static PyObject *
+surf_get_flags_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_flags(self, closure)
+}
+
+static PyObject *
+surf_get_pitch_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_pitch_attrib(self, closure)
+}
+
+static PyObject *
+surf_get_masks_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_masks(self, closure)
+}
+
+static PyObject *
+surf_get_shifts_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_shifts_attrib(self, closure)
+}
+
+static PyObject *
+surf_get_losses_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_losses(self, closure)
+}
+
+static PyObject *
+surf_get_buffer_attrib(PyObject *self, PyObject *closure)
+{
+    return surf_get_buffer(self, closure)
 }
 
 static void
