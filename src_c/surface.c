@@ -192,11 +192,15 @@ surf_get_flags(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_height(PyObject *self, PyObject *args);
 static PyObject *
+surf_get_height_property(PyObject *self, PyObject *args);
+static PyObject *
 surf_get_pitch(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_width(PyObject *self, PyObject *args);
+static PyObject *
+surf_get_width_property(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_shifts(PyObject *self, PyObject *args);
 static PyObject *
@@ -294,6 +298,10 @@ pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
      "pixel buffer address (readonly)", NULL},
+    {"w", (getter)surf_get_width_property, NULL, NULL, NULL},
+    {"width", (getter)surf_get_width_property, NULL, NULL, NULL},
+    {"h", (getter)surf_get_height_property, NULL, NULL, NULL},
+    {"height", (getter)surf_get_height_property, NULL, NULL, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static struct PyMethodDef surface_methods[] = {

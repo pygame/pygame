@@ -29,6 +29,8 @@ _RectValue = Union[
 
 class Surface(object):
     _pixels_address: int
+    width: int
+    height: int
     @overload
     def __init__(
         self,
