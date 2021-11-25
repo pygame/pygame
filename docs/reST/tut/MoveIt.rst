@@ -103,7 +103,7 @@ an arbitrary position. Let's do it a little more officially this time. ::
   [1, 1, 2, 8, 2, 1]
 
 
-Now it is pretty easy to move him to a new position. We simple change
+Now it is pretty easy to move him to a new position. We simply change
 the  value of playerpos, and draw him on the screen again. ::
 
   >>> playerpos = playerpos - 1
