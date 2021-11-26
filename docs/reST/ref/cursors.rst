@@ -151,7 +151,11 @@ The following strings can be converted into cursor bitmaps with
    **Creating a system cursor**
 
    Choose a constant from this list, pass it into ``pygame.cursors.Cursor(constant)``, 
-   and you're good to go.
+   and you're good to go. Be advised that not all systems support every system
+   cursor, and you may get a substitution instead. For example, on MacOS,
+   WAIT/WAITARROW should show up as an arrow, and SIZENWSE/SIZENESW/SIZEALL
+   should show up as a closed hand. And on Wayland, every SIZE cursor should 
+   show up as a hand.
 
    ::
 
