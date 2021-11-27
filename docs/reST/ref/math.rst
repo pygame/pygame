@@ -792,32 +792,4 @@ Multiple coordinates can be set using slices or swizzling
 
    .. ## pygame.math.Vector3 ##
 
-
-.. function:: enable_swizzling
-
-   | :sl:`globally enables swizzling for vectors.`
-   | :sg:`enable_swizzling() -> None`
-
-   DEPRECATED: Not needed anymore. Will be removed in a later version.
-
-   Enables swizzling for all vectors until ``disable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   Lets you get or set multiple coordinates as one attribute, eg
-   ``vec.xyz = 1, 2, 3``.
-
-   .. ## pygame.math.enable_swizzling ##
-
-.. function:: disable_swizzling
-
-   | :sl:`globally disables swizzling for vectors.`
-   | :sg:`disable_swizzling() -> None`
-
-   DEPRECATED: Not needed anymore. Will be removed in a later version.
-
-   Disables swizzling for all vectors until ``enable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   .. ## pygame.math.disable_swizzling ##
-
 .. ## pygame.math ##

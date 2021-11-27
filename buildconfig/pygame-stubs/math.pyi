@@ -88,9 +88,6 @@ class _VectorElementwiseProxy3:
         self, power: Union[float, Vector3, _VectorElementwiseProxy3]
     ) -> Vector3: ...
 
-def enable_swizzling() -> None: ...
-def disable_swizzling() -> None: ...
-
 class Vector2:
     x: float
     y: float
