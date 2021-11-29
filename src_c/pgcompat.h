@@ -8,13 +8,6 @@
 /* Module init function returns new module instance. */
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name (void)
 
-#ifndef PYPY_VERSION
-#define Text_FromLocale(s) PyUnicode_DecodeLocale((s), "strict")
-#else /* PYPY_VERSION */
-/* workaround: missing function for pypy */
-#define Text_FromLocale PyUnicode_FromString
-#endif /* PYPY_VERSION */
-
 /* Defaults for unicode file path encoding */
 #if defined(MS_WIN32)
 #define UNICODE_DEF_FS_ERROR "replace"
@@ -54,13 +47,5 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height
                                Uint32 format);
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
 #endif /* defined(SDL_VERSION_ATLEAST) */
-
-// Currently needed to build scrap.c, event.c, display.c
-// with Windows SDK 10.0.18362.0 and SDL1 build
-#ifdef _MSC_VER
-    #ifndef WINDOWS_IGNORE_PACKING_MISMATCH
-        #define WINDOWS_IGNORE_PACKING_MISMATCH
-    #endif
-#endif
 
 #endif /* ~PGCOMPAT_INTERNAL_H */

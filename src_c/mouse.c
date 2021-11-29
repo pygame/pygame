@@ -336,7 +336,6 @@ _set_system_cursor(int constant) {
     cursor_data.type = SYSTEM_CURSOR;
     cursor_data.constant = constant;   
     Py_RETURN_NONE;
-return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
 }
 
 static PyObject *
@@ -363,8 +362,6 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     cursor_data.spoty = spoty;
     cursor_data.surfobj = surfobj;
     Py_RETURN_NONE;
-
-return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
 }
 
 static PyObject *
