@@ -541,7 +541,7 @@ class AbstractGroup(object):
     def draw(self, surface):
         """draw all sprites onto the surface
 
-        Group.draw(surface): return None
+        Group.draw(surface): return Rect_list
 
         Draws all of the member sprites onto the given surface.
 
@@ -555,6 +555,9 @@ class AbstractGroup(object):
             for spr in sprites:
                 self.spritedict[spr] = surface.blit(spr.image, spr.rect)
         self.lostsprites = []
+        dirty = self.lostsprites
+
+        return dirty
 
     def clear(self, surface, bgd):
         """erase the previous position of all sprites
