@@ -942,18 +942,17 @@ class TransformModuleTest(unittest.TestCase):
 
     def test_average_color(self):
         """ """
+        for i in (24, 32):
+            with self.subTest(f"Testing {i}-bit surface"):
+                s = pygame.Surface((32, 32), 0, i)
+                s.fill((0, 100, 200))
+                s.fill((10, 50, 100), (0, 0, 16, 32))
 
-        a = [24, 32]
-        for i in a:
-            s = pygame.Surface((32, 32), 0, i)
-            s.fill((0, 100, 200))
-            s.fill((10, 50, 100), (0, 0, 16, 32))
+                self.assertEqual(pygame.transform.average_color(s), (5, 75, 150, 0))
 
-            self.assertEqual(pygame.transform.average_color(s), (5, 75, 150, 0))
-
-            # Also validate keyword arguments
-            avg_color = pygame.transform.average_color(surface=s, rect=(16, 0, 16, 32))
-            self.assertEqual(avg_color, (0, 100, 200, 0))
+                # Also validate keyword arguments
+                avg_color = pygame.transform.average_color(surface=s, rect=(16, 0, 16, 32))
+                self.assertEqual(avg_color, (0, 100, 200, 0))
 
     def test_rotate(self):
         # setting colors and canvas
