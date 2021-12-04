@@ -1,4 +1,5 @@
 """pygame module for loading and rendering fonts (freetype alternative)"""
+import copy
 
 __all__ = [
     "Font",

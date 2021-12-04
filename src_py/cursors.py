@@ -106,7 +106,7 @@ class Cursor(object):
         You can do the same thing by doing Cursor(Cursor)."""
         return self.__class__(self)
 
-    copy = __copy__
+    copy = __copy__ 
 
     def __hash__(self):
         return hash(tuple([self.type] + list(self.data)))

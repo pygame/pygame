@@ -190,6 +190,12 @@ fontmodule_quit(PyObject *self)
 }
 
 static PyObject *
+font_copy(PyObject *self)
+{
+    return self;
+}
+
+static PyObject *
 get_init(PyObject *self)
 {
     return PyBool_FromLong(font_initialized);
@@ -663,6 +669,7 @@ static PyGetSetDef font_getsets[] = {
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
+    {"get_copy", font_copy, METH_NOARGS, NULL},
     {"get_height", font_get_height, METH_NOARGS, DOC_FONTGETHEIGHT},
     {"get_descent", font_get_descent, METH_NOARGS, DOC_FONTGETDESCENT},
     {"get_ascent", font_get_ascent, METH_NOARGS, DOC_FONTGETASCENT},

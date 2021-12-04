@@ -4,6 +4,7 @@ import sys
 import os
 import unittest
 import platform
+import copy
 
 try:
     import pathlib
@@ -280,6 +281,11 @@ class FontTypeTest(unittest.TestCase):
         descent = f.get_descent()
         self.assertTrue(isinstance(descent, int))
         self.assertTrue(descent < 0)
+    
+    def test_copy(self):
+        f = pygame_font.Font(None, 20)
+        tmp = f.get_copy()
+        self.assertTrue(f == tmp)
 
     def test_get_height(self):
         # Ckecking height would need a custom test font to do properly.
