@@ -49,6 +49,7 @@
 #define DOC_SURFACEGETVIEW "get_view(<kind>='2') -> BufferProxy\nreturn a buffer view of the Surface's pixels."
 #define DOC_SURFACEGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the pixels of the Surface."
 #define DOC_SURFACEPIXELSADDRESS "_pixels_address -> int\npixel buffer address"
+#define DOC_CROP "crop((width, height), flags=0, depth=0, masks=None) -> Surface\nSurface((width, height), flags=0, Surface) -> Surface\npygame object for representing images, not linked to parent object"
 
 
 /* Docs in a comment... slightly easier to read. */

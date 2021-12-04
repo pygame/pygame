@@ -303,6 +303,7 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEGETATMAPPED},
     {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
     {"unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB},
+    
 
     {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
@@ -363,6 +364,7 @@ static struct PyMethodDef surface_methods[] = {
 
     {"get_losses", surf_get_losses, METH_NOARGS, DOC_SURFACEGETLOSSES},
 
+    {"crop",surf_crop,METH_VARARGS,DOC_CROP},
     {"subsurface", surf_subsurface, METH_VARARGS, DOC_SURFACESUBSURFACE},
     {"get_offset", surf_get_offset, METH_NOARGS, DOC_SURFACEGETOFFSET},
     {"get_abs_offset", surf_get_abs_offset, METH_NOARGS,
@@ -2447,6 +2449,15 @@ surf_get_losses(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "display Surface quit");
     return Py_BuildValue("(iiii)", surf->format->Rloss, surf->format->Gloss,
                          surf->format->Bloss, surf->format->Aloss);
+}
+
+static PyObject *
+surf_crop(PyObject *self,PyObject *args)
+{
+    PyObject* subobj = surf_subsurface(self,args);
+    PyObject* copyobj = surf_copy(subobj,NULL);
+    free(subobj);
+    return copyobj;
 }
 
 static PyObject *

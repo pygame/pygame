@@ -52,7 +52,13 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # this was garbled before.
         self.assertEqual(res[0], 0)
         self.assertEqual(res[2], 800)
-
+    def test_crop(self):
+        """see if crop object is not linked with parent object ."""
+        s = pygame.Surface((800,600))
+        sub_rect = pygame.Rect(16, 16, 16, 16)
+        r = s.crop(sub_rect)
+        r.set_colorkey(Color(1,1,1))
+        self.assertNotEqual(r.get_colorkey,s.get_colorkey)
     def test_print(self):
         surf = pygame.Surface((70, 70), 0, 32)
         self.assertEqual(repr(surf), "<Surface(70x70x32 SW)>")
