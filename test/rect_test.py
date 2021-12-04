@@ -704,7 +704,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertTrue(
             r.contains(Rect(2, 3, 1, 1)), "r does not contain Rect(2, 3, 1, 1)"
         )
-        print(r in r, "WUt")
         self.assertTrue(
             r in (Rect(2, 3, 1, 1)), "r does not contain Rect(2, 3, 1, 1) 2"
         )
