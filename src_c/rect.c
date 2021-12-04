@@ -961,7 +961,7 @@ pg_rect_contains(pgRectObject *self, PyObject *args)
 {
     int contained;
     GAME_Rect *argrect, temp;
-
+    
     if (!(argrect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
@@ -971,9 +971,10 @@ pg_rect_contains(pgRectObject *self, PyObject *args)
                 (self->r.y + self->r.h >= argrect->y + argrect->h) &&
                 (self->r.x + self->r.w > argrect->x) &&
                 (self->r.y + self->r.h > argrect->y);
-
     return PyBool_FromLong(contained);
 }
+
+
 
 static PyObject *
 pg_rect_clamp(pgRectObject *self, PyObject *args)
@@ -1132,6 +1133,11 @@ pg_rect_length(PyObject *_self)
 }
 
 static PyObject *
+pg_rect_contains_multi(pgRectObject *self, PyObject *args) {
+    return pg_rect_contains(self, args);
+}
+
+static PyObject *
 pg_rect_item(pgRectObject *self, Py_ssize_t i)
 {
     int *data = (int *)&self->r;
@@ -1178,6 +1184,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
+    (objobjproc)pg_rect_contains_multi,
 };
 
 static PyObject *
