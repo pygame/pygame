@@ -1,17 +1,9 @@
-from typing import Tuple, List, Union, Optional, Sequence
-from pygame.surface import Surface
-from pygame.color import Color
-from pygame.rect import Rect
-from pygame._common import _Coordinate
+from typing import Optional, Sequence, Union
 
-_ColorValue = Union[
-    Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
-]
-_RectValue = Union[
-    Rect,
-    Union[Tuple[int, int, int, int], List[int]],
-    Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]],
-]
+from pygame.color import Color
+from pygame.surface import Surface
+
+from ._common import _ColorValue, _Coordinate, _RectValue
 
 def flip(surface: Surface, flip_x: bool, flip_y: bool) -> Surface: ...
 def scale(
@@ -30,17 +22,17 @@ def smoothscale(
 def get_smoothscale_backend() -> str: ...
 def set_smoothscale_backend(backend: str) -> None: ...
 def chop(surface: Surface, rect: _RectValue) -> Surface: ...
-def laplacian(surface: Surface, dest_surface: Surface) -> Surface: ...
+def laplacian(surface: Surface, dest_surface: Optional[Surface] = None) -> Surface: ...
 def average_surfaces(
     surfaces: Sequence[Surface],
     dest_surface: Optional[Surface] = None,
     palette_colors: Union[bool, int] = 1,
 ) -> Surface: ...
-def average_color(surface: Surface, rect: Optional[_RectValue]) -> Color: ...
+def average_color(surface: Surface, rect: Optional[_RectValue] = None) -> Color: ...
 def threshold(
-    dest_surface: Surface,
+    dest_surface: Optional[Surface],
     surface: Surface,
-    search_color: _ColorValue,
+    search_color: Optional[_ColorValue],
     threshold: Optional[_ColorValue] = (0, 0, 0, 0),
     set_color: Optional[_ColorValue] = (0, 0, 0, 0),
     set_behavior: Optional[int] = 1,

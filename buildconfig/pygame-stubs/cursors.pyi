@@ -1,4 +1,4 @@
-from typing import Iterator, List, Tuple, Sequence, Optional, Iterable, Union, overload
+from typing import Iterator, List, Tuple, Sequence, Iterable, Union, overload
 
 from pygame.surface import Surface
 
@@ -54,7 +54,9 @@ def load_xbm(
 
 class Cursor(Iterable[object]):
     @overload
-    def __init__(self, constant: int) -> None: ...
+    def __init__(self, constant: int = ...) -> None: ...
+    @overload
+    def __init__(self, cursor: Cursor) -> None: ...
     @overload
     def __init__(
         self,
@@ -70,6 +72,7 @@ class Cursor(Iterable[object]):
         surface: Surface,
     ) -> None: ...
     def __iter__(self) -> Iterator[object]: ...
+    def __len__(self) -> int: ...
     type: str
     data: Union[
         Tuple[int],

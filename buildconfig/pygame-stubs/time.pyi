@@ -1,4 +1,5 @@
-from typing import Optional, Union
+from typing import Union
+
 from pygame.event import Event
 
 def get_ticks() -> int: ...

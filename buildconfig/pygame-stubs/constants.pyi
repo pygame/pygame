@@ -15,7 +15,6 @@ with open("constants.pyi", "w") as f:
 
 from typing import List
 
-
 ACTIVEEVENT: int
 ANYFORMAT: int
 APPACTIVE: int

@@ -1,21 +1,11 @@
-import sys
-from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any, Iterable
+from typing import Any, Iterable, List, Optional, Text, Tuple, Union
 
-if sys.version_info >= (3, 6):
-    from os import PathLike
-
-    AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
-else:
-    AnyPath = Union[Text, bytes]
-
-from pygame.surface import Surface
 from pygame.color import Color
-from pygame.rect import Rect
 from pygame.font import Font
+from pygame.rect import Rect
+from pygame.surface import Surface
 
-_ColorValue = Union[
-    Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
-]
+from ._common import _ColorValue, _FileArg, _CanBeRect
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
@@ -71,7 +61,7 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Union[AnyPath, IO[Any], None],
+        file: Optional[_FileArg],
         size: float = 0,
         font_index: int = 0,
         resolution: int = 0,
@@ -104,7 +94,7 @@ class Font:
     def render_to(
         self,
         surf: Surface,
-        dest: Union[Tuple[int, int], Sequence[int], Rect],
+        dest: _CanBeRect,
         text: str,
         fgcolor: Optional[_ColorValue] = None,
         bgcolor: Optional[_ColorValue] = None,
@@ -124,7 +114,7 @@ class Font:
         self,
         array: Any,
         text: str,
-        dest: Optional[Union[Tuple[int, int], List[int]]] = None,
+        dest: Optional[_CanBeRect] = None,
         style: int = STYLE_DEFAULT,
         rotation: int = 0,
         size: float = 0,
