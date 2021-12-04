@@ -74,14 +74,6 @@ def getResource(identifier, pkgname=__name__):
     if path_to_file is None:
         raise IOError("%s has no __file__!" % repr(mod))
     path = os.path.join(os.path.dirname(path_to_file), identifier)
-    if sys.version_info < (3, 3):
-        loader = getattr(mod, "__loader__", None)
-        if loader is not None:
-            try:
-                data = loader.get_data(path)
-            except IOError:
-                pass
-            else:
-                return BytesIO(data)
+
     # pylint: disable=consider-using-with
     return open(os.path.normpath(path), "rb")

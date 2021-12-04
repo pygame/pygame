@@ -3,18 +3,13 @@
 import sys
 import os
 import unittest
+import pathlib
 import platform
 
 from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
 
 import pygame
 from pygame import mixer
-
-
-try:
-    import pathlib
-except ImportError:
-    pathlib = None
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -130,8 +125,9 @@ class MixerModuleTest(unittest.TestCase):
         mixer.quit()
         self.assertRaises(pygame.error, mixer.get_num_channels)
 
-    # TODO: FIXME: appveyor fails here sometimes.
+    # TODO: FIXME: appveyor and pypy (on linux) fails here sometimes.
     @unittest.skipIf(sys.platform.startswith("win"), "See github issue 892.")
+    @unittest.skipIf(IS_PYPY, "random errors here with pypy")
     def test_sound_args(self):
         def get_bytes(snd):
             return snd.get_raw()
@@ -344,13 +340,13 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(d["data"], (snd._samples_address, False))
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf__one_channel(self):
         mixer.init(22050, -16, 1)
         self._NEWBUF_export_check()
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf__twho_channel(self):
         mixer.init(22050, -16, 2)
         self._NEWBUF_export_check()
@@ -962,7 +958,6 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertIsInstance(sound, mixer.Sound)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_sound__from_pathlib(self):
         """Ensure Sound() creation with a pathlib.Path object works."""
         path = pathlib.Path(example_path(os.path.join("data", "house_lo.wav")))
@@ -998,10 +993,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         try:
             from ctypes import pythonapi, c_void_p, py_object
 
-            try:
-                Bytes_FromString = pythonapi.PyBytes_FromString  # python 3
-            except:
-                Bytes_FromString = pythonapi.PyString_FromString  # python 2
+            Bytes_FromString = pythonapi.PyBytes_FromString
 
             Bytes_FromString.restype = c_void_p
             Bytes_FromString.argtypes = [py_object]

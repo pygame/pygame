@@ -4,9 +4,8 @@
 Implement Pygame's Drawing Algorithms in a Python version for testing
 and debugging.
 """
-from __future__ import absolute_import, division
+
 from collections import namedtuple
-import sys
 from math import floor, ceil
 
 
