@@ -35,12 +35,14 @@ if not pg.image.get_extended():
 
 
 # game constants
+# colors are specified in the colordict.py file
 MAX_SHOTS = 2  # most player bullets onscreen
 ALIEN_ODDS = 22  # chances a new alien appears
 BOMB_ODDS = 60  # chances a new bomb will drop
 ALIEN_RELOAD = 12  # frames between new aliens
 SCREENRECT = pg.Rect(0, 0, 640, 480)
 SCORE = 0
+WHITESPRITE = "white"
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -215,7 +217,7 @@ class Score(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         self.font = pg.font.Font(None, 20)
         self.font.set_italic(1)
-        self.color = pg.Color("white")
+        self.color = WHITESPRITE
         self.lastscore = -1
         self.update()
         self.rect = self.image.get_rect().move(10, 450)

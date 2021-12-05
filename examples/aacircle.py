@@ -5,6 +5,10 @@
 import pygame
 import pygame.gfxdraw
 
+# game constants
+# colors are specified in the colordict.py file
+GREENCIRCLE = "green"
+BLACKCIRCLE = "black"
 
 def main():
     pygame.init()
@@ -20,8 +24,8 @@ def main():
 
     screen.blit(s, (0, 0))
 
-    pygame.draw.circle(screen, pygame.Color("GREEN"), (50, 100), 10)
-    pygame.draw.circle(screen, pygame.Color("BLACK"), (50, 100), 10, 1)
+    pygame.draw.circle(screen, GREENCIRCLE, (50, 100), 10)
+    pygame.draw.circle(screen, BLACKCIRCLE, (50, 100), 10, 1)
 
     pygame.display.flip()
     try:

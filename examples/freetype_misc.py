@@ -33,13 +33,15 @@ import os
 import pygame as pg
 import pygame.freetype as freetype
 
-colors = {
-    "grey_light": pg.Color(200, 200, 200),
-    "grey_dark": pg.Color(100, 100, 100),
-    "green": pg.Color(50, 255, 63),
-    "red": pg.Color(220, 30, 30),
-    "blue": pg.Color(50, 75, 245),
-}
+# game constants
+# colors are specified in the colordict.py file
+GREYLIGHTCOLOR = "grey_light"
+GREYDARKCOLOR = "grey_dark"
+GREENCOLOR = "green5"
+REDCOLOR = "red5"
+BLUECOLOR = "blue5"
+BLACKCOLOR = "black"
+ORANGECOLOR = "orange"
 
 
 def run():
@@ -49,7 +51,7 @@ def run():
     font = freetype.Font(os.path.join(fontdir, "data", "sans.ttf"))
 
     screen = pg.display.set_mode((800, 600))
-    screen.fill(colors["grey_light"])
+    screen.fill(GREYLIGHTCOLOR)
 
     font.underline_adjustment = 0.5
     font.pad = True
@@ -57,8 +59,8 @@ def run():
         screen,
         (32, 32),
         "Hello World",
-        colors["red"],
-        colors["grey_dark"],
+        REDCOLOR,
+        GREYDARKCOLOR,
         size=64,
         style=freetype.STYLE_UNDERLINE | freetype.STYLE_OBLIQUE,
     )
@@ -68,58 +70,58 @@ def run():
         screen,
         (32, 128),
         "abcdefghijklm",
-        colors["grey_dark"],
-        colors["green"],
+        GREYDARKCOLOR,
+        GREENCOLOR,
         size=64,
     )
 
     font.vertical = True
-    font.render_to(screen, (32, 200), "Vertical?", colors["blue"], None, size=32)
+    font.render_to(screen, (32, 200), "Vertical?", BLUECOLOR, None, size=32)
     font.vertical = False
 
     font.render_to(
-        screen, (64, 190), "Let's spin!", colors["red"], None, size=48, rotation=55
+        screen, (64, 190), "Let's spin!", REDCOLOR, None, size=48, rotation=55
     )
 
     font.render_to(
-        screen, (160, 290), "All around!", colors["green"], None, size=48, rotation=-55
+        screen, (160, 290), "All around!", GREENCOLOR, None, size=48, rotation=-55
     )
 
     font.render_to(
-        screen, (250, 220), "and BLEND", pg.Color(255, 0, 0, 128), None, size=64
+        screen, (250, 220), "and BLEND", (255, 0, 0, 128), None, size=64
     )
 
     font.render_to(
-        screen, (265, 237), "or BLAND!", pg.Color(0, 0xCC, 28, 128), None, size=64
+        screen, (265, 237), "or BLAND!", (0, 0xCC, 28, 128), None, size=64
     )
 
     # Some pinwheels
     font.origin = True
     for angle in range(0, 360, 45):
         font.render_to(
-            screen, (150, 420), ")", pg.Color("black"), size=48, rotation=angle
+            screen, (150, 420), ")", BLACKCOLOR, size=48, rotation=angle
         )
     font.vertical = True
     for angle in range(15, 375, 30):
         font.render_to(
-            screen, (600, 400), "|^*", pg.Color("orange"), size=48, rotation=angle
+            screen, (600, 400), "|^*", ORANGECOLOR, size=48, rotation=angle
         )
     font.vertical = False
     font.origin = False
 
     utext = "I \u2665 Unicode"
-    font.render_to(screen, (298, 320), utext, pg.Color(0, 0xCC, 0xDD), None, size=64)
+    font.render_to(screen, (298, 320), utext, (0, 0xCC, 0xDD), None, size=64)
 
     utext = "\u2665"
     font.render_to(
-        screen, (480, 32), utext, colors["grey_light"], colors["red"], size=148
+        screen, (480, 32), utext, GREYLIGHTCOLOR, REDCOLOR, size=148
     )
 
     font.render_to(
         screen,
         (380, 380),
         "...yes, this is an SDL surface",
-        pg.Color(0, 0, 0),
+        BLACKCOLOR,
         None,
         size=24,
         style=freetype.STYLE_STRONG,
@@ -130,7 +132,7 @@ def run():
         screen,
         (100, 530),
         "stretch",
-        pg.Color("red"),
+        REDCOLOR,
         None,
         size=(24, 24),
         style=freetype.STYLE_NORMAL,
@@ -139,7 +141,7 @@ def run():
         screen,
         (100 + r.width, 530),
         " VERTICAL",
-        pg.Color("red"),
+        REDCOLOR,
         None,
         size=(24, 48),
         style=freetype.STYLE_NORMAL,
@@ -149,7 +151,7 @@ def run():
         screen,
         (100, 580),
         "stretch",
-        pg.Color("blue"),
+        BLUECOLOR,
         None,
         size=(24, 24),
         style=freetype.STYLE_NORMAL,
@@ -158,7 +160,7 @@ def run():
         screen,
         (100 + r.width, 580),
         " HORIZONTAL",
-        pg.Color("blue"),
+        BLUECOLOR,
         None,
         size=(48, 24),
         style=freetype.STYLE_NORMAL,
