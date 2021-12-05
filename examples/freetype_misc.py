@@ -121,7 +121,7 @@ def run():
         screen,
         (380, 380),
         "...yes, this is an SDL surface",
-        (0, 0, 0),
+        BLACKCOLOR,
         None,
         size=24,
         style=freetype.STYLE_STRONG,
