@@ -237,6 +237,8 @@ static PyObject *
 vector_str(pgVector *self);
 static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
+static PyObject *
+vector_copy(pgVector *self, PyObject *args);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -330,6 +332,8 @@ static int
 vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
 static PyObject *
 vector_elementwise(pgVector *vec, PyObject *args);
+
+static int swizzling_enabled = 1;
 
 /********************************
  * Global helper functions
@@ -777,6 +781,17 @@ vector_nonzero(pgVector *self)
         }
     }
     return 0;
+}
+
+static PyObject *
+vector_copy(pgVector *self, PyObject *args)
+{
+    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
+    Py_ssize_t i;
+    for (i = 0; i < self->dim; i++) {
+        ret->coords[i] = self->coords[i];
+    }
+    return (PyObject *)ret;
 }
 
 static PyNumberMethods vector_as_number = {
@@ -1507,13 +1522,13 @@ _vector_check_snprintf_success(int return_code)
     if (return_code < 0) {
         PyErr_SetString(PyExc_SystemError,
                         "internal snprintf call went wrong! Please report "
-                        "this to github.com/pygame/pygame/issues");
+                        "this to pygame-users@seul.org");
         return 0;
     }
     if (return_code >= STRING_BUF_SIZE) {
         PyErr_SetString(PyExc_SystemError,
                         "Internal buffer to small for snprintf! Please report "
-                        "this to github.com/pygame/pygame/issues");
+                        "this to pygame-users@seul.org");
         return 0;
     }
     return 1;
@@ -1628,7 +1643,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
 
     len = PySequence_Length(attr_name);
 
-    if (len == 1) {
+    if (len == 1 || !swizzling_enabled) {
         return PyObject_GenericGetAttr((PyObject *)self, attr_name);
     }
 
@@ -1716,7 +1731,8 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
     int swizzle_err = SWIZZLE_ERR_NO_ERR;
     Py_ssize_t i;
 
-    if (len == 1)
+    /* if swizzling is disabled always default to generic implementation */
+    if (!swizzling_enabled || len == 1)
         return PyObject_GenericSetAttr((PyObject *)self, attr_name, val);
 
     /* if swizzling is enabled first try swizzle */
@@ -1785,7 +1801,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
             /* this should NEVER happen and means a bug in the code */
             PyErr_SetString(PyExc_RuntimeError,
                             "Unhandled error in swizzle code. Please report "
-                            "this bug to github.com/pygame/pygame/issues");
+                            "this bug to pygame-users@seul.org");
             return -1;
     }
 }
@@ -2002,7 +2018,7 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                 PyErr_SetString(
                     PyExc_RuntimeError,
                     "Please report this bug in vector2_rotate_helper to the "
-                    "developers at github.com/pygame/pygame/issues");
+                    "developers at pygame-users@seul.org");
                 return 0;
         }
     }
@@ -2223,6 +2239,8 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2FROMPOLAR},
     {"project", (PyCFunction)vector2_project, METH_O,
      DOC_VECTOR2PROJECT},
+    {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
+    {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
@@ -2503,7 +2521,7 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
                 PyErr_SetString(
                     PyExc_RuntimeError,
                     "Please report this bug in vector3_rotate_helper to the "
-                    "developers at github.com/pygame/pygame/issues");
+                    "developers at pygame-users@seul.org");
                 return 0;
         }
     }
@@ -3100,6 +3118,8 @@ static PyMethodDef vector3_methods[] = {
     {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
      DOC_VECTOR3FROMSPHERICAL},
     {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
+    {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR3COPY},
+    {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector3_reduce, METH_NOARGS, NULL},
@@ -3968,34 +3988,22 @@ vector_elementwise(pgVector *vec, PyObject *args)
 static PyObject *
 math_enable_swizzling(pgVector *self)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.math.enable_swizzling() is deprecated, "
-                     "and its functionality is removed. This function will be "
-                     "removed in a later version.",
-                     1) == -1) {
-        return NULL;
-    }
+    swizzling_enabled = 1;
     Py_RETURN_NONE;
 }
 
 static PyObject *
 math_disable_swizzling(pgVector *self)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.math.disable_swizzling() is deprecated, "
-                     "and its functionality is removed. This function will be "
-                     "removed in a later version.",
-                     1) == -1) {
-        return NULL;
-    }
+    swizzling_enabled = 0;
     Py_RETURN_NONE;
 }
 
 static PyMethodDef _math_methods[] = {
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
-     "Deprecated, will be removed in a future version"},
+     "enables swizzling."},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
-     "Deprecated, will be removed in a future version."},
+     "disables swizzling."},
     {NULL, NULL, 0, NULL}};
 
 /****************************

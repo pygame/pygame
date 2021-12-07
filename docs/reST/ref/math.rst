@@ -321,6 +321,17 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector2.project ##
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector2`
+
+      Returns a new Vector2 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.copy ##
 
    .. method:: update
 
@@ -771,6 +782,17 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector3.project ##
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector3`
+
+      Returns a new Vector3 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.copy ##
 
    .. method:: update
 
@@ -791,5 +813,33 @@ Multiple coordinates can be set using slices or swizzling
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
+
+
+.. function:: enable_swizzling
+
+   | :sl:`globally enables swizzling for vectors.`
+   | :sg:`enable_swizzling() -> None`
+
+   DEPRECATED: Not needed anymore. Will be removed in a later version.
+
+   Enables swizzling for all vectors until ``disable_swizzling()`` is called.
+   By default swizzling is disabled.
+
+   Lets you get or set multiple coordinates as one attribute, eg
+   ``vec.xyz = 1, 2, 3``.
+
+   .. ## pygame.math.enable_swizzling ##
+
+.. function:: disable_swizzling
+
+   | :sl:`globally disables swizzling for vectors.`
+   | :sg:`disable_swizzling() -> None`
+
+   DEPRECATED: Not needed anymore. Will be removed in a later version.
+
+   Disables swizzling for all vectors until ``enable_swizzling()`` is called.
+   By default swizzling is disabled.
+
+   .. ## pygame.math.disable_swizzling ##
 
 .. ## pygame.math ##
