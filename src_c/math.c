@@ -237,6 +237,8 @@ static PyObject *
 vector_str(pgVector *self);
 static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
+static PyObject *
+vector_copy(pgVector *self, PyObject *args)
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -779,6 +781,12 @@ vector_nonzero(pgVector *self)
         }
     }
     return 0;
+}
+
+static pgVector
+vector_copy(PyObject *self, PyObject *args)
+{
+    return (pgVector) pgVector_NEW(self->dim);
 }
 
 static PyNumberMethods vector_as_number = {
@@ -2226,6 +2234,7 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2FROMPOLAR},
     {"project", (PyCFunction)vector2_project, METH_O,
      DOC_VECTOR2PROJECT},
+    {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
@@ -3103,6 +3112,7 @@ static PyMethodDef vector3_methods[] = {
     {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
      DOC_VECTOR3FROMSPHERICAL},
     {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
+    {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR3COPY},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector3_reduce, METH_NOARGS, NULL},

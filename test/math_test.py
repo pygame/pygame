@@ -109,6 +109,11 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 9.1)
         self.assertEqual(v.y, 11.12)
 
+        v_copy0 = Vector2(772.0, 772.0)
+        v_copy1 = v.copy()
+        self.assertEqual(v_copy0.x, v_copy1.x)
+        self.assertEqual(v_copy0.y, v_copy1.y)
+
         def overpopulate():
             v = Vector2()
             v[:] = [1, 2, 3]
