@@ -43,6 +43,12 @@ class _VectorElementwiseProxy2:
     def __rpow__(
         self, power: Union[float, Vector2, _VectorElementwiseProxy2]
     ) -> Vector2: ...
+    def __copy__(
+        self, power: Union[float, Vector2, _VectorElementwiseProxy2]
+    ) -> Vector2: ...
+    def __flip__(
+        self, power: Union[float, Vector2, _VectorElementwiseProxy2]
+    ) -> Vector2: ...
 
 class _VectorElementwiseProxy3:
     def __add__(
@@ -85,6 +91,12 @@ class _VectorElementwiseProxy3:
         self, power: Union[float, Vector3, _VectorElementwiseProxy3]
     ) -> Vector3: ...
     def __rpow__(
+        self, power: Union[float, Vector3, _VectorElementwiseProxy3]
+    ) -> Vector3: ...
+    def __copy__(
+        self, power: Union[float, Vector3, _VectorElementwiseProxy3]
+    ) -> Vector3: ...
+    def __flip__(
         self, power: Union[float, Vector3, _VectorElementwiseProxy3]
     ) -> Vector3: ...
 
@@ -152,6 +164,8 @@ class Vector2:
         x: Union[float, Vector2, Tuple[float, float], List[float]] = 0,
         y: float = 0,
     ) -> None: ...
+    # def copy() method here
+    # def flip() method here
 
 class Vector3:
     x: float
@@ -263,3 +277,5 @@ class Vector3:
     ) -> None: ...
     @overload
     def update(self, x: int, y: int, z: int) -> None: ...
+    # def copy() method here
+    # def flip() method here

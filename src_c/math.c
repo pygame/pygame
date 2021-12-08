@@ -1968,6 +1968,22 @@ vector2_update(pgVector *self, PyObject *args, PyObject *kwds)
     return NULL;
 }
 
+static PyObject*
+vector2_copy(pgVector *self, PyObject *args)
+{
+    pgVector *new = (pgVector *)type->tp_alloc(type,0);
+    
+    if (!self)
+        return NULL;
+    if (!(self->coords))
+        return NULL;
+    if (!(self->coords[0]))
+        return vector2_new()
+
+    new->coords[0] = self->coords[0];
+    new->coords[1] = self->coords[1];
+}
+
 static int
 _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                        double angle, double epsilon)
