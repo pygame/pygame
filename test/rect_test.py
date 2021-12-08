@@ -723,9 +723,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.contains(Rect(0, 0, 1, 2)), "r contains Rect(0, 0, 1, 2)")
         self.assertFalse(r.contains(Rect(4, 6, 1, 1)), "r contains Rect(4, 6, 1, 1)")
         self.assertFalse(r.contains(Rect(4, 6, 0, 0)), "r contains Rect(4, 6, 0, 0)")
-        print("Testing", r in (Rect(0, 0, 1, 2)))
         self.assertFalse(r in (Rect(0, 0, 1, 2)), "r contains Rect(0, 0, 1, 2)")
-        print("tested")
         self.assertFalse(r in (Rect(4, 6, 1, 1)), "r contains Rect(4, 6, 1, 1)")
         self.assertFalse(r in (Rect(4, 6, 0, 0)), "r contains Rect(4, 6, 0, 0)")
 
