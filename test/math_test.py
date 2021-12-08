@@ -82,6 +82,12 @@ class Vector2TypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, assign_nonfloat)
 
+    def testCopy(self):
+        v_copy0 = Vector2(2004.0, 2022.0)
+        v_copy1 = v_copy0.copy()
+        self.assertEqual(v_copy0.x, v_copy1.x)
+        self.assertEqual(v_copy0.y, v_copy1.y)
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]
@@ -104,11 +110,6 @@ class Vector2TypeTest(unittest.TestCase):
         v[:] = [9.1, 11.12]
         self.assertEqual(v.x, 9.1)
         self.assertEqual(v.y, 11.12)
-
-        v_copy0 = Vector2(2004.0, 2022.0)
-        v_copy1 = v_copy0.copy()
-        self.assertEqual(v_copy0.x, v_copy1.x)
-        self.assertEqual(v_copy0.y, v_copy1.y)
 
         def overpopulate():
             v = Vector2()
