@@ -1132,9 +1132,21 @@ pg_rect_length(PyObject *_self)
     return 4;
 }
 
-static PyObject *
-pg_rect_contains_multi(pgRectObject *self, PyObject *args) {
-    return pg_rect_contains(self, args);
+static int
+pg_rect_contains_multi(pgRectObject *argrect, PyObject *self_uncast) {
+    int contained;
+    GAME_Rect *self, temp;
+    
+    if (!(self = pgRect_FromObject(self_uncast, &temp))) {
+        return -1;
+    }
+
+    contained = (self->x <= argrect->r.x) && (self->y <= argrect->r.y) &&
+                (self->x + self->w >= argrect->r.x + argrect->r.w) &&
+                (self->y + self->h >= argrect->r.y + argrect->r.h) &&
+                (self->x + self->w > argrect->r.x) &&
+                (self->y + self->h > argrect->r.y);
+    return contained;
 }
 
 static PyObject *
@@ -1184,7 +1196,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
-    (objobjproc)pg_rect_contains_multi,
+    (objobjproc)pg_rect_contains_multi,/*contains*/
 };
 
 static PyObject *
