@@ -238,7 +238,7 @@ vector_str(pgVector *self);
 static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
-vector_copy(pgVector *self, PyObject *args);
+vector_copy(pgVector *self);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -782,7 +782,7 @@ vector_nonzero(pgVector *self)
 }
 
 static PyObject *
-vector_copy(pgVector *self, PyObject *args)
+vector_copy(pgVector *self)
 {
     pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
     Py_ssize_t i;
