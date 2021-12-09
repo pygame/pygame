@@ -962,11 +962,14 @@ _pg_rect_contains(pgRectObject *self, PyObject *arg)
     GAME_Rect *argrect, temp_arg;
     if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
         // Case where argument is one of (x,y,w,h)
-        int point = (int) PyInt_AsLong(arg);
-        return point == self->r.x || 
-               point == self->r.y || 
-               point == self->r.w || 
-               point == self->r.h;
+        if (PyLong_Check(arg)) {
+            int coord = (int) PyInt_AsLong(arg);
+            return coord == self->r.x || 
+                coord == self->r.y || 
+                coord == self->r.w || 
+                coord == self->r.h;
+        }
+       return -1;
     }
 
     return  (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
