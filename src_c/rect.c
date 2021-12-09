@@ -959,19 +959,17 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 static int
 _pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
-    int contained;
     GAME_Rect *argrect, temp_arg;
     if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
         return -1;
     }
 
-    contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
+    return  (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
                 (self->r.x + self->r.w >= argrect->x + argrect->w) &&
                 (self->r.y + self->r.h >= argrect->y + argrect->h) &&
                 (self->r.x + self->r.w > argrect->x) &&
                 (self->r.y + self->r.h > argrect->y);
-    return contained;
-}
+    }
 
 
 static PyObject *
