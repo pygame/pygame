@@ -1207,7 +1207,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
-    (objobjproc)_pg_rect_contains,/*contains*/
+    (objobjproc)pg_rect_contains_multi,/*contains*/
 };
 
 static PyObject *
