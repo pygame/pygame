@@ -194,6 +194,8 @@ music_unpause(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Mix_ResumeMusic();
+    /* need to set pos_time for the adjusted time spent paused*/
+    music_pos_time = SDL_GetTicks();
     Py_RETURN_NONE;
 }
 
@@ -365,7 +367,7 @@ _get_type_from_hint(char *namehint)
     return type;
 }
 
-Mix_Music * 
+Mix_Music *
 _load_music(PyObject *obj, char *namehint) {
     Mix_Music *new_music = NULL;
     char* ext = NULL;
@@ -383,7 +385,7 @@ _load_music(PyObject *obj, char *namehint) {
         Py_XDECREF(_type);
         Py_XDECREF(_traceback);
         return NULL;
-    } 
+    }
     if (namehint) {
         ext = namehint;
     } else {
@@ -398,7 +400,7 @@ _load_music(PyObject *obj, char *namehint) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return NULL;
     }
-    
+
     return new_music;
 }
 
@@ -471,7 +473,7 @@ music_queue(PyObject *self, PyObject *args, PyObject *keywds)
     MIXER_INIT_CHECK();
 
     queue_music_loops = loops;
-    
+
     local_queue_music = _load_music(obj, namehint);
     if (local_queue_music == NULL) // meaning it has an error to return
         return NULL;
