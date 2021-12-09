@@ -726,6 +726,8 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(Rect(0, 0, 1, 2) in r, "r contains Rect(0, 0, 1, 2)")
         self.assertFalse(Rect(4, 6, 1, 1) in r, "r contains Rect(4, 6, 1, 1)")
         self.assertFalse(Rect(4, 6, 0, 0) in r, "r contains Rect(4, 6, 0, 0)")
+        self.assertTrue(2 in Rect(0, 0, 1, 2), "r does not contain 2")
+        self.assertFalse(3 in Rect(0, 0, 1, 2), "r contains 3")
 
     def test_collidepoint(self):
         r = Rect(1, 2, 3, 4)
