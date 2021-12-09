@@ -973,11 +973,6 @@ _pg_rect_contains(pgRectObject *self, PyObject *arg)
     return contained;
 }
 
-static int
-pg_rect_contains_multi(pgRectObject *self, PyObject *arg) {
-    
-    return _pg_rect_contains(self, arg);
-}
 
 static PyObject *
 pg_rect_contains(pgRectObject *self, PyObject *arg)
@@ -1196,7 +1191,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
-    (objobjproc)pg_rect_contains_multi,/*contains*/
+    (objobjproc)_pg_rect_contains,/*contains*/
 };
 
 static PyObject *
