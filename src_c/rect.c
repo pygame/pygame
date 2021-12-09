@@ -33,7 +33,6 @@
 #include "pgcompat.h"
 
 #include <limits.h>
-#include <stdbool.h>
 
 static PyTypeObject pgRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
@@ -958,44 +957,34 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 }
 
 static int
-_pg_rect_contains(pgRectObject *self, PyObject *argrect, bool rev)
+_pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
     int contained;
-    GAME_Rect *arg, temp_arg;
-    if (!(arg = pgRect_FromObject((PyObject *)argrect, &temp_arg))) {
+    GAME_Rect *argrect, temp_arg;
+    if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
         return -1;
     }
 
-    int x1,y1,h1,w1;
-    int x2,y2,h2,w2;
-    if (!rev) {
-        x1 = self->r.x; y1 = self->r.y; w1 = self->r.w; h1 = self->r.h;
-        x2 = arg->x; y2 = arg->y; w2 = arg->w; h2 = arg->h;
-    } else {
-        x1 = arg->x; y1 = arg->y; w1 = arg->w; h1 = arg->h;
-        x2 = self->r.x; y2 = self->r.y; w2 = self->r.w; h2 = self->r.h;
-    }
-    
-    contained = (x1 <= x2) && (y1 <= y2) &&
-                (x1 + w1 >= x2 + w2) &&
-                (y1 + h1 >= y2 + h2) &&
-                (x1 + w1 > x2) &&
-                (y1 + h1 > y2);
+    contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
+                (self->r.x + self->r.w >= argrect->x + argrect->w) &&
+                (self->r.y + self->r.h >= argrect->y + argrect->h) &&
+                (self->r.x + self->r.w > argrect->x) &&
+                (self->r.y + self->r.h > argrect->y);
     return contained;
 }
 
 static int
 pg_rect_contains_multi(pgRectObject *self, PyObject *arg) {
     
-    return _pg_rect_contains(self, arg, true);
+    return _pg_rect_contains(self, arg);
 }
 
 static PyObject *
 pg_rect_contains(pgRectObject *self, PyObject *arg)
-{   
-    int ret = _pg_rect_contains(self, arg, false);
+{ 
+    int ret = _pg_rect_contains(self, arg);
     if (ret < 0) {
-        RAISE(PyExc_TypeError, "Argument must be rect style object");
+        return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
     return PyBool_FromLong(ret);
 }
