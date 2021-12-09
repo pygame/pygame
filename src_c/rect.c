@@ -33,6 +33,7 @@
 #include "pgcompat.h"
 
 #include <limits.h>
+#include <stdbool.h>
 
 static PyTypeObject pgRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
@@ -956,22 +957,47 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
     return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
 }
 
-static PyObject *
-pg_rect_contains(pgRectObject *self, PyObject *args)
+static int
+_pg_rect_contains(pgRectObject *self, PyObject *argrect, bool rev)
 {
     int contained;
-    GAME_Rect *argrect, temp;
-    
-    if (!(argrect = pgRect_FromObject(args, &temp))) {
-        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    GAME_Rect *arg, temp_arg;
+    if (!(arg = pgRect_FromObject((PyObject *)argrect, &temp_arg))) {
+        return -1;
     }
 
-    contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
-                (self->r.x + self->r.w >= argrect->x + argrect->w) &&
-                (self->r.y + self->r.h >= argrect->y + argrect->h) &&
-                (self->r.x + self->r.w > argrect->x) &&
-                (self->r.y + self->r.h > argrect->y);
-    return PyBool_FromLong(contained);
+    int x1,y1,h1,w1;
+    int x2,y2,h2,w2;
+    if (!rev) {
+        x1 = self->r.x; y1 = self->r.y; w1 = self->r.w; h1 = self->r.h;
+        x2 = arg->x; y2 = arg->y; w2 = arg->w; h2 = arg->h;
+    } else {
+        x1 = arg->x; y1 = arg->y; w1 = arg->w; h1 = arg->h;
+        x2 = self->r.x; y2 = self->r.y; w2 = self->r.w; h2 = self->r.h;
+    }
+    
+    contained = (x1 <= x2) && (y1 <= y2) &&
+                (x1 + w1 >= x2 + w2) &&
+                (y1 + h1 >= y2 + h2) &&
+                (x1 + w1 > x2) &&
+                (y1 + h1 > y2);
+    return contained;
+}
+
+static int
+pg_rect_contains_multi(pgRectObject *self, PyObject *arg) {
+    
+    return _pg_rect_contains(self, arg, true);
+}
+
+static PyObject *
+pg_rect_contains(pgRectObject *self, PyObject *arg)
+{   
+    int ret = _pg_rect_contains(self, arg, false);
+    if (ret < 0) {
+        RAISE(PyExc_TypeError, "Argument must be rect style object");
+    }
+    return PyBool_FromLong(ret);
 }
 
 
@@ -1132,22 +1158,7 @@ pg_rect_length(PyObject *_self)
     return 4;
 }
 
-static int
-pg_rect_contains_multi(pgRectObject *argrect, PyObject *self_uncast) {
-    int contained;
-    GAME_Rect *self, temp;
-    
-    if (!(self = pgRect_FromObject(self_uncast, &temp))) {
-        return -1;
-    }
 
-    contained = (self->x <= argrect->r.x) && (self->y <= argrect->r.y) &&
-                (self->x + self->w >= argrect->r.x + argrect->r.w) &&
-                (self->y + self->h >= argrect->r.y + argrect->r.h) &&
-                (self->x + self->w > argrect->r.x) &&
-                (self->y + self->h > argrect->r.y);
-    return contained;
-}
 
 static PyObject *
 pg_rect_item(pgRectObject *self, Py_ssize_t i)
@@ -1196,7 +1207,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
-    (objobjproc)pg_rect_contains_multi,/*contains*/
+    (objobjproc)_pg_rect_contains,/*contains*/
 };
 
 static PyObject *
