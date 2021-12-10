@@ -1,26 +1,10 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Iterable
-from typing_extensions import Protocol
+from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+
 from pygame.math import Vector2
-from pygame.sprite import _RectStyle
-from pygame._common import _Coordinate
+from ._common import _Coordinate, _CanBeRect
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
-
-_CanBeRect = Union[
-    "Rect",
-    Tuple[float, float, float, float],
-    Tuple[Tuple[float, float], Tuple[float, float]],
-    List[float],
-    List[Vector2],
-    Tuple[Vector2, Vector2],
-    Iterable[Vector2],
-]
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
-_RectValue = Union[
-    _CanBeRect, _HasRectAttribute
-]
 
 class Rect(object):
     x: int
@@ -59,7 +43,9 @@ class Rect(object):
     @overload
     def __init__(
         self,
-        left_top_width_height: Union[Rect, Tuple[float, float, float, float], List[float]]
+        left_top_width_height: Union[
+            Rect, Tuple[float, float, float, float], List[float]
+        ],
     ) -> None: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
@@ -83,9 +69,7 @@ class Rect(object):
     @overload
     def inflate_ip(self, inflate_by: _Coordinate) -> None: ...
     @overload
-    def update(
-        self, left: float, top: float, width: float, height: float
-    ) -> None: ...
+    def update(self, left: float, top: float, width: float, height: float) -> None: ...
     @overload
     def update(
         self,
@@ -95,10 +79,12 @@ class Rect(object):
     @overload
     def update(
         self,
-        left_top_width_height: Union[Rect, Tuple[float, float, float, float], List[float]]
+        left_top_width_height: Union[
+            Rect, Tuple[float, float, float, float], List[float]
+        ],
     ) -> None: ...
     @overload
-    def clamp(self, rect: Union[_RectStyle, Rect]) -> Rect: ...
+    def clamp(self, rect: Union[_CanBeRect, Rect]) -> Rect: ...
     @overload
     def clamp(
         self,
@@ -108,7 +94,7 @@ class Rect(object):
     @overload
     def clamp(self, left: float, top: float, width: float, height: float) -> Rect: ...
     @overload
-    def clamp_ip(self, rect: Union[_RectStyle, Rect]) -> None: ...
+    def clamp_ip(self, rect: Union[_CanBeRect, Rect]) -> None: ...
     @overload
     def clamp_ip(
         self,
@@ -120,7 +106,7 @@ class Rect(object):
         self, left: float, top: float, width: float, height: float
     ) -> None: ...
     @overload
-    def clip(self, rect: Union[_RectStyle, Rect]) -> Rect: ...
+    def clip(self, rect: Union[_CanBeRect, Rect]) -> Rect: ...
     @overload
     def clip(
         self,
@@ -146,7 +132,7 @@ class Rect(object):
         self, coordinates: Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]]
     ) -> Union[Tuple[Tuple[int, int], Tuple[int, int]], Tuple[()]]: ...
     @overload
-    def union(self, rect: Union[_RectStyle, Rect]) -> Rect: ...
+    def union(self, rect: Union[_CanBeRect, Rect]) -> Rect: ...
     @overload
     def union(
         self,
@@ -156,7 +142,7 @@ class Rect(object):
     @overload
     def union(self, left: float, top: float, width: float, height: float) -> Rect: ...
     @overload
-    def union_ip(self, rect: Union[_RectStyle, Rect]) -> None: ...
+    def union_ip(self, rect: Union[_CanBeRect, Rect]) -> None: ...
     @overload
     def union_ip(
         self,
@@ -167,10 +153,10 @@ class Rect(object):
     def union_ip(
         self, left: float, top: float, width: float, height: float
     ) -> None: ...
-    def unionall(self, rect: Sequence[Union[_RectStyle, Rect]]) -> Rect: ...
-    def unionall_ip(self, rect_sequence: Sequence[Union[_RectStyle, Rect]]) -> None: ...
+    def unionall(self, rect: Sequence[Union[_CanBeRect, Rect]]) -> Rect: ...
+    def unionall_ip(self, rect_sequence: Sequence[Union[_CanBeRect, Rect]]) -> None: ...
     @overload
-    def fit(self, rect: Union[_RectStyle, Rect]) -> Rect: ...
+    def fit(self, rect: Union[_CanBeRect, Rect]) -> Rect: ...
     @overload
     def fit(
         self,
@@ -181,7 +167,7 @@ class Rect(object):
     def fit(self, left: float, top: float, width: float, height: float) -> Rect: ...
     def normalize(self) -> None: ...
     @overload
-    def contains(self, rect: Union[_RectStyle, Rect]) -> bool: ...
+    def contains(self, rect: Union[_CanBeRect, Rect]) -> bool: ...
     @overload
     def contains(
         self,
@@ -189,13 +175,15 @@ class Rect(object):
         width_height: Union[List[float], Tuple[float, float], Vector2],
     ) -> bool: ...
     @overload
-    def contains(self, left: float, top: float, width: float, height: float) -> bool: ...
+    def contains(
+        self, left: float, top: float, width: float, height: float
+    ) -> bool: ...
     @overload
     def collidepoint(self, x: float, y: float) -> bool: ...
     @overload
     def collidepoint(self, x_y: Union[List[float], Tuple[float, float]]) -> bool: ...
     @overload
-    def colliderect(self, rect: Union[_RectStyle, Rect]) -> bool: ...
+    def colliderect(self, rect: Union[_CanBeRect, Rect]) -> bool: ...
     @overload
     def colliderect(
         self,
@@ -206,25 +194,25 @@ class Rect(object):
     def colliderect(
         self, left: float, top: float, width: float, height: float
     ) -> bool: ...
-    def collidelist(self, rect_list: Sequence[Union[Rect, _RectStyle]]) -> int: ...
+    def collidelist(self, rect_list: Sequence[Union[Rect, _CanBeRect]]) -> int: ...
     def collidelistall(
-        self, rect_list: Sequence[Union[Rect, _RectStyle]]
+        self, rect_list: Sequence[Union[Rect, _CanBeRect]]
     ) -> List[int]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.
     @overload
     def collidedict(
-        self, rect_dict: Dict[_RectStyle, _V], values: bool = ...
-    ) -> Tuple[_RectStyle, _V]: ...
+        self, rect_dict: Dict[_CanBeRect, _V], values: bool = ...
+    ) -> Tuple[_CanBeRect, _V]: ...
     @overload
     def collidedict(
         self, rect_dict: Dict[_K, "Rect"], values: bool
     ) -> Tuple[_K, "Rect"]: ...
     @overload
     def collidedictall(
-        self, rect_dict: Dict[_RectStyle, _V], values: bool = ...
-    ) -> List[Tuple[_RectStyle, _V]]: ...
+        self, rect_dict: Dict[_CanBeRect, _V], values: bool = ...
+    ) -> List[Tuple[_CanBeRect, _V]]: ...
     @overload
     def collidedictall(
         self, rect_dict: Dict[_K, "Rect"], values: bool

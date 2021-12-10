@@ -1,4 +1,5 @@
 from typing import List
+
 from pygame.event import Event
 
 def init() -> None: ...

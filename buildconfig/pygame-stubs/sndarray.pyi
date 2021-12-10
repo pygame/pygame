@@ -1,6 +1,8 @@
 from typing import Tuple
-from pygame.mixer import Sound
+
 import numpy
+
+from pygame.mixer import Sound
 
 def array(sound: Sound) -> numpy.ndarray: ...
 def samples(sound: Sound) -> numpy.ndarray: ...
