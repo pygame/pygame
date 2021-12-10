@@ -331,8 +331,6 @@ vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
 static PyObject *
 vector_elementwise(pgVector *vec, PyObject *args);
 
-static int swizzling_enabled = 1;
-
 /********************************
  * Global helper functions
  ********************************/
@@ -1509,13 +1507,13 @@ _vector_check_snprintf_success(int return_code)
     if (return_code < 0) {
         PyErr_SetString(PyExc_SystemError,
                         "internal snprintf call went wrong! Please report "
-                        "this to pygame-users@seul.org");
+                        "this to github.com/pygame/pygame/issues");
         return 0;
     }
     if (return_code >= STRING_BUF_SIZE) {
         PyErr_SetString(PyExc_SystemError,
                         "Internal buffer to small for snprintf! Please report "
-                        "this to pygame-users@seul.org");
+                        "this to github.com/pygame/pygame/issues");
         return 0;
     }
     return 1;
@@ -1630,7 +1628,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
 
     len = PySequence_Length(attr_name);
 
-    if (len == 1 || !swizzling_enabled) {
+    if (len == 1) {
         return PyObject_GenericGetAttr((PyObject *)self, attr_name);
     }
 
@@ -1718,8 +1716,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
     int swizzle_err = SWIZZLE_ERR_NO_ERR;
     Py_ssize_t i;
 
-    /* if swizzling is disabled always default to generic implementation */
-    if (!swizzling_enabled || len == 1)
+    if (len == 1)
         return PyObject_GenericSetAttr((PyObject *)self, attr_name, val);
 
     /* if swizzling is enabled first try swizzle */
@@ -1788,7 +1785,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
             /* this should NEVER happen and means a bug in the code */
             PyErr_SetString(PyExc_RuntimeError,
                             "Unhandled error in swizzle code. Please report "
-                            "this bug to pygame-users@seul.org");
+                            "this bug to github.com/pygame/pygame/issues");
             return -1;
     }
 }
@@ -2005,7 +2002,7 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                 PyErr_SetString(
                     PyExc_RuntimeError,
                     "Please report this bug in vector2_rotate_helper to the "
-                    "developers at pygame-users@seul.org");
+                    "developers at github.com/pygame/pygame/issues");
                 return 0;
         }
     }
@@ -2506,7 +2503,7 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
                 PyErr_SetString(
                     PyExc_RuntimeError,
                     "Please report this bug in vector3_rotate_helper to the "
-                    "developers at pygame-users@seul.org");
+                    "developers at github.com/pygame/pygame/issues");
                 return 0;
         }
     }
@@ -3971,22 +3968,34 @@ vector_elementwise(pgVector *vec, PyObject *args)
 static PyObject *
 math_enable_swizzling(pgVector *self)
 {
-    swizzling_enabled = 1;
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.math.enable_swizzling() is deprecated, "
+                     "and its functionality is removed. This function will be "
+                     "removed in a later version.",
+                     1) == -1) {
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 math_disable_swizzling(pgVector *self)
 {
-    swizzling_enabled = 0;
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.math.disable_swizzling() is deprecated, "
+                     "and its functionality is removed. This function will be "
+                     "removed in a later version.",
+                     1) == -1) {
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyMethodDef _math_methods[] = {
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
-     "enables swizzling."},
+     "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
-     "disables swizzling."},
+     "Deprecated, will be removed in a future version."},
     {NULL, NULL, 0, NULL}};
 
 /****************************

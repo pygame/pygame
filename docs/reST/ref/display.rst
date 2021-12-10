@@ -686,7 +686,7 @@ required).
    | :sg:`set_allow_screensaver(bool) -> None`
 
    Change whether screensavers should be allowed whilst the app is running.
-   The default is False.
+   The default value of the argument to the function is True.
    By default pygame does not allow the screensaver during game play.
 
    If the screensaver has been disallowed due to this function, it will automatically

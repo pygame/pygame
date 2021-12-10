@@ -1,20 +1,6 @@
-from typing import Sequence, Optional, Tuple, Union, List
-from typing_extensions import Protocol
-from pygame.rect import Rect
-from pygame._common import _Coordinate
+from typing import Sequence, Tuple
 
-_CanBeRect = Union[
-    Rect,
-    Tuple[int, int, int, int],
-    List[int],
-    Tuple[_Coordinate, _Coordinate],
-    List[_Coordinate],
-]
-
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
-
-_RectValue = Union[_CanBeRect, _HasRectAttribute]
+from ._common import _RectValue
 
 def get_focused() -> bool: ...
 def get_pressed() -> Sequence[bool]: ...

@@ -430,7 +430,7 @@ Here we create all the objects that the game is going to need.
     punch_sound = load_sound("punch.wav")
     chimp = Chimp()
     fist = Fist()
-    allsprites = pg.sprite.RenderPlain((fist, chimp))
+    allsprites = pg.sprite.RenderPlain((chimp, fist))
     clock = pg.time.Clock()
 
 First we load two sound effects using the `load_sound` function we defined

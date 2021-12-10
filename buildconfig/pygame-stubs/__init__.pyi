@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Callable, Union, Optional, overload, Type
+from typing import Any, Tuple, Callable, Optional, overload, Type
 
 # Re-export modules as members; see PEP 484 for stub export rules.
 
@@ -35,6 +35,8 @@ from pygame import fastevent as fastevent
 # Other
 from pygame import scrap as scrap
 
+from ._common import _AnyPath
+
 # These classes are auto imported with pygame, so I put their declaration here
 class Rect(rect.Rect): ...
 class Surface(surface.Surface): ...
@@ -55,14 +57,14 @@ def set_error(error_msg: str) -> None: ...
 def get_sdl_version() -> Tuple[int, int, int]: ...
 def get_sdl_byteorder() -> int: ...
 def encode_string(
-    obj: Union[str, bytes],
+    obj: Optional[_AnyPath],
     encoding: Optional[str] = "unicode_escape",
     errors: Optional[str] = "backslashreplace",
     etype: Optional[Type[Exception]] = UnicodeEncodeError,
 ) -> bytes: ...
 @overload
 def encode_file_path(
-    obj: Union[str, bytes], etype: Optional[Type[Exception]] = UnicodeEncodeError
+    obj: Optional[_AnyPath], etype: Optional[Type[Exception]] = UnicodeEncodeError
 ) -> bytes: ...
 @overload
 def encode_file_path(

@@ -1,5 +1,6 @@
-from pygame.joystick import Joystick
 from typing import Dict, Mapping, Optional
+
+from pygame.joystick import Joystick
 
 def init() -> None: ...
 def get_init() -> bool: ...

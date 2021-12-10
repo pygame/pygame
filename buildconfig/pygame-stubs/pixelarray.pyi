@@ -1,11 +1,8 @@
-from typing import Tuple, Union, List, Optional, Sequence
+from typing import Sequence, Tuple
 
-from pygame.color import Color
 from pygame.surface import Surface
 
-_ColorValue = Union[
-    Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
-]
+from ._common import _ColorValue
 
 class PixelArray:
     surface: Surface

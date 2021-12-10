@@ -1,26 +1,21 @@
 from typing import (
-    List,
-    Dict,
     Any,
-    Union,
-    Tuple,
-    Optional,
     Callable,
-    SupportsFloat,
-    Iterator,
-    Sequence,
+    Dict,
     Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    SupportsFloat,
+    Tuple,
+    Union,
 )
 
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-_RectStyle = Union[
-    Tuple[float, float, float, float],
-    Tuple[Tuple[float, float], Tuple[float, float]],
-    List[float],
-    Rect,
-]
+from ._common import _CanBeRect
 
 # Some functions violate Liskov substitution principle so mypy will throw errors for this file, but this are the
 # best type hints I could do
@@ -107,8 +102,8 @@ class LayeredDirty(LayeredUpdates):
     def copy(self) -> LayeredDirty: ...
     def draw(self, surface: Surface, bgd: Optional[Surface] = None) -> List[Rect]: ...
     def clear(self, surface: Surface, bgd: Surface) -> None: ...
-    def repaint_rect(self, screen_rect: _RectStyle) -> None: ...
-    def set_clip(self, screen_rect: Optional[_RectStyle] = None) -> None: ...
+    def repaint_rect(self, screen_rect: _CanBeRect) -> None: ...
+    def set_clip(self, screen_rect: Optional[_CanBeRect] = None) -> None: ...
     def get_clip(self) -> Rect: ...
     def set_timing_treshold(
         self, time_ms: SupportsFloat
