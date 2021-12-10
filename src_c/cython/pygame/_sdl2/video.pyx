@@ -1249,3 +1249,22 @@ cdef class Renderer:
                                 format, surf.pixels, surf.pitch) < 0:
             raise error()
         return surface
+
+    @staticmethod
+    def compose_custom_blend_mode(color_mode, alpha_mode):
+        """ Use this function to compose a custom blend mode.. 
+
+        :param color_mode: A tuple (srcColorFactor, dstColorFactor, colorOperation)
+        :param alpha_mode: A tuple (srcAlphaFactor, dstAlphaFactor, alphaOperation)
+        :return: A blend mode to be used with Renderer.draw_blend_mode and Texure.blend_mode
+        """
+        # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+        res = SDL_ComposeCustomBlendMode(color_mode[0],
+                                         color_mode[1],
+                                         color_mode[2],
+                                         alpha_mode[0],
+                                         alpha_mode[1],
+                                         alpha_mode[2])
+        if res < 0:
+            raise error()
+        return res
