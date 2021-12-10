@@ -171,8 +171,8 @@ class Rect(object):
     @overload
     def __contains__(
         self,
-        left_top: _Coordinate,
-        width_height: _Coordinate,
+        left_top: Union[List[float], Tuple[float, float], Vector2],
+        width_height: Union[List[float], Tuple[float, float], Vector2],
     ) -> bool: ...
     @overload
     def __contains__(self, left: float, top: float, width: float, height: float) -> bool: ...
@@ -181,8 +181,8 @@ class Rect(object):
     @overload
     def contains(
         self,
-        left_top: _Coordinate,
-        width_height: _Coordinate,
+        left_top: Union[List[float], Tuple[float, float], Vector2],
+        width_height: Union[List[float], Tuple[float, float], Vector2],
     ) -> bool: ...
     @overload
     def contains(
