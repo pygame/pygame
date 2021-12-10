@@ -1302,8 +1302,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         Py_DECREF(surface);
 
         /* ensure window is initially black */
-        if (init_flip)
+        if (init_flip) {
+            SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
             pg_flip_internal(state);
+        }
     }
 
     /*set the window icon*/
