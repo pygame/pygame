@@ -18,9 +18,9 @@ Vista and newer).
 
 # game constants
 # colors are specified in the colordict.py file
-GREENCOLOR = "green"
-BLACKCOLOR = "black"
-WHITECOLOR = "white"
+TEXTCOLOR = "green"
+BACKGROUNDCOLOR = "black"
+AXISCOLOR = "white"
 
 # Ensure that the computer is running Windows Vista or newer
 import os
@@ -59,8 +59,8 @@ screen = pg.display.set_mode(RESOLUTION)
 # Render message onto a surface
 pg.font.init()
 font = pg.font.Font(None, 36)
-msg_surf = font.render(msg, 1, GREENCOLOR)
-res_surf = font.render("Intended resolution: %ix%i" % RESOLUTION, 1, GREENCOLOR)
+msg_surf = font.render(msg, 1, TEXTCOLOR)
+res_surf = font.render("Intended resolution: %ix%i" % RESOLUTION, 1, TEXTCOLOR)
 
 # Control loop
 running = True
@@ -72,12 +72,12 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
-    screen.fill(BLACKCOLOR)
+    screen.fill(BACKGROUNDCOLOR)
 
     # Draw lines which will be blurry if the window is stretched
     # or clear if the window is not stretched.
-    pg.draw.line(screen, WHITECOLOR, (0, counter), (RESOLUTION[0] - 1, counter))
-    pg.draw.line(screen, WHITECOLOR, (counter, 0), (counter, RESOLUTION[1] - 1))
+    pg.draw.line(screen, AXISCOLOR, (0, counter), (RESOLUTION[0] - 1, counter))
+    pg.draw.line(screen, AXISCOLOR, (counter, 0), (counter, RESOLUTION[1] - 1))
 
     # Blit message onto screen surface
     msg_blit_rect = screen.blit(msg_surf, (0, 0))

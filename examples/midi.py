@@ -17,9 +17,9 @@ import pygame as pg
 import pygame.midi
 
 # colors specified in the colordict.py file
+# black and white piano keys use b/w color values directly
 BACKGROUNDCOLOR = "slategray"
-BLACKCOLOR = "black"
-WHITECOLOR = "white"
+
 
 def print_device_info():
     pygame.midi.init()
@@ -340,9 +340,9 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     # _right_white_down method.
     #
     if is_white_key:
-        key_color = WHITECOLOR
+        key_color = "white"
     else:
-        key_color = BLACKCOLOR
+        key_color = "black"
     c_notify_down_method = "_right_%s_down" % key_color
     c_notify_up_method = "_right_%s_up" % key_color
 

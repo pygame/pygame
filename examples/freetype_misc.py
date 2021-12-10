@@ -33,16 +33,6 @@ import os
 import pygame as pg
 import pygame.freetype as freetype
 
-# game constants
-# colors are specified in the colordict.py file
-GREYLIGHTCOLOR = "grey_light"
-GREYDARKCOLOR = "grey_dark"
-GREENCOLOR = "green5"
-REDCOLOR = "red5"
-BLUECOLOR = "blue5"
-BLACKCOLOR = "black"
-ORANGECOLOR = "orange"
-
 
 def run():
     pg.init()
@@ -51,7 +41,7 @@ def run():
     font = freetype.Font(os.path.join(fontdir, "data", "sans.ttf"))
 
     screen = pg.display.set_mode((800, 600))
-    screen.fill(GREYLIGHTCOLOR)
+    screen.fill("gray")
 
     font.underline_adjustment = 0.5
     font.pad = True
@@ -59,8 +49,8 @@ def run():
         screen,
         (32, 32),
         "Hello World",
-        REDCOLOR,
-        GREYDARKCOLOR,
+        "red3",
+        "dimgray",
         size=64,
         style=freetype.STYLE_UNDERLINE | freetype.STYLE_OBLIQUE,
     )
@@ -70,21 +60,21 @@ def run():
         screen,
         (32, 128),
         "abcdefghijklm",
-        GREYDARKCOLOR,
-        GREENCOLOR,
+        "dimgray",
+        "green3",
         size=64,
     )
 
     font.vertical = True
-    font.render_to(screen, (32, 200), "Vertical?", BLUECOLOR, None, size=32)
+    font.render_to(screen, (32, 200), "Vertical?", "blue3", None, size=32)
     font.vertical = False
 
     font.render_to(
-        screen, (64, 190), "Let's spin!", REDCOLOR, None, size=48, rotation=55
+        screen, (64, 190), "Let's spin!", "red3", None, size=48, rotation=55
     )
 
     font.render_to(
-        screen, (160, 290), "All around!", GREENCOLOR, None, size=48, rotation=-55
+        screen, (160, 290), "All around!", "green3", None, size=48, rotation=-55
     )
 
     font.render_to(
@@ -99,12 +89,12 @@ def run():
     font.origin = True
     for angle in range(0, 360, 45):
         font.render_to(
-            screen, (150, 420), ")", BLACKCOLOR, size=48, rotation=angle
+            screen, (150, 420), ")", "black", size=48, rotation=angle
         )
     font.vertical = True
     for angle in range(15, 375, 30):
         font.render_to(
-            screen, (600, 400), "|^*", ORANGECOLOR, size=48, rotation=angle
+            screen, (600, 400), "|^*", "orange", size=48, rotation=angle
         )
     font.vertical = False
     font.origin = False
@@ -114,14 +104,14 @@ def run():
 
     utext = "\u2665"
     font.render_to(
-        screen, (480, 32), utext, GREYLIGHTCOLOR, REDCOLOR, size=148
+        screen, (480, 32), utext, "gray", "red3", size=148
     )
 
     font.render_to(
         screen,
         (380, 380),
         "...yes, this is an SDL surface",
-        BLACKCOLOR,
+        "black",
         None,
         size=24,
         style=freetype.STYLE_STRONG,
@@ -132,7 +122,7 @@ def run():
         screen,
         (100, 530),
         "stretch",
-        REDCOLOR,
+        "red3",
         None,
         size=(24, 24),
         style=freetype.STYLE_NORMAL,
@@ -141,7 +131,7 @@ def run():
         screen,
         (100 + r.width, 530),
         " VERTICAL",
-        REDCOLOR,
+        "red3",
         None,
         size=(24, 48),
         style=freetype.STYLE_NORMAL,
@@ -151,7 +141,7 @@ def run():
         screen,
         (100, 580),
         "stretch",
-        BLUECOLOR,
+        "blue3",
         None,
         size=(24, 24),
         style=freetype.STYLE_NORMAL,
@@ -160,7 +150,7 @@ def run():
         screen,
         (100 + r.width, 580),
         " HORIZONTAL",
-        BLUECOLOR,
+        "blue3",
         None,
         size=(48, 24),
         style=freetype.STYLE_NORMAL,
