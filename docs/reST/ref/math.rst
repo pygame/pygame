@@ -322,6 +322,19 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.project ##
 
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector2`
+
+      Returns a new Vector2 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.copy ##
+
+
    .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
@@ -771,6 +784,17 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector3.project ##
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector3`
+
+      Returns a new Vector3 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.copy ##
 
    .. method:: update
 

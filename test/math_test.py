@@ -82,6 +82,12 @@ class Vector2TypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, assign_nonfloat)
 
+    def testCopy(self):
+        v_copy0 = Vector2(2004.0, 2022.0)
+        v_copy1 = v_copy0.copy()
+        self.assertEqual(v_copy0.x, v_copy1.x)
+        self.assertEqual(v_copy0.y, v_copy1.y)
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]
