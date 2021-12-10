@@ -961,7 +961,6 @@ _pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
     GAME_Rect *argrect, temp_arg;
     if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
-        // Case where argument is one of (x,y,w,h)
        return -1;
     }
     return  (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
