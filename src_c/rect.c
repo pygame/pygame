@@ -962,16 +962,8 @@ _pg_rect_contains(pgRectObject *self, PyObject *arg)
     GAME_Rect *argrect, temp_arg;
     if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
         // Case where argument is one of (x,y,w,h)
-        if (PyLong_Check(arg)) {
-            int coord = (int) PyInt_AsLong(arg);
-            return coord == self->r.x || 
-                coord == self->r.y || 
-                coord == self->r.w || 
-                coord == self->r.h;
-        }
        return -1;
     }
-
     return  (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
                 (self->r.x + self->r.w >= argrect->x + argrect->w) &&
                 (self->r.y + self->r.h >= argrect->y + argrect->h) &&
@@ -988,6 +980,18 @@ pg_rect_contains(pgRectObject *self, PyObject *arg)
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
     return PyBool_FromLong(ret);
+}
+
+static int 
+pg_rect_contains_seq(pgRectObject *self, PyObject *arg) {
+    if (PyLong_Check(arg)) {
+        int coord = (int) PyInt_AsLong(arg);
+        return coord == self->r.x || 
+            coord == self->r.y || 
+            coord == self->r.w || 
+            coord == self->r.h;
+    }
+    return _pg_rect_contains(self, arg);
 }
 
 
@@ -1197,7 +1201,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
-    (objobjproc)_pg_rect_contains,/*contains*/
+    (objobjproc)pg_rect_contains_seq,  /*contains*/
 };
 
 static PyObject *
