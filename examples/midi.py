@@ -16,6 +16,10 @@ import os
 import pygame as pg
 import pygame.midi
 
+# colors specified in the colordict.py file
+BACKGROUNDCOLOR = "slategray"
+BLACKCOLOR = "black"
+WHITECOLOR = "white"
 
 def print_device_info():
     pygame.midi.init()
@@ -130,8 +134,6 @@ def output_main(device_id=None):
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
 
-    bg_color = "slategray"
-
     key_mapping = make_key_mapping(
         [
             pg.K_TAB,
@@ -180,11 +182,11 @@ def output_main(device_id=None):
         keyboard = Keyboard(start_note, n_notes)
 
         screen = pg.display.set_mode(keyboard.rect.size)
-        screen.fill(bg_color)
+        screen.fill(BACKGROUNDCOLOR)
         pg.display.flip()
 
         background = pg.Surface(screen.get_size())
-        background.fill(bg_color)
+        background.fill(BACKGROUNDCOLOR)
         dirty_rects = []
         keyboard.draw(screen, background, dirty_rects)
         pg.display.update(dirty_rects)
@@ -338,9 +340,9 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     # _right_white_down method.
     #
     if is_white_key:
-        key_color = "white"
+        key_color = WHITECOLOR
     else:
-        key_color = "black"
+        key_color = BLACKCOLOR
     c_notify_down_method = "_right_%s_down" % key_color
     c_notify_up_method = "_right_%s_up" % key_color
 
