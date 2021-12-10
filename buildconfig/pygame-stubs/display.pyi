@@ -1,27 +1,8 @@
 from typing import Union, Tuple, List, Optional, Dict, Sequence
-from typing_extensions import Protocol
 
-from pygame.color import Color
 from pygame.surface import Surface
-from pygame.rect import Rect
 from pygame.constants import FULLSCREEN
-from pygame._common import _Coordinate
-
-_CanBeRect = Union[
-    Rect,
-    Tuple[int, int, int, int],
-    List[int],
-    Tuple[_Coordinate, _Coordinate],
-    List[_Coordinate],
-]
-
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
-
-_RectValue = Union[_CanBeRect, _HasRectAttribute]
-_ColorValue = Union[
-    Color, int, Tuple[int, int, int], Tuple[int, int, int, int], List[int]
-]
+from ._common import _Coordinate, _RectValue, _ColorValue, _RgbaOutput
 
 class _VidInfo:
     hw: int
@@ -29,9 +10,9 @@ class _VidInfo:
     video_mem: int
     bitsize: int
     bytesize: int
-    masks: Tuple[int, int, int, int]
-    shifts: Tuple[int, int, int, int]
-    losses: Tuple[int, int, int, int]
+    masks: _RgbaOutput
+    shifts: _RgbaOutput
+    losses: _RgbaOutput
     blit_hw: int
     blit_hw_CC: int
     blit_hw_A: int
@@ -84,4 +65,4 @@ def set_palette(palette: Sequence[_ColorValue]) -> None: ...
 def get_num_displays() -> int: ...
 def get_window_size() -> Tuple[int, int]: ...
 def get_allow_screensaver() -> bool: ...
-def set_allow_screensaver(value: bool) -> None: ...
+def set_allow_screensaver(value: bool = True) -> None: ...

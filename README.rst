@@ -3,9 +3,8 @@
   :target: https://www.pygame.org/
 
 
-|AppVeyorBuild| |LaunchpadBuild| |PyPiVersion| |PyPiLicense| |Python2|
+|AppVeyorBuild| |PyPiVersion| |PyPiLicense|
 |Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC|
-|Coverity|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -155,20 +154,16 @@ See docs/licenses for licenses of dependencies.
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
    :target: https://ci.appveyor.com/project/pygame/pygame
 
-.. |LaunchpadBuild| image:: https://www.pygame.org/images/launchpad_build.svg?svg=true
-   :target: https://code.launchpad.net/~pygame/+recipe/pygame-daily
-
 .. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
 
 .. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
 
-.. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.2.svg
-   :target: https://github.com/pygame/pygame/compare/2.0.2...main
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.0.svg
+   :target: https://github.com/pygame/pygame/compare/2.1.0...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
@@ -178,9 +173,6 @@ See docs/licenses for licenses of dependencies.
 
 .. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
-
-.. |Coverity| image:: https://scan.coverity.com/projects/12288/badge.svg?v=2
-   :target: https://scan.coverity.com/projects/pygame
 
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org

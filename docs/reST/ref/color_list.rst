@@ -12,6 +12,7 @@ Named Colors
     .antiquewhite2 {background-color: #eedfcc; color: #eedfcc;}
     .antiquewhite3 {background-color: #cdc0b0; color: #cdc0b0;}
     .antiquewhite4 {background-color: #8b8378; color: #8b8378;}
+    .aqua {background-color: #00ffff; color: #00ffff;}
     .aquamarine {background-color: #7fffd4; color: #7fffd4;}
     .aquamarine1 {background-color: #7fffd4; color: #7fffd4;}
     .aquamarine2 {background-color: #76eec6; color: #76eec6;}
@@ -72,6 +73,7 @@ Named Colors
     .cornsilk2 {background-color: #eee8cd; color: #eee8cd;}
     .cornsilk3 {background-color: #cdc8b1; color: #cdc8b1;}
     .cornsilk4 {background-color: #8b8878; color: #8b8878;}
+    .crimson {background-color: #dc143c; color: #dc143c;}
     .cyan {background-color: #00ffff; color: #00ffff;}
     .cyan1 {background-color: #00ffff; color: #00ffff;}
     .cyan2 {background-color: #00eeee; color: #00eeee;}
@@ -144,6 +146,7 @@ Named Colors
     .firebrick4 {background-color: #8b1a1a; color: #8b1a1a;}
     .floralwhite {background-color: #fffaf0; color: #fffaf0;}
     .forestgreen {background-color: #228b22; color: #228b22;}
+    .fuchsia {background-color: #ff00ff; color: #ff00ff;}
     .gainsboro {background-color: #dcdcdc; color: #dcdcdc;}
     .ghostwhite {background-color: #f8f8ff; color: #f8f8ff;}
     .gold {background-color: #ffd700; color: #ffd700;}
@@ -381,6 +384,7 @@ Named Colors
     .indianred2 {background-color: #ee6363; color: #ee6363;}
     .indianred3 {background-color: #cd5555; color: #cd5555;}
     .indianred4 {background-color: #8b3a3a; color: #8b3a3a;}
+    .indigo {background-color: #4b0082; color: #4b0082;}
     .ivory {background-color: #fffff0; color: #fffff0;}
     .ivory1 {background-color: #fffff0; color: #fffff0;}
     .ivory2 {background-color: #eeeee0; color: #eeeee0;}
@@ -454,6 +458,7 @@ Named Colors
     .lightyellow4 {background-color: #8b8b7a; color: #8b8b7a;}
     .linen {background-color: #faf0e6; color: #faf0e6;}
     .limegreen {background-color: #32cd32; color: #32cd32;}
+    .lime {background-color: #00ff00; color: #00ff00;}
     .magenta {background-color: #ff00ff; color: #ff00ff;}
     .magenta1 {background-color: #ff00ff; color: #ff00ff;}
     .magenta2 {background-color: #ee00ee; color: #ee00ee;}
@@ -497,6 +502,7 @@ Named Colors
     .navy {background-color: #000080; color: #000080;}
     .navyblue {background-color: #000080; color: #000080;}
     .oldlace {background-color: #fdf5e6; color: #fdf5e6;}
+    .olive {background-color: #808000; color: #808000;}
     .olivedrab {background-color: #6b8e23; color: #6b8e23;}
     .olivedrab1 {background-color: #c0ff3e; color: #c0ff3e;}
     .olivedrab2 {background-color: #b3ee3a; color: #b3ee3a;}
@@ -593,6 +599,7 @@ Named Colors
     .sienna2 {background-color: #ee7942; color: #ee7942;}
     .sienna3 {background-color: #cd6839; color: #cd6839;}
     .sienna4 {background-color: #8b4726; color: #8b4726;}
+    .silver {background-color: #c0c0c0; color: #c0c0c0;}
     .skyblue {background-color: #87ceeb; color: #87ceeb;}
     .skyblue1 {background-color: #87ceff; color: #87ceff;}
     .skyblue2 {background-color: #7ec0ee; color: #7ec0ee;}
@@ -629,6 +636,7 @@ Named Colors
     .tan2 {background-color: #ee9a49; color: #ee9a49;}
     .tan3 {background-color: #cd853f; color: #cd853f;}
     .tan4 {background-color: #8b5a2b; color: #8b5a2b;}
+    .teal {background-color: #008080; color: #008080;}
     .thistle {background-color: #d8bfd8; color: #d8bfd8;}
     .thistle1 {background-color: #ffe1ff; color: #ffe1ff;}
     .thistle2 {background-color: #eed2ee; color: #eed2ee;}
@@ -675,6 +683,7 @@ Named Colors
 .. role:: antiquewhite2
 .. role:: antiquewhite3
 .. role:: antiquewhite4
+.. role:: aqua
 .. role:: aquamarine
 .. role:: aquamarine1
 .. role:: aquamarine2
@@ -735,6 +744,7 @@ Named Colors
 .. role:: cornsilk2
 .. role:: cornsilk3
 .. role:: cornsilk4
+.. role:: crimson
 .. role:: cyan
 .. role:: cyan1
 .. role:: cyan2
@@ -807,6 +817,7 @@ Named Colors
 .. role:: firebrick4
 .. role:: floralwhite
 .. role:: forestgreen
+.. role:: fuchsia
 .. role:: gainsboro
 .. role:: ghostwhite
 .. role:: gold
@@ -1044,6 +1055,7 @@ Named Colors
 .. role:: indianred2
 .. role:: indianred3
 .. role:: indianred4
+.. role:: indigo
 .. role:: ivory
 .. role:: ivory1
 .. role:: ivory2
@@ -1116,6 +1128,7 @@ Named Colors
 .. role:: lightyellow3
 .. role:: lightyellow4
 .. role:: limegreen
+.. role:: lime
 .. role:: linen
 .. role:: magenta
 .. role:: magenta1
@@ -1160,6 +1173,7 @@ Named Colors
 .. role:: navy
 .. role:: navyblue
 .. role:: oldlace
+.. role:: olive
 .. role:: olivedrab
 .. role:: olivedrab1
 .. role:: olivedrab2
@@ -1256,6 +1270,7 @@ Named Colors
 .. role:: sienna2
 .. role:: sienna3
 .. role:: sienna4
+.. role:: silver
 .. role:: skyblue
 .. role:: skyblue1
 .. role:: skyblue2
@@ -1292,6 +1307,7 @@ Named Colors
 .. role:: tan2
 .. role:: tan3
 .. role:: tan4
+.. role:: teal
 .. role:: thistle
 .. role:: thistle1
 .. role:: thistle2
@@ -1336,6 +1352,7 @@ Name                        Color
 ``antiquewhite2``           :antiquewhite2:`████████`
 ``antiquewhite3``           :antiquewhite3:`████████`
 ``antiquewhite4``           :antiquewhite4:`████████`
+``aqua``                    :aqua:`████████`
 ``aquamarine``              :aquamarine:`████████`
 ``aquamarine1``             :aquamarine1:`████████`
 ``aquamarine2``             :aquamarine2:`████████`
@@ -1396,6 +1413,7 @@ Name                        Color
 ``cornsilk2``               :cornsilk2:`████████`
 ``cornsilk3``               :cornsilk3:`████████`
 ``cornsilk4``               :cornsilk4:`████████`
+``crimson``                 :crimson:`████████`
 ``cyan``                    :cyan:`████████`
 ``cyan1``                   :cyan1:`████████`
 ``cyan2``                   :cyan2:`████████`
@@ -1468,6 +1486,7 @@ Name                        Color
 ``firebrick4``              :firebrick4:`████████`
 ``floralwhite``             :floralwhite:`████████`
 ``forestgreen``             :forestgreen:`████████`
+``fuchsia``                 :fuchsia:`████████`
 ``gainsboro``               :gainsboro:`████████`
 ``ghostwhite``              :ghostwhite:`████████`
 ``gold``                    :gold:`████████`
@@ -1705,6 +1724,7 @@ Name                        Color
 ``indianred2``              :indianred2:`████████`
 ``indianred3``              :indianred3:`████████`
 ``indianred4``              :indianred4:`████████`
+``indigo``                  :indigo:`████████`
 ``ivory``                   :ivory:`████████`
 ``ivory1``                  :ivory1:`████████`
 ``ivory2``                  :ivory2:`████████`
@@ -1776,6 +1796,7 @@ Name                        Color
 ``lightyellow2``            :lightyellow2:`████████`
 ``lightyellow3``            :lightyellow3:`████████`
 ``lightyellow4``            :lightyellow4:`████████`
+``lime``                    :lime:`████████`
 ``limegreen``               :limegreen:`████████`
 ``linen``                   :linen:`████████`
 ``magenta``                 :magenta:`████████`
@@ -1821,6 +1842,7 @@ Name                        Color
 ``navy``                    :navy:`████████`
 ``navyblue``                :navyblue:`████████`
 ``oldlace``                 :oldlace:`████████`
+``olive``                   :olive:`████████`
 ``olivedrab``               :olivedrab:`████████`
 ``olivedrab1``              :olivedrab1:`████████`
 ``olivedrab2``              :olivedrab2:`████████`
@@ -1917,6 +1939,7 @@ Name                        Color
 ``sienna2``                 :sienna2:`████████`
 ``sienna3``                 :sienna3:`████████`
 ``sienna4``                 :sienna4:`████████`
+``silver``                  :silver:`████████`
 ``skyblue``                 :skyblue:`████████`
 ``skyblue1``                :skyblue1:`████████`
 ``skyblue2``                :skyblue2:`████████`
@@ -1953,6 +1976,7 @@ Name                        Color
 ``tan2``                    :tan2:`████████`
 ``tan3``                    :tan3:`████████`
 ``tan4``                    :tan4:`████████`
+``teal``                    :teal:`████████`
 ``thistle``                 :thistle:`████████`
 ``thistle1``                :thistle1:`████████`
 ``thistle2``                :thistle2:`████████`

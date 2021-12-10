@@ -1,27 +1,19 @@
-import sys
-from typing import Any, Optional, Tuple, List, Union, IO, Literal
+from typing import List, Literal, Tuple, Union
 
-from pygame.surface import Surface
 from pygame.bufferproxy import BufferProxy
+from pygame.surface import Surface
 
-if sys.version_info >= (3, 6):
-    from os import PathLike
-
-    AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
-else:
-    AnyPath = Union[Text, bytes]
+from ._common import _FileArg
 
 _BufferStyle = Union[BufferProxy, bytes, bytearray, memoryview]
 _to_string_format = Literal[
-    "p", "RGB", "RGBX", "RGBA", "ARGB", "RGBA_PREMULT", "ARGB_PREMULT"
+    "P", "RGB", "RGBX", "RGBA", "ARGB", "RGBA_PREMULT", "ARGB_PREMULT"
 ]
-_from_buffer_format = Literal["p", "RGB", "BGR", "RGBX", "RGBA", "ARGB"]
-_from_string_format = Literal["p", "RGB", "RGBX", "RGBA", "ARGB"]
+_from_buffer_format = Literal["P", "RGB", "BGR", "RGBX", "RGBA", "ARGB"]
+_from_string_format = Literal["P", "RGB", "RGBX", "RGBA", "ARGB"]
 
-def load(filename: Union[AnyPath, IO[Any]], namehint: str = "") -> Surface: ...
-def save(
-    surface: Surface, filename: Union[AnyPath, IO[Any]], namehint: str = ""
-) -> None: ...
+def load(filename: _FileArg, namehint: str = "") -> Surface: ...
+def save(surface: Surface, filename: _FileArg, namehint: str = "") -> None: ...
 def get_sdl_image_version() -> Union[None, Tuple[int, int, int]]: ...
 def get_extended() -> bool: ...
 def tostring(
@@ -38,3 +30,6 @@ def frombuffer(
     size: Union[List[int], Tuple[int, int]],
     format: _from_buffer_format,
 ) -> Surface: ...
+def load_basic(filename: _FileArg) -> Surface: ...
+def load_extended(filename: _FileArg, namehint: str = "") -> Surface: ...
+def save_extended(surface: Surface, filename: _FileArg, namehint: str = "") -> None: ...

@@ -66,8 +66,6 @@
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3PROJECT "project(Vector3) -> Vector3\nprojects a vector onto another."
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
-#define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
-#define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -360,13 +358,5 @@ pygame.math.Vector3.update
  update(x, y, z) -> None
  update((x, y, z)) -> None
 Sets the coordinates of the vector.
-
-pygame.math.enable_swizzling
- enable_swizzling() -> None
-globally enables swizzling for vectors.
-
-pygame.math.disable_swizzling
- disable_swizzling() -> None
-globally disables swizzling for vectors.
 
 */

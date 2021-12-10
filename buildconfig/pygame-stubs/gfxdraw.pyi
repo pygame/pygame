@@ -1,25 +1,8 @@
-from typing import Union, Tuple, List, Sequence
-from typing_extensions import Protocol
+from typing import Sequence
 
 from pygame.surface import Surface
-from pygame.color import Color
-from pygame.rect import Rect
-from pygame._common import _Coordinate
 
-_ColorValue = Union[
-    Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
-]
-
-_CanBeRect = Union[
-    Rect,
-    Tuple[int, int, int, int], List[int],
-    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
-]
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
-_RectValue = Union[
-    _CanBeRect, _HasRectAttribute
-]
+from ._common import _ColorValue, _Coordinate, _RectValue
 
 def pixel(surface: Surface, x: int, y: int, color: _ColorValue) -> None: ...
 def hline(surface: Surface, x1: int, x2: int, y: int, color: _ColorValue) -> None: ...
