@@ -2051,7 +2051,7 @@ vector2_rotate_rad(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
-vector2_rotate_ip_rad(pgVector *self, PyObject *angleObject)
+vector2_rotate_rad_ip(pgVector *self, PyObject *angleObject)
 {
     double angle;
     double tmp[2];
@@ -2067,6 +2067,15 @@ vector2_rotate_ip_rad(pgVector *self, PyObject *angleObject)
         return NULL;
     }
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector2_rotate_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "vector2_rotate_rad_ip() now has all the functionality of vector2_rotate_ip_rad(), so vector2_rotate_ip_rad() will be deprecated in pygame 2.1.1", 1) == -1) {
+        return NULL;
+    }
+    return vector2_rotate_rad_ip(self, angleObject);
 }
 
 static PyObject *
@@ -2204,8 +2213,10 @@ static PyMethodDef vector2_methods[] = {
     {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O,
     DOC_VECTOR2ROTATEIP},
     {"rotate_rad", (PyCFunction)vector2_rotate_rad, METH_O, DOC_VECTOR2ROTATERAD},
+    {"rotate_rad_ip", (PyCFunction)vector2_rotate_rad_ip, METH_O,
+     DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
-     DOC_VECTOR2ROTATEIPRAD},
+     DOC_VECTOR2ROTATERADIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -2579,7 +2590,7 @@ vector3_rotate_rad(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector3_rotate_ip_rad(pgVector *self, PyObject *args)
+vector3_rotate_rad_ip(pgVector *self, PyObject *args)
 {
     PyObject *axis;
     double axis_coords[3];
@@ -2603,6 +2614,15 @@ vector3_rotate_ip_rad(pgVector *self, PyObject *args)
         return NULL;
     }
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_rotate_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "vector3_rotate_rad_ip() now has all the functionality of vector3_rotate_ip_rad(), so vector3_rotate_ip_rad() will be deprecated in pygame 2.1.1", 1) == -1) {
+        return NULL;
+    }
+    return vector3_rotate_rad_ip(self, angleObject);
 }
 
 static PyObject *
@@ -2688,7 +2708,7 @@ vector3_rotate_x_rad(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
-vector3_rotate_x_ip_rad(pgVector *self, PyObject *angleObject)
+vector3_rotate_x_rad_ip(pgVector *self, PyObject *angleObject)
 {
     double tmp_coords[3];
     double sinValue, cosValue;
@@ -2705,6 +2725,15 @@ vector3_rotate_x_ip_rad(pgVector *self, PyObject *angleObject)
     self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
     self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_rotate_x_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "vector3_rotate_x_rad_ip() now has all the functionality of vector3_rotate_x_ip_rad(), so vector3_rotate_x_ip_rad() will be deprecated in pygame 2.1.1", 1) == -1) {
+        return NULL;
+    }
+    return vector3_rotate_x_rad_ip(self, angleObject);
 }
 
 static PyObject *
@@ -2779,7 +2808,7 @@ vector3_rotate_y_rad(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
-vector3_rotate_y_ip_rad(pgVector *self, PyObject *angleObject)
+vector3_rotate_y_rad_ip(pgVector *self, PyObject *angleObject)
 {
     double tmp_coords[3];
     double sinValue, cosValue;
@@ -2796,6 +2825,15 @@ vector3_rotate_y_ip_rad(pgVector *self, PyObject *angleObject)
     self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
     self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_rotate_y_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "vector3_rotate_y_rad_ip() now has all the functionality of vector3_rotate_y_ip_rad(), so vector3_rotate_y_ip_rad() will be deprecated in pygame 2.1.1", 1) == -1) {
+        return NULL;
+    }
+    return vector3_rotate_x_rad_ip(self, angleObject);
 }
 
 static PyObject *
@@ -2871,7 +2909,7 @@ vector3_rotate_z_rad(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
-vector3_rotate_z_ip_rad(pgVector *self, PyObject *angleObject)
+vector3_rotate_z_rad_ip(pgVector *self, PyObject *angleObject)
 {
     double tmp_coords[3];
     double sinValue, cosValue;
@@ -2888,6 +2926,15 @@ vector3_rotate_z_ip_rad(pgVector *self, PyObject *angleObject)
     self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
     self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_rotate_z_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "vector3_rotate_z_rad_ip() now has all the functionality of vector3_rotate_z_ip_rad(), so vector3_rotate_z_ip_rad() will be deprecated in pygame 2.1.1", 1) == -1) {
+        return NULL;
+    }
+    return vector3_rotate_x_rad_ip(self, angleObject);
 }
 
 static PyObject *
@@ -3066,26 +3113,34 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      DOC_VECTOR3ROTATEIP},
     {"rotate_rad", (PyCFunction)vector3_rotate_rad, METH_VARARGS, DOC_VECTOR3ROTATERAD},
+    {"rotate_rad_ip", (PyCFunction)vector3_rotate_rad_ip, METH_VARARGS,
+     DOC_VECTOR3ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector3_rotate_ip_rad, METH_VARARGS,
-     DOC_VECTOR3ROTATEIPRAD},
+     DOC_VECTOR3ROTATERADIP},
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O, DOC_VECTOR3ROTATEX},
     {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
      DOC_VECTOR3ROTATEXIP},
     {"rotate_x_rad", (PyCFunction)vector3_rotate_x_rad, METH_O, DOC_VECTOR3ROTATEXRAD},
+    {"rotate_x_rad_ip", (PyCFunction)vector3_rotate_x_rad_ip, METH_O,
+     DOC_VECTOR3ROTATEXRADIP},
     {"rotate_x_ip_rad", (PyCFunction)vector3_rotate_x_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEXIPRAD},
+     DOC_VECTOR3ROTATEXRADIP},
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O, DOC_VECTOR3ROTATEY},
     {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
      DOC_VECTOR3ROTATEYIP},
     {"rotate_y_rad", (PyCFunction)vector3_rotate_y_rad, METH_O, DOC_VECTOR3ROTATEYRAD},
+    {"rotate_y_rad_ip", (PyCFunction)vector3_rotate_y_rad_ip, METH_O,
+     DOC_VECTOR3ROTATEYRADIP},
     {"rotate_y_ip_rad", (PyCFunction)vector3_rotate_y_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEYIPRAD},
+     DOC_VECTOR3ROTATEYRADIP},
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O, DOC_VECTOR3ROTATEZ},
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
      DOC_VECTOR3ROTATEZIP},
     {"rotate_z_rad", (PyCFunction)vector3_rotate_z_rad, METH_O, DOC_VECTOR3ROTATEZRAD},
+    {"rotate_z_rad_ip", (PyCFunction)vector3_rotate_z_rad_ip, METH_O,
+     DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEZIPRAD},
+     DOC_VECTOR3ROTATEZRADIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
