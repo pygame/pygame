@@ -859,12 +859,11 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
-    PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
     GAME_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int t, l, b, r, width = 0, radius = 0; /* Default values. */
+    int width = 0, radius = 0; /* Default values. */
     int x, y, w, h; /* Fields for the rounded rect draw to "normalize" into */
     int top_left_radius = -1, top_right_radius = -1, bottom_left_radius = -1,
         bottom_right_radius = -1;
@@ -2199,11 +2198,12 @@ static void
 draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2,
           int width, Uint32 color)
 {
-    for (int i = 0; i < width; i++) {
+    int i;
+    for (i = 0; i < width; i++) {
         drawhorzlineclip(surf, color, x1, y1 + i, x2);
         drawhorzlineclip(surf, color, x1, y2 - i, x2);
     }
-    for (int i = 0; i < (y2 - y1) - 2 * width + 1; i++) {
+    for (i = 0; i < (y2 - y1) - 2 * width + 1; i++) {
         drawhorzlineclip(surf, color, x1, y1 + width + i, x1 + width - 1);
         drawhorzlineclip(surf, color, x2 - width + 1, y1 + width + i, x2);
     }
