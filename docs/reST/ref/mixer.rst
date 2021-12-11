@@ -275,17 +275,14 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    Load a new sound buffer from a filename, a python file object or a readable
    buffer object. Limited resampling will be performed to help the sample match
    the initialize arguments for the mixer. A Unicode string can only be a file
-   pathname. A Python 2.x string or a Python 3.x bytes object can be either a
-   pathname or a buffer object. Use the 'file' or 'buffer' keywords to avoid
-   ambiguity; otherwise Sound may guess wrong. If the array keyword is used,
-   the object is expected to export a version 3, ``C`` level array interface
-   or, for Python 2.6 or later, a new buffer interface (The object is checked
-   for a buffer interface first.)
+   pathname. A bytes object can be either a pathname or a buffer object.
+   Use the 'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may
+   guess wrong. If the array keyword is used, the object is expected to export 
+   a new buffer interface (The object is checked for a buffer interface first.)
 
    The Sound object represents actual sound sample data. Methods that change
    the state of the Sound object will the all instances of the Sound playback.
-   A Sound object also exports an array interface, and, for Python 2.6 or
-   later, a new buffer interface.
+   A Sound object also exports a new buffer interface.
 
    The Sound can be loaded from an ``OGG`` audio file or from an uncompressed
    ``WAV``.
@@ -399,8 +396,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       | :sl:`return a bytestring copy of the Sound samples.`
       | :sg:`get_raw() -> bytes`
 
-      Return a copy of the Sound object buffer as a bytes (for Python 3.x)
-      or str (for Python 2.x) object.
+      Return a copy of the Sound object buffer as a bytes.
 
       .. versionadded:: 1.9.2
 

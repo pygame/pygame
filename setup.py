@@ -825,27 +825,16 @@ class DocsCommand(Command):
         '''
         runs Sphinx to build the docs.
         '''
-        docs_help = (
-            "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
-        )
-        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-            raise SystemExit(docs_help)
-
         import subprocess
-
-        try:
-            print("Using python:", sys.executable)
-            command_line = [
-                sys.executable, os.path.join('buildconfig', 'makeref.py')
-            ]
-            if self.fullgeneration:
-                command_line.append('full_generation')
-            subprocess.call(
-                command_line
-            )
-        except:
-            print(docs_help)
-            raise
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if self.fullgeneration:
+            command_line.append('full_generation')
+        subprocess.call(
+            command_line
+        )
 
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]

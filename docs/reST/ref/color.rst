@@ -28,8 +28,8 @@
 
    Color objects export the C level array interface. The interface exports a
    read-only one dimensional unsigned byte array of the same assigned length
-   as the color. For CPython 2.6 and later, the new buffer interface is also
-   exported, with the same characteristics as the array interface.
+   as the color. The new buffer interface is also exported, with the same
+   characteristics as the array interface.
 
    The floor division, ``//``, and modulus, ``%``, operators do not raise
    an exception for division by zero. Instead, if a color, or alpha, channel

@@ -94,9 +94,6 @@ K_AND_KSCAN_COMMON_NAMES = (
     "MENU",
     "POWER",
     "EURO",
-)
-
-K_AND_KSCAN_COMMON_NAMES += (
     "KP_0",
     "KP_1",
     "KP_2",
@@ -117,9 +114,7 @@ K_AND_KSCAN_COMMON_NAMES += (
 )
 
 # Constants that have the same value.
-K_AND_KSCAN_COMMON_OVERLAPS = ()
-
-K_AND_KSCAN_COMMON_OVERLAPS += (
+K_AND_KSCAN_COMMON_OVERLAPS = (
     ("KP0", "KP_0"),
     ("KP1", "KP_1"),
     ("KP2", "KP_2"),

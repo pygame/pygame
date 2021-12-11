@@ -77,7 +77,6 @@ def get_backends():
 
     if (
         sys.platform == "win32"
-        and sys.version_info > (3,)
         and int(platform.win32_ver()[0]) > 8
     ):
         possible_backends.append("_camera (MSMF)")

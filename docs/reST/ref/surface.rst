@@ -833,10 +833,7 @@
 
       Return an object which exports a surface's internal pixel buffer as
       a C level array struct, Python level array interface or a C level
-      buffer interface. The pixel buffer is writeable. The new buffer protocol
-      is supported for Python 2.6 and up in CPython. The old buffer protocol
-      is also supported for Python 2.x. The old buffer data is in one segment
-      for kind '0', multi-segment for other buffer view kinds.
+      buffer interface. The new buffer protocol is supported.
 
       The kind argument is the length 1 string '0', '1', '2', '3',
       'r', 'g', 'b', or 'a'. The letters are case insensitive;
