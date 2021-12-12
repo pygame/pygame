@@ -70,16 +70,15 @@ import os
 import distutils
 from setuptools import setup
 
+
 # A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
 # This is due to the fact that distutils uses command line args to 
 # export PyInit_* functions on windows, but those functions are already exported
 # and that is why compiler gives warnings
 from distutils.command.build_ext import build_ext
-
 build_ext.get_export_symbols = lambda self, ext: []
 
 IS_PYPY = '__pypy__' in sys.builtin_module_names
-
 
 def compilation_help():
     """ On failure point people to a web page for help.
@@ -113,12 +112,13 @@ def compilation_help():
     if IS_PYPY:
         url += '\n    https://www.pygame.org/wiki/CompilePyPy'
 
-    print('\n---')
-    print('For help with compilation see:')
-    print('    %s' % url)
-    print('To contribute to pygame development see:')
-    print('    https://www.pygame.org/contribute.html')
-    print('---\n')
+    print ('\n---')
+    print ('For help with compilation see:')
+    print ('    %s' % url)
+    print ('To contribute to pygame development see:')
+    print ('    https://www.pygame.org/contribute.html')
+    print ('---\n')
+
 
 
 if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
@@ -127,31 +127,29 @@ if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
 if IS_PYPY and sys.pypy_version_info < (7,):
     raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython >= 3.6")
 
-
 def consume_arg(name):
     if name in sys.argv:
         sys.argv.remove(name)
         return True
     return False
 
-
 # get us to the correct directory
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
-# os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
+#os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
 #                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
 #                       "-Wmissing-prototypes -Wmissing-declarations " + \
 #                       "-Wnested-externs -Wshadow -Wredundant-decls"
 if consume_arg("-warnings"):
     os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
-                           "-Wimplicit-function-declaration " + \
-                           "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
-                           "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
-                           "-Wuninitialized -Wparentheses " + \
-                           "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
-                           "-Wconversion -Wstrict-prototypes " + \
-                           "-Wmissing-prototypes -Wmissing-declarations " + \
-                           "-Wnested-externs -Wshadow -Wredundant-decls"
+                       "-Wimplicit-function-declaration " + \
+                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
+                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
+                       "-Wuninitialized -Wparentheses " +\
+                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
+                       "-Wconversion -Wstrict-prototypes " + \
+                       "-Wmissing-prototypes -Wmissing-declarations " + \
+                       "-Wnested-externs -Wshadow -Wredundant-decls"
 
 if consume_arg('-pygame-ci'):
     cflags = os.environ.get('CFLAGS', '')
@@ -166,15 +164,15 @@ if consume_arg('-pygame-ci'):
               '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
 
-STRIPPED = False
+STRIPPED=False
 
 # STRIPPED builds don't have developer resources like docs or tests
 if "PYGAME_ANDROID" in os.environ:
     # test cases and docs are useless inside an APK
-    STRIPPED = True
+    STRIPPED=True
 
 if consume_arg('-stripped'):
-    STRIPPED = True
+    STRIPPED=True
 
 enable_arm_neon = False
 if consume_arg('-enable-arm-neon'):
@@ -210,7 +208,6 @@ if consume_arg('cython'):
         ctx = c_options.create_context()
 
     import glob
-
     pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
                 glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
 
@@ -220,10 +217,10 @@ if consume_arg('cython'):
     queue = []
 
     for ext in pyx_files:
-        pyx_file = ext.sources[0]  # TODO: check all sources, extension
+        pyx_file = ext.sources[0] # TODO: check all sources, extension
 
         c_file = os.path.splitext(pyx_file)[0].split(os.path.sep)
-        del c_file[1:3]  # output in src_c/
+        del c_file[1:3] # output in src_c/
         c_file = os.path.sep.join(c_file) + '.c'
 
         # update outdated .c files
@@ -244,9 +241,9 @@ if consume_arg('cython'):
             priority = 0
         if outdated:
             print('Compiling {} because it changed.'.format(pyx_file))
-            queue.append((priority, dict(pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
-                                         options=c_options, full_module_name=ext.name,
-                                         embedded_metadata=pyx_meta.get(ext.name))))
+            queue.append((priority, dict( pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
+                                          options=c_options, full_module_name=ext.name,
+                                          embedded_metadata=pyx_meta.get(ext.name) )))
 
     # compile in right order
     queue.sort(key=lambda a: a[0])
@@ -260,7 +257,7 @@ if consume_arg('cython'):
 if consume_arg('docs'):
     """ 
     For building the pygame documentation.
-    
+
     This generates html, and documentation .h header files.
     """
 
@@ -280,7 +277,7 @@ if consume_arg('docs'):
         if full_generation:
             command_line.append('full_generation')
         if subprocess.call(
-            command_line
+                command_line
         ) != 0:
             raise Exception
     except Exception:
@@ -289,6 +286,7 @@ if consume_arg('docs'):
     # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
     if len(sys.argv) == 1:
         sys.exit()
+
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
@@ -301,13 +299,12 @@ from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 from distutils.command.sdist import sdist
 
-revision = ''
 
+revision = ''
 
 def add_datafiles(data_files, dest_dir, pattern):
     """Add directory structures to data files according to a pattern"""
     src_dir, elements = pattern
-
     def do_directory(root_dest_path, root_src_path, elements):
         files = []
         for e in elements:
@@ -320,9 +317,7 @@ def add_datafiles(data_files, dest_dir, pattern):
                 files.extend(glob.glob(os.path.join(root_src_path, e)))
         if files:
             data_files.append((root_dest_path, files))
-
     do_directory(dest_dir, src_dir, elements)
-
 
 # # allow optionally using setuptools for bdist_egg.
 # if consume_arg("-setuptools") in sys.argv:
@@ -331,6 +326,7 @@ def add_datafiles(data_files, dest_dir, pattern):
 
 # we need to eat this argument in to distutils doesn't trip over it
 consume_arg("-setuptools")
+
 
 # NOTE: the bdist_mpkg_support is for darwin.
 try:
@@ -341,8 +337,8 @@ else:
     EXTRAS.update({
         'options': bdist_mpkg_support.options,
         'setup_requires': ['bdist_mpkg>=0.4.2'],
-        # 'install_requires': ['pyobjc'],
-        # 'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
+        #'install_requires': ['pyobjc'],
+        #'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
     })
 
 # headers to install
@@ -351,7 +347,6 @@ headers.remove(os.path.join('src_c', 'scale.h'))
 headers.append(os.path.join('src_c', 'include'))
 
 import distutils.command.install_headers
-
 
 # monkey patch distutils header install to copy over directories
 def run_install_headers(self):
@@ -362,17 +357,16 @@ def run_install_headers(self):
     self.mkpath(self.install_dir)
     for header in headers:
         if os.path.isdir(header):
-            destdir = os.path.join(self.install_dir, os.path.basename(header))
+            destdir=os.path.join(self.install_dir, os.path.basename(header))
             self.mkpath(destdir)
             for entry in os.listdir(header):
-                header1 = os.path.join(header, entry)
+                header1=os.path.join(header, entry)
                 if not os.path.isdir(header1):
                     (out, _) = self.copy_file(header1, destdir)
                     self.outfiles.append(out)
         else:
             (out, _) = self.copy_file(header, self.install_dir)
             self.outfiles.append(out)
-
 
 distutils.command.install_headers.install_headers.run = run_install_headers
 
@@ -389,11 +383,11 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
     if not reply or reply[0].lower() != 'n':
         sys.argv.append('install')
 
+
 # make sure there is a Setup file
 if AUTO_CONFIG or not os.path.isfile('Setup'):
-    print('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
+    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
-
     try:
         buildconfig.config.main(AUTO_CONFIG)
     except:
@@ -401,14 +395,15 @@ if AUTO_CONFIG or not os.path.isfile('Setup'):
         raise
     if '-config' in sys.argv:
         sys.exit(0)
-    print('\nContinuing With "setup.py"')
+    print ('\nContinuing With "setup.py"')
+
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
     sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL2.in'))[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print('\n\nWARNING, "buildconfig/Setup.SDL2.in" newer than "Setup",'
-              'you might need to modify "Setup".')
+        print ('\n\nWARNING, "buildconfig/Setup.SDL2.in" newer than "Setup",'
+               'you might need to modify "Setup".')
 except OSError:
     pass
 
@@ -416,7 +411,7 @@ except OSError:
 try:
     extensions = read_setup_file('Setup')
 except:
-    print("""Error with the "Setup" file,
+    print ("""Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
@@ -465,6 +460,7 @@ if add_stubs:
         for type_file in _sdl2:
             _sdl2_data_files.append(type_file)
 
+
 # add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
@@ -475,11 +471,11 @@ for f in glob.glob(os.path.join('src_py', '*')):
 # tests/fixtures
 add_datafiles(data_files, 'pygame/tests',
               ['test',
-               [['fixtures',
-                 [['xbm_cursors',
-                   ['*.xbm']],
-                  ['fonts',
-                   ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
+                  [['fixtures',
+                      [['xbm_cursors',
+                          ['*.xbm']],
+                       ['fonts',
+                          ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
 
 # examples
 add_datafiles(data_files, 'pygame/examples',
@@ -488,39 +484,37 @@ add_datafiles(data_files, 'pygame/examples',
 # docs
 add_datafiles(data_files, 'pygame/docs/generated',
               ['docs/generated',
-               ['*.html',  # Navigation and help pages
-                '*.gif',  # pygame logos
-                '*.js',  # For doc search
-                ['ref',  # pygame reference
-                 ['*.html',  # Reference pages
-                  '*.js',  # Comments script
-                  '*.json']],  # Comment data
-                ['c_api',  # pygame C API
-                 ['*.html']],
-                ['tut',  # Tutorials
-                 ['*.html',
-                  ['tom',
-                   ['*.html',
-                    '*.png']]]],
-                ['_static',  # Sphinx added support files
-                 ['*.css',
-                  '*.png',
-                  '*.ico',
-                  '*.js']],
-                ['_images',  # Sphinx added reST ".. image::" refs
-                 ['*.jpg',
-                  '*.png',
-                  '*.gif']],
-                ['_sources',  # Used for ref search
-                 ['*.txt',
-                  ['ref',
-                   ['*.txt']]]]]])
-
+                  ['*.html',             # Navigation and help pages
+                   '*.gif',              # pygame logos
+                   '*.js',               # For doc search
+                   ['ref',               # pygame reference
+                       ['*.html',        # Reference pages
+                        '*.js',          # Comments script
+                        '*.json']],      # Comment data
+                   ['c_api',             # pygame C API
+                       ['*.html']],
+                   ['tut',               # Tutorials
+                       ['*.html',
+                        ['tom',
+                            ['*.html',
+                             '*.png']]]],
+                   ['_static',            # Sphinx added support files
+                        ['*.css',
+                         '*.png',
+                         '*.ico',
+                         '*.js']],
+                   ['_images',            # Sphinx added reST ".. image::" refs
+                        ['*.jpg',
+                         '*.png',
+                         '*.gif']],
+                   ['_sources',           # Used for ref search
+                        ['*.txt',
+                         ['ref',
+                            ['*.txt']]]]]])
 
 # generate the version module
 def parse_version(ver):
     return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
-
 
 def parse_source_version():
     pgh_major = -1
@@ -549,7 +543,6 @@ def parse_source_version():
         raise SystemExit("_pygame.h: cannot find PG_PATCH_VERSION")
     return (pgh_major, pgh_minor, pgh_patch)
 
-
 def write_version_module(pygame_version, revision):
     vernum = parse_version(pygame_version)
     src_vernum = parse_source_version()
@@ -565,21 +558,17 @@ def write_version_module(pygame_version, revision):
         version_file.write('rev = "' + revision + '"  # pylint: disable=invalid-name\n')
         version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
-
 write_version_module(METADATA['version'], revision)
 
 # required. This will be filled if doing a Windows build.
 cmdclass = {}
 
-
 def add_command(name):
     def decorator(command):
         assert issubclass(command, distutils.cmd.Command)
-        cmdclass[name] = command
+        cmdclass[name]=command
         return command
-
     return decorator
-
 
 # try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
@@ -591,7 +580,6 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
     for e in extensions:
         if e.name.startswith('COPYLIB_'):
             lib_dependencies[e.name[8:]] = e.libraries
-
 
     def dependencies(roots):
         """Return a set of dependencies for the list of library file roots
@@ -610,7 +598,6 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                 root_set.update(dependencies(deps))
         return root_set
 
-
     the_dlls = {}
     required_dlls = {}
     for e in extensions:
@@ -625,12 +612,13 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         lib_names[lib] = 1
 
     for lib in lib_names.keys():
-        # next DLL; a distutils bug requires the paths to have Windows separators
+        #next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
         if f == '_':
-            print("WARNING, DLL for %s library not found." % lib)
+            print ("WARNING, DLL for %s library not found." % lib)
         else:
             pygame_data_files.append(f)
+
 
     if '-enable-msvc-analyze' in sys.argv:
         # calculate the MSVC compiler version as an int
@@ -638,18 +626,17 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         msc_ver = 1900
         if msc_pos != -1:
             msc_ver = int(sys.version[msc_pos + 6:msc_pos + 10])
-        print('Analyzing with MSC_VER =', msc_ver)
+        print ('Analyzing with MSC_VER =', msc_ver)
 
         # excluding system headers from analyze out put was only added after MSCV_VER 1913
         if msc_ver >= 1913:
             os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
             for e in extensions:
                 e.extra_compile_args += ['/analyze', '/experimental:external',
-                                         '/external:W0', '/external:env:CAExcludePath']
+                                         '/external:W0', '/external:env:CAExcludePath' ]
         else:
             for e in extensions:
                 e.extra_compile_args += ['/analyze']
-
 
     def has_flag(compiler, flagname):
         """
@@ -679,11 +666,9 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                 pass
         return True
 
-
     # filter flags, returns list of accepted flags
     def flag_filter(compiler, *flags):
         return [flag for flag in flags if has_flag(compiler, flag)]
-
 
     # Only on win32, not MSYS2
     if 'MSYSTEM' not in os.environ:
@@ -707,7 +692,6 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
                 build_ext.build_extensions(self)
 
-
         # Add the precompiled smooth scale MMX functions to transform.
         def replace_scale_mmx():
             for e in extensions:
@@ -722,16 +706,15 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                         if e.sources[i].endswith('scale_mmx.c'):
                             del e.sources[i]
                             return
-
-
         replace_scale_mmx()
+
 
 # clean up the list of extensions
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
-        extensions.remove(e)  # don't compile the COPYLIBs, just clean them
+        extensions.remove(e) #don't compile the COPYLIBs, just clean them
     else:
-        e.name = 'pygame.' + e.name  # prepend package name on modules
+        e.name = 'pygame.' + e.name #prepend package name on modules
 
 
 # data installer with improved intelligence over distutils
@@ -740,7 +723,7 @@ for e in extensions[:]:
 @add_command('install_data')
 class smart_install_data(install_data):
     def run(self):
-        # need to change self.install_dir to the actual library dir
+        #need to change self.install_dir to the actual library dir
         install_cmd = self.get_finalized_command('install')
         self.install_dir = getattr(install_cmd, 'install_lib')
         return install_data.run(self)
@@ -760,7 +743,6 @@ if "bdist_msi" in sys.argv:
     from distutils.command import bdist_msi
     import msilib
 
-
     @add_command('bdist_msi')
     class bdist_msi_overwrite_on_install(bdist_msi.bdist_msi):
         def run(self):
@@ -768,7 +750,7 @@ if "bdist_msi" in sys.argv:
 
             # Remove obsolete files.
             comp = "pygame1"  # Pygame component
-            prop = comp  # Directory property
+            prop = comp   # Directory property
             records = [("surfarray.pyd", comp,
                         "SURFAR~1.PYD|surfarray.pyd", prop, 1),
                        ("sndarray.pyd", comp,
@@ -782,7 +764,7 @@ if "bdist_msi" in sys.argv:
             # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
             installer_name = self.get_installer_filename(fullname)
-            print("changing %s to overwrite files on install" % installer_name)
+            print ("changing %s to overwrite files on install" % installer_name)
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
 
@@ -796,7 +778,7 @@ if "bdist_msi" in sys.argv:
 
 @add_command('test')
 class TestCommand(Command):
-    user_options = []
+    user_options = [ ]
 
     def initialize_options(self):
         self._dir = os.getcwd()
@@ -810,7 +792,6 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
-
 
 @add_command("lint")
 class LintCommand(Command):
@@ -857,37 +838,37 @@ data_files = [(path, files) for path, files in data_files if files]
 # finally,
 # call distutils with all needed info
 PACKAGEDATA = {
-    "cmdclass": cmdclass,
-    "packages": ['pygame',
-                 'pygame.threads',
-                 'pygame._sdl2',
-                 'pygame.tests',
-                 'pygame.tests.test_utils',
-                 'pygame.tests.run_tests__tests',
-                 'pygame.tests.run_tests__tests.all_ok',
-                 'pygame.tests.run_tests__tests.failures1',
-                 'pygame.tests.run_tests__tests.incomplete',
-                 'pygame.tests.run_tests__tests.infinite_loop',
-                 'pygame.tests.run_tests__tests.print_stderr',
-                 'pygame.tests.run_tests__tests.print_stdout',
-                 'pygame.tests.run_tests__tests.incomplete_todo',
-                 'pygame.tests.run_tests__tests.exclude',
-                 'pygame.tests.run_tests__tests.timeout',
-                 'pygame.tests.run_tests__tests.everything',
-                 'pygame.docs',
-                 'pygame.examples',
-                 'pygame.__pyinstaller'],
-    "package_dir": {'pygame': 'src_py',
-                    'pygame._sdl2': 'src_py/_sdl2',
-                    'pygame.threads': 'src_py/threads',
-                    'pygame.tests': 'test',
-                    'pygame.docs': 'docs',
-                    'pygame.examples': 'examples',
-                    'pygame.__pyinstaller': 'src_py/__pyinstaller'},
-    "headers": headers,
-    "ext_modules": extensions,
-    "data_files": data_files,
-    "zip_safe": False,
+       "cmdclass":    cmdclass,
+       "packages":    ['pygame',
+                       'pygame.threads',
+                       'pygame._sdl2',
+                       'pygame.tests',
+                       'pygame.tests.test_utils',
+                       'pygame.tests.run_tests__tests',
+                       'pygame.tests.run_tests__tests.all_ok',
+                       'pygame.tests.run_tests__tests.failures1',
+                       'pygame.tests.run_tests__tests.incomplete',
+                       'pygame.tests.run_tests__tests.infinite_loop',
+                       'pygame.tests.run_tests__tests.print_stderr',
+                       'pygame.tests.run_tests__tests.print_stdout',
+                       'pygame.tests.run_tests__tests.incomplete_todo',
+                       'pygame.tests.run_tests__tests.exclude',
+                       'pygame.tests.run_tests__tests.timeout',
+                       'pygame.tests.run_tests__tests.everything',
+                       'pygame.docs',
+                       'pygame.examples',
+                       'pygame.__pyinstaller'],
+       "package_dir": {'pygame': 'src_py',
+                       'pygame._sdl2': 'src_py/_sdl2',
+                       'pygame.threads': 'src_py/threads',
+                       'pygame.tests': 'test',
+                       'pygame.docs': 'docs',
+                       'pygame.examples': 'examples',
+                       'pygame.__pyinstaller': 'src_py/__pyinstaller'},
+       "headers":     headers,
+       "ext_modules": extensions,
+       "data_files":  data_files,
+       "zip_safe":  False,
 }
 if STRIPPED:
     pygame_data_files = []
@@ -897,18 +878,19 @@ if STRIPPED:
                               "src_py/pygame_icon.bmp",
                               "src_py/pygame_icon_mac.bmp"])]
 
+
     PACKAGEDATA = {
-        "cmdclass": cmdclass,
-        "packages": ['pygame',
-                     'pygame.threads',
-                     'pygame._sdl2'],
-        "package_dir": {'pygame': 'src_py',
-                        'pygame._sdl2': 'src_py/_sdl2',
-                        'pygame.threads': 'src_py/threads'},
-        "ext_modules": extensions,
-        "zip_safe": False,
-        "data_files": data_files
-    }
+    "cmdclass":    cmdclass,
+    "packages":    ['pygame',
+                    'pygame.threads',
+                    'pygame._sdl2'],
+    "package_dir": {'pygame': 'src_py',
+                    'pygame._sdl2': 'src_py/_sdl2',
+                    'pygame.threads': 'src_py/threads'},
+    "ext_modules": extensions,
+    "zip_safe":  False,
+    "data_files": data_files
+}
 
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
