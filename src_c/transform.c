@@ -200,6 +200,8 @@ rotate90(SDL_Surface *src, int angle)
     dst = newsurf_fromsurf(src, dstwidth, dstheight);
     if (!dst)
         return NULL;
+
+    Py_BEGIN_ALLOW_THREADS;
     SDL_LockSurface(dst);
     srcrow = (char *)src->pixels;
     dstrow = (char *)dst->pixels;
@@ -283,6 +285,7 @@ rotate90(SDL_Surface *src, int angle)
             break;
     }
     SDL_UnlockSurface(dst);
+    Py_END_ALLOW_THREADS;
     return dst;
 }
 
@@ -653,9 +656,8 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(fmod((double)angle, (double)90.0f))) {
         pgSurface_Lock(surfobj);
 
-        Py_BEGIN_ALLOW_THREADS;
+        /* The function releases GIL internally, don't release here */
         newsurf = rotate90(surf, (int)angle);
-        Py_END_ALLOW_THREADS;
 
         pgSurface_Unlock(surfobj);
         if (!newsurf)
@@ -947,6 +949,8 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
     dst = newsurf_fromsurf(src, dstwidth, dstheight);
     if (!dst)
         return NULL;
+    
+    Py_BEGIN_ALLOW_THREADS;
     SDL_LockSurface(dst);
     srcrow = (char *)src->pixels;
     dstrow = (char *)dst->pixels;
@@ -985,6 +989,8 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
         srcrow += srcstepy;
     }
     SDL_UnlockSurface(dst);
+    Py_END_ALLOW_THREADS;
+
     return dst;
 }
 
@@ -1004,9 +1010,8 @@ surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_TypeError, "Rect argument is invalid");
 
     surf = pgSurface_AsSurface(surfobj);
-    Py_BEGIN_ALLOW_THREADS;
+    /* The function releases GIL internally, don't release here */
     newsurf = chop(surf, rect->x, rect->y, rect->w, rect->h);
-    Py_END_ALLOW_THREADS;
 
     return (PyObject *)pgSurface_New(newsurf);
 }
