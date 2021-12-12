@@ -1,0 +1,42 @@
+name: python3 setup.py lint
+
+# Run CI only when a release is created, on changes to main branch, or any PR
+# to main. Do not run CI on any other branch. Also, skip any non-source changes
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - 'README.rst'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/manylinux.yml'
+      - '.github/workflows/ubuntu-sdist.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - 'README.rst'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/manylinux.yml'
+      - '.github/workflows/ubuntu-sdist.yml'
+
+jobs:
+  format-lint-code-check:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Install deps
+        run: python3 -m pip install pylint black clang-format sphinx
+
+      - name: Check code Formatting and Linting
+        run: python3 setup.py lint
