@@ -189,10 +189,10 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.play()
 
         # Wait 0.5s, then pause
-        time.sleep(0.5)
+        time.sleep(0.05)
         pygame.mixer.music.pause()
         # Wait 0.5s, get position, unpause, then get position again
-        time.sleep(0.5)
+        time.sleep(0.05)
         before_unpause = pygame.mixer.music.get_pos()
         pygame.mixer.music.unpause()
         after_unpause = pygame.mixer.music.get_pos()
