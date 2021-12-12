@@ -793,9 +793,13 @@ class TestCommand(Command):
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
-@add_command("lint")
-class LintCommand(Command):
+
+class LintFormatCommand(Command):
+    """ Used for formatting or linting. See Lint and Format Sub classes.
+    """
     user_options = []
+    lint = False
+    format = False
 
     def initialize_options(self):
         pass
@@ -811,25 +815,49 @@ class LintCommand(Command):
 
         def check_linter_exists(linter):
             if shutil.which(linter) is None:
-                msg = "Please install '%s' in your environment. (hint: 'pip install %s')"
+                msg = "Please install '%s' in your environment. (hint: 'python3 -m pip install %s')"
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        c_files_unfiltered = glob.glob("src_c/**/*.[ch]")
-        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/"]
+        c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
+        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+
+        # Other files have too many issues for now. setup.py, buildconfig, etc
         python_directories = ["src_py", "test"]
-        linters = {
-            "clang-format": ["-i"] + c_files,
-            # "isort": python_directories,
-            "black": python_directories,
-            # Test directory has too much pylint warning for now
-            "pylint": ["src_py"],
-        }
-        for linter, option in linters.items():
+        if self.lint:
+            commands = {
+                "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
+                "black": ["--check", "--diff"] + python_directories,
+                # Test directory has too much pylint warning for now
+                "pylint": ["src_py"],
+            }
+        else:
+            commands = {
+                "clang-format": ["-i"] + c_files,
+                "black": python_directories,
+            }
+
+        formatters = ["black", "clang-format"]
+        for linter, option in commands.items():
             print(" ".join([linter] + option))
             check_linter_exists(linter)
-            subprocess.run([linter] + option)
+            result = subprocess.run([linter] + option)
+            if result.returncode:
+                msg = f"'{linter}' failed."
+                msg += " Please run: python setup.py format" if linter in formatters else ""
+                msg += f" Do you have the latest version of {linter}?"
+                raise SystemExit(msg)
+
+
+@add_command("lint")
+class LintCommand(LintFormatCommand):
+    lint = True
+
+
+@add_command("format")
+class FormatCommand(LintFormatCommand):
+    format = True
 
 
 # Prune empty file lists.
