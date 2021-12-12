@@ -14,13 +14,13 @@ with io.open('README.rst', encoding='utf-8') as readme:
 EXTRAS = {}
 
 METADATA = {
-    "name": "pygame",
-    "version": "2.1.1.dev1",
-    "license": "LGPL",
-    "url": "https://www.pygame.org",
-    "author": "A community project.",
-    "author_email": "pygame@pygame.org",
-    "description": "Python Game Development",
+    "name":             "pygame",
+    "version":          "2.1.1.dev1",
+    "license":          "LGPL",
+    "url":              "https://www.pygame.org",
+    "author":           "A community project.",
+    "author_email":     "pygame@pygame.org",
+    "description":      "Python Game Development",
     "long_description": LONG_DESCRIPTION,
     "long_description_content_type": "text/x-rst",
     "project_urls": {
