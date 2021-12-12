@@ -480,15 +480,25 @@ class DisplayModuleTest(unittest.TestCase):
     )
     def test_set_gamma(self):
         pygame.display.set_mode((1, 1))
-        gammas = [0.0, 0.25, 0.5, 0.88, 1.0]
+
+        gammas = [0.25, 0.5, 0.88, 1.0]
         for gamma in gammas:
-            self.assertEqual(pygame.display.set_gamma(gamma), True)
-        gammas = [(0.5, 0.5, 0.5), (1.0, 1.0, 1.0), (0.22, 0.33, 0.44), (0.0, 0.0, 0.0)]
-        for gammaTuple in gammas:
-            self.assertEqual(
-                pygame.display.set_gamma(gammaTuple[0], gammaTuple[1], gammaTuple[2]),
-                True,
-            )
+            with self.subTest(gamma=gamma):
+                self.assertEqual(pygame.display.set_gamma(gamma), True)
+
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        "Needs a not dummy videodriver"
+    )
+    def test_set_gamma__tuple(self):
+        pygame.display.set_mode((1, 1))
+
+        gammas = [(0.5, 0.5, 0.5),
+                  (1.0, 1.0, 1.0),
+                  (0.25, 0.33, 0.44)]
+        for r, g, b in gammas:
+            with self.subTest(r=r, g=g, b=b):
+                self.assertEqual(pygame.display.set_gamma(r, g, b), True)
 
     @unittest.skipIf(
         not hasattr(pygame.display, "set_gamma_ramp"),
