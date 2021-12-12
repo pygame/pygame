@@ -93,8 +93,14 @@ _display_state_cleanup(_DisplayState *state)
     }
 }
 
-
+#if !defined(__APPLE__)
 static char *icon_defaultname = "pygame_icon.bmp";
+static int icon_colorkey = 0;
+#else
+static char *icon_defaultname = "pygame_icon_mac.bmp";
+static int icon_colorkey = -1;
+#endif
+
 static char *pkgdatamodule_name = "pygame.pkgdata";
 static char *imagemodule_name = "pygame.image";
 static char *resourcefunc_name = "getResource";
@@ -1313,8 +1319,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         state->icon = pg_display_resource(icon_defaultname);
         if (!state->icon)
             PyErr_Clear();
-        else {
-            SDL_SetColorKey(pgSurface_AsSurface(state->icon), SDL_TRUE, 0);
+        else if (icon_colorkey != -1) {
+            SDL_SetColorKey(pgSurface_AsSurface(state->icon), SDL_TRUE, icon_colorkey);
         }
     }
     if (state->icon)
