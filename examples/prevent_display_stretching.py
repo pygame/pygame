@@ -16,15 +16,14 @@ Vista and newer).
 
 """
 
-# game constants
-# colors are specified in the colordict.py file
-TEXTCOLOR = "green"
-BACKGROUNDCOLOR = "black"
-AXISCOLOR = "white"
-
 # Ensure that the computer is running Windows Vista or newer
 import os
 import sys
+
+# game constants
+TEXTCOLOR = "green"
+BACKGROUNDCOLOR = "black"
+AXISCOLOR = "white"
 
 if os.name != "nt" or sys.getwindowsversion()[0] < 6:
     raise NotImplementedError("this script requires Windows Vista or newer")

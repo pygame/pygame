@@ -30,6 +30,7 @@ DIR_RIGHT = 4
 
 zoom_factor = 8
 
+
 def draw_arrow(surf, color, posn, direction):
     x, y = posn
     if direction == DIR_UP:

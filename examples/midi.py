@@ -16,7 +16,6 @@ import os
 import pygame as pg
 import pygame.midi
 
-# colors specified in the colordict.py file
 # black and white piano keys use b/w color values directly
 BACKGROUNDCOLOR = "slategray"
 

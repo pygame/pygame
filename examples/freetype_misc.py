@@ -69,33 +69,23 @@ def run():
     font.render_to(screen, (32, 200), "Vertical?", "blue3", None, size=32)
     font.vertical = False
 
-    font.render_to(
-        screen, (64, 190), "Let's spin!", "red3", None, size=48, rotation=55
-    )
+    font.render_to(screen, (64, 190), "Let's spin!", "red3", None, size=48, rotation=55)
 
     font.render_to(
         screen, (160, 290), "All around!", "green3", None, size=48, rotation=-55
     )
 
-    font.render_to(
-        screen, (250, 220), "and BLEND", (255, 0, 0, 128), None, size=64
-    )
+    font.render_to(screen, (250, 220), "and BLEND", (255, 0, 0, 128), None, size=64)
 
-    font.render_to(
-        screen, (265, 237), "or BLAND!", (0, 0xCC, 28, 128), None, size=64
-    )
+    font.render_to(screen, (265, 237), "or BLAND!", (0, 0xCC, 28, 128), None, size=64)
 
     # Some pinwheels
     font.origin = True
     for angle in range(0, 360, 45):
-        font.render_to(
-            screen, (150, 420), ")", "black", size=48, rotation=angle
-        )
+        font.render_to(screen, (150, 420), ")", "black", size=48, rotation=angle)
     font.vertical = True
     for angle in range(15, 375, 30):
-        font.render_to(
-            screen, (600, 400), "|^*", "orange", size=48, rotation=angle
-        )
+        font.render_to(screen, (600, 400), "|^*", "orange", size=48, rotation=angle)
     font.vertical = False
     font.origin = False
 
@@ -103,9 +93,7 @@ def run():
     font.render_to(screen, (298, 320), utext, (0, 0xCC, 0xDD), None, size=64)
 
     utext = "\u2665"
-    font.render_to(
-        screen, (480, 32), utext, "gray", "red3", size=148
-    )
+    font.render_to(screen, (480, 32), utext, "gray", "red3", size=148)
 
     font.render_to(
         screen,

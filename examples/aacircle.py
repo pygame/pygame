@@ -5,6 +5,7 @@
 import pygame
 import pygame.gfxdraw
 
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((500, 500))

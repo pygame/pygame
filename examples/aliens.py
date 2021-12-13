@@ -35,7 +35,6 @@ if not pg.image.get_extended():
 
 
 # game constants
-# colors are specified in the colordict.py file
 MAX_SHOTS = 2  # most player bullets onscreen
 ALIEN_ODDS = 22  # chances a new alien appears
 BOMB_ODDS = 60  # chances a new bomb will drop

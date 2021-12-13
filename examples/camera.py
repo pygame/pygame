@@ -91,7 +91,9 @@ class VideoCapturePlayer(object):
 
             self.get_and_flip()
             self.clock.tick()
-            pygame.display.set_caption("CAMERA! (" + str(round(self.clock.get_fps())) + " FPS)")
+            pygame.display.set_caption(
+                "CAMERA! (" + str(round(self.clock.get_fps())) + " FPS)"
+            )
 
 
 def main():
