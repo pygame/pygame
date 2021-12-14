@@ -469,7 +469,7 @@ class FontTypeTest(unittest.TestCase):
 
         pygame_font.init()
         self.assertRaises(
-            FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20
+            FileNotFoundError, pygame_font.Font, "some-fictional-font.ttf", 20
         )
 
     def test_load_from_file(self):
