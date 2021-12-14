@@ -2576,12 +2576,21 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 #pragma optimize("", off)
 #endif
 
+/* When GCC compiles the following funtion with -O3 on PPC64 little endian,
+ * the function gives incorrect output with 24-bit surfaces. This is most
+ * likely a compiler bug, see #2876 for related issue.
+ * So turn optimisations off here */
+#if defined(__GNUC__) && defined(__PPC64__)
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#endif
+
 void
 average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
               Uint8 *g, Uint8 *b, Uint8 *a)
 {
     Uint32 color, rmask, gmask, bmask, amask;
-    Uint8 *pixels, *pix;
+    Uint8 *pixels;
     unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift;
     unsigned int rloss, gloss, bloss, aloss;
     int row, col, width_and_x, height_and_y;
@@ -2655,11 +2664,10 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
             for (row = y; row < height_and_y; row++) {
                 pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 3;
                 for (col = x; col < width_and_x; col++) {
-                    pix = pixels;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+                    color = (pixels[0]) + (pixels[1] << 8) + (pixels[2] << 16);
 #else
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+                    color = (pixels[2]) + (pixels[1] << 8) + (pixels[0] << 16);
 #endif
                     rtot += ((color & rmask) >> rshift) << rloss;
                     gtot += ((color & gmask) >> gshift) << gloss;
@@ -2692,6 +2700,11 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 /* Optimisation was only disabled for one function - see above */
 #if defined(_MSC_VER) && (_MSC_VER == 1900)
 #pragma optimize("", on)
+#endif
+
+/* Optimisation was only disabled for one function on GCC+PPC64 - see above */
+#if defined(__GNUC__) && defined(__PPC64__)
+#pragma GCC pop_options
 #endif
 
 static PyObject *

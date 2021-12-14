@@ -3,12 +3,8 @@
 import sys
 import os
 import unittest
+import pathlib
 import platform
-
-try:
-    import pathlib
-except ImportError:
-    pathlib = None
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
@@ -83,12 +79,10 @@ class FontModuleTest(unittest.TestCase):
 
         self.assertTrue(fnts, msg=repr(fnts))
 
-        name_types = (str,)
-
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.
 
-            self.assertTrue(isinstance(name, name_types), name)
+            self.assertTrue(isinstance(name, str), name)
             # Font names can be comprised of only numeric characters, so
             # just checking name.islower() will not work as expected here.
             self.assertFalse(any(c.isupper() for c in name))
@@ -486,7 +480,6 @@ class FontTypeTest(unittest.TestCase):
         )
         f = pygame_font.Font(font_path, 20)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_load_from_pathlib(self):
         font_name = pygame_font.get_default_font()
         font_path = os.path.join(

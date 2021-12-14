@@ -4,16 +4,11 @@ if os.environ.get("SDL_VIDEODRIVER") == "dummy":
     __tags__ = ("ignore", "subprocess_ignore")
 
 import unittest
-import sys
 import ctypes
 import weakref
 import gc
+import pathlib
 import platform
-
-try:
-    import pathlib
-except ImportError:
-    pathlib = None
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -1259,7 +1254,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, f, "bgcolor", None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.tests.test_utils import buftools
 
@@ -1713,7 +1708,6 @@ class FreeTypeFontTest(unittest.TestCase):
         font_name_2 = ft.SysFont(names, size).name
         self.assertEqual(font_name_2, font_name)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_pathlib(self):
         f = ft.Font(pathlib.Path(self._fixed_path), 20)
 

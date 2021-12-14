@@ -88,10 +88,10 @@ from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
 
-Color = color.Color
+Color = pygame.color.Color
 import pygame.bufferproxy
 
-BufferProxy = bufferproxy.BufferProxy
+BufferProxy = pygame.bufferproxy.BufferProxy
 import pygame.math
 
 Vector2 = pygame.math.Vector2
@@ -371,4 +371,4 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copyreg
+del pygame, os, sys, MissingModule, copyreg

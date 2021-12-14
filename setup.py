@@ -254,6 +254,39 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
+if consume_arg('docs'):
+    """ 
+    For building the pygame documentation.
+
+    This generates html, and documentation .h header files.
+    """
+
+    full_generation = consume_arg('--fullgeneration') or consume_arg('--f')
+
+    docs_help = (
+        "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
+    )
+
+    import subprocess
+
+    try:
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if full_generation:
+            command_line.append('full_generation')
+        if subprocess.call(
+                command_line
+        ) != 0:
+            raise Exception
+    except Exception:
+        print(docs_help)
+
+    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
+    if len(sys.argv) == 1:
+        sys.exit()
+
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
@@ -449,7 +482,7 @@ add_datafiles(data_files, 'pygame/examples',
               ['examples', ['README.rst', ['data', ['*']]]])
 
 # docs
-add_datafiles(data_files, 'pygame/docs',
+add_datafiles(data_files, 'pygame/docs/generated',
               ['docs/generated',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
@@ -799,54 +832,6 @@ class LintCommand(Command):
             subprocess.run([linter] + option)
 
 
-@add_command('docs')
-class DocsCommand(Command):
-    """ For building the pygame documentation with `python setup.py docs`.
-
-    This generates html, and documentation .h header files.
-    """
-    user_options = [
-        (
-            'fullgeneration',
-            'f',
-            'Full generation. Do not use a saved environment, always read all files.'
-        )
-    ]
-    boolean_options = ['fullgeneration']
-
-    def initialize_options(self):
-        self._dir = os.getcwd()
-        self.fullgeneration = None
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        '''
-        runs Sphinx to build the docs.
-        '''
-        docs_help = (
-            "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
-        )
-        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-            raise SystemExit(docs_help)
-
-        import subprocess
-
-        try:
-            print("Using python:", sys.executable)
-            command_line = [
-                sys.executable, os.path.join('buildconfig', 'makeref.py')
-            ]
-            if self.fullgeneration:
-                command_line.append('full_generation')
-            subprocess.call(
-                command_line
-            )
-        except:
-            print(docs_help)
-            raise
-
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]
 
@@ -890,9 +875,8 @@ if STRIPPED:
     data_files = [('pygame', ["src_py/freesansbold.ttf",
                               "src_py/pygame.ico",
                               "src_py/pygame_icon.icns",
-                              "src_py/pygame_icon.svg",
                               "src_py/pygame_icon.bmp",
-                              "src_py/pygame_icon.tiff"])]
+                              "src_py/pygame_icon_mac.bmp"])]
 
 
     PACKAGEDATA = {

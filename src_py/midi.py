@@ -22,10 +22,6 @@ New in pygame 1.9.0.
 #        - that can automatically inject input into the event queue
 #          once the input object is running.  Like joysticks.
 
-
-# In Python 2.7 pygame.math is imported instead of the built-in math module.
-# This import from future allows the built-in math module to be imported.
-from __future__ import absolute_import
 import math
 import atexit
 

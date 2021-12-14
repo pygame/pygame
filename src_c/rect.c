@@ -956,24 +956,44 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
     return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
 }
 
-static PyObject *
-pg_rect_contains(pgRectObject *self, PyObject *args)
+static int
+_pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
-    int contained;
-    GAME_Rect *argrect, temp;
-
-    if (!(argrect = pgRect_FromObject(args, &temp))) {
-        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    GAME_Rect *argrect, temp_arg;
+    if (!(argrect = pgRect_FromObject((PyObject *)arg, &temp_arg))) {
+       return -1;
     }
-
-    contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
+    return  (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
                 (self->r.x + self->r.w >= argrect->x + argrect->w) &&
                 (self->r.y + self->r.h >= argrect->y + argrect->h) &&
                 (self->r.x + self->r.w > argrect->x) &&
                 (self->r.y + self->r.h > argrect->y);
+    }
 
-    return PyBool_FromLong(contained);
+
+static PyObject *
+pg_rect_contains(pgRectObject *self, PyObject *arg)
+{ 
+    int ret = _pg_rect_contains(self, arg);
+    if (ret < 0) {
+        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    }
+    return PyBool_FromLong(ret);
 }
+
+static int 
+pg_rect_contains_seq(pgRectObject *self, PyObject *arg) {
+    if (PyLong_Check(arg)) {
+        int coord = (int) PyInt_AsLong(arg);
+        return coord == self->r.x || 
+            coord == self->r.y || 
+            coord == self->r.w || 
+            coord == self->r.h;
+    }
+    return _pg_rect_contains(self, arg);
+}
+
+
 
 static PyObject *
 pg_rect_clamp(pgRectObject *self, PyObject *args)
@@ -1131,6 +1151,8 @@ pg_rect_length(PyObject *_self)
     return 4;
 }
 
+
+
 static PyObject *
 pg_rect_item(pgRectObject *self, Py_ssize_t i)
 {
@@ -1178,6 +1200,7 @@ static PySequenceMethods pg_rect_as_sequence = {
     NULL,                              /*slice*/
     (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
     NULL,                              /*ass_slice*/
+    (objobjproc)pg_rect_contains_seq,  /*contains*/
 };
 
 static PyObject *

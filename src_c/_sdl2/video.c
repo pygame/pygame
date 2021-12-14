@@ -862,7 +862,7 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw_internal;
 struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw;
 struct __pyx_opt_args_6pygame_5_sdl2_5video_5Image_draw;
 
-/* "pygame/_sdl2/video.pxd":392
+/* "pygame/_sdl2/video.pxd":421
  * 
  *     cpdef object get_viewport(self)
  *     cpdef object blit(self, object source, Rect dest=*, Rect area=*, int special_flags=*)             # <<<<<<<<<<<<<<
@@ -876,7 +876,7 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_8Renderer_blit {
   int special_flags;
 };
 
-/* "pygame/_sdl2/video.pxd":401
+/* "pygame/_sdl2/video.pxd":430
  *     cdef readonly int height
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,             # <<<<<<<<<<<<<<
@@ -891,7 +891,7 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw_internal {
   int flipY;
 };
 
-/* "pygame/_sdl2/video.pxd":403
+/* "pygame/_sdl2/video.pxd":432
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
  *                        bint flipX=*, bint flipY=*)
  *     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,             # <<<<<<<<<<<<<<
@@ -908,7 +908,7 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw {
   int flipY;
 };
 
-/* "pygame/_sdl2/video.pxd":419
+/* "pygame/_sdl2/video.pxd":448
  *     cdef public Rect srcrect
  * 
  *     cpdef void draw(self, srcrect=*, dstrect=*)             # <<<<<<<<<<<<<<
@@ -919,7 +919,7 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_5Image_draw {
   PyObject *dstrect;
 };
 
-/* "pygame/_sdl2/video.pxd":380
+/* "pygame/_sdl2/video.pxd":409
  * 
  * 
  * cdef class Window:             # <<<<<<<<<<<<<<
@@ -933,7 +933,7 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Window {
 };
 
 
-/* "pygame/_sdl2/video.pxd":384
+/* "pygame/_sdl2/video.pxd":413
  *     cdef int _is_borrowed
  * 
  * cdef class Renderer:             # <<<<<<<<<<<<<<
@@ -951,7 +951,7 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Renderer {
 };
 
 
-/* "pygame/_sdl2/video.pxd":394
+/* "pygame/_sdl2/video.pxd":423
  *     cpdef object blit(self, object source, Rect dest=*, Rect area=*, int special_flags=*)
  * 
  * cdef class Texture:             # <<<<<<<<<<<<<<
@@ -969,7 +969,7 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Texture {
 };
 
 
-/* "pygame/_sdl2/video.pxd":406
+/* "pygame/_sdl2/video.pxd":435
  *                     bint flipX=*, bint flipY=*)
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
@@ -1727,6 +1727,12 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_SDL_BlendMode(SDL_BlendMode valu
 static CYTHON_INLINE SDL_BlendMode __Pyx_PyInt_As_SDL_BlendMode(PyObject *);
 
 /* CIntFromPy.proto */
+static CYTHON_INLINE SDL_BlendFactor __Pyx_PyInt_As_SDL_BlendFactor(PyObject *);
+
+/* CIntFromPy.proto */
+static CYTHON_INLINE SDL_BlendOperation __Pyx_PyInt_As_SDL_BlendOperation(PyObject *);
+
+/* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *);
 
 /* FastTypeChecks.proto */
@@ -1966,6 +1972,7 @@ static const char __pyx_k_doc[] = "__doc__";
 static const char __pyx_k_ind[] = "ind";
 static const char __pyx_k_num[] = "num";
 static const char __pyx_k_ptr[] = "ptr";
+static const char __pyx_k_res[] = "res";
 static const char __pyx_k_ret[] = "ret";
 static const char __pyx_k_win[] = "win";
 static const char __pyx_k_area[] = "area";
@@ -2056,8 +2063,10 @@ static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_resizable[] = "resizable";
 static const char __pyx_k_streaming[] = "streaming";
 static const char __pyx_k_ValueError[] = "ValueError";
+static const char __pyx_k_alpha_mode[] = "alpha_mode";
 static const char __pyx_k_blend_mode[] = "blend_mode";
 static const char __pyx_k_borderless[] = "borderless";
+static const char __pyx_k_color_mode[] = "color_mode";
 static const char __pyx_k_fullscreen[] = "fullscreen";
 static const char __pyx_k_get_height[] = "get_height";
 static const char __pyx_k_input_only[] = "input_only";
@@ -2112,6 +2121,7 @@ static const char __pyx_k_MESSAGEBOX_INFORMATION[] = "MESSAGEBOX_INFORMATION";
 static const char __pyx_k_source_must_be_drawable[] = "source must be drawable";
 static const char __pyx_k_the_surface_is_too_small[] = "the surface is too small";
 static const char __pyx_k_RendererDriverInfo___repr[] = "RendererDriverInfo.__repr__";
+static const char __pyx_k_compose_custom_blend_mode[] = "compose_custom_blend_mode";
 static const char __pyx_k_area_must_be_None_or_a_rect[] = "area must be None or a rect";
 static const char __pyx_k_size_must_have_two_elements[] = "size must have two elements";
 static const char __pyx_k_rect_values_are_out_of_range[] = "rect values are out of range";
@@ -2157,6 +2167,7 @@ static PyObject *__pyx_n_s__36;
 static PyObject *__pyx_n_s_accelerated;
 static PyObject *__pyx_n_s_allow_highdpi;
 static PyObject *__pyx_n_s_alpha;
+static PyObject *__pyx_n_s_alpha_mode;
 static PyObject *__pyx_n_s_always_on_top;
 static PyObject *__pyx_n_s_angle;
 static PyObject *__pyx_n_s_area;
@@ -2176,6 +2187,8 @@ static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_close;
 static PyObject *__pyx_n_s_color;
+static PyObject *__pyx_n_s_color_mode;
+static PyObject *__pyx_n_s_compose_custom_blend_mode;
 static PyObject *__pyx_n_s_data;
 static PyObject *__pyx_n_s_depth;
 static PyObject *__pyx_n_s_desktop;
@@ -2264,6 +2277,7 @@ static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_renderer;
 static PyObject *__pyx_n_s_renderer_2;
 static PyObject *__pyx_n_s_repr;
+static PyObject *__pyx_n_s_res;
 static PyObject *__pyx_n_s_resizable;
 static PyObject *__pyx_n_s_ret;
 static PyObject *__pyx_n_s_return_button;
@@ -2426,8 +2440,9 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_rect); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_rect); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_area); /* proto */
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode(PyObject *__pyx_v_color_mode, PyObject *__pyx_v_alpha_mode); /* proto */
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_30__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_tp_new_6pygame_5_sdl2_5video_Window(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_6pygame_5_sdl2_5video_Renderer(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_6pygame_5_sdl2_5video_Texture(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2480,10 +2495,12 @@ static PyObject *__pyx_tuple__40;
 static PyObject *__pyx_tuple__42;
 static PyObject *__pyx_tuple__44;
 static PyObject *__pyx_tuple__45;
+static PyObject *__pyx_tuple__47;
 static PyObject *__pyx_codeobj__38;
 static PyObject *__pyx_codeobj__41;
 static PyObject *__pyx_codeobj__43;
 static PyObject *__pyx_codeobj__46;
+static PyObject *__pyx_codeobj__48;
 /* Late includes */
 
 /* "pygame/_sdl2/video.pyx":65
@@ -11445,7 +11462,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":397
+/* "pygame/_sdl2/video.pxd":426
  *     cdef SDL_Texture* _tex
  *     cdef Color _color
  *     cdef readonly Renderer renderer             # <<<<<<<<<<<<<<
@@ -11482,7 +11499,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8renderer___get__(struc
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":398
+/* "pygame/_sdl2/video.pxd":427
  *     cdef Color _color
  *     cdef readonly Renderer renderer
  *     cdef readonly int width             # <<<<<<<<<<<<<<
@@ -11512,7 +11529,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5width___get__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->width); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 398, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->width); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 427, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11529,7 +11546,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5width___get__(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":399
+/* "pygame/_sdl2/video.pxd":428
  *     cdef readonly Renderer renderer
  *     cdef readonly int width
  *     cdef readonly int height             # <<<<<<<<<<<<<<
@@ -11559,7 +11576,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_6height___get__(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 399, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 428, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13395,7 +13412,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6draw(struct __pyx_obj_6p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":408
+/* "pygame/_sdl2/video.pxd":437
  * cdef class Image:
  *     cdef Color _color
  *     cdef public float angle             # <<<<<<<<<<<<<<
@@ -13425,7 +13442,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5angle___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 408, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 437, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13463,7 +13480,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5angle_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 408, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 437, __pyx_L1_error)
   __pyx_v_self->angle = __pyx_t_1;
 
   /* function exit code */
@@ -13477,7 +13494,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5angle_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":411
+/* "pygame/_sdl2/video.pxd":440
  *     cdef SDL_Point _origin
  *     cdef SDL_Point* _originptr
  *     cdef public bint flipX             # <<<<<<<<<<<<<<
@@ -13507,7 +13524,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 411, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 440, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13545,7 +13562,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 411, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 440, __pyx_L1_error)
   __pyx_v_self->flipX = __pyx_t_1;
 
   /* function exit code */
@@ -13559,7 +13576,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":412
+/* "pygame/_sdl2/video.pxd":441
  *     cdef SDL_Point* _originptr
  *     cdef public bint flipX
  *     cdef public bint flipY             # <<<<<<<<<<<<<<
@@ -13589,7 +13606,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 412, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 441, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13627,7 +13644,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 412, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 441, __pyx_L1_error)
   __pyx_v_self->flipY = __pyx_t_1;
 
   /* function exit code */
@@ -13641,7 +13658,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":413
+/* "pygame/_sdl2/video.pxd":442
  *     cdef public bint flipX
  *     cdef public bint flipY
  *     cdef public float alpha             # <<<<<<<<<<<<<<
@@ -13671,7 +13688,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 413, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13709,7 +13726,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 413, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 442, __pyx_L1_error)
   __pyx_v_self->alpha = __pyx_t_1;
 
   /* function exit code */
@@ -13723,7 +13740,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":414
+/* "pygame/_sdl2/video.pxd":443
  *     cdef public bint flipY
  *     cdef public float alpha
  *     cdef public SDL_BlendMode blend_mode             # <<<<<<<<<<<<<<
@@ -13753,7 +13770,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_10blend_mode___get__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_self->blend_mode); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 414, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_self->blend_mode); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13791,7 +13808,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_10blend_mode_2__set__(struct __
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_value)); if (unlikely(PyErr_Occurred())) __PYX_ERR(2, 414, __pyx_L1_error)
+  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_value)); if (unlikely(PyErr_Occurred())) __PYX_ERR(2, 443, __pyx_L1_error)
   __pyx_v_self->blend_mode = __pyx_t_1;
 
   /* function exit code */
@@ -13805,7 +13822,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_10blend_mode_2__set__(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":416
+/* "pygame/_sdl2/video.pxd":445
  *     cdef public SDL_BlendMode blend_mode
  * 
  *     cdef public Texture texture             # <<<<<<<<<<<<<<
@@ -13863,7 +13880,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_7texture_2__set__(struct __pyx_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(2, 416, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(2, 445, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -13913,7 +13930,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_7texture_4__del__(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":417
+/* "pygame/_sdl2/video.pxd":446
  * 
  *     cdef public Texture texture
  *     cdef public Rect srcrect             # <<<<<<<<<<<<<<
@@ -13971,7 +13988,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_7srcrect_2__set__(struct __pyx_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(2, 417, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(2, 446, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -18366,6 +18383,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  *                                 format, surf.pixels, surf.pitch) < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  *         return surface
+ * 
  */
     __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1250, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
@@ -18401,6 +18419,8 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  *                                 format, surf.pixels, surf.pitch) < 0:
  *             raise error()
  *         return surface             # <<<<<<<<<<<<<<
+ * 
+ *     @staticmethod
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_surface);
@@ -18429,6 +18449,259 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   return __pyx_r;
 }
 
+/* "pygame/_sdl2/video.pyx":1254
+ * 
+ *     @staticmethod
+ *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
+ *         """ Use this function to compose a custom blend mode..
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode[] = " Use this function to compose a custom blend mode.. \n\n        :param color_mode: A tuple (srcColorFactor, dstColorFactor, colorOperation)\n        :param alpha_mode: A tuple (srcAlphaFactor, dstAlphaFactor, alphaOperation)\n        :return: A blend mode to be used with Renderer.draw_blend_mode and Texure.blend_mode\n        ";
+static PyMethodDef __pyx_mdef_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode = {"compose_custom_blend_mode", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode};
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_color_mode = 0;
+  PyObject *__pyx_v_alpha_mode = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("compose_custom_blend_mode (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_color_mode,&__pyx_n_s_alpha_mode,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_color_mode)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_alpha_mode)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, 1); __PYX_ERR(0, 1254, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compose_custom_blend_mode") < 0)) __PYX_ERR(0, 1254, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_color_mode = values[0];
+    __pyx_v_alpha_mode = values[1];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1254, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("pygame._sdl2.video.Renderer.compose_custom_blend_mode", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode(__pyx_v_color_mode, __pyx_v_alpha_mode);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode(PyObject *__pyx_v_color_mode, PyObject *__pyx_v_alpha_mode) {
+  SDL_BlendMode __pyx_v_res;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  SDL_BlendFactor __pyx_t_2;
+  SDL_BlendFactor __pyx_t_3;
+  SDL_BlendOperation __pyx_t_4;
+  SDL_BlendFactor __pyx_t_5;
+  SDL_BlendFactor __pyx_t_6;
+  SDL_BlendOperation __pyx_t_7;
+  int __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("compose_custom_blend_mode", 0);
+
+  /* "pygame/_sdl2/video.pyx":1262
+ *         """
+ *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+ *         res = SDL_ComposeCustomBlendMode(color_mode[0],             # <<<<<<<<<<<<<<
+ *                                          color_mode[1],
+ *                                          color_mode[2],
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1262, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1262, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1263
+ *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+ *         res = SDL_ComposeCustomBlendMode(color_mode[0],
+ *                                          color_mode[1],             # <<<<<<<<<<<<<<
+ *                                          color_mode[2],
+ *                                          alpha_mode[0],
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1263, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1263, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1264
+ *         res = SDL_ComposeCustomBlendMode(color_mode[0],
+ *                                          color_mode[1],
+ *                                          color_mode[2],             # <<<<<<<<<<<<<<
+ *                                          alpha_mode[0],
+ *                                          alpha_mode[1],
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1264, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1264, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1265
+ *                                          color_mode[1],
+ *                                          color_mode[2],
+ *                                          alpha_mode[0],             # <<<<<<<<<<<<<<
+ *                                          alpha_mode[1],
+ *                                          alpha_mode[2])
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1265, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_5 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1265, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1266
+ *                                          color_mode[2],
+ *                                          alpha_mode[0],
+ *                                          alpha_mode[1],             # <<<<<<<<<<<<<<
+ *                                          alpha_mode[2])
+ *         if res < 0:
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1266, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_6 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1266, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1267
+ *                                          alpha_mode[0],
+ *                                          alpha_mode[1],
+ *                                          alpha_mode[2])             # <<<<<<<<<<<<<<
+ *         if res < 0:
+ *             raise error()
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1267, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_7 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1267, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/video.pyx":1262
+ *         """
+ *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+ *         res = SDL_ComposeCustomBlendMode(color_mode[0],             # <<<<<<<<<<<<<<
+ *                                          color_mode[1],
+ *                                          color_mode[2],
+ */
+  __pyx_v_res = SDL_ComposeCustomBlendMode(__pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5, __pyx_t_6, __pyx_t_7);
+
+  /* "pygame/_sdl2/video.pyx":1268
+ *                                          alpha_mode[1],
+ *                                          alpha_mode[2])
+ *         if res < 0:             # <<<<<<<<<<<<<<
+ *             raise error()
+ *         return res
+ */
+  __pyx_t_8 = ((__pyx_v_res < 0) != 0);
+  if (unlikely(__pyx_t_8)) {
+
+    /* "pygame/_sdl2/video.pyx":1269
+ *                                          alpha_mode[2])
+ *         if res < 0:
+ *             raise error()             # <<<<<<<<<<<<<<
+ *         return res
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1269, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __pyx_t_10 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
+      __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_9);
+      if (likely(__pyx_t_10)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
+        __Pyx_INCREF(__pyx_t_10);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_9, function);
+      }
+    }
+    __pyx_t_1 = (__pyx_t_10) ? __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_10) : __Pyx_PyObject_CallNoArg(__pyx_t_9);
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1269, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __PYX_ERR(0, 1269, __pyx_L1_error)
+
+    /* "pygame/_sdl2/video.pyx":1268
+ *                                          alpha_mode[1],
+ *                                          alpha_mode[2])
+ *         if res < 0:             # <<<<<<<<<<<<<<
+ *             raise error()
+ *         return res
+ */
+  }
+
+  /* "pygame/_sdl2/video.pyx":1270
+ *         if res < 0:
+ *             raise error()
+ *         return res             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1270, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "pygame/_sdl2/video.pyx":1254
+ * 
+ *     @staticmethod
+ *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
+ *         """ Use this function to compose a custom blend mode..
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_10);
+  __Pyx_AddTraceback("pygame._sdl2.video.Renderer.compose_custom_blend_mode", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("self._renderer cannot be converted to a Python object for pickling")
@@ -18436,19 +18709,19 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_26__reduce_cython__(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__reduce_cython__(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self) {
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -18493,19 +18766,19 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26__reduce_cython__(CY
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_31__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_31__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__setstate_cython__(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_30__setstate_cython__(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_28__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_30__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -18958,8 +19231,9 @@ static PyMethodDef __pyx_methods_6pygame_5_sdl2_5video_Renderer[] = {
   {"draw_rect", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_21draw_rect, METH_O, 0},
   {"fill_rect", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_23fill_rect, METH_O, 0},
   {"to_surface", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_25to_surface, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygame_5_sdl2_5video_8Renderer_24to_surface},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__setstate_cython__, METH_O, 0},
+  {"compose_custom_blend_mode", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend_mode},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_29__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_31__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -19704,6 +19978,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_accelerated, __pyx_k_accelerated, sizeof(__pyx_k_accelerated), 0, 0, 1, 1},
   {&__pyx_n_s_allow_highdpi, __pyx_k_allow_highdpi, sizeof(__pyx_k_allow_highdpi), 0, 0, 1, 1},
   {&__pyx_n_s_alpha, __pyx_k_alpha, sizeof(__pyx_k_alpha), 0, 0, 1, 1},
+  {&__pyx_n_s_alpha_mode, __pyx_k_alpha_mode, sizeof(__pyx_k_alpha_mode), 0, 0, 1, 1},
   {&__pyx_n_s_always_on_top, __pyx_k_always_on_top, sizeof(__pyx_k_always_on_top), 0, 0, 1, 1},
   {&__pyx_n_s_angle, __pyx_k_angle, sizeof(__pyx_k_angle), 0, 0, 1, 1},
   {&__pyx_n_s_area, __pyx_k_area, sizeof(__pyx_k_area), 0, 0, 1, 1},
@@ -19723,6 +19998,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_close, __pyx_k_close, sizeof(__pyx_k_close), 0, 0, 1, 1},
   {&__pyx_n_s_color, __pyx_k_color, sizeof(__pyx_k_color), 0, 0, 1, 1},
+  {&__pyx_n_s_color_mode, __pyx_k_color_mode, sizeof(__pyx_k_color_mode), 0, 0, 1, 1},
+  {&__pyx_n_s_compose_custom_blend_mode, __pyx_k_compose_custom_blend_mode, sizeof(__pyx_k_compose_custom_blend_mode), 0, 0, 1, 1},
   {&__pyx_n_s_data, __pyx_k_data, sizeof(__pyx_k_data), 0, 0, 1, 1},
   {&__pyx_n_s_depth, __pyx_k_depth, sizeof(__pyx_k_depth), 0, 0, 1, 1},
   {&__pyx_n_s_desktop, __pyx_k_desktop, sizeof(__pyx_k_desktop), 0, 0, 1, 1},
@@ -19811,6 +20088,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_renderer, __pyx_k_renderer, sizeof(__pyx_k_renderer), 0, 0, 1, 1},
   {&__pyx_n_s_renderer_2, __pyx_k_renderer_2, sizeof(__pyx_k_renderer_2), 0, 0, 1, 1},
   {&__pyx_n_s_repr, __pyx_k_repr, sizeof(__pyx_k_repr), 0, 0, 1, 1},
+  {&__pyx_n_s_res, __pyx_k_res, sizeof(__pyx_k_res), 0, 0, 1, 1},
   {&__pyx_n_s_resizable, __pyx_k_resizable, sizeof(__pyx_k_resizable), 0, 0, 1, 1},
   {&__pyx_n_s_ret, __pyx_k_ret, sizeof(__pyx_k_ret), 0, 0, 1, 1},
   {&__pyx_n_s_return_button, __pyx_k_return_button, sizeof(__pyx_k_return_button), 0, 0, 1, 1},
@@ -20295,6 +20573,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__45);
   __Pyx_GIVEREF(__pyx_tuple__45);
   __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_from_surface, 619, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 619, __pyx_L1_error)
+
+  /* "pygame/_sdl2/video.pyx":1254
+ * 
+ *     @staticmethod
+ *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
+ *         """ Use this function to compose a custom blend mode..
+ * 
+ */
+  __pyx_tuple__47 = PyTuple_Pack(3, __pyx_n_s_color_mode, __pyx_n_s_alpha_mode, __pyx_n_s_res); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 1254, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__47);
+  __Pyx_GIVEREF(__pyx_tuple__47);
+  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_compose_custom_blend_mode, 1254, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 1254, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -20355,12 +20645,12 @@ static int __Pyx_modinit_type_init_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  __pyx_t_1 = PyImport_ImportModule("pygame"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 371, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("pygame"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 400, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_6pygame_5_sdl2_5video_Color = __Pyx_ImportType(__pyx_t_1, "pygame", "Color", sizeof(pgColorObject), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_6pygame_5_sdl2_5video_Color) __PYX_ERR(2, 371, __pyx_L1_error)
+   if (!__pyx_ptype_6pygame_5_sdl2_5video_Color) __PYX_ERR(2, 400, __pyx_L1_error)
   __pyx_ptype_6pygame_5_sdl2_5video_Rect = __Pyx_ImportType(__pyx_t_1, "pygame", "Rect", sizeof(pgRectObject), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_6pygame_5_sdl2_5video_Rect) __PYX_ERR(2, 375, __pyx_L1_error)
+   if (!__pyx_ptype_6pygame_5_sdl2_5video_Rect) __PYX_ERR(2, 404, __pyx_L1_error)
   if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Window) < 0) __PYX_ERR(0, 182, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6pygame_5_sdl2_5video_Window.tp_print = 0;
@@ -21255,15 +21545,44 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
 
+  /* "pygame/_sdl2/video.pyx":1254
+ * 
+ *     @staticmethod
+ *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
+ *         """ Use this function to compose a custom blend mode..
+ * 
+ */
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode, NULL, __pyx_n_s_pygame__sdl2_video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1254, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_2) < 0) __PYX_ERR(0, 1254, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
+
+  /* "pygame/_sdl2/video.pyx":1253
+ *         return surface
+ * 
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def compose_custom_blend_mode(color_mode, alpha_mode):
+ *         """ Use this function to compose a custom blend mode..
+ */
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer, __pyx_n_s_compose_custom_blend_mode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1254, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1253, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_1) < 0) __PYX_ERR(0, 1254, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
+
   /* "pygame/_sdl2/video.pyx":1
  * from cpython cimport PyObject             # <<<<<<<<<<<<<<
  * from . import error
  * from . import error as errorfnc
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -25704,6 +26023,398 @@ raise_neg_overflow:
     PyErr_SetString(PyExc_OverflowError,
         "can't convert negative value to SDL_BlendMode");
     return (SDL_BlendMode) -1;
+}
+
+/* CIntFromPy */
+static CYTHON_INLINE SDL_BlendFactor __Pyx_PyInt_As_SDL_BlendFactor(PyObject *x) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const SDL_BlendFactor neg_one = (SDL_BlendFactor) -1, const_zero = (SDL_BlendFactor) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+#if PY_MAJOR_VERSION < 3
+    if (likely(PyInt_Check(x))) {
+        if (sizeof(SDL_BlendFactor) < sizeof(long)) {
+            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, long, PyInt_AS_LONG(x))
+        } else {
+            long val = PyInt_AS_LONG(x);
+            if (is_unsigned && unlikely(val < 0)) {
+                goto raise_neg_overflow;
+            }
+            return (SDL_BlendFactor) val;
+        }
+    } else
+#endif
+    if (likely(PyLong_Check(x))) {
+        if (is_unsigned) {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (SDL_BlendFactor) 0;
+                case  1: __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, digit, digits[0])
+                case 2:
+                    if (8 * sizeof(SDL_BlendFactor) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) >= 2 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((((SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0]));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(SDL_BlendFactor) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) >= 3 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((((((SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0]));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(SDL_BlendFactor) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) >= 4 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((((((((SDL_BlendFactor)digits[3]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0]));
+                        }
+                    }
+                    break;
+            }
+#endif
+#if CYTHON_COMPILING_IN_CPYTHON
+            if (unlikely(Py_SIZE(x) < 0)) {
+                goto raise_neg_overflow;
+            }
+#else
+            {
+                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
+                if (unlikely(result < 0))
+                    return (SDL_BlendFactor) -1;
+                if (unlikely(result == 1))
+                    goto raise_neg_overflow;
+            }
+#endif
+            if (sizeof(SDL_BlendFactor) <= sizeof(unsigned long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendFactor, unsigned long, PyLong_AsUnsignedLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(SDL_BlendFactor) <= sizeof(unsigned PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendFactor, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+#endif
+            }
+        } else {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (SDL_BlendFactor) 0;
+                case -1: __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, sdigit, (sdigit) (-(sdigit)digits[0]))
+                case  1: __PYX_VERIFY_RETURN_INT(SDL_BlendFactor,  digit, +digits[0])
+                case -2:
+                    if (8 * sizeof(SDL_BlendFactor) - 1 > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 2 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((SDL_BlendFactor)-1)*(((((SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+                case 2:
+                    if (8 * sizeof(SDL_BlendFactor) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 2 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) ((((((SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+                case -3:
+                    if (8 * sizeof(SDL_BlendFactor) - 1 > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 3 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((SDL_BlendFactor)-1)*(((((((SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(SDL_BlendFactor) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 3 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) ((((((((SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+                case -4:
+                    if (8 * sizeof(SDL_BlendFactor) - 1 > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 4 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) (((SDL_BlendFactor)-1)*(((((((((SDL_BlendFactor)digits[3]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(SDL_BlendFactor) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendFactor, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendFactor) - 1 > 4 * PyLong_SHIFT) {
+                            return (SDL_BlendFactor) ((((((((((SDL_BlendFactor)digits[3]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[2]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[1]) << PyLong_SHIFT) | (SDL_BlendFactor)digits[0])));
+                        }
+                    }
+                    break;
+            }
+#endif
+            if (sizeof(SDL_BlendFactor) <= sizeof(long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendFactor, long, PyLong_AsLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(SDL_BlendFactor) <= sizeof(PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendFactor, PY_LONG_LONG, PyLong_AsLongLong(x))
+#endif
+            }
+        }
+        {
+#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
+            PyErr_SetString(PyExc_RuntimeError,
+                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
+#else
+            SDL_BlendFactor val;
+            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
+ #if PY_MAJOR_VERSION < 3
+            if (likely(v) && !PyLong_Check(v)) {
+                PyObject *tmp = v;
+                v = PyNumber_Long(tmp);
+                Py_DECREF(tmp);
+            }
+ #endif
+            if (likely(v)) {
+                int one = 1; int is_little = (int)*(unsigned char *)&one;
+                unsigned char *bytes = (unsigned char *)&val;
+                int ret = _PyLong_AsByteArray((PyLongObject *)v,
+                                              bytes, sizeof(val),
+                                              is_little, !is_unsigned);
+                Py_DECREF(v);
+                if (likely(!ret))
+                    return val;
+            }
+#endif
+            return (SDL_BlendFactor) -1;
+        }
+    } else {
+        SDL_BlendFactor val;
+        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
+        if (!tmp) return (SDL_BlendFactor) -1;
+        val = __Pyx_PyInt_As_SDL_BlendFactor(tmp);
+        Py_DECREF(tmp);
+        return val;
+    }
+raise_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "value too large to convert to SDL_BlendFactor");
+    return (SDL_BlendFactor) -1;
+raise_neg_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "can't convert negative value to SDL_BlendFactor");
+    return (SDL_BlendFactor) -1;
+}
+
+/* CIntFromPy */
+static CYTHON_INLINE SDL_BlendOperation __Pyx_PyInt_As_SDL_BlendOperation(PyObject *x) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const SDL_BlendOperation neg_one = (SDL_BlendOperation) -1, const_zero = (SDL_BlendOperation) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+#if PY_MAJOR_VERSION < 3
+    if (likely(PyInt_Check(x))) {
+        if (sizeof(SDL_BlendOperation) < sizeof(long)) {
+            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, long, PyInt_AS_LONG(x))
+        } else {
+            long val = PyInt_AS_LONG(x);
+            if (is_unsigned && unlikely(val < 0)) {
+                goto raise_neg_overflow;
+            }
+            return (SDL_BlendOperation) val;
+        }
+    } else
+#endif
+    if (likely(PyLong_Check(x))) {
+        if (is_unsigned) {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (SDL_BlendOperation) 0;
+                case  1: __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, digit, digits[0])
+                case 2:
+                    if (8 * sizeof(SDL_BlendOperation) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) >= 2 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((((SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0]));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(SDL_BlendOperation) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) >= 3 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((((((SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0]));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(SDL_BlendOperation) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) >= 4 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((((((((SDL_BlendOperation)digits[3]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0]));
+                        }
+                    }
+                    break;
+            }
+#endif
+#if CYTHON_COMPILING_IN_CPYTHON
+            if (unlikely(Py_SIZE(x) < 0)) {
+                goto raise_neg_overflow;
+            }
+#else
+            {
+                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
+                if (unlikely(result < 0))
+                    return (SDL_BlendOperation) -1;
+                if (unlikely(result == 1))
+                    goto raise_neg_overflow;
+            }
+#endif
+            if (sizeof(SDL_BlendOperation) <= sizeof(unsigned long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendOperation, unsigned long, PyLong_AsUnsignedLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(SDL_BlendOperation) <= sizeof(unsigned PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendOperation, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+#endif
+            }
+        } else {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (SDL_BlendOperation) 0;
+                case -1: __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, sdigit, (sdigit) (-(sdigit)digits[0]))
+                case  1: __PYX_VERIFY_RETURN_INT(SDL_BlendOperation,  digit, +digits[0])
+                case -2:
+                    if (8 * sizeof(SDL_BlendOperation) - 1 > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 2 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((SDL_BlendOperation)-1)*(((((SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+                case 2:
+                    if (8 * sizeof(SDL_BlendOperation) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 2 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) ((((((SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+                case -3:
+                    if (8 * sizeof(SDL_BlendOperation) - 1 > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 3 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((SDL_BlendOperation)-1)*(((((((SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(SDL_BlendOperation) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 3 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) ((((((((SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+                case -4:
+                    if (8 * sizeof(SDL_BlendOperation) - 1 > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 4 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) (((SDL_BlendOperation)-1)*(((((((((SDL_BlendOperation)digits[3]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(SDL_BlendOperation) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(SDL_BlendOperation, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(SDL_BlendOperation) - 1 > 4 * PyLong_SHIFT) {
+                            return (SDL_BlendOperation) ((((((((((SDL_BlendOperation)digits[3]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[2]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[1]) << PyLong_SHIFT) | (SDL_BlendOperation)digits[0])));
+                        }
+                    }
+                    break;
+            }
+#endif
+            if (sizeof(SDL_BlendOperation) <= sizeof(long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendOperation, long, PyLong_AsLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(SDL_BlendOperation) <= sizeof(PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(SDL_BlendOperation, PY_LONG_LONG, PyLong_AsLongLong(x))
+#endif
+            }
+        }
+        {
+#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
+            PyErr_SetString(PyExc_RuntimeError,
+                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
+#else
+            SDL_BlendOperation val;
+            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
+ #if PY_MAJOR_VERSION < 3
+            if (likely(v) && !PyLong_Check(v)) {
+                PyObject *tmp = v;
+                v = PyNumber_Long(tmp);
+                Py_DECREF(tmp);
+            }
+ #endif
+            if (likely(v)) {
+                int one = 1; int is_little = (int)*(unsigned char *)&one;
+                unsigned char *bytes = (unsigned char *)&val;
+                int ret = _PyLong_AsByteArray((PyLongObject *)v,
+                                              bytes, sizeof(val),
+                                              is_little, !is_unsigned);
+                Py_DECREF(v);
+                if (likely(!ret))
+                    return val;
+            }
+#endif
+            return (SDL_BlendOperation) -1;
+        }
+    } else {
+        SDL_BlendOperation val;
+        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
+        if (!tmp) return (SDL_BlendOperation) -1;
+        val = __Pyx_PyInt_As_SDL_BlendOperation(tmp);
+        Py_DECREF(tmp);
+        return val;
+    }
+raise_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "value too large to convert to SDL_BlendOperation");
+    return (SDL_BlendOperation) -1;
+raise_neg_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "can't convert negative value to SDL_BlendOperation");
+    return (SDL_BlendOperation) -1;
 }
 
 /* CIntFromPy */

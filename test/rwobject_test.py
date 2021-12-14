@@ -1,9 +1,7 @@
-import sys
+import pathlib
 import unittest
 
 from pygame import encode_string, encode_file_path
-
-import pathlib
 
 
 class RWopsEncodeStringTest(unittest.TestCase):
