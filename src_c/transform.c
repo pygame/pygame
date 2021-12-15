@@ -59,6 +59,33 @@ extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
 static int
+_get_factor(PyObject* factorobj, float* x, float* y) {
+    Py_ssize_t len = PyObject_Length(factorobj);
+    if (PyErr_Occurred()) {
+        PyErr_Clear();
+    }
+
+    if (len > 2) {
+        PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+        return 0;
+    }
+    if (len == 2) {
+        if (!pg_TwoFloatsFromObj(factorobj, x, y)) {
+            PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+            return 0;
+        }
+        return 1;
+    }
+    if (!pg_FloatFromObj(factorobj, x)) {
+        PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+        return 0;
+    }
+    *y = *x;
+    return 1;
+}
+
+#if IS_SDLv2
+static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
 {
     if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
@@ -555,33 +582,25 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *surfobj;
     PyObject *surfobj2 = NULL;
     PyObject *new_args = NULL;
-    PyObject *scale_obj = NULL;
-    PyObject *scaley_obj = Py_None;
+    PyObject *factorobj = NULL;
     float scale, scaley;
     SDL_Surface *surf;
     int width, height;
-    static char *keywords[] = {"surface", "scale", "scale_y", "dest_surface", NULL};
+    static char *keywords[] = {"surface", "factor", "dest_surface", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OO", keywords, 
-                                     &surfobj, &scale_obj, &scaley_obj, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, 
+                                     &surfobj, &factorobj, &surfobj2))
         return NULL;
+
+    if (!_get_factor(factorobj, &scale, &scaley)) {
+        printf("returning here\n");
+        return NULL;
+    }
 
     surf = pgSurface_AsSurface(surfobj);
 
-    if (!pg_FloatFromObj(scale_obj, &scale)) {
-        return RAISE(PyExc_TypeError, "'scale' argument must be a number");
-    }
-
     width = (int)(surf->w * scale);
-    if (scaley_obj != Py_None) {
-        if (!pg_FloatFromObj(scaley_obj, &scaley)) {
-            return RAISE(PyExc_TypeError, "'scale_y' argument must be a number");
-        }
-        height = (int)(surf->h * scaley);
-    }
-    else {
-        height = (int)(surf->h * scale);
-    }
+    height = (int)(surf->h * scaley);
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
@@ -1524,33 +1543,24 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *surfobj;
     PyObject *surfobj2 = NULL;
     PyObject *new_args = NULL;
-    PyObject *scale_obj = NULL;
-    PyObject *scaley_obj = Py_None;
+    PyObject *factorobj = NULL;
     float scale, scaley;
     SDL_Surface *surf;
     int width, height;
-    static char *keywords[] = {"surface", "scale", "scale_y", "dest_surface", NULL};
+    static char *keywords[] = {"surface", "factor", "dest_surface", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OO", keywords, 
-                                     &surfobj, &scale_obj, &scaley_obj, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, 
+                                     &surfobj, &factorobj, &surfobj2))
         return NULL;
+
+    if (!_get_factor(factorobj, &scale, &scaley)) {
+        return NULL;
+    }
 
     surf = pgSurface_AsSurface(surfobj);
 
-    if (!pg_FloatFromObj(scale_obj, &scale)) {
-        return RAISE(PyExc_TypeError, "'scale' argument must be a number");
-    }
-
     width = (int)(surf->w * scale);
-    if (scaley_obj != Py_None) {
-        if (!pg_FloatFromObj(scaley_obj, &scaley)) {
-            return RAISE(PyExc_TypeError, "'scale_y' argument must be a number");
-        }
-        height = (int)(surf->h * scaley);
-    }
-    else {
-        height = (int)(surf->h * scale);
-    }
+    height = (int)(surf->h * scaley);
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");

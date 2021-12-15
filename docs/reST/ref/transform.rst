@@ -52,16 +52,16 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: scale_by
 
    | :sl:`resize to new resolution, using scalar(s)`
-   | :sg:`scale_by(surface, scale, scale_y=None, dest_surface=None) -> Surface`
+   | :sg:`scale_by(surface, factor, dest_surface=None) -> Surface`
 
-   Same as :func:`scale()`, but takes a scalar instead of the new size itself.
-   For example, :code:`transform.scale_by(surf, 3)` will triple the size of
-   the surface in both dimensions. Optionally, a ``scale_y`` argument can be
-   specified, which allows scaling a Surface separately in two dimensions.
+   Same as :func:`scale()`, but scales by some factor, rather than taking
+   the new size explicitly. For example, :code:`transform.scale_by(surf, 3)`
+   will triple the size of the surface in both dimensions. Optionally, the
+   scale factor can be a sequence of two numbers, controlling x and y scaling
+   separately. For example, :code:`transform.scale_by(surf, (2, 1))` doubles
+   the image width but keeps the height the same.
 
-   `scale` and `scale_y` can be floats.
-
-   .. versionadded:: 2.0.2
+   .. versionadded:: 2.1.1
 
    .. ## pygame.transform.scale_by ##
 
@@ -135,17 +135,17 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: smoothscale_by
 
    | :sl:`resize to new resolution, using scalar(s)`
-   | :sg:`smoothscale_by(surface, scale, scale_y=None, dest_surface=None) -> Surface`
+   | :sg:`smoothscale_by(surface, factor, dest_surface=None) -> Surface`
 
-   Same as :func:`smoothscale()`, but takes a scalar instead of the new size
-   itself. For example, :code:`transform.scale_by(surf, 3)` will triple the
-   size of the surface in both dimensions. Optionally, a ``scale_y`` argument
-   can be specified, which allows scaling a Surface separately in two
-   dimensions.
+   Same as :func:`smoothscale()`, but scales by some factor, rather than
+   taking the new size explicitly. For example,
+   :code:`transform.smoothscale_by(surf, 3)` will triple the size of the
+   surface in both dimensions. Optionally, the scale factor can be a sequence
+   of two numbers, controlling x and y scaling separately. For example,
+   :code:`transform.smoothscale_by(surf, (2, 1))` doubles the image width but
+   keeps the height the same.
 
-   `scale` and `scale_y` can be floats.
-
-   .. versionadded:: 2.0.2
+   .. versionadded:: 2.1.1
 
    .. ## pygame.transform.smoothscale_by ##
 

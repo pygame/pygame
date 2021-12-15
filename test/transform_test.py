@@ -140,11 +140,11 @@ class TransformModuleTest(unittest.TestCase):
         s2 = pygame.transform.scale_by(s, 2)
         self.assertEqual((64,64), s2.get_size())
 
-        s2 = pygame.transform.scale_by(s, scale=2.0, scale_y=1.5)
+        s2 = pygame.transform.scale_by(s, factor=(2.0, 1.5))
         self.assertEqual((64,48), s2.get_size())
 
         dest = pygame.Surface((64,48))
-        pygame.transform.scale_by(s, 2.0, 1.5, dest_surface=dest)
+        pygame.transform.scale_by(s, (2.0, 1.5), dest_surface=dest)
 
     def test_smoothscale_by(self):
         s = pygame.Surface((32, 32))
@@ -152,11 +152,11 @@ class TransformModuleTest(unittest.TestCase):
         s2 = pygame.transform.smoothscale_by(s, 2)
         self.assertEqual((64,64), s2.get_size())
 
-        s2 = pygame.transform.smoothscale_by(s, scale=2.0, scale_y=1.5)
+        s2 = pygame.transform.smoothscale_by(s, factor=(2.0, 1.5))
         self.assertEqual((64,48), s2.get_size())
 
         dest = pygame.Surface((64,48))
-        pygame.transform.smoothscale_by(s, 2.0, 1.5, dest_surface=dest)
+        pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
 
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
