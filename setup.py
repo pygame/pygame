@@ -254,41 +254,6 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
-
-if consume_arg('docs'):
-    """
-    For building the pygame documentation.
-
-    This generates html, and documentation .h header files.
-    """
-
-    full_generation = consume_arg('--fullgeneration') or consume_arg('--f')
-
-    docs_help = (
-        "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
-    )
-
-    import subprocess
-
-    try:
-        print("Using python:", sys.executable)
-        command_line = [
-            sys.executable, os.path.join('buildconfig', 'makeref.py')
-        ]
-        if full_generation:
-            command_line.append('full_generation')
-        if subprocess.call(
-                command_line
-        ) != 0:
-            raise Exception
-    except Exception:
-        print(docs_help)
-
-    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
-    if len(sys.argv) == 1:
-        sys.exit()
-
-
 no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
 AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
 if consume_arg('-auto'):
@@ -863,6 +828,42 @@ class LintCommand(LintFormatCommand):
 @add_command("format")
 class FormatCommand(LintFormatCommand):
     format = True
+
+
+@add_command('docs')
+class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+    This generates html, and documentation .h header files.
+    """
+    user_options = [
+        (
+            'fullgeneration',
+            'f',
+            'Full generation. Do not use a saved environment, always read all files.'
+        )
+    ]
+    boolean_options = ['fullgeneration']
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+        self.fullgeneration = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs Sphinx to build the docs.
+        '''
+        import subprocess
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if self.fullgeneration:
+            command_line.append('full_generation')
+        if subprocess.call(command_line) != 0:
+            raise SystemExit("Failed to build documentation")
 
 
 # Prune empty file lists.
