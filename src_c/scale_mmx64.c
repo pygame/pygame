@@ -53,6 +53,8 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     long long One64 = 0x4000400040004000ULL;
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
+
+    // clang-format off
     asm __volatile__(
         " /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
@@ -135,6 +137,7 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
           "m"(srcdiff64), "m"(dstdiff64) /* inputs */
         : "%ecx", "%edx"                 /* clobbered */
     );
+    // clang-format on
 }
 
 void
@@ -149,6 +152,8 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     long long One64 = 0x4000400040004000ULL;
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
+
+    // clang-format off
     asm __volatile__(
         " /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
@@ -206,6 +211,7 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
           "m"(srcdiff64), "m"(dstdiff64) /* inputs */
         : "%ecx", "%edx"                 /* clobbered */
     );
+    // clang-format on
 }
 
 /* These functions implement an area-averaging shrinking filter in the
@@ -230,6 +236,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
+
+    // clang-format off
     asm __volatile__(
         " /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
@@ -321,6 +329,7 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
           "m"(srcdiff64), "m"(dstdiff64), "m"(One64) /* input */
         : "%ecx", "%edx", "%rax"                     /* clobbered */
     );
+    // clang-format on
 
     /* free the temporary memory */
     free(templine);
@@ -345,6 +354,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
+
+    // clang-format off
     asm __volatile__(
         " /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
@@ -409,6 +420,7 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
           "m"(srcdiff64), "m"(dstdiff64), "m"(One64) /* input */
         : "%ecx", "%edx", "%rax"                     /* clobbered */
     );
+    // clang-format on
 
     /* free the temporary memory */
     free(templine);
@@ -457,6 +469,8 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
         int *xm0 = xmult0;
         int *xm1 = xmult1;
         int *x0 = xidx0;
+
+        // clang-format off
         asm __volatile__(
             " /* MMX code for inner loop of X bilinear filter */ "
             " movl             %5,      %%ecx;           "
@@ -486,6 +500,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
             : "r"(srcrow0), "m"(dstwidth)                  /* input */
             : "%ecx", "%rax"                               /* clobbered */
         );
+        // clang-format on
     }
 
     /* free memory */
@@ -535,6 +550,8 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
         int *xm0 = xmult0;
         int *xm1 = xmult1;
         int *x0 = xidx0;
+
+        // clang-format off
         asm __volatile__(
             " /* MMX code for inner loop of X bilinear filter */ "
             " movl             %5,      %%ecx;           "
@@ -564,6 +581,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
             : "r"(srcrow0), "m"(dstwidth)                  /* input */
             : "%ecx", "%rax"                               /* clobbered */
         );
+        // clang-format on
     }
 
     /* free memory */
@@ -587,6 +605,8 @@ filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
         int ymult1 = 0x0100 * ((y * (srcheight - 1)) % dstheight) / dstheight;
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
+
+        // clang-format off
         asm __volatile__(
             " /* MMX code for inner loop of Y bilinear filter */ "
             " movl          %5,      %%ecx;                      "
@@ -618,6 +638,7 @@ filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
             : "m"(ymult0), "m"(ymult1), "m"(width)       /* input */
             : "%ecx"                                     /* clobbered */
         );
+        // clang-format on
     }
 }
 
@@ -634,6 +655,8 @@ filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
         int ymult1 = 0x0100 * ((y * (srcheight - 1)) % dstheight) / dstheight;
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
+
+        // clang-format off
         asm __volatile__(
             " /* MMX code for inner loop of Y bilinear filter */ "
             " movl          %5,      %%ecx;                      "
@@ -663,5 +686,6 @@ filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
             : "m"(ymult0), "m"(ymult1), "m"(width)       /* input */
             : "%ecx"                                     /* clobbered */
         );
+        // clang-format on
     }
 }
