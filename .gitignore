@@ -42,3 +42,10 @@ dist
 *.egg-info/
 *.so
 __pycache__
+src_c/_sdl2/audio.c
+src_c/_sdl2/controller.c
+src_c/_sdl2/mixer.c
+src_c/_sdl2/sdl2.c
+src_c/_sdl2/video.c
+src_c/_sprite.c
+src_c/pypm.c

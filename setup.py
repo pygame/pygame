@@ -183,7 +183,41 @@ if consume_arg('-enable-arm-neon'):
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
 
-if consume_arg('cython'):
+if consume_arg('docs'):
+    """ 
+    For building the pygame documentation.
+
+    This generates html, and documentation .h header files.
+    """
+
+    full_generation = consume_arg('--fullgeneration') or consume_arg('--f')
+
+    docs_help = (
+        "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
+    )
+
+    import subprocess
+
+    try:
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if full_generation:
+            command_line.append('full_generation')
+        if subprocess.call(
+                command_line
+        ) != 0:
+            raise Exception
+    except Exception:
+        print(docs_help)
+
+    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
+    if len(sys.argv) == 1:
+        sys.exit()
+
+
+if consume_arg('cython') or True:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
@@ -253,40 +287,6 @@ if consume_arg('cython'):
     for i, kwargs in enumerate(queue):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
-
-if consume_arg('docs'):
-    """ 
-    For building the pygame documentation.
-
-    This generates html, and documentation .h header files.
-    """
-
-    full_generation = consume_arg('--fullgeneration') or consume_arg('--f')
-
-    docs_help = (
-        "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
-    )
-
-    import subprocess
-
-    try:
-        print("Using python:", sys.executable)
-        command_line = [
-            sys.executable, os.path.join('buildconfig', 'makeref.py')
-        ]
-        if full_generation:
-            command_line.append('full_generation')
-        if subprocess.call(
-                command_line
-        ) != 0:
-            raise Exception
-    except Exception:
-        print(docs_help)
-
-    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
-    if len(sys.argv) == 1:
-        sys.exit()
-
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
