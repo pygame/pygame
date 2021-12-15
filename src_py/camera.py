@@ -76,10 +76,7 @@ def _setup_vidcapture():
 def get_backends():
     possible_backends = []
 
-    if (
-        sys.platform == "win32"
-        and int(platform.win32_ver()[0]) > 8
-    ):
+    if sys.platform == "win32" and int(platform.win32_ver()[0]) > 8:
         possible_backends.append("_camera (MSMF)")
 
     if "linux" in sys.platform:
