@@ -40,3 +40,14 @@ jobs:
 
       - name: Check code Formatting and Linting
         run: python3 setup.py lint
+
+      - name: Check docs changes are checked in
+        run: |
+          python3 setup.py docs
+          if [[ `git status --porcelain` ]]; then
+            echo "Generating docs caused changes. Please check them in."
+            echo "You may need to run: python3 setup.py docs --fullgeneration"
+            # Run git status again, so people can see what changed.
+            git status --porcelain
+            exit 1
+          fi
