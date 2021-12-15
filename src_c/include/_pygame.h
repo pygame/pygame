@@ -298,9 +298,9 @@ typedef struct {
     (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))PYGAMEAPI_GET_SLOT( \
         surface, 3))
 
-#define pgSurface_Blit                                            \
-    (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, SDL_Rect *, \
-               SDL_Rect *, int))PYGAMEAPI_GET_SLOT(surface, 2))
+#define pgSurface_Blit                                                       \
+    (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, SDL_Rect *, SDL_Rect *, \
+               int))PYGAMEAPI_GET_SLOT(surface, 2))
 
 #define import_pygame_surface()         \
     do {                                \

@@ -1039,7 +1039,8 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
     }
 
     if (steps < 2) {
-        PyErr_SetString(PyExc_ValueError, "steps parameter must be greater than 1");
+        PyErr_SetString(PyExc_ValueError,
+                        "steps parameter must be greater than 1");
         return NULL;
     }
 

@@ -73,7 +73,8 @@ static SDL_mutex *_pg_img_mutex = 0;
 
 #ifdef WIN32
 #include <windows.h>
-#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
+#define pg_RWflush(rwops) \
+    (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
 
 #else /* ~WIN32 */
 #define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
@@ -122,7 +123,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         lock_mutex = !strcasecmp(ext, "gif");
     Py_BEGIN_ALLOW_THREADS;
     if (0) {
-        /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+        /* using multiple threads does not work for (at least) SDL_image
+         * <= 2.0.4 */
         SDL_LockMutex(_pg_img_mutex);
         surf = IMG_LoadTyped_RW(rw, 1, ext);
         SDL_UnlockMutex(_pg_img_mutex);
@@ -131,7 +133,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         surf = IMG_LoadTyped_RW(rw, 1, ext);
     }
     Py_END_ALLOW_THREADS;
-#else /* ~WITH_THREAD */
+#else  /* ~WITH_THREAD */
     surf = IMG_LoadTyped_RW(rw, 1, ext);
 #endif /* ~WITH_THREAD */
 
@@ -153,7 +155,8 @@ png_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
     SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
     if (SDL_RWwrite(rwops, data, 1, length) != length) {
         SDL_RWclose(rwops);
-        png_error(png_ptr, "Error while writing to the PNG file (SDL_RWwrite)");
+        png_error(png_ptr,
+                  "Error while writing to the PNG file (SDL_RWwrite)");
     }
 }
 
@@ -345,8 +348,8 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
 typedef struct {
     struct jpeg_destination_mgr pub; /* public fields */
 
-    SDL_RWops *outfile;  /* target stream */
-    JOCTET *buffer; /* start of buffer */
+    SDL_RWops *outfile; /* target stream */
+    JOCTET *buffer;     /* start of buffer */
 } j_outfile_mgr;
 
 static void
@@ -386,7 +389,8 @@ j_term_destination(j_compress_ptr cinfo)
 
     /* Write any data remaining in the buffer */
     if (datacount > 0) {
-        if (SDL_RWwrite(dest->outfile, dest->buffer, 1, datacount) != datacount) {
+        if (SDL_RWwrite(dest->outfile, dest->buffer, 1, datacount) !=
+            datacount) {
             ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
@@ -575,7 +579,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
 
 #endif /* end if JPEGLIB_H */
 
-
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
 {
@@ -588,8 +591,8 @@ image_save_ext(PyObject *self, PyObject *arg)
     const char *name = NULL;
     SDL_RWops *rw = NULL;
 
-    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
-                &obj, &namehint)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj, &obj,
+                          &namehint)) {
         return NULL;
     }
 
@@ -621,30 +624,31 @@ image_save_ext(PyObject *self, PyObject *arg)
         const char *ext = find_extension(name);
         if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
 #if (SDL_IMAGE_MAJOR_VERSION * 1000 + SDL_IMAGE_MINOR_VERSION * 100 + \
-        SDL_IMAGE_PATCHLEVEL) < 2002
+     SDL_IMAGE_PATCHLEVEL) < 2002
             /* SDL_Image is a version less than 2.0.2 and therefore does not
              * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
              */
             if (rw != NULL) {
                 PyErr_SetString(pgExc_SDLError,
-                        "SDL_Image 2.0.2 or newer needed to save "
-                        "jpeg to a fileobject.");
+                                "SDL_Image 2.0.2 or newer needed to save "
+                                "jpeg to a fileobject.");
                 result = -2;
             }
             else {
 #ifdef JPEGLIB_H
-            /* jpg save functions seem *NOT* thread safe at least on windows.
-             */
-            /*
-            Py_BEGIN_ALLOW_THREADS;
-            */
+                /* jpg save functions seem *NOT* thread safe at least on
+                 * windows.
+                 */
+                /*
+                Py_BEGIN_ALLOW_THREADS;
+                */
                 result = SaveJPEG(surf, name);
-            /*
-            Py_END_ALLOW_THREADS;
-            */
+                /*
+                Py_END_ALLOW_THREADS;
+                */
 #else
-                PyErr_SetString(
-                        pgExc_SDLError, "No support for jpg compiled in.");
+                PyErr_SetString(pgExc_SDLError,
+                                "No support for jpg compiled in.");
                 result = -2;
 #endif /* ~JPEGLIB_H */
             }
@@ -663,8 +667,8 @@ image_save_ext(PyObject *self, PyObject *arg)
                  * try calling the pygame SaveJPEG function.
                  */
                 if (result == -1) {
-                    if (strstr(SDL_GetError(),
-                                "not built with jpeglib") != NULL) {
+                    if (strstr(SDL_GetError(), "not built with jpeglib") !=
+                        NULL) {
                         SDL_ClearError();
                         result = SaveJPEG(surf, name);
                     }
@@ -679,8 +683,7 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = SavePNG(surf, name, rw);
             /*Py_END_ALLOW_THREADS; */
 #else
-            PyErr_SetString(
-                    pgExc_SDLError, "No support for png compiled in.");
+            PyErr_SetString(pgExc_SDLError, "No support for png compiled in.");
             result = -2;
 #endif /* ~PNG_H */
         }
@@ -704,11 +707,11 @@ image_save_ext(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject*
+static PyObject *
 image_get_sdl_image_version(PyObject *self, PyObject *arg)
 {
     return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
-            SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+                         SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
 }
 
 #ifdef WITH_THREAD
@@ -726,8 +729,8 @@ static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"_get_sdl_image_version", image_get_sdl_image_version, METH_NOARGS,
-        "_get_sdl_image_version() -> (major, minor, patch)\n"
-            "Note: Should not be used directly."},
+     "_get_sdl_image_version() -> (major, minor, patch)\n"
+     "Note: Should not be used directly."},
     {NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _imageext_doc[] =
@@ -735,17 +738,12 @@ static PyMethodDef _imageext_methods[] = {
 
 MODINIT_DEFINE(imageext)
 {
-    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
-                                         "imageext",
-                                         _imageext_doc,
-                                         -1,
-                                         _imageext_methods,
-                                         NULL,
-                                         NULL,
-                                         NULL,
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT, "imageext", _imageext_doc, -1,
+        _imageext_methods,     NULL,       NULL,          NULL,
 #ifdef WITH_THREAD
-                                         _imageext_free};
-#else /* ~WITH_THREAD */
+        _imageext_free};
+#else  /* ~WITH_THREAD */
                                          0};
 #endif /* ~WITH_THREAD */
 
