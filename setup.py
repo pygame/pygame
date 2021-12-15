@@ -254,8 +254,9 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
+
 if consume_arg('docs'):
-    """ 
+    """
     For building the pygame documentation.
 
     This generates html, and documentation .h header files.
@@ -288,7 +289,8 @@ if consume_arg('docs'):
         sys.exit()
 
 
-AUTO_CONFIG = False
+no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
+AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
 if consume_arg('-auto'):
     AUTO_CONFIG = True
 
@@ -385,7 +387,7 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 
 # make sure there is a Setup file
-if AUTO_CONFIG or not os.path.isfile('Setup'):
+if AUTO_CONFIG:
     print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
     try:
@@ -407,14 +409,17 @@ try:
 except OSError:
     pass
 
-# get compile info for all extensions
-try:
-    extensions = read_setup_file('Setup')
-except:
-    print ("""Error with the "Setup" file,
-perhaps make a clean copy from "Setup.in".""")
-    compilation_help()
-    raise
+if no_compilation:
+    extensions = []
+else:
+    # get compile info for all extensions
+    try:
+        extensions = read_setup_file('Setup')
+    except:
+        print ("""Error with the "Setup" file,
+    perhaps make a clean copy from "Setup.in".""")
+        compilation_help()
+        raise
 
 # Only define the ARM_NEON defines if they have been enabled at build time.
 if enable_arm_neon:
