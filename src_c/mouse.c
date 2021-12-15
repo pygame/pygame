@@ -164,39 +164,35 @@ static PyObject *
 mouse_set_visible(PyObject *self, PyObject *args)
 {
     int toggle;
-    #if IS_SDLv2
-        int mode;
-        SDL_Window *win = NULL;
-        Uint32 window_flags = 0;
-    #endif
+    int mode;
+    SDL_Window *win = NULL;
+    Uint32 window_flags = 0;
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
         return NULL;
     VIDEO_INIT_CHECK();
 
-    #if IS_SDLv2
-        win = pg_GetDefaultWindow();
-        if (win) {
-            mode = SDL_GetWindowGrab(win);
-            if ((mode == SDL_ENABLE) & !toggle) {
-                SDL_SetRelativeMouseMode(1);
-            } else {
-                SDL_SetRelativeMouseMode(0);
-            }
-            window_flags = SDL_GetWindowFlags(win);
-            if (!toggle && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
-                            window_flags & SDL_WINDOW_FULLSCREEN))
-            {
-                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
-                            "0");
-            }
-            else
-            {
-                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
-                            "1");
-            }
+    win = pg_GetDefaultWindow();
+    if (win) {
+        mode = SDL_GetWindowGrab(win);
+        if ((mode == SDL_ENABLE) & !toggle) {
+            SDL_SetRelativeMouseMode(1);
+        } else {
+            SDL_SetRelativeMouseMode(0);
         }
-    #endif
+        window_flags = SDL_GetWindowFlags(win);
+        if (!toggle && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
+                        window_flags & SDL_WINDOW_FULLSCREEN))
+        {
+            SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                        "0");
+        }
+        else
+        {
+            SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                        "1");
+        }
+    }
 
     toggle = SDL_ShowCursor(toggle);
     return PyBool_FromLong(toggle);
@@ -340,7 +336,6 @@ _set_system_cursor(int constant) {
     cursor_data.type = SYSTEM_CURSOR;
     cursor_data.constant = constant;   
     Py_RETURN_NONE;
-return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
 }
 
 static PyObject *
@@ -367,8 +362,6 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     cursor_data.spoty = spoty;
     cursor_data.surfobj = surfobj;
     Py_RETURN_NONE;
-
-return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
 }
 
 static PyObject *
@@ -480,17 +473,17 @@ MODINIT_DEFINE(mouse)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

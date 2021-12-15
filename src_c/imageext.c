@@ -614,7 +614,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         }
     }
     else {
-        name = Bytes_AS_STRING(oencoded);
+        name = PyBytes_AS_STRING(oencoded);
     }
 
     if (result > 0) {
@@ -754,23 +754,23 @@ MODINIT_DEFINE(imageext)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rwobject();
 
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
 #ifdef WITH_THREAD
     _pg_img_mutex = SDL_CreateMutex();
     if (!_pg_img_mutex) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        MODINIT_ERROR;
+        return NULL;
     }
 #endif /* WITH_THREAD */
 

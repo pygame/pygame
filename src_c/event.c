@@ -243,7 +243,6 @@ _pg_get_event_unicode(SDL_Event *event)
                  * events to occupy. */
                 scanunicode[i].key = 0;
             }
-            /* Dont use Text_FromUTF8 here */
             return PyUnicode_FromString(scanunicode[i].unicode);
         }
     }
@@ -925,7 +924,7 @@ get_joy_guid(int device_index) {
     SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(device_index);
 
     SDL_JoystickGetGUIDString(guid, strguid, 33);
-    return Text_FromUTF8(strguid);
+    return PyUnicode_FromString(strguid);
 }
 
 /** Try to insert the instance ID for a new device into the joystick mapping. */
@@ -935,8 +934,8 @@ _joy_map_add(int device_index) {
     int instance_id = (int) SDL_JoystickGetDeviceInstanceID(device_index);
     PyObject *k, *v;
     if (instance_id != -1) {
-        k = PyInt_FromLong(instance_id);
-        v = PyInt_FromLong(device_index);
+        k = PyLong_FromLong(instance_id);
+        v = PyLong_FromLong(device_index);
         if (k != NULL && v != NULL) {
             PyDict_SetItem(joy_instance_map, k, v);
         }
@@ -949,7 +948,7 @@ _joy_map_add(int device_index) {
 /** Look up a device ID for an instance ID. */
 PyObject *
 _joy_map_instance(int instance_id) {
-    PyObject *v, *k = PyInt_FromLong(instance_id);
+    PyObject *v, *k = PyLong_FromLong(instance_id);
     if (!k) {
         Py_RETURN_NONE;
     }
@@ -965,7 +964,7 @@ _joy_map_instance(int instance_id) {
 /** Discard a joystick from the joystick instance -> device mapping. */
 void
 _joy_map_discard(int instance_id) {
-    PyObject *k = PyInt_FromLong(instance_id);
+    PyObject *k = PyLong_FromLong(instance_id);
 
     if (k) {
         PyDict_DelItem(joy_instance_map, k);
@@ -994,8 +993,8 @@ dict_from_event(SDL_Event *event)
             obj = Py_BuildValue("(ii)", event->window.data1,
                                 event->window.data2);
             _pg_insobj(dict, "size", obj);
-            _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
-            _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
+            _pg_insobj(dict, "w", PyLong_FromLong(event->window.data1));
+            _pg_insobj(dict, "h", PyLong_FromLong(event->window.data2));
             break;
         case SDL_ACTIVEEVENT:
             switch (event->window.event) {
@@ -1024,15 +1023,15 @@ dict_from_event(SDL_Event *event)
                     gain = 1;
                     state = (long)SDL_APPACTIVE;
             }
-            _pg_insobj(dict, "gain", PyInt_FromLong(gain));
-            _pg_insobj(dict, "state", PyInt_FromLong(state));
+            _pg_insobj(dict, "gain", PyLong_FromLong(gain));
+            _pg_insobj(dict, "state", PyLong_FromLong(state));
             break;
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             _pg_insobj(dict, "unicode", _pg_get_event_unicode(event));
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
-            _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
+            _pg_insobj(dict, "key", PyLong_FromLong(event->key.keysym.sym));
+            _pg_insobj(dict, "mod", PyLong_FromLong(event->key.keysym.mod));
+            _pg_insobj(dict, "scancode", PyLong_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
             obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
@@ -1042,51 +1041,47 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rel", obj);
             if ((tuple = PyTuple_New(3))) {
                 PyTuple_SET_ITEM(tuple, 0,
-                                 PyInt_FromLong((event->motion.state &
+                                 PyLong_FromLong((event->motion.state &
                                                  SDL_BUTTON(1)) != 0));
                 PyTuple_SET_ITEM(tuple, 1,
-                                 PyInt_FromLong((event->motion.state &
+                                 PyLong_FromLong((event->motion.state &
                                                  SDL_BUTTON(2)) != 0));
                 PyTuple_SET_ITEM(tuple, 2,
-                                 PyInt_FromLong((event->motion.state &
+                                 PyLong_FromLong((event->motion.state &
                                                  SDL_BUTTON(3)) != 0));
                 _pg_insobj(dict, "buttons", tuple);
             }
-#if !IS_SDLv1
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->motion.which == SDL_TOUCH_MOUSEID)));
-#endif
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
-#if !IS_SDLv1
+            _pg_insobj(dict, "button", PyLong_FromLong(event->button.button));
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->button.which == SDL_TOUCH_MOUSEID)));
-#endif
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jaxis.which));
-            _pg_insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jaxis.which));
+            _pg_insobj(dict, "axis", PyLong_FromLong(event->jaxis.axis));
             _pg_insobj(dict, "value",
                    PyFloat_FromDouble(event->jaxis.value / 32767.0));
             break;
         case SDL_JOYBALLMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
-            _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jball.which));
+            _pg_insobj(dict, "ball", PyLong_FromLong(event->jball.ball));
             obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jhat.which));
-            _pg_insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jhat.which));
+            _pg_insobj(dict, "hat", PyLong_FromLong(event->jhat.hat));
             hx = hy = 0;
             if (event->jhat.value & SDL_HAT_UP)
                 hy = 1;
@@ -1101,21 +1096,21 @@ dict_from_event(SDL_Event *event)
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jbutton.which));
-            _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jbutton.which));
+            _pg_insobj(dict, "button", PyLong_FromLong(event->jbutton.button));
             break;
         case PGE_WINDOWMOVED:
         case PGE_WINDOWRESIZED:
         case PGE_WINDOWSIZECHANGED:
             /*other PGE_WINDOW* events do not have attributes */
-            _pg_insobj(dict, "x", PyInt_FromLong(event->window.data1));
-            _pg_insobj(dict, "y", PyInt_FromLong(event->window.data2));
+            _pg_insobj(dict, "x", PyLong_FromLong(event->window.data1));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->window.data2));
             break;
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event 
-            _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
+            _pg_insobj(dict, "which", PyLong_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event 
+            _pg_insobj(dict, "iscapture", PyLong_FromLong(event->adevice.iscapture));
             break;
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_FINGERMOTION:
@@ -1137,7 +1132,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "y", PyFloat_FromDouble(event->mgesture.y));
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
-            _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            _pg_insobj(dict, "num_fingers", PyLong_FromLong(event->mgesture.numFingers));
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
@@ -1146,30 +1141,30 @@ dict_from_event(SDL_Event *event)
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
-            _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
+            _pg_insobj(dict, "x", PyLong_FromLong(event->wheel.x));
             _pg_insobj(dict, "touch", PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
 
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
-            _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->text.text));
             break;
         case SDL_TEXTEDITING:
             /* https://wiki.libsdl.org/SDL_TextEditingEvent */
-            _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->edit.text));
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
         /*  https://wiki.libsdl.org/SDL_DropEvent */
         case SDL_DROPFILE:
-            _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+            _pg_insobj(dict, "file", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
 
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
-            _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
         case SDL_DROPBEGIN:
@@ -1223,10 +1218,10 @@ dict_from_event(SDL_Event *event)
 #ifdef WIN32
         case SDL_SYSWMEVENT:
             _pg_insobj(dict, "hwnd",
-                   PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
-            _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
-            _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->msg.win.wParam));
-            _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->msg.win.lParam));
+                   PyLong_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
+            _pg_insobj(dict, "msg", PyLong_FromLong(event->syswm.msg->msg.win.msg));
+            _pg_insobj(dict, "wparam", PyLong_FromLong(event->syswm.msg->msg.win.wParam));
+            _pg_insobj(dict, "lparam", PyLong_FromLong(event->syswm.msg->msg.win.lParam));
             break;
 #endif /* WIN32 */
 
@@ -1237,7 +1232,7 @@ dict_from_event(SDL_Event *event)
         case SDL_SYSWMEVENT:
             if (event->syswm.msg->subsystem == SDL_SYSWM_X11) {
                 XEvent *xevent = (XEvent *)&event->syswm.msg->msg.x11.event;
-                obj = Bytes_FromStringAndSize((char *)xevent, sizeof(XEvent));
+                obj = PyBytes_FromStringAndSize((char *)xevent, sizeof(XEvent));
                 _pg_insobj(dict, "event", obj);
             }
             break;
@@ -1378,7 +1373,7 @@ pg_event_str(PyObject *self)
 
     Py_DECREF(strobj);
 
-    pyobj = Text_FromUTF8(str);
+    pyobj = PyUnicode_FromString(str);
     PyMem_Free(str);
 
     return (pyobj);
@@ -1394,9 +1389,6 @@ static PyNumberMethods pg_event_as_number = {
     (binaryfunc)NULL, /*Add*/
     (binaryfunc)NULL, /*subtract*/
     (binaryfunc)NULL, /*multiply*/
-#if !PY3
-    (binaryfunc)NULL, /*divide*/
-#endif
     (binaryfunc)NULL,       /*remainder*/
     (binaryfunc)NULL,       /*divmod*/
     (ternaryfunc)NULL,      /*power*/
@@ -1410,13 +1402,7 @@ static PyNumberMethods pg_event_as_number = {
     (binaryfunc)NULL,       /*and*/
     (binaryfunc)NULL,       /*xor*/
     (binaryfunc)NULL,       /*or*/
-#if !PY3
-    (coercion)NULL, /*coerce*/
-#endif
     (unaryfunc)NULL, /*int*/
-#if !PY3
-    (unaryfunc)NULL, /*long*/
-#endif
     (unaryfunc)NULL, /*float*/
 };
 
@@ -1604,7 +1590,7 @@ event_name(PyObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "i", &type))
         return NULL;
 
-    return Text_FromUTF8(_pg_name_from_eventtype(type));
+    return PyUnicode_FromString(_pg_name_from_eventtype(type));
 }
 
 static PyObject *
@@ -1764,7 +1750,7 @@ _pg_eventtype_as_seq(PyObject *obj, int *len)
         Py_INCREF(obj);
         return obj;
     }
-    else if (PyInt_Check(obj))
+    else if (PyLong_Check(obj))
         return Py_BuildValue("(O)", obj);
     else
         return RAISE(PyExc_TypeError,
@@ -2260,7 +2246,7 @@ static PyObject *
 pg_event_custom_type(PyObject *self)
 {
     if (_custom_event < PG_NUMEVENTS)
-        return PyInt_FromLong(_custom_event++);
+        return PyLong_FromLong(_custom_event++);
     else
         return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
 }
@@ -2315,12 +2301,12 @@ MODINIT_DEFINE(event)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgEvent_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     SDL_RegisterEvents(PG_NUMEVENTS - SDL_USEREVENT);
@@ -2330,19 +2316,19 @@ MODINIT_DEFINE(event)
     dict = PyModule_GetDict(module);
 
     if (NULL == (joy_instance_map = PyDict_New())) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (-1 == PyDict_SetItemString(dict, "_joy_instance_map", joy_instance_map)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyDict_SetItemString(dict, "EventType", (PyObject *)&pgEvent_Type) ==
         -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -2355,15 +2341,15 @@ MODINIT_DEFINE(event)
     c_api[5] = pg_GetKeyRepeat;
     apiobj = encapsulate_api(c_api, "event");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
-    MODINIT_RETURN(module);
+    return module;
 }

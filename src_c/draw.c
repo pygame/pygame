@@ -79,8 +79,8 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 
 // validation of a draw color
 #define CHECK_LOAD_COLOR(colorobj)                                         \
-    if (PyInt_Check(colorobj))                                             \
-        color = (Uint32)PyInt_AsLong(colorobj);                            \
+    if (PyLong_Check(colorobj))                                             \
+        color = (Uint32)PyLong_AsLong(colorobj);                            \
     else if (pg_RGBAFromFuzzyColorObj(colorobj, rgba))                     \
         color =                                                            \
             SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]); \
@@ -506,7 +506,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -584,7 +584,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -857,7 +857,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurfaceObject *surfobj = NULL;
     PyObject *colorobj = NULL, *rectobj = NULL;
     PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
-    GAME_Rect *rect = NULL, temp;
+    SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -2343,19 +2343,19 @@ MODINIT_DEFINE(draw)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
 /* create the module */

@@ -151,7 +151,7 @@ pg_display_resource(char *filename)
 
     name = PyObject_GetAttrString(fresult, "name");
     if (name != NULL) {
-        if (Text_Check(name)) {
+        if (PyUnicode_Check(name)) {
             pg_close_file(fresult);
             Py_DECREF(fresult);
             fresult = name;
@@ -289,29 +289,29 @@ pg_vidinfo_getattr(PyObject *self, char *name)
     }
 
     if (!strcmp(name, "hw"))
-        return PyInt_FromLong(info->hw_available);
+        return PyLong_FromLong(info->hw_available);
     else if (!strcmp(name, "wm"))
-        return PyInt_FromLong(info->wm_available);
+        return PyLong_FromLong(info->wm_available);
     else if (!strcmp(name, "blit_hw"))
-        return PyInt_FromLong(info->blit_hw);
+        return PyLong_FromLong(info->blit_hw);
     else if (!strcmp(name, "blit_hw_CC"))
-        return PyInt_FromLong(info->blit_hw_CC);
+        return PyLong_FromLong(info->blit_hw_CC);
     else if (!strcmp(name, "blit_hw_A"))
-        return PyInt_FromLong(info->blit_hw_A);
+        return PyLong_FromLong(info->blit_hw_A);
     else if (!strcmp(name, "blit_sw"))
-        return PyInt_FromLong(info->blit_hw);
+        return PyLong_FromLong(info->blit_hw);
     else if (!strcmp(name, "blit_sw_CC"))
-        return PyInt_FromLong(info->blit_hw_CC);
+        return PyLong_FromLong(info->blit_hw_CC);
     else if (!strcmp(name, "blit_sw_A"))
-        return PyInt_FromLong(info->blit_hw_A);
+        return PyLong_FromLong(info->blit_hw_A);
     else if (!strcmp(name, "blit_fill"))
-        return PyInt_FromLong(info->blit_fill);
+        return PyLong_FromLong(info->blit_fill);
     else if (!strcmp(name, "video_mem"))
-        return PyInt_FromLong(info->video_mem);
+        return PyLong_FromLong(info->video_mem);
     else if (!strcmp(name, "bitsize"))
-        return PyInt_FromLong(info->vfmt->BitsPerPixel);
+        return PyLong_FromLong(info->vfmt->BitsPerPixel);
     else if (!strcmp(name, "bytesize"))
-        return PyInt_FromLong(info->vfmt->BytesPerPixel);
+        return PyLong_FromLong(info->vfmt->BytesPerPixel);
     else if (!strcmp(name, "masks"))
         return Py_BuildValue("(iiii)", info->vfmt->Rmask, info->vfmt->Gmask,
                              info->vfmt->Bmask, info->vfmt->Amask);
@@ -322,9 +322,9 @@ pg_vidinfo_getattr(PyObject *self, char *name)
         return Py_BuildValue("(iiii)", info->vfmt->Rloss, info->vfmt->Gloss,
                              info->vfmt->Bloss, info->vfmt->Aloss);
     else if (!strcmp(name, "current_h"))
-        return PyInt_FromLong(current_h);
+        return PyLong_FromLong(current_h);
     else if (!strcmp(name, "current_w"))
-        return PyInt_FromLong(current_w);
+        return PyLong_FromLong(current_w);
 
     return RAISE(PyExc_AttributeError, "does not exist in vidinfo");
 }
@@ -364,7 +364,7 @@ pg_vidinfo_str(PyObject *self)
             info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
             info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
             info->vfmt->Aloss, current_w, current_h);
-    return Text_FromUTF8(str);
+    return PyUnicode_FromString(str);
 }
 
 static PyTypeObject pgVidInfo_Type = {
@@ -498,7 +498,7 @@ pg_get_wm_info(PyObject *self)
     Py_DECREF(tmp);
 #endif
 #if defined(SDL_VIDEO_DRIVER_X11)
-    tmp = PyInt_FromLong(info.info.x11.window);
+    tmp = PyLong_FromLong(info.info.x11.window);
     PyDict_SetItemString(dict, "window", tmp);
     Py_DECREF(tmp);
 
@@ -596,7 +596,7 @@ pg_get_driver(PyObject *self)
     name = SDL_GetCurrentVideoDriver();
     if (!name)
         Py_RETURN_NONE;
-    return Text_FromUTF8(name);
+    return PyUnicode_FromString(name);
 }
 
 static PyObject *
@@ -657,7 +657,7 @@ pg_gl_get_attribute(PyObject *self, PyObject *arg)
     result = SDL_GL_GetAttribute(flag, &value);
     if (result == -1)
         return RAISE(pgExc_SDLError, SDL_GetError());
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 
@@ -1425,20 +1425,20 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
         Uint32 Rmask, Gmask, Bmask;
         if (_pg_get_default_display_masks(bpp, &Rmask, &Gmask, &Bmask)) {
             PyErr_Clear();
-            return PyInt_FromLong((long)0);
+            return PyLong_FromLong((long)0);
         }
         desired.format =
             SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, 0);
     }
     if (!SDL_GetClosestDisplayMode(display_index, &desired, &closest)) {
         if (flags & PGS_FULLSCREEN)
-            return PyInt_FromLong((long)0);
+            return PyLong_FromLong((long)0);
         closest.format = desired.format;
     }
     if ((flags & PGS_FULLSCREEN) &&
         (closest.w != desired.w || closest.h != desired.h))
-        return PyInt_FromLong((long)0);
-    return PyInt_FromLong(SDL_BITSPERPIXEL(closest.format));
+        return PyLong_FromLong((long)0);
+    return PyLong_FromLong(SDL_BITSPERPIXEL(closest.format));
 }
 
 static PyObject *
@@ -1586,13 +1586,13 @@ pg_num_displays(PyObject *self)
     int ret = SDL_GetNumVideoDisplays();
     if (ret < 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
-    return PyInt_FromLong(ret);
+    return PyLong_FromLong(ret);
 }
 
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static SDL_Rect *
-pg_screencroprect(GAME_Rect *r, int w, int h, SDL_Rect *cur)
+pg_screencroprect(SDL_Rect *r, int w, int h, SDL_Rect *cur)
 {
     if (r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
         return 0;
@@ -1612,7 +1612,7 @@ pg_update(PyObject *self, PyObject *arg)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     _DisplayState *state = DISPLAY_MOD_STATE(self);
-    GAME_Rect *gr, temp = {0};
+    SDL_Rect *gr, temp = {0};
     int wide, high;
     PyObject *obj;
 
@@ -1862,12 +1862,12 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
     }
     for (i = 0; i < 256; i++) {
         item = PySequence_GetItem(python_array, i);
-        if (!PyInt_Check(item)) {
+        if (!PyLong_Check(item)) {
             PyErr_SetString(PyExc_ValueError,
                             "gamma ramp must contain integer elements");
             return 0;
         }
-        c_uint16_array[i] = (Uint16)PyInt_AsLong(item);
+        c_uint16_array[i] = (Uint16)PyLong_AsLong(item);
         Py_XDECREF(item);
     }
     return 1;
@@ -1948,7 +1948,7 @@ pg_get_caption(PyObject *self)
     const char *title = win ? SDL_GetWindowTitle(win) : state->title;
 
     if (title && *title) {
-        PyObject *titleObj = Text_FromUTF8(title);
+        PyObject *titleObj = PyUnicode_FromString(title);
         PyObject *ret = PyTuple_Pack(2, titleObj, titleObj);
         Py_DECREF(titleObj);
         /* TODO: icon title? */
@@ -2117,7 +2117,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 #if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
 #endif
-            return PyInt_FromLong(-1);
+            return PyLong_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
@@ -2132,7 +2132,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                              1) != 0) {
                 return NULL;
             }
-            return PyInt_FromLong(-1);
+            return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
 #if SDL_VERSION_ATLEAST(2, 0, 2)
@@ -2361,7 +2361,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                              1) != 0) {
                 return NULL;
             }
-            return PyInt_FromLong(-1);
+            return PyLong_FromLong(-1);
         }
         else {
             result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
@@ -2384,11 +2384,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                                  1) != 0) {
                     return NULL;
                 }
-                return PyInt_FromLong(-1);
+                return PyLong_FromLong(-1);
             }
         }
     }
-    return PyInt_FromLong(result != 0);
+    return PyLong_FromLong(result != 0);
 }
 
 /* This API is provisional, and, not finalised, and should not be documented
@@ -2417,7 +2417,7 @@ pg_display_resize_event(PyObject *self, PyObject *event)
             (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     if (flags) {
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     // could also take the size of the old display surface
@@ -2458,7 +2458,7 @@ pg_display_resize_event(PyObject *self, PyObject *event)
     }
     else {
         /* do not do anything that would invalidate a display surface! */
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
     Py_RETURN_FALSE;
 }
@@ -2592,26 +2592,26 @@ MODINIT_DEFINE(display)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgVidInfo_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     state = DISPLAY_MOD_STATE(module);
     state->title = NULL;
@@ -2620,5 +2620,5 @@ MODINIT_DEFINE(display)
     state->using_gl = 0;
     state->auto_resize = SDL_TRUE;
 
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -796,9 +796,6 @@ static PyNumberMethods vector_as_number = {
     (binaryfunc)vector_add, /* nb_add;       __add__ */
     (binaryfunc)vector_sub, /* nb_subtract;  __sub__ */
     (binaryfunc)vector_mul, /* nb_multiply;  __mul__ */
-#if !PY3
-    (binaryfunc)vector_div, /* nb_divide;    __div__ */
-#endif
     (binaryfunc)0,           /* nb_remainder; __mod__ */
     (binaryfunc)0,           /* nb_divmod;    __divmod__ */
     (ternaryfunc)0,          /* nb_power;     __pow__ */
@@ -812,23 +809,13 @@ static PyNumberMethods vector_as_number = {
     (binaryfunc)0,           /* nb_and;       __and__ */
     (binaryfunc)0,           /* nb_xor;       __xor__ */
     (binaryfunc)0,           /* nb_or;        __or__ */
-#if !PY3
-    (coercion)0, /* nb_coerce;    __coerce__ */
-#endif
     (unaryfunc)0, /* nb_int;       __int__ */
     (unaryfunc)0, /* nb_long;      __long__ */
     (unaryfunc)0, /* nb_float;     __float__ */
-#if !PY3
-    (unaryfunc)0, /* nb_oct;       __oct__ */
-    (unaryfunc)0, /* nb_hex;       __hex__ */
-#endif
     /* Added in release 2.0 */
     (binaryfunc)vector_inplace_add, /* nb_inplace_add;       __iadd__ */
     (binaryfunc)vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
     (binaryfunc)vector_inplace_mul, /* nb_inplace_multiply;  __imul__ */
-#if !PY3
-    (binaryfunc)vector_inplace_div, /* nb_inplace_divide;    __idiv__ */
-#endif
     (binaryfunc)0,  /* nb_inplace_remainder; __imod__ */
     (ternaryfunc)0, /* nb_inplace_power;     __pow__ */
     (binaryfunc)0,  /* nb_inplace_lshift;    __ilshift__ */
@@ -975,17 +962,10 @@ vector_subscript(pgVector *self, PyObject *key)
         PyObject *result;
         PyObject *it;
 
-#if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx((PyObject *)key, self->dim, &start, &stop,
                                  &step, &slicelength) < 0) {
             return NULL;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject *)key, self->dim, &start,
-                                 &stop, &step, &slicelength) < 0) {
-            return NULL;
-        }
-#endif
 
         if (slicelength <= 0) {
             return PyList_New(0);
@@ -1032,17 +1012,10 @@ vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
     else if (PySlice_Check(key)) {
         Py_ssize_t start, stop, step, slicelength;
 
-#if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx((PyObject *)key, self->dim, &start, &stop,
                                  &step, &slicelength) < 0) {
             return -1;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject *)key, self->dim, &start,
-                                 &stop, &step, &slicelength) < 0) {
-            return -1;
-        }
-#endif
 
         if (step == 1)
             return vector_SetSlice(self, start, stop, value);
@@ -1555,7 +1528,7 @@ vector_repr(pgVector *self)
                         buffer[(bufferIdx + 1) % 2], self->coords[i]);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
-    return Text_FromUTF8(buffer[bufferIdx % 2]);
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
@@ -1581,7 +1554,7 @@ vector_str(pgVector *self)
                         buffer[(bufferIdx + 1) % 2], self->coords[i]);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
-    return Text_FromUTF8(buffer[bufferIdx % 2]);
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
@@ -3293,7 +3266,7 @@ vectoriter_len(vectoriter *it)
     if (it && it->vec) {
         len = it->vec->dim - it->it_index;
     }
-    return PyInt_FromSsize_t(len);
+    return PyLong_FromSsize_t(len);
 }
 
 static PyMethodDef vectoriter_methods[] = {
@@ -3903,9 +3876,6 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)vector_elementwiseproxy_add, /* nb_add;       __add__ */
     (binaryfunc)vector_elementwiseproxy_sub, /* nb_subtract;  __sub__ */
     (binaryfunc)vector_elementwiseproxy_mul, /* nb_multiply;  __mul__ */
-#if !PY3
-    (binaryfunc)vector_elementwiseproxy_div, /* nb_divide;    __div__ */
-#endif
     (binaryfunc)vector_elementwiseproxy_mod,  /* nb_remainder; __mod__ */
     (binaryfunc)0,                            /* nb_divmod;    __divmod__ */
     (ternaryfunc)vector_elementwiseproxy_pow, /* nb_power;     __pow__ */
@@ -3919,23 +3889,13 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)0,                            /* nb_and;       __and__ */
     (binaryfunc)0,                            /* nb_xor;       __xor__ */
     (binaryfunc)0,                            /* nb_or;        __or__ */
-#if !PY3
-    (coercion)0, /* nb_coerce;    __coerce__ */
-#endif
     (unaryfunc)0, /* nb_int;       __int__ */
     (unaryfunc)0, /* nb_long;      __long__ */
     (unaryfunc)0, /* nb_float;     __float__ */
-#if !PY3
-    (unaryfunc)0, /* nb_oct;       __oct__ */
-    (unaryfunc)0, /* nb_hex;       __hex__ */
-#endif
     /* Added in release 2.0 */
     (binaryfunc)0, /* nb_inplace_add;       __iadd__ */
     (binaryfunc)0, /* nb_inplace_subtract;  __isub__ */
     (binaryfunc)0, /* nb_inplace_multiply;  __imul__ */
-#if !PY3
-    (binaryfunc)0, /* nb_inplace_divide;    __idiv__ */
-#endif
     (binaryfunc)0,  /* nb_inplace_remainder; __imod__ */
     (ternaryfunc)0, /* nb_inplace_power;     __pow__ */
     (binaryfunc)0,  /* nb_inplace_lshift;    __ilshift__ */
@@ -4095,14 +4055,14 @@ MODINIT_DEFINE(math)
         (PyType_Ready(&pgVectorIter_Type) < 0) ||
         (PyType_Ready(&pgVectorElementwiseProxy_Type) < 0) /*||
         (PyType_Ready(&pgVector4_Type) < 0)*/) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* initialize the module */
     module = PyModule_Create(&_module);
 
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* add extension types to module */
@@ -4130,8 +4090,8 @@ MODINIT_DEFINE(math)
         if (!PyObject_HasAttrString(module, "Vector4"))
             Py_DECREF(&pgVector4_Type);
         */
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the C api */
@@ -4144,15 +4104,15 @@ MODINIT_DEFINE(math)
     */
     apiobj = encapsulate_api(c_api, "math");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
         Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
-    MODINIT_RETURN(module);
+    return module;
 }

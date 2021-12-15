@@ -145,7 +145,7 @@ _add_clip_data(Atom cliptype, char *data, int srclen)
     PyObject *tmp;
     char *key = _atom_to_string(cliptype);
 
-    tmp = Bytes_FromStringAndSize(data, srclen);
+    tmp = PyBytes_FromStringAndSize(data, srclen);
     PyDict_SetItemString(dict, key, tmp);
     Py_DECREF(tmp);
     XChangeProperty(SDL_Display, SDL_Window, clip, cliptype, 8,
@@ -339,8 +339,8 @@ _set_data(PyObject *data, Display *display, Window window, Atom property,
         XFree(name);
         return 0;
     }
-    size = Bytes_Size(val);
-    value = Bytes_AsString(val);
+    size = PyBytes_Size(val);
+    value = PyBytes_AsString(val);
 
     /* Send data. */
     XChangeProperty(display, window, property, target, 8, PropModeReplace,
@@ -433,9 +433,9 @@ _get_data_as(Atom source, Atom format, unsigned long *length)
         fmt = _atom_to_string(format);
 
         if (_currentmode == SCRAP_SELECTION)
-            data = Bytes_AsString(PyDict_GetItemString(_selectiondata, fmt));
+            data = PyBytes_AsString(PyDict_GetItemString(_selectiondata, fmt));
         else
-            data = Bytes_AsString(PyDict_GetItemString(_clipdata, fmt));
+            data = PyBytes_AsString(PyDict_GetItemString(_clipdata, fmt));
         free(fmt);
 
         return data;

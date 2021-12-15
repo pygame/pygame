@@ -128,9 +128,9 @@ Sint16FromObj(PyObject *item, Sint16 *val)
         PyObject *intobj;
         long tmp;
 
-        if (!(intobj = PyNumber_Int(item)))
+        if (!(intobj = PyNumber_Long(item)))
             return 0;
-        tmp = PyInt_AsLong(intobj);
+        tmp = PyLong_AsLong(intobj);
         Py_DECREF(intobj);
         if (tmp == -1 && PyErr_Occurred())
             return 0;
@@ -245,7 +245,7 @@ static PyObject *
 _gfx_rectanglecolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
@@ -286,7 +286,7 @@ static PyObject *
 _gfx_boxcolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
@@ -1107,26 +1107,26 @@ MODINIT_DEFINE(gfxdraw)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     module = PyModule_Create(&_module);
 
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
-    MODINIT_RETURN(module);
+    return module;
 }

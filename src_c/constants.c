@@ -29,12 +29,12 @@
 /* macros used to create each constant */
 #define ADD_ERROR(x)                                \
     {                                               \
-        DECREF_MOD(module);                         \
-        MODINIT_ERROR;                              \
+        Py_DECREF(module);                         \
+        return NULL;                              \
     }                                               \
     else                                            \
     {                                               \
-        PyList_Append(all_list, Text_FromUTF8(x)); \
+        PyList_Append(all_list, PyUnicode_FromString(x)); \
     }
 #define STRINGIZE(x) #x
 #define DEC_CONSTS_(x, y)                           \
@@ -82,7 +82,7 @@ MODINIT_DEFINE(constants)
 
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     // Attempt to create __all__ variable for constants module
@@ -158,27 +158,11 @@ MODINIT_DEFINE(constants)
     DEC_CONST(BLENDMODE_BLEND);
     DEC_CONST(BLENDMODE_ADD);
     DEC_CONST(BLENDMODE_MOD);
-#if SDL_VERSION_ATLEAST(1, 2, 5)
     DEC_CONST(GL_STEREO);
-#else
-    DEC_CONSTS(GL_STEREO, -1);
-#endif
-
-#if SDL_VERSION_ATLEAST(1, 2, 6)
     DEC_CONST(GL_MULTISAMPLEBUFFERS);
     DEC_CONST(GL_MULTISAMPLESAMPLES);
-#else
-    DEC_CONSTS(GL_MULTISAMPLEBUFFERS, -1);
-    DEC_CONSTS(GL_MULTISAMPLESAMPLES, -1);
-#endif
-
-#if SDL_VERSION_ATLEAST(1, 2, 10)
     DEC_CONST(GL_SWAP_CONTROL);
     DEC_CONST(GL_ACCELERATED_VISUAL);
-#else
-    DEC_CONSTS(GL_SWAP_CONTROL, -1);
-    DEC_CONSTS(GL_ACCELERATED_VISUAL, -1);
-#endif
 
     DEC_CONSTN(TIMER_RESOLUTION);
 
@@ -610,5 +594,5 @@ MODINIT_DEFINE(constants)
 
     PyModule_AddObject(module, "__all__", all_list);
 
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -276,7 +276,7 @@ music_get_pos(PyObject *self, PyObject *args)
     if (!Mix_PausedMusic())
         ticks += SDL_GetTicks() - music_pos_time;
 
-    return PyInt_FromLong((long)ticks);
+    return PyLong_FromLong((long)ticks);
 }
 
 static PyObject *
@@ -293,7 +293,7 @@ music_set_endevent(PyObject *self, PyObject *args)
 static PyObject *
 music_get_endevent(PyObject *self, PyObject *args)
 {
-    return PyInt_FromLong(endmusic_event);
+    return PyLong_FromLong(endmusic_event);
 }
 
 Mix_MusicType
@@ -543,43 +543,43 @@ MODINIT_DEFINE(mixer_music)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rwobject();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_event();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     cobj = PyCapsule_New(&current_music, "pygame.music_mixer._MUSIC_POINTER",
                          NULL);
     if (cobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj) < 0) {
         Py_DECREF(cobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     cobj =
         PyCapsule_New(&queue_music, "pygame.music_mixer._QUEUE_POINTER", NULL);
     if (cobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj) < 0) {
         Py_DECREF(cobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

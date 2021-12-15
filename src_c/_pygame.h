@@ -41,21 +41,6 @@
 
 #include <SDL.h>
 
-/* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
-/* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
-#if !(SDL_VERSION_ATLEAST(2, 0, 0))
-#define IS_SDLv2 0
-#define IS_SDLv1 1
-#else
-#define IS_SDLv2 1
-#define IS_SDLv1 0
-#endif
-
-/*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
-#error pygame 2 requires SDL 2
-#endif*/
-
-#if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,
@@ -231,18 +216,6 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
-#else /* IS_SDLv2 */
-
-/* To maintain SDL 1.2 build support. */
-#define PGE_USEREVENT SDL_USEREVENT
-#define PG_NUMEVENTS SDL_NUMEVENTS
-#define PGPOST_EVENTBEGIN 0
-/* These midi events were originally defined in midi.py.
- * Note: They are outside the SDL_USEREVENT/SDL_NUMEVENTS event range for
- * SDL 1.2. */
-#define PGE_MIDIIN PGE_USEREVENT + 10
-#define PGE_MIDIOUT PGE_USEREVENT + 11
-#endif /* IS_SDLv1 */
 
 //TODO Implement check below in a way that does not break CI
 /* New buffer protocol (PEP 3118) implemented on all supported Py versions.
@@ -333,8 +306,6 @@ struct pgColorObject {
  */
 #include "include/_pygame.h"
 
-#include "pgimport.h"
-
 /* Slot counts.
  * Remember to keep these constants up to date.
  */
@@ -349,13 +320,7 @@ struct pgColorObject {
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2
 #define PYGAMEAPI_CDROM_NUMSLOTS 2
-
-#if PG_API_VERSION == 1
-#define PYGAMEAPI_BASE_NUMSLOTS 19
-#define PYGAMEAPI_EVENT_NUMSLOTS 4
-#else /* PG_API_VERSION == 2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 24
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
-#endif /* PG_API_VERSION == 2 */
 
 #endif /* _PYGAME_INTERNAL_H */

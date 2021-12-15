@@ -46,7 +46,7 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
-static PyObject* os_module = NULL;
+static PyObject *os_module = NULL;
 
 static Sint64
 _pg_rw_size(SDL_RWops *);
@@ -91,7 +91,7 @@ _pg_is_exception_class(PyObject *obj, void **optr)
         oname = tmp;
         PyErr_Format(PyExc_TypeError,
                      "Expected an exception class: got %.1024s",
-                     Bytes_AS_STRING(oname));
+                     PyBytes_AS_STRING(oname));
         Py_DECREF(oname);
         return 0;
     }
@@ -147,7 +147,8 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
     return 0;
 }
 
-/* This function is meant to decode a pathlib object into its str/bytes representation. */
+/* This function is meant to decode a pathlib object into its str/bytes
+ * representation. */
 static PyObject *
 _trydecode_pathlibobj(PyObject *obj)
 {
@@ -177,11 +178,11 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
     if (errors == NULL) {
         errors = pg_default_errors;
     }
-    
+
     ret = _trydecode_pathlibobj(obj);
     if (!ret)
         return NULL;
-    
+
     if (PyUnicode_Check(ret)) {
         oencoded = PyUnicode_AsEncodedString(ret, encoding, errors);
         Py_DECREF(ret);
@@ -221,8 +222,8 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
         PyErr_Clear();
         Py_RETURN_NONE;
     }
-    
-    if (Bytes_Check(ret)) {
+
+    if (PyBytes_Check(ret)) {
         return ret;
     }
 
@@ -233,12 +234,13 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
 static PyObject *
 pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-    PyObject *result = pg_EncodeString(obj, UNICODE_DEF_FS_CODEC,
-                                            UNICODE_DEF_FS_ERROR, eclass);
+    PyObject *result = pg_EncodeString(obj, Py_FileSystemDefaultEncoding,
+                                       UNICODE_DEF_FS_ERROR, eclass);
     if (result == NULL || result == Py_None) {
         return result;
     }
-    if ((size_t)Bytes_GET_SIZE(result) != strlen(Bytes_AS_STRING(result))) {
+    if ((size_t)PyBytes_GET_SIZE(result) !=
+        strlen(PyBytes_AS_STRING(result))) {
         if (eclass != NULL) {
             Py_DECREF(result);
             result = pg_EncodeString(obj, NULL, NULL, NULL);
@@ -247,7 +249,7 @@ pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
             }
             PyErr_Format(eclass,
                          "File path '%.1024s' contains null characters",
-                         Bytes_AS_STRING(result));
+                         PyBytes_AS_STRING(result));
             Py_DECREF(result);
             return NULL;
         }
@@ -263,8 +265,8 @@ pgRWops_IsFileObject(SDL_RWops *rw)
     return rw->close == _pg_rw_close;
 }
 
-char*
-pgRWops_GetFileExtension(SDL_RWops* rw)
+char *
+pgRWops_GetFileExtension(SDL_RWops *rw)
 {
     if (pgRWops_IsFileObject(rw)) {
         return NULL;
@@ -358,13 +360,13 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
         return -1;
 
     result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
-                                    (Py_ssize_t)size * num);
+                                   (Py_ssize_t)size * num);
     if (!result)
         return -1;
 
     Py_DECREF(result);
     return num;
-#else /* WITH_THREAD */
+#else  /* WITH_THREAD */
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     size_t retval;
@@ -375,7 +377,7 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
     state = PyGILState_Ensure();
 
     result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
-                                    (Py_ssize_t)size * num);
+                                   (Py_ssize_t)size * num);
     if (!result) {
         PyErr_Print();
         retval = -1;
@@ -468,7 +470,7 @@ pgRWops_FromFileObject(PyObject *obj)
     rw->close = _pg_rw_close;
 
 /* https://docs.python.org/3/c-api/init.html#c.PyEval_InitThreads */
-/* ^ in Python >= 3.7, we don't have to call this function, and in 3.11 
+/* ^ in Python >= 3.7, we don't have to call this function, and in 3.11
  * it will be removed */
 #if PY_VERSION_HEX < 0x03070000
 #ifdef WITH_THREAD
@@ -545,8 +547,8 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     if (!(offset == 0 &&
           whence == SEEK_CUR)) /* being seek'd, not just tell'd */
     {
-        result = PyObject_CallFunction(helper->seek, "Li",
-                                    (long long)offset, whence);
+        result = PyObject_CallFunction(helper->seek, "Li", (long long)offset,
+                                       whence);
         if (!result) {
             PyErr_Print();
             retval = -1;
@@ -572,7 +574,7 @@ end:
     PyGILState_Release(state);
 
     return retval;
-#else /* ~WITH_THREAD */
+#else  /* ~WITH_THREAD */
     if (helper->fileno != -1) {
         return lseek(helper->fileno, offset, whence);
     }
@@ -582,8 +584,8 @@ end:
 
     if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
     {
-        result = PyObject_CallFunction(helper->seek, "Li",
-                                    (long long)offset, whence);
+        result = PyObject_CallFunction(helper->seek, "Li", (long long)offset,
+                                       whence);
         if (!result)
             return -1;
         Py_DECREF(result);
@@ -629,23 +631,23 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     state = PyGILState_Ensure();
 #endif /* WITH_THREAD */
     result = PyObject_CallFunction(helper->read, "K",
-                                    (unsigned long long)size * maxnum);
+                                   (unsigned long long)size * maxnum);
     if (!result) {
         PyErr_Print();
         retval = -1;
         goto end;
     }
 
-    if (!Bytes_Check(result)) {
+    if (!PyBytes_Check(result)) {
         Py_DECREF(result);
         PyErr_Print();
         retval = -1;
         goto end;
     }
 
-    retval = Bytes_GET_SIZE(result);
+    retval = PyBytes_GET_SIZE(result);
     if (retval) {
-        memcpy(ptr, Bytes_AsString(result), retval);
+        memcpy(ptr, PyBytes_AsString(result), retval);
         retval /= size;
     }
 
@@ -664,7 +666,7 @@ _rwops_from_pystr(PyObject *obj)
 {
     SDL_RWops *rw = NULL;
     PyObject *oencoded;
-    char* encoded = NULL;
+    char *encoded = NULL;
     if (!obj) {
         // forward any errors
         return NULL;
@@ -679,20 +681,20 @@ _rwops_from_pystr(PyObject *obj)
         return NULL;
     }
 
-    encoded = Bytes_AS_STRING(oencoded);
+    encoded = PyBytes_AS_STRING(oencoded);
     Py_DECREF(oencoded);
 
     rw = SDL_RWFromFile(encoded, "rb");
     if (rw) {
         /* adding the extension to the hidden data for RWops from files */
         /* this is necessary to support loading functions that rely on
-            * file extensions in a convenient way. File-like objects use this
-            * field for a helper object. */
+         * file extensions in a convenient way. File-like objects use this
+         * field for a helper object. */
         char *extension = NULL;
-        char *ext = strrchr(encoded, '.');       
+        char *ext = strrchr(encoded, '.');
         if (ext && strlen(ext) > 1) {
             ext++;
-            extension = malloc(strlen(ext)+1);
+            extension = malloc(strlen(ext) + 1);
             if (!extension) {
                 return (SDL_RWops *)PyErr_NoMemory();
             }
@@ -703,7 +705,7 @@ _rwops_from_pystr(PyObject *obj)
     }
 
     /* Clear SDL error and set our own error message for filenotfound errors
-     * TODO: Check SDL error here and forward any non filenotfound related 
+     * TODO: Check SDL error here and forward any non filenotfound related
      * errors correctly here */
     SDL_ClearError();
 
@@ -721,15 +723,11 @@ _rwops_from_pystr(PyObject *obj)
 
     isabs = PyObject_CallMethod(path, "isabs", "O", obj);
     Py_DECREF(path);
-    if (!isabs || isabs == Py_True) 
+    if (!isabs || isabs == Py_True)
         goto simple_case;
 
-    PyErr_Format(
-        PyExc_FileNotFoundError,
-        "No file '%S' found in working directory '%S'.", 
-        obj, 
-        cwd
-    );                       
+    PyErr_Format(PyExc_FileNotFoundError,
+                 "No file '%S' found in working directory '%S'.", obj, cwd);
 
     Py_DECREF(cwd);
     Py_DECREF(isabs);
@@ -738,7 +736,8 @@ _rwops_from_pystr(PyObject *obj)
 simple_case:
     Py_XDECREF(cwd);
     Py_XDECREF(isabs);
-    PyErr_Format(PyExc_FileNotFoundError, "No such file or directory: '%S'.", obj);
+    PyErr_Format(PyExc_FileNotFoundError, "No such file or directory: '%S'.",
+                 obj);
     return NULL;
 }
 
@@ -749,7 +748,8 @@ pgRWops_FromObject(PyObject *obj)
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
-    } else {
+    }
+    else {
         return rw;
     }
     return pgRWops_FromFileObject(obj);
@@ -823,7 +823,7 @@ MODINIT_DEFINE(rwobject)
     /* Create the module and add the functions */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
@@ -837,14 +837,14 @@ MODINIT_DEFINE(rwobject)
     c_api[6] = pgRWops_GetFileExtension;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* import os, don't sweat if it errors, it will be checked before use */
@@ -852,5 +852,5 @@ MODINIT_DEFINE(rwobject)
     if (os_module == NULL)
         PyErr_Clear();
 
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -49,7 +49,6 @@ key_set_repeat(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-#if SDL_VERSION_ATLEAST(1, 2, 10)
 static PyObject *
 key_get_repeat(PyObject *self, PyObject *args)
 {
@@ -59,14 +58,6 @@ key_get_repeat(PyObject *self, PyObject *args)
     pg_GetKeyRepeat(&delay, &interval);
     return Py_BuildValue("(ii)", delay, interval);
 }
-#else  /* not SDL_VERSION_ATLEAST(1, 2, 10) */
-static PyObject *
-key_get_repeat(PyObject *self, PyObject *args)
-{
-    Py_RETURN_NONE;
-}
-#endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
-
 
 /*
 * pgScancodeWrapper is for key_get_pressed in SDL2.
@@ -106,7 +97,7 @@ static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
     PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
-    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
+    PyObject *ret = PyUnicode_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
     Py_DECREF(baserepr);
     return ret;
 }
@@ -673,7 +664,7 @@ key_name(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &key))
         return NULL;
 
-    return Text_FromUTF8(_get_keycode_name(key));
+    return PyUnicode_FromString(_get_keycode_name(key));
 }
 
 static PyObject *
@@ -692,7 +683,7 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 
     code = SDL_GetKeyFromName(name);
     if (code != SDLK_UNKNOWN){
-        return PyInt_FromLong(code);
+        return PyLong_FromLong(code);
     }
     else{
         // Raise an unknown key name error?
@@ -708,7 +699,7 @@ key_get_mods(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
-    return PyInt_FromLong(SDL_GetModState());
+    return PyLong_FromLong(SDL_GetModState());
 }
 
 static PyObject *
@@ -826,37 +817,37 @@ MODINIT_DEFINE(key)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_event();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     /* type preparation */
     pgScancodeWrapper_Type.tp_base = &PyTuple_Type;
     if (PyType_Ready(&pgScancodeWrapper_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
                            (PyObject*)&pgScancodeWrapper_Type) == -1) {
         Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     _use_sdl1_key_names();
 
-    MODINIT_RETURN(module);
+    return module;
 }
