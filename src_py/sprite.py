@@ -1334,7 +1334,10 @@ class LayeredDirty(LayeredUpdates):
         Raises TypeError if time_ms is not int or float.
 
         """
-        warn("This function will be removed, use set_timing_threshold function instead",DeprecationWarning)
+        warn(
+            "This function will be removed, use set_timing_threshold function instead",
+            DeprecationWarning,
+        )
         self.set_timing_threshold(time_ms)
 
     def set_timing_threshold(self, time_ms):
