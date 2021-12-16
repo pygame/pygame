@@ -576,7 +576,7 @@ _PGFT_Render_PixelArray(FreeTypeInstance *ft, pgFontObject *fontobj,
         /* Nothing to render */
         *_width = 0;
         *_height = _PGFT_Font_GetHeight(ft, fontobj);
-        return Bytes_FromStringAndSize("", 0);
+        return PyBytes_FromStringAndSize("", 0);
     }
 
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
@@ -587,15 +587,15 @@ _PGFT_Render_PixelArray(FreeTypeInstance *ft, pgFontObject *fontobj,
         /* Empty array */
         *_width = 0;
         *_height = height;
-        return Bytes_FromStringAndSize("", 0);
+        return PyBytes_FromStringAndSize("", 0);
     }
 
     /* Create an uninitialized string whose buffer can be directly set. */
-    array = Bytes_FromStringAndSize(0, array_size);
+    array = PyBytes_FromStringAndSize(0, array_size);
     if (!array) {
         return 0;
     }
-    buffer = (FT_Byte *)Bytes_AS_STRING(array);
+    buffer = (FT_Byte *)PyBytes_AS_STRING(array);
     if (invert) {
         memset(buffer, SDL_ALPHA_OPAQUE, (size_t)array_size);
     }

@@ -15,7 +15,7 @@
 #define DOC_GROUPREMOVE "remove(*sprites) -> None\nremove Sprites from the Group"
 #define DOC_GROUPHAS "has(*sprites) -> bool\ntest if a Group contains Sprites"
 #define DOC_GROUPUPDATE "update(*args, **kwargs) -> None\ncall the update method on contained Sprites"
-#define DOC_GROUPDRAW "draw(Surface) -> None\nblit the Sprite images"
+#define DOC_GROUPDRAW "draw(Surface) -> List[Rect]\nblit the Sprite images"
 #define DOC_GROUPCLEAR "clear(Surface_dest, background) -> None\ndraw a background over the Sprites"
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
 #define DOC_PYGAMESPRITERENDERPLAIN "Same as pygame.sprite.Group"
@@ -127,7 +127,7 @@ pygame.sprite.Group.update
 call the update method on contained Sprites
 
 pygame.sprite.Group.draw
- draw(Surface) -> None
+ draw(Surface) -> List[Rect]
 blit the Sprite images
 
 pygame.sprite.Group.clear

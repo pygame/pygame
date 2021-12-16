@@ -72,7 +72,7 @@ def getResource(identifier, pkgname=__name__):
     mod = sys.modules[pkgname]
     path_to_file = getattr(mod, "__file__", None)
     if path_to_file is None:
-        raise IOError("%s has no __file__!" % repr(mod))
+        raise IOError(f"{repr(mod)} has no __file__!")
     path = os.path.join(os.path.dirname(path_to_file), identifier)
 
     # pylint: disable=consider-using-with

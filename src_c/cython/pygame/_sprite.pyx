@@ -108,14 +108,14 @@ except:
     pass
 
 cdef extern from "_pygame.h" nogil:
-    ctypedef struct GAME_Rect:
+    ctypedef struct SDL_Rect:
         int x
         int y
         int w
         int h
 
     ctypedef class pygame.Rect [object pgRectObject]:
-        cdef GAME_Rect r
+        cdef SDL_Rect r
         cdef object weakreflist
 
 #import_pygame_rect()

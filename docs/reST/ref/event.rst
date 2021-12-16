@@ -13,12 +13,11 @@ this module help you manage that event queue. The input queue is heavily
 dependent on the :mod:`pygame.display` module. If the display has not been
 initialized and a video mode not set, the event queue may not work properly.
 
-The event queue has an upper limit on the number of events it can hold
-(128 for standard SDL 1.2). When the queue becomes full new events are quietly
-dropped. To prevent lost events, especially input events which signal a quit
-command, your program must handle events every frame (with
-``pygame.event.get()``, ``pygame.event.pump()``, ``pygame.event.wait()``,
-``pygame.event.peek()`` or ``pygame.event.clear()``)
+The event queue has an upper limit on the number of events it can hold. When
+the queue becomes full new events are quietly dropped. To prevent lost events,
+especially input events which signal a quit command, your program must handle
+events every frame (with ``pygame.event.get()``, ``pygame.event.pump()``,
+``pygame.event.wait()``, ``pygame.event.peek()`` or ``pygame.event.clear()``)
 and process them. Not handling events may cause your system to decide your
 program has locked up. To speed up queue processing use
 :func:`pygame.event.set_blocked()` to limit which events get queued.

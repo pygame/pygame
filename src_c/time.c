@@ -225,8 +225,8 @@ static PyObject *
 time_get_ticks(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_TIMER))
-        return PyInt_FromLong(0);
-    return PyInt_FromLong(SDL_GetTicks());
+        return PyLong_FromLong(0);
+    return PyLong_FromLong(SDL_GetTicks());
 }
 
 static PyObject *
@@ -239,17 +239,17 @@ time_delay(PyObject *self, PyObject *arg)
     if (PyTuple_Size(arg) != 1)
         return RAISE(PyExc_ValueError, "delay requires one integer argument");
     arg0 = PyTuple_GET_ITEM(arg, 0);
-    if (!PyInt_Check(arg0))
+    if (!PyLong_Check(arg0))
         return RAISE(PyExc_TypeError, "delay requires one integer argument");
 
-    ticks = PyInt_AsLong(arg0);
+    ticks = PyLong_AsLong(arg0);
     if (ticks < 0)
         ticks = 0;
 
     ticks = accurate_delay(ticks);
     if (ticks == -1)
         return NULL;
-    return PyInt_FromLong(ticks);
+    return PyLong_FromLong(ticks);
 }
 
 static PyObject *
@@ -262,7 +262,7 @@ time_wait(PyObject *self, PyObject *arg)
     if (PyTuple_Size(arg) != 1)
         return RAISE(PyExc_ValueError, "delay requires one integer argument");
     arg0 = PyTuple_GET_ITEM(arg, 0);
-    if (!PyInt_Check(arg0))
+    if (!PyLong_Check(arg0))
         return RAISE(PyExc_TypeError, "delay requires one integer argument");
 
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
@@ -271,7 +271,7 @@ time_wait(PyObject *self, PyObject *arg)
         }
     }
 
-    ticks = PyInt_AsLong(arg0);
+    ticks = PyLong_AsLong(arg0);
     if (ticks < 0)
         ticks = 0;
 
@@ -280,7 +280,7 @@ time_wait(PyObject *self, PyObject *arg)
     SDL_Delay(ticks);
     Py_END_ALLOW_THREADS;
 
-    return PyInt_FromLong(SDL_GetTicks() - start);
+    return PyLong_FromLong(SDL_GetTicks() - start);
 }
 
 static PyObject *
@@ -300,8 +300,8 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!timermutex)
         return RAISE(pgExc_SDLError, "pygame is not initialized");
 
-    if (PyInt_Check(obj)) {
-        e = (pgEventObject *)pgEvent_New2(PyInt_AsLong(obj), NULL);
+    if (PyLong_Check(obj)) {
+        e = (pgEventObject *)pgEvent_New2(PyLong_AsLong(obj), NULL);
         if (!e)
             return NULL;
     }
@@ -409,7 +409,7 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
         _clock->fps_tick = nowtime;
         Py_XDECREF(_clock->rendered);
     }
-    return PyInt_FromLong(_clock->timepassed);
+    return PyLong_FromLong(_clock->timepassed);
 }
 
 static PyObject *
@@ -435,14 +435,14 @@ static PyObject *
 clock_get_time(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    return PyInt_FromLong(_clock->timepassed);
+    return PyLong_FromLong(_clock->timepassed);
 }
 
 static PyObject *
 clock_get_rawtime(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    return PyInt_FromLong(_clock->rawpassed);
+    return PyLong_FromLong(_clock->rawpassed);
 }
 
 /* clock object internals */
@@ -472,7 +472,7 @@ clock_str(PyObject *self)
 
     sprintf(str, "<Clock(fps=%.2f)>", (float)_clock->fps);
 
-    return Text_FromUTF8(str);
+    return PyUnicode_FromString(str);
 }
 
 static PyTypeObject PyClock_Type = {
@@ -580,17 +580,17 @@ MODINIT_DEFINE(time)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     import_pygame_event();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&PyClock_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */

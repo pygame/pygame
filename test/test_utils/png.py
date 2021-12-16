@@ -210,7 +210,6 @@ try:
     def bytestostr(x):
         return str(x, "iso8859-1")
 
-
 except:
     strtobytes = str
     bytestostr = str
