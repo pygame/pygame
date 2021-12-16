@@ -1335,12 +1335,7 @@ class LayeredDirty(LayeredUpdates):
 
         """
         warn('This function will be removed, use set_timing_threshold function instead')
-        if isinstance(time_ms, (int, float)):
-            self._time_threshold = time_ms
-        else:
-            raise TypeError(
-                f"Expected numeric value, got {time_ms.__class__.__name__} instead"
-            )
+        self.set_timing_threshold(time_ms)
 
     def set_timing_threshold(self, time_ms):
         """set the threshold in milliseconds
