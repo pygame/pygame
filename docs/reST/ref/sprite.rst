@@ -638,8 +638,6 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
       .. deprecated:: 2.1.1
 
-      :raises TypeError: if ``time_ms`` is not int or float
-
       .. ## LayeredDirty.set_timing_treshold ##
 
    .. method:: set_timing_threshold
