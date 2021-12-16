@@ -1340,7 +1340,7 @@ class LayeredDirty(LayeredUpdates):
     def set_timing_threshold(self, time_ms):
         """set the threshold in milliseconds
 
-        set_timing_treshold(time_ms): return None
+        set_timing_threshold(time_ms): return None
 
         Defaults to 1000.0 / 80.0. This means that the screen will be painted
         using the flip method rather than the update method if the update
