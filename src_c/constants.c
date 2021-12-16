@@ -27,15 +27,12 @@
 #include "scrap.h"
 
 /* macros used to create each constant */
-#define ADD_ERROR(x)                                \
-    {                                               \
-        Py_DECREF(module);                         \
-        return NULL;                              \
-    }                                               \
-    else                                            \
-    {                                               \
-        PyList_Append(all_list, PyUnicode_FromString(x)); \
-    }
+#define ADD_ERROR(x)       \
+    {                      \
+        Py_DECREF(module); \
+        return NULL;       \
+    }                      \
+    else { PyList_Append(all_list, PyUnicode_FromString(x)); }
 #define STRINGIZE(x) #x
 #define DEC_CONSTS_(x, y)                           \
     if (PyModule_AddIntConstant(module, x, (int)y)) \
@@ -46,15 +43,14 @@
 #define DEC_CONSTK(x) DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##x)
 #define DEC_CONSTSCS(x, y) DEC_CONSTS_(STRINGIZE(KSCAN_##x), SDL_SCANCODE_##y)
 #define DEC_CONSTSC(x) DEC_CONSTS_(STRINGIZE(KSCAN_##x), SDL_SCANCODE_##x)
-#define DEC_CONSTKS_AND_SCS(x, y)                        \
-    DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##y)              \
+#define DEC_CONSTKS_AND_SCS(x, y)           \
+    DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##y) \
     DEC_CONSTS_(STRINGIZE(KSCAN_##x), SDL_SCANCODE_##y)
-#define DEC_CONSTK_AND_SC(x)                           \
-    DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##x)            \
+#define DEC_CONSTK_AND_SC(x)                \
+    DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##x) \
     DEC_CONSTS_(STRINGIZE(KSCAN_##x), SDL_SCANCODE_##x)
 #define DEC_CONSTN(x) DEC_CONSTS_(#x, x)
 #define DEC_CONSTSF(x) DEC_CONSTS_(#x, PGS_##x)
-
 
 #define ADD_STRING_CONST(x)                        \
     if (PyModule_AddStringConstant(module, #x, x)) \
@@ -111,9 +107,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTSF(SHOWN);
     DEC_CONSTSF(HIDDEN);
 
-
     DEC_CONSTSF(SCALED);
-
 
     DEC_CONST(GL_RED_SIZE);
     DEC_CONST(GL_GREEN_SIZE);
@@ -273,13 +267,13 @@ MODINIT_DEFINE(constants)
     DEC_CONST(FINGERDOWN);
     DEC_CONST(FINGERUP);
     DEC_CONST(MULTIGESTURE);
-    #if SDL_VERSION_ATLEAST(2, 0, 4)
-        DEC_CONST(AUDIODEVICEADDED);
-        DEC_CONST(AUDIODEVICEREMOVED);
-    #else
-        DEC_CONSTS(AUDIODEVICEADDED, -1);
-        DEC_CONSTS(AUDIODEVICEREMOVED, -1);
-    #endif /* SDL_VERSION_ATLEAST(2, 0, 4) */
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+    DEC_CONST(AUDIODEVICEADDED);
+    DEC_CONST(AUDIODEVICEREMOVED);
+#else
+    DEC_CONSTS(AUDIODEVICEADDED, -1);
+    DEC_CONSTS(AUDIODEVICEREMOVED, -1);
+#endif /* SDL_VERSION_ATLEAST(2, 0, 4) */
     DEC_CONST(MOUSEWHEEL);
     DEC_CONST(TEXTINPUT);
     DEC_CONST(TEXTEDITING);
@@ -322,7 +316,7 @@ MODINIT_DEFINE(constants)
 
     DEC_CONSTS(BUTTON_X1, PGM_BUTTON_X1);
     DEC_CONSTS(BUTTON_X2, PGM_BUTTON_X2);
-    //Still to be decided
+    // Still to be decided
     DEC_CONSTS(BUTTON_WHEELUP, PGM_BUTTON_WHEELUP);
     DEC_CONSTS(BUTTON_WHEELDOWN, PGM_BUTTON_WHEELDOWN);
     DEC_CONST(AUDIO_ALLOW_FREQUENCY_CHANGE);
@@ -330,15 +324,15 @@ MODINIT_DEFINE(constants)
     DEC_CONST(AUDIO_ALLOW_CHANNELS_CHANGE);
     DEC_CONST(AUDIO_ALLOW_ANY_CHANGE);
     DEC_CONST(DROPFILE);
-    #if SDL_VERSION_ATLEAST(2, 0, 5)
-        DEC_CONST(DROPTEXT);
-        DEC_CONST(DROPBEGIN);
-        DEC_CONST(DROPCOMPLETE);
-    #else
-        DEC_CONSTS(DROPTEXT, -1);
-        DEC_CONSTS(DROPBEGIN, -1);
-        DEC_CONSTS(DROPCOMPLETE, -1);
-    #endif
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+    DEC_CONST(DROPTEXT);
+    DEC_CONST(DROPBEGIN);
+    DEC_CONST(DROPCOMPLETE);
+#else
+    DEC_CONSTS(DROPTEXT, -1);
+    DEC_CONSTS(DROPBEGIN, -1);
+    DEC_CONSTS(DROPCOMPLETE, -1);
+#endif
 
     DEC_CONST(CONTROLLER_AXIS_INVALID);
     DEC_CONST(CONTROLLER_AXIS_LEFTX);
@@ -366,7 +360,6 @@ MODINIT_DEFINE(constants)
     DEC_CONST(CONTROLLER_BUTTON_DPAD_RIGHT);
     DEC_CONST(CONTROLLER_BUTTON_MAX);
 
-
     /* Keyboard key codes: Pygame K_ constants. Scan codes: KSCAN_ constants.
      */
     DEC_CONSTK_AND_SC(AC_BACK);
@@ -378,7 +371,8 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK_AND_SC(PAUSE);
     DEC_CONSTK_AND_SC(ESCAPE);
     DEC_CONSTK_AND_SC(SPACE);
-    DEC_CONSTK(QUOTE); DEC_CONSTSC(APOSTROPHE);
+    DEC_CONSTK(QUOTE);
+    DEC_CONSTSC(APOSTROPHE);
     DEC_CONSTK_AND_SC(COMMA);
     DEC_CONSTK_AND_SC(MINUS);
     DEC_CONSTK_AND_SC(PERIOD);
@@ -398,33 +392,60 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK_AND_SC(LEFTBRACKET);
     DEC_CONSTK_AND_SC(BACKSLASH);
     DEC_CONSTK_AND_SC(RIGHTBRACKET);
-    DEC_CONSTK(BACKQUOTE); DEC_CONSTSC(GRAVE);
-    DEC_CONSTK(a); DEC_CONSTSC(A);
-    DEC_CONSTK(b); DEC_CONSTSC(B);
-    DEC_CONSTK(c); DEC_CONSTSC(C);
-    DEC_CONSTK(d); DEC_CONSTSC(D);
-    DEC_CONSTK(e); DEC_CONSTSC(E);
-    DEC_CONSTK(f); DEC_CONSTSC(F);
-    DEC_CONSTK(g); DEC_CONSTSC(G);
-    DEC_CONSTK(h); DEC_CONSTSC(H);
-    DEC_CONSTK(i); DEC_CONSTSC(I);
-    DEC_CONSTK(j); DEC_CONSTSC(J);
-    DEC_CONSTK(k); DEC_CONSTSC(K);
-    DEC_CONSTK(l); DEC_CONSTSC(L);
-    DEC_CONSTK(m); DEC_CONSTSC(M);
-    DEC_CONSTK(n); DEC_CONSTSC(N);
-    DEC_CONSTK(o); DEC_CONSTSC(O);
-    DEC_CONSTK(p); DEC_CONSTSC(P);
-    DEC_CONSTK(q); DEC_CONSTSC(Q);
-    DEC_CONSTK(r); DEC_CONSTSC(R);
-    DEC_CONSTK(s); DEC_CONSTSC(S);
-    DEC_CONSTK(t); DEC_CONSTSC(T);
-    DEC_CONSTK(u); DEC_CONSTSC(U);
-    DEC_CONSTK(v); DEC_CONSTSC(V);
-    DEC_CONSTK(w); DEC_CONSTSC(W);
-    DEC_CONSTK(x); DEC_CONSTSC(X);
-    DEC_CONSTK(y); DEC_CONSTSC(Y);
-    DEC_CONSTK(z); DEC_CONSTSC(Z);
+    DEC_CONSTK(BACKQUOTE);
+    DEC_CONSTSC(GRAVE);
+    DEC_CONSTK(a);
+    DEC_CONSTSC(A);
+    DEC_CONSTK(b);
+    DEC_CONSTSC(B);
+    DEC_CONSTK(c);
+    DEC_CONSTSC(C);
+    DEC_CONSTK(d);
+    DEC_CONSTSC(D);
+    DEC_CONSTK(e);
+    DEC_CONSTSC(E);
+    DEC_CONSTK(f);
+    DEC_CONSTSC(F);
+    DEC_CONSTK(g);
+    DEC_CONSTSC(G);
+    DEC_CONSTK(h);
+    DEC_CONSTSC(H);
+    DEC_CONSTK(i);
+    DEC_CONSTSC(I);
+    DEC_CONSTK(j);
+    DEC_CONSTSC(J);
+    DEC_CONSTK(k);
+    DEC_CONSTSC(K);
+    DEC_CONSTK(l);
+    DEC_CONSTSC(L);
+    DEC_CONSTK(m);
+    DEC_CONSTSC(M);
+    DEC_CONSTK(n);
+    DEC_CONSTSC(N);
+    DEC_CONSTK(o);
+    DEC_CONSTSC(O);
+    DEC_CONSTK(p);
+    DEC_CONSTSC(P);
+    DEC_CONSTK(q);
+    DEC_CONSTSC(Q);
+    DEC_CONSTK(r);
+    DEC_CONSTSC(R);
+    DEC_CONSTK(s);
+    DEC_CONSTSC(S);
+    DEC_CONSTK(t);
+    DEC_CONSTSC(T);
+    DEC_CONSTK(u);
+    DEC_CONSTSC(U);
+    DEC_CONSTK(v);
+    DEC_CONSTSC(V);
+    DEC_CONSTK(w);
+    DEC_CONSTSC(W);
+    DEC_CONSTK(x);
+    DEC_CONSTSC(X);
+    DEC_CONSTK(y);
+    DEC_CONSTSC(Y);
+    DEC_CONSTK(z);
+    DEC_CONSTSC(Z);
     DEC_CONSTK_AND_SC(DELETE);
 
     DEC_CONSTK_AND_SC(KP_0);
@@ -575,7 +596,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(APPINPUTFOCUS);
     DEC_CONST(APPACTIVE);
 
-/* cursor constants */
+    /* cursor constants */
     DEC_CONST(SYSTEM_CURSOR_ARROW);
     DEC_CONST(SYSTEM_CURSOR_IBEAM);
     DEC_CONST(SYSTEM_CURSOR_WAIT);

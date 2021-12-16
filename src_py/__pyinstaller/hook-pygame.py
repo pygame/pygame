@@ -19,7 +19,6 @@ datas = []
 
 # A helper to append the relative path of a resource to hook variable - datas
 def _append_to_datas(file_path):
-    global datas
     res_path = os.path.join(pygame_folder, file_path)
     if os.path.exists(res_path):
         datas.append((res_path, "pygame"))

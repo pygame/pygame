@@ -81,7 +81,7 @@ static int pg_is_init = 0;
 static int pg_sdl_was_init = 0;
 SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
-static char * pg_env_blend_alpha_SDL2 = NULL;
+static char *pg_env_blend_alpha_SDL2 = NULL;
 
 static void
 pg_install_parachute(void);
@@ -308,13 +308,10 @@ pg_init(PyObject *self)
     /* Put all the module names we want to init in this array */
     const char *modnames[] = {
         IMPPREFIX "display", /* Display first, this also inits event,time */
-        IMPPREFIX "joystick",
-        IMPPREFIX "font",
-        IMPPREFIX "freetype",
+        IMPPREFIX "joystick", IMPPREFIX "font", IMPPREFIX "freetype",
         IMPPREFIX "mixer",
         /* IMPPREFIX "_sdl2.controller", Is this required? Comment for now*/
-        NULL
-    };
+        NULL};
 
     if (!pg_CheckSDLVersions()) {
         return NULL;
@@ -388,14 +385,14 @@ _pg_quit(void)
         IMPPREFIX "font",
         IMPPREFIX "joystick",
         IMPPREFIX "display", /* Display last, this also quits event,time */
-        NULL
-    };
+        NULL};
 
     if (pg_quit_functions) {
         privatefuncs = pg_quit_functions;
         pg_quit_functions = NULL;
 
-        pg_uninstall_parachute(); /* Is this done here, or can it be done below? */
+        pg_uninstall_parachute(); /* Is this done here, or can it be done
+                                     below? */
         num = PyList_Size(privatefuncs);
 
         /*quit funcs in reverse order*/
@@ -434,7 +431,7 @@ _pg_quit(void)
 
     /* Release the GIL here, because the timer thread cleanups should happen
      * without deadlocking. */
-    Py_BEGIN_ALLOW_THREADS; 
+    Py_BEGIN_ALLOW_THREADS;
     pg_atexit_quit();
     Py_END_ALLOW_THREADS;
 }
@@ -464,7 +461,8 @@ pg_IntFromObj(PyObject *obj, int *val)
          */
         double dv = PyFloat_AsDouble(obj);
         tmp_val = (int)dv;
-    } else {
+    }
+    else {
         tmp_val = PyLong_AsLong(obj);
     }
 
@@ -793,8 +791,8 @@ static PyObject *
 pg_view_get_typestr_obj(Py_buffer *view)
 {
     return PyUnicode_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
-                           _pg_as_arrayinter_typekind(view),
-                           (int)view->itemsize);
+                                _pg_as_arrayinter_typekind(view),
+                                (int)view->itemsize);
 }
 
 static PyObject *
@@ -2043,7 +2041,8 @@ static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
     {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
-    {"register_quit", (PyCFunction)pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
+    {"register_quit", (PyCFunction)pg_register_quit, METH_O,
+     DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
     {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,

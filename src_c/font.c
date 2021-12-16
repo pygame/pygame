@@ -45,8 +45,9 @@
 #endif
 
 #ifndef SDL_TTF_VERSION_ATLEAST
-#define SDL_TTF_COMPILEDVERSION \
-    SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
+#define SDL_TTF_COMPILEDVERSION                                  \
+    SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, \
+                   SDL_TTF_PATCHLEVEL)
 #define SDL_TTF_VERSION_ATLEAST(X, Y, Z) \
     (SDL_TTF_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
 #endif
@@ -434,8 +435,8 @@ font_render(PyObject *self, PyObject *args)
     if (just_return) {
         int height = TTF_FontHeight(font);
 
-        if (just_return == -1 ||
-            !(PyUnicode_Check(text) || PyBytes_Check(text) || text == Py_None)) {
+        if (just_return == -1 || !(PyUnicode_Check(text) ||
+                                   PyBytes_Check(text) || text == Py_None)) {
             PyErr_Clear();
             return RAISE_TEXT_TYPE_ERROR();
         }
@@ -690,7 +691,7 @@ font_dealloc(PyFontObject *self)
         if (self->ttf_init_generation != current_ttf_generation) {
             // Since TTF_Font is a private structure
             // it's impossible to access face field in a common way.
-            int** face_pp = font;
+            int **face_pp = font;
             *face_pp = NULL;
         }
         TTF_CloseFont(font);

@@ -6,7 +6,7 @@
 #include "include/pgcompat.h"
 
 /* Module init function returns new module instance. */
-#define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name (void)
+#define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name(void)
 
 /* Defaults for unicode file path encoding */
 #if defined(MS_WIN32)
@@ -38,12 +38,18 @@
 
   https://wiki.libsdl.org/SDL_SetWindowResizable
 */
-void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable);
-int SDL_GetWindowOpacity(SDL_Window *window, float *opacity);
-int SDL_SetWindowOpacity(SDL_Window *window, float opacity);
-int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window);
-int SDL_SetWindowInputFocus(SDL_Window *window);
-SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
+void
+SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable);
+int
+SDL_GetWindowOpacity(SDL_Window *window, float *opacity);
+int
+SDL_SetWindowOpacity(SDL_Window *window, float opacity);
+int
+SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window);
+int
+SDL_SetWindowInputFocus(SDL_Window *window);
+SDL_Surface *
+SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format);
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
 #endif /* defined(SDL_VERSION_ATLEAST) */

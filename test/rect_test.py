@@ -704,21 +704,18 @@ class RectTypeTest(unittest.TestCase):
         self.assertTrue(
             r.contains(Rect(2, 3, 1, 1)), "r does not contain Rect(2, 3, 1, 1)"
         )
-        self.assertTrue(
-            Rect(2, 3, 1, 1) in r, "r does not contain Rect(2, 3, 1, 1) 2"
-        )
+        self.assertTrue(Rect(2, 3, 1, 1) in r, "r does not contain Rect(2, 3, 1, 1) 2")
         self.assertTrue(
             r.contains(Rect(r)), "r does not contain the same rect as itself"
         )
-        self.assertTrue(
-            r in Rect(r), "r does not contain the same rect as itself"
-        )
+        self.assertTrue(r in Rect(r), "r does not contain the same rect as itself")
         self.assertTrue(
             r.contains(Rect(2, 3, 0, 0)),
             "r does not contain an empty rect within its bounds",
         )
         self.assertTrue(
-            Rect(2, 3, 0, 0) in r, "r does not contain an empty rect within its bounds",
+            Rect(2, 3, 0, 0) in r,
+            "r does not contain an empty rect within its bounds",
         )
         self.assertFalse(r.contains(Rect(0, 0, 1, 2)), "r contains Rect(0, 0, 1, 2)")
         self.assertFalse(r.contains(Rect(4, 6, 1, 1)), "r contains Rect(4, 6, 1, 1)")

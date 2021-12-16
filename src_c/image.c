@@ -36,7 +36,6 @@
 #include <tmmintrin.h>
 #endif
 
-
 static int
 SaveTGA(SDL_Surface *surface, const char *file, int rle);
 static int
@@ -72,7 +71,7 @@ image_load_basic(PyObject *self, PyObject *obj)
     PyObject *final;
     PyObject *oencoded;
     SDL_Surface *surf;
-    
+
     SDL_RWops *rw = pgRWops_FromObject(obj);
     if (rw == NULL) {
         return NULL;
@@ -96,7 +95,7 @@ static PyObject *
 image_load_extended(PyObject *self, PyObject *arg)
 {
     if (extloadobj == NULL)
-        return RAISE(PyExc_NotImplementedError, 
+        return RAISE(PyExc_NotImplementedError,
                      "loading images of extended format is not available");
     else
         return PyObject_CallObject(extloadobj, arg);
@@ -107,7 +106,7 @@ image_load(PyObject *self, PyObject *arg)
 {
     PyObject *obj;
     const char *name = NULL;
-    
+
     if (extloadobj == NULL) {
         if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
             return NULL;
@@ -117,7 +116,6 @@ image_load(PyObject *self, PyObject *arg)
     else
         return image_load_extended(self, arg);
 }
-
 
 #ifdef WIN32
 #define strcasecmp _stricmp
@@ -129,7 +127,7 @@ static PyObject *
 image_save_extended(PyObject *self, PyObject *arg)
 {
     if (extsaveobj == NULL)
-        return RAISE(PyExc_NotImplementedError, 
+        return RAISE(PyExc_NotImplementedError,
                      "saving images of extended format is not available");
     else
         return PyObject_CallObject(extsaveobj, arg);
@@ -146,8 +144,8 @@ image_save(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     int result = 1;
 
-    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
-                &obj, &namehint)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj, &obj,
+                          &namehint)) {
         return NULL;
     }
 
@@ -160,18 +158,17 @@ image_save(PyObject *self, PyObject *arg)
     }
     else {
         const char *name = NULL;
-        const char * ext = NULL;
+        const char *ext = NULL;
         if (oencoded == Py_None) {
-            name = (namehint ? namehint: "tga");
+            name = (namehint ? namehint : "tga");
         }
         else {
             name = PyBytes_AS_STRING(oencoded);
         }
-        
+
         ext = find_extension(name);
-        if (!strcasecmp(ext, "png") ||
-                !strcasecmp(ext, "jpg") ||
-                !strcasecmp(ext, "jpeg")) {
+        if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
+            !strcasecmp(ext, "jpeg")) {
             /* If it is .png .jpg .jpeg use the extended module. */
             /* try to get extended formats */
             ret = image_save_extended(self, arg);
@@ -181,9 +178,9 @@ image_save(PyObject *self, PyObject *arg)
             SDL_RWops *rw = pgRWops_FromFileObject(obj);
             if (rw != NULL) {
                 if (!strcasecmp(ext, "bmp")) {
-                    /* The SDL documentation didn't specify which negative number
-                     * is returned upon error. We want to be sure that result is
-                     * either 0 or -1: */
+                    /* The SDL documentation didn't specify which negative
+                     * number is returned upon error. We want to be sure that
+                     * result is either 0 or -1: */
                     result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
                 }
                 else {
@@ -252,20 +249,23 @@ image_get_sdl_image_version(PyObject *self)
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
-#define _SHIFT_N_STEP2ALIGN(shift, step) (shift/8 + step * 4)
+#define _SHIFT_N_STEP2ALIGN(shift, step) (shift / 8 + step * 4)
 
 #if PYGAME_DEBUG_SSE
 /* Useful for debugging/comparing the SSE vectors */
-static void _debug_print128_num(__m128i var, const char *msg)
+static void
+_debug_print128_num(__m128i var, const char *msg)
 {
     uint32_t val[4];
     memcpy(val, &var, sizeof(val));
-    fprintf(stderr, "%s: %04x%04x%04x%04x\n",
-           msg, val[0], val[1], val[2], val[3]);
+    fprintf(stderr, "%s: %04x%04x%04x%04x\n", msg, val[0], val[1], val[2],
+            val[3]);
 }
 #define DEBUG_PRINT128_NUM(var, msg) _debug_print128_num(var, msg)
 #else
-#define DEBUG_PRINT128_NUM(var, msg) do { /* do nothing */ } while (0)
+#define DEBUG_PRINT128_NUM(var, msg) \
+    do { /* do nothing */            \
+    } while (0)
 #endif
 
 /*
@@ -299,7 +299,8 @@ static void _debug_print128_num(__m128i var, const char *msg)
  */
 static PG_INLINE __m128i
 compute_align_vector(SDL_PixelFormat *format, int color_offset,
-                     int alpha_offset) {
+                     int alpha_offset)
+{
     int output_align[4];
     size_t i;
     size_t limit = sizeof(output_align) / sizeof(int);
@@ -309,19 +310,19 @@ compute_align_vector(SDL_PixelFormat *format, int color_offset,
     int b_shift = (color_offset + 2) * 8;
     for (i = 0; i < limit; i++) {
         int p = 3 - i;
-        output_align[i] = _SHIFT_N_STEP2ALIGN(format->Rshift, p) << r_shift
-                        | _SHIFT_N_STEP2ALIGN(format->Gshift, p) << g_shift
-                        | _SHIFT_N_STEP2ALIGN(format->Bshift, p) << b_shift
-                        | _SHIFT_N_STEP2ALIGN(format->Ashift, p) << a_shift;
+        output_align[i] = _SHIFT_N_STEP2ALIGN(format->Rshift, p) << r_shift |
+                          _SHIFT_N_STEP2ALIGN(format->Gshift, p) << g_shift |
+                          _SHIFT_N_STEP2ALIGN(format->Bshift, p) << b_shift |
+                          _SHIFT_N_STEP2ALIGN(format->Ashift, p) << a_shift;
     }
-    return _mm_set_epi32(output_align[0], output_align[1],
-                         output_align[2], output_align[3]);
+    return _mm_set_epi32(output_align[0], output_align[1], output_align[2],
+                         output_align[3]);
 }
-
 
 static PG_INLINE PG_FUNCTION_TARGET_SSE4_2 void
 tostring_pixels_32bit_sse4(const __m128i *row, __m128i *data, int loop_max,
-                           __m128i mask_vector, __m128i align_vector) {
+                           __m128i mask_vector, __m128i align_vector)
+{
     int w;
     for (w = 0; w < loop_max; ++w) {
         __m128i pvector = _mm_loadu_si128(row + w);
@@ -342,19 +343,20 @@ tostring_pixels_32bit_sse4(const __m128i *row, __m128i *data, int loop_max,
  */
 static PG_FUNCTION_TARGET_SSE4_2 void
 tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
-                          int color_offset, int alpha_offset) {
+                          int color_offset, int alpha_offset)
+{
     const int step_size = 4;
     int h;
     SDL_PixelFormat *format = surf->format;
     int loop_max = surf->w / step_size;
-    int mask = (format->Rloss ? 0 : format->Rmask)
-             | (format->Gloss ? 0 : format->Gmask)
-             | (format->Bloss ? 0 : format->Bmask)
-             | (format->Aloss ? 0 : format->Amask);
+    int mask = (format->Rloss ? 0 : format->Rmask) |
+               (format->Gloss ? 0 : format->Gmask) |
+               (format->Bloss ? 0 : format->Bmask) |
+               (format->Aloss ? 0 : format->Amask);
 
     __m128i mask_vector = _mm_set_epi32(mask, mask, mask, mask);
-    __m128i align_vector = compute_align_vector(surf->format,
-                                                color_offset, alpha_offset);
+    __m128i align_vector =
+        compute_align_vector(surf->format, color_offset, alpha_offset);
     /* How much we would overshoot if we overstep loop_max */
     int rollback_count = surf->w % step_size;
     if (rollback_count) {
@@ -381,9 +383,9 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
     assert(format->Aloss % 8 == 0);
 
     for (h = 0; h < surf->h; ++h) {
-        const char *row = (char *)DATAROW(
-            surf->pixels, h, surf->pitch, surf->h, flipped);
-        tostring_pixels_32bit_sse4((const __m128i*)row, (__m128i *)data,
+        const char *row =
+            (char *)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
+        tostring_pixels_32bit_sse4((const __m128i *)row, (__m128i *)data,
                                    loop_max, mask_vector, align_vector);
         row += sizeof(__m128i) * loop_max;
         data += sizeof(__m128i) * loop_max;
@@ -396,7 +398,7 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
             row -= rollback_count * sizeof(Uint32);
             data -= rollback_count * sizeof(Uint32);
 
-            tostring_pixels_32bit_sse4((const __m128i*)row, (__m128i *)data,
+            tostring_pixels_32bit_sse4((const __m128i *)row, (__m128i *)data,
                                        1, mask_vector, align_vector);
 
             row += sizeof(__m128i);
@@ -406,13 +408,10 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
 }
 #endif /* PG_COMPILE_SSE4_2 */
 
-
 static void
-tostring_surf_32bpp(SDL_Surface *surf, int flipped,
-                    int hascolorkey, Uint32 colorkey,
-                    char *serialized_image,
-                    int color_offset, int alpha_offset
-)
+tostring_surf_32bpp(SDL_Surface *surf, int flipped, int hascolorkey,
+                    Uint32 colorkey, char *serialized_image, int color_offset,
+                    int alpha_offset)
 {
     int w, h;
 
@@ -436,27 +435,24 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
          * If these assumptions do not match up, we will
          * produce incorrect results.
          */
-        sizeof(int) == sizeof(Uint32)
-        && 4 * sizeof(Uint32) == sizeof(__m128i)
-        && !hascolorkey /* No color key */
+        sizeof(int) == sizeof(Uint32) &&
+        4 * sizeof(Uint32) == sizeof(__m128i) &&
+        !hascolorkey /* No color key */
         && SDL_HasSSE42() == SDL_TRUE
         /* The SSE code assumes it will always read at least 4 pixels */
         && surf->w >= 4
         /* Our SSE code assumes masks are at most 0xff */
-        && (surf->format->Rmask >> surf->format->Rshift) <= 0x0ff
-        && (surf->format->Gmask >> surf->format->Gshift) <= 0x0ff
-        && (surf->format->Bmask >> surf->format->Bshift) <= 0x0ff
-        && (Amask >> Ashift) <= 0x0ff
+        && (surf->format->Rmask >> surf->format->Rshift) <= 0x0ff &&
+        (surf->format->Gmask >> surf->format->Gshift) <= 0x0ff &&
+        (surf->format->Bmask >> surf->format->Bshift) <= 0x0ff &&
+        (Amask >> Ashift) <= 0x0ff
         /* Our SSE code cannot handle losses other than 0 or 8
          * Note the mask check above ensures that losses can be
          * at most be 8 (assuming the pixel format makes sense
          * at all).
          */
-        && (surf->format->Rloss % 8) == 0
-        && (surf->format->Bloss % 8) == 0
-        && (surf->format->Gloss % 8) == 0
-        && (Aloss % 8) == 0
-        ) {
+        && (surf->format->Rloss % 8) == 0 && (surf->format->Bloss % 8) == 0 &&
+        (surf->format->Gloss % 8) == 0 && (Aloss % 8) == 0) {
         tostring_surf_32bpp_sse42(surf, flipped, serialized_image,
                                   color_offset, alpha_offset);
         return;
@@ -464,21 +460,20 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
 #endif /* PG_COMPILE_SSE4_2 */
 
     for (h = 0; h < surf->h; ++h) {
-        Uint32 *pixel_row = (Uint32 *)DATAROW(
-            surf->pixels, h, surf->pitch, surf->h, flipped);
+        Uint32 *pixel_row =
+            (Uint32 *)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
         for (w = 0; w < surf->w; ++w) {
             Uint32 color = *pixel_row++;
             serialized_image[color_offset + 0] =
-                 (char)(((color & Rmask) >> Rshift) << Rloss);
+                (char)(((color & Rmask) >> Rshift) << Rloss);
             serialized_image[color_offset + 1] =
-                 (char)(((color & Gmask) >> Gshift) << Gloss);
+                (char)(((color & Gmask) >> Gshift) << Gloss);
             serialized_image[color_offset + 2] =
-                 (char)(((color & Bmask) >> Bshift) << Bloss);
+                (char)(((color & Bmask) >> Bshift) << Bloss);
             serialized_image[alpha_offset] =
                 hascolorkey
                     ? (char)(color != colorkey) * 255
-                    : (char)(Amask ? (((color & Amask) >> Ashift)
-                                      << Aloss)
+                    : (char)(Amask ? (((color & Amask) >> Ashift) << Aloss)
                                    : 255);
             serialized_image += 4;
         }
@@ -524,7 +519,8 @@ image_tostring(PyObject *self, PyObject *arg)
             return RAISE(
                 PyExc_ValueError,
                 "Can only create \"P\" format data with 8bit Surfaces");
-        string = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h);
+        string =
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h);
         if (!string)
             return NULL;
         PyBytes_AsStringAndSize(string, &data, &len);
@@ -680,8 +676,8 @@ image_tostring(PyObject *self, PyObject *arg)
                 }
                 break;
             case 4:
-                tostring_surf_32bpp(surf, flipped, hascolorkey, colorkey,
-                                    data, 0, 3);
+                tostring_surf_32bpp(surf, flipped, hascolorkey, colorkey, data,
+                                    0, 3);
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -750,8 +746,8 @@ image_tostring(PyObject *self, PyObject *arg)
                 }
                 break;
             case 4:
-                tostring_surf_32bpp(surf, flipped, hascolorkey, colorkey,
-                                    data, 1, 0);
+                tostring_surf_32bpp(surf, flipped, hascolorkey, colorkey, data,
+                                    1, 0);
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -943,10 +939,8 @@ image_tostring(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
     }
     else {
-
         return RAISE(PyExc_ValueError, "Unrecognized type of format");
     }
-
 
     return string;
 }
@@ -1141,12 +1135,10 @@ image_frombuffer(PyObject *self, PyObject *arg)
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3,
-                                        0xFF << 16, 0xFF << 8,
-                                        0xFF, 0);
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3, 0xFF << 16,
+                                        0xFF << 8, 0xFF, 0);
 #else
-        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3,
-                                        0xFF, 0xFF << 8,
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3, 0xFF, 0xFF << 8,
                                         0xFF << 16, 0);
 #endif
     }
@@ -1175,9 +1167,9 @@ image_frombuffer(PyObject *self, PyObject *arg)
         surf =
             SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                    0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
+                                     0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
 #else
-                                    0xFF << 16, 0xFF << 8, 0xFF, 0xFF << 24);
+                                     0xFF << 16, 0xFF << 8, 0xFF, 0xFF << 24);
 #endif
         surf->flags |= SDL_SRCALPHA;
     }
@@ -1456,16 +1448,19 @@ SaveTGA(SDL_Surface *surface, const char *file, int rle)
 }
 
 static PyMethodDef _image_methods[] = {
-    {"load_basic", (PyCFunction)image_load_basic, METH_O, DOC_PYGAMEIMAGELOADBASIC},
-    {"load_extended", image_load_extended, METH_VARARGS, DOC_PYGAMEIMAGELOADEXTENDED},
+    {"load_basic", (PyCFunction)image_load_basic, METH_O,
+     DOC_PYGAMEIMAGELOADBASIC},
+    {"load_extended", image_load_extended, METH_VARARGS,
+     DOC_PYGAMEIMAGELOADEXTENDED},
     {"load", image_load, METH_VARARGS, DOC_PYGAMEIMAGELOAD},
-    
-    {"save_extended", image_save_extended, METH_VARARGS, DOC_PYGAMEIMAGESAVEEXTENDED},
+
+    {"save_extended", image_save_extended, METH_VARARGS,
+     DOC_PYGAMEIMAGESAVEEXTENDED},
     {"save", image_save, METH_VARARGS, DOC_PYGAMEIMAGESAVE},
     {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
-    {"get_sdl_image_version", (PyCFunction)image_get_sdl_image_version, METH_NOARGS,
-     DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
+    {"get_sdl_image_version", (PyCFunction)image_get_sdl_image_version,
+     METH_NOARGS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
     {"fromstring", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMSTRING},
@@ -1520,7 +1515,8 @@ MODINIT_DEFINE(image)
         if (!extsaveobj) {
             goto error;
         }
-        extverobj = PyObject_GetAttrString(extmodule, "_get_sdl_image_version");
+        extverobj =
+            PyObject_GetAttrString(extmodule, "_get_sdl_image_version");
         if (!extverobj) {
             goto error;
         }
@@ -1531,12 +1527,12 @@ MODINIT_DEFINE(image)
         PyErr_Clear();
     }
     return module;
-    
-    error:
-        Py_XDECREF(extloadobj);
-        Py_XDECREF(extsaveobj);
-        Py_XDECREF(extverobj);
-        Py_DECREF(extmodule);
-        Py_DECREF(module);
-        return NULL;
+
+error:
+    Py_XDECREF(extloadobj);
+    Py_XDECREF(extsaveobj);
+    Py_XDECREF(extverobj);
+    Py_DECREF(extmodule);
+    Py_DECREF(module);
+    return NULL;
 }

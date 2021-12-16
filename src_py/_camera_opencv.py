@@ -11,8 +11,9 @@ def list_cameras():
 
 def list_cameras_darwin():
     import subprocess
-    import xml.etree.ElementTree as ElementTree
+    from xml.etree import ElementTree
 
+    # pylint: disable=consider-using-with
     flout, _ = subprocess.Popen(
         "system_profiler -xml SPCameraDataType",
         shell=True,
@@ -158,7 +159,8 @@ class Camera(object):
 
 
 class CameraMac(Camera):
-    def __init__(self, device=0, *args, **kwargs):
+    def __init__(self, device=0, size=(640, 480), mode="RGB"):
+
         if isinstance(device, int):
             _dev = device
         elif isinstance(device, str):
@@ -169,4 +171,4 @@ class CameraMac(Camera):
                 str(type(device)),
             )
 
-        super().__init__(_dev, *args, **kwargs)
+        super().__init__(_dev, size, mode)

@@ -29,11 +29,11 @@
  * Including source code like this may be frowned upon by some,
  * but the alternative is ungainly conditionally compiled code.
  */
-#   if defined(__x86_64__)
-#       include "scale_mmx64.c"
-#   elif defined(__i386__)
-#       include "scale_mmx32.c"
-#   endif
+#if defined(__x86_64__)
+#include "scale_mmx64.c"
+#elif defined(__i386__)
+#include "scale_mmx32.c"
+#endif
 #else
 #if defined(_M_X64) && !defined(_NO_MMX_FOR_X86_64)
 #include "scale_mmx64_msvc.c"

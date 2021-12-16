@@ -534,7 +534,7 @@ class DrawEllipseMixin(object):
                     not_same_size(width, height, border_width, left, top)
 
     def test_ellipse__big_ellipse(self):
-        """ Test for big ellipse that could overflow in algorithm """
+        """Test for big ellipse that could overflow in algorithm"""
         width = 1025
         height = 1025
         border = 1

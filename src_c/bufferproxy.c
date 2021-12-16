@@ -58,9 +58,9 @@
 typedef struct pgBufproxyObject_s {
     PyObject_HEAD PyObject *obj; /* Wrapped object (parent)     */
     pg_buffer *pg_view_p;        /* For array interface export  */
-    getbufferproc get_buffer; /* pg_buffer get callback      */
-    PyObject *dict;           /* Allow arbitrary attributes  */
-    PyObject *weakrefs;       /* Reference cycles can happen */
+    getbufferproc get_buffer;    /* pg_buffer get callback      */
+    PyObject *dict;              /* Allow arbitrary attributes  */
+    PyObject *weakrefs;          /* Reference cycles can happen */
 } pgBufproxyObject;
 
 static int
@@ -519,8 +519,7 @@ proxy_releasebuffer(pgBufproxyObject *self, Py_buffer *view_p)
 #define PROXY_BUFFERPROCS (&proxy_bufferprocs)
 
 static PyBufferProcs proxy_bufferprocs = {
-    (getbufferproc)proxy_getbuffer,
-    (releasebufferproc)proxy_releasebuffer};
+    (getbufferproc)proxy_getbuffer, (releasebufferproc)proxy_releasebuffer};
 
 #define PROXY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
@@ -568,9 +567,7 @@ static PyTypeObject pgBufproxy_Type = {
 
 /**** Module methods ***/
 
-static PyMethodDef bufferproxy_methods[] = {
-    {0, 0, 0, 0}
-};
+static PyMethodDef bufferproxy_methods[] = {{0, 0, 0, 0}};
 
 /**** Public C api ***/
 
