@@ -637,7 +637,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       Default is 1000./80 where 80 is the fps I want to switch to full screen
       mode.  This method's name is a typo and should be fixed.
 
-      DEPRECATED: Use rotate_rad_ip() instead.
+      DEPRECATED: Use set_timing_threshold() instead.
 
       :raises TypeError: if ``time_ms`` is not int or float
 
