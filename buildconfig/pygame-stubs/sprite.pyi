@@ -108,6 +108,9 @@ class LayeredDirty(LayeredUpdates):
     def set_timing_treshold(
         self, time_ms: SupportsFloat
     ) -> None: ...  # This actually accept any value
+    def set_timing_threshold(
+        self, time_ms: SupportsFloat
+    ) -> None: ...  # This actually accept any value
 
 class GroupSingle(AbstractGroup):
     sprite: Sprite
