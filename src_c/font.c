@@ -75,6 +75,7 @@ static const char resourcefunc_name[] = "getResource";
 
 /*
  */
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
 static int
 utf_8_needs_UCS_4(const char *str)
 {
@@ -88,6 +89,7 @@ utf_8_needs_UCS_4(const char *str)
     }
     return 0;
 }
+#endif
 
 static PyObject *
 pg_open_obj(PyObject *obj, const char *mode)
@@ -691,7 +693,7 @@ font_dealloc(PyFontObject *self)
         if (self->ttf_init_generation != current_ttf_generation) {
             // Since TTF_Font is a private structure
             // it's impossible to access face field in a common way.
-            int **face_pp = font;
+            long **face_pp = (long **)font;
             *face_pp = NULL;
         }
         TTF_CloseFont(font);

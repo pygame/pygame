@@ -866,9 +866,8 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *rectobj = NULL;
-    PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -1377,7 +1376,6 @@ static void
 drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 {
     Uint8 *pixel, *end;
-    Uint8 *colorptr;
 
     if (x1 == x2) {
         return;
@@ -1404,13 +1402,11 @@ drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
             }
             break;
         case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                color <<= 8;
-            colorptr = (Uint8 *)&color;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+            color <<= 8;
+#endif
             for (; pixel <= end; pixel += 3) {
-                pixel[0] = colorptr[0];
-                pixel[1] = colorptr[1];
-                pixel[2] = colorptr[2];
+                memcpy(pixel, &color, 3 * sizeof(Uint8));
             }
             break;
         default: /*case 4*/

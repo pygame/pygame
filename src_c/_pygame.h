@@ -225,7 +225,7 @@ typedef enum {
 #error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a
 supported Python version. #endif */
 
-#define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
+#define RAISE(x, y) (PyErr_SetString((x), (y)), NULL)
 #define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)                 \
     do {                                                          \
         if (!value) {                                             \

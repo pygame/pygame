@@ -296,7 +296,7 @@ Mix_MusicType
 _get_type_from_hint(char *namehint)
 {
     Mix_MusicType type = MUS_NONE;
-    const char *dot;
+    char *dot;
 
     // Adjusts namehint into a mere file extension component
     if (namehint != NULL) {

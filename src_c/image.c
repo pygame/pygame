@@ -69,7 +69,6 @@ static PyObject *
 image_load_basic(PyObject *self, PyObject *obj)
 {
     PyObject *final;
-    PyObject *oencoded;
     SDL_Surface *surf;
 
     SDL_RWops *rw = pgRWops_FromObject(obj);

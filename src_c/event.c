@@ -1250,15 +1250,15 @@ dict_from_event(SDL_Event *event)
 
 #ifdef WIN32
         case SDL_SYSWMEVENT:
-            _pg_insobj(
-                dict, "hwnd",
-                PyLong_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
+            _pg_insobj(dict, "hwnd",
+                       PyLong_FromLongLong(
+                           (long long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg",
                        PyLong_FromLong(event->syswm.msg->msg.win.msg));
             _pg_insobj(dict, "wparam",
-                       PyLong_FromLong(event->syswm.msg->msg.win.wParam));
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.wParam));
             _pg_insobj(dict, "lparam",
-                       PyLong_FromLong(event->syswm.msg->msg.win.lParam));
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.lParam));
             break;
 #endif /* WIN32 */
 
@@ -1774,7 +1774,7 @@ _pg_eventtype_from_seq(PyObject *seq, int ind)
 }
 
 static PyObject *
-_pg_eventtype_as_seq(PyObject *obj, int *len)
+_pg_eventtype_as_seq(PyObject *obj, Py_ssize_t *len)
 {
     *len = 1;
     if (PySequence_Check(obj)) {
@@ -1804,7 +1804,8 @@ _pg_flush_events(Uint32 type)
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int loop, len, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq, *obj = NULL;
     int dopump = 1;
 
@@ -1858,7 +1859,8 @@ static PyObject *
 _pg_get_all_events_except(PyObject *obj)
 {
     SDL_Event event;
-    int loop, type, len, ret;
+    Py_ssize_t len;
+    int loop, type, ret;
     PyObject *seq, *list;
 
     SDL_Event *filtered_events;
@@ -1994,8 +1996,9 @@ error:
 static PyObject *
 _pg_get_seq_events(PyObject *obj)
 {
+    Py_ssize_t len;
     SDL_Event event;
-    int loop, type, len, ret;
+    int loop, type, ret;
     PyObject *seq, *list;
 
     list = PyList_New(0);
@@ -2082,7 +2085,8 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int len, type, loop, res;
+    Py_ssize_t len;
+    int type, loop, res;
     PyObject *seq, *obj = NULL;
     int dopump = 1;
 
@@ -2173,7 +2177,8 @@ pg_event_post(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *obj)
 {
-    int len, loop, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2204,7 +2209,8 @@ pg_event_set_allowed(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *obj)
 {
-    int len, loop, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2240,7 +2246,8 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *obj)
 {
-    int loop, type, len, isblocked = 0;
+    Py_ssize_t len;
+    int loop, type, isblocked = 0;
     PyObject *seq;
 
     VIDEO_INIT_CHECK();

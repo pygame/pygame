@@ -536,7 +536,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     PyGILState_STATE state;
 
     if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
+        return lseek(helper->fileno, (long)offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
@@ -616,7 +616,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #endif /* WITH_THREAD */
 
     if (helper->fileno != -1) {
-        retval = read(helper->fileno, ptr, size * maxnum);
+        retval = read(helper->fileno, ptr, (unsigned int)(size * maxnum));
         if (retval == -1) {
             return -1;
         }

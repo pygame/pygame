@@ -186,8 +186,8 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
 static int
 _copy_mapped(Py_buffer *view_p, SDL_Surface *surf)
 {
-    int pixelsize = surf->format->BytesPerPixel;
-    int intsize = view_p->itemsize;
+    Uint8 pixelsize = surf->format->BytesPerPixel;
+    Py_ssize_t intsize = view_p->itemsize;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     char *src = (char *)surf->pixels;
 #else
@@ -466,7 +466,7 @@ array_to_surface(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     SDL_PixelFormat *format;
     int loopx, loopy;
-    int stridex, stridey, stridez = 0, stridez2 = 0, sizex, sizey;
+    Py_ssize_t stridex, stridey, stridez = 0, stridez2 = 0, sizex, sizey;
     int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
 
     if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &arrayobj)) {
@@ -849,22 +849,22 @@ map_array(PyObject *self, PyObject *args)
     int ndim;
     Py_intptr_t *shape;
     Py_intptr_t *tar_strides;
-    int tar_itemsize;
+    Py_ssize_t tar_itemsize;
     int tar_byte0 = 0;
     int tar_byte1 = 0;
     int tar_byte2 = 0;
     int tar_byte3 = 0;
-    int tar_padding_start;
-    int tar_padding_end;
+    Py_ssize_t tar_padding_start;
+    Py_ssize_t tar_padding_end;
     Py_intptr_t counters[PIXELCOPY_MAX_DIM];
-    int src_advances[PIXELCOPY_MAX_DIM];
-    int tar_advances[PIXELCOPY_MAX_DIM];
+    Py_ssize_t src_advances[PIXELCOPY_MAX_DIM] = {0};
+    Py_ssize_t tar_advances[PIXELCOPY_MAX_DIM] = {0};
     int dim_diff;
     int dim;
     int topdim;
     _pc_pixel_t pixel = {0};
     int pix_bytesize;
-    int i;
+    Py_ssize_t i;
 
     if (!PyArg_ParseTuple(args, "OOO!", &tar_array, &src_array,
                           &pgSurface_Type, &format_surf)) {
@@ -960,7 +960,7 @@ map_array(PyObject *self, PyObject *args)
                         "target array itemsize is too small for pixel format");
         goto fail;
     }
-    src_green = src_view_p->strides[src_ndim - 1];
+    src_green = (int)src_view_p->strides[src_ndim - 1];
     src_blue = 2 * src_green;
     switch (pix_bytesize) {
         case 1:
@@ -1152,8 +1152,8 @@ make_surface(PyObject *self, PyObject *arg)
         gmask = 0xFF << 8;
         bmask = 0xFF;
     }
-    sizex = view_p->shape[0];
-    sizey = view_p->shape[1];
+    sizex = (int)view_p->shape[0];
+    sizey = (int)view_p->shape[1];
 
     surf = SDL_CreateRGBSurface(0, sizex, sizey, bitsperpixel, rmask, gmask,
                                 bmask, 0);

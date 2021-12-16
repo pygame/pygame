@@ -589,7 +589,7 @@ bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
                 b = *s++;
                 g = *s++;
                 r = *s++;
-                *s++;
+                s++;
                 *d32++ = ((r >> rloss) << rshift) | ((g >> gloss) << gshift) |
                          ((b >> bloss) << bshift);
             }
@@ -1928,6 +1928,9 @@ Camera(pgCameraObject *self, PyObject *arg)
     }
 
     return (PyObject *)cameraobj;
+#else
+    return RAISE(PyExc_RuntimeError,
+                 "_camera backend not available on your platform");
 #endif
 }
 

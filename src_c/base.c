@@ -40,7 +40,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 extern int
-SDL_RegisterApp(char *, Uint32, void *);
+SDL_RegisterApp(const char *, Uint32, void *);
 #endif
 
 #if defined(macintosh)
@@ -374,7 +374,7 @@ pg_get_sdl_byteorder(PyObject *self)
 static void
 _pg_quit(void)
 {
-    int num, i;
+    Py_ssize_t num, i;
     PyObject *quit, *privatefuncs, *temp;
 
     /* Put all the module names we want to quit in this array */
@@ -755,7 +755,7 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     cinter_p->inter.two = 2;
     cinter_p->inter.nd = ndim;
     cinter_p->inter.typekind = _pg_as_arrayinter_typekind(view_p);
-    cinter_p->inter.itemsize = view_p->itemsize;
+    cinter_p->inter.itemsize = (int)view_p->itemsize;
     cinter_p->inter.flags = _pg_as_arrayinter_flags(view_p);
     if (view_p->shape) {
         cinter_p->inter.shape = cinter_p->imem;
@@ -1589,7 +1589,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
                         "'shape' and 'strides' are not the same length");
         return -1;
     }
-    view_p->ndim = ndim;
+    view_p->ndim = (int)ndim;
     view_p->buf = PyLong_AsVoidPtr(PyTuple_GET_ITEM(data, 0));
     if (!view_p->buf && PyErr_Occurred()) {
         return -1;
@@ -2039,15 +2039,6 @@ pg_uninstall_parachute(void)
 
 /* bind functions to python */
 
-static PyObject *
-pg_do_segfault(PyObject *self, PyObject *args)
-{
-    // force crash
-    *((int *)1) = 45;
-    memcpy((char *)2, (char *)3, 10);
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
@@ -2063,8 +2054,6 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
-
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)

@@ -1143,7 +1143,7 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError,
                      "cannot set palette without pygame.display initialized");
 
-    len = MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(list));
 
     for (i = 0; i < len; i++) {
         item = PySequence_GetItem(list, i);

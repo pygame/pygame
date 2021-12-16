@@ -67,7 +67,13 @@ bitcount(BITMASK_W n)
         n = ((n >> 4) + n) & 0x0f0f0f0f0f0f0f0f;
         n += n >> 8;
         n += n >> 16;
+#ifdef _WIN32
+        /* Use explicit typecast to silence MSVC warning about large bitshift,
+         * even though this part code does not run on windows */
+        n += (long long)n >> 32;
+#else
         n += n >> 32;
+#endif
         return n & 0xff;
     }
     else {

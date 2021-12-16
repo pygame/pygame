@@ -725,6 +725,8 @@ windows_init_device(pgCameraObject *self)
 
     hr = MFStartup(MF_VERSION, MFSTARTUP_LITE);
     CHECKHR(hr);
+
+    return 1;
 }
 
 void

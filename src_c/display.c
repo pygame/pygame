@@ -476,15 +476,15 @@ pg_get_wm_info(PyObject *self)
         return dict;
 
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
-    tmp = PyLong_FromLong((long)info.info.win.window);
+    tmp = PyLong_FromLongLong((long long)info.info.win.window);
     PyDict_SetItemString(dict, "window", tmp);
     Py_DECREF(tmp);
 
-    tmp = PyLong_FromLong((long)info.info.win.hdc);
+    tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
 
-    tmp = PyLong_FromLong((long)info.info.win.hinstance);
+    tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
 #endif
@@ -1016,9 +1016,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         // if the program goes into fullscreen first the "saved
                         // x and y" are "undefined position" that should be
                         // interpreted as a cue to center the window
-                        if (x == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                        if (x == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
-                        if (y == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                        if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
@@ -1061,10 +1061,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     h_1 = display_bounds.h;
 
                     if (((float)w_1) / (float)h_1 > aspect_ratio) {
-                        w_1 = h_1 * aspect_ratio;
+                        w_1 = (int)(h_1 * aspect_ratio);
                     }
                     else {
-                        h_1 = w_1 / aspect_ratio;
+                        h_1 = (int)(w_1 / aspect_ratio);
                     }
                 }
                 else {
@@ -1496,7 +1496,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             mode.w = 640;
         if (!mode.h)
             mode.h = 480;
-        if (SDL_BITSPERPIXEL(mode.format) != bpp)
+        if ((int)SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
         if (last_width == mode.w && last_height == mode.h &&
             last_width != -1) {
@@ -1615,7 +1615,6 @@ pg_update(PyObject *self, PyObject *arg)
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Rect *gr, temp = {0};
     int wide, high;
-    PyObject *obj;
 
     VIDEO_INIT_CHECK();
 
@@ -1723,6 +1722,7 @@ pg_set_palette(PyObject *self, PyObject *args)
         return NULL;
     if (!surface)
         return RAISE(pgExc_SDLError, "No display mode is set");
+
     Py_INCREF(surface);
     surf = pgSurface_AsSurface(surface);
     pal = surf->format->palette;
@@ -1741,7 +1741,10 @@ pg_set_palette(PyObject *self, PyObject *args)
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
     }
 
-    len = MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(list));
+    if (len < 0) {
+        return NULL;
+    }
 
     colors = (SDL_Color *)malloc(len * sizeof(SDL_Color));
     if (!colors) {

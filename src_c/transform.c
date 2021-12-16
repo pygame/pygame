@@ -627,7 +627,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     surf = pgSurface_AsSurface(surfobj);
     if (surf->w < 1 || surf->h < 1) {
         Py_INCREF(surfobj);
-        return surfobj;
+        return (PyObject *)surfobj;
     }
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
@@ -1134,7 +1134,7 @@ filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     int dstdiff = dstpitch - (dstwidth * 4);
     int *xidx0, *xmult0, *xmult1;
     int x, y;
-    int factorwidth = 4;
+    const int factorwidth = 4;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
@@ -2228,7 +2228,7 @@ surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 int
-average_surfaces(SDL_Surface **surfaces, int num_surfaces,
+average_surfaces(SDL_Surface **surfaces, size_t num_surfaces,
                  SDL_Surface *destsurf, int palette_colors)
 {
     /*
@@ -2246,7 +2246,8 @@ average_surfaces(SDL_Surface **surfaces, int num_surfaces,
     Uint32 *the_idx;
     Uint32 the_color;
     SDL_Surface *surf;
-    int height, width, x, y, surf_idx;
+    size_t surf_idx;
+    int height, width, x, y;
 
     float div_inv;
 

@@ -91,7 +91,7 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
  * array.
  */
 static PyObject *
-_get_single_pixel(pgPixelArrayObject *array, Uint32 x, Uint32 y)
+_get_single_pixel(pgPixelArrayObject *array, Py_ssize_t x, Py_ssize_t y)
 {
     Uint8 *pixel_p;
     SDL_Surface *surf;

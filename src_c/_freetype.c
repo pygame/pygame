@@ -935,7 +935,7 @@ _ftfont_repr(pgFontObject *self)
 static PyObject *
 _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 {
-    const long style_flag = (long)closure;
+    const intptr_t style_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->style & (FT_UInt16)style_flag);
 }
@@ -943,7 +943,7 @@ _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const long style_flag = (long)closure;
+    const intptr_t style_flag = (intptr_t)closure;
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
@@ -1178,7 +1178,7 @@ _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrender_flag(pgFontObject *self, void *closure)
 {
-    const long render_flag = (long)closure;
+    const intptr_t render_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->render_flags & (FT_UInt16)render_flag);
 }
@@ -1186,7 +1186,7 @@ _ftfont_getrender_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const long render_flag = (long)closure;
+    const intptr_t render_flag = (intptr_t)closure;
 
     /* Generic setter; We do not know the name of the attribute */
     DEL_ATTR_NOT_SUPPORTED_CHECK(NULL, value);

@@ -248,8 +248,7 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject *xormask,
                    PyObject *andmask)
 {
     Uint8 *xordata = NULL, *anddata = NULL;
-    int xorsize, andsize, loop;
-    int val;
+    int xorsize, andsize, loop, val;
     SDL_Cursor *lastcursor, *cursor = NULL;
 
     if (!PySequence_Check(xormask) || !PySequence_Check(andmask))
@@ -258,8 +257,13 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject *xormask,
     if (w % 8)
         return RAISE(PyExc_ValueError, "Cursor width must be divisible by 8.");
 
-    xorsize = PySequence_Length(xormask);
-    andsize = PySequence_Length(andmask);
+    xorsize = (int)PySequence_Length(xormask);
+    if (xorsize < 0)
+        return NULL;
+
+    andsize = (int)PySequence_Length(andmask);
+    if (andsize < 0)
+        return NULL;
 
     if (xorsize != w * h / 8 || andsize != w * h / 8)
         return RAISE(PyExc_ValueError,
