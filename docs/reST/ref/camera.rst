@@ -237,8 +237,8 @@ New in pygame 1.9.0.
       | :sg:`get_raw() -> bytes`
 
       Gets an image from a camera as a string in the native pixelformat of the
-      camera. Useful for integration with other libraries. This returns bytes
-      in Python 3, but a string in Python 2.
+      camera. Useful for integration with other libraries. This returns a
+      bytes object
 
       .. ## Camera.get_raw ##
 

@@ -46,7 +46,7 @@ class MissingModule:
         self.name = name
         exc_type, exc_msg = sys.exc_info()[:2]
         self.info = str(exc_msg)
-        self.reason = "%s: %s" % (exc_type.__name__, self.info)
+        self.reason = f"{exc_type.__name__}: {self.info}"
         self.urgent = urgent
         if urgent:
             self.warn()
@@ -55,7 +55,7 @@ class MissingModule:
         if not self.urgent:
             self.warn()
             self.urgent = 1
-        missing_msg = "%s module not available (%s)" % (self.name, self.reason)
+        missing_msg = f"{self.name} module not available ({self.reason})"
         raise NotImplementedError(missing_msg)
 
     def __nonzero__(self):
@@ -65,7 +65,7 @@ class MissingModule:
 
     def warn(self):
         msg_type = "import" if self.urgent else "use"
-        message = "%s %s: %s\n(%s)" % (msg_type, self.name, self.info, self.reason)
+        message = f"{msg_type} {self.name}: {self.info}\n({self.reason})"
         try:
             import warnings
 
@@ -88,10 +88,10 @@ from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
 
-Color = color.Color
+Color = pygame.color.Color
 import pygame.bufferproxy
 
-BufferProxy = bufferproxy.BufferProxy
+BufferProxy = pygame.bufferproxy.BufferProxy
 import pygame.math
 
 Vector2 = pygame.math.Vector2
@@ -184,10 +184,10 @@ def warn_unwanted_files():
         py_to_remove = []
 
     # See if any of the files are there.
-    extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
+    extension_files = [f"{x}{extension_ext}" for x in ext_to_remove]
 
     py_files = [
-        "%s%s" % (x, py_ext) for py_ext in [".py", ".pyc", ".pyo"] for x in py_to_remove
+        f"{x}{py_ext}" for py_ext in [".py", ".pyc", ".pyo"] for x in py_to_remove
     ]
 
     files = py_files + extension_files
@@ -203,9 +203,7 @@ def warn_unwanted_files():
 
     if ask_remove:
         message = "Detected old file(s).  Please remove the old files:\n"
-
-        for f in ask_remove:
-            message += "%s " % f
+        message += " ".join(ask_remove)
         message += "\nLeaving them there might break pygame.  Cheers!\n\n"
 
         try:
@@ -328,7 +326,6 @@ def packager_imports():
     import numpy
     import OpenGL.GL
     import pygame.macosx
-    import pygame.bufferproxy
     import pygame.colordict
 
 
@@ -342,7 +339,7 @@ def __rect_constructor(x, y, w, h):
 
 
 def __rect_reduce(r):
-    assert type(r) == Rect
+    assert isinstance(r, Rect)
     return __rect_constructor, (r.x, r.y, r.w, r.h)
 
 
@@ -355,7 +352,7 @@ def __color_constructor(r, g, b, a):
 
 
 def __color_reduce(c):
-    assert type(c) == Color
+    assert isinstance(c, Color)
     return __color_constructor, (c.r, c.g, c.b, c.a)
 
 
@@ -364,11 +361,11 @@ copyreg.pickle(Color, __color_reduce, __color_constructor)
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print(
-        "pygame {} (SDL {}.{}.{}, Python {}.{}.{})".format(
+        "pygame {} (SDL {}.{}.{}, Python {}.{}.{})".format(  # pylint: disable=consider-using-f-string
             ver, *get_sdl_version() + sys.version_info[0:3]
         )
     )
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copyreg
+del pygame, os, sys, MissingModule, copyreg

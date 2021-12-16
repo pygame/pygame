@@ -63,14 +63,16 @@ class Cursor(object):
 
         pygame object for representing cursors
 
-        You can initialize a cursor from a system cursor or use the constructor on an existing Cursor object,
-        which will copy it.
-        Providing a Surface instance will render the cursor displayed as that Surface when used.
-        Said Surfaces may use other colors than black and white."""
+        You can initialize a cursor from a system cursor or use the
+        constructor on an existing Cursor object, which will copy it.
+        Providing a Surface instance will render the cursor displayed
+        as that Surface when used.
+
+        These Surfaces may use other colors than black and white."""
         if len(args) == 0:
             self.type = "system"
             self.data = (pygame.SYSTEM_CURSOR_ARROW,)
-        elif len(args) == 1 and args[0] in list(_cursor_id_table.keys()):
+        elif len(args) == 1 and args[0] in _cursor_id_table:
             self.type = "system"
             self.data = (args[0],)
         elif len(args) == 1 and isinstance(args[0], Cursor):
@@ -732,7 +734,7 @@ def compile(strings, black="X", white=".", xor="o"):
     # first check for consistent lengths
     size = len(strings[0]), len(strings)
     if size[0] % 8 or size[1] % 8:
-        raise ValueError("cursor string sizes must be divisible by 8 %s" % (size,))
+        raise ValueError(f"cursor string sizes must be divisible by 8 {size}")
 
     for s in strings[1:]:
         if len(s) != size[0]:
@@ -782,17 +784,17 @@ def load_xbm(curs, mask):
             val = val << 1 | b
         return val
 
-    if type(curs) is type(""):
-        with open(curs) as cursor_f:
-            curs = cursor_f.readlines()
-    else:
+    if hasattr(curs, "readlines"):
         curs = curs.readlines()
-
-    if type(mask) is type(""):
-        with open(mask) as mask_f:
-            mask = mask_f.readlines()
     else:
+        with open(curs, encoding="ascii") as cursor_f:
+            curs = cursor_f.readlines()
+
+    if hasattr(mask, "readlines"):
         mask = mask.readlines()
+    else:
+        with open(mask, encoding="ascii") as mask_f:
+            mask = mask_f.readlines()
 
     # avoid comments
     for i, line in enumerate(curs):

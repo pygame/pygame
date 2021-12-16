@@ -1,24 +1,10 @@
-from _typeshed import NoneType
-from typing import Union, Tuple, Iterable, Optional, Any, Generator, List
+from typing import Any, Generator, Iterable, Optional, Tuple, Union
 
-from pygame.surface import Surface
-from pygame.rect import Rect
-from pygame.math import Vector2
 from pygame.color import Color
+from pygame.rect import Rect
+from pygame.surface import Surface
 
-_ColorValue = Union[
-    Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
-]
-
-_CanBeRect = Union[
-    Rect,
-    Tuple[float, float, float, float],
-    Tuple[Tuple[float, float], Tuple[float, float]],
-    List[float],
-    List[Vector2],
-    Tuple[Vector2, Vector2],
-    Iterable[Vector2],
-]
+from .._common import _CanBeRect
 
 WINDOWPOS_UNDEFINED: int
 WINDOWPOS_CENTERED: int
@@ -120,7 +106,7 @@ class Image:
     ) -> None: ...
     def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
-        srcrect: Optional[_CanBeRect] = None, dstrect: Optional[_CanBeRect] = None
+        self, srcrect: Optional[_CanBeRect] = None, dstrect: Optional[_CanBeRect] = None
     ) -> None: ...
     angle: float
     origin: Optional[Iterable[float]]

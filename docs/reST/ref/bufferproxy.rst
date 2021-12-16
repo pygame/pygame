@@ -16,7 +16,7 @@
    of the :meth:`Surface.get_buffer` and :meth:`Surface.get_view` methods.
    For all Python versions a :class:`BufferProxy` object exports a C struct
    and Python level array interface on behalf of its parent object's buffer.
-   For CPython 2.6 and later a new buffer interface is also exported.
+   A new buffer interface is also exported.
    In pygame, :class:`BufferProxy` is key to implementing the
    :mod:`pygame.surfarray` module.
 

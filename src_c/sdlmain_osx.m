@@ -51,8 +51,6 @@ extern OSErr CPSEnableForegroundOperation(CPSProcessSerNum *psn, UInt32 _arg2, U
 extern OSErr CPSSetFrontProcess(CPSProcessSerNum *psn);
 extern OSErr CPSSetProcessName(CPSProcessSerNum *psn, const char *processname);
 
-static bool HasInstalledApplication = 0;
-
 static NSString *
 getApplicationName(void)
 {
@@ -93,20 +91,6 @@ _WMEnable(PyObject *self)
         return RAISE(pgExc_SDLError, "CPSGetCurrentProcess failed");
 
     Py_RETURN_TRUE;
-}
-
-static PyObject *
-_RunningFromBundleWithNSApplication(PyObject* self)
-{
-    if (HasInstalledApplication)
-        Py_RETURN_TRUE;
-
-    CFBundleRef MainBundle = CFBundleGetMainBundle();
-    if (MainBundle) {
-        if (CFBundleGetDataPointerForName(MainBundle, CFSTR("NSApp")))
-            Py_RETURN_TRUE;
-    }
-    Py_RETURN_FALSE;
 }
 
 //#############################################################################
@@ -199,42 +183,6 @@ setupWindowMenu(void)
 
     [windowMenu release];
     [windowMenuItem release];
-}
-
-static PyObject *
-_InstallNSApplication(PyObject *self, PyObject *arg)
-{
-    char *icon_data = NULL;
-    int data_len = 0;
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    [PYGSDLApplication sharedApplication];
-
-    [NSApp setMainMenu:[[NSMenu alloc] init]];
-    setApplicationMenu();
-    setupWindowMenu();
-
-    [NSApp finishLaunching];
-    [NSApp updateWindows];
-    [NSApp activateIgnoringOtherApps:true];
-
-    HasInstalledApplication = 1;
-
-    _WMEnable(NULL);
-
-    if (!PyArg_ParseTuple(arg, "|z#", &icon_data, &data_len)) {
-        [pool release];
-        return NULL;
-    }
-
-    NSData *image_data = [NSData dataWithBytes:icon_data length:data_len];
-    NSImage *icon_img = [[NSImage alloc] initWithData:image_data];
-    if (icon_img)
-        [NSApp setApplicationIconImage:icon_img];
-
-
-    [pool release];
-    Py_RETURN_TRUE;
 }
 
 static PyObject *
@@ -382,8 +330,6 @@ _ScrapLost(PyObject *self)
 static PyMethodDef macosx_builtins[] =
 {
     {"WMEnable", (PyCFunction)_WMEnable, METH_NOARGS, "Enables Foreground Operation when Window Manager is not available" },
-    {"RunningFromBundleWithNSApplication", (PyCFunction) _RunningFromBundleWithNSApplication, METH_NOARGS, "Returns true if we are running from an AppBundle with a variable named NSApp" },
-    {"InstallNSApplication", _InstallNSApplication, METH_VARARGS, "Creates an NSApplication with the right behaviors for SDL" },
     {"ScrapInit", (PyCFunction)_ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
     {"ScrapGet", (PyCFunction)_ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
     {"ScrapPut", (PyCFunction)_ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
@@ -399,7 +345,6 @@ MODINIT_DEFINE (sdlmain_osx)
     PyObject *module;
 
     /* create the module */
-#if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         MODPREFIX "sdlmain_osx",
@@ -411,19 +356,13 @@ MODINIT_DEFINE (sdlmain_osx)
         NULL,
         NULL
     };
-#endif
 
     /*imported needed apis*/
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "sdlmain_osx", macosx_builtins, NULL);
-#endif
-
-MODINIT_RETURN(module);
+    return module;
 }

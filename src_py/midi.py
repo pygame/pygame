@@ -22,10 +22,6 @@ New in pygame 1.9.0.
 #        - that can automatically inject input into the event queue
 #          once the input object is running.  Like joysticks.
 
-
-# In Python 2.7 pygame.math is imported instead of the built-in math module.
-# This import from future allows the built-in math module to be imported.
-from __future__ import absolute_import
 import math
 import atexit
 
@@ -576,7 +572,7 @@ class Output(object):
         Also called "patch change" or "program change".
         """
         if not 0 <= instrument_id <= 127:
-            raise ValueError("Undefined instrument id: %d" % instrument_id)
+            raise ValueError(f"Undefined instrument id: {instrument_id}")
 
         if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
@@ -600,7 +596,7 @@ class Output(object):
 
         if not -8192 <= value <= 8191:
             raise ValueError(
-                "Pitch bend value must be between " "-8192 and +8191, not %d." % value
+                f"Pitch bend value must be between -8192 and +8191, not {value}."
             )
 
         # "The 14 bit value of the pitch bend is defined so that a value of
@@ -719,4 +715,4 @@ def midi_to_ansi_note(midi_note):
     num_notes = 12
     note_name = notes[int(((midi_note - 21) % num_notes))]
     note_number = (midi_note - 12) // num_notes
-    return "%s%s" % (note_name, note_number)
+    return f"{note_name}{note_number}"

@@ -170,26 +170,25 @@ pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 }
 
 static PyTypeObject pgLifetimeLock_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "SurfLifeLock",                    /* name */
-    sizeof(pgLifetimeLockObject),      /* basic size */
-    0,                                 /* tp_itemsize */
-    _lifelock_dealloc,                 /* tp_dealloc*/
-    0,                                 /* tp_print */
-    NULL,                              /* tp_getattr */
-    NULL,                              /* tp_setattr */
-    NULL,                              /* tp_compare */
-    NULL,                              /* tp_repr */
-    NULL,                              /* tp_as_number */
-    NULL,                              /* tp_as_sequence */
-    NULL,                              /* tp_as_mapping */
-    NULL,                              /* tp_hash */
-    NULL,                              /* tp_call */
-    NULL,                              /* tp_str */
-    NULL,                              /* tp_getattro */
-    NULL,                              /* tp_setattro */
-    NULL,                              /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
+    PyVarObject_HEAD_INIT(NULL, 0) "SurfLifeLock", /* name */
+    sizeof(pgLifetimeLockObject),                  /* basic size */
+    0,                                             /* tp_itemsize */
+    _lifelock_dealloc,                             /* tp_dealloc*/
+    0,                                             /* tp_print */
+    NULL,                                          /* tp_getattr */
+    NULL,                                          /* tp_setattr */
+    NULL,                                          /* tp_compare */
+    NULL,                                          /* tp_repr */
+    NULL,                                          /* tp_as_number */
+    NULL,                                          /* tp_as_sequence */
+    NULL,                                          /* tp_as_mapping */
+    NULL,                                          /* tp_hash */
+    NULL,                                          /* tp_call */
+    NULL,                                          /* tp_str */
+    NULL,                                          /* tp_getattro */
+    NULL,                                          /* tp_setattro */
+    NULL,                                          /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     NULL,                                     /* tp_doc */
     NULL,                                     /* tp_traverse */
     NULL,                                     /* tp_clear */
@@ -277,13 +276,13 @@ MODINIT_DEFINE(surflock)
                                          NULL};
 
     if (PyType_Ready(&pgLifetimeLock_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* Create the module and add the functions */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
@@ -298,14 +297,14 @@ MODINIT_DEFINE(surflock)
     c_api[7] = pgSurface_LockLifetime;
     apiobj = encapsulate_api(c_api, "surflock");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
     if (ecode) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

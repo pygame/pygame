@@ -175,29 +175,20 @@ Only SDL2 is supported now.""")
         except ImportError:
             import buildconfig.config_conan as CFG
 
-    elif (sys.platform == 'win32' and
-        (sys.version_info >= (3, 8) and is_msys2())):
-        print_('Using WINDOWS MSYS2 configuration...\n')
-        try:
-            import config_msys2 as CFG
-        except ImportError:
-            import buildconfig.config_msys2 as CFG
-
-    elif (sys.platform == 'win32' and
-        # Note that msys builds supported for 2.6 and greater. Use prebuilt.
-        (sys.version_info >= (2, 6) or not is_msys_mingw())):
-        print_('Using WINDOWS configuration...\n')
-        try:
-            import config_win as CFG
-        except ImportError:
-            import buildconfig.config_win as CFG
-
     elif sys.platform == 'win32':
-        print_('Using WINDOWS mingw/msys configuration...\n')
-        try:
-            import config_msys as CFG
-        except ImportError:
-            import buildconfig.config_msys as CFG
+        if sys.version_info >= (3, 8) and is_msys2():
+            print_('Using WINDOWS MSYS2 configuration...\n')
+            try:
+                import config_msys2 as CFG
+            except ImportError:
+                import buildconfig.config_msys2 as CFG
+        else:
+            print_('Using WINDOWS configuration...\n')
+            try:
+                import config_win as CFG
+            except ImportError:
+                import buildconfig.config_win as CFG
+
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         try:
@@ -212,7 +203,7 @@ Only SDL2 is supported now.""")
             import buildconfig.config_unix as CFG
 
 
-    if sys.platform == 'win32' and sys.version_info > (3,):
+    if sys.platform == 'win32':
         additional_platform_setup = open(
             os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
         ).readlines()

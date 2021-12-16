@@ -1,4 +1,5 @@
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Tuple, Union
+
 from pygame.surface import Surface
 
 def get_backends() -> List[str]: ...

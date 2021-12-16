@@ -113,10 +113,8 @@ class EventTypeTest(unittest.TestCase):
 
         self.assertEqual(e.new_attr, 15)
 
-        # For Python 2.x a TypeError is raised for a readonly member;
-        # for Python 3.x it is an AttributeError.
-        self.assertRaises((TypeError, AttributeError), setattr, e, "type", 0)
-        self.assertRaises((TypeError, AttributeError), setattr, e, "dict", None)
+        self.assertRaises(AttributeError, setattr, e, "type", 0)
+        self.assertRaises(AttributeError, setattr, e, "dict", None)
 
         # Ensure attributes are visible to dir(), part of the original
         # posted request.

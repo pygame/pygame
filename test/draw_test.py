@@ -533,6 +533,25 @@ class DrawEllipseMixin(object):
                 for left, top in left_top:
                     not_same_size(width, height, border_width, left, top)
 
+    def test_ellipse__big_ellipse(self):
+        """Test for big ellipse that could overflow in algorithm"""
+        width = 1025
+        height = 1025
+        border = 1
+        x_value_test = int(0.4 * height)
+        y_value_test = int(0.4 * height)
+        surface = pygame.Surface((width, height))
+
+        self.draw_ellipse(surface, (255, 0, 0), (0, 0, width, height), border)
+        colored_pixels = 0
+        for y in range(height):
+            if surface.get_at((x_value_test, y)) == (255, 0, 0):
+                colored_pixels += 1
+        for x in range(width):
+            if surface.get_at((x, y_value_test)) == (255, 0, 0):
+                colored_pixels += 1
+        self.assertEqual(colored_pixels, border * 4)
+
     def test_ellipse__thick_line(self):
         """Ensures a thick lined ellipse is drawn correctly."""
         ellipse_color = pygame.Color("yellow")

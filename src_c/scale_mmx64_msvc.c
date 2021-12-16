@@ -28,41 +28,48 @@
  */
 
 #include <stdint.h>
-typedef uint8_t Uint8;    /* SDL convention */
-typedef uint16_t Uint16;  /* SDL convention */
+typedef uint8_t Uint8;   /* SDL convention */
+typedef uint16_t Uint16; /* SDL convention */
 #include <stdlib.h>
 #include <memory.h>
 #include "scale.h"
 
-/* These functions implement an area-averaging shrinking filter in the Y-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * Y-dimension.
  */
 void
-filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *)malloc(dstpitch * 2);
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
 
-    filter_shrink_Y_MMX_gcc(srcpix, dstpix, templine, width, srcpitch, dstpitch, srcheight, dstheight);
+    filter_shrink_Y_MMX_gcc(srcpix, dstpix, templine, width, srcpitch,
+                            dstpitch, srcheight, dstheight);
 
     /* free the temporary memory */
     free(templine);
 }
 
 void
-filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *)malloc(dstpitch * 2);
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
 
-    filter_shrink_Y_SSE_gcc(srcpix, dstpix, templine, width, srcpitch, dstpitch, srcheight, dstheight);
+    filter_shrink_Y_SSE_gcc(srcpix, dstpix, templine, width, srcpitch,
+                            dstpitch, srcheight, dstheight);
 
     /* free the temporary memory */
     free(templine);
@@ -71,25 +78,29 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
 /* These functions implement a bilinear filter in the X-dimension.
  */
 void
-filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int factorwidth = 8;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
-    if (xmult0 == 0 || xmult1 == 0)
-    {
+    if (xidx0 == 0)
+        return;
+    xmult0 = (int *)malloc(dstwidth * factorwidth);
+    xmult1 = (int *)malloc(dstwidth * factorwidth);
+    if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0) free(xmult0);
-        if (xmult1) free(xmult1);
+        if (xmult0)
+            free(xmult0);
+        if (xmult1)
+            free(xmult1);
         return;
     }
 
-    filter_expand_X_MMX_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height, srcpitch, dstpitch, srcwidth, dstwidth);
+    filter_expand_X_MMX_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height,
+                            srcpitch, dstpitch, srcwidth, dstwidth);
 
     /* free memory */
     free(xidx0);
@@ -98,25 +109,29 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 }
 
 void
-filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int factorwidth = 8;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
-    if (xmult0 == 0 || xmult1 == 0)
-    {
+    if (xidx0 == 0)
+        return;
+    xmult0 = (int *)malloc(dstwidth * factorwidth);
+    xmult1 = (int *)malloc(dstwidth * factorwidth);
+    if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0) free(xmult0);
-        if (xmult1) free(xmult1);
+        if (xmult0)
+            free(xmult0);
+        if (xmult1)
+            free(xmult1);
         return;
     }
 
-    filter_expand_X_SSE_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height, srcpitch, dstpitch, srcwidth, dstwidth);
+    filter_expand_X_SSE_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height,
+                            srcpitch, dstpitch, srcwidth, dstwidth);
 
     /* free memory */
     free(xidx0);

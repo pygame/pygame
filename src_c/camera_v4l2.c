@@ -140,8 +140,8 @@ v4l2_read_raw(pgCameraObject *self)
 
     assert(buf.index < self->n_buffers);
 
-    raw = Bytes_FromStringAndSize(self->buffers[buf.index].start,
-                                  self->buffers[buf.index].length);
+    raw = PyBytes_FromStringAndSize(self->buffers[buf.index].start,
+                                    self->buffers[buf.index].length);
 
     if (-1 == v4l2_xioctl(self->fd, VIDIOC_QBUF, &buf)) {
         PyErr_Format(PyExc_SystemError, "ioctl(VIDIOC_QBUF) failure : %d, %s",

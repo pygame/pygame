@@ -45,9 +45,9 @@
 
 #include <ctype.h>
 
-
-#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && !defined(round)
-#define pg_round(d) (((d < 0) ? (ceil((d)-0.5)) : (floor((d)+0.5))))
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && \
+    !defined(round)
+#define pg_round(d) (((d < 0) ? (ceil((d)-0.5)) : (floor((d) + 0.5))))
 #else
 #define pg_round(d) round(d)
 #endif
@@ -182,7 +182,6 @@ pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[]);
 static int
 pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[]);
 
-
 /**
  * Methods, which are bound to the pgColorObject type.
  */
@@ -197,8 +196,7 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORLERP},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
-    {"update", (PyCFunction)_color_update, METH_VARARGS,
-     DOC_COLORUPDATE},
+    {"update", (PyCFunction)_color_update, METH_VARARGS, DOC_COLORUPDATE},
     {NULL, NULL, 0, NULL}};
 
 /**
@@ -222,40 +220,40 @@ static PyGetSetDef _color_getsets[] = {
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyNumberMethods _color_as_number = {
-    (binaryfunc)_color_add, /* nb_add */
-    (binaryfunc)_color_sub, /* nb_subtract */
-    (binaryfunc)_color_mul, /* nb_multiply */
-    (binaryfunc)_color_mod, /* nb_remainder */
-    NULL,                   /* nb_divmod */
-    NULL,                   /* nb_power */
-    NULL,                   /* nb_negative */
-    NULL,                   /* nb_positive */
-    NULL,                   /* nb_absolute */
-    NULL,                   /* nb_nonzero / nb_bool*/
-    (unaryfunc)_color_inv,  /* nb_invert */
-    NULL,                   /* nb_lshift */
-    NULL,                   /* nb_rshift */
-    NULL,                   /* nb_and */
-    NULL,                   /* nb_xor */
-    NULL,                   /* nb_or */
-    (unaryfunc)_color_int, /* nb_int */
-    NULL, /* nb_reserved */
+    (binaryfunc)_color_add,  /* nb_add */
+    (binaryfunc)_color_sub,  /* nb_subtract */
+    (binaryfunc)_color_mul,  /* nb_multiply */
+    (binaryfunc)_color_mod,  /* nb_remainder */
+    NULL,                    /* nb_divmod */
+    NULL,                    /* nb_power */
+    NULL,                    /* nb_negative */
+    NULL,                    /* nb_positive */
+    NULL,                    /* nb_absolute */
+    NULL,                    /* nb_nonzero / nb_bool*/
+    (unaryfunc)_color_inv,   /* nb_invert */
+    NULL,                    /* nb_lshift */
+    NULL,                    /* nb_rshift */
+    NULL,                    /* nb_and */
+    NULL,                    /* nb_xor */
+    NULL,                    /* nb_or */
+    (unaryfunc)_color_int,   /* nb_int */
+    NULL,                    /* nb_reserved */
     (unaryfunc)_color_float, /* nb_float */
-    NULL, /* nb_inplace_add */
-    NULL, /* nb_inplace_subtract */
-    NULL, /* nb_inplace_multiply */
-    NULL,                   /* nb_inplace_remainder */
-    NULL,                   /* nb_inplace_power */
-    NULL,                   /* nb_inplace_lshift */
-    NULL,                   /* nb_inplace_rshift */
-    NULL,                   /* nb_inplace_and */
-    NULL,                   /* nb_inplace_xor */
-    NULL,                   /* nb_inplace_or */
-    (binaryfunc)_color_div, /* nb_floor_divide */
-    NULL,                   /* nb_true_divide */
-    NULL,                   /* nb_inplace_floor_divide */
-    NULL,                   /* nb_inplace_true_divide */
-    (unaryfunc)_color_int,  /* nb_index */
+    NULL,                    /* nb_inplace_add */
+    NULL,                    /* nb_inplace_subtract */
+    NULL,                    /* nb_inplace_multiply */
+    NULL,                    /* nb_inplace_remainder */
+    NULL,                    /* nb_inplace_power */
+    NULL,                    /* nb_inplace_lshift */
+    NULL,                    /* nb_inplace_rshift */
+    NULL,                    /* nb_inplace_and */
+    NULL,                    /* nb_inplace_xor */
+    NULL,                    /* nb_inplace_or */
+    (binaryfunc)_color_div,  /* nb_floor_divide */
+    NULL,                    /* nb_true_divide */
+    NULL,                    /* nb_inplace_floor_divide */
+    NULL,                    /* nb_inplace_true_divide */
+    (unaryfunc)_color_int,   /* nb_index */
 };
 
 /**
@@ -274,21 +272,12 @@ static PySequenceMethods _color_as_sequence = {
     NULL,                             /* sq_inplace_repeat */
 };
 
-static PyMappingMethods _color_as_mapping = {
-    (lenfunc)_color_length,
-    (binaryfunc)_color_subscript,
-    (objobjargproc)_color_set_slice
-};
+static PyMappingMethods _color_as_mapping = {(lenfunc)_color_length,
+                                             (binaryfunc)_color_subscript,
+                                             (objobjargproc)_color_set_slice};
 
-static PyBufferProcs _color_as_buffer = {
-#if HAVE_OLD_BUFPROTO
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-#endif
-    (getbufferproc)_color_getbuffer,
-    NULL};
+static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
+                                         NULL};
 
 #define COLOR_TPFLAGS_COMMON \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
@@ -297,25 +286,24 @@ static PyBufferProcs _color_as_buffer = {
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.Color",                    /* tp_name */
-    sizeof(pgColorObject),             /* tp_basicsize */
-    0,                                 /* tp_itemsize */
-    (destructor)_color_dealloc,        /* tp_dealloc */
-    0,                                 /* tp_print */
-    NULL,                              /* tp_getattr */
-    NULL,                              /* tp_setattr */
-    NULL,                              /* tp_compare */
-    (reprfunc)_color_repr,             /* tp_repr */
-    &_color_as_number,                 /* tp_as_number */
-    &_color_as_sequence,               /* tp_as_sequence */
-    &_color_as_mapping,                /* tp_as_mapping */
-    NULL,                              /* tp_hash */
-    NULL,                              /* tp_call */
-    NULL,                              /* tp_str */
-    NULL,                              /* tp_getattro */
-    NULL,                              /* tp_setattro */
-    &_color_as_buffer, /* tp_as_buffer */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Color", /* tp_name */
+    sizeof(pgColorObject),                         /* tp_basicsize */
+    0,                                             /* tp_itemsize */
+    (destructor)_color_dealloc,                    /* tp_dealloc */
+    0,                                             /* tp_print */
+    NULL,                                          /* tp_getattr */
+    NULL,                                          /* tp_setattr */
+    NULL,                                          /* tp_compare */
+    (reprfunc)_color_repr,                         /* tp_repr */
+    &_color_as_number,                             /* tp_as_number */
+    &_color_as_sequence,                           /* tp_as_sequence */
+    &_color_as_mapping,                            /* tp_as_mapping */
+    NULL,                                          /* tp_hash */
+    NULL,                                          /* tp_call */
+    NULL,                                          /* tp_str */
+    NULL,                                          /* tp_getattro */
+    NULL,                                          /* tp_setattro */
+    &_color_as_buffer,                             /* tp_as_buffer */
     COLOR_TPFLAGS,
     DOC_PYGAMECOLOR,       /* tp_doc */
     NULL,                  /* tp_traverse */
@@ -631,13 +619,14 @@ _color_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-_parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
+_parse_color_from_text(PyObject *str_obj, Uint8 *rgba)
+{
     /* Named color */
     PyObject *color = NULL;
     PyObject *name1 = NULL, *name2 = NULL;
 
     /* We assume the caller handled this check for us. */
-    assert(Text_Check(str_obj) || PyUnicode_Check(str_obj));
+    assert(PyUnicode_Check(str_obj));
 
     name1 = PyObject_CallMethod(str_obj, "replace", "(ss)", " ", "");
     if (!name1) {
@@ -660,7 +649,8 @@ _parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
             default:
                 break;
         }
-    } else if (!pg_RGBAFromObj(color, rgba)) {
+    }
+    else if (!pg_RGBAFromObj(color, rgba)) {
         PyErr_SetString(PyExc_ValueError, "invalid color");
         return -1;
     }
@@ -668,13 +658,14 @@ _parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
 }
 
 static int
-_parse_color_from_single_object(PyObject *obj, Uint8 *rgba) {
-
-    if (Text_Check(obj) || PyUnicode_Check(obj)) {
+_parse_color_from_single_object(PyObject *obj, Uint8 *rgba)
+{
+    if (PyUnicode_Check(obj)) {
         if (_parse_color_from_text(obj, rgba)) {
             return -1;
         }
-    } else {
+    }
+    else {
         /* At this point color is either tuple-like or a single integer. */
         if (!pg_RGBAFromColorObj(obj, rgba)) {
             /* Color is not a valid tuple-like. */
@@ -695,7 +686,8 @@ _parse_color_from_single_object(PyObject *obj, Uint8 *rgba) {
                 rgba[1] = (Uint8)(color >> 16);
                 rgba[2] = (Uint8)(color >> 8);
                 rgba[3] = (Uint8)color;
-            } else {
+            }
+            else {
                 /* Exception already set by _get_color(). */
                 return -1;
             }
@@ -721,7 +713,8 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
         if (_parse_color_from_single_object(obj, rgba)) {
             return -1;
         }
-    } else {
+    }
+    else {
         Uint32 color = 0;
 
         /* Color(R,G,B[,A]) */
@@ -776,7 +769,7 @@ _color_repr(pgColorObject *color)
     char buf[21];
     PyOS_snprintf(buf, sizeof(buf), "(%d, %d, %d, %d)", color->data[0],
                   color->data[1], color->data[2], color->data[3]);
-    return Text_FromUTF8(buf);
+    return PyUnicode_FromString(buf);
 }
 
 /**
@@ -837,12 +830,12 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
 {
     Uint8 rgba[4];
     Uint8 new_rgba[4];
-    PyObject* colobj;
+    PyObject *colobj;
     double amt;
     static char *keywords[] = {"color", "amount", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kw, "Od", keywords,
-                                     &colobj, &amt)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "Od", keywords, &colobj,
+                                     &amt)) {
         return NULL;
     }
 
@@ -852,8 +845,7 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
     }
 
     if (amt < 0 || amt > 1) {
-        return RAISE(PyExc_ValueError,
-                        "Argument 2 must be in range [0, 1]");
+        return RAISE(PyExc_ValueError, "Argument 2 must be in range [0, 1]");
     }
 
     new_rgba[0] = (Uint8)pg_round(self->data[0] * (1 - amt) + rgba[0] * amt);
@@ -931,7 +923,7 @@ _color_update(pgColorObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 _color_get_r(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[0]);
+    return PyLong_FromLong(color->data[0]);
 }
 
 /**
@@ -961,7 +953,7 @@ _color_set_r(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_g(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[1]);
+    return PyLong_FromLong(color->data[1]);
 }
 
 /**
@@ -991,7 +983,7 @@ _color_set_g(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_b(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[2]);
+    return PyLong_FromLong(color->data[2]);
 }
 
 /**
@@ -1021,7 +1013,7 @@ _color_set_b(pgColorObject *color, PyObject *value, void *closure)
 static PyObject *
 _color_get_a(pgColorObject *color, void *closure)
 {
-    return PyInt_FromLong(color->data[3]);
+    return PyLong_FromLong(color->data[3]);
 }
 
 /**
@@ -1079,7 +1071,8 @@ _color_get_hsva(pgColorObject *color, void *closure)
     /* Clamp S, needed on some but not all FPUs */
     if (hsv[1] < 0) {
         hsv[1] = 0.f;
-    } else if (hsv[1] > 100) {
+    }
+    else if (hsv[1] > 100) {
         hsv[1] = 100.f;
     }
 
@@ -1109,7 +1102,6 @@ _color_set_hsva(pgColorObject *color, PyObject *value, void *closure)
     double hsva[4] = {0, 0, 0, 0};
     double f, p, q, t, v, s;
     int hi;
-
 
     DEL_ATTR_NOT_SUPPORTED_CHECK("hsva", value);
 
@@ -1441,7 +1433,6 @@ _color_set_i1i2i3(pgColorObject *color, PyObject *value, void *closure)
     double i1i2i3[3] = {0, 0, 0};
     double ar, ag, ab;
 
-
     DEL_ATTR_NOT_SUPPORTED_CHECK("i1i2i3", value);
 
     /* I1 */
@@ -1768,13 +1759,13 @@ _color_item(pgColorObject *color, Py_ssize_t _index)
 
     switch (_index) {
         case 0:
-            return PyInt_FromLong(color->data[0]);
+            return PyLong_FromLong(color->data[0]);
         case 1:
-            return PyInt_FromLong(color->data[1]);
+            return PyLong_FromLong(color->data[1]);
         case 2:
-            return PyInt_FromLong(color->data[2]);
+            return PyLong_FromLong(color->data[2]);
         case 3:
-            return PyInt_FromLong(color->data[3]);
+            return PyLong_FromLong(color->data[3]);
         default:
             return RAISE(PyExc_IndexError, "invalid index");
     }
@@ -1913,7 +1904,7 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
 {
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError,
-            "Color object doesn't support item deletion");
+                        "Color object doesn't support item deletion");
         return -1;
     }
     if (PyLong_Check(idx)) {
@@ -1937,9 +1928,9 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
         }
         if (PySequence_Fast_GET_SIZE(fastitems) != slicelength) {
             PyErr_Format(PyExc_ValueError,
-                "attempting to assign sequence of length %zd "
-                "to slice of length %zd",
-                PySequence_Fast_GET_SIZE(fastitems), slicelength);
+                         "attempting to assign sequence of length %zd "
+                         "to slice of length %zd",
+                         PySequence_Fast_GET_SIZE(fastitems), slicelength);
             Py_DECREF(fastitems);
             return -1;
         }
@@ -1950,12 +1941,14 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
                 c = PyLong_AsLong(obj);
             }
             else {
-                PyErr_SetString(PyExc_TypeError, "color components must be integers");
+                PyErr_SetString(PyExc_TypeError,
+                                "color components must be integers");
                 Py_DECREF(fastitems);
                 return -1;
             }
             if (c < 0 || c > 255) {
-                PyErr_SetString(PyExc_ValueError, "color component must be 0-255");
+                PyErr_SetString(PyExc_ValueError,
+                                "color component must be 0-255");
                 Py_DECREF(fastitems);
                 return -1;
             }
@@ -1965,8 +1958,7 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
         Py_DECREF(fastitems);
         return 0;
     }
-    PyErr_SetString(PyExc_IndexError,
-        "Index must be an integer or slice");
+    PyErr_SetString(PyExc_IndexError, "Index must be an integer or slice");
     return -1;
 }
 
@@ -2089,7 +2081,7 @@ pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[])
 }
 
 static int
-pg_RGBAFromFuzzyColorObj(PyObject * color, Uint8 rgba[])
+pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[])
 {
     return _parse_color_from_single_object(color, rgba) == 0;
 }
@@ -2119,7 +2111,7 @@ MODINIT_DEFINE(color)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     colordict = PyImport_ImportModule("pygame.colordict");
@@ -2131,35 +2123,35 @@ MODINIT_DEFINE(color)
         Py_DECREF(colordict);
     }
     else {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgColor_Type) < 0) {
         Py_DECREF(_COLORDICT);
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
         Py_DECREF(_COLORDICT);
-        MODINIT_ERROR;
+        return NULL;
     }
     pgColor_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF(&pgColor_Type);
     if (PyModule_AddObject(module, "Color", (PyObject *)&pgColor_Type)) {
         Py_DECREF(&pgColor_Type);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     Py_INCREF(_COLORDICT);
     if (PyModule_AddObject(module, "THECOLORS", _COLORDICT)) {
         Py_DECREF(_COLORDICT);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     c_api[0] = &pgColor_Type;
@@ -2171,14 +2163,14 @@ MODINIT_DEFINE(color)
     apiobj = encapsulate_api(c_api, "color");
     if (apiobj == NULL) {
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_DECREF(apiobj);
         Py_DECREF(_COLORDICT);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

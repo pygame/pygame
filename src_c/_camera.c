@@ -171,7 +171,7 @@ list_cameras(PyObject *self, PyObject *arg)
 #if defined(PYGAME_WINDOWS_CAMERA)
         string = PyUnicode_FromWideChar(devices[i], -1);
 #else
-        string = Text_FromUTF8(devices[i]);
+        string = PyUnicode_FromString(devices[i]);
 #endif
         if (0 != PyList_Append(ret_list, string)) {
             /* Append failed; clean up and return */
@@ -265,10 +265,10 @@ camera_get_controls(pgCameraObject *self, PyObject *args)
 
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
-                         PyInt_FromLong(self->brightness));
+                         PyLong_FromLong(self->brightness));
 #elif defined(PYGAME_WINDOWS_CAMERA)
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
-                         PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
+                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -302,7 +302,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
-                         PyInt_FromLong(self->brightness));
+                         PyLong_FromLong(self->brightness));
 
 #elif defined(PYGAME_WINDOWS_CAMERA)
     int hflip = 0, vflip = 0, brightness = 0;
@@ -320,7 +320,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     self->vflip = vflip;
 
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
-                         PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
+                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -1957,18 +1957,18 @@ MODINIT_DEFINE(_camera)
 
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     // PyType_Init(pgCamera_Type);
     pgCamera_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready(&pgCamera_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
@@ -1977,5 +1977,5 @@ MODINIT_DEFINE(_camera)
     Py_INCREF(&pgCamera_Type);
     PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type);
 
-    MODINIT_RETURN(module);
+    return module;
 }

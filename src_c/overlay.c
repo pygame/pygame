@@ -34,7 +34,7 @@
 
 typedef struct {
     PyObject_HEAD SDL_Overlay *cOverlay;
-    GAME_Rect cRect;
+    SDL_Rect cRect;
 } PyGameOverlay;
 
 static void
@@ -49,7 +49,7 @@ overlay_dealloc(PyGameOverlay *self)
 static PyObject *
 Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
 {
-    GAME_Rect *rect, temp;
+    SDL_Rect *rect, temp;
 
     rect = pgRect_FromObject(args, &temp);
     if (!rect)
@@ -120,7 +120,7 @@ Overlay_Display(PyGameOverlay *self, PyObject *args)
 static PyObject *
 Overlay_GetHardware(PyGameOverlay *self, PyObject *args)
 {
-    return PyInt_FromLong(self->cOverlay->hw_overlay);
+    return PyLong_FromLong(self->cOverlay->hw_overlay);
 }
 
 PyObject *
@@ -173,44 +173,43 @@ static PyMethodDef Overlay_methods[] = {
 };
 
 PyTypeObject PyOverlay_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.overlay",                         /*tp_name*/
-    sizeof(PyGameOverlay),                    /*tp_basicsize*/
-    0,                                        /*tp_itemsize*/
-    (destructor)overlay_dealloc,              /*tp_dealloc*/
-    0,                                        /*tp_print*/
-    0,                                        /*tp_getattr*/
-    0,                                        /*tp_setattr*/
-    0,                                        /*tp_compare*/
-    0,                                        /*tp_repr*/
-    0,                                        /*tp_as_number*/
-    0,                                        /*tp_as_sequence*/
-    0,                                        /*tp_as_mapping*/
-    0,                                        /*tp_hash */
-    0,                                        /*tp_call*/
-    0,                                        /*tp_str*/
-    0,                                        /*tp_getattro*/
-    0,                                        /*tp_setattro*/
-    0,                                        /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    DOC_PYGAMEOVERLAY,                        /* tp_doc */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    Overlay_methods,                          /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
-    0,                                        /* tp_alloc */
-    Overlay_New,                              /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.overlay", /*tp_name*/
+    sizeof(PyGameOverlay),                           /*tp_basicsize*/
+    0,                                               /*tp_itemsize*/
+    (destructor)overlay_dealloc,                     /*tp_dealloc*/
+    0,                                               /*tp_print*/
+    0,                                               /*tp_getattr*/
+    0,                                               /*tp_setattr*/
+    0,                                               /*tp_compare*/
+    0,                                               /*tp_repr*/
+    0,                                               /*tp_as_number*/
+    0,                                               /*tp_as_sequence*/
+    0,                                               /*tp_as_mapping*/
+    0,                                               /*tp_hash */
+    0,                                               /*tp_call*/
+    0,                                               /*tp_str*/
+    0,                                               /*tp_getattro*/
+    0,                                               /*tp_setattro*/
+    0,                                               /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    DOC_PYGAMEOVERLAY,                               /* tp_doc */
+    0,                                               /* tp_traverse */
+    0,                                               /* tp_clear */
+    0,                                               /* tp_richcompare */
+    0,                                               /* tp_weaklistoffset */
+    0,                                               /* tp_iter */
+    0,                                               /* tp_iternext */
+    Overlay_methods,                                 /* tp_methods */
+    0,                                               /* tp_members */
+    0,                                               /* tp_getset */
+    0,                                               /* tp_base */
+    0,                                               /* tp_dict */
+    0,                                               /* tp_descr_get */
+    0,                                               /* tp_descr_set */
+    0,                                               /* tp_dictoffset */
+    0,                                               /* tp_init */
+    0,                                               /* tp_alloc */
+    Overlay_New,                                     /* tp_new */
 };
 
 static PyMethodDef _overlay_methods[] = {{NULL, NULL, 0, NULL}};
@@ -234,21 +233,21 @@ MODINIT_DEFINE(overlay)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     if (PyType_Ready(&PyOverlay_Type) == -1) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module reference */
@@ -256,8 +255,8 @@ MODINIT_DEFINE(overlay)
     if (PyModule_AddObject(module, "Overlay", (PyObject *)&PyOverlay_Type) ==
         -1) {
         Py_DECREF((PyObject *)&PyOverlay_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

@@ -9,22 +9,6 @@ Demonstrating several Font object attributes.
 - basic window, event, and font management.
 """
 import pygame as pg
-import sys
-import locale
-
-
-if sys.version_info >= (3,):
-
-    def print_unicode(s):
-        e = locale.getpreferredencoding()
-        print(s.encode(e, "backslashreplace").decode())
-
-else:
-
-    def print_unicode(s):
-        e = locale.getpreferredencoding()
-        print(s.encode(e, "backslashreplace"))
-
 
 def main():
     # initialize
@@ -74,7 +58,7 @@ def main():
     print("Font metrics for 'Fonty':  %s" % a_sys_font.metrics(text))
     ch = "\u3060"
     msg = "Font metrics for '%s':  %s" % (ch, a_sys_font.metrics(ch))
-    print_unicode(msg)
+    print(msg)
 
     ## #some_japanese_unicode = u"\u304b\u3070\u306b"
     ##some_japanese_unicode = unicode_('%c%c%c') % (0x304b, 0x3070, 0x306b)

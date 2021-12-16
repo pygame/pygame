@@ -74,4 +74,7 @@
 
 #endif /* NO_PYGAME_C_API */
 
+#define encapsulate_api(ptr, module) \
+    PyCapsule_New(ptr, PG_CAPSULE_NAME(module), NULL)
+
 #endif /* ~PGIMPORT_H */

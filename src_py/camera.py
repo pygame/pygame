@@ -2,6 +2,7 @@ import os
 import sys
 import platform
 import warnings
+from abc import ABC, abstractmethod
 
 _is_init = 0
 
@@ -75,11 +76,7 @@ def _setup_vidcapture():
 def get_backends():
     possible_backends = []
 
-    if (
-        sys.platform == "win32"
-        and sys.version_info > (3,)
-        and int(platform.win32_ver()[0]) > 8
-    ):
+    if sys.platform == "win32" and int(platform.win32_ver()[0]) > 8:
         possible_backends.append("_camera (MSMF)")
 
     if "linux" in sys.platform:
@@ -125,8 +122,8 @@ def init(backend=None):
     if not backends:
         _is_init = 1
         return
-    else:
-        backends = [b.lower() for b in backends]
+
+    backends = [b.lower() for b in backends]
 
     if not backend:
         backend = backends[0]
@@ -153,43 +150,36 @@ def quit():
     _is_init = 0
 
 
-def _check_init():
-    global _is_init
-    if not _is_init:
-        raise ValueError("Need to call camera.init() before using.")
-
-
-def list_cameras():
-    """ """
-    _check_init()
-    raise NotImplementedError()
-
-
-class Camera:
+class AbstractCamera(ABC):
+    @abstractmethod
     def __init__(self, device=0, size=(320, 200), mode="RGB"):
         """ """
-        _check_init()
-        raise NotImplementedError()
 
+    @abstractmethod
     def set_resolution(self, width, height):
         """Sets the capture resolution. (without dialog)"""
-        pass
 
+    @abstractmethod
     def start(self):
         """ """
 
+    @abstractmethod
     def stop(self):
         """ """
 
+    @abstractmethod
     def get_buffer(self):
         """ """
 
+    @abstractmethod
     def set_controls(self, **kwargs):
         """ """
 
+    @abstractmethod
     def get_image(self, dest_surf=None):
         """ """
 
+    @abstractmethod
     def get_surface(self, dest_surf=None):
         """ """
 

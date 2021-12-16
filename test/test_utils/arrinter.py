@@ -61,7 +61,6 @@ except AttributeError:
     def PyCObject_AsVoidPtr(o):
         raise TypeError("Not available")
 
-
 else:
     PyCObject_AsVoidPtr.restype = c_void_p
     PyCObject_AsVoidPtr.argtypes = [py_object]
@@ -75,7 +74,6 @@ except AttributeError:
 
     def PyCapsule_IsValid(capsule, name):
         return 0
-
 
 else:
     PyCapsule_IsValid.restype = c_int

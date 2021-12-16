@@ -212,7 +212,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 

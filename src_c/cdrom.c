@@ -88,7 +88,7 @@ static PyObject *
 get_count(PyObject *self)
 {
     CDROM_INIT_CHECK();
-    return PyInt_FromLong(SDL_CDNumDrives());
+    return PyLong_FromLong(SDL_CDNumDrives());
 }
 
 static PyObject *
@@ -280,7 +280,7 @@ cd_get_empty(PyObject *self, PyObject *args)
     }
 
     status = SDL_CDStatus(cdrom);
-    return PyInt_FromLong(status == CD_TRAYEMPTY);
+    return PyLong_FromLong(status == CD_TRAYEMPTY);
 }
 
 static PyObject *
@@ -296,7 +296,7 @@ cd_get_busy(PyObject *self, PyObject *args)
     }
 
     status = SDL_CDStatus(cdrom);
-    return PyInt_FromLong(status == CD_PLAYING);
+    return PyLong_FromLong(status == CD_PLAYING);
 }
 
 static PyObject *
@@ -312,7 +312,7 @@ cd_get_paused(PyObject *self, PyObject *args)
     }
 
     status = SDL_CDStatus(cdrom);
-    return PyInt_FromLong(status == CD_PAUSED);
+    return PyLong_FromLong(status == CD_PAUSED);
 }
 
 static PyObject *
@@ -347,14 +347,14 @@ cd_get_numtracks(PyObject *self, PyObject *args)
     }
 
     SDL_CDStatus(cdrom);
-    return PyInt_FromLong(cdrom->numtracks);
+    return PyLong_FromLong(cdrom->numtracks);
 }
 
 static PyObject *
 cd_get_id(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
-    return PyInt_FromLong(cd_id);
+    return PyLong_FromLong(cd_id);
 }
 
 static PyObject *
@@ -362,7 +362,7 @@ cd_get_name(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     CDROM_INIT_CHECK();
-    return Text_FromUTF8(SDL_CDName(cd_id));
+    return PyUnicode_FromString(SDL_CDName(cd_id));
 }
 
 static PyObject *
@@ -385,7 +385,7 @@ cd_get_track_audio(PyObject *self, PyObject *args)
         return RAISE(PyExc_IndexError, "Invalid track number");
     }
 
-    return PyInt_FromLong(cdrom->track[track].type == SDL_AUDIO_TRACK);
+    return PyLong_FromLong(cdrom->track[track].type == SDL_AUDIO_TRACK);
 }
 
 static PyObject *
@@ -465,7 +465,7 @@ cd_get_all(PyObject *self, PyObject *args)
             Py_DECREF(tuple);
             return NULL;
         }
-        PyTuple_SET_ITEM(item, 0, PyInt_FromLong(audio));
+        PyTuple_SET_ITEM(item, 0, PyLong_FromLong(audio));
         PyTuple_SET_ITEM(item, 1, PyFloat_FromDouble(start));
         PyTuple_SET_ITEM(item, 2, PyFloat_FromDouble(end));
         PyTuple_SET_ITEM(item, 3, PyFloat_FromDouble(length));
@@ -502,44 +502,43 @@ static PyMethodDef cd_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgCD_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "CD",                    /* name */
-    sizeof(pgCDObject),      /* basic size */
-    0,                       /* itemsize */
-    cd_dealloc,              /* dealloc */
-    0,                       /* print */
-    0,                       /* getattr */
-    0,                       /* setattr */
-    0,                       /* compare */
-    0,                       /* repr */
-    0,                       /* as_number */
-    0,                       /* as_sequence */
-    0,                       /* as_mapping */
-    0,                       /* hash */
-    0,                       /* call */
-    0,                       /* str */
-    0,                       /* tp_getattro */
-    0,                       /* tp_setattro */
-    0,                       /* tp_as_buffer */
-    0,                       /* flags */
-    DOC_PYGAMECDROMCD,       /* Documentation string */
-    0,                       /* tp_traverse */
-    0,                       /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    cd_methods,              /* tp_methods */
-    0,                       /* tp_members */
-    0,                       /* tp_getset */
-    0,                       /* tp_base */
-    0,                       /* tp_dict */
-    0,                       /* tp_descr_get */
-    0,                       /* tp_descr_set */
-    0,                       /* tp_dictoffset */
-    0,                       /* tp_init */
-    0,                       /* tp_alloc */
-    0,                       /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0) "CD", /* name */
+    sizeof(pgCDObject),                  /* basic size */
+    0,                                   /* itemsize */
+    cd_dealloc,                          /* dealloc */
+    0,                                   /* print */
+    0,                                   /* getattr */
+    0,                                   /* setattr */
+    0,                                   /* compare */
+    0,                                   /* repr */
+    0,                                   /* as_number */
+    0,                                   /* as_sequence */
+    0,                                   /* as_mapping */
+    0,                                   /* hash */
+    0,                                   /* call */
+    0,                                   /* str */
+    0,                                   /* tp_getattro */
+    0,                                   /* tp_setattro */
+    0,                                   /* tp_as_buffer */
+    0,                                   /* flags */
+    DOC_PYGAMECDROMCD,                   /* Documentation string */
+    0,                                   /* tp_traverse */
+    0,                                   /* tp_clear */
+    0,                                   /* tp_richcompare */
+    0,                                   /* tp_weaklistoffset */
+    0,                                   /* tp_iter */
+    0,                                   /* tp_iternext */
+    cd_methods,                          /* tp_methods */
+    0,                                   /* tp_members */
+    0,                                   /* tp_getset */
+    0,                                   /* tp_base */
+    0,                                   /* tp_dict */
+    0,                                   /* tp_descr_get */
+    0,                                   /* tp_descr_set */
+    0,                                   /* tp_dictoffset */
+    0,                                   /* tp_init */
+    0,                                   /* tp_alloc */
+    0,                                   /* tp_new */
 };
 
 static PyObject *
@@ -591,24 +590,24 @@ MODINIT_DEFINE(cdrom)
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgCD_Type) == -1) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     dict = PyModule_GetDict(module);
 
     if (PyDict_SetItemString(dict, "CDType", (PyObject *)&pgCD_Type) == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
@@ -616,15 +615,15 @@ MODINIT_DEFINE(cdrom)
     c_api[1] = pgCD_New;
     apiobj = encapsulate_api(c_api, "cdrom");
     if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
 
     if (ecode == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

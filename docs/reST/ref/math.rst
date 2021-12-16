@@ -272,14 +272,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector by a given angle in radians in place.`
       | :sg:`rotate_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector2.rotate_rad_ip ##
+
+   .. method:: rotate_rad_ip
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise by the given angle in radians. The
       length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector2.rotate_ip_rad ##
+      .. ## Vector2.rotate_rad_ip ##
 
    .. method:: angle_to
 
@@ -321,6 +333,19 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector2.project ##
+
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector2`
+
+      Returns a new Vector2 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.copy ##
+
 
    .. method:: update
 
@@ -568,14 +593,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector by a given angle in radians in place.`
       | :sg:`rotate_ip_rad(angle, Vector3) -> None`
 
+      DEPRECATED: Use rotate_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_ip_rad ##
+
+   .. method:: rotate_rad_ip
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_rad_ip(angle, Vector3) -> None`
+
       Rotates the vector counterclockwise around the given axis by the given
       angle in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_ip_rad ##
+      .. ## Vector3.rotate_rad_ip ##
 
    .. method:: rotate_x
 
@@ -620,14 +657,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
       | :sg:`rotate_x_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_x_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_x_ip_rad ##
+
+   .. method:: rotate_x_rad_ip
+
+      | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
+      | :sg:`rotate_x_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the x-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_x_ip_rad ##
+      .. ## Vector3.rotate_x_rad_ip ##
 
    .. method:: rotate_y
 
@@ -672,14 +721,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
       | :sg:`rotate_y_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_y_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_y_ip_rad ##
+
+   .. method:: rotate_y_rad_ip
+
+      | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
+      | :sg:`rotate_y_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the y-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_y_ip_rad ##
+      .. ## Vector3.rotate_y_rad_ip ##
 
    .. method:: rotate_z
 
@@ -724,12 +785,25 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
       | :sg:`rotate_z_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_z_rad_ip() instead.
+      
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_z_ip_rad ##
+
+   .. method:: rotate_z_rad_ip
+
+      | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
+      | :sg:`rotate_z_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the z-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. ## Vector3.rotate_z_ip_rad ##
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.rotate_z_rad_ip ##
 
    .. method:: angle_to
 
@@ -771,6 +845,17 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector3.project ##
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector3`
+
+      Returns a new Vector3 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.copy ##
 
    .. method:: update
 

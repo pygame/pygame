@@ -7,15 +7,10 @@ import os
 import tempfile
 import unittest
 import glob
+import pathlib
 
 from pygame.tests.test_utils import example_path, png, tostring
 import pygame, pygame.image, pygame.pkgdata
-
-
-try:
-    import pathlib
-except ImportError:
-    pathlib = None
 
 
 def test_magic(f, magic_hexes):
@@ -288,7 +283,6 @@ class ImageModuleTest(unittest.TestCase):
             # clean up the temp file, even if test fails
             os.remove(temp_filename)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_save_pathlib(self):
         surf = pygame.Surface((1, 1))
         surf.fill((23, 23, 23))
@@ -1056,7 +1050,6 @@ class ImageModuleTest(unittest.TestCase):
                 surf = pygame.image.load_extended(example_path("data/" + filename))
                 self.assertEqual(surf.get_at((0, 0)), expected_color)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_load_pathlib(self):
         """works loading using a Path argument."""
         path = pathlib.Path(example_path("data/asprite.bmp"))

@@ -51,7 +51,7 @@ class TestMixin(object):
         surface.unlock()
 
 
-@unittest.skipIf(IS_PYPY, "pypy2 having issues")
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayTypeTest(unittest.TestCase, TestMixin):
     def test_compare(self):
         # __doc__ (as of 2008-06-25) for pygame.pixelarray.PixelArray.compare:
@@ -338,7 +338,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar2.__getitem__(1), val)
             self.assertEqual(ar2.__getitem__(2), val)
 
-    @unittest.skipIf(IS_PYPY, "pypy2 malloc abort")
+    @unittest.skipIf(IS_PYPY, "pypy malloc abort")
     def test_get_pixel(self):
         w = 10
         h = 20
@@ -1301,7 +1301,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         self.assertEqual(repr(ar), type(ar).__name__ + "([\n  [42, 42, 42]]\n)")
 
 
-@unittest.skipIf(IS_PYPY, "pypy2 having issues")
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
     @unittest.skipIf(IS_PYPY, "skipping for PyPy (why?)")
     def test_basic(self):
@@ -1433,7 +1433,7 @@ class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
 
 
 @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-@unittest.skipIf(IS_PYPY, "pypy2 having issues")
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayNewBufferTest(unittest.TestCase, TestMixin):
 
     if pygame.HAVE_NEWBUF:

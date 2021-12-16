@@ -1,14 +1,8 @@
-import sys
-from typing import Any, overload, Optional
+from typing import Any, overload
 
 class BufferProxy(object):
     parent: Any
     length: int
-
-    if sys.version_info > (3,):
-        raw: bytes
-    else:
-        raw: str
     @overload
     def __init__(self) -> None: ...
     @overload

@@ -215,7 +215,7 @@ class Sprite(object):
         return truth(self.__g)
 
     def __repr__(self):
-        return "<%s Sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
+        return f"<{self.__class__.__name__} Sprite(in {len(self.__g)} groups)>"
 
     @property
     def layer(self):
@@ -337,9 +337,8 @@ class DirtySprite(Sprite):
             )
 
     def __repr__(self):
-        return "<%s DirtySprite(in %d groups)>" % (
-            self.__class__.__name__,
-            len(self.groups()),
+        return (
+            f"<{self.__class__.__name__} DirtySprite(in {len(self.groups())} groups)>"
         )
 
 
@@ -416,9 +415,9 @@ class AbstractGroup(object):
         and has the same sprites in it.
 
         """
-        return self.__class__(
-            self.sprites()
-        )  # noqa pylint: disable=too-many-function-args; needed because copy() won't work on AbstractGroup
+        return self.__class__(  # noqa pylint: disable=too-many-function-args
+            self.sprites()  # Needed because copy() won't work on AbstractGroup
+        )
 
     def __iter__(self):
         return iter(self.sprites())
@@ -541,7 +540,7 @@ class AbstractGroup(object):
     def draw(self, surface):
         """draw all sprites onto the surface
 
-        Group.draw(surface): return None
+        Group.draw(surface): return Rect_list
 
         Draws all of the member sprites onto the given surface.
 
@@ -555,6 +554,9 @@ class AbstractGroup(object):
             for spr in sprites:
                 self.spritedict[spr] = surface.blit(spr.image, spr.rect)
         self.lostsprites = []
+        dirty = self.lostsprites
+
+        return dirty
 
     def clear(self, surface, bgd):
         """erase the previous position of all sprites
@@ -609,7 +611,7 @@ class AbstractGroup(object):
         return len(self.sprites())
 
     def __repr__(self):
-        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
+        return f"<{self.__class__.__name__}({len(self)} sprites)>"
 
 
 class Group(AbstractGroup):
@@ -1335,9 +1337,7 @@ class LayeredDirty(LayeredUpdates):
             self._time_threshold = time_ms
         else:
             raise TypeError(
-                "Expected numeric value, got {} instead".format(
-                    time_ms.__class__.__name__
-                )
+                f"Expected numeric value, got {time_ms.__class__.__name__} instead"
             )
 
 
@@ -1455,6 +1455,7 @@ class collide_rect_ratio:  # noqa pylint: disable=invalid-name; this is a functi
         """
         Turn the class into a string.
         """
+        # pylint: disable=consider-using-f-string
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
@@ -1560,6 +1561,7 @@ class collide_circle_ratio(
         """
         Turn the class into a string.
         """
+        # pylint: disable=consider-using-f-string
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
