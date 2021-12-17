@@ -1,7 +1,7 @@
-# cython: language_level=2
+# cython: language_level=3str
 #
 
-from sdl2 cimport *
+from .sdl2 cimport *
 
 cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_OpenAudioDevice
