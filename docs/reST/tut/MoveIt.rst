@@ -262,7 +262,7 @@ represent the positions of our objects with the Rects.
 Also know that many functions in pygame expect Rect arguments. All of these
 functions can also accept a simple tuple of 4 elements (left, top, width,
 height). You aren't always required to use these Rect objects, but you will
-mainly want to. Also, the blit() function can accept a Rect as it's position
+mainly want to. Also, the blit() function can accept a Rect as its position
 argument, it simply uses the topleft corner of the Rect as the real position.
 
 

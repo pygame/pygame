@@ -90,7 +90,7 @@ def main():
     del ar
     show(surface)
 
-    # Flip the image around both axes, restoring it's original layout.
+    # Flip the image around both axes, restoring its original layout.
     ar = pg.PixelArray(surface)
     ar[:] = ar[::-1, ::-1]
     del ar

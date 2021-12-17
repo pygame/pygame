@@ -70,7 +70,7 @@ def load_sound(file):
 
 # Each type of game object gets an init and an update function.
 # The update function is called once per frame, and it is when each object should
-# change it's current position and state.
+# change its current position and state.
 #
 # The Player object actually gets a "move" function instead of update,
 # since it is passed extra information about the keyboard.

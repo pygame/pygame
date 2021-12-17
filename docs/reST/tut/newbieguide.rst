@@ -23,7 +23,7 @@ platforms (Windows, Unix, Mac, BeOS and others).
 
 Pygame may be easy to learn, but the world of graphics programming can be
 pretty confusing to the newcomer.  I wrote this to try to distill the practical
-knowledge I've gained over the past year or so of working with pygame, and it's
+knowledge I've gained over the past year or so of working with pygame, and its
 predecessor, PySDL.  I've tried to rank these suggestions in order of
 importance, but how relevant any particular hint is will depend on your own
 background and the details of your project.
@@ -155,7 +155,7 @@ for a moving sprite, I:
  * Blit a piece of the background over the sprite's current location, erasing it.
  * Append the sprite's current location rectangle to a list called dirty_rects.
  * Move the sprite.
- * Draw the sprite at it's new location.
+ * Draw the sprite at its new location.
  * Append the sprite's new location to my dirty_rects list.
  * Call ``display.update(dirty_rects)``
 
@@ -205,7 +205,7 @@ Unfortunately, hardware rendering comes with a long list of drawbacks:
 
  * It might be slower anyway. Many drivers are not accelerated for the types of drawing that we do, and since everything has to be blitted across the video bus (unless you can cram your source surface into video memory as well), it might end up being slower than software access anyway.
 
-Hardware rendering has it's place. It works pretty reliably under Windows, so
+Hardware rendering has its place. It works pretty reliably under Windows, so
 if you're not interested in cross-platform performance, it may provide you with
 a substantial speed increase.  However, it comes at a cost -- increased
 headaches and complexity.  It's best to stick with good old reliable
