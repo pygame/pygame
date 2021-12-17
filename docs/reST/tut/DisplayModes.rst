@@ -104,7 +104,7 @@ since *pygame* will need to convert every update you make to the
 "real" display mode. The best bet is to always let *pygame*
 choose the best bit depth,
 and convert all your graphic resources to that format when they are loaded.
-You let *pygame* choose it's bit depth by calling
+You let *pygame* choose its bit depth by calling
 :func:`set_mode() <pygame.display.set_mode>`
 with no depth argument or a depth of 0,
 or you can call
@@ -119,7 +119,7 @@ You can find the depth of the current desktop if you get a VidInfo object
 before ever setting your display mode.
 
 After setting the display mode,
-you can find out information about it's settings by getting a VidInfo object,
+you can find out information about its settings by getting a VidInfo object,
 or by calling any of the Surface.get* methods on the display surface.
 
 

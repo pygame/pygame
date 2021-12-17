@@ -53,7 +53,7 @@ def main():
                 spr_file_text_rect = spr_file_text.get_rect()
                 spr_file_text_rect.center = surf.get_rect().center
 
-                # Try to open the file if it's an image
+                # Try to open the file if its an image
                 filetype = ev.file[-3:]
                 if filetype in ["png", "bmp", "jpg"]:
                     spr_file_image = pg.image.load(ev.file).convert()

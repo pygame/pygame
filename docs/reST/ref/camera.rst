@@ -53,7 +53,7 @@ New in pygame 1.9.0.
    This function starts up the camera module, choosing the best webcam backend
    it can find for your system. This is not guaranteed to succeed, and may even
    attempt to import third party modules, like `OpenCV`. If you want to
-   override it's backend choice, you can call pass the name of the backend you
+   override its backend choice, you can call pass the name of the backend you
    want into this function. More about backends in
    :func:`get_backends()`.
 

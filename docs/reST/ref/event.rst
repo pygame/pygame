@@ -173,7 +173,7 @@ Here is a list of all window events, along with a short description
    WINDOWEXPOSED          Window got updated by some external event
    WINDOWMOVED            Window got moved
    WINDOWRESIZED          Window got resized
-   WINDOWSIZECHANGED      Window changed it's size
+   WINDOWSIZECHANGED      Window changed its size
    WINDOWMINIMIZED        Window was minimized
    WINDOWMAXIMIZED        Window was maximized
    WINDOWRESTORED         Window was restored

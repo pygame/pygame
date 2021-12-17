@@ -30,7 +30,7 @@ you running, but you'll probably need a bit more explanation of how to use
 
 Several of the pygame examples (like "chimp" and "aliens") have been updated to
 use the sprite module. You may want to look into those first to see what this
-sprite module is all about. The chimp module even has it's own line-by-line
+sprite module is all about. The chimp module even has its own line-by-line
 tutorial, which may help get more an understanding of programming with python
 and pygame.
 
