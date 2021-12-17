@@ -41,6 +41,7 @@ def quit():
 
 
 class Camera:
+    # pylint: disable=unused-argument
     def __init__(self, device=0, size=(640, 480), mode="RGB", show_video_window=0):
         """device:  VideoCapture enumerates the available video capture devices
                  on your system.  If you have more than one device, specify

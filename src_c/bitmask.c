@@ -756,7 +756,6 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
     }
 
     if (xoffset >= 0) {
-
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * (xoffset / BITMASK_W_LEN) + yoffset;
             a_end = a_entry + MIN(b->h, a->h - yoffset);

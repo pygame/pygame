@@ -170,25 +170,24 @@ pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 }
 
 static PyTypeObject pgLifetimeLock_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "SurfLifeLock",                    /* name */
-    sizeof(pgLifetimeLockObject),      /* basic size */
-    0,                                 /* tp_itemsize */
-    _lifelock_dealloc,                 /* tp_dealloc*/
-    0,                                 /* tp_print */
-    NULL,                              /* tp_getattr */
-    NULL,                              /* tp_setattr */
-    NULL,                              /* tp_compare */
-    NULL,                              /* tp_repr */
-    NULL,                              /* tp_as_number */
-    NULL,                              /* tp_as_sequence */
-    NULL,                              /* tp_as_mapping */
-    NULL,                              /* tp_hash */
-    NULL,                              /* tp_call */
-    NULL,                              /* tp_str */
-    NULL,                              /* tp_getattro */
-    NULL,                              /* tp_setattro */
-    NULL,                              /* tp_as_buffer */
+    PyVarObject_HEAD_INIT(NULL, 0) "SurfLifeLock", /* name */
+    sizeof(pgLifetimeLockObject),                  /* basic size */
+    0,                                             /* tp_itemsize */
+    _lifelock_dealloc,                             /* tp_dealloc*/
+    0,                                             /* tp_print */
+    NULL,                                          /* tp_getattr */
+    NULL,                                          /* tp_setattr */
+    NULL,                                          /* tp_compare */
+    NULL,                                          /* tp_repr */
+    NULL,                                          /* tp_as_number */
+    NULL,                                          /* tp_as_sequence */
+    NULL,                                          /* tp_as_mapping */
+    NULL,                                          /* tp_hash */
+    NULL,                                          /* tp_call */
+    NULL,                                          /* tp_str */
+    NULL,                                          /* tp_getattro */
+    NULL,                                          /* tp_setattro */
+    NULL,                                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     NULL,                                     /* tp_doc */
     NULL,                                     /* tp_traverse */

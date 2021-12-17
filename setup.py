@@ -288,7 +288,8 @@ if consume_arg('cython') or True:
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
-AUTO_CONFIG = False
+no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
+AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
 if consume_arg('-auto'):
     AUTO_CONFIG = True
 
@@ -385,7 +386,7 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 
 # make sure there is a Setup file
-if AUTO_CONFIG or not os.path.isfile('Setup'):
+if AUTO_CONFIG:
     print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
     try:
@@ -407,14 +408,17 @@ try:
 except OSError:
     pass
 
-# get compile info for all extensions
-try:
-    extensions = read_setup_file('Setup')
-except:
-    print ("""Error with the "Setup" file,
-perhaps make a clean copy from "Setup.in".""")
-    compilation_help()
-    raise
+if no_compilation:
+    extensions = []
+else:
+    # get compile info for all extensions
+    try:
+        extensions = read_setup_file('Setup')
+    except:
+        print ("""Error with the "Setup" file,
+    perhaps make a clean copy from "Setup.in".""")
+        compilation_help()
+        raise
 
 # Only define the ARM_NEON defines if they have been enabled at build time.
 if enable_arm_neon:
@@ -793,9 +797,13 @@ class TestCommand(Command):
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
-@add_command("lint")
-class LintCommand(Command):
+
+class LintFormatCommand(Command):
+    """ Used for formatting or linting. See Lint and Format Sub classes.
+    """
     user_options = []
+    lint = False
+    format = False
 
     def initialize_options(self):
         pass
@@ -811,25 +819,85 @@ class LintCommand(Command):
 
         def check_linter_exists(linter):
             if shutil.which(linter) is None:
-                msg = "Please install '%s' in your environment. (hint: 'pip install %s')"
+                msg = "Please install '%s' in your environment. (hint: 'python3 -m pip install %s')"
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        c_files_unfiltered = glob.glob("src_c/**/*.[ch]")
-        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/"]
+        c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
+        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+
+        # Other files have too many issues for now. setup.py, buildconfig, etc
         python_directories = ["src_py", "test"]
-        linters = {
-            "clang-format": ["-i"] + c_files,
-            # "isort": python_directories,
-            "black": python_directories,
-            # Test directory has too much pylint warning for now
-            "pylint": ["src_py"],
-        }
-        for linter, option in linters.items():
+        if self.lint:
+            commands = {
+                "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
+                "black": ["--check", "--diff"] + python_directories,
+                # Test directory has too much pylint warning for now
+                "pylint": ["src_py"],
+            }
+        else:
+            commands = {
+                "clang-format": ["-i"] + c_files,
+                "black": python_directories,
+            }
+
+        formatters = ["black", "clang-format"]
+        for linter, option in commands.items():
             print(" ".join([linter] + option))
             check_linter_exists(linter)
-            subprocess.run([linter] + option)
+            result = subprocess.run([linter] + option)
+            if result.returncode:
+                msg = f"'{linter}' failed."
+                msg += " Please run: python setup.py format" if linter in formatters else ""
+                msg += f" Do you have the latest version of {linter}?"
+                raise SystemExit(msg)
+
+
+@add_command("lint")
+class LintCommand(LintFormatCommand):
+    lint = True
+
+
+@add_command("format")
+class FormatCommand(LintFormatCommand):
+    format = True
+
+
+@add_command('docs')
+class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+    This generates html, and documentation .h header files.
+    """
+    user_options = [
+        (
+            'fullgeneration',
+            'f',
+            'Full generation. Do not use a saved environment, always read all files.'
+        )
+    ]
+    boolean_options = ['fullgeneration']
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+        self.fullgeneration = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs Sphinx to build the docs.
+        '''
+        import subprocess
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if self.fullgeneration:
+            command_line.append('full_generation')
+        if subprocess.call(command_line) != 0:
+            raise SystemExit("Failed to build documentation")
 
 
 # Prune empty file lists.

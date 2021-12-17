@@ -1,7 +1,7 @@
-# cython: language_level=2
+# cython: language_level=3str
 #
 
-from sdl2 cimport *
+from .sdl2 cimport *
 
 #https://wiki.libsdl.org/CategoryGameController
 

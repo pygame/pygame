@@ -502,44 +502,43 @@ static PyMethodDef cd_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgCD_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "CD",                    /* name */
-    sizeof(pgCDObject),      /* basic size */
-    0,                       /* itemsize */
-    cd_dealloc,              /* dealloc */
-    0,                       /* print */
-    0,                       /* getattr */
-    0,                       /* setattr */
-    0,                       /* compare */
-    0,                       /* repr */
-    0,                       /* as_number */
-    0,                       /* as_sequence */
-    0,                       /* as_mapping */
-    0,                       /* hash */
-    0,                       /* call */
-    0,                       /* str */
-    0,                       /* tp_getattro */
-    0,                       /* tp_setattro */
-    0,                       /* tp_as_buffer */
-    0,                       /* flags */
-    DOC_PYGAMECDROMCD,       /* Documentation string */
-    0,                       /* tp_traverse */
-    0,                       /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    cd_methods,              /* tp_methods */
-    0,                       /* tp_members */
-    0,                       /* tp_getset */
-    0,                       /* tp_base */
-    0,                       /* tp_dict */
-    0,                       /* tp_descr_get */
-    0,                       /* tp_descr_set */
-    0,                       /* tp_dictoffset */
-    0,                       /* tp_init */
-    0,                       /* tp_alloc */
-    0,                       /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0) "CD", /* name */
+    sizeof(pgCDObject),                  /* basic size */
+    0,                                   /* itemsize */
+    cd_dealloc,                          /* dealloc */
+    0,                                   /* print */
+    0,                                   /* getattr */
+    0,                                   /* setattr */
+    0,                                   /* compare */
+    0,                                   /* repr */
+    0,                                   /* as_number */
+    0,                                   /* as_sequence */
+    0,                                   /* as_mapping */
+    0,                                   /* hash */
+    0,                                   /* call */
+    0,                                   /* str */
+    0,                                   /* tp_getattro */
+    0,                                   /* tp_setattro */
+    0,                                   /* tp_as_buffer */
+    0,                                   /* flags */
+    DOC_PYGAMECDROMCD,                   /* Documentation string */
+    0,                                   /* tp_traverse */
+    0,                                   /* tp_clear */
+    0,                                   /* tp_richcompare */
+    0,                                   /* tp_weaklistoffset */
+    0,                                   /* tp_iter */
+    0,                                   /* tp_iternext */
+    cd_methods,                          /* tp_methods */
+    0,                                   /* tp_members */
+    0,                                   /* tp_getset */
+    0,                                   /* tp_base */
+    0,                                   /* tp_dict */
+    0,                                   /* tp_descr_get */
+    0,                                   /* tp_descr_set */
+    0,                                   /* tp_dictoffset */
+    0,                                   /* tp_init */
+    0,                                   /* tp_alloc */
+    0,                                   /* tp_new */
 };
 
 static PyObject *

@@ -34,7 +34,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-/* Ensure PyPy-specific code is not in use when running on GraalPython (PR #2580) */
+/* Ensure PyPy-specific code is not in use when running on GraalPython (PR
+ * #2580) */
 #if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
 #undef PYPY_VERSION
 #endif
@@ -83,7 +84,8 @@ typedef enum {
 
     PGE_MIDIIN,
     PGE_MIDIOUT,
-    PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses */
+    PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses
+                    */
 
     /* DO NOT CHANGE THE ORDER OF EVENTS HERE */
     PGE_WINDOWSHOWN,
@@ -180,7 +182,8 @@ typedef enum {
 
     PGE_USEREVENT, /* this event must stay in this position only */
 
-    PG_NUMEVENTS = SDL_LASTEVENT /* Not an event. Indicates end of user events. */
+    PG_NUMEVENTS =
+        SDL_LASTEVENT /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
 typedef enum {
@@ -216,27 +219,26 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
-
-//TODO Implement check below in a way that does not break CI
+// TODO Implement check below in a way that does not break CI
 /* New buffer protocol (PEP 3118) implemented on all supported Py versions.
 #if !defined(Py_TPFLAGS_HAVE_NEWBUFFER)
-#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a supported Python version.
-#endif */
+#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a
+supported Python version. #endif */
 
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
-#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)           \
-    do {                                                    \
-       if (!value) {                                        \
-           if (name) {                                      \
-               PyErr_Format(PyExc_AttributeError,           \
-                            "Cannot delete attribute %s",   \
-                            name);                          \
-           } else {                                         \
-               PyErr_SetString(PyExc_AttributeError,        \
-                               "Cannot delete attribute");  \
-           }                                                \
-           return -1;                                       \
-       }                                                    \
+#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)                 \
+    do {                                                          \
+        if (!value) {                                             \
+            if (name) {                                           \
+                PyErr_Format(PyExc_AttributeError,                \
+                             "Cannot delete attribute %s", name); \
+            }                                                     \
+            else {                                                \
+                PyErr_SetString(PyExc_AttributeError,             \
+                                "Cannot delete attribute");       \
+            }                                                     \
+            return -1;                                            \
+        }                                                         \
     } while (0)
 
 /*
@@ -259,9 +261,8 @@ typedef enum {
 #ifdef WITH_THREAD
 #define PG_CHECK_THREADS() (1)
 #else /* ~WITH_THREAD */
-#define PG_CHECK_THREADS()                        \
-    (RAISE(PyExc_NotImplementedError,             \
-          "Python built without thread support"))
+#define PG_CHECK_THREADS() \
+    (RAISE(PyExc_NotImplementedError, "Python built without thread support"))
 #endif /* ~WITH_THREAD */
 
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
@@ -296,8 +297,7 @@ struct pgSubSurface_Data {
  * color module internals
  */
 struct pgColorObject {
-    PyObject_HEAD
-    Uint8 data[4];
+    PyObject_HEAD Uint8 data[4];
     Uint8 len;
 };
 

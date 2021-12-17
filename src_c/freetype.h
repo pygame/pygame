@@ -38,39 +38,37 @@
  **********************************************************/
 
 /* Render styles */
-#define FT_STYLE_NORMAL     0x00
-#define FT_STYLE_STRONG     0x01
-#define FT_STYLE_OBLIQUE    0x02
-#define FT_STYLE_UNDERLINE  0x04
-#define FT_STYLE_WIDE       0x08
-#define FT_STYLE_DEFAULT    0xFF
+#define FT_STYLE_NORMAL 0x00
+#define FT_STYLE_STRONG 0x01
+#define FT_STYLE_OBLIQUE 0x02
+#define FT_STYLE_UNDERLINE 0x04
+#define FT_STYLE_WIDE 0x08
+#define FT_STYLE_DEFAULT 0xFF
 
 /* Bounding box modes */
-#define FT_BBOX_EXACT           FT_GLYPH_BBOX_SUBPIXELS
-#define FT_BBOX_EXACT_GRIDFIT   FT_GLYPH_BBOX_GRIDFIT
-#define FT_BBOX_PIXEL           FT_GLYPH_BBOX_TRUNCATE
-#define FT_BBOX_PIXEL_GRIDFIT   FT_GLYPH_BBOX_PIXELS
+#define FT_BBOX_EXACT FT_GLYPH_BBOX_SUBPIXELS
+#define FT_BBOX_EXACT_GRIDFIT FT_GLYPH_BBOX_GRIDFIT
+#define FT_BBOX_PIXEL FT_GLYPH_BBOX_TRUNCATE
+#define FT_BBOX_PIXEL_GRIDFIT FT_GLYPH_BBOX_PIXELS
 
 /* Rendering flags */
-#define FT_RFLAG_NONE                  (0)
-#define FT_RFLAG_ANTIALIAS             (1 << 0)
-#define FT_RFLAG_AUTOHINT              (1 << 1)
-#define FT_RFLAG_VERTICAL              (1 << 2)
-#define FT_RFLAG_HINTED                (1 << 3)
-#define FT_RFLAG_KERNING               (1 << 4)
-#define FT_RFLAG_TRANSFORM             (1 << 5)
-#define FT_RFLAG_PAD                   (1 << 6)
-#define FT_RFLAG_ORIGIN                (1 << 7)
-#define FT_RFLAG_UCS4                  (1 << 8)
-#define FT_RFLAG_USE_BITMAP_STRIKES    (1 << 9)
-#define FT_RFLAG_DEFAULTS              (FT_RFLAG_HINTED | \
-                                        FT_RFLAG_USE_BITMAP_STRIKES | \
-                                        FT_RFLAG_ANTIALIAS)
+#define FT_RFLAG_NONE (0)
+#define FT_RFLAG_ANTIALIAS (1 << 0)
+#define FT_RFLAG_AUTOHINT (1 << 1)
+#define FT_RFLAG_VERTICAL (1 << 2)
+#define FT_RFLAG_HINTED (1 << 3)
+#define FT_RFLAG_KERNING (1 << 4)
+#define FT_RFLAG_TRANSFORM (1 << 5)
+#define FT_RFLAG_PAD (1 << 6)
+#define FT_RFLAG_ORIGIN (1 << 7)
+#define FT_RFLAG_UCS4 (1 << 8)
+#define FT_RFLAG_USE_BITMAP_STRIKES (1 << 9)
+#define FT_RFLAG_DEFAULTS \
+    (FT_RFLAG_HINTED | FT_RFLAG_USE_BITMAP_STRIKES | FT_RFLAG_ANTIALIAS)
 
-
-#define FT_RENDER_NEWBYTEARRAY      0x0
-#define FT_RENDER_NEWSURFACE        0x1
-#define FT_RENDER_EXISTINGSURFACE   0x2
+#define FT_RENDER_NEWBYTEARRAY 0x0
+#define FT_RENDER_NEWSURFACE 0x1
+#define FT_RENDER_EXISTINGSURFACE 0x2
 
 /**********************************************************
  * Global module types
@@ -90,8 +88,7 @@ typedef struct {
 } pgFontId;
 
 typedef struct {
-    PyObject_HEAD
-    pgFontId id;
+    PyObject_HEAD pgFontId id;
     PyObject *path;
     int is_scalable;
     int is_bg_col_set;
@@ -107,12 +104,11 @@ typedef struct {
     FT_Byte fgcolor[4];
     FT_Byte bgcolor[4];
 
-    struct freetypeinstance_ *freetype;  /* Personal reference */
+    struct freetypeinstance_ *freetype; /* Personal reference */
     struct fontinternals_ *_internals;
 } pgFontObject;
 
-#define pgFont_IS_ALIVE(o) \
-    (((pgFontObject *)(o))->_internals != 0)
+#define pgFont_IS_ALIVE(o) (((pgFontObject *)(o))->_internals != 0)
 
 /* import public API */
 #include "include/pygame_freetype.h"

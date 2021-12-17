@@ -234,6 +234,13 @@ class CursorsModuleTest(unittest.TestCase):
         with open(cursorfile) as cursor_f, open(maskfile) as mask_f:
             cursor = pygame.cursors.load_xbm(cursor_f, mask_f)
 
+        # Can it load using pathlib.Path?
+        import pathlib
+
+        cursor = pygame.cursors.load_xbm(
+            pathlib.Path(cursorfile), pathlib.Path(maskfile)
+        )
+
         # Is it in a format that mouse.set_cursor won't blow up on?
         pygame.display.init()
         try:

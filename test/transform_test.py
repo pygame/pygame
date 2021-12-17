@@ -951,7 +951,9 @@ class TransformModuleTest(unittest.TestCase):
                 self.assertEqual(pygame.transform.average_color(s), (5, 75, 150, 0))
 
                 # Also validate keyword arguments
-                avg_color = pygame.transform.average_color(surface=s, rect=(16, 0, 16, 32))
+                avg_color = pygame.transform.average_color(
+                    surface=s, rect=(16, 0, 16, 32)
+                )
                 self.assertEqual(avg_color, (0, 100, 200, 0))
 
     def test_rotate(self):

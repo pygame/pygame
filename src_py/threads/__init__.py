@@ -70,8 +70,6 @@ def benchmark_workers(a_bench_func=None, the_data=None):
     a_bench_func - f(data)
     the_data - data to work on.
     """
-    global _use_workers
-
     # TODO: try and make this scale better with slower/faster cpus.
     #  first find some variables so that using 0 workers takes about 1.0 seconds.
     #  then go from there.
@@ -92,9 +90,7 @@ def benchmark_workers(a_bench_func=None, the_data=None):
         doit = a_bench_func
 
     if not the_data:
-        thedata = []
-        for x in range(10):
-            thedata.append(pygame.Surface((155, 155), 0, 32))
+        thedata = [pygame.Surface((155, 155), 0, 32) for x in range(10)]
     else:
         thedata = the_data
 
@@ -106,15 +102,15 @@ def benchmark_workers(a_bench_func=None, the_data=None):
 
         wq = WorkerQueue(num_workers)
         t1 = time.time()
-        for xx in range(20):
-            print("active count:%s" % threading.activeCount())
+        for _ in range(20):
+            print(f"active count:{threading.activeCount()}")
             tmap(doit, thedata, worker_queue=wq)
         t2 = time.time()
 
         wq.stop()
 
         total_time = t2 - t1
-        print("total time num_workers:%s: time:%s:" % (num_workers, total_time))
+        print(f"total time num_workers:{num_workers}: time:{total_time}:")
 
         if total_time < best:
             # last_best = best_number

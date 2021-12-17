@@ -60,19 +60,20 @@ key_get_repeat(PyObject *self, PyObject *args)
 }
 
 /*
-* pgScancodeWrapper is for key_get_pressed in SDL2.
-* It converts key symbol indices to scan codes, as suggested in
-*     https://github.com/pygame/pygame/issues/659
-* so that they work with SDL_GetKeyboardState().
-*/
+ * pgScancodeWrapper is for key_get_pressed in SDL2.
+ * It converts key symbol indices to scan codes, as suggested in
+ *     https://github.com/pygame/pygame/issues/659
+ * so that they work with SDL_GetKeyboardState().
+ */
 #define _PG_SCANCODEWRAPPER_TYPE_NAME "ScancodeWrapper"
-#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
+#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME \
+    "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
 
 typedef struct {
     PyTupleObject tuple;
 } pgScancodeWrapper;
 
-static PyObject*
+static PyObject *
 pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 {
     long index;
@@ -88,60 +89,58 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 }
 
 static PyMappingMethods pg_scancodewrapper_mapping = {
-    NULL,
-    (binaryfunc)pg_scancodewrapper_subscript,
-    NULL
-};
+    NULL, (binaryfunc)pg_scancodewrapper_subscript, NULL};
 
-static PyObject*
+static PyObject *
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
     PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
-    PyObject *ret = PyUnicode_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
+    PyObject *ret =
+        PyUnicode_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
     Py_DECREF(baserepr);
     return ret;
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    _PG_SCANCODEWRAPPER_TYPE_FULLNAME,            /* name */
-    0,                                            /* basic size */
-    0,                                            /* itemsize */
-    0,                                            /* dealloc */
-    0,                                            /* print */
-    NULL,                                         /* getattr */
-    NULL,                                         /* setattr */
-    NULL,                                         /* compare */
-    (reprfunc)pg_scancodewrapper_repr,            /* repr */
-    NULL,                                         /* as_number */
-    NULL,                                         /* as_sequence */
-    &pg_scancodewrapper_mapping,                  /* as_mapping */
-    (hashfunc)NULL,                               /* hash */
-    (ternaryfunc)NULL,                            /* call */
-    (reprfunc)NULL,                               /* str */
-    0,                                            /* tp_getattro */
+    PyVarObject_HEAD_INIT(NULL, 0)
+        _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
+    0,                                     /* basic size */
+    0,                                     /* itemsize */
+    0,                                     /* dealloc */
+    0,                                     /* print */
+    NULL,                                  /* getattr */
+    NULL,                                  /* setattr */
+    NULL,                                  /* compare */
+    (reprfunc)pg_scancodewrapper_repr,     /* repr */
+    NULL,                                  /* as_number */
+    NULL,                                  /* as_sequence */
+    &pg_scancodewrapper_mapping,           /* as_mapping */
+    (hashfunc)NULL,                        /* hash */
+    (ternaryfunc)NULL,                     /* call */
+    (reprfunc)NULL,                        /* str */
+    0,                                     /* tp_getattro */
     0L,
     0L,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS |
-    Py_TPFLAGS_BASETYPE,                      /* tp_flags */
-    NULL,                                     /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    0,                                        /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
-    0,                                        /* tp_alloc */
-    0                                         /* tp_new */
+        Py_TPFLAGS_BASETYPE, /* tp_flags */
+    NULL,                    /* Documentation string */
+    0,                       /* tp_traverse */
+    0,                       /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    0,                       /* tp_methods */
+    0,                       /* tp_members */
+    0,                       /* tp_getset */
+    0,                       /* tp_base */
+    0,                       /* tp_dict */
+    0,                       /* tp_descr_get */
+    0,                       /* tp_descr_set */
+    0,                       /* tp_dictoffset */
+    0,                       /* tp_init */
+    0,                       /* tp_alloc */
+    0                        /* tp_new */
 };
 
 static PyObject *
@@ -181,7 +180,10 @@ key_get_pressed(PyObject *self, PyObject *args)
 
 /* keep our own table for backward compatibility */
 static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
-    NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "A",
     "B",
     "C",
@@ -308,11 +310,29 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Mute",
     "VolumeUp",
     "VolumeDown",
-    NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
     "Keypad ,",
     "Keypad = (AS400)",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "AltErase",
     "SysReq",
     "Cancel",
@@ -325,7 +345,17 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Clear / Again",
     "CrSel",
     "ExSel",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "Keypad 00",
     "Keypad 000",
     "ThousandsSeparator",
@@ -372,7 +402,8 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Keypad Octal",
     "Keypad Decimal",
     "Keypad Hexadecimal",
-    NULL, NULL,
+    NULL,
+    NULL,
     "Left Ctrl",
     "Left Shift",
     "Left Alt",
@@ -381,8 +412,30 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Right Shift",
     "Right Alt",
     "Right GUI",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     "ModeSwitch",
     "AudioNext",
@@ -551,7 +604,8 @@ _use_sdl1_key_names(void)
     /*SDL1_scancode_names[SDL_SCANCODE_LSUPER] = "left super";
     SDL1_scancode_names[SDL_SCANCODE_RSUPER] = "right super"; */ /* same as "meta" now? */
     SDL1_scancode_names[SDL_SCANCODE_MODE] = "alt gr";
-    SDL1_scancode_names[SDL_SCANCODE_APPLICATION] = "compose"; /*  Application / Compose / Context Menu (Windows) key */
+    SDL1_scancode_names[SDL_SCANCODE_APPLICATION] =
+        "compose"; /*  Application / Compose / Context Menu (Windows) key */
 
     SDL1_scancode_names[SDL_SCANCODE_HELP] = "help";
     SDL1_scancode_names[SDL_SCANCODE_PRINTSCREEN] = "print screen";
@@ -559,18 +613,21 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "break";
     SDL1_scancode_names[SDL_SCANCODE_MENU] = "menu";
     SDL1_scancode_names[SDL_SCANCODE_POWER] = "power";
-    /*SDL1_scancode_names[SDL_SCANCODE_EURO] = "euro"; */ /* changed to CurrencyUnit */
+    /*SDL1_scancode_names[SDL_SCANCODE_EURO] = "euro"; */ /* changed to
+                                                             CurrencyUnit */
     SDL1_scancode_names[SDL_SCANCODE_UNDO] = "undo";
 }
 
 static const char *
 _get_scancode_name(SDL_Scancode scancode)
 {
-    /* this only differs SDL_GetScancodeName() in that we use the (mostly) backward-compatible table above */
+    /* this only differs SDL_GetScancodeName() in that we use the (mostly)
+     * backward-compatible table above */
     const char *name;
-    if (((int)scancode) < ((int)SDL_SCANCODE_UNKNOWN) || scancode >= SDL_NUM_SCANCODES) {
-          SDL_InvalidParamError("scancode");
-          return "";
+    if (((int)scancode) < ((int)SDL_SCANCODE_UNKNOWN) ||
+        scancode >= SDL_NUM_SCANCODES) {
+        SDL_InvalidParamError("scancode");
+        return "";
     }
 
     name = SDL1_scancode_names[scancode];
@@ -584,39 +641,44 @@ _get_scancode_name(SDL_Scancode scancode)
 static char *
 SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 {
-    Uint8 *p = (Uint8 *) dst;
+    Uint8 *p = (Uint8 *)dst;
     if (ch <= 0x7F) {
-        *p = (Uint8) ch;
+        *p = (Uint8)ch;
         ++dst;
-    } else if (ch <= 0x7FF) {
-        p[0] = 0xC0 | (Uint8) ((ch >> 6) & 0x1F);
-        p[1] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x7FF) {
+        p[0] = 0xC0 | (Uint8)((ch >> 6) & 0x1F);
+        p[1] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 2;
-    } else if (ch <= 0xFFFF) {
-        p[0] = 0xE0 | (Uint8) ((ch >> 12) & 0x0F);
-        p[1] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[2] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0xFFFF) {
+        p[0] = 0xE0 | (Uint8)((ch >> 12) & 0x0F);
+        p[1] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[2] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 3;
-    } else if (ch <= 0x1FFFFF) {
-        p[0] = 0xF0 | (Uint8) ((ch >> 18) & 0x07);
-        p[1] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[3] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x1FFFFF) {
+        p[0] = 0xF0 | (Uint8)((ch >> 18) & 0x07);
+        p[1] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[3] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 4;
-    } else if (ch <= 0x3FFFFFF) {
-        p[0] = 0xF8 | (Uint8) ((ch >> 24) & 0x03);
-        p[1] = 0x80 | (Uint8) ((ch >> 18) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[3] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[4] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x3FFFFFF) {
+        p[0] = 0xF8 | (Uint8)((ch >> 24) & 0x03);
+        p[1] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[3] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[4] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 5;
-    } else {
-        p[0] = 0xFC | (Uint8) ((ch >> 30) & 0x01);
-        p[1] = 0x80 | (Uint8) ((ch >> 24) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 18) & 0x3F);
-        p[3] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[4] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[5] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else {
+        p[0] = 0xFC | (Uint8)((ch >> 30) & 0x01);
+        p[1] = 0x80 | (Uint8)((ch >> 24) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
+        p[3] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[4] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[5] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 6;
     }
     return dst;
@@ -625,36 +687,34 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 static const char *
 _get_keycode_name(SDL_Keycode key)
 {
-#pragma PG_WARN(Add missing keycode names here? )
+#pragma PG_WARN(Add missing keycode names here ?)
 
     static char name[8];
     char *end;
 
     if (key & SDLK_SCANCODE_MASK) {
-        return
-            _get_scancode_name((SDL_Scancode) (key & ~SDLK_SCANCODE_MASK));
+        return _get_scancode_name((SDL_Scancode)(key & ~SDLK_SCANCODE_MASK));
     }
 
     switch (key) {
-    case SDLK_RETURN:
-        return _get_scancode_name(SDL_SCANCODE_RETURN);
-    case SDLK_ESCAPE:
-        return _get_scancode_name(SDL_SCANCODE_ESCAPE);
-    case SDLK_BACKSPACE:
-        return _get_scancode_name(SDL_SCANCODE_BACKSPACE);
-    case SDLK_TAB:
-        return _get_scancode_name(SDL_SCANCODE_TAB);
-    case SDLK_SPACE:
-        return _get_scancode_name(SDL_SCANCODE_SPACE);
-    case SDLK_DELETE:
-        return _get_scancode_name(SDL_SCANCODE_DELETE);
-    default:
-        end = SDL_UCS4ToUTF8((Uint32) key, name);
-        *end = '\0';
-        return name;
+        case SDLK_RETURN:
+            return _get_scancode_name(SDL_SCANCODE_RETURN);
+        case SDLK_ESCAPE:
+            return _get_scancode_name(SDL_SCANCODE_ESCAPE);
+        case SDLK_BACKSPACE:
+            return _get_scancode_name(SDL_SCANCODE_BACKSPACE);
+        case SDLK_TAB:
+            return _get_scancode_name(SDL_SCANCODE_TAB);
+        case SDLK_SPACE:
+            return _get_scancode_name(SDL_SCANCODE_SPACE);
+        case SDLK_DELETE:
+            return _get_scancode_name(SDL_SCANCODE_DELETE);
+        default:
+            end = SDL_UCS4ToUTF8((Uint32)key, name);
+            *end = '\0';
+            return name;
     }
 }
-
 
 static PyObject *
 key_name(PyObject *self, PyObject *args)
@@ -670,28 +730,23 @@ key_name(PyObject *self, PyObject *args)
 static PyObject *
 key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    const char * name;
+    const char *name;
     SDL_Keycode code;
 
-    static char *kwids[] = {
-        "name",
-        NULL
-    };
+    static char *kwids[] = {"name", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
         return NULL;
 
     code = SDL_GetKeyFromName(name);
-    if (code != SDLK_UNKNOWN){
+    if (code != SDLK_UNKNOWN) {
         return PyLong_FromLong(code);
     }
-    else{
+    else {
         // Raise an unknown key name error?
         PyErr_SetString(PyExc_ValueError, "unknown key name");
         return 0;
     }
-
-
 }
 
 static PyObject *
@@ -780,15 +835,13 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
-    {"get_pressed", key_get_pressed, METH_NOARGS,
-     DOC_PYGAMEKEYGETPRESSED},
+    {"get_pressed", key_get_pressed, METH_NOARGS, DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
     {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEKEYNAME},
     {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
-    {"get_focused", key_get_focused, METH_NOARGS,
-     DOC_PYGAMEKEYGETFOCUSED},
+    {"get_focused", key_get_focused, METH_NOARGS, DOC_PYGAMEKEYGETFOCUSED},
     {"start_text_input", key_start_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTARTTEXTINPUT},
     {"stop_text_input", key_stop_text_input, METH_NOARGS,
@@ -839,9 +892,9 @@ MODINIT_DEFINE(key)
         return NULL;
     }
 
-    Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
+    Py_INCREF((PyObject *)&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
-                           (PyObject*)&pgScancodeWrapper_Type) == -1) {
+                           (PyObject *)&pgScancodeWrapper_Type) == -1) {
         Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
         Py_DECREF(module);
         return NULL;
