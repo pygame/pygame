@@ -471,7 +471,9 @@ class FontTypeTest(unittest.TestCase):
         # http://www.mail-archive.com/pygame-users@seul.org/msg11675.html
 
         pygame_font.init()
-        self.assertRaises(FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20)
+        self.assertRaises(
+            FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20
+        )
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
