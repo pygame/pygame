@@ -434,7 +434,6 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, pgFontObject *fontobj,
     return init(ft, fontobj);
 }
 
-#ifdef HAVE_PYGAME_SDL_RWOPS
 static unsigned long
 RWops_read(FT_Stream stream, unsigned long offset, unsigned char *buffer,
            unsigned long count)
@@ -488,7 +487,6 @@ _PGFT_GetRWops(pgFontObject *fontobj)
         return fontobj->id.open_args.stream->descriptor.pointer;
     return NULL;
 }
-#endif
 
 void
 _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)

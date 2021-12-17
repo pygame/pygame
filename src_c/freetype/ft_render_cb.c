@@ -23,12 +23,7 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
-
-#if defined(PGFT_PYGAME1_COMPAT)
 #include "ft_pixel.h"
-#elif defined(HAVE_PYGAME_SDL_VIDEO)
-#include "surface.h"
-#endif
 
 void
 __render_glyph_GRAY1(int x, int y, FontSurface *surface,
@@ -482,8 +477,6 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
     }
 }
 
-#ifdef HAVE_PYGAME_SDL_VIDEO
-
 #ifndef NDEBUG
 #define POINTER_ASSERT_DECLARATIONS(s)                               \
     const unsigned char *PA_bstart = ((unsigned char *)(s)->buffer); \
@@ -824,4 +817,4 @@ _CREATE_RGB_FILLER(2, _GET_PIXEL(FT_UInt16), _SET_PIXEL(FT_UInt16),
                    _BLEND_PIXEL(FT_UInt16))
 _CREATE_RGB_FILLER(1, _GET_PIXEL(FT_Byte), _SET_PIXEL(FT_Byte),
                    _BLEND_PIXEL_GENERIC(FT_Byte))
-#endif
+
