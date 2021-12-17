@@ -379,7 +379,7 @@ init(FreeTypeInstance *ft, pgFontObject *fontobj)
 
     font = _PGFT_GetFont(ft, fontobj);
     if (!font) {
-        PyErr_SetString(PyExc_IOError, _PGFT_GetError(ft));
+        PyErr_SetString(PyExc_FileNotFoundError, _PGFT_GetError(ft));
         return -1;
     }
     fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
