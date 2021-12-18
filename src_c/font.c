@@ -793,22 +793,24 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = pg_open_obj(obj, "rb");
         if (test == NULL) {
-            if (strcmp(filename, font_defaultname) == 0) {
-                PyObject *tmp;
-                PyErr_Clear();
-                tmp = font_resource(font_defaultname);
-                if (tmp == NULL) {
-                    if (!PyErr_Occurred()) {
-                        PyErr_Format(PyExc_IOError,
-                                     "unable to read font file '%.1024s'",
-                                     filename);
+            if (filename) {
+                if (strcmp(filename, font_defaultname) == 0) {
+                    PyObject *tmp;
+                    PyErr_Clear();
+                    tmp = font_resource(font_defaultname);
+                    if (tmp == NULL) {
+                        if (!PyErr_Occurred()) {
+                            PyErr_Format(PyExc_IOError,
+                                         "unable to read font file '%.1024s'",
+                                         filename);
+                        }
+                        goto error;
                     }
-                    goto error;
+                    Py_DECREF(obj);
+                    obj = tmp;
+                    filename = PyBytes_AS_STRING(obj);
+                    test = pg_open_obj(obj, "rb");
                 }
-                Py_DECREF(obj);
-                obj = tmp;
-                filename = PyBytes_AS_STRING(obj);
-                test = pg_open_obj(obj, "rb");
             }
             if (test == NULL) {
                 if (!PyErr_Occurred()) {

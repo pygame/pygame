@@ -266,8 +266,8 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int x, y;
     bitmask_t *bitmask = pgMask_AsBitmap(self);
-    PyObject *maskobj = NULL;
-    pgMaskObject *output_maskobj = NULL;
+    PyObject *maskobj;
+    pgMaskObject *output_maskobj;
     PyObject *offset = NULL;
     static char *keywords[] = {"other", "offset", NULL};
 
@@ -651,7 +651,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
 {
-    PyObject *bobj = NULL;
+    PyObject *bobj;
     PyObject *oobj = Py_None;
     bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
@@ -830,7 +830,7 @@ static PyObject *
 mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Surface *surf = NULL;
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
     int threshold = 127; /* default value */
@@ -1054,7 +1054,7 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 static PyObject *
 mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
     pgMaskObject *maskobj = NULL;
     SDL_Surface *surf = NULL, *surf2 = NULL;

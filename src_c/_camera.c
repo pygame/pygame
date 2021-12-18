@@ -85,6 +85,12 @@ surf_colorspace(PyObject *self, PyObject *arg)
     int cspace;
     surfobj2 = NULL;
 
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure color is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(color = "inited");
+#endif
+
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!s|O!", &pgSurface_Type, &surfobj, &color,
                           &pgSurface_Type, &surfobj2))

@@ -300,6 +300,12 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     ss_rect.h = ss_h;
     SDL_BlitSurface(surface, &ss_rect, ss_surface, NULL);
 
+#ifdef _MSC_VER
+    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
+     * a false analyzer report */
+    __analysis_assume(ss_size >= 2);
+#endif
+
     if (ss_size == 0) {
         ss_size = ss_h;
         ss_rows = (unsigned char **)malloc(sizeof(unsigned char *) * ss_size);
@@ -550,6 +556,12 @@ SaveJPEG(SDL_Surface *surface, const char *file)
 
         free_ss_surface = 1;
     }
+
+#ifdef _MSC_VER
+    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
+     * a false analyzer report */
+    __analysis_assume(ss_size >= 2);
+#endif
 
     ss_size = ss_h;
     ss_rows = (unsigned char **)malloc(sizeof(unsigned char *) * ss_size);

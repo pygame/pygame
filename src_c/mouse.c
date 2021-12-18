@@ -269,6 +269,12 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject *xormask,
         return RAISE(PyExc_ValueError,
                      "bitmasks must be sized width*height/8");
 
+#ifdef _MSC_VER
+    /* Suppress false analyzer report */
+    __analysis_assume(xorsize >= 2);
+    __analysis_assume(andsize >= 2);
+#endif
+
     xordata = (Uint8 *)malloc(xorsize);
     anddata = (Uint8 *)malloc(andsize);
 

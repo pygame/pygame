@@ -716,8 +716,7 @@ snd_get_length(PyObject *self, PyObject *args)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
-    else if (format == AUDIO_F32 || format == AUDIO_F32LSB ||
-             format == AUDIO_F32MSB) {
+    else if (format == AUDIO_F32LSB || format == AUDIO_F32MSB) {
         mixerbytes = 4;
     }
     else

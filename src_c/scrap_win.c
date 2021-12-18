@@ -138,6 +138,11 @@ _create_dib_buffer(char *data, size_t *count)
     hdr.bfOffBits = (DWORD)(sizeof(BITMAPFILEHEADER) + bihdr->biSize +
                             bihdr->biClrUsed * sizeof(RGBQUAD));
 
+#ifdef _MSC_VER
+    /* Suppress false analyzer report */
+    __analysis_assume(*count > 0);
+#endif
+
     /* Copy both to the buffer. */
     buf = malloc(sizeof(hdr) + (*count));
     if (!buf)
@@ -208,12 +213,13 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
     hMem = GlobalAlloc((GMEM_MOVEABLE | GMEM_DDESHARE), nulledlen);
     if (hMem) {
         char *dst = GlobalLock(hMem);
-
-        memset(dst, 0, nulledlen);
-        if (format == CF_DIB || format == CF_DIBV5)
-            memcpy(dst, src + sizeof(BITMAPFILEHEADER), nulledlen - 1);
-        else
-            memcpy(dst, src, srclen);
+        if (dst) {
+            memset(dst, 0, nulledlen);
+            if (format == CF_DIB || format == CF_DIBV5)
+                memcpy(dst, src + sizeof(BITMAPFILEHEADER), nulledlen - 1);
+            else
+                memcpy(dst, src, srclen);
+        }
 
         GlobalUnlock(hMem);
         EmptyClipboard();

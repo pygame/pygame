@@ -482,7 +482,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped, int hascolorkey,
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     PyObject *string = NULL;
     char *format, *data, *pixels;
     SDL_Surface *surf;
@@ -493,6 +493,12 @@ image_tostring(PyObject *self, PyObject *arg)
     int hascolorkey;
     Uint32 color, colorkey;
     Uint32 alpha;
+
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(format = "inited");
+#endif
 
     if (!PyArg_ParseTuple(arg, "O!s|i", &pgSurface_Type, &surfobj, &format,
                           &flipped))
@@ -954,6 +960,12 @@ image_fromstring(PyObject *self, PyObject *arg)
     Py_ssize_t len;
     int loopw, looph;
 
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(format = "inited");
+#endif
+
     if (!PyArg_ParseTuple(arg, "O!(ii)s|i", &PyBytes_Type, &string, &w, &h,
                           &format, &flipped))
         return NULL;
@@ -1096,6 +1108,12 @@ image_frombuffer(PyObject *self, PyObject *arg)
     int w, h;
     Py_ssize_t len;
     pgSurfaceObject *surfobj;
+
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(format = "inited");
+#endif
 
     if (!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))
         return NULL;
@@ -1330,19 +1348,18 @@ SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle)
         }
         else
             h.pixel_bits = 24;
-        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-            int s = alpha ? 0 : 8;
-            amask = 0x000000ff >> s;
-            rmask = 0x0000ff00 >> s;
-            gmask = 0x00ff0000 >> s;
-            bmask = 0xff000000 >> s;
-        }
-        else {
-            amask = alpha ? 0xff000000 : 0;
-            rmask = 0x00ff0000;
-            gmask = 0x0000ff00;
-            bmask = 0x000000ff;
-        }
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        int s = alpha ? 0 : 8;
+        amask = 0x000000ff >> s;
+        rmask = 0x0000ff00 >> s;
+        gmask = 0x00ff0000 >> s;
+        bmask = 0xff000000 >> s;
+#else  /* SDL_BYTEORDER != SDL_BIG_ENDIAN */
+        amask = alpha ? 0xff000000 : 0;
+        rmask = 0x00ff0000;
+        gmask = 0x0000ff00;
+        bmask = 0x000000ff;
+#endif /* SDL_BYTEORDER != SDL_BIG_ENDIAN */
     }
     bpp = h.pixel_bits >> 3;
     if (rle)

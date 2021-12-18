@@ -1171,10 +1171,20 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     if (view->format) {
         switch (view->format[0]) {
             case '<':
-                return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
             case '>':
             case '!':
-                return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
         }
     }
     return 0;

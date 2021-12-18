@@ -335,6 +335,12 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
         surf_offset.y += offset.y;
     }
 
+    if (!surface->format->BytesPerPixel) {
+        // This should never happen, error to make static analyzer happy
+        PyErr_SetString(pgExc_SDLError, "Got surface of invalid format");
+        return -1;
+    }
+
     /*
      * Setup target surface struct
      */
@@ -408,8 +414,8 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
     unsigned width;
     unsigned height;
     FT_Vector offset;
-    FT_Pos underline_top;
-    FT_Fixed underline_size;
+    FT_Pos underline_top = 0;
+    FT_Fixed underline_size = 0;
     FontColor mono_fgcolor = {0, 0, 0, 1};
     FontColor mono_bgcolor = {0, 0, 0, 0};
 

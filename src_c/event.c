@@ -179,49 +179,45 @@ def _pg_strip_utf8(string):
     else:
         return ""
 */
-static char *
-_pg_strip_utf8(char *str)
+static void
+_pg_strip_utf8(char *str, char *ret)
 {
-    char *retptr;
-    char ret[UNICODE_LEN] = {0};
-    Uint8 firstbyte;
+    Uint8 firstbyte = (Uint8)*str;
 
-    memcpy(&firstbyte, str, 1);
+    /* Zero unicode buffer */
+    memset(ret, 0, UNICODE_LEN);
 
     /* 1111 0000 is 0xF0 */
-    if (firstbyte < 0xF0) {
-        /* 1110 0000 is 0xE0 */
-        if (firstbyte >= 0xE0) {
-            /* Copy first 3 bytes */
-            memcpy(&ret, str, 3);
-        }
-        /* 1100 0000 is 0xC0 */
-        else if (firstbyte >= 0xC0) {
-            /* Copy first 2 bytes */
-            memcpy(&ret, str, 2);
-        }
-        /* 1000 0000 is 0x80 */
-        else if (firstbyte < 0x80) {
-            /* Copy first byte */
-            memcpy(&ret, str, 1);
-        }
+    if (firstbyte >= 0xF0) {
+        /* Too large UTF8 string, do nothing */
+        return;
     }
-    retptr = PyMem_New(char, UNICODE_LEN);
-    memcpy(retptr, &ret, UNICODE_LEN);
-    return retptr;
+
+    /* 1110 0000 is 0xE0 */
+    if (firstbyte >= 0xE0) {
+        /* Copy first 3 bytes */
+        memcpy(ret, str, 3);
+    }
+    /* 1100 0000 is 0xC0 */
+    else if (firstbyte >= 0xC0) {
+        /* Copy first 2 bytes */
+        memcpy(ret, str, 2);
+    }
+    /* 1000 0000 is 0x80 */
+    else if (firstbyte < 0x80) {
+        /* Copy first byte */
+        memcpy(ret, str, 1);
+    }
 }
 
 static int
 _pg_put_event_unicode(SDL_Event *event, char *uni)
 {
     int i;
-    char *temp;
     for (i = 0; i < MAX_SCAN_UNICODE; i++) {
         if (!scanunicode[i].key) {
             scanunicode[i].key = event->key.keysym.scancode;
-            temp = _pg_strip_utf8(uni);
-            memcpy(scanunicode[i].unicode, temp, UNICODE_LEN);
-            PyMem_Del(temp);
+            _pg_strip_utf8(uni, scanunicode[i].unicode);
             return 1;
         }
     }

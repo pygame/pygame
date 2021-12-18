@@ -380,6 +380,12 @@ for e in extensions:
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
 
+    if ("mask" in e.name or "pixel" in e.name) and sys.platform == "win32":
+        # TODO fix
+        # skip -Werror on mask, pixelarray and pixelcopy because of many MSVC 
+        # static analyzer issues
+        continue
+
     if (
         "CI" in os.environ
         and not e.name.startswith("_sdl2")
@@ -598,12 +604,24 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         # excluding system headers from analyze out put was only added after MSCV_VER 1913
         if msc_ver >= 1913:
             os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
-            for e in extensions:
-                e.extra_compile_args += ['/analyze', '/experimental:external',
-                                         '/external:W0', '/external:env:CAExcludePath' ]
-        else:
-            for e in extensions:
-                e.extra_compile_args += ['/analyze']
+
+        for e in extensions:
+            e.extra_compile_args.extend(
+                (
+                    "/analyze",
+                    "/wd28251",
+                    "/wd28301",
+                )
+            )
+
+            if msc_ver >= 1913:
+                e.extra_compile_args.extend(
+                    (
+                        "/experimental:external",
+                        "/external:W0",
+                        "/external:env:CAExcludePath",
+                    )
+                )
 
     def has_flag(compiler, flagname):
         """

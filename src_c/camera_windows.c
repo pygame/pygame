@@ -239,6 +239,7 @@ windows_device_from_name(WCHAR *device_name)
 {
     IMFAttributes *pAttributes = NULL;
     IMFActivate **ppDevices = NULL;
+    IMFActivate *ret_device;
     WCHAR *_device_name = NULL;
     UINT32 count = 0;
     HRESULT hr;
@@ -266,8 +267,9 @@ windows_device_from_name(WCHAR *device_name)
                     RELEASE(ppDevices[j]);
                 }
             }
+            ret_device = ppDevices[i];
             CoTaskMemFree(ppDevices);
-            return ppDevices[i];
+            return ret_device;
         }
         free(_device_name);
     }

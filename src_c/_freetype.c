@@ -847,16 +847,10 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (!source) {
         goto end;
     }
-    else {
-        PyObject *path = 0;
 
-        if (pgRWops_IsFileObject(source)) {
-            path = PyObject_GetAttrString(file, "name");
-        }
-        else {
-            Py_INCREF(file);
-            path = file;
-        }
+    PyObject *path = NULL;
+    if (pgRWops_IsFileObject(source)) {
+        path = PyObject_GetAttrString(file, "name");
         if (!path) {
             PyObject *str;
             PyErr_Clear();
@@ -868,7 +862,14 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF(str);
             }
         }
-        else if (PyUnicode_Check(path)) {
+    }
+    else {
+        Py_INCREF(file);
+        path = file;
+    }
+
+    if (path) {
+        if (PyUnicode_Check(path)) {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
@@ -881,14 +882,15 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         else {
             self->path = PyObject_Str(path);
         }
-        Py_XDECREF(path);
-        if (!self->path) {
-            goto end;
-        }
+        Py_DECREF(path);
+    }
 
-        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
-            goto end;
-        }
+    if (!self->path) {
+        goto end;
+    }
+
+    if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
+        goto end;
     }
 #endif /* WIN32 */
 
@@ -1938,7 +1940,7 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
                               rotation))
         goto error;
 
-    surface = pgSurface_AsSurface(surface_obj);
+    surface = surface_obj ? pgSurface_AsSurface(surface_obj) : NULL;
     if (!surface) {
         PyErr_SetString(pgExc_SDLError, "display Surface quit");
         goto error;

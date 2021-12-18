@@ -245,7 +245,7 @@ _proxy_zombie_get_buffer(PyObject *obj, Py_buffer *view_p, int flags)
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *obj = 0;
+    PyObject *obj;
     getbufferproc get_buffer = (getbufferproc)pgObject_GetBuffer;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
