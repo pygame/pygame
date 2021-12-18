@@ -1055,6 +1055,13 @@ map_array(PyObject *self, PyObject *args)
             /* Leave loop, moving left one index
              */
             --dim;
+            if (dim < 0) {
+                /* Should not happen, but handle case for extra safety */
+                PyErr_SetString(
+                    PyExc_RuntimeError,
+                    "internal pygame error in pixelcopy map_array");
+                goto fail;
+            }
             tar += tar_advances[dim];
             src += src_advances[dim];
             --counters[dim];

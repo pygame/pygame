@@ -439,7 +439,8 @@ _replace_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         } break;
         case 2: {
             Uint16 *px_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -472,7 +473,8 @@ _replace_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
             Uint32 Boffset = 2 - (format->Bshift >> 3);
 #endif
             Uint32 pxcolor;
-            int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -502,7 +504,8 @@ _replace_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         default: /* case 4: */
         {
             Uint32 *px_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+            int ppa = (SDL_ISPIXELFORMAT_ALPHA(format->format) &&
+                       surf->format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -641,7 +644,8 @@ _extract_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         } break;
         case 2: {
             Uint16 *px_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -683,7 +687,8 @@ _extract_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
             Uint8 black_g = (Uint8)(black >> 8);
             Uint8 black_b = (Uint8)black;
             Uint32 pxcolor;
-            int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -723,7 +728,8 @@ _extract_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         default: /* case 4: */
         {
             Uint32 *px_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 pixel_p = pixelrow;
@@ -894,9 +900,10 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         case 2: {
             Uint16 *pixel_p;
             Uint16 *other_pixel_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
-            int other_ppa =
-                (other_surf->flags & SDL_SRCALPHA && other_format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
+            int other_ppa = (SDL_ISPIXELFORMAT_ALPHA(other_format->format) &&
+                             other_format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 byte_p = row_p;
@@ -996,9 +1003,10 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         {
             Uint32 *pixel_p;
             Uint32 *other_pixel_p;
-            int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
-            int other_ppa =
-                (other_surf->flags & SDL_SRCALPHA && other_format->Amask);
+            int ppa =
+                (SDL_ISPIXELFORMAT_ALPHA(format->format) && format->Amask);
+            int other_ppa = (SDL_ISPIXELFORMAT_ALPHA(other_format->format) &&
+                             other_format->Amask);
 
             for (y = 0; y < dim1; ++y) {
                 byte_p = row_p;

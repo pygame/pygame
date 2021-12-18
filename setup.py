@@ -369,22 +369,20 @@ for e in extensions:
         # some warnings are skipped here
         ("/W3", "/wd4142", "/wd4996")
         if sys.platform == "win32"
-        else ("-Wall", "-Wno-error=unknown-pragmas") # "-Wno-error=sign-compare"
+        else ("-Wall", "-Wno-error=unknown-pragmas")
     )
-
-    if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
-        # TODO: fix freetype issues here
-        e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
 
     if "surface" in e.name and sys.platform == "darwin":
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
 
-    if ("mask" in e.name or "pixel" in e.name) and sys.platform == "win32":
-        # TODO fix
-        # skip -Werror on mask, pixelarray and pixelcopy because of many MSVC 
-        # static analyzer issues
-        continue
+    if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
+        # TODO: fix freetype issues here
+        e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
+
+    if "mask" in e.name and sys.platform == "win32":
+        # skip analyze warnings that pop up a lot in mask for now. TODO fix
+        e.extra_compile_args.extend(("/wd6385", "/wd6386"))
 
     if (
         "CI" in os.environ
