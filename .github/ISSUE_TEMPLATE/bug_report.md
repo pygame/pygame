@@ -52,5 +52,5 @@ print("Hello, world")
 **Stack trace/error output/other error logs**
 
 ```
-paste other relevent logs or stack traces here, if applicable
+paste other relevant logs or stack traces here, if applicable
 ```
