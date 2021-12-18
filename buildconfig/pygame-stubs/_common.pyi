@@ -8,27 +8,28 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 
 # For functions that take a file name
-_AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
+# Same definition has to be in __init__.pyi
+AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
 
 # Most pygame functions that take a file argument should be able to handle
-# a _FileArg type
-_FileArg = Union[_AnyPath, IO[bytes], IO[str]]
+# a FileArg type
+FileArg = Union[AnyPath, IO[bytes], IO[str]]
 
-_Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
 # This typehint is used when a function would return an RGBA tuble
-_RgbaOutput = Tuple[int, int, int, int]
-_ColorValue = Union[Color, int, str, Tuple[int, int, int], List[int], _RgbaOutput]
+RgbaOutput = Tuple[int, int, int, int]
+ColorValue = Union[Color, int, str, Tuple[int, int, int], List[int], RgbaOutput]
 
-_CanBeRect = Union[
+CanBeRect = Union[
     Rect,
     Tuple[int, int, int, int],
     List[int],
-    Tuple[_Coordinate, _Coordinate],
-    List[_Coordinate],
+    Tuple[Coordinate, Coordinate],
+    List[Coordinate],
 ]
 
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
+class HasRectAttribute(Protocol):
+    rect: CanBeRect
 
-_RectValue = Union[_CanBeRect, _HasRectAttribute]
+RectValue = Union[CanBeRect, HasRectAttribute]

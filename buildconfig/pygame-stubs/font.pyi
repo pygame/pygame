@@ -2,7 +2,7 @@ from typing import Hashable, Iterable, List, Optional, Tuple, Union
 
 from pygame.surface import Surface
 
-from ._common import _ColorValue, _FileArg
+from ._common import ColorValue, FileArg
 
 def init() -> None: ...
 def quit() -> None: ...
@@ -26,13 +26,13 @@ class Font(object):
     bold: bool
     italic: bool
     underline: bool
-    def __init__(self, name: Optional[_FileArg], size: int) -> None: ...
+    def __init__(self, name: Optional[FileArg], size: int) -> None: ...
     def render(
         self,
         text: Union[str, bytes],
         antialias: bool,
-        color: _ColorValue,
-        background: Optional[_ColorValue] = None,
+        color: ColorValue,
+        background: Optional[ColorValue] = None,
     ) -> Surface: ...
     def size(self, text: Union[str, bytes]) -> Tuple[int, int]: ...
     def set_underline(self, value: bool) -> None: ...

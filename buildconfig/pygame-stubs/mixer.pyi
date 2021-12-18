@@ -5,7 +5,7 @@ import numpy
 from pygame.event import Event
 
 from . import music as music
-from ._common import _FileArg
+from ._common import FileArg
 
 def init(
     frequency: int = 44100,
@@ -38,7 +38,7 @@ def get_sdl_mixer_version(linked: bool = True) -> Tuple[int, int, int]: ...
 
 class Sound:
     @overload
-    def __init__(self, file: _FileArg) -> None: ...
+    def __init__(self, file: FileArg) -> None: ...
     @overload
     def __init__(
         self, buffer: Any

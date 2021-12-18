@@ -5,7 +5,7 @@ from pygame.font import Font
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from ._common import _ColorValue, _FileArg, _CanBeRect
+from ._common import ColorValue, FileArg, CanBeRect
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
@@ -61,7 +61,7 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Optional[_FileArg],
+        file: Optional[FileArg],
         size: float = 0,
         font_index: int = 0,
         resolution: int = 0,
@@ -85,8 +85,8 @@ class Font:
     def render(
         self,
         text: str,
-        fgcolor: Optional[_ColorValue] = None,
-        bgcolor: Optional[_ColorValue] = None,
+        fgcolor: Optional[ColorValue] = None,
+        bgcolor: Optional[ColorValue] = None,
         style: int = STYLE_DEFAULT,
         rotation: int = 0,
         size: float = 0,
@@ -94,10 +94,10 @@ class Font:
     def render_to(
         self,
         surf: Surface,
-        dest: _CanBeRect,
+        dest: CanBeRect,
         text: str,
-        fgcolor: Optional[_ColorValue] = None,
-        bgcolor: Optional[_ColorValue] = None,
+        fgcolor: Optional[ColorValue] = None,
+        bgcolor: Optional[ColorValue] = None,
         style: int = STYLE_DEFAULT,
         rotation: int = 0,
         size: float = 0,
@@ -114,7 +114,7 @@ class Font:
         self,
         array: Any,
         text: str,
-        dest: Optional[_CanBeRect] = None,
+        dest: Optional[CanBeRect] = None,
         style: int = STYLE_DEFAULT,
         rotation: int = 0,
         size: float = 0,

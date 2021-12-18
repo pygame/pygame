@@ -35,7 +35,7 @@ from pygame import fastevent as fastevent
 # Other
 from pygame import scrap as scrap
 
-from ._common import _AnyPath
+_AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
 
 from pygame.rect import Rect
 from pygame.surface import Surface
