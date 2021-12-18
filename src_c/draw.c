@@ -74,8 +74,8 @@ static void
 draw_fillpoly(SDL_Surface *surf, int *vx, int *vy, Py_ssize_t n, Uint32 color,
               int *drawn_area);
 static void
-draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2,
-          int width, Uint32 color);
+draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
+          Uint32 color);
 static void
 draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                 int width, Uint32 color, int top_left, int top_right,
@@ -931,13 +931,12 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         /* SDL_FillRect respects the clip rect already, but in order to
             return the drawn area, we need to do this here, and keep the
             pointer to the result in clipped */
-        if (!SDL_IntersectRect(&sdlrect,
-                                &cliprect,
-                                &clipped)) {
+        if (!SDL_IntersectRect(&sdlrect, &cliprect, &clipped)) {
             return pgRect_New4(rect->x, rect->y, 0, 0);
         }
         if (width > 0 && (width * 2) < clipped.w && (width * 2) < clipped.h) {
-            draw_rect(surf, sdlrect.x, sdlrect.y, sdlrect.x + sdlrect.w - 1, sdlrect.y + sdlrect.h - 1, width, color);
+            draw_rect(surf, sdlrect.x, sdlrect.y, sdlrect.x + sdlrect.w - 1,
+                      sdlrect.y + sdlrect.h - 1, width, color);
         }
         else {
             pgSurface_Prep(surfobj);
@@ -970,9 +969,10 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
             width = MAX(rect->w / 2, rect->h / 2);
         }
 
-        draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1,
-                        radius, width, color, top_left_radius, top_right_radius,
-                        bottom_left_radius, bottom_right_radius, drawn_area);
+        draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1,
+                        rect->y + rect->h - 1, radius, width, color,
+                        top_left_radius, top_right_radius, bottom_left_radius,
+                        bottom_right_radius, drawn_area);
         if (!pgSurface_Unlock(surfobj)) {
             return RAISE(PyExc_RuntimeError, "error unlocking surface");
         }
@@ -1519,8 +1519,8 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2,
             }
             while ((sign(x1 - x2, sx) != sx) || (sign(y1 - y2, sy) != sy)) {
                 if (xinc)
-                    drawhorzlineclipbounding(surf, color, left_top, y1, right_bottom,
-                                             drawn_area);
+                    drawhorzlineclipbounding(surf, color, left_top, y1,
+                                             right_bottom, drawn_area);
                 else {
                     for (y = left_top; y <= right_bottom; y++)
                         set_and_check_rect(surf, x1, y, color, drawn_area);
@@ -1546,8 +1546,8 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2,
             if (xinc) {
                 while (y1 != end_y && (inside_clip(surf, left_top, y1) ||
                                        inside_clip(surf, right_bottom, y1))) {
-                    drawhorzlineclipbounding(surf, color, left_top, y1, right_bottom,
-                                             drawn_area);
+                    drawhorzlineclipbounding(surf, color, left_top, y1,
+                                             right_bottom, drawn_area);
                     e2 = err;
                     if (e2 > -dx) {
                         err -= dy;
@@ -1560,8 +1560,8 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2,
                         y1 += sy;
                     }
                 }
-                drawhorzlineclipbounding(surf, color, left_top, y1, right_bottom,
-                                         drawn_area);
+                drawhorzlineclipbounding(surf, color, left_top, y1,
+                                         right_bottom, drawn_area);
             }
             else {
                 while (x1 != end_x && (inside_clip(surf, x1, left_top) ||
@@ -1965,14 +1965,15 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
         /* optimisation to avoid overdrawing and repeated return rect checks:
            only draw a line if y-step is about to be decreased. */
         if (f >= 0) {
-            drawhorzlineclipbounding(surf, color, x0 - x, y0 + y - 1, x0 + x - 1,
-                                     drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - x, y0 + y - 1,
+                                     x0 + x - 1, drawn_area);
             drawhorzlineclipbounding(surf, color, x0 - x, y0 - y, x0 + x - 1,
                                      drawn_area);
         }
         drawhorzlineclipbounding(surf, color, x0 - y, y0 + x - 1, x0 + y - 1,
                                  drawn_area);
-        drawhorzlineclipbounding(surf, color, x0 - y, y0 - x, x0 + y - 1, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - y, y0 - x, x0 + y - 1,
+                                 drawn_area);
     }
 }
 
@@ -1988,7 +1989,8 @@ draw_ellipse_filled(SDL_Surface *surf, int x0, int y0, int width, int height,
         return;
     }
     if (height == 1) {
-        drawhorzlineclipbounding(surf, color, x0, y0, x0 + width - 1, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0, y0, x0 + width - 1,
+                                 drawn_area);
         return;
     }
     x0 = x0 + width / 2;
@@ -2003,10 +2005,11 @@ draw_ellipse_filled(SDL_Surface *surf, int x0, int y0, int width, int height,
     dx = 2 * height * height * x;
     dy = 2 * width * width * y;
     while (dx < dy) {
-        drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y,
-                                 x0 + (int) x - x_offset, drawn_area);
-        drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                 x0 + (int) x - x_offset, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                 x0 + (int)x - x_offset, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                 y0 + (int)y - y_offset,
+                                 x0 + (int)x - x_offset, drawn_area);
         if (d1 < 0) {
             x++;
             dx = dx + (2 * height * height);
@@ -2024,10 +2027,11 @@ draw_ellipse_filled(SDL_Surface *surf, int x0, int y0, int width, int height,
          (((double)width * width) * ((y - 1) * (y - 1))) -
          ((double)width * width * height * height);
     while (y >= 0) {
-        drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y,
-                                 x0 + (int) x - x_offset, drawn_area);
-        drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                 x0 + (int) x - x_offset, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                 x0 + (int)x - x_offset, drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                 y0 + (int)y - y_offset,
+                                 x0 + (int)x - x_offset, drawn_area);
         if (d2 > 0) {
             y--;
             dy = dy - (2 * width * width);
@@ -2073,20 +2077,24 @@ draw_ellipse_thickness(SDL_Surface *surf, int x0, int y0, int width,
     dy_inner = 2 * (width - thickness) * (width - thickness) * y_inner;
     while (dx < dy) {
         if (line) {
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y,
-                                     x0 + (int) x - x_offset, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                     x0 + (int) x - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 + (int)x - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                     y0 + (int)y - y_offset,
+                                     x0 + (int)x - x_offset, drawn_area);
         }
         else {
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y, x0 - (int) x_inner,
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                     y0 + (int)y - y_offset, x0 - (int)x_inner,
                                      drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                     x0 - (int) x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int) x - x_offset, y0 - (int) y,
-                                     x0 + (int) x_inner - x_offset, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int) x - x_offset, y0 + (int) y - y_offset,
-                                     x0 + (int) x_inner - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - x_offset,
+                                     y0 - (int)y, x0 + (int)x_inner - x_offset,
+                                     drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - x_offset,
+                                     y0 + (int)y - y_offset,
+                                     x0 + (int)x_inner - x_offset, drawn_area);
         }
         if (d1 < 0) {
             x++;
@@ -2129,20 +2137,24 @@ draw_ellipse_thickness(SDL_Surface *surf, int x0, int y0, int width,
          ((double)width * width * height * height);
     while (y >= 0) {
         if (line) {
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y, x0 + (int) x - x_offset,
-                                     drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                     x0 + (int) x - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 + (int)x - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                     y0 + (int)y - y_offset,
+                                     x0 + (int)x - x_offset, drawn_area);
         }
         else {
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 - (int) y, x0 - (int) x_inner,
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x,
+                                     y0 + (int)y - y_offset, x0 - (int)x_inner,
                                      drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int) x, y0 + (int) y - y_offset,
-                                     x0 - (int) x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int) x - x_offset, y0 - (int) y,
-                                     x0 + (int) x_inner - x_offset, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int) x - x_offset, y0 + (int) y - y_offset,
-                                     x0 + (int) x_inner - x_offset, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - x_offset,
+                                     y0 - (int)y, x0 + (int)x_inner - x_offset,
+                                     drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - x_offset,
+                                     y0 + (int)y - y_offset,
+                                     x0 + (int)x_inner - x_offset, drawn_area);
         }
         if (d2 > 0) {
             y--;
@@ -2322,8 +2334,8 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
 }
 
 static void
-draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2,
-          int width, Uint32 color)
+draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
+          Uint32 color)
 {
     for (int i = 0; i < width; i++) {
         drawhorzlineclip(surf, color, x1, y1 + i, x2);
