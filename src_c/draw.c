@@ -2337,11 +2337,12 @@ static void
 draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
           Uint32 color)
 {
-    for (int i = 0; i < width; i++) {
+    int i;
+    for (i = 0; i < width; i++) {
         drawhorzlineclip(surf, color, x1, y1 + i, x2);
         drawhorzlineclip(surf, color, x1, y2 - i, x2);
     }
-    for (int i = 0; i < (y2 - y1) - 2 * width + 1; i++) {
+    for (i = 0; i < (y2 - y1) - 2 * width + 1; i++) {
         drawhorzlineclip(surf, color, x1, y1 + width + i, x1 + width - 1);
         drawhorzlineclip(surf, color, x2 - width + 1, y1 + width + i, x2);
     }
