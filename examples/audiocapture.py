@@ -9,12 +9,8 @@ A pygame 2 experiment.
 import pygame as pg
 import time
 
-if pg.get_sdl_version()[0] < 2:
-    raise SystemExit("This example requires pygame 2 and SDL2.")
-
 from pygame._sdl2 import (
-    get_audio_device_name,
-    get_num_audio_devices,
+    get_audio_device_names,
     AudioDevice,
     AUDIO_F32,
     AUDIO_ALLOW_FORMAT_CHANGE,
@@ -26,10 +22,9 @@ pg.mixer.pre_init(44100, 32, 2, 512)
 pg.init()
 
 # init_subsystem(INIT_AUDIO)
-names = [get_audio_device_name(x, 1) for x in range(get_num_audio_devices(1))]
+names = get_audio_device_names(True)
 print(names)
 
-iscapture = 1
 sounds = []
 sound_chunks = []
 
@@ -57,7 +52,7 @@ set_post_mix(postmix_callback)
 
 audio = AudioDevice(
     devicename=names[0],
-    iscapture=1,
+    iscapture=True,
     frequency=44100,
     audioformat=AUDIO_F32,
     numchannels=2,
@@ -68,7 +63,9 @@ audio = AudioDevice(
 # start recording.
 audio.pause(0)
 
-print("recording with :%s:" % names[0])
+print(audio)
+
+print("recording with '%s'" % names[0])
 time.sleep(5)
 
 
