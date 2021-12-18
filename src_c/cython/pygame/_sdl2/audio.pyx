@@ -103,7 +103,7 @@ cdef class AudioDevice:
                  callback):
         """ An AudioDevice is for sound playback and capture of 'sound cards'.
 
-        :param string devicename: One of the device names from get_audio_device_name.
+        :param string devicename: One of the device names from get_audio_device_names.
                                  If None is passed in, it uses the default audio device.
         :param int frequency: Number of samples per second. 44100, 22050, ...
         :param int audioformat: AUDIO_F32SYS, AUDIO_F32SYS, AUDIO_U16SYS, AUDIO_S16SYS, ...
