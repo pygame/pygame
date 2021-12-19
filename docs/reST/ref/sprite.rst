@@ -566,7 +566,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    It uses the dirty flag technique and is therefore faster than the
    :class:`pygame.sprite.RenderUpdates` if you have many static sprites. It
    also switches automatically between dirty rect update and full screen
-   drawing, so you do no have to worry what would be faster.
+   drawing, so you do not have to worry what would be faster.
 
    Same as for the :class:`pygame.sprite.Group`. You can specify some
    additional attributes through kwargs:
@@ -634,12 +634,27 @@ Sprites are not thread safe. So lock them yourself if using threads.
       | :sl:`sets the threshold in milliseconds`
       | :sg:`set_timing_treshold(time_ms) -> None`
 
-      Default is 1000./80 where 80 is the fps I want to switch to full screen
-      mode.  This method's name is a typo and should be fixed.
+      DEPRECATED: Use set_timing_threshold() instead.
+
+      .. deprecated:: 2.1.1
+
+      .. ## LayeredDirty.set_timing_treshold ##
+
+   .. method:: set_timing_threshold
+
+      | :sl:`sets the threshold in milliseconds`
+      | :sg:`set_timing_threshold(time_ms) -> None`
+
+      Defaults to 1000.0 / 80.0. This means that the screen will be painted
+      using the flip method rather than the update method if the update
+      method is taking so long to update the screen that the frame rate falls
+      below 80 frames per second.
+
+      .. versionadded:: 2.1.1
 
       :raises TypeError: if ``time_ms`` is not int or float
 
-      .. ## LayeredDirty.set_timing_treshold ##
+      .. ## LayeredDirty.set_timing_threshold ##
 
    .. ## pygame.sprite.LayeredDirty ##
 

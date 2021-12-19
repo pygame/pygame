@@ -48,6 +48,7 @@
 #define DOC_LAYEREDDIRTYGETCLIP "get_clip() -> Rect\nclip the area where to draw. Just pass None (default) to reset the clip"
 #define DOC_LAYEREDDIRTYCHANGELAYER "change_layer(sprite, new_layer) -> None\nchanges the layer of the sprite"
 #define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms) -> None\nsets the threshold in milliseconds"
+#define DOC_LAYEREDDIRTYSETTIMINGTHRESHOLD "set_timing_threshold(time_ms) -> None\nsets the threshold in milliseconds"
 #define DOC_PYGAMESPRITEGROUPSINGLE "GroupSingle(sprite=None) -> GroupSingle\nGroup container that holds a single sprite."
 #define DOC_PYGAMESPRITESPRITECOLLIDE "spritecollide(sprite, group, dokill, collided = None) -> Sprite_list\nFind sprites in a group that intersect another sprite."
 #define DOC_PYGAMESPRITECOLLIDERECT "collide_rect(left, right) -> bool\nCollision detection between two sprites, using rects."
@@ -254,6 +255,10 @@ changes the layer of the sprite
 
 pygame.sprite.LayeredDirty.set_timing_treshold
  set_timing_treshold(time_ms) -> None
+sets the threshold in milliseconds
+
+pygame.sprite.LayeredDirty.set_timing_threshold
+ set_timing_threshold(time_ms) -> None
 sets the threshold in milliseconds
 
 pygame.sprite.GroupSingle
