@@ -13,12 +13,8 @@
 #define DOC_VECTOR2SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR2REFLECT "reflect(Vector2) -> Vector2\nreturns a vector reflected of a given normal."
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
-#define DOC_VECTOR2LIMIT "limit(float) -> Vector2\nit returns a Vector with the same direction but the magnitude is limited."
-#define DOC_VECTOR2LIMITIP "limit_ip(float) -> None\nit limits the magnitude of the vector."
-#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector2\nit returns a Vector with the same direction but the magnitude is limited."
-#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit limits the magnitude of the vector."
-#define DOC_VECTOR2CLAMPLENGTH "clamp_length(float) -> Vector2\nit returns a Vector with the same direction but the length is limited."
-#define DOC_VECTOR2CLAMPLENGTHIP "clamp_length_ip(float) -> None\nit limits the length of the vector"
+#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector2\nit returns a new vector with its magnitude clamped between 0-value."
+#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit clamps the magnitude of the vector between 0-value."
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
@@ -48,12 +44,8 @@
 #define DOC_VECTOR3SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR3REFLECT "reflect(Vector3) -> Vector3\nreturns a vector reflected of a given normal."
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
-#define DOC_VECTOR3LIMIT "limit(float) -> Vector3\nit returns a Vector with the same direction but the magnitude is limited."
-#define DOC_VECTOR3LIMITIP "limit_ip(float) -> None\nit limits the magnitude of the vector."
-#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector3\nit returns a Vector with the same direction but the magnitude is limited."
-#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit limits the magnitude of the vector."
-#define DOC_VECTOR3CLAMPLENGTH "clamp_length(float) -> Vector3\nit returns a Vector with the same direction but the length is limited."
-#define DOC_VECTOR3CLAMPLENGTHIP "clamp_length_ip(float) -> None\nit limits the length of the vector"
+#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector3\nit returns a new vector with its magnitude clamped between 0-value."
+#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit clamps the magnitude of the vector between 0-value."
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
@@ -211,29 +203,13 @@ pygame.math.Vector2.copy
  copy() -> Vector2
 Returns a copy of itself.
 
-pygame.math.Vector2.limit
- limit(float) -> Vector2
-it returns a Vector with the same direction but the magnitude is limited.
-
-pygame.math.Vector2.limit_ip
- limit_ip(float) -> None
-it limits the magnitude of the vector.
-
 pygame.math.Vector2.clamp_magnitude
  clamp_magnitude(float) -> Vector2
-it returns a Vector with the same direction but the magnitude is limited.
+it returns a new vector with its magnitude clamped between 0-value.
 
 pygame.math.Vector2.clamp_magnitude_ip
  clamp_magnitude_ip(float) -> None
-it limits the magnitude of the vector.
-
-pygame.math.Vector2.clamp_length
- clamp_length(float) -> Vector2
-it returns a Vector with the same direction but the length is limited.
-
-pygame.math.Vector2.clamp_length_ip
- clamp_length_ip(float) -> None
-it limits the length of the vector
+it clamps the magnitude of the vector between 0-value.
 
 pygame.math.Vector2.update
  update() -> None
@@ -421,29 +397,14 @@ pygame.math.Vector3.copy
  copy() -> Vector3
 Returns a copy of itself.
 
-pygame.math.Vector3.limit
- limit(float) -> Vector3
-it returns a Vector with the same direction but the magnitude is limited.
-
-pygame.math.Vector3.limit_ip
- limit_ip(float) -> None
-it limits the magnitude of the vector.
-
 pygame.math.Vector3.clamp_magnitude
  clamp_magnitude(float) -> Vector3
-it returns a Vector with the same direction but the magnitude is limited.
+it returns a new vector with its magnitude clamped between 0-value.
 
 pygame.math.Vector3.clamp_magnitude_ip
  clamp_magnitude_ip(float) -> None
-it limits the magnitude of the vector.
+it clamps the magnitude of the vector between 0-value.
 
-pygame.math.Vector3.clamp_length
- clamp_length(float) -> Vector3
-it returns a Vector with the same direction but the length is limited.
-
-pygame.math.Vector3.clamp_length_ip
- clamp_length_ip(float) -> None
-it limits the length of the vector
 
 pygame.math.Vector3.update
  update() -> None

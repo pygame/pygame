@@ -88,14 +88,14 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v_copy0.x, v_copy1.x)
         self.assertEqual(v_copy0.y, v_copy1.y)
 
-    def testLimit(self):
+    def testClampMagnitude(self):
         v0 = Vector2(500.45, 200.32)
-        v1 = v0.limit(v0.magnitude() + 1)
+        v1 = v0.clamp_magnitude(v0.magnitude() + 1)
         self.assertEqual(v0.x, v1.x)
         self.assertEqual(v0.y, v1.y)
 
         v2 = Vector2(5, 5)
-        v3 = v2.limit(1)
+        v3 = v2.clamp_magnitude(1)
         v2.scale_to_length(1)
         self.assertEqual(v2.x, v3.x)
         self.assertEqual(v2.y, v3.y)
@@ -1204,14 +1204,14 @@ class Vector3TypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, assign_nonfloat)
 
-    def testLimit(self):
+    def testClampMagnitude(self):
         v0 = Vector3(500.45, 200.32, 205.6)
-        v1 = v0.limit(v0.magnitude() + 1)
+        v1 = v0.clamp_magnitude(v0.magnitude() + 1)
         self.assertEqual(v0.x, v1.x)
         self.assertEqual(v0.y, v1.y)
 
         v2 = Vector3(5, 5, 5)
-        v3 = v2.limit(1)
+        v3 = v2.clamp_magnitude(1)
         v2.scale_to_length(1)
         self.assertEqual(v2.x, v3.x)
         self.assertEqual(v2.y, v3.y)
