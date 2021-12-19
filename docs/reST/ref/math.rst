@@ -210,6 +210,21 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.move_toward ##
 
+   .. method:: move_toward_ip
+
+      | :sl:`returns a vector that moves toward to the given vector at the given speed.`
+      | :sg:`move_toward_ip(Vector2, float) -> Vector2`
+
+      Similar to ``lerp()``, this returns a Vector which moves self to the
+      given Vector at a given speed. The first parameter determines the target
+      Vector, while the second parameter determines the speed. The speed value
+      must be greater than 0, but if the speed value is equal to 0, it will return
+      self.
+
+      .. versionadded:: 2.1.2
+
+      .. ## Vector2.move_toward_ip ##
+
    .. method:: lerp
 
       | :sl:`returns a linear interpolation to the given vector.`
@@ -545,6 +560,21 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.1.2
 
       .. ## Vector3.move_toward ##
+
+   .. method:: move_toward_ip
+
+      | :sl:`returns a vector that moves toward to the given vector at the given speed.`
+      | :sg:`move_toward_ip(Vector3, float) -> Vector3`
+
+      Similar to ``lerp()``, this returns a Vector which moves self to the
+      given Vector at a given speed. The first parameter determines the target
+      Vector, while the second parameter determines the speed. The speed value
+      must be greater than 0, but if the speed value is equal to 0, it will return
+      self.
+
+      .. versionadded:: 2.1.2
+
+      .. ## Vector3.move_toward_ip ##
 
    .. method:: lerp
 
