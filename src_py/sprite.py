@@ -386,7 +386,7 @@ class AbstractGroup(object):
         :param sprite: The sprite we are adding.
         :param layer: the layer to add to, if the group type supports layers
         """
-        self.spritedict[sprite] = 0
+        self.spritedict[sprite] = None
 
     def remove_internal(self, sprite):
         """
