@@ -208,6 +208,8 @@ vector_dot(pgVector *self, PyObject *other);
 static PyObject *
 vector_scale_to_length(pgVector *self, PyObject *length);
 static PyObject *
+vector_move_toward(pgVector *self, PyObject *args);
+static PyObject *
 vector_slerp(pgVector *self, PyObject *args);
 static PyObject *
 vector_lerp(pgVector *self, PyObject *args);
@@ -1289,6 +1291,55 @@ vector_scale_to_length(pgVector *self, PyObject *length)
 }
 
 static PyObject *
+vector_move_toward(pgVector *self, PyObject *args)
+{
+    Py_ssize_t i;
+    PyObject *other;
+    pgVector *ret;
+    double delta[VECTOR_MAX_SIZE];
+    double other_coords[VECTOR_MAX_SIZE];
+    double speed;
+    double dist;
+
+    if (!PyArg_ParseTuple(args, "Od:Vector.move_toward", &other, &speed)) {
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+    if (speed < 0) {
+        PyErr_SetString(PyExc_TypeError, 
+            "Expected speed to be greater or equal to 0");
+        return NULL;
+    }
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < self->dim; ++i)
+        delta[i] = self->coords[i] - other_coords[i];
+    
+    /* Get magnitude of Vector */
+    dist = sqrt(_scalar_product(delta, delta, self->dim));
+
+    if (dist <= speed || dist == 0)
+    {
+        /* Return target Vector */
+        for (i = 0; i < self->dim; ++i)
+            ret->coords[i] = other_coords[i];
+        return (PyObject *)ret;
+    }
+
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i] - delta[i] / dist * speed;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
 vector_slerp(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
@@ -2203,7 +2254,8 @@ static PyMethodDef vector2_methods[] = {
     {"rotate_rad_ip", (PyCFunction)vector2_rotate_rad_ip, METH_O,
      DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
-     DOC_VECTOR2ROTATEIPRAD},
+     DOC_VECTOR2ROTATERADIP},
+    {"move_toward", (PyCFunction)vector_move_toward, METH_VARARGS, DOC_VECTOR2MOVETOWARD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -3152,7 +3204,8 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_z_rad_ip", (PyCFunction)vector3_rotate_z_rad_ip, METH_O,
      DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEZIPRAD},
+     DOC_VECTOR3ROTATEZRADIP},
+    {"move_toward", (PyCFunction)vector_move_toward, METH_VARARGS, DOC_VECTOR3MOVETOWARD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
