@@ -88,6 +88,18 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v_copy0.x, v_copy1.x)
         self.assertEqual(v_copy0.y, v_copy1.y)
 
+    def testLimit(self):
+        v0 = Vector2(500.45, 200.32)
+        v1 = v0.limit(v0.magnitude() + 1)
+        self.assertEqual(v0.x, v1.x)
+        self.assertEqual(v0.y, v1.y)
+
+        v2 = Vector2(5, 5)
+        v3 = v2.limit(1)
+        v2.scale_to_length(1)
+        self.assertEqual(v2.x, v3.x)
+        self.assertEqual(v2.y, v3.y)
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]
@@ -1191,6 +1203,18 @@ class Vector3TypeTest(unittest.TestCase):
             v[0] = "spam"
 
         self.assertRaises(TypeError, assign_nonfloat)
+
+    def testLimit(self):
+        v0 = Vector3(500.45, 200.32, 205.6)
+        v1 = v0.limit(v0.magnitude() + 1)
+        self.assertEqual(v0.x, v1.x)
+        self.assertEqual(v0.y, v1.y)
+
+        v2 = Vector3(5, 5, 5)
+        v3 = v2.limit(1)
+        v2.scale_to_length(1)
+        self.assertEqual(v2.x, v3.x)
+        self.assertEqual(v2.y, v3.y)
 
     def testExtendedSlicing(self):
         #  deletion

@@ -344,7 +344,79 @@ Multiple coordinates can be set using slices or swizzling
 
       .. versionadded:: 2.1.1
 
-      .. ## Vector2.copy ##
+      .. ## Vector2.copy
+
+   
+   .. method :: limit
+
+      | :sl:`it returns a Vector with the same direction but the magnitude is limited.`
+      | :sg:`limit(value) -> Vector2`
+
+      it returns a Vector with the same direction but the magnitude is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.limit
+
+   
+   .. method :: limit_ip
+
+      | :sl:`it limits the magnitude of the vector.`
+      | :sg:`limit_ip(value) -> None`
+
+      it limits the magnitude of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.limit_ip
+
+   
+   .. method :: clamp_magnitude
+
+      | :sl:`it returns a Vector with the same direction but the magnitude is limited.`
+      | :sg:`clamp_magnitude(value) -> Vector2`
+
+      it returns a Vector with the same direction but the magnitude is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.clamp_magnitude
+
+   
+   .. method :: clamp_magnitude_ip
+
+      | :sl:`it limits the magnitude of the vector.`
+      | :sg:`clamp_magnitude_ip(value) -> None`
+
+      it limits the magnitude of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.clamp_magnitude_ip
+
+   
+   .. method :: clamp_length
+
+      | :sl:`it returns a Vector with the same direction but the length is limited.`
+      | :sg:`clamp_length(value) -> Vector2`
+
+      it returns a Vector with the same direction but the length is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.clamp_length
+
+   
+   .. method :: clamp_length_ip
+
+      | :sl:`it limits the length of the vector.`
+      | :sg:`clamp_length_ip(value) -> None`
+
+      it limits the length of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.clamp_length_ip
 
 
    .. method:: update
@@ -856,6 +928,78 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.1.1
 
       .. ## Vector3.copy ##
+
+   
+   .. method :: limit
+
+      | :sl:`it returns a Vector with the same direction but the magnitude is limited.`
+      | :sg:`limit(value) -> Vector3`
+
+      it returns a Vector with the same direction but the magnitude is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.limit
+
+   
+   .. method :: limit_ip
+
+      | :sl:`it limits the magnitude of the vector.`
+      | :sg:`limit_ip(value) -> None`
+
+      it limits the magnitude of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.limit_ip
+
+   
+   .. method :: clamp_magnitude
+
+      | :sl:`it returns a Vector with the same direction but the magnitude is limited.`
+      | :sg:`clamp_magnitude(value) -> Vector3`
+
+      it returns a Vector with the same direction but the magnitude is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.clamp_magnitude
+
+   
+   .. method :: clamp_magnitude_ip
+
+      | :sl:`it limits the magnitude of the vector.`
+      | :sg:`clamp_magnitude_ip(value) -> None`
+
+      it limits the magnitude of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.clamp_magnitude_ip
+
+   
+   .. method :: clamp_length
+
+      | :sl:`it returns a Vector with the same direction but the length is limited.`
+      | :sg:`clamp_length(value) -> Vector3`
+
+      it returns a Vector with the same direction but the length is limited.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.clamp_length
+
+   
+   .. method :: clamp_length_ip
+
+      | :sl:`it limits the length of the vector.`
+      | :sg:`clamp_length_ip(value) -> None`
+
+      it limits the length of the vector.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.clamp_length_ip
 
    .. method:: update
 
