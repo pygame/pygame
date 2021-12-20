@@ -695,15 +695,11 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 static void
 _ftfont_dealloc(pgFontObject *self)
 {
-#ifdef HAVE_PYGAME_SDL_RWOPS
     SDL_RWops *src = _PGFT_GetRWops(self);
-#endif
     _PGFT_UnloadFont(self->freetype, self);
-#ifdef HAVE_PYGAME_SDL_RWOPS
     if (src) {
         pgRWops_ReleaseObject(src);
     }
-#endif
     _PGFT_Quit(self->freetype);
 
     Py_XDECREF(self->path);
@@ -772,7 +768,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-#if !defined(WIN32) || !defined(HAVE_PYGAME_SDL_RWOPS)
+#if !defined(WIN32)
     file = pg_EncodeString(file, "UTF-8", NULL, NULL);
     if (!file) {
         goto end;
@@ -841,7 +837,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
             goto end;
         }
     }
-#else  /* WIN32 && HAVE_PYGAME_SDL_RWOPS */
+#else  /* WIN32 */
     /* FT uses fopen(); as a workaround, always use RWops */
     if (file == original_file)
         Py_INCREF(file);
@@ -894,7 +890,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
             goto end;
         }
     }
-#endif /* WIN32 && HAVE_PYGAME_SDL_RWOPS */
+#endif /* WIN32 */
 
     if (!self->is_scalable && self->face_size.x == 0) {
         if (_PGFT_Font_GetAvailableSize(ft, self, 0, &size, &height, &width,
@@ -1733,13 +1729,6 @@ error:
 static PyObject *
 _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
-#ifndef HAVE_PYGAME_SDL_VIDEO
-
-    PyErr_SetString(PyExc_RuntimeError,
-                    "SDL support is missing. Cannot render on surfonts");
-    return 0;
-
-#else
     /* keyword list */
     static char *kwlist[] = {"text",     "fgcolor", "bgcolor", "style",
                              "rotation", "size",    0};
@@ -1857,20 +1846,11 @@ error:
     Py_XDECREF(rect_obj);
     Py_XDECREF(rtuple);
     return 0;
-
-#endif  // HAVE_PYGAME_SDL_VIDEO
 }
 
 static PyObject *
 _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
-#ifndef HAVE_PYGAME_SDL_VIDEO
-
-    PyErr_SetString(PyExc_RuntimeError,
-                    "SDL support is missing. Cannot render on surfaces");
-    return 0;
-
-#else
     /* keyword list */
     static char *kwlist[] = {"surf",  "dest",     "text", "fgcolor", "bgcolor",
                              "style", "rotation", "size", 0};
@@ -1975,7 +1955,6 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
 error:
     free_string(text);
     return 0;
-#endif  // HAVE_PYGAME_SDL_VIDEO
 }
 
 /****************************************************
