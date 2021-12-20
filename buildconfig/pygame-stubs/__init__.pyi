@@ -41,17 +41,6 @@ from pygame import fastevent as fastevent
 from pygame import scrap as scrap
 from pygame import colordict as colordict
 
-<<<<<<< Updated upstream
-_AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
-
-from pygame.rect import Rect
-from pygame.surface import Surface
-from pygame.color import Color
-from pygame.pixelarray import PixelArray
-from pygame.math import Vector2, Vector3
-from pygame.cursors import Cursor
-
-=======
 from pygame.rect import Rect
 from pygame.surface import Surface
 from pygame.color import Color
@@ -62,7 +51,6 @@ from pygame.bufferproxy import BufferProxy
 from pygame.mask import Mask
 from pygame.overlay import Overlay
 
->>>>>>> Stashed changes
 __all__ = [
     "Rect",
     "Surface",
@@ -71,11 +59,8 @@ __all__ = [
     "Vector2",
     "Vector3",
     "Cursor",
-<<<<<<< Updated upstream
-=======
     "BufferProxy",
     "Mask"
->>>>>>> Stashed changes
 ]
 
 SDL: version.SDLVersion
