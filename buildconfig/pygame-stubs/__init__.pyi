@@ -1,9 +1,13 @@
-from typing import Any, Tuple, Callable, Optional, overload, Type
+from typing import Any, Tuple, Callable, Optional, overload, Type, Union
+import os
 
 # Re-export modules as members; see PEP 484 for stub export rules.
 
 # Most useful stuff
 from pygame.constants import *
+from pygame.base import *
+from pygame.rwobject import *
+from pygame import constants as constants
 from pygame import surface as surface
 from pygame import rect as rect
 from pygame import color as color
@@ -14,6 +18,7 @@ from pygame import font as font
 from pygame import image as image
 from pygame import key as key
 from pygame import mixer as mixer
+from pygame import music as mixer_music
 from pygame import mouse as mouse
 from pygame import time as time
 from pygame import version as version
@@ -34,7 +39,9 @@ from pygame import fastevent as fastevent
 
 # Other
 from pygame import scrap as scrap
+from pygame import colordict as colordict
 
+<<<<<<< Updated upstream
 _AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
 
 from pygame.rect import Rect
@@ -44,6 +51,18 @@ from pygame.pixelarray import PixelArray
 from pygame.math import Vector2, Vector3
 from pygame.cursors import Cursor
 
+=======
+from pygame.rect import Rect
+from pygame.surface import Surface
+from pygame.color import Color
+from pygame.pixelarray import PixelArray
+from pygame.math import Vector2, Vector3
+from pygame.cursors import Cursor
+from pygame.bufferproxy import BufferProxy
+from pygame.mask import Mask
+from pygame.overlay import Overlay
+
+>>>>>>> Stashed changes
 __all__ = [
     "Rect",
     "Surface",
@@ -52,31 +71,19 @@ __all__ = [
     "Vector2",
     "Vector3",
     "Cursor",
+<<<<<<< Updated upstream
+=======
+    "BufferProxy",
+    "Mask"
+>>>>>>> Stashed changes
 ]
 
-def init() -> Tuple[int, int]: ...
-def quit() -> None: ...
-def get_init() -> bool: ...
+SDL: version.SDLVersion
+pygame_dir: str
+rev: str
+ver: str
+vernum: version.PygameVersion
 
-class error(RuntimeError): ...
-
-def get_error() -> str: ...
-def set_error(error_msg: str) -> None: ...
-def get_sdl_version() -> Tuple[int, int, int]: ...
-def get_sdl_byteorder() -> int: ...
-def encode_string(
-    obj: Optional[_AnyPath],
-    encoding: Optional[str] = "unicode_escape",
-    errors: Optional[str] = "backslashreplace",
-    etype: Optional[Type[Exception]] = UnicodeEncodeError,
-) -> bytes: ...
-@overload
-def encode_file_path(
-    obj: Optional[_AnyPath], etype: Optional[Type[Exception]] = UnicodeEncodeError
-) -> bytes: ...
-@overload
-def encode_file_path(
-    obj: Any, etype: Optional[Type[Exception]] = UnicodeEncodeError
-) -> bytes: ...
-def register_quit(callable: Callable[[], Any]) -> None: ...
+def packager_imports(): ...
+def warn_unwanted_files(): ...
 def __getattr__(name: str) -> Any: ...  # don't error on missing stubs
