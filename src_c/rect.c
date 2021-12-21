@@ -245,6 +245,7 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             PyObject *sub = PySequence_GetItem(obj, 0);
             if (!sub || !PySequence_Check(sub) ||
                 PySequence_Length(sub) != 2) {
+                PyErr_Clear();
                 Py_XDECREF(sub);
                 return NULL;
             }
@@ -263,6 +264,7 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             sub = PySequence_GetItem(obj, 1);
             if (sub == NULL || !PySequence_Check(sub) ||
                 PySequence_Length(sub) != 2) {
+                PyErr_Clear();
                 Py_XDECREF(sub);
                 return NULL;
             }
@@ -295,6 +297,7 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
             Py_DECREF(rectattr);
             if (rectresult == NULL) {
+                PyErr_Clear();
                 return NULL;
             }
             rectattr = rectresult;
