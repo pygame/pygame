@@ -221,6 +221,8 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_SetWindowSize
     # https://wiki.libsdl.org/SDL_GetWindowPosition
     # https://wiki.libsdl.org/SDL_SetWindowPosition
+    # https://wiki.libsdl.org/SDL_GetWindowSurface
+    # https://wiki.libsdl.org/SDL_UpdateWindowSurface
     void SDL_GetWindowSize(SDL_Window* window,
                            int*        w,
                            int*        h)
@@ -233,6 +235,8 @@ cdef extern from "SDL.h" nogil:
     void SDL_SetWindowPosition(SDL_Window* window,
                                int         x,
                                int         y)
+    SDL_Surface* SDL_GetWindowSurface(SDL_Window* window)
+    int SDL_UpdateWindowSurface(SDL_Window* window)
     # https://wiki.libsdl.org/SDL_GetWindowOpacity
     # https://wiki.libsdl.org/SDL_SetWindowOpacity
     int SDL_GetWindowOpacity(SDL_Window* window,
@@ -405,9 +409,12 @@ cdef extern from "pygame.h" nogil:
         cdef SDL_Rect r
         cdef object weakreflist
 
+    ctypedef class pygame.Surface [object pgSurfaceObject]:
+        cdef SDL_Surface surf
 
 cdef class Window:
     cdef SDL_Window* _win
+    cdef object _display_surf
     cdef int _is_borrowed
 
 cdef class Renderer:

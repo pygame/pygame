@@ -38,6 +38,7 @@ cdef extern from "pygame.h" nogil:
     void import_pygame_surface()
 
     SDL_Window* pg_GetDefaultWindow()
+    int pg_FlipWindow(SDL_Window*, PyObject*, SDL_Renderer*, SDL_Texture*, int)
     void import_pygame_base()
 
     int pgRect_Check(object rect)
@@ -271,6 +272,7 @@ cdef class Window:
             except KeyError:
                 raise TypeError("unknown parameter: %s" % k)
 
+        self._display_surf = None
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
         self._is_borrowed=0
@@ -283,6 +285,17 @@ cdef class Window:
                                  'pygame_icon.bmp'))
         surf.set_colorkey(0)
         self.set_icon(surf)
+
+    def get_surface(self):
+        cdef SDL_Surface* surf = SDL_GetWindowSurface(self._win)
+        self._display_surf = <Surface>pgSurface_New2(surf, 1)
+        return self._display_surf
+
+    def flip(self):
+        if self._display_surf == None:
+            raise error("No display surface associated with Window")
+
+        pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0)
 
     @property
     def grab(self):

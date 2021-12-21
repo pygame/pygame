@@ -1518,57 +1518,6 @@ pg_flip_internal(_DisplayState *state)
         return -1;
     }
     return 0;
-
-
-    int status = 0;
-
-    /* Same check as VIDEO_INIT_CHECK() but returns -1 instead of NULL on
-     * fail. */
-    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        PyErr_SetString(pgExc_SDLError, "video system not initialized");
-        return -1;
-    }
-
-    if (!win) {
-        PyErr_SetString(pgExc_SDLError, "Display mode not set");
-        return -1;
-    }
-
-    Py_BEGIN_ALLOW_THREADS;
-    if (state->using_gl) {
-        SDL_GL_SwapWindow(win);
-    }
-    else {
-        if (pg_renderer != NULL) {
-            SDL_Surface *screen =
-                pgSurface_AsSurface(pg_GetDefaultWindowSurface());
-            SDL_UpdateTexture(pg_texture, NULL, screen->pixels, screen->pitch);
-            SDL_RenderClear(pg_renderer);
-            SDL_RenderCopy(pg_renderer, pg_texture, NULL, NULL);
-            SDL_RenderPresent(pg_renderer);
-        }
-        else {
-            /* Force a re-initialization of the surface in case it
-             * has been resized to avoid "please call SDL_GetWindowSurface"
-             * errors that the programmer cannot fix
-             */
-            pgSurfaceObject *screen = pg_GetDefaultWindowSurface();
-            SDL_Surface *new_surface = SDL_GetWindowSurface(win);
-
-            if (new_surface != ((pgSurfaceObject *)screen)->surf) {
-                screen->surf = new_surface;
-            }
-            status = SDL_UpdateWindowSurface(win);
-        }
-    }
-    Py_END_ALLOW_THREADS;
-
-    if (status < 0) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        return -1;
-    }
-
-    return 0;
 }
 
 static PyObject *
