@@ -173,7 +173,7 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
 
-static PyObject* pgExc_SDLError_ForBase = NULL;
+static PyObject *pgExc_SDLError_ForBase = NULL;
 
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
@@ -1963,10 +1963,12 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 }
 
 static int
-pg_FlipWindow(SDL_Window* win, PyObject* screen_obj, SDL_Renderer* renderer, SDL_Texture* texture, int opengl)
+pg_FlipWindow(SDL_Window *win, PyObject *screen_obj, SDL_Renderer *renderer,
+              SDL_Texture *texture, int opengl)
 {
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        PyErr_SetString(pgExc_SDLError_ForBase, "video system not initialized");
+        PyErr_SetString(pgExc_SDLError_ForBase,
+                        "video system not initialized");
         return 0;
     }
 
@@ -1975,7 +1977,7 @@ pg_FlipWindow(SDL_Window* win, PyObject* screen_obj, SDL_Renderer* renderer, SDL
         return 0;
     }
 
-    pgSurfaceObject* screen = (pgSurfaceObject*)screen_obj;
+    pgSurfaceObject *screen = (pgSurfaceObject *)screen_obj;
 
     int status = 0;
 
@@ -1985,7 +1987,8 @@ pg_FlipWindow(SDL_Window* win, PyObject* screen_obj, SDL_Renderer* renderer, SDL
     }
     else if (renderer != NULL) {
         SDL_Surface *screen_surf = pgSurface_AsSurface(screen);
-        SDL_UpdateTexture(texture, NULL, screen_surf->pixels, screen_surf->pitch);
+        SDL_UpdateTexture(texture, NULL, screen_surf->pixels,
+                          screen_surf->pitch);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);

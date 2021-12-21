@@ -1514,7 +1514,8 @@ pg_flip_internal(_DisplayState *state)
     SDL_Window *win = pg_GetDefaultWindow();
     PyObject *screen = pg_GetDefaultWindowSurface();
 
-    if (!pg_FlipWindow(win, screen, pg_renderer, pg_texture, state->using_gl)) {
+    if (!pg_FlipWindow(win, screen, pg_renderer, pg_texture,
+                       state->using_gl)) {
         return -1;
     }
     return 0;
