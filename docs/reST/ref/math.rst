@@ -349,10 +349,10 @@ Multiple coordinates can be set using slices or swizzling
    
    .. method :: clamp_magnitude
 
-      | :sl:`it returns a new vector with its magnitude clamped between 0-value.`
-      | :sg:`clamp_magnitude(value) -> Vector2`
+      | :sl:`it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude`
+      | :sg:`clamp_magnitude([min, ]max) -> Vector2`
 
-      it returns a new vector with its magnitude clamped between 0-value.
+      it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude
 
       .. versionadded:: 2.1.1
 
@@ -361,10 +361,10 @@ Multiple coordinates can be set using slices or swizzling
    
    .. method :: clamp_magnitude_ip
 
-      | :sl:`it clamps the magnitude of the vector between 0-value`
-      | :sg:`clamp_magnitude_ip(value) -> None`
+      | :sl:`it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.`
+      | :sg:`clamp_magnitude_ip([min, ]max) -> None`
 
-      it clamps the magnitude of the vector between 0-value
+      it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.
 
       .. versionadded:: 2.1.1
 
@@ -885,10 +885,10 @@ Multiple coordinates can be set using slices or swizzling
    
    .. method :: clamp_magnitude
 
-      | :sl:`it returns a new vector with its magnitude clamped between 0-value.`
-      | :sg:`clamp_magnitude(value) -> Vector3`
+      | :sl:`it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude`
+      | :sg:`clamp_magnitude([min, ]max) -> Vector3`
 
-      it returns a new vector with its magnitude clamped between 0-value.
+      it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude
 
       .. versionadded:: 2.1.1
 
@@ -897,10 +897,10 @@ Multiple coordinates can be set using slices or swizzling
    
    .. method :: clamp_magnitude_ip
 
-      | :sl:`it clamps the magnitude of the vector between 0-value.`
-      | :sg:`clamp_magnitude_ip(value) -> None`
+      | :sl:`it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.`
+      | :sg:`clamp_magnitude_ip([min, ]max) -> None`
 
-      it clamps the magnitude of the vector between 0-value
+      it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.
 
       .. versionadded:: 2.1.1
 

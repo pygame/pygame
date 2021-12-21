@@ -239,6 +239,10 @@ static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
 vector_copy(pgVector *self);
+PyObject *
+vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
+PyObject *
+vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -1237,37 +1241,55 @@ vector_normalize_ip(pgVector *self, PyObject *args)
 }
 
 PyObject *
-vector_clamp_magnitude(pgVector *self, PyObject *value)
+vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
 {
-    double length_squared =
-        _scalar_product(self->coords, self->coords, self->dim);
-    double v = PyFloat_AsDouble(value);
-    v *= v;
+    double magSq = _scalar_product(self->coords, self->coords, self->dim);
 
-    pgVector *ret;
-
-    ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret == NULL) {
+    pgVector *retVec = (pgVector *)pgVector_NEW(self->dim);
+    if (retVec == NULL) {
         return NULL;
     }
-    memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
+    memcpy(retVec->coords, self->coords, sizeof(retVec->coords[0]) * retVec->dim);
 
-    if (length_squared > v) {
-        vector_scale_to_length(ret, value);
+    if (max == NULL) { /* we have only the maximum magnitude of the vector */
+        double maxMag = PyFloat_AsDouble(min_or_max);
+        if (magSq > maxMag * maxMag) {
+            vector_scale_to_length(retVec, min_or_max);
+        }
     }
-    return (PyObject *)ret;
+    else { /* we have minimum and maximum magnitude of the vector */
+        double maxMag = PyFloat_AsDouble(max);
+        double minMag = PyFloat_AsDouble(min_or_max);
+        if (magSq > maxMag * maxMag) {
+            vector_scale_to_length(retVec, max);
+        }
+        elif (magSq < minMag * minMag) {
+            vector_scale_to_length(retVec, min_or_max);
+        }
+    }
+    return (PyObject *)retVec;
 }
 
 PyObject *
-vector_clamp_magnitude_ip(pgVector *self, PyObject *value)
+vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
 {
-    double length_squared =
-        _scalar_product(self->coords, self->coords, self->dim);
-    double v = PyFloat_AsDouble(value);
-    v *= v;
+    double magSq = _scalar_product(self->coords, self->coords, self->dim);
 
-    if (length_squared > v) {
-        vector_scale_to_length(self, value);
+    if (max_mag == NULL) { /* we have only the maximum magnitude of the vector */
+        double maxMag = PyFloat_AsDouble(min_or_max);
+        if (magSq > maxMag * maxMag) {
+            vector_scale_to_length(self, min_or_max);
+        }
+    }
+    else { /* we have minimum and maximum magnitude of the vector */
+        double maxMag = PyFloat_AsDouble(max_mag);
+        double minMag = PyFloat_AsDouble(min_or_max);
+        if (magSq > maxMag * maxMag) {
+            vector_scale_to_length(self, max_mag);
+        }
+        elif (magSq < minMag * minMag) {
+            vector_scale_to_length(self, min_or_max);
+        }
     }
     Py_RETURN_NONE;
 }
@@ -2222,9 +2244,9 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2MAGNITUDE},
     {"magnitude_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
      DOC_VECTOR2MAGNITUDESQUARED},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_O,
+    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_VARARGS, 
      DOC_VECTOR2CLAMPMAGNITUDE},
-    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip, METH_O,
+    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip, METH_VARARGS, 
      DOC_VECTOR2CLAMPMAGNITUDEIP},
     {"rotate", (PyCFunction)vector2_rotate, METH_O, DOC_VECTOR2ROTATE},
     {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O, DOC_VECTOR2ROTATEIP},
@@ -2239,7 +2261,11 @@ static PyMethodDef vector2_methods[] = {
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      DOC_VECTOR2NORMALIZE},
     {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
-     DOC_VECTOR2NORMALIZEIP},
+     DOC_VECTOR2NORMALIZEIP},on)vector2_angle_to, METH_O, DOC_VECTOR2ANGLETO},
+    {"update", (PyCFunction)vector2_update, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR2UPDATE},
+    {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
+     DOC_VECTOR2SCALETOLENGTH},
     {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
      DOC_VECTOR2ISNORMALIZED},
     {"cross", (PyCFunction)vector2_cross, METH_O, DOC_VECTOR2CROSS},
@@ -3143,10 +3169,10 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3MAGNITUDE},
     {"magnitude_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
      DOC_VECTOR3MAGNITUDESQUARED},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_O,
+    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_VARARGS,
      DOC_VECTOR3CLAMPMAGNITUDE},
-    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip, METH_O,
-     DOC_VECTOR3CLAMPMAGNITUDEIP},
+    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip,
+     METH_VARARGS, DOC_VECTOR3CLAMPMAGNITUDEIP},
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS, DOC_VECTOR3ROTATE},
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      DOC_VECTOR3ROTATEIP},

@@ -13,8 +13,6 @@
 #define DOC_VECTOR2SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR2REFLECT "reflect(Vector2) -> Vector2\nreturns a vector reflected of a given normal."
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
-#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector2\nit returns a new vector with its magnitude clamped between 0-value."
-#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit clamps the magnitude of the vector between 0-value."
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
@@ -30,6 +28,8 @@
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2COPY "copy() -> Vector2\nReturns a copy of itself."
+#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude([min, ]max) -> Vector2\nit returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude"
+#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip([min, ]max) -> None\nit clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude."
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -44,8 +44,6 @@
 #define DOC_VECTOR3SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR3REFLECT "reflect(Vector3) -> Vector3\nreturns a vector reflected of a given normal."
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
-#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(float) -> Vector3\nit returns a new vector with its magnitude clamped between 0-value."
-#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(float) -> None\nit clamps the magnitude of the vector between 0-value."
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
@@ -76,6 +74,8 @@
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3PROJECT "project(Vector3) -> Vector3\nprojects a vector onto another."
 #define DOC_VECTOR3COPY "copy() -> Vector3\nReturns a copy of itself."
+#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude([min, ]max) -> Vector3\nit returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude"
+#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip([min, ]max) -> None\nit clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude."
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
 
 
@@ -204,12 +204,12 @@ pygame.math.Vector2.copy
 Returns a copy of itself.
 
 pygame.math.Vector2.clamp_magnitude
- clamp_magnitude(float) -> Vector2
-it returns a new vector with its magnitude clamped between 0-value.
+ clamp_magnitude([min, ]max) -> Vector2
+it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude
 
 pygame.math.Vector2.clamp_magnitude_ip
- clamp_magnitude_ip(float) -> None
-it clamps the magnitude of the vector between 0-value.
+ clamp_magnitude_ip([min, ]max) -> None
+it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.
 
 pygame.math.Vector2.update
  update() -> None
@@ -398,13 +398,12 @@ pygame.math.Vector3.copy
 Returns a copy of itself.
 
 pygame.math.Vector3.clamp_magnitude
- clamp_magnitude(float) -> Vector3
-it returns a new vector with its magnitude clamped between 0-value.
+ clamp_magnitude([min, ]max) -> Vector3
+it returns a new vector with its magnitude clamped between min-max, if the maximum isnt passed then the min will be the max magnitude
 
 pygame.math.Vector3.clamp_magnitude_ip
- clamp_magnitude_ip(float) -> None
-it clamps the magnitude of the vector between 0-value.
-
+ clamp_magnitude_ip([min, ]max) -> None
+it clamps the magnitude between min-max, if the maximum isnt passed then the min will be the max magnitude.
 
 pygame.math.Vector3.update
  update() -> None
