@@ -624,28 +624,38 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
     float angle;
+    PyObject *even_odd = Py_None;
+    int even_odd_x, even_odd_y;
 
     double radangle;
     int icos, isin;
     int x0, y0, xc, yc, xs, ys;
     int nxmax, nymax;
     Uint32 bgcolor;
-    static char *keywords[] = {"surface", "angle", NULL};
+    static char *keywords[] = {"surface", "angle", "even_odd", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!f", keywords,
-                                     &pgSurface_Type, &surfobj, &angle))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!f|O", keywords,
+                                     &pgSurface_Type, &surfobj, &angle,
+                                     &even_odd))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
     if (surf->w < 1 || surf->h < 1) {
         Py_INCREF(surfobj);
-        return surfobj;
+        return (PyObject *)surfobj;
     }
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,
                      "unsupport Surface bit depth for transform");
 
-    if (!(fmod((double)angle, (double)90.0f))) {
+    // check if evenness/oddness tuple (for both dimensions) is given
+    // yes => extract vales for each dimension and use full routine
+    // no  => we can use optimized routine for 90-degree rotations
+    if (even_odd != Py_None) {
+        if (!PyArg_ParseTuple(even_odd, "pp", &even_odd_x, &even_odd_y))
+            return NULL;
+    }
+    else if (!(fmod((double)angle, (double)90.0f))) {
         pgSurface_Lock(surfobj);
 
         Py_BEGIN_ALLOW_THREADS;
@@ -675,29 +685,26 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     //   (x0, -y0) => (x0 icos + y0 isin, x0 isin - y0 icos)
     // max of all the x coordinates gives right side x relative to centre
     // max of all the y coordinates gives top side y relative to centre
-    // we will then round to integer (this can lose a small amount of image)
+    // then round to a multiple of one-half (can lose a small amount of image)
     xc = (x0 * icos + 1) >> 1; // in 16:16 fixed point
     yc = (y0 * icos + 1) >> 1; // in 16:16 fixed point
     xs = (x0 * isin + 1) >> 1; // in 16:16 fixed point
     ys = (y0 * isin + 1) >> 1; // in 16:16 fixed point
     nxmax = (
-      MAX(MAX(MAX(xc - ys, -xc - ys), -xc + ys), xc + ys) + 0x8000
-    ) >> 16;
+        MAX(MAX(MAX(xc - ys, -xc - ys), -xc + ys), xc + ys) + 0x4000
+    ) >> 15;
     nymax = (
-      MAX(MAX(MAX(xs + yc, -xs + yc), -xs - yc), xs - yc) + 0x8000
-    ) >> 16;
+        MAX(MAX(MAX(xs + yc, -xs + yc), -xs - yc), xs - yc) + 0x4000
+    ) >> 15;
 
-    // we now have (nxmax, nymax) = half the resulting image size, in integer,
-    // to get the full image size we'll double and add the lowest bit of the
-    // original x and y sizes, this is because for odd x size we have to rotate
-    // around the middle of the centre pixel whereas for even x size we have
-    // to rotate around the border between the two centre pixels, similarly y
-    // (by symmetry an even x size can only result in even x size, similarly y)
-    newsurf = newsurf_fromsurf(
-      surf,
-      (nxmax << 1) + (x0 & 1),
-      (nymax << 1) + (y0 & 1)
-    );
+    // now (nxmax, nymax) = half the resulting image size in 31:1 fixed point
+    // (i.e. in units of one-half) or the full resulting image size in integer,
+    // next may need padding to meet the user's evenness/oddness specification
+    if (even_odd != Py_None) {
+        nxmax = ((nxmax + even_odd_x + 1) & ~1) - even_odd_x;
+        nymax = ((nymax + even_odd_y + 1) & ~1) - even_odd_y;
+    }
+    newsurf = newsurf_fromsurf(surf, nxmax, nymax);
     if (!newsurf)
         return NULL;
 
