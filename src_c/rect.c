@@ -113,38 +113,26 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
     }
     else if (length == 4) {
         if (!pg_IntFromObjIndex(obj, 0, val1)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for first argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for first argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 1, val2)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for second argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for second argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 2, val3)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for third argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for third argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 3, val4)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for forth argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for fourth argument");
             return 0;
         }
     }
@@ -927,7 +915,7 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for forth argument");
+                         "number expected for fourth argument");
         }
     }
     else {
