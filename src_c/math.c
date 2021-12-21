@@ -1287,7 +1287,7 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_ma
         if (magSq > maxMag * maxMag) {
             vector_scale_to_length(self, max_mag);
         }
-        elif (magSq < minMag * minMag) {
+        else if (magSq < minMag * minMag) {
             vector_scale_to_length(self, min_or_max);
         }
     }
