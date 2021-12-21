@@ -1512,6 +1512,14 @@ static int
 pg_flip_internal(_DisplayState *state)
 {
     SDL_Window *win = pg_GetDefaultWindow();
+    PyObject *screen = pg_GetDefaultWindowSurface();
+
+    if (!pg_FlipWindow(win, screen, pg_renderer, pg_texture, state->using_gl)) {
+        return -1;
+    }
+    return 0;
+
+
     int status = 0;
 
     /* Same check as VIDEO_INIT_CHECK() but returns -1 instead of NULL on

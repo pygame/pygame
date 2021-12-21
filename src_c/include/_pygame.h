@@ -156,8 +156,11 @@ typedef struct pg_bufferinfo_s {
 #define pg_SetDefaultWindowSurface \
     (*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(base, 22))
 
+#define pg_FlipWindow \
+    (*(int (*)(SDL_Window *, PyObject *, SDL_Renderer *, SDL_Texture *, int))PYGAMEAPI_GET_SLOT(base, 23))
+
 #define pg_EnvShouldBlendAlphaSDL2 \
-    (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
+    (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 24))
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */

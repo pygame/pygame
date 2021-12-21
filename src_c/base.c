@@ -173,6 +173,8 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
 
+static PyObject* pgExc_SDLError_ForBase = NULL;
+
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
@@ -1960,6 +1962,59 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     pg_default_screen = screen;
 }
 
+static int
+pg_FlipWindow(SDL_Window* win, PyObject* screen_obj, SDL_Renderer* renderer, SDL_Texture* texture, int opengl)
+{
+    /* Same check as VIDEO_INIT_CHECK() but returns -1 instead of NULL on
+     * fail. */
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        PyErr_SetString(pgExc_SDLError_ForBase, "video system not initialized");
+        return 0;
+    }
+
+    if (!win) {
+        PyErr_SetString(pgExc_SDLError_ForBase, "Display mode not set");
+        return 0;
+    }
+
+    pgSurfaceObject* screen = (pgSurfaceObject*)screen_obj;
+
+    int status = 0;
+
+    Py_BEGIN_ALLOW_THREADS;
+    if (opengl) {
+        SDL_GL_SwapWindow(win);
+    }
+    else if (renderer != NULL) {
+        SDL_Surface *screen_surf = pgSurface_AsSurface(screen);
+        SDL_UpdateTexture(texture, NULL, screen_surf->pixels, screen_surf->pitch);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
+    else {
+        /* Force a re-initialization of the surface in case it
+         * has been resized to avoid "please call SDL_GetWindowSurface"
+         * errors that the programmer cannot fix
+         */
+        SDL_Surface *new_surface = SDL_GetWindowSurface(win);
+
+        if (new_surface != ((pgSurfaceObject *)screen)->surf) {
+            screen->surf = new_surface;
+        }
+        status = SDL_UpdateWindowSurface(win);
+    }
+
+    Py_END_ALLOW_THREADS;
+
+    if (status < 0) {
+        PyErr_SetString(pgExc_SDLError_ForBase, SDL_GetError());
+        return 0;
+    }
+
+    return 1;
+}
+
 static char *
 pg_EnvShouldBlendAlphaSDL2(void)
 {
@@ -2125,6 +2180,7 @@ MODINIT_DEFINE(base)
     /* create the exceptions */
     pgExc_SDLError =
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
+    pgExc_SDLError_ForBase = pgExc_SDLError;
     if (PyModule_AddObject(module, "error", pgExc_SDLError)) {
         Py_XDECREF(pgExc_SDLError);
         goto error;
@@ -2163,8 +2219,9 @@ MODINIT_DEFINE(base)
     c_api[20] = pg_SetDefaultWindow;
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
-    c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-#define FILLED_SLOTS 24
+    c_api[23] = pg_FlipWindow;
+    c_api[24] = pg_EnvShouldBlendAlphaSDL2;
+#define FILLED_SLOTS 25
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
