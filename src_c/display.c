@@ -1639,9 +1639,7 @@ pg_update(PyObject *self, PyObject *arg)
             gr = &temp;
         else {
             gr = pgRect_FromObject(arg, &temp);
-            if (!gr)
-                PyErr_Clear();
-            else if (gr != &temp) {
+            if (gr != &temp) {
                 memcpy(&temp, gr, sizeof(temp));
                 gr = &temp;
             }

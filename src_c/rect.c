@@ -979,7 +979,12 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
     }
-    return _pg_rect_contains(self, arg);
+    ret = _pg_rect_contains(self, arg);
+    if (ret < 0) {
+        return RAISE(PyExc_TypeError,
+                     "Argument must be rect style object or numeric value");
+    }
+    return ret;
 }
 
 static PyObject *
