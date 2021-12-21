@@ -1251,19 +1251,19 @@ vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
     }
     memcpy(retVec->coords, self->coords, sizeof(retVec->coords[0]) * retVec->dim);
 
-    if (max == NULL) { /* we have only the maximum magnitude of the vector */
+    if (max_mag == NULL) { /* we have only the maximum magnitude of the vector */
         double maxMag = PyFloat_AsDouble(min_or_max);
         if (magSq > maxMag * maxMag) {
             vector_scale_to_length(retVec, min_or_max);
         }
     }
     else { /* we have minimum and maximum magnitude of the vector */
-        double maxMag = PyFloat_AsDouble(max);
+        double maxMag = PyFloat_AsDouble(max_mag);
         double minMag = PyFloat_AsDouble(min_or_max);
         if (magSq > maxMag * maxMag) {
-            vector_scale_to_length(retVec, max);
+            vector_scale_to_length(retVec, max_mag);
         }
-        elif (magSq < minMag * minMag) {
+        else if (magSq < minMag * minMag) {
             vector_scale_to_length(retVec, min_or_max);
         }
     }
