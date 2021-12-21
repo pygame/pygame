@@ -267,37 +267,47 @@ rotate90(SDL_Surface *src, int angle)
 }
 
 static void
-rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
-       double cangle)
+rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int icos, int isin)
 {
-    int x, y, dx, dy;
+    int x0, y0, x1, y1, x2, y2, tx, ty, dx, dy, i, j;
 
     Uint8 *srcpix = (Uint8 *)src->pixels;
     Uint8 *dstrow = (Uint8 *)dst->pixels;
     int srcpitch = src->pitch;
     int dstpitch = dst->pitch;
 
-    int cy = dst->h / 2;
-    int xd = ((src->w - dst->w) << 15);
-    int yd = ((src->h - dst->h) << 15);
+    // find (x0, y0) = src rotation centre in 16:16 fixed point
+    x0 = src->w << 15;
+    y0 = src->h << 15;
 
-    int isin = (int)(sangle * 65536);
-    int icos = (int)(cangle * 65536);
+    // find (x1, y1) = src top right in 16:16 fixed point (for clipping)
+    x1 = src->w << 16;
+    y1 = src->h << 16;
 
-    int ax = ((dst->w) << 15) - (int)(cangle * ((dst->w - 1) << 15));
-    int ay = ((dst->h) << 15) - (int)(sangle * ((dst->w - 1) << 15));
+    // find (x2, y2) = dst rotation centre in 31:1 fixed point
+    x2 = dst->w;
+    y2 = dst->h;
 
-    int xmaxval = ((src->w) << 16) - 1;
-    int ymaxval = ((src->h) << 16) - 1;
+    // transformation is
+    // (x, y) => (x0, y0) + (x - x2) (icos, isin) + (y - y2) (-isin, icos)
+    // where x in [0, 2 x2) and y in [0, 2 y2)
+    // for example, suppose dst image is 100 x 50, then (x2, y2) = (50, 25)
+    // => x should step through 0.5, 1.5, ..., 98.5, 99.5 for pixel centres
+    // => y should step through 0.5, 1.5, ..., 48.5, 49.5 for pixel centres
+    // and suppose the coordinate ends up being (12.6, 19.3) in the src image,
+    // then we truncate to (12, 19) in order to retrieve the pixel that covers
+    // [12, 13) x [19, 20), equivalently find the nearest centre (12.5, 19.5)
+    tx = 1 - x2; // = 0.5 - x2, in 31:1 fixed point
 
     switch (src->format->BytesPerPixel) {
         case 1:
-            for (y = 0; y < dst->h; y++) {
+            for (i = 0; i < y2; ++i) {
                 Uint8 *dstpos = (Uint8 *)dstrow;
-                dx = (ax + (isin * (cy - y))) + xd;
-                dy = (ay - (icos * (cy - y))) + yd;
-                for (x = 0; x < dst->w; x++) {
-                    if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval)
+                ty = (i << 1) + 1 - y2; // = y - y2, in 31:1 fixed point
+                dx = x0 + ((tx * icos - ty * isin + 1) >> 1); // in 16:16
+                dy = y0 + ((tx * isin + ty * icos + 1) >> 1); // in 16:16
+                for (j = 0; j < x2; ++j) {
+                    if (dx < 0 || dy < 0 || dx >= x1 || dy >= y1)
                         *dstpos++ = bgcolor;
                     else
                         *dstpos++ =
@@ -310,12 +320,13 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
             }
             break;
         case 2:
-            for (y = 0; y < dst->h; y++) {
+            for (i = 0; i < y2; ++i) {
                 Uint16 *dstpos = (Uint16 *)dstrow;
-                dx = (ax + (isin * (cy - y))) + xd;
-                dy = (ay - (icos * (cy - y))) + yd;
-                for (x = 0; x < dst->w; x++) {
-                    if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval)
+                ty = (i << 1) + 1 - y2; // = y - y2, in 31:1 fixed point
+                dx = x0 + ((tx * icos - ty * isin + 1) >> 1); // in 16:16
+                dy = y0 + ((tx * isin + ty * icos + 1) >> 1); // in 16:16
+                for (j = 0; j < x2; ++j) {
+                    if (dx < 0 || dy < 0 || dx >= x1 || dy >= y1)
                         *dstpos++ = bgcolor;
                     else
                         *dstpos++ =
@@ -328,12 +339,13 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
             }
             break;
         case 4:
-            for (y = 0; y < dst->h; y++) {
+            for (i = 0; i < y2; ++i) {
                 Uint32 *dstpos = (Uint32 *)dstrow;
-                dx = (ax + (isin * (cy - y))) + xd;
-                dy = (ay - (icos * (cy - y))) + yd;
-                for (x = 0; x < dst->w; x++) {
-                    if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval)
+                ty = (i << 1) + 1 - y2; // = y - y2, in 31:1 fixed point
+                dx = x0 + ((tx * icos - ty * isin + 1) >> 1); // in 16:16
+                dy = y0 + ((tx * isin + ty * icos + 1) >> 1); // in 16:16
+                for (j = 0; j < x2; ++j) {
+                    if (dx < 0 || dy < 0 || dx >= x1 || dy >= y1)
                         *dstpos++ = bgcolor;
                     else
                         *dstpos++ =
@@ -346,12 +358,13 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
             }
             break;
         default: /*case 3:*/
-            for (y = 0; y < dst->h; y++) {
+            for (i = 0; i < y2; ++i) {
                 Uint8 *dstpos = (Uint8 *)dstrow;
-                dx = (ax + (isin * (cy - y))) + xd;
-                dy = (ay - (icos * (cy - y))) + yd;
-                for (x = 0; x < dst->w; x++) {
-                    if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval) {
+                ty = (i << 1) + 1 - y2; // = y - y2, in 31:1 fixed point
+                dx = x0 + ((tx * icos - ty * isin + 1) >> 1); // in 16:16
+                dy = y0 + ((tx * isin + ty * icos + 1) >> 1); // in 16:16
+                for (j = 0; j < x2; ++j) {
+                    if (dx < 0 || dy < 0 || dx >= x1 || dy >= y1) {
                         dstpos[0] = ((Uint8 *)&bgcolor)[0];
                         dstpos[1] = ((Uint8 *)&bgcolor)[1];
                         dstpos[2] = ((Uint8 *)&bgcolor)[2];
@@ -612,8 +625,9 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf, *newsurf;
     float angle;
 
-    double radangle, sangle, cangle;
-    double x, y, cx, cy, sx, sy;
+    double radangle;
+    int icos, isin;
+    int x0, y0, xc, yc, xs, ys;
     int nxmax, nymax;
     Uint32 bgcolor;
     static char *keywords[] = {"surface", "angle", NULL};
@@ -645,21 +659,45 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     radangle = angle * .01745329251994329;
-    sangle = sin(radangle);
-    cangle = cos(radangle);
+    icos = (int)round(ldexp(cos(radangle), 16)); // in 16:16 fixed point
+    isin = (int)round(ldexp(sin(radangle), 16)); // in 16:16 fixed point
 
-    x = surf->w;
-    y = surf->h;
-    cx = cangle * x;
-    cy = cangle * y;
-    sx = sangle * x;
-    sy = sangle * y;
-    nxmax = (int)(MAX(MAX(MAX(fabs(cx + sy), fabs(cx - sy)), fabs(-cx + sy)),
-                      fabs(-cx - sy)));
-    nymax = (int)(MAX(MAX(MAX(fabs(sx + cy), fabs(sx - cy)), fabs(-sx + cy)),
-                      fabs(-sx - cy)));
+    // find (x0, y0) = rotation centre in 31:1 fixed point (units of one-half)
+    // => corners (x0, y0), (-x0, y0), (-x0, -y0), (x0, -y0) relative to centre
+    x0 = surf->w;
+    y0 = surf->h;
 
-    newsurf = newsurf_fromsurf(surf, nxmax, nymax);
+    // transformation is (x, y) => x (icos, isin) + y (-isin, icos)
+    // after transformation, the corners are at:
+    //   (x0, y0) => (x0 icos - y0 isin, x0 isin + y0 icos)
+    //   (-x0, y0) => (-x0 icos - y0 isin, -x0 isin + y0 icos)
+    //   (-x0, -y0) => (-x0 icos + y0 isin, -x0 isin - y0 icos)
+    //   (x0, -y0) => (x0 icos + y0 isin, x0 isin - y0 icos)
+    // max of all the x coordinates gives right side x relative to centre
+    // max of all the y coordinates gives top side y relative to centre
+    // we will then round to integer (this can lose a small amount of image)
+    xc = (x0 * icos + 1) >> 1; // in 16:16 fixed point
+    yc = (y0 * icos + 1) >> 1; // in 16:16 fixed point
+    xs = (x0 * isin + 1) >> 1; // in 16:16 fixed point
+    ys = (y0 * isin + 1) >> 1; // in 16:16 fixed point
+    nxmax = (
+      MAX(MAX(MAX(xc - ys, -xc - ys), -xc + ys), xc + ys) + 0x8000
+    ) >> 16;
+    nymax = (
+      MAX(MAX(MAX(xs + yc, -xs + yc), -xs - yc), xs - yc) + 0x8000
+    ) >> 16;
+
+    // we now have (nxmax, nymax) = half the resulting image size, in integer,
+    // to get the full image size we'll double and add the lowest bit of the
+    // original x and y sizes, this is because for odd x size we have to rotate
+    // around the middle of the centre pixel whereas for even x size we have
+    // to rotate around the border between the two centre pixels, similarly y
+    // (by symmetry an even x size can only result in even x size, similarly y)
+    newsurf = newsurf_fromsurf(
+      surf,
+      (nxmax << 1) + (x0 & 1),
+      (nymax << 1) + (y0 & 1)
+    );
     if (!newsurf)
         return NULL;
 
@@ -695,7 +733,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurface_Lock(surfobj);
 
     Py_BEGIN_ALLOW_THREADS;
-    rotate(surf, newsurf, bgcolor, sangle, cangle);
+    rotate(surf, newsurf, bgcolor, icos, isin);
     Py_END_ALLOW_THREADS;
 
     pgSurface_Unlock(surfobj);
