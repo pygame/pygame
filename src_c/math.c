@@ -240,9 +240,9 @@ vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
 vector_copy(pgVector *self);
 PyObject *
-vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag);
+vector_clamp_magnitude(pgVector *self, PyObject *args);
 PyObject *
-vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_mag);
+vector_clamp_magnitude_ip(pgVector *self, PyObject *args);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -1243,10 +1243,11 @@ vector_normalize_ip(pgVector *self, PyObject *args)
 PyObject *
 vector_clamp_magnitude(pgVector *self, PyObject *args)
 {
-    double min_or_max, max_mag;
+    double min_or_max = 0.0;
+    double max_mag = 0.0;
 
     if (!PyArg_ParseTuple(args, "OO:clamp_magnitude", &min_or_max, &max_mag) {
-        return NULL
+        return NULL;
     }
 
     double magSq = _scalar_product(self->coords, self->coords, self->dim);
@@ -1283,7 +1284,7 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args)
     double max_mag = 0.0;
 
     if (!PyArg_ParseTuple(args, "OO:clamp_magnitude_ip", &min_or_max, &max_mag) {
-        return NULL
+        return NULL;
     }
     double magSq = _scalar_product(self->coords, self->coords, self->dim);
 
