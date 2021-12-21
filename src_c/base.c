@@ -1965,8 +1965,6 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 static int
 pg_FlipWindow(SDL_Window* win, PyObject* screen_obj, SDL_Renderer* renderer, SDL_Texture* texture, int opengl)
 {
-    /* Same check as VIDEO_INIT_CHECK() but returns -1 instead of NULL on
-     * fail. */
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         PyErr_SetString(pgExc_SDLError_ForBase, "video system not initialized");
         return 0;

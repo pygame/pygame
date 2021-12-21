@@ -23,6 +23,22 @@
       | :sl:`Creates window using window created by pygame.display.set_mode().`
       | :sg:`from_display_module() -> Window`
 
+   .. method:: get_surface
+
+      | :sl:`Gets a display surface for the Window`
+      | :sg:`get_surface() -> Surface`
+
+      Analogous to :func:`pygame.display.get_surface`. The Window can be
+      updated with a display surface from this function, or with a separately
+      defined Renderer, but the methods cannot be mixed.
+
+   .. method:: flip
+
+      | :sl:`Updates the screen with the contents of the display surface`
+      | :sg:`flip -> None`
+
+      Analogous to :func:`pygame.display.flip`
+
    .. attribute:: grab
 
       | :sl:`Gets or sets whether the mouse is confined to the window.`

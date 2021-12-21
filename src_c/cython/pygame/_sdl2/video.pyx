@@ -215,7 +215,7 @@ cdef class Window:
         SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
 
-    def __init__(self, title='pygame',
+    def __init__(self, title='pygame window',
                  size=DEFAULT_SIZE,
                  position=WINDOWPOS_UNDEFINED,
                  bint fullscreen=False,
