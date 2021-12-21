@@ -240,9 +240,9 @@ vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
 vector_copy(pgVector *self);
 PyObject *
-vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
+vector_clamp_magnitude(pgVector *self, PyObject *min_or_max, PyObject *max_mag);
 PyObject *
-vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_mag)
+vector_clamp_magnitude_ip(pgVector *self, PyObject *min_or_max, PyObject *max_mag);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
