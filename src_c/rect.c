@@ -971,7 +971,7 @@ pg_rect_contains(pgRectObject *self, PyObject *arg)
     return PyBool_FromLong(ret);
 }
 
-static int
+static PyObject *
 pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
 {
     if (PyLong_Check(arg)) {
@@ -979,12 +979,12 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
     }
-    ret = _pg_rect_contains(self, arg);
+    int ret = _pg_rect_contains(self, arg);
     if (ret < 0) {
         return RAISE(PyExc_TypeError,
                      "Argument must be rect style object or numeric value");
     }
-    return ret;
+    return PyBool_FromLong(ret);
 }
 
 static PyObject *
