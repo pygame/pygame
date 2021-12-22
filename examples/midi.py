@@ -16,6 +16,9 @@ import os
 import pygame as pg
 import pygame.midi
 
+# black and white piano keys use b/w color values directly
+BACKGROUNDCOLOR = "slategray"
+
 
 def print_device_info():
     pygame.midi.init()
@@ -130,8 +133,6 @@ def output_main(device_id=None):
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
 
-    bg_color = pg.Color("slategray")
-
     key_mapping = make_key_mapping(
         [
             pg.K_TAB,
@@ -180,11 +181,11 @@ def output_main(device_id=None):
         keyboard = Keyboard(start_note, n_notes)
 
         screen = pg.display.set_mode(keyboard.rect.size)
-        screen.fill(bg_color)
+        screen.fill(BACKGROUNDCOLOR)
         pg.display.flip()
 
         background = pg.Surface(screen.get_size())
-        background.fill(bg_color)
+        background.fill(BACKGROUNDCOLOR)
         dirty_rects = []
         keyboard.draw(screen, background, dirty_rects)
         pg.display.update(dirty_rects)

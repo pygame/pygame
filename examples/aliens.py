@@ -215,7 +215,7 @@ class Score(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         self.font = pg.font.Font(None, 20)
         self.font.set_italic(1)
-        self.color = pg.Color("white")
+        self.color = "white"
         self.lastscore = -1
         self.update()
         self.rect = self.image.get_rect().move(10, 450)

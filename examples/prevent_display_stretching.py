@@ -20,6 +20,11 @@ Vista and newer).
 import os
 import sys
 
+# game constants
+TEXTCOLOR = "green"
+BACKGROUNDCOLOR = "black"
+AXISCOLOR = "white"
+
 if os.name != "nt" or sys.getwindowsversion()[0] < 6:
     raise NotImplementedError("this script requires Windows Vista or newer")
 
@@ -53,8 +58,8 @@ screen = pg.display.set_mode(RESOLUTION)
 # Render message onto a surface
 pg.font.init()
 font = pg.font.Font(None, 36)
-msg_surf = font.render(msg, 1, pg.Color("green"))
-res_surf = font.render("Intended resolution: %ix%i" % RESOLUTION, 1, pg.Color("green"))
+msg_surf = font.render(msg, 1, TEXTCOLOR)
+res_surf = font.render("Intended resolution: %ix%i" % RESOLUTION, 1, TEXTCOLOR)
 
 # Control loop
 running = True
@@ -66,12 +71,12 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
-    screen.fill(pg.Color("black"))
+    screen.fill(BACKGROUNDCOLOR)
 
     # Draw lines which will be blurry if the window is stretched
     # or clear if the window is not stretched.
-    pg.draw.line(screen, pg.Color("white"), (0, counter), (RESOLUTION[0] - 1, counter))
-    pg.draw.line(screen, pg.Color("white"), (counter, 0), (counter, RESOLUTION[1] - 1))
+    pg.draw.line(screen, AXISCOLOR, (0, counter), (RESOLUTION[0] - 1, counter))
+    pg.draw.line(screen, AXISCOLOR, (counter, 0), (counter, RESOLUTION[1] - 1))
 
     # Blit message onto screen surface
     msg_blit_rect = screen.blit(msg_surf, (0, 0))
