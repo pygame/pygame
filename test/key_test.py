@@ -28,6 +28,8 @@ class KeyModuleTest(unittest.TestCase):
         import pygame.key
 
     # fixme: test_get_focused failing systematically in some linux
+    # fixme: test_get_focused failing on SDL 2.0.18 on Windows
+    @unittest.skip("flaky test, and broken on 2.0.18 windows")
     def test_get_focused(self):
         # This test fails in SDL2 in some linux
         # This test was skipped in SDL1.

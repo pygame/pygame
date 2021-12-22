@@ -107,7 +107,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_freetype_Font_init(self):
 
-        self.assertRaises(IOError, ft.Font, os.path.join(FONTDIR, "nonexistant.ttf"))
+        self.assertRaises(
+            FileNotFoundError, ft.Font, os.path.join(FONTDIR, "nonexistent.ttf")
+        )
 
         f = self._TEST_FONTS["sans"]
         self.assertIsInstance(f, ft.Font)
@@ -129,7 +131,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = ft.Font(None, size=24)
         self.assertTrue(f.height > 0)
-        self.assertRaises(IOError, f.__init__, os.path.join(FONTDIR, "nonexistant.ttf"))
+        self.assertRaises(
+            FileNotFoundError, f.__init__, os.path.join(FONTDIR, "nonexistent.ttf")
+        )
 
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, size=24, ucs4=True)
