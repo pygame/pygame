@@ -127,7 +127,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     ls -la wheelhouse
 
     # Testing
-    export SDL_AUDIODRIVER=disk
+    export SDL_AUDIODRIVER=dummy
     export SDL_VIDEODRIVER=dummy
 
     python3.5 -m venv anenv35

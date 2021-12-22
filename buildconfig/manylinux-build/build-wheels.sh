@@ -53,7 +53,7 @@ for whl in wheelhouse/*.whl; do
 done
 
 # Dummy options for headless testing
-export SDL_AUDIODRIVER=disk
+export SDL_AUDIODRIVER=dummy
 export SDL_VIDEODRIVER=dummy
 
 # Install packages and test

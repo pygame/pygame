@@ -130,7 +130,7 @@ jobs:
 
     env:
       SDL_VIDEODRIVER: "dummy"
-      SDL_AUDIODRIVER: "disk"
+      SDL_AUDIODRIVER: "dummy"
 
       CIBW_BUILD: ${{ matrix.pyversions }}
 

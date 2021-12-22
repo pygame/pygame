@@ -55,7 +55,7 @@ jobs:
     - name: Run tests
       env:
         SDL_VIDEODRIVER: "dummy"
-        SDL_AUDIODRIVER: "disk"
+        SDL_AUDIODRIVER: "dummy"
       run: python3 -m pygame.tests -v --exclude opengl,timing --time_out 300
 
     # We upload the generated files under github actions assets

@@ -239,7 +239,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         self.fail()
 
     @unittest.skipIf(
-        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        os.environ.get("SDL_AUDIODRIVER") in ["disk", "dummy"],
         'disk audio driver "playback" writing to disk is slow',
     )
     def test_play__start_time(self):

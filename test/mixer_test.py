@@ -227,7 +227,7 @@ class MixerModuleTest(unittest.TestCase):
             os.remove(temp_file)
 
     @unittest.skipIf(
-        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        os.environ.get("SDL_AUDIODRIVER") in ["disk", "dummy"],
         "this test fails without real sound card",
     )
     def test_array_keyword(self):
