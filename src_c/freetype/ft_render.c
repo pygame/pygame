@@ -255,7 +255,6 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, Layout *text, unsigned *w,
  * Rendering on SDL-specific surfaces
  *
  *********************************************************/
-#ifdef HAVE_PYGAME_SDL_VIDEO
 int
 _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
                              const FontRenderMode *mode, PGFT_String *text,
@@ -541,7 +540,6 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
 
     return surface;
 }
-#endif /* #ifdef HAVE_PYGAME_SDL_VIDEO */
 
 /*********************************************************
  *
