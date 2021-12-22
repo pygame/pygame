@@ -4952,6 +4952,7 @@ class DrawRectMixin(object):
 
     def test_rect__draw_line_width(self):
         surface = pygame.Surface((100, 100))
+        surface.fill("black")
         color = pygame.Color(255, 255, 255)
         rect_width = 80
         rect_height = 50
