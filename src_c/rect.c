@@ -982,7 +982,8 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
     int ret = _pg_rect_contains(self, arg);
     if (ret < 0) {
         PyErr_SetString(PyExc_TypeError,
-                        "Argument must be rect style object or numeric value");
+                        "'in <pygame.Rect>' requires rect style object"
+                        " or int as left operand");
     }
     return ret;
 }
