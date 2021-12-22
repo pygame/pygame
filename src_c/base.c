@@ -561,6 +561,10 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
         }
         *val = (Uint32)PyLong_AsUnsignedLong(longobj);
         Py_DECREF(longobj);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
         return 1;
     }
     return 0;

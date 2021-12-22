@@ -80,16 +80,14 @@ C header: src_c/include/pygame.h
    Convert number like object *obj* to unsigned 32 bit integer and place
    in argument *val*.
    Return ``1`` on success, else ``0``.
-   Raises ``OverflowError`` if numeric value of *obj* is
-   out of range for unsigned long.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
 
    Convert number like object at position *i* in sequence *obj*
    to unsigned 32 bit integer and place in argument *val*.
    Return ``1`` on success, else ``0``.
-   Raises ``OverflowError`` if numeric value of sequence *obj* 
-   at *i* is out of range for unsigned long.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 
