@@ -292,6 +292,10 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
         PyObject *rectattr;
         SDL_Rect *returnrect;
         rectattr = PyObject_GetAttrString(obj, "rect");
+        if (rectattr == NULL) {
+            PyErr_Clear();
+            return NULL;
+        }
         if (PyCallable_Check(rectattr)) /*call if it's a method*/
         {
             PyObject *rectresult = PyObject_CallObject(rectattr, NULL);

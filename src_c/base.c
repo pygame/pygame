@@ -557,6 +557,7 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
         PyObject *longobj;
 
         if (!(longobj = PyNumber_Long(obj))) {
+            PyErr_Clear();
             return 0;
         }
         *val = (Uint32)PyLong_AsUnsignedLong(longobj);
