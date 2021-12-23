@@ -20,8 +20,8 @@ def main():
 
     screen.blit(s, (0, 0))
 
-    pygame.draw.circle(screen, pygame.Color("GREEN"), (50, 100), 10)
-    pygame.draw.circle(screen, pygame.Color("BLACK"), (50, 100), 10, 1)
+    pygame.draw.circle(screen, "green", (50, 100), 10)
+    pygame.draw.circle(screen, "black", (50, 100), 10, 1)
 
     pygame.display.flip()
     try:
