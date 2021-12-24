@@ -252,6 +252,7 @@ _gfx_rectanglecolor(PyObject *self, PyObject *args)
     ASSERT_VIDEO_INIT(NULL);
 
     if (!PyArg_ParseTuple(args, "OOO:rectangle", &surface, &rect, &color)) {
+        /* Exception already set */
         return NULL;
     }
 
@@ -261,6 +262,7 @@ _gfx_rectanglecolor(PyObject *self, PyObject *args)
     }
     sdlrect = pgRect_FromObject(rect, &temprect);
     if (sdlrect == NULL) {
+        PyErr_SetString(PyExc_TypeError, "invalid rect style argument");
         return NULL;
     }
 
@@ -293,6 +295,7 @@ _gfx_boxcolor(PyObject *self, PyObject *args)
     ASSERT_VIDEO_INIT(NULL);
 
     if (!PyArg_ParseTuple(args, "OOO:box", &surface, &rect, &color)) {
+        /* Exception already set */
         return NULL;
     }
 
@@ -302,6 +305,7 @@ _gfx_boxcolor(PyObject *self, PyObject *args)
     }
     sdlrect = pgRect_FromObject(rect, &temprect);
     if (sdlrect == NULL) {
+        PyErr_SetString(PyExc_TypeError, "invalid rect style argument");
         return NULL;
     }
     if (!pg_RGBAFromObj(color, rgba)) {

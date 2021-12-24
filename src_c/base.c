@@ -480,10 +480,12 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_IntFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_IntFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -523,10 +525,12 @@ pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_FloatFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_FloatFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -553,10 +557,15 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
         PyObject *longobj;
 
         if (!(longobj = PyNumber_Long(obj))) {
+            PyErr_Clear();
             return 0;
         }
         *val = (Uint32)PyLong_AsUnsignedLong(longobj);
         Py_DECREF(longobj);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
         return 1;
     }
     return 0;
@@ -568,10 +577,12 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_UintFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_UintFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 

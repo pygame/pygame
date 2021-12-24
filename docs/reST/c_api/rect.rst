@@ -45,11 +45,11 @@ Header file: src_c/include/pygame.h
    or a length 2 sequence of position (x, y) and size (w, h),
    or a length 1 tuple containing a rectangle representation,
    or have a method *rect* that returns a rectangle.
-   Pass a pointer to a locally declared c:type:`SDL_Rect` as *temp*.
+   Pass a pointer to a locally declared :c:type:`SDL_Rect` as *temp*.
    Do not rely on this being filled in; use the function's return value instead.
-   On success return a pointer to a :c:type:`SDL_Rect` representation
-   of the rectangle.
-   One failure may raise a Python exception before returning *NULL*.
+   On success, return a pointer to a :c:type:`SDL_Rect` representation
+   of the rectangle, else return *NULL*.
+   No Python exceptions are raised.
 
 .. c:function:: void pgRect_Normalize(SDL_Rect *rect)
 
