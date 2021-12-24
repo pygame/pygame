@@ -251,8 +251,18 @@ _pg_get_event_unicode(SDL_Event *event)
     return PyUnicode_FromString("");
 }
 
-/* The next two functions are used for proxying SDL events to and from
- * PGPOST_* events. These functions do NOT proxy on SDL1.
+#define _PG_HANDLE_PROXIFY(name) \
+    case SDL_##name:             \
+    case PGPOST_##name:          \
+        return proxify ? PGPOST_##name : SDL_##name
+
+#define _PG_HANDLE_PROXIFY_PGE(name) \
+    case PGE_##name:                 \
+    case PGPOST_##name:              \
+        return proxify ? PGPOST_##name : PGE_##name
+
+/* The next three functions are used for proxying SDL events to and from
+ * PGPOST_* events.
  *
  * Some SDL1 events (SDL_ACTIVEEVENT, SDL_VIDEORESIZE and SDL_VIDEOEXPOSE)
  * are redefined with SDL2, they HAVE to be proxied.
@@ -265,275 +275,90 @@ _pg_get_event_unicode(SDL_Event *event)
  */
 
 static Uint32
-_pg_pgevent_proxify(Uint32 type)
+_pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
 {
     switch (type) {
-        case SDL_ACTIVEEVENT:
-            return PGPOST_ACTIVEEVENT;
+        _PG_HANDLE_PROXIFY(ACTIVEEVENT);
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case SDL_AUDIODEVICEADDED:
-            return PGPOST_AUDIODEVICEADDED;
-        case SDL_AUDIODEVICEREMOVED:
-            return PGPOST_AUDIODEVICEREMOVED;
+        _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
+        _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
-        case SDL_CONTROLLERAXISMOTION:
-            return PGPOST_CONTROLLERAXISMOTION;
-        case SDL_CONTROLLERBUTTONDOWN:
-            return PGPOST_CONTROLLERBUTTONDOWN;
-        case SDL_CONTROLLERBUTTONUP:
-            return PGPOST_CONTROLLERBUTTONUP;
-        case SDL_CONTROLLERDEVICEADDED:
-            return PGPOST_CONTROLLERDEVICEADDED;
-        case SDL_CONTROLLERDEVICEREMOVED:
-            return PGPOST_CONTROLLERDEVICEREMOVED;
-        case SDL_CONTROLLERDEVICEREMAPPED:
-            return PGPOST_CONTROLLERDEVICEREMAPPED;
+        _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEADDED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMOVED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMAPPED);
 #if SDL_VERSION_ATLEAST(2, 0, 14)
-        case SDL_CONTROLLERTOUCHPADDOWN:
-            return PGPOST_CONTROLLERTOUCHPADDOWN;
-        case SDL_CONTROLLERTOUCHPADMOTION:
-            return PGPOST_CONTROLLERTOUCHPADMOTION;
-        case SDL_CONTROLLERTOUCHPADUP:
-            return PGPOST_CONTROLLERTOUCHPADUP;
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADUP);
 #endif
-        case SDL_DOLLARGESTURE:
-            return PGPOST_DOLLARGESTURE;
-        case SDL_DOLLARRECORD:
-            return PGPOST_DOLLARRECORD;
-        case SDL_DROPFILE:
-            return PGPOST_DROPFILE;
+        _PG_HANDLE_PROXIFY(DOLLARGESTURE);
+        _PG_HANDLE_PROXIFY(DOLLARRECORD);
+        _PG_HANDLE_PROXIFY(DROPFILE);
 #if SDL_VERSION_ATLEAST(2, 0, 5)
-        case SDL_DROPTEXT:
-            return PGPOST_DROPTEXT;
-        case SDL_DROPBEGIN:
-            return PGPOST_DROPBEGIN;
-        case SDL_DROPCOMPLETE:
-            return PGPOST_DROPCOMPLETE;
+        _PG_HANDLE_PROXIFY(DROPTEXT);
+        _PG_HANDLE_PROXIFY(DROPBEGIN);
+        _PG_HANDLE_PROXIFY(DROPCOMPLETE);
 #endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-        case SDL_FINGERMOTION:
-            return PGPOST_FINGERMOTION;
-        case SDL_FINGERDOWN:
-            return PGPOST_FINGERDOWN;
-        case SDL_FINGERUP:
-            return PGPOST_FINGERUP;
-        case SDL_KEYDOWN:
-            return PGPOST_KEYDOWN;
-        case SDL_KEYUP:
-            return PGPOST_KEYUP;
-        case SDL_JOYAXISMOTION:
-            return PGPOST_JOYAXISMOTION;
-        case SDL_JOYBALLMOTION:
-            return PGPOST_JOYBALLMOTION;
-        case SDL_JOYHATMOTION:
-            return PGPOST_JOYHATMOTION;
-        case SDL_JOYBUTTONDOWN:
-            return PGPOST_JOYBUTTONDOWN;
-        case SDL_JOYBUTTONUP:
-            return PGPOST_JOYBUTTONUP;
-        case SDL_JOYDEVICEADDED:
-            return PGPOST_JOYDEVICEADDED;
-        case SDL_JOYDEVICEREMOVED:
-            return PGPOST_JOYDEVICEREMOVED;
-        case PGE_MIDIIN:
-            return PGPOST_MIDIIN;
-        case PGE_MIDIOUT:
-            return PGPOST_MIDIOUT;
-        case SDL_MOUSEMOTION:
-            return PGPOST_MOUSEMOTION;
-        case SDL_MOUSEBUTTONDOWN:
-            return PGPOST_MOUSEBUTTONDOWN;
-        case SDL_MOUSEBUTTONUP:
-            return PGPOST_MOUSEBUTTONUP;
-        case SDL_MOUSEWHEEL:
-            return PGPOST_MOUSEWHEEL;
-        case SDL_MULTIGESTURE:
-            return PGPOST_MULTIGESTURE;
-        case SDL_NOEVENT:
-            return PGPOST_NOEVENT;
-        case SDL_QUIT:
-            return PGPOST_QUIT;
-        case SDL_SYSWMEVENT:
-            return PGPOST_SYSWMEVENT;
-        case SDL_TEXTEDITING:
-            return PGPOST_TEXTEDITING;
-        case SDL_TEXTINPUT:
-            return PGPOST_TEXTINPUT;
-        case SDL_VIDEORESIZE:
-            return PGPOST_VIDEORESIZE;
-        case SDL_VIDEOEXPOSE:
-            return PGPOST_VIDEOEXPOSE;
-
-        case PGE_WINDOWSHOWN:
-            return PGPOST_WINDOWSHOWN;
-        case PGE_WINDOWHIDDEN:
-            return PGPOST_WINDOWHIDDEN;
-        case PGE_WINDOWEXPOSED:
-            return PGPOST_WINDOWEXPOSED;
-        case PGE_WINDOWMOVED:
-            return PGPOST_WINDOWMOVED;
-        case PGE_WINDOWRESIZED:
-            return PGPOST_WINDOWRESIZED;
-        case PGE_WINDOWSIZECHANGED:
-            return PGPOST_WINDOWSIZECHANGED;
-        case PGE_WINDOWMINIMIZED:
-            return PGPOST_WINDOWMINIMIZED;
-        case PGE_WINDOWMAXIMIZED:
-            return PGPOST_WINDOWMAXIMIZED;
-        case PGE_WINDOWRESTORED:
-            return PGPOST_WINDOWRESTORED;
-        case PGE_WINDOWENTER:
-            return PGPOST_WINDOWENTER;
-        case PGE_WINDOWLEAVE:
-            return PGPOST_WINDOWLEAVE;
-        case PGE_WINDOWFOCUSGAINED:
-            return PGPOST_WINDOWFOCUSGAINED;
-        case PGE_WINDOWFOCUSLOST:
-            return PGPOST_WINDOWFOCUSLOST;
-        case PGE_WINDOWCLOSE:
-            return PGPOST_WINDOWCLOSE;
-        case PGE_WINDOWTAKEFOCUS:
-            return PGPOST_WINDOWTAKEFOCUS;
-        case PGE_WINDOWHITTEST:
-            return PGPOST_WINDOWHITTEST;
+        _PG_HANDLE_PROXIFY(FINGERMOTION);
+        _PG_HANDLE_PROXIFY(FINGERDOWN);
+        _PG_HANDLE_PROXIFY(FINGERUP);
+        _PG_HANDLE_PROXIFY(KEYDOWN);
+        _PG_HANDLE_PROXIFY(KEYUP);
+        _PG_HANDLE_PROXIFY(JOYAXISMOTION);
+        _PG_HANDLE_PROXIFY(JOYBALLMOTION);
+        _PG_HANDLE_PROXIFY(JOYHATMOTION);
+        _PG_HANDLE_PROXIFY(JOYBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(JOYBUTTONUP);
+        _PG_HANDLE_PROXIFY(JOYDEVICEADDED);
+        _PG_HANDLE_PROXIFY(JOYDEVICEREMOVED);
+        _PG_HANDLE_PROXIFY(MOUSEMOTION);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONUP);
+        _PG_HANDLE_PROXIFY(MOUSEWHEEL);
+        _PG_HANDLE_PROXIFY(MULTIGESTURE);
+        _PG_HANDLE_PROXIFY(NOEVENT);
+        _PG_HANDLE_PROXIFY(QUIT);
+        _PG_HANDLE_PROXIFY(SYSWMEVENT);
+        _PG_HANDLE_PROXIFY(TEXTEDITING);
+        _PG_HANDLE_PROXIFY(TEXTINPUT);
+        _PG_HANDLE_PROXIFY(VIDEORESIZE);
+        _PG_HANDLE_PROXIFY(VIDEOEXPOSE);
+        _PG_HANDLE_PROXIFY_PGE(MIDIIN);
+        _PG_HANDLE_PROXIFY_PGE(MIDIOUT);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSHOWN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHIDDEN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWEXPOSED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMOVED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSIZECHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMINIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMAXIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESTORED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWENTER);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWLEAVE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSGAINED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSLOST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWCLOSE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWTAKEFOCUS);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHITTEST);
         default:
             return type;
     }
 }
 
 static Uint32
+_pg_pgevent_proxify(Uint32 type)
+{
+    return _pg_pgevent_proxify_helper(type, 1);
+}
+
+static Uint32
 _pg_pgevent_deproxify(Uint32 type)
 {
-    switch (type) {
-        case PGPOST_ACTIVEEVENT:
-            return SDL_ACTIVEEVENT;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case PGPOST_AUDIODEVICEADDED:
-            return SDL_AUDIODEVICEADDED;
-        case PGPOST_AUDIODEVICEREMOVED:
-            return SDL_AUDIODEVICEREMOVED;
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
-        case PGPOST_CONTROLLERAXISMOTION:
-            return SDL_CONTROLLERAXISMOTION;
-        case PGPOST_CONTROLLERBUTTONDOWN:
-            return SDL_CONTROLLERBUTTONDOWN;
-        case PGPOST_CONTROLLERBUTTONUP:
-            return SDL_CONTROLLERBUTTONUP;
-        case PGPOST_CONTROLLERDEVICEADDED:
-            return SDL_CONTROLLERDEVICEADDED;
-        case PGPOST_CONTROLLERDEVICEREMOVED:
-            return SDL_CONTROLLERDEVICEREMOVED;
-        case PGPOST_CONTROLLERDEVICEREMAPPED:
-            return SDL_CONTROLLERDEVICEREMAPPED;
-#if SDL_VERSION_ATLEAST(2, 0, 14)
-        case PGPOST_CONTROLLERTOUCHPADDOWN:
-            return SDL_CONTROLLERTOUCHPADDOWN;
-        case PGPOST_CONTROLLERTOUCHPADMOTION:
-            return SDL_CONTROLLERTOUCHPADMOTION;
-        case PGPOST_CONTROLLERTOUCHPADUP:
-            return SDL_CONTROLLERTOUCHPADUP;
-#endif
-        case PGPOST_DOLLARGESTURE:
-            return SDL_DOLLARGESTURE;
-        case PGPOST_DOLLARRECORD:
-            return SDL_DOLLARRECORD;
-        case PGPOST_DROPFILE:
-            return SDL_DROPFILE;
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-        case PGPOST_DROPTEXT:
-            return SDL_DROPTEXT;
-        case PGPOST_DROPBEGIN:
-            return SDL_DROPBEGIN;
-        case PGPOST_DROPCOMPLETE:
-            return SDL_DROPCOMPLETE;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-        case PGPOST_FINGERMOTION:
-            return SDL_FINGERMOTION;
-        case PGPOST_FINGERDOWN:
-            return SDL_FINGERDOWN;
-        case PGPOST_FINGERUP:
-            return SDL_FINGERUP;
-        case PGPOST_KEYDOWN:
-            return SDL_KEYDOWN;
-        case PGPOST_KEYUP:
-            return SDL_KEYUP;
-        case PGPOST_JOYAXISMOTION:
-            return SDL_JOYAXISMOTION;
-        case PGPOST_JOYBALLMOTION:
-            return SDL_JOYBALLMOTION;
-        case PGPOST_JOYHATMOTION:
-            return SDL_JOYHATMOTION;
-        case PGPOST_JOYBUTTONDOWN:
-            return SDL_JOYBUTTONDOWN;
-        case PGPOST_JOYBUTTONUP:
-            return SDL_JOYBUTTONUP;
-        case PGPOST_JOYDEVICEADDED:
-            return SDL_JOYDEVICEADDED;
-        case PGPOST_JOYDEVICEREMOVED:
-            return SDL_JOYDEVICEREMOVED;
-        case PGPOST_MIDIIN:
-            return PGE_MIDIIN;
-        case PGPOST_MIDIOUT:
-            return PGE_MIDIOUT;
-        case PGPOST_MOUSEMOTION:
-            return SDL_MOUSEMOTION;
-        case PGPOST_MOUSEBUTTONDOWN:
-            return SDL_MOUSEBUTTONDOWN;
-        case PGPOST_MOUSEBUTTONUP:
-            return SDL_MOUSEBUTTONUP;
-        case PGPOST_MOUSEWHEEL:
-            return SDL_MOUSEWHEEL;
-        case PGPOST_MULTIGESTURE:
-            return SDL_MULTIGESTURE;
-        case PGPOST_NOEVENT:
-            return SDL_NOEVENT;
-        case PGPOST_QUIT:
-            return SDL_QUIT;
-        case PGPOST_SYSWMEVENT:
-            return SDL_SYSWMEVENT;
-        case PGPOST_TEXTEDITING:
-            return SDL_TEXTEDITING;
-        case PGPOST_TEXTINPUT:
-            return SDL_TEXTINPUT;
-        case PGPOST_VIDEORESIZE:
-            return SDL_VIDEORESIZE;
-        case PGPOST_VIDEOEXPOSE:
-            return SDL_VIDEOEXPOSE;
-
-        case PGPOST_WINDOWSHOWN:
-            return PGE_WINDOWSHOWN;
-        case PGPOST_WINDOWHIDDEN:
-            return PGE_WINDOWHIDDEN;
-        case PGPOST_WINDOWEXPOSED:
-            return PGE_WINDOWEXPOSED;
-        case PGPOST_WINDOWMOVED:
-            return PGE_WINDOWMOVED;
-        case PGPOST_WINDOWRESIZED:
-            return PGE_WINDOWRESIZED;
-        case PGPOST_WINDOWSIZECHANGED:
-            return PGE_WINDOWSIZECHANGED;
-        case PGPOST_WINDOWMINIMIZED:
-            return PGE_WINDOWMINIMIZED;
-        case PGPOST_WINDOWMAXIMIZED:
-            return PGE_WINDOWMAXIMIZED;
-        case PGPOST_WINDOWRESTORED:
-            return PGE_WINDOWRESTORED;
-        case PGPOST_WINDOWENTER:
-            return PGE_WINDOWENTER;
-        case PGPOST_WINDOWLEAVE:
-            return PGE_WINDOWLEAVE;
-        case PGPOST_WINDOWFOCUSGAINED:
-            return PGE_WINDOWFOCUSGAINED;
-        case PGPOST_WINDOWFOCUSLOST:
-            return PGE_WINDOWFOCUSLOST;
-        case PGPOST_WINDOWCLOSE:
-            return PGE_WINDOWCLOSE;
-        case PGPOST_WINDOWTAKEFOCUS:
-            return PGE_WINDOWTAKEFOCUS;
-        case PGPOST_WINDOWHITTEST:
-            return PGE_WINDOWHITTEST;
-        default:
-            return type;
-    }
+    return _pg_pgevent_proxify_helper(type, 0);
 }
 
 static SDL_Event *_pg_last_keydown_event = NULL;
