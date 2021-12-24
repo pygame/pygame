@@ -929,7 +929,7 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
     dst = newsurf_fromsurf(src, dstwidth, dstheight);
     if (!dst)
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS;
     SDL_LockSurface(dst);
     srcrow = (char *)src->pixels;
