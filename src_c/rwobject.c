@@ -31,6 +31,15 @@
 
 #include "doc/pygame_doc.h"
 
+#if defined(_WIN32)
+#define PG_LSEEK _lseeki64
+#elif defined(__APPLE__)
+/* Mac does not implement lseek64 */
+#define PG_LSEEK lseek
+#else
+#define PG_LSEEK lseek64
+#endif
+
 typedef struct {
     PyObject *read;
     PyObject *write;
@@ -536,7 +545,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     PyGILState_STATE state;
 
     if (helper->fileno != -1) {
-        return lseek(helper->fileno, (long)offset, whence);
+        return PG_LSEEK(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
@@ -576,7 +585,7 @@ end:
     return retval;
 #else  /* ~WITH_THREAD */
     if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
+        return PG_LSEEK(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
