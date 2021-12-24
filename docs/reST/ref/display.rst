@@ -610,8 +610,8 @@ required).
    | :sg:`set_caption(title, icontitle=None) -> None`
 
    If the display has a window title, this function will change the name on the
-   window. Some systems support an alternate shorter title to be used for
-   minimized displays.
+   window. In pygame 1.x, some systems supported an alternate shorter title to
+   be used for minimized displays, but in pygame 2 ``icontitle`` does nothing.
 
    .. ## pygame.display.set_caption ##
 
@@ -620,8 +620,8 @@ required).
    | :sl:`Get the current window caption`
    | :sg:`get_caption() -> (title, icontitle)`
 
-   Returns the title and icontitle for the display Surface. These will often be
-   the same value.
+   Returns the title and icontitle for the display window. In pygame 2.x
+   these will always be the same value.
 
    .. ## pygame.display.get_caption ##
 

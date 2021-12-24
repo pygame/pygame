@@ -14,7 +14,7 @@ gamepads, and the module allows the use of multiple buttons and "hats".
 Computers may manage multiple joysticks at a time.
 
 Each instance of the Joystick class represents one gaming device plugged
-into the computer. If a gaming pad has multiple joysticks on it, than the
+into the computer. If a gaming pad has multiple joysticks on it, then the
 joystick object can actually represent multiple joysticks on that single
 game device.
 
