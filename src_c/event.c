@@ -279,10 +279,17 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
 {
     switch (type) {
         _PG_HANDLE_PROXIFY(ACTIVEEVENT);
+        _PG_HANDLE_PROXIFY(APP_TERMINATING);
+        _PG_HANDLE_PROXIFY(APP_LOWMEMORY);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
         _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
+        _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
         _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
         _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
         _PG_HANDLE_PROXIFY(CONTROLLERBUTTONUP);
@@ -293,6 +300,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADDOWN);
         _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADMOTION);
         _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERSENSORUPDATE);
 #endif
         _PG_HANDLE_PROXIFY(DOLLARGESTURE);
         _PG_HANDLE_PROXIFY(DOLLARRECORD);
@@ -307,6 +315,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(FINGERUP);
         _PG_HANDLE_PROXIFY(KEYDOWN);
         _PG_HANDLE_PROXIFY(KEYUP);
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
+#endif
         _PG_HANDLE_PROXIFY(JOYAXISMOTION);
         _PG_HANDLE_PROXIFY(JOYBALLMOTION);
         _PG_HANDLE_PROXIFY(JOYHATMOTION);
@@ -314,6 +325,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(JOYBUTTONUP);
         _PG_HANDLE_PROXIFY(JOYDEVICEADDED);
         _PG_HANDLE_PROXIFY(JOYDEVICEREMOVED);
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        _PG_HANDLE_PROXIFY(LOCALECHANGED);
+#endif
         _PG_HANDLE_PROXIFY(MOUSEMOTION);
         _PG_HANDLE_PROXIFY(MOUSEBUTTONDOWN);
         _PG_HANDLE_PROXIFY(MOUSEBUTTONUP);
@@ -321,6 +335,12 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(MULTIGESTURE);
         _PG_HANDLE_PROXIFY(NOEVENT);
         _PG_HANDLE_PROXIFY(QUIT);
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
+#endif
         _PG_HANDLE_PROXIFY(SYSWMEVENT);
         _PG_HANDLE_PROXIFY(TEXTEDITING);
         _PG_HANDLE_PROXIFY(TEXTINPUT);
@@ -344,6 +364,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY_PGE(WINDOWCLOSE);
         _PG_HANDLE_PROXIFY_PGE(WINDOWTAKEFOCUS);
         _PG_HANDLE_PROXIFY_PGE(WINDOWHITTEST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWICCPROFCHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWDISPLAYCHANGED);
         default:
             return type;
     }
@@ -599,10 +621,32 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
+        case SDL_APP_TERMINATING:
+            return "AppTerminating";
+        case SDL_APP_LOWMEMORY:
+            return "AppLowMemory";
+        case SDL_APP_WILLENTERBACKGROUND:
+            return "AppWillEnterBackground";
+        case SDL_APP_DIDENTERBACKGROUND:
+            return "AppDidEnterBackground";
+        case SDL_APP_WILLENTERFOREGROUND:
+            return "AppWillEnterForeground";
+        case SDL_APP_DIDENTERFOREGROUND:
+            return "AppDidEnterForeground";
+        case SDL_CLIPBOARDUPDATE:
+            return "ClipboardUpdate";
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_KEYMAPCHANGED:
+            return "KeyMapChanged";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_LOCALECHANGED:
+            return "LocaleChanged";
+#endif
         case SDL_MOUSEMOTION:
             return "MouseMotion";
         case SDL_MOUSEBUTTONDOWN:
@@ -680,6 +724,8 @@ _pg_name_from_eventtype(int type)
             return "ControllerTouchpadMotion";
         case SDL_CONTROLLERTOUCHPADUP:
             return "ControllerTouchpadUp";
+        case SDL_CONTROLLERSENSORUPDATE:
+            return "ControllerSensorUpdate";
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
@@ -687,7 +733,14 @@ _pg_name_from_eventtype(int type)
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
-
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        case SDL_RENDER_TARGETS_RESET:
+            return "RenderTargetsReset";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_RENDER_DEVICE_RESET:
+            return "RenderDeviceReset";
+#endif
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
@@ -720,6 +773,10 @@ _pg_name_from_eventtype(int type)
             return "WindowTakeFocus";
         case PGE_WINDOWHITTEST:
             return "WindowHitTest";
+        case PGE_WINDOWICCPROFCHANGED:
+            return "WindowICCProfChanged";
+        case PGE_WINDOWDISPLAYCHANGED:
+            return "WindowDisplayChanged";
     }
     if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
         return "UserEvent";
@@ -928,6 +985,9 @@ dict_from_event(SDL_Event *event)
                        PyLong_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->jbutton.button));
             break;
+        case PGE_WINDOWDISPLAYCHANGED:
+            _pg_insobj(dict, "display_index",
+                       PyLong_FromLong(event->window.data1));
         case PGE_WINDOWMOVED:
         case PGE_WINDOWRESIZED:
         case PGE_WINDOWSIZECHANGED:
@@ -987,8 +1047,24 @@ dict_from_event(SDL_Event *event)
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyLong_FromLong(event->wheel.x));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
+
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.preciseX));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.preciseY));
+
+#else /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
+            /* fallback to regular x and y when SDL version used does not
+             * support precise fields */
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.x));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.y));
+
+#endif /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
@@ -1121,6 +1197,8 @@ dict_from_event(SDL_Event *event)
         case PGE_WINDOWCLOSE:
         case PGE_WINDOWTAKEFOCUS:
         case PGE_WINDOWHITTEST:
+        case PGE_WINDOWICCPROFCHANGED:
+        case PGE_WINDOWDISPLAYCHANGED:
         case SDL_TEXTEDITING:
         case SDL_TEXTINPUT:
         case SDL_MOUSEWHEEL:
