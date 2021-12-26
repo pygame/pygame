@@ -2314,8 +2314,7 @@ static PyMethodDef _event_methods[] = {
 
 MODINIT_DEFINE(event)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_EVENT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2341,25 +2340,24 @@ MODINIT_DEFINE(event)
         return NULL;
     }
 
-    SDL_RegisterEvents(PG_NUMEVENTS - SDL_USEREVENT);
-
     /* create the module */
     module = PyModule_Create(&_module);
-    dict = PyModule_GetDict(module);
+    if (!module) {
+        return NULL;
+    }
 
-    if (NULL == (joy_instance_map = PyDict_New())) {
+    joy_instance_map = PyDict_New();
+    /* need to keep a reference for use in the module */
+    Py_XINCREF(joy_instance_map);
+    if (PyModule_AddObject(module, "_joy_instance_map", joy_instance_map)) {
+        Py_XDECREF(joy_instance_map);
         Py_DECREF(module);
         return NULL;
     }
 
-    if (-1 ==
-        PyDict_SetItemString(dict, "_joy_instance_map", joy_instance_map)) {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-    if (PyDict_SetItemString(dict, "EventType", (PyObject *)&pgEvent_Type) ==
-        -1) {
+    Py_INCREF(&pgEvent_Type);
+    if (PyModule_AddObject(module, "EventType", (PyObject *)&pgEvent_Type)) {
+        Py_DECREF(&pgEvent_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -2372,17 +2370,14 @@ MODINIT_DEFINE(event)
     c_api[3] = pgEvent_FillUserEvent;
     c_api[4] = pg_EnableKeyRepeat;
     c_api[5] = pg_GetKeyRepeat;
+
     apiobj = encapsulate_api(c_api, "event");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
 
+    SDL_RegisterEvents(PG_NUMEVENTS - SDL_USEREVENT);
     return module;
 }

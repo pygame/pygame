@@ -2593,7 +2593,7 @@ static PyMethodDef _mask_methods[] = {
 
 MODINIT_DEFINE(mask)
 {
-    PyObject *module, *dict, *apiobj;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_MASK_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2636,14 +2636,16 @@ MODINIT_DEFINE(mask)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
-    if (PyDict_SetItemString(dict, "MaskType", (PyObject *)&pgMask_Type) ==
-        -1) {
+    Py_INCREF(&pgMask_Type);
+    if (PyModule_AddObject(module, "MaskType", (PyObject *)&pgMask_Type)) {
+        Py_DECREF(&pgMask_Type);
         Py_DECREF(module);
         return NULL;
     }
 
-    if (PyDict_SetItemString(dict, "Mask", (PyObject *)&pgMask_Type) == -1) {
+    Py_INCREF(&pgMask_Type);
+    if (PyModule_AddObject(module, "Mask", (PyObject *)&pgMask_Type)) {
+        Py_DECREF(&pgMask_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -2651,12 +2653,8 @@ MODINIT_DEFINE(mask)
     /* export the c api */
     c_api[0] = &pgMask_Type;
     apiobj = encapsulate_api(c_api, "mask");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
-        Py_DECREF(apiobj);
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
