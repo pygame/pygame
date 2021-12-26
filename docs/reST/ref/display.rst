@@ -242,6 +242,9 @@ required).
    instead of the entire area. If no argument is passed it updates the entire
    Surface area like ``pygame.display.flip()``.
 
+   Note that calling ``display.update(None)`` means no part of the window is
+   updated. Whereas ``display.update()`` means the whole window is updated.
+
    You can pass the function a single rectangle, or a sequence of rectangles.
    It is more efficient to pass many rectangles at once than to call update
    multiple times with single or a partial list of rectangles. If passing a
