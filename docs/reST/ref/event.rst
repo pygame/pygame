@@ -110,12 +110,12 @@ attributes.
 
 ::
 
-    AUDIODEVICEADDED   which, iscapture
-    AUDIODEVICEREMOVED which, iscapture
+    AUDIODEVICEADDED   which, iscapture (SDL backend >= 2.0.4)
+    AUDIODEVICEREMOVED which, iscapture (SDL backend >= 2.0.4)
     FINGERMOTION       touch_id, finger_id, x, y, dx, dy
     FINGERDOWN         touch_id, finger_id, x, y, dx, dy
     FINGERUP           touch_id, finger_id, x, y, dx, dy
-    MOUSEWHEEL         which, flipped, x, y, touch
+    MOUSEWHEEL         which, flipped, x, y, touch, precise_x, precise_y
     MULTIGESTURE       touch_id, x, y, pinched, rotated, num_fingers
     TEXTEDITING        text, start, length
     TEXTINPUT          text
@@ -129,6 +129,8 @@ attributes.
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
 by  a touch input device, and not a real mouse. You might want to ignore such events, if your application
 already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
+
+.. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
 
 |
 
@@ -144,10 +146,12 @@ pygame 2 also supports controller hot-plugging
 
 ::
 
-   DROPBEGIN
-   DROPCOMPLETE
+   Event name               Attributes and notes
+
    DROPFILE                 file
-   DROPTEXT                 text
+   DROPBEGIN                (SDL backend >= 2.0.5)
+   DROPCOMPLETE             (SDL backend >= 2.0.5)
+   DROPTEXT                 text (SDL backend >= 2.0.5)
    MIDIIN
    MIDIOUT
    CONTROLLERDEVICEADDED    device_index
@@ -155,11 +159,19 @@ pygame 2 also supports controller hot-plugging
    CONTROLLERDEVICEREMOVED  instance_id
    JOYDEVICEREMOVED         instance_id
    CONTROLLERDEVICEREMAPPED instance_id
+   KEYMAPCHANGED            (SDL backend >= 2.0.4)
+   CLIPBOARDUPDATE
+   RENDER_TARGETS_RESET     (SDL backend >= 2.0.2)
+   RENDER_DEVICE_RESET      (SDL backend >= 2.0.4)
 
 Also in this version, ``instance_id`` attributes were added to joystick events,
 and the ``joy`` attribute was deprecated.
 
 .. versionadded:: 2.0.0
+
+.. versionadded:: 2.1.3 ``KEYMAPCHANGED``, ``CLIPBOARDUPDATE``, ``RENDER_TARGETS_RESET`` and ``RENDER_DEVICE_RESET``
+
+|
 
 Since pygame 2.0.1, there are a new set of events, called window events.
 Here is a list of all window events, along with a short description
@@ -182,15 +194,35 @@ Here is a list of all window events, along with a short description
    WINDOWFOCUSGAINED      Window gained focus
    WINDOWFOCUSLOST        Window lost focus
    WINDOWCLOSE            Window was closed
-   WINDOWTAKEFOCUS        Window was offered focus
-   WINDOWHITTEST          Window has a special hit test
+   WINDOWTAKEFOCUS        Window was offered focus (SDL backend >= 2.0.5)
+   WINDOWHITTEST          Window has a special hit test (SDL backend >= 2.0.5)
+   WINDOWICCPROFCHANGED   Window ICC profile changed (SDL backend >= 2.0.18)
+   WINDOWDISPLAYCHANGED   Window moved on a new display (SDL backend >= 2.0.18)
 
 
-If SDL version used is less than 2.0.5, the last two events ``WINDOWTAKEFOCUS``
-and ``WINDOWHITTEST`` will not work.
+``WINDOWMOVED``, ``WINDOWRESIZED`` and ``WINDOWSIZECHANGED`` have ``x`` and
+``y`` attributes, ``WINDOWDISPLAYCHANGED`` has a ``display_index`` attribute.
+All windowevents have a ``window`` attribute.
 
-Most these window events do not have any attributes, except ``WINDOWMOVED``,
-``WINDOWRESIZED`` and ``WINDOWSIZECHANGED``, these have ``x`` and ``y`` attributes
+.. versionadded:: 2.0.1
+
+.. versionadded:: 2.1.3 ``WINDOWICCPROFCHANGED`` and ``WINDOWDISPLAYCHANGED``
+
+|
+
+On Android, the following events can be generated
+
+::
+
+   APP_TERMINATING
+   APP_LOWMEMORY
+   APP_WILLENTERBACKGROUND
+   APP_DIDENTERBACKGROUND
+   APP_WILLENTERFOREGROUND
+   APP_DIDENTERFOREGROUND
+   LOCALECHANGED (SDL backend >= 2.0.14)
+
+.. versionadded:: 2.1.3
 
 |
 
