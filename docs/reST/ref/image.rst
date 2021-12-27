@@ -4,7 +4,7 @@
 ===================
 
 .. module:: pygame.image
-   :synopsis: pygame module for image transfer
+   :synopsis: pygame module for loading and saving images
 
 | :sl:`pygame module for image transfer`
 
@@ -15,10 +15,11 @@ Note that there is no Image class; an image is loaded as a Surface object. The
 Surface class allows manipulation (drawing lines, setting pixels, capturing
 regions, etc.).
 
-The image module is a required dependency of pygame, but it only optionally
-supports any extended file formats. By default it can only load uncompressed
-``BMP`` images. When built with full image support, the ``pygame.image.load()``
-function can support the following formats.
+In the vast majority of installations, including those from pip, pygame is
+built to support extended formats with SDL2_Image. However, installations are
+guaranteed to support uncompressed ``BMP`` images. When built with full image
+support, the :func:`pygame.image.load()` function can support the following
+formats.
 
    * ``BMP``
 
@@ -81,18 +82,19 @@ following formats.
 
    The returned Surface will contain the same color format, colorkey and alpha
    transparency as the file it came from. You will often want to call
-   ``Surface.convert()`` with no arguments, to create a copy that will draw
-   more quickly on the screen.
+   :func:`pygame.Surface.convert()` with no arguments, to create a copy that
+   will draw more quickly on the screen.
 
-   For alpha transparency, like in .png images, use the ``convert_alpha()``
-   method after loading so that the image has per pixel transparency.
+   For alpha transparency, like in .png images, use the
+   :func:`pygame.Surface.convert_alpha()` method after loading so that the
+   image has per pixel transparency.
 
-   pygame may not always be built to support all image formats. At minimum it
-   will support uncompressed ``BMP``. If ``pygame.image.get_extended()``
-   returns 'True', you should be able to load most images (including PNG, JPG
+   Pygame may not always be built to support all image formats. At minimum it
+   will support uncompressed ``BMP``. If :func:`pygame.image.get_extended()`
+   returns ``True``, you should be able to load most images (including PNG, JPG
    and GIF).
 
-   You should use ``os.path.join()`` for compatibility.
+   You should use :func:`os.path.join()` for compatibility.
 
    ::
 
@@ -153,12 +155,13 @@ following formats.
 .. function:: tostring
 
    | :sl:`transfer image to string buffer`
-   | :sg:`tostring(Surface, format, flipped=False) -> string`
+   | :sg:`tostring(Surface, format, flipped=False) -> bytes`
 
-   Creates a string that can be transferred with the 'fromstring' method in
-   other Python imaging packages. Some Python image packages prefer their
-   images in bottom-to-top format (PyOpenGL for example). If you pass True for
-   the flipped argument, the string buffer will be vertically flipped.
+   Creates a string of bytes that can be transferred with the ``fromstring``
+   or ``frombytes`` methods in other Python imaging packages. Some Python
+   image packages prefer their images in bottom-to-top format (PyOpenGL for
+   example). If you pass ``True`` for the flipped argument, the string buffer
+   will be vertically flipped.
 
    The format argument is a string of one of the following values. Note that
    only 8-bit Surfaces can use the "P" format. The other formats will work for
@@ -184,27 +187,34 @@ following formats.
 .. function:: fromstring
 
    | :sl:`create new Surface from a string buffer`
-   | :sg:`fromstring(string, size, format, flipped=False) -> Surface`
+   | :sg:`fromstring(bytes, size, format, flipped=False) -> Surface`
 
-   This function takes arguments similar to ``pygame.image.tostring()``. The
-   size argument is a pair of numbers representing the width and height. Once
-   the new Surface is created you can destroy the string buffer.
+   This function takes arguments similar to :func:`pygame.image.tostring()`.
+   The size argument is a pair of numbers representing the width and height.
+   Once the new Surface is created it is independent from the memory of the
+   bytes passed in.
 
-   The size and format image must compute the exact same size as the passed
-   string buffer. Otherwise an exception will be raised.
+   The bytes and format passed must compute to the exact size of image
+   specified. Otherwise a ``ValueError`` will be raised.
 
-   See the ``pygame.image.frombuffer()`` method for a potentially faster way to
-   transfer images into pygame.
+   See the :func:`pygame.image.frombuffer()` method for a potentially faster
+   way to transfer images into pygame.
+
+   .. note:: :func:`fromstring` and :func:`tostring` are named with "string,"
+             but they deal in bytes. In Python 2, str = bytes, so this is
+             "from string" as in a Python 2 string.
 
    .. ## pygame.image.fromstring ##
 
 .. function:: frombuffer
 
    | :sl:`create a new Surface that shares data inside a bytes buffer`
-   | :sg:`frombuffer(bytes, size, format) -> Surface`
+   | :sg:`frombufferbuffer, size, format) -> Surface`
 
-   Create a new Surface that shares pixel data directly from a bytes buffer.
-   This method takes similar arguments to ``pygame.image.fromstring()``, but
+   Create a new Surface that shares pixel data directly from a buffer. This
+   buffer can be bytes, a bytearray, a memoryview, a
+   :class:`pygame.BufferProxy`, or any object that supports the buffer protocol.
+   This method takes similar arguments to :func:`pygame.image.fromstring()`, but
    is unable to vertically flip the source data.
 
    This will run much faster than :func:`pygame.image.fromstring`, since no
@@ -246,16 +256,17 @@ following formats.
    | :sg:`load_extended(filename) -> Surface`
    | :sg:`load_extended(fileobj, namehint="") -> Surface`
 
-   This function is similar to ``pygame.image.load()``, except that this
+   This function is similar to :func:`pygame.image.load()`, except that this
    function can only be used if pygame was built with extended image format
    support.
 
-   From version 2.0.1, this function is always available, but raises an
-   error if extended image formats are not supported. Previously, this
-   function may or may not be available, depending on the state of
-   extended image format support.
-
    .. versionchanged:: 2.0.1
+                       This function is always available, but raises an
+                       ``NotImplementedError`` if extended image formats are
+                       not supported.
+                       Previously, this function may or may not be
+                       available, depending on the state of extended image
+                       format support.
 
    .. ## pygame.image.load_extended ##
 
@@ -267,14 +278,15 @@ following formats.
 
    This will save your Surface as either a ``PNG`` or ``JPEG`` image.
 
-   Incase the image is being saved to a file-like object, this function
+   In case the image is being saved to a file-like object, this function
    uses the namehint argument to determine the format of the file being
    saved. Saves to ``JPEG`` incase the namehint was not specified while
-   saving to file-like object.
+   saving to a file-like object.
 
    .. versionchanged:: 2.0.1
                        This function is always available, but raises an
-                       error if extended image formats are not supported.
+                       ``NotImplementedError`` if extended image formats are
+                       not supported.
                        Previously, this function may or may not be
                        available, depending on the state of extended image
                        format support.
