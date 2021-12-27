@@ -200,6 +200,7 @@ __all__ = [
     "KMOD_RMETA",
     "KMOD_RSHIFT",
     "KMOD_SHIFT",
+    "KSCAN_AC_BACK",
     "KSCAN_0",
     "KSCAN_1",
     "KSCAN_2",
