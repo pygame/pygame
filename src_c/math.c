@@ -129,7 +129,7 @@ static Py_ssize_t
 _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,
                            Py_ssize_t dim);
 static int
-_vector_move_toward_helper(pgVector *self, PyObject *target, double speed);
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double speed);
 
 /* generic vector functions */
 static PyObject *
@@ -210,9 +210,9 @@ vector_dot(pgVector *self, PyObject *other);
 static PyObject *
 vector_scale_to_length(pgVector *self, PyObject *length);
 static PyObject *
-vector_move_toward(pgVector *self, PyObject *other, PyObject *speedObject);
+vector_move_towards(pgVector *self, PyObject *args);
 static PyObject *
-vector_move_toward_ip(pgVector *self, PyObject *other, PyObject *speedObject);
+vector_move_towards_ip(pgVector *self, PyObject *args);
 static PyObject *
 vector_slerp(pgVector *self, PyObject *args);
 static PyObject *
@@ -1295,12 +1295,10 @@ vector_scale_to_length(pgVector *self, PyObject *length)
 }
 
 static int
-_vector_move_toward_helper(pgVector *self, PyObject *target, double speed)
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double speed)
 {
     Py_ssize_t i;
-    pgVector *ret;
     double delta[VECTOR_MAX_SIZE];
-    double target_coords[VECTOR_MAX_SIZE];
     double dist;
 
     if (speed < 0) {
@@ -1308,64 +1306,71 @@ _vector_move_toward_helper(pgVector *self, PyObject *target, double speed)
             "Expected speed to be greater or equal to 0");
         return 0;
     }
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
-        return 0;
+
+    for (i = 0; i < dim; ++i)
+    {
+        delta[i] = origin_coords[i] - target_coords[i];
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret == NULL) {
-        return 0;
-    }
-
-    for (i = 0; i < self->dim; ++i)
-        delta[i] = self->coords[i] - target_coords[i];
-    
     /* Get magnitude of Vector */
-    dist = sqrt(_scalar_product(delta, delta, self->dim));
+    dist = sqrt(_scalar_product(delta, delta, dim));
 
     if (dist <= speed || dist == 0)
     {
         /* Return target Vector */
-        for (i = 0; i < self->dim; ++i)
-            ret->coords[i] = target_coords[i];
+        for (i = 0; i < dim; ++i)
+            origin_coords[i] = target_coords[i];
         return 1;
     }
 
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i] - delta[i] / dist * speed;
+    for (i = 0; i < dim; ++i)
+        origin_coords[i] = origin_coords[i] - delta[i] / dist * speed;
 
     return 1;
 }
 
 static PyObject *
-vector_move_toward(pgVector *self, PyObject *target, PyObject *speedObject)
+vector_move_towards(pgVector *self, PyObject *args)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
+    Py_ssize_t i;
+    pgVector *target;
     double speed;
+    pgVector *ret;
+    ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
         return NULL;
     }
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i];
 
-    speed = PyFloat_AsDouble(speedObject);
-    if (!_vector_move_toward_helper(self, target, speed)) {
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &speed)) {
+        return NULL;
+    }
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, speed)) {
         return NULL;
     }
     return (PyObject *)ret;
 }
 
 static PyObject *
-vector_move_toward_ip(pgVector *self, PyObject *target, PyObject *speedObject)
+vector_move_towards_ip(pgVector *self, PyObject *args)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
+    Py_ssize_t i;
+    pgVector *target;
     double speed;
-    
+    pgVector *ret;
+    ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
         return NULL;
     }
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i];
 
-    speed = PyFloat_AsDouble(speedObject);
-    if (!_vector_move_toward_helper(self, target, speed)) {
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &speed)) {
+        return NULL;
+    }
+
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, speed)) {
         return NULL;
     }
     memcpy(self->coords, ret->coords, self->dim * sizeof(ret->coords));
@@ -2288,8 +2293,8 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
      DOC_VECTOR2ROTATERADIP},
-    {"move_toward", (PyCFunction)vector_move_toward, METH_VARARGS, DOC_VECTOR2MOVETOWARD},
-    {"move_toward_ip", (PyCFunction)vector_move_toward_ip, METH_VARARGS, DOC_VECTOR2MOVETOWARDIP},
+    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS, DOC_VECTOR2MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS, DOC_VECTOR2MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -3239,8 +3244,8 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
      DOC_VECTOR3ROTATEZRADIP},
-    {"move_toward", (PyCFunction)vector_move_toward, METH_VARARGS, DOC_VECTOR3MOVETOWARD},
-    {"move_toward_ip", (PyCFunction)vector_move_toward_ip, METH_VARARGS, DOC_VECTOR3MOVETOWARDIP},
+    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS, DOC_VECTOR3MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS, DOC_VECTOR3MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
