@@ -344,6 +344,9 @@ pg_vidinfo_str(PyObject *self)
         current_h = info->current_h;
     }
 
+    Uint32 pixelFormatEnum = info->vfmt->format;
+    const char* surfacePixelFormatName = SDL_GetPixelFormatName(pixelFormatEnum);
+
     sprintf(str,
             "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
             "         blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
@@ -353,6 +356,7 @@ pg_vidinfo_str(PyObject *self)
             "         shifts = (%d, %d, %d, %d),\n"
             "         losses =  (%d, %d, %d, %d),\n"
             "         current_w = %d, current_h = %d\n"
+            "         pixel_format = %s\n"
             ">\n",
             info->hw_available, info->wm_available, info->video_mem,
             info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
@@ -361,7 +365,8 @@ pg_vidinfo_str(PyObject *self)
             info->vfmt->Bmask, info->vfmt->Amask, info->vfmt->Rshift,
             info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
             info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-            info->vfmt->Aloss, current_w, current_h);
+            info->vfmt->Aloss, current_w, current_h,
+            surfacePixelFormatName);
     return PyUnicode_FromString(str);
 }
 
