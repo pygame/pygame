@@ -129,7 +129,7 @@ static Py_ssize_t
 _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,
                            Py_ssize_t dim);
 static int
-_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double speed);
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double distance);
 
 /* generic vector functions */
 static PyObject *
@@ -1295,15 +1295,15 @@ vector_scale_to_length(pgVector *self, PyObject *length)
 }
 
 static int
-_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double speed)
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *target_coords, double distance)
 {
     Py_ssize_t i;
     double delta[VECTOR_MAX_SIZE];
     double dist;
 
-    if (speed < 0) {
+    if (distance < 0) {
         PyErr_SetString(PyExc_TypeError, 
-            "Expected speed to be greater or equal to 0");
+            "Expected distance to be greater or equal to 0");
         return 0;
     }
 
@@ -1315,7 +1315,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
 
-    if (dist <= speed || dist == 0)
+    if (dist <= distance || dist == 0)
     {
         /* Return target Vector */
         for (i = 0; i < dim; ++i)
@@ -1324,7 +1324,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
     }
 
     for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] - delta[i] / dist * speed;
+        origin_coords[i] = origin_coords[i] - delta[i] / dist * distance;
 
     return 1;
 }
@@ -1334,7 +1334,7 @@ vector_move_towards(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
     pgVector *target;
-    double speed;
+    double distance;
     pgVector *ret;
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
@@ -1343,10 +1343,10 @@ vector_move_towards(pgVector *self, PyObject *args)
     for (i = 0; i < self->dim; ++i)
         ret->coords[i] = self->coords[i];
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &speed)) {
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance)) {
         return NULL;
     }
-    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, speed)) {
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance)) {
         return NULL;
     }
     return (PyObject *)ret;
@@ -1357,7 +1357,7 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
     pgVector *target;
-    double speed;
+    double distance;
     pgVector *ret;
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
@@ -1366,11 +1366,11 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     for (i = 0; i < self->dim; ++i)
         ret->coords[i] = self->coords[i];
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &speed)) {
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance)) {
         return NULL;
     }
 
-    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, speed)) {
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance)) {
         return NULL;
     }
     memcpy(self->coords, ret->coords, self->dim * sizeof(ret->coords));

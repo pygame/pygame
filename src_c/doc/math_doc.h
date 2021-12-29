@@ -15,8 +15,8 @@
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
-#define DOC_VECTOR2MOVETOWARDS "move_toward(Vector2, float) -> Vector2\nreturns a vector that moves toward to the given vector at the given speed."
-#define DOC_VECTOR2MOVETOWARDSIP "move_toward_ip(Vector2, float) -> Vector2\nreturns a vector that moves toward to the given vector at the given speed."
+#define DOC_VECTOR2MOVETOWARDS "move_towards(Vector2, float) -> Vector2\nreturns a vector that moves toward to the given vector at the given distance."
+#define DOC_VECTOR2MOVETOWARDSIP "move_towards_ip(Vector2, float) -> Vector2\nreturns a vector that moves toward to the given vector at the given distance."
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
@@ -46,8 +46,8 @@
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
-#define DOC_VECTOR3MOVETOWARDS "move_toward(Vector3, float) -> Vector3\nreturns a vector that moves toward to the given vector at the given speed."
-#define DOC_VECTOR3MOVETOWARDSIP "move_toward_ip(Vector3, float) -> Vector3\nreturns a vector that moves toward to the given vector at the given speed."
+#define DOC_VECTOR3MOVETOWARDS "move_towards(Vector3, float) -> Vector3\nreturns a vector that moves toward to the given vector at the given distance."
+#define DOC_VECTOR3MOVETOWARDSIP "move_towards_ip(Vector3, float) -> Vector3\nreturns a vector that moves toward to the given vector at the given distance."
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
@@ -151,13 +151,13 @@ pygame.math.Vector2.distance_squared_to
  distance_squared_to(Vector2) -> float
 calculates the squared Euclidean distance to a given vector.
 
-pygame.math.Vector2.move_toward
- move_toward(Vector2, float) -> Vector2
-returns a vector that moves toward to the given vector at the given speed.
+pygame.math.Vector2.move_towards
+ move_towards(Vector2, float) -> Vector2
+returns a vector that moves toward to the given vector at the given distance.
 
-pygame.math.Vector2.move_toward_ip
- move_toward_ip(Vector2, float) -> Vector2
-returns a vector that moves toward to the given vector at the given speed.
+pygame.math.Vector2.move_towards_ip
+ move_towards_ip(Vector2, float) -> Vector2
+returns a vector that moves toward to the given vector at the given distance.
 
 pygame.math.Vector2.lerp
  lerp(Vector2, float) -> Vector2
@@ -285,13 +285,13 @@ pygame.math.Vector3.distance_squared_to
  distance_squared_to(Vector3) -> float
 calculates the squared Euclidean distance to a given vector.
 
-pygame.math.Vector3.move_toward
- move_toward(Vector3, float) -> Vector3
-returns a vector that moves toward to the given vector at the given speed.
+pygame.math.Vector3.move_towards
+ move_towards(Vector3, float) -> Vector3
+returns a vector that moves toward to the given vector at the given distance.
 
-pygame.math.Vector3.move_toward_ip
- move_toward_ip(Vector3, float) -> Vector3
-returns a vector that moves toward to the given vector at the given speed.
+pygame.math.Vector3.move_towards_ip
+ move_towards_ip(Vector3, float) -> Vector3
+returns a vector that moves toward to the given vector at the given distance.
 
 pygame.math.Vector3.lerp
  lerp(Vector3, float) -> Vector3
