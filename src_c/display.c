@@ -345,7 +345,6 @@ pg_vidinfo_str(PyObject *self)
         current_h = info->current_h;
     }
 
-
     sprintf(str,
             "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
             "         blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
