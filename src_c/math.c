@@ -1333,7 +1333,7 @@ vector_move_towards(pgVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
         return NULL;
     
-    if (!PySequence_AsVectorCoords(target, self_coords, self->dim))
+    if (!PySequence_AsVectorCoords(self, self_coords, self->dim))
     {
         PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
@@ -1342,6 +1342,9 @@ vector_move_towards(pgVector *self, PyObject *args)
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL)
         return NULL;
+
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i];
 
     if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance))
     {
@@ -1374,6 +1377,7 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     if (!_vector_move_towards_helper(self->dim, self->coords, target->coords, distance))
         return NULL;
 
+    memcpy(self->coords, self->coords, self->dim * sizeof(self->coords));
     Py_RETURN_NONE;
 }
 
