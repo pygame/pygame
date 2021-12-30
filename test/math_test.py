@@ -88,6 +88,20 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v_copy0.x, v_copy1.x)
         self.assertEqual(v_copy0.y, v_copy1.y)
 
+    def testMoveTowards(self):
+        expected = Vector2(8.08, 2006.87)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 3)
+        change_ip.move_towards_ip(target, 3)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]

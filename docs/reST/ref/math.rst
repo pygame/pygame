@@ -213,7 +213,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method:: move_towards_ip
 
       | :sl:`returns a vector that moves toward to the given vector at the given distance.`
-      | :sg:`move_towards_ip(Vector2, float) -> Vector2`
+      | :sg:`move_towards_ip(Vector2, float)`
 
       Similar to ``lerp()``, this returns a Vector which moves self to the
       given Vector at a given distance. The first parameter determines the target
@@ -564,7 +564,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method:: move_towards_ip
 
       | :sl:`returns a vector that moves toward to the given vector at the given distance.`
-      | :sg:`move_towards_ip(Vector3, float) -> Vector3`
+      | :sg:`move_towards_ip(Vector3, float)`
 
       Similar to ``lerp()``, this returns a Vector which moves self to the
       given Vector at a given distance. The first parameter determines the target

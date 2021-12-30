@@ -1301,16 +1301,8 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
     double delta[VECTOR_MAX_SIZE];
     double dist;
 
-    if (distance < 0) {
-        PyErr_SetString(PyExc_TypeError, 
-            "Expected distance to be greater or equal to 0");
-        return 0;
-    }
-
     for (i = 0; i < dim; ++i)
-    {
         delta[i] = origin_coords[i] - target_coords[i];
-    }
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
@@ -1336,17 +1328,24 @@ vector_move_towards(pgVector *self, PyObject *args)
     pgVector *target;
     double distance;
     pgVector *ret;
-    ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret == NULL) {
-        return NULL;
-    }
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i];
+    double self_coords[VECTOR_MAX_SIZE];
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance)) {
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
+        return NULL;
+    
+    if (!PySequence_AsVectorCoords(target, self_coords, self->dim))
+    {
+        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
     }
-    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance)) {
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL)
+        return NULL;
+
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance))
+    {
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
@@ -1358,22 +1357,23 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     Py_ssize_t i;
     pgVector *target;
     double distance;
-    pgVector *ret;
-    ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret == NULL) {
+    double self_coords[VECTOR_MAX_SIZE];
+    
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance))
+        return NULL;
+    
+    if (!PySequence_AsVectorCoords(self, self_coords, self->dim))
+    {
+        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
     }
+
     for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i];
+        self->coords[i] = self->coords[i];
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance)) {
+    if (!_vector_move_towards_helper(self->dim, self->coords, target->coords, distance))
         return NULL;
-    }
 
-    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance)) {
-        return NULL;
-    }
-    memcpy(self->coords, ret->coords, self->dim * sizeof(ret->coords));
     Py_RETURN_NONE;
 }
 
