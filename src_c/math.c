@@ -239,9 +239,9 @@ static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
 vector_copy(pgVector *self);
-PyObject *
+static PyObject *
 vector_clamp_magnitude(pgVector *self, PyObject *args);
-PyObject *
+static PyObject *
 vector_clamp_magnitude_ip(pgVector *self, PyObject *args);
 
 /*
@@ -1240,13 +1240,13 @@ vector_normalize_ip(pgVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyObject *
+static PyObject *
 vector_clamp_magnitude(pgVector *self, PyObject *args)
 {
     PyObject *min_or_max;
     PyObject *max_mag;
 
-    if (!PyArg_ParseTuple(args, "OO:clamp_magnitude", &min_or_max, &max_mag)) {
+    if (!PyArg_ParseTuple(args, "O|O:clamp_magnitude", &min_or_max, &max_mag)) {
         return NULL;
     }
 
@@ -1277,13 +1277,13 @@ vector_clamp_magnitude(pgVector *self, PyObject *args)
     return (PyObject *)retVec;
 }
 
-PyObject *
+static PyObject *
 vector_clamp_magnitude_ip(pgVector *self, PyObject *args)
 {
     PyObject *min_or_max;
     PyObject *max_mag;
 
-    if (!PyArg_ParseTuple(args, "OO:clamp_magnitude", &min_or_max, &max_mag)) {
+    if (!PyArg_ParseTuple(args, "O|O:clamp_magnitude", &min_or_max, &max_mag)) {
         return NULL;
     }
 
