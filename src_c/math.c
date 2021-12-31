@@ -1357,7 +1357,7 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     Py_ssize_t i;
     pgVector *target;
     double distance;
-    double self_coords[VECTOR_MAX_SIZE];
+    double target_coords[VECTOR_MAX_SIZE];
     
     if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance))
         return NULL;
