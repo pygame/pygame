@@ -1333,7 +1333,7 @@ vector_move_towards(pgVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
         return NULL;
     
-    if (!PySequence_AsVectorCoords(self, self_coords, self->dim))
+    if (!PySequence_AsVectorCoords(target, self_coords, self->dim))
     {
         PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
