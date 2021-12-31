@@ -197,14 +197,14 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards
 
-      | :sl:`returns a vector that moves toward to the given vector at the given distance.`
+      | :sl:`returns a vector thats moving toward its target at a given distance.`
       | :sg:`move_towards(Vector2, float) -> Vector2`
 
-      Similar to ``lerp()``, this returns a Vector which moves self to the
-      given Vector at a given distance. The first parameter determines the target
-      Vector, while the second parameter determines the distance. The distance value
-      must be greater than 0, but if the distance value is equal to 0, it will return
-      self.
+      Returns a Vector which moves itself to the given Vector at a given
+      distance.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
 
       .. versionadded:: 2.1.2
 
@@ -212,14 +212,13 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards_ip
 
-      | :sl:`returns a vector that moves toward to the given vector at the given distance.`
-      | :sg:`move_towards_ip(Vector2, float)`
+      | :sl:`moves the vector toward its target at a given distance.`
+      | :sg:`move_towards_ip(Vector2, float) -> None`
 
-      Similar to ``lerp()``, this returns a Vector which moves self to the
-      given Vector at a given distance. The first parameter determines the target
-      Vector, while the second parameter determines the distance. The distance value
-      must be greater than 0, but if the distance value is equal to 0, it will return
-      self.
+      Noves itself toward the given Vector at a given distance.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
 
       .. versionadded:: 2.1.2
 
@@ -548,14 +547,14 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards
 
-      | :sl:`returns a vector that moves toward to the given vector at the given distance.`
+      | :sl:`returns a vector thats moving toward its target at a given distance.`
       | :sg:`move_towards(Vector3, float) -> Vector3`
 
-      Similar to ``lerp()``, this returns a Vector which moves self to the
-      given Vector at a given distance. The first parameter determines the target
-      Vector, while the second parameter determines the distance. The distance value
-      must be greater than 0, but if the distance value is equal to 0, it will return
-      self.
+      Returns a Vector which moves itself to the given Vector at a given
+      distance.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
 
       .. versionadded:: 2.1.2
 
@@ -563,14 +562,13 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards_ip
 
-      | :sl:`returns a vector that moves toward to the given vector at the given distance.`
-      | :sg:`move_towards_ip(Vector3, float)`
+      | :sl:`moves the vector toward its target at a given distance.`
+      | :sg:`move_towards_ip(Vector3, float) -> None`
 
-      Similar to ``lerp()``, this returns a Vector which moves self to the
-      given Vector at a given distance. The first parameter determines the target
-      Vector, while the second parameter determines the distance. The distance value
-      must be greater than 0, but if the distance value is equal to 0, it will return
-      self.
+      Noves itself toward the given Vector at a given distance.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
 
       .. versionadded:: 2.1.2
 

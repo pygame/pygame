@@ -1307,7 +1307,10 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
 
-    if (dist <= distance || dist == 0)
+    if (dist == 0)
+        return 1;
+
+    if (dist <= distance)
     {
         /* Return target Vector */
         for (i = 0; i < dim; ++i)
@@ -1324,16 +1327,15 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
 static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
-    Py_ssize_t i;
-    PyObject *target;
+    pgVector *target;
     double distance;
     pgVector *ret;
-    double self_coords[VECTOR_MAX_SIZE];
+    double target_coords[VECTOR_MAX_SIZE];
 
     if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
         return NULL;
     
-    if (!PySequence_AsVectorCoords(target, self_coords, self->dim))
+    if (!PySequence_AsVectorCoords(target, target_coords, self->dim))
     {
         PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
@@ -1355,7 +1357,7 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    PyObject *target;
+    pgVector *target;
     double distance;
     double target_coords[VECTOR_MAX_SIZE];
     

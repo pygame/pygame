@@ -156,7 +156,7 @@ pygame.math.Vector2.move_towards
 returns a vector that moves toward to the given vector at the given distance.
 
 pygame.math.Vector2.move_towards_ip
- move_towards_ip(Vector2, float) -> Vector2
+ move_towards_ip(Vector2, float) -> None
 returns a vector that moves toward to the given vector at the given distance.
 
 pygame.math.Vector2.lerp
