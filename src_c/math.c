@@ -1325,7 +1325,7 @@ static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    PyObject *target;
+    pgVector *target;
     double distance;
     pgVector *ret;
     double self_coords[VECTOR_MAX_SIZE];
@@ -1355,14 +1355,14 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    PyObject *target;
+    pgVector *target;
     double distance;
-    double target_coords[VECTOR_MAX_SIZE];
+    double self_coords[VECTOR_MAX_SIZE];
     
     if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance))
         return NULL;
     
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim))
+    if (!PySequence_AsVectorCoords(self, self_coords, self->dim))
     {
         PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
         return NULL;
