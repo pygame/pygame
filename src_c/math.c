@@ -1355,7 +1355,7 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    pgVector *target;
+    PyObject *target;
     double distance;
     double target_coords[VECTOR_MAX_SIZE];
     
