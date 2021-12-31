@@ -1325,7 +1325,7 @@ static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    pgVector *target;
+    PyObject *target;
     double distance;
     pgVector *ret;
     double self_coords[VECTOR_MAX_SIZE];
