@@ -1343,9 +1343,6 @@ vector_move_towards(pgVector *self, PyObject *args)
     if (ret == NULL)
         return NULL;
 
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i];
-
     if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance))
     {
         Py_DECREF(ret);
@@ -1377,7 +1374,6 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     if (!_vector_move_towards_helper(self->dim, self->coords, target->coords, distance))
         return NULL;
 
-    memcpy(self->coords, self->coords, self->dim * sizeof(self->coords));
     Py_RETURN_NONE;
 }
 
