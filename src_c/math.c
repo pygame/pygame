@@ -1327,9 +1327,9 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
 static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
+    double *target_coords[VECTOR_MAX_SIZE];
     double distance;
     pgVector *ret;
-    double *target_coords[VECTOR_MAX_SIZE];
 
     if (!PyArg_ParseTuple(args, "Od:move_towards", &target_coords, &distance))
         return NULL;
@@ -1337,6 +1337,9 @@ vector_move_towards(pgVector *self, PyObject *args)
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL)
         return NULL;
+
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i];
 
     if (!_vector_move_towards_helper(self->dim, ret->coords, target_coords, distance))
     {
@@ -1350,14 +1353,11 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    double distance;
     double *target_coords[VECTOR_MAX_SIZE];
+    double distance;
     
     if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target_coords, &distance))
         return NULL;
-
-    for (i = 0; i < self->dim; ++i)
-        self->coords[i] = self->coords[i];
 
     if (!_vector_move_towards_helper(self->dim, self->coords, target_coords, distance))
         return NULL;
