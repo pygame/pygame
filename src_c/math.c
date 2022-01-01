@@ -1327,25 +1327,18 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
 static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
-    pgVector *target;
     double distance;
     pgVector *ret;
-    double target_coords[VECTOR_MAX_SIZE];
+    double *target_coords[VECTOR_MAX_SIZE];
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target_coords, &distance))
         return NULL;
-    
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim))
-    {
-        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
-        return NULL;
-    }
 
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL)
         return NULL;
 
-    if (!_vector_move_towards_helper(self->dim, ret->coords, target->coords, distance))
+    if (!_vector_move_towards_helper(self->dim, ret->coords, target_coords, distance))
     {
         Py_DECREF(ret);
         return NULL;
@@ -1357,18 +1350,11 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    pgVector *target;
     double distance;
-    double target_coords[VECTOR_MAX_SIZE];
+    double *target_coords[VECTOR_MAX_SIZE];
     
-    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance))
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target_coords, &distance))
         return NULL;
-    
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim))
-    {
-        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
-        return NULL;
-    }
 
     for (i = 0; i < self->dim; ++i)
         self->coords[i] = self->coords[i];

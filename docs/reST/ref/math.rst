@@ -206,7 +206,7 @@ Multiple coordinates can be set using slices or swizzling
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.1.2
+      .. versionadded:: 2.2
 
       .. ## Vector2.move_towards ##
 
@@ -220,7 +220,7 @@ Multiple coordinates can be set using slices or swizzling
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.1.2
+      .. versionadded:: 2.2
 
       .. ## Vector2.move_towards_ip ##
 
@@ -556,7 +556,7 @@ Multiple coordinates can be set using slices or swizzling
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.1.2
+      .. versionadded:: 2.2
 
       .. ## Vector3.move_towards ##
 
@@ -570,7 +570,7 @@ Multiple coordinates can be set using slices or swizzling
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.1.2
+      .. versionadded:: 2.2
 
       .. ## Vector3.move_towards_ip ##
 
