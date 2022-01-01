@@ -1301,14 +1301,18 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
     double delta[VECTOR_MAX_SIZE];
     double dist;
 
+    if (distance == 0)
+    {
+        return 1;
+    }
+
     for (i = 0; i < dim; ++i)
-        delta[i] = origin_coords[i] - target_coords[i];
+    {
+        delta[i] = target_coords[i] - origin_coords[i];
+    }
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
-
-    if (dist == 0)
-        return 1;
 
     if (dist <= distance)
     {
@@ -1327,12 +1331,19 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords, double *targe
 static PyObject *
 vector_move_towards(pgVector *self, PyObject *args)
 {
-    double *target_coords[VECTOR_MAX_SIZE];
+    Py_ssize_t i;
+    PyObject *target;
+    double target_coords[VECTOR_MAX_SIZE];
     double distance;
     pgVector *ret;
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards", &target_coords, &distance))
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &distance))
         return NULL;
+        
+    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
 
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL)
@@ -1346,6 +1357,7 @@ vector_move_towards(pgVector *self, PyObject *args)
         Py_DECREF(ret);
         return NULL;
     }
+
     return (PyObject *)ret;
 }
 
@@ -1353,11 +1365,17 @@ static PyObject *
 vector_move_towards_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
-    double *target_coords[VECTOR_MAX_SIZE];
+    PyObject *target;
+    double target_coords[VECTOR_MAX_SIZE];
     double distance;
     
-    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target_coords, &distance))
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &distance))
         return NULL;
+        
+    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
 
     if (!_vector_move_towards_helper(self->dim, self->coords, target_coords, distance))
         return NULL;

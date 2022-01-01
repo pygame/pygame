@@ -94,9 +94,10 @@ class Vector2TypeTest(unittest.TestCase):
         target = Vector2(12.30, 2021.0)
         change_ip = Vector2(7.22, 2004.0)
 
-        change = origin.move_towards(target, 3)
-        change_ip.move_towards_ip(target, 3)
+        change = origin.move_towards(target, 1)
+        change_ip.move_towards_ip(target, 1)
 
+        print(change, change_ip)
         self.assertEqual(round(change.x, 2), expected.x)
         self.assertEqual(round(change.y, 2), expected.y)
         self.assertEqual(round(change_ip.x, 2), expected.x)
