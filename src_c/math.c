@@ -1359,7 +1359,7 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
     for (i = 0; i < self->dim; ++i)
         self->coords[i] = self->coords[i];
 
-    if (!_vector_move_towards_helper(self->dim, self->coords, target->coords, distance))
+    if (!_vector_move_towards_helper(self->dim, self->coords, target_coords, distance))
         return NULL;
 
     Py_RETURN_NONE;
