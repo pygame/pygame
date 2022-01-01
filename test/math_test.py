@@ -88,20 +88,99 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v_copy0.x, v_copy1.x)
         self.assertEqual(v_copy0.y, v_copy1.y)
 
-    def testMoveTowards(self):
+    def test_move_towards_basic(self):
         expected = Vector2(8.08, 2006.87)
         origin = Vector2(7.22, 2004.0)
         target = Vector2(12.30, 2021.0)
         change_ip = Vector2(7.22, 2004.0)
 
-        change = origin.move_towards(target, 1)
-        change_ip.move_towards_ip(target, 1)
+        change = origin.move_towards(target, 3)
+        change_ip.move_towards_ip(target, 3)
 
-        print(change, change_ip)
         self.assertEqual(round(change.x, 2), expected.x)
         self.assertEqual(round(change.y, 2), expected.y)
         self.assertEqual(round(change_ip.x, 2), expected.x)
         self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_towards_max_distance(self):
+        expected = Vector2(12.30, 2021)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 25)
+        change_ip.move_towards_ip(target, 25)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_nowhere(self):
+        expected = Vector2(7.22, 2004.0)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 0)
+        change_ip.move_towards_ip(target, 0)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_away(self):
+        expected = Vector2(6.36, 2001.13)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, -3)
+        change_ip.move_towards_ip(target, -3)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_towards_errors(self):
+        def overpopulate():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards(target, 3, 2)
+
+        def overpopulate_ip():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip(target, 3, 2)
+
+        def invalid_types1():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards(target, "novial")
+
+        def invalid_types_ip1():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip(target, "is")
+
+        def invalid_types2():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards("kinda", 3)
+
+        def invalid_types_ip2():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip("cool", 3)
+
+        self.assertRaises(TypeError, overpopulate)
+        self.assertRaises(TypeError, overpopulate_ip)
+        self.assertRaises(TypeError, invalid_types1)
+        self.assertRaises(TypeError, invalid_types_ip1)
+        self.assertRaises(TypeError, invalid_types2)
+        self.assertRaises(TypeError, invalid_types_ip2)
 
     def testSequence(self):
         v = Vector2(1.2, 3.4)

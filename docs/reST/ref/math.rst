@@ -197,16 +197,16 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards
 
-      | :sl:`returns a vector thats moving toward its target at a given distance.`
+      | :sl:`returns a vector moved toward the target by a given distance.`
       | :sg:`move_towards(Vector2, float) -> Vector2`
 
-      Returns a Vector which moves itself to the given Vector at a given
-      distance.
+      Returns a Vector which is moved towards the given Vector by a given
+      distance and does not overshoot past its target Vector.
       The first parameter determines the target Vector, while the second
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.2
+      .. versionadded:: 2.1.3
 
       .. ## Vector2.move_towards ##
 
@@ -215,12 +215,13 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`moves the vector toward its target at a given distance.`
       | :sg:`move_towards_ip(Vector2, float) -> None`
 
-      Noves itself toward the given Vector at a given distance.
+      Moves itself toward the given Vector at a given distance and does not
+      overshoot past its target Vector.
       The first parameter determines the target Vector, while the second
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.2
+      .. versionadded:: 2.1.3
 
       .. ## Vector2.move_towards_ip ##
 
@@ -547,16 +548,16 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: move_towards
 
-      | :sl:`returns a vector thats moving toward its target at a given distance.`
+      | :sl:`returns a vector moved toward the target by a given distance.`
       | :sg:`move_towards(Vector3, float) -> Vector3`
 
-      Returns a Vector which moves itself to the given Vector at a given
-      distance.
+      Returns a Vector which is moved towards the given Vector by a given
+      distance and does not overshoot past its target Vector.
       The first parameter determines the target Vector, while the second
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.2
+      .. versionadded:: 2.1.3
 
       .. ## Vector3.move_towards ##
 
@@ -565,12 +566,13 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`moves the vector toward its target at a given distance.`
       | :sg:`move_towards_ip(Vector3, float) -> None`
 
-      Noves itself toward the given Vector at a given distance.
+      Moves itself toward the given Vector at a given distance and does not
+      overshoot past its target Vector.
       The first parameter determines the target Vector, while the second
       parameter determines the delta distance. If the distance is in the
       negatives, then it will move away from the target Vector.
 
-      .. versionadded:: 2.2
+      .. versionadded:: 2.1.3
 
       .. ## Vector3.move_towards_ip ##
 
