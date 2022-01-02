@@ -484,7 +484,7 @@ image_tostring(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *string = NULL;
-    char *format, *data, *pixels;
+    char *format, *data;
     SDL_Surface *surf;
     int w, h, flipped = 0;
     Py_ssize_t len;
@@ -531,10 +531,9 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
-        pixels = (char *)surf->pixels;
         for (h = 0; h < surf->h; ++h)
             memcpy(DATAROW(data, h, surf->w, surf->h, flipped),
-                   pixels + (h * surf->pitch), surf->w);
+                   (char *)surf->pixels + (h * surf->pitch), surf->w);
         pgSurface_Unlock(surfobj);
     }
     else if (!strcmp(format, "RGB")) {
@@ -546,7 +545,6 @@ image_tostring(PyObject *self, PyObject *arg)
 
         pgSurface_Lock(surfobj);
 
-        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -620,7 +618,6 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
-        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -697,7 +694,6 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
-        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -763,8 +759,6 @@ image_tostring(PyObject *self, PyObject *arg)
                          "Can only create pre-multiplied alpha strings if the "
                          "surface has per-pixel alpha");
 
-        hascolorkey = 0;
-
         string =
             PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
@@ -772,7 +766,6 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
-        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
                 for (h = 0; h < surf->h; ++h) {
@@ -856,8 +849,6 @@ image_tostring(PyObject *self, PyObject *arg)
                          "Can only create pre-multiplied alpha strings if the "
                          "surface has per-pixel alpha");
 
-        hascolorkey = 0;
-
         string =
             PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
@@ -865,7 +856,6 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
-        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
                 for (h = 0; h < surf->h; ++h) {

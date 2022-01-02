@@ -1205,7 +1205,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     if (!PyDict_Check(inter)) {
         PyErr_Format(PyExc_ValueError,
                      "expected '__array_interface__' to return a dict: got %s",
-                     Py_TYPE(dict)->tp_name);
+                     Py_TYPE(inter)->tp_name);
         Py_DECREF(inter);
         return -1;
     }

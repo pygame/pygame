@@ -493,7 +493,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
     int b[] = {0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1};
     static char *keywords[] = {"every", NULL};
 
-    n = firstx = firsty = secx = x = 0;
+    firstx = firsty = secx = x = 0;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &every)) {
         return NULL;
@@ -1371,20 +1371,22 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
         return 0;
     }
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
 
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);
@@ -1565,20 +1567,22 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
     }
 
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
 
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);
@@ -1758,19 +1762,21 @@ largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
     }
 
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
     /* an array to track the number of pixels associated with each label */
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);

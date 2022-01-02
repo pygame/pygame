@@ -2465,8 +2465,6 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 
     /* need to get the first surface to see how big it is */
 
-    loop = 0;
-
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 

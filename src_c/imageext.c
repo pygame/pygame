@@ -195,28 +195,29 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
     doing = "create png info struct";
     if (!(info_ptr = png_create_info_struct(png_ptr)))
         goto fail;
+
     if (setjmp(png_jmpbuf(png_ptr)))
         goto fail;
 
-    doing = "init IO";
+    /* doing = "init IO"; */
     png_set_write_fn(png_ptr, rwops, png_write_fn, png_flush_fn);
 
-    doing = "write header";
+    /* doing = "write header"; */
     png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
-    doing = "write info";
+    /* doing = "write info"; */
     png_write_info(png_ptr, info_ptr);
 
-    doing = "write image";
+    /* doing = "write image"; */
     png_write_image(png_ptr, rows);
 
-    doing = "write end";
+    /* doing = "write end"; */
     png_write_end(png_ptr, NULL);
 
     if (rw == NULL) {
-        doing = "closing file";
+        doing = "close file";
         if (0 != SDL_RWclose(rwops))
             goto fail;
     }

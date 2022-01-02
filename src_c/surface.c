@@ -1962,7 +1962,6 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto bliterror;
         }
-        bliterrornum = 0;
         argrect = NULL;
         special_flags = NULL;
         the_args = 0;
