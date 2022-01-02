@@ -194,10 +194,11 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: average_color
 
    | :sl:`finds the average color of a surface`
-   | :sg:`average_color(surface, rect=None) -> Color`
+   | :sg:`average_color(surface, rect=None, consider_alpha=False) -> Color`
 
    Finds the average color of a Surface or a region of a surface specified by a
-   Rect, and returns it as a Color.
+   Rect, and returns it as a Color. If consider_alpha is set to True, then alpha is
+   taken into account (removing the black artifacts).
 
    .. ## pygame.transform.average_color ##
 
