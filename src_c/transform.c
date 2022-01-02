@@ -2584,7 +2584,8 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 {
     Uint32 color, rmask, gmask, bmask, amask;
     Uint8 *pixels;
-    unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift, alpha;
+    unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift,
+        alpha;
     unsigned int rloss, gloss, bloss, aloss;
     int row, col, width_and_x, height_and_y;
 
@@ -2633,9 +2634,12 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
                         color8 = *(Uint8 *)pixels;
                         alpha = ((color8 & amask) >> ashift) << aloss;
                         atot += alpha;
-                        rtot += ((((color8 & rmask) >> rshift) << rloss) * alpha);
-                        gtot += ((((color8 & gmask) >> gshift) << gloss) * alpha);
-                        btot += ((((color8 & bmask) >> bshift) << bloss) * alpha);
+                        rtot +=
+                            ((((color8 & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color8 & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color8 & bmask) >> bshift) << bloss) * alpha);
                         pixels++;
                     }
                 }
@@ -2647,9 +2651,12 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
                         color = (Uint32) * ((Uint16 *)pixels);
                         alpha = ((color & amask) >> ashift) << aloss;
                         atot += alpha;
-                        rtot += ((((color & rmask) >> rshift) << rloss) * alpha);
-                        gtot += ((((color & gmask) >> gshift) << gloss) * alpha);
-                        btot += ((((color & bmask) >> bshift) << bloss) * alpha);
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
                         pixels += 2;
                     }
                 }
@@ -2667,9 +2674,12 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 #endif
                         alpha = ((color & amask) >> ashift) << aloss;
                         atot += alpha;
-                        rtot += ((((color & rmask) >> rshift) << rloss) * alpha);
-                        gtot += ((((color & gmask) >> gshift) << gloss) * alpha);
-                        btot += ((((color & bmask) >> bshift) << bloss) * alpha);
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
                         pixels += 3;
                     }
                 }
@@ -2681,9 +2691,12 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
                         color = *(Uint32 *)pixels;
                         alpha = ((color & amask) >> ashift) << aloss;
                         atot += alpha;
-                        rtot += ((((color & rmask) >> rshift) << rloss) * alpha);
-                        gtot += ((((color & gmask) >> gshift) << gloss) * alpha);
-                        btot += ((((color & bmask) >> bshift) << bloss) * alpha);
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
                         pixels += 4;
                     }
                 }
@@ -2787,7 +2800,8 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_bool consider_alpha = SDL_FALSE;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|Op", keywords,
-                                     &pgSurface_Type, &surfobj, &rectobj, &consider_alpha))
+                                     &pgSurface_Type, &surfobj, &rectobj,
+                                     &consider_alpha))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
