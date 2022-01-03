@@ -200,6 +200,8 @@ Instead, always begin with the original image and scale to the desired size.)
    Rect, and returns it as a Color. If consider_alpha is set to True, then alpha is
    taken into account (removing the black artifacts).
 
+   .. versionadded:: 2.1.2 ``consider_alpha`` argument
+
    .. ## pygame.transform.average_color ##
 
 .. function:: threshold
