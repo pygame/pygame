@@ -2233,7 +2233,7 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (NULL != destobj) {
-        int tempx, tempy;
+        int tempx = 0, tempy = 0;
 
         /* Destination coordinates can be extracted from:
          * - lists/tuples with 2 items

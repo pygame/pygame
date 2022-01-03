@@ -1756,7 +1756,7 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 static int
 _pg_eventtype_from_seq(PyObject *seq, int ind)
 {
-    int val;
+    int val = 0;
     if (!pg_IntFromObjIndex(seq, ind, &val)) {
         PyErr_SetString(PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1870,8 +1870,10 @@ _pg_get_all_events_except(PyObject *obj)
         return PyErr_NoMemory();
 
     list = PyList_New(0);
-    if (!list)
+    if (!list) {
+        free(filtered_events);
         return PyErr_NoMemory();
+    }
 
     seq = _pg_eventtype_as_seq(obj, &len);
     if (!seq)

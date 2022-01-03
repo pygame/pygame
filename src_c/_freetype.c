@@ -1191,7 +1191,7 @@ _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
     const intptr_t render_flag = (intptr_t)closure;
 
     /* Generic setter; We do not know the name of the attribute */
-    DEL_ATTR_NOT_SUPPORTED_CHECK(NULL, value);
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");

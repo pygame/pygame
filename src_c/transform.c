@@ -357,18 +357,14 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
                 dy = (ay - (icos * (cy - y))) + yd;
                 for (x = 0; x < dst->w; x++) {
                     if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval) {
-                        dstpos[0] = ((Uint8 *)&bgcolor)[0];
-                        dstpos[1] = ((Uint8 *)&bgcolor)[1];
-                        dstpos[2] = ((Uint8 *)&bgcolor)[2];
+                        memcpy(dstpos, &bgcolor, 3 * sizeof(Uint8));
                         dstpos += 3;
                     }
                     else {
                         Uint8 *srcpos =
                             (Uint8 *)(srcpix + ((dy >> 16) * srcpitch) +
                                       ((dx >> 16) * 3));
-                        dstpos[0] = srcpos[0];
-                        dstpos[1] = srcpos[1];
-                        dstpos[2] = srcpos[2];
+                        memcpy(dstpos, srcpos, 3 * sizeof(Uint8));
                         dstpos += 3;
                     }
                     dx += icos;

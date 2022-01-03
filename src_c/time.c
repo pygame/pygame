@@ -118,17 +118,18 @@ _pg_remove_event_timer(pgEventObject *ev)
         while (hunt->event->type != ev->type) {
             prev = hunt;
             hunt = hunt->next;
-            if (!hunt)
-                break;
+            if (!hunt) {
+                /* Reached end without finding a match, quit early */
+                SDL_UnlockMutex(timermutex);
+                return;
+            }
         }
-        if (hunt) {
-            if (prev)
-                prev->next = hunt->next;
-            else
-                pg_event_timer = hunt->next;
-            Py_DECREF(hunt->event);
-            PyMem_Del(hunt);
-        }
+        if (prev)
+            prev->next = hunt->next;
+        else
+            pg_event_timer = hunt->next;
+        Py_DECREF(hunt->event);
+        PyMem_Del(hunt);
     }
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);

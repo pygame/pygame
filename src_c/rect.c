@@ -200,7 +200,7 @@ pg_rect_dealloc(pgRectObject *self)
     }
 
 #ifdef PYPY_VERSION
-    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
+    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX - 1) {
         pg_rect_freelist_num++;
         pg_rect_freelist[pg_rect_freelist_num] = self;
     }
@@ -368,7 +368,7 @@ pg_rect_normalize(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -381,7 +381,7 @@ pg_rect_move(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move_ip(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -395,7 +395,7 @@ pg_rect_move_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -409,7 +409,7 @@ pg_rect_inflate(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -574,7 +574,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
     int inside;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
@@ -1167,7 +1167,7 @@ pg_rect_item(pgRectObject *self, Py_ssize_t i)
 static int
 pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 {
-    int val;
+    int val = 0;
     int *data = (int *)&self->r;
 
     if (i < 0 || i > 3) {
@@ -1264,7 +1264,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         return pg_rect_ass_item(self, i, value);
     }
     else if (op == Py_Ellipsis) {
-        int val;
+        int val = 0;
 
         if (pg_IntFromObj(value, &val)) {
             self->r.x = val;
@@ -1314,7 +1314,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         Py_ssize_t stop;
         Py_ssize_t step;
         Py_ssize_t slicelen;
-        int val;
+        int val = 0;
         Py_ssize_t i;
 
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {

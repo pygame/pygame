@@ -64,19 +64,19 @@
                  hr, line);
 
 #define CHECKHR(hr)            \
-    if FAILED (hr) {           \
+    if (FAILED(hr)) {          \
         FORMATHR(hr, __LINE__) \
         return 0;              \
     }
 
 #define HANDLEHR(hr)           \
-    if FAILED (hr) {           \
+    if (FAILED(hr)) {          \
         FORMATHR(hr, __LINE__) \
         goto cleanup;          \
     }
 
 #define T_HANDLEHR(hr)                 \
-    if FAILED (hr) {                   \
+    if (FAILED(hr)) {                  \
         self->t_error = hr;            \
         self->t_error_line = __LINE__; \
         break;                         \
@@ -92,7 +92,7 @@
 int
 _check_integrity(pgCameraObject *self)
 {
-    if FAILED (self->t_error) {
+    if (FAILED(self->t_error)) {
         /* MF_E_HW_MFT_FAILED_START_STREAMING */
         if (self->t_error == (HRESULT)-1072875772) {
             PyErr_SetString(PyExc_SystemError,
@@ -217,7 +217,7 @@ cleanup:
         RELEASE(ppDevices[i]);
     }
     CoTaskMemFree(ppDevices);
-    if FAILED (hr) {
+    if (FAILED(hr)) {
         if (devices) {
             for (int i = 0; i < (int)count; i++) {
                 free(devices[i]);
@@ -421,7 +421,7 @@ cleanup:
         }
     }
 
-    if FAILED (hr) {
+    if (FAILED(hr)) {
         if (index > 0) {
             RELEASE(native_types[index]);
         }

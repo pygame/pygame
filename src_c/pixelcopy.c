@@ -836,7 +836,8 @@ map_array(PyObject *self, PyObject *args)
     pgSurfaceObject *format_surf;
     SDL_PixelFormat *format;
     pg_buffer src_pg_view;
-    Py_buffer *src_view_p = 0;
+    Py_buffer *src_view_p;
+    Uint8 is_src_alloc = 0;
     Uint8 *src;
     int src_ndim;
     Py_intptr_t src_strides[PIXELCOPY_MAX_DIM];
@@ -844,7 +845,8 @@ map_array(PyObject *self, PyObject *args)
     int src_green;
     int src_blue;
     pg_buffer tar_pg_view;
-    Py_buffer *tar_view_p = 0;
+    Py_buffer *tar_view_p;
+    Uint8 is_tar_alloc = 0;
     Uint8 *tar;
     int ndim;
     Py_intptr_t *shape;
@@ -880,6 +882,7 @@ map_array(PyObject *self, PyObject *args)
     if (pgObject_GetBuffer(tar_array, &tar_pg_view, PyBUF_RECORDS)) {
         goto fail;
     }
+    is_tar_alloc = 1;
     tar_view_p = (Py_buffer *)&tar_pg_view;
     tar = (Uint8 *)tar_view_p->buf;
     if (_validate_view_format(tar_view_p->format)) {
@@ -902,6 +905,7 @@ map_array(PyObject *self, PyObject *args)
     if (pgObject_GetBuffer(src_array, &src_pg_view, PyBUF_RECORDS_RO)) {
         goto fail;
     }
+    is_src_alloc = 1;
     src_view_p = (Py_buffer *)&src_pg_view;
     if (_validate_view_format(src_view_p->format)) {
         goto fail;
@@ -1112,10 +1116,10 @@ map_array(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 
 fail:
-    if (src_view_p) {
+    if (is_src_alloc) {
         pgBuffer_Release(&src_pg_view);
     }
-    if (tar_view_p) {
+    if (is_tar_alloc) {
         pgBuffer_Release(&tar_pg_view);
     }
     pgSurface_Unlock(format_surf);

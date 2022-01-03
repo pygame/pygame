@@ -417,7 +417,6 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Pos underline_top = 0;
     FT_Fixed underline_size = 0;
     FontColor mono_fgcolor = {0, 0, 0, 1};
-    FontColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
     font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
@@ -519,7 +518,6 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
             SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
         }
         fgcolor = &mono_fgcolor;
-        bgcolor = &mono_bgcolor;
         font_surf.render_gray = __render_glyph_GRAY_as_MONO1;
         font_surf.render_mono = __render_glyph_MONO_as_GRAY1;
         font_surf.fill = __fill_glyph_GRAY1;
