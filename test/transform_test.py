@@ -956,6 +956,42 @@ class TransformModuleTest(unittest.TestCase):
                 )
                 self.assertEqual(avg_color, (0, 100, 200, 0))
 
+    def test_average_color_considering_alpha_all_pixels_opaque(self):
+        """ """
+        s = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+        s.fill((0, 100, 200, 255))
+        s.fill((10, 50, 100, 255), (0, 0, 16, 32))
+
+        self.assertEqual(
+            pygame.transform.average_color(s, consider_alpha=True), (5, 75, 150, 255)
+        )
+
+        # Also validate keyword arguments
+        avg_color = pygame.transform.average_color(
+            surface=s, rect=(16, 0, 16, 32), consider_alpha=True
+        )
+        self.assertEqual(avg_color, (0, 100, 200, 255))
+
+    def test_average_color_considering_alpha(self):
+        """ """
+        s = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+        s.fill((0, 100, 200, 255))
+        s.fill((10, 50, 100, 128), (0, 0, 16, 32))
+
+        # formula for this example of half filled square
+        # n = number of pixels, e.g. 32 * 32
+        # rgb = (n/2 * ( a_left * rgb_left) + n/2 (a_right * rgb_right) ) / (n/2 * a_left + n/2 * a_right)
+        # a = (n/2 * a_left + n/2 * a_right) / n
+        self.assertEqual(
+            pygame.transform.average_color(s, consider_alpha=True), (3, 83, 166, 191)
+        )
+
+        # Also validate keyword arguments
+        avg_color = pygame.transform.average_color(
+            surface=s, rect=(0, 0, 16, 32), consider_alpha=True
+        )
+        self.assertEqual(avg_color, (10, 50, 100, 128))
+
     def test_rotate(self):
         # setting colors and canvas
         blue = (0, 0, 255, 255)
