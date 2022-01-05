@@ -2184,8 +2184,6 @@ MODINIT_DEFINE(base)
 
 #ifdef MS_WIN32
     SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
-#elif defined(macintosh) && !defined(__MWERKS__) && !TARGET_API_MAC_CARBON
-    SDL_InitQuickDraw(&pg_qd);
 #endif
     return module;
 
