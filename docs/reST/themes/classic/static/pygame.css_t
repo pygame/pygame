@@ -670,6 +670,12 @@ pre.commentContent {
     white-space: pre-wrap;
 }
 
+/* -- logos page ---------------------------------------------------------------- */
+
+.fullwidth .line-block {
+    text-align: center;
+}
+
 /* -- responsive design --------------------------------------------------------- */
 
 @media only screen and (max-width: 680px) {
