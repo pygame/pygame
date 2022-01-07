@@ -31,7 +31,7 @@ Documents
 `File Path Function Arguments`_
   How pygame handles file system paths.
 
-`LGPL License`_
+:download:`LGPL License <../LGPL.txt>`
   This is the license pygame is distributed under.
   It provides for pygame to be distributed with open source and commercial software.
   Generally, if pygame is not changed, it can be used with any type of program.
@@ -186,5 +186,3 @@ Reference
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
 .. _File Path Function Arguments: filepaths.html
-
-.. _LGPL License: LGPL.txt
