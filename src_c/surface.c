@@ -711,6 +711,18 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     if (!(flags & PGS_SRCALPHA)) {
         /* We ignore the error if any. */
         SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+        /* When the display format has a full alpha channel (MacOS right now),
+         * Surfaces may be created with an unreqested alpha channel, which
+         * could cause issues.
+         * pygame Surfaces are supposed to be (0, 0, 0, 255) by default.
+         * This is a simple fix to fill it with (0, 0, 0, 255) if necessary.
+         * See Github issue: https://github.com/pygame/pygame/issues/1395
+         */
+        if (Amask != 0) {
+            SDL_FillRect(surface, NULL,
+                         SDL_MapRGBA(surface->format, 0, 0, 0, 255));
+        }
     }
 
     if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
