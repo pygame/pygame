@@ -31,6 +31,10 @@ August 29, 2021.
 
     | `pygame_tiny.png <pygame_tiny.png>`_ - 214 x 60
 
+    .. image:: pygame_powered_lowres.png
+
+    | `pygame_powered_lowres.png <pygame_powered_lowres.png>`_ - 101 x 40
+
 
 There is a higher resolution layered photoshop image
 available `here <https://www.pygame.org/ftp/pygame_logo.psd>`_. *(1.3 MB)*
