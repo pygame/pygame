@@ -12,28 +12,28 @@ August 29, 2021.
 
 .. container:: fullwidth
 
-    .. image:: pygame_logo.png
+    .. image:: _static/pygame_logo.png
 
-    | `pygame_logo.svg <pygame_logo.svg>`_
-    | `pygame_logo.png <pygame_logo.png>`_ - 1561 x 438
+    | `pygame_logo.svg <_static/pygame_logo.svg>`_
+    | `pygame_logo.png <_static/pygame_logo.png>`_ - 1561 x 438
 
-    .. image:: pygame_lofi.png
+    .. image:: _static/pygame_lofi.png
 
-    | `pygame_lofi.svg <pygame_lofi.svg>`_
-    | `pygame_lofi.png <pygame_lofi.png>`_ - 1561 x 438
+    | `pygame_lofi.svg <_static/pygame_lofi.svg>`_
+    | `pygame_lofi.png <_static/pygame_lofi.png>`_ - 1561 x 438
 
-    .. image:: pygame_powered.png
+    .. image:: _static/pygame_powered.png
 
-    | `pygame_powered.svg <pygame_powered.svg>`_
-    | `pygame_powered.png <pygame_powered.png>`_ - 1617 x 640
+    | `pygame_powered.svg <_static/pygame_powered.svg>`_
+    | `pygame_powered.png <_static/pygame_powered.png>`_ - 1617 x 640
 
-    .. image:: pygame_tiny.png
+    .. image:: _static/pygame_tiny.png
 
-    | `pygame_tiny.png <pygame_tiny.png>`_ - 214 x 60
+    | `pygame_tiny.png <_static/pygame_tiny.png>`_ - 214 x 60
 
-    .. image:: pygame_powered_lowres.png
+    .. image:: _static/pygame_powered_lowres.png
 
-    | `pygame_powered_lowres.png <pygame_powered_lowres.png>`_ - 101 x 40
+    | `pygame_powered_lowres.png <_static/pygame_powered_lowres.png>`_ - 101 x 40
 
 
 There is a higher resolution layered photoshop image
