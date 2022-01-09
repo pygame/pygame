@@ -7,7 +7,7 @@ FREETYPE=freetype-2.11.0
 
 if [ ! -d $FREETYPE ]; then
 
-	curl -sL http://download.savannah.gnu.org/releases/freetype/${FREETYPE}.tar.gz > ${FREETYPE}.tar.gz
+	curl -sL --retry 10 http://download.savannah.gnu.org/releases/freetype/${FREETYPE}.tar.gz > ${FREETYPE}.tar.gz
 	sha512sum -c freetype.sha512
 
 	tar xzf ${FREETYPE}.tar.gz
