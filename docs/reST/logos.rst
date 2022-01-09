@@ -44,4 +44,4 @@ Legacy logos
 
 .. container:: fullwidth
 
-    `legacy_logos.zip <legacy_logos.zip>`_ - 50.1 KB
+    `legacy_logos.zip <_static/legacy_logos.zip>`_ - 50.1 KB
