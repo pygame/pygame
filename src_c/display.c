@@ -1096,7 +1096,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (!win) {
                 /*open window*/
-                win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
+                const char *window_handle = SDL_getenv("SDL_WINDOWID");
+                win = window_handle
+                    ? SDL_CreateWindowFrom((const void*)atoll(window_handle))
+                    : SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 init_flip = 1;
