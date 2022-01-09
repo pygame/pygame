@@ -17,6 +17,7 @@ Pygame Front Page
    tut/ko/**/*
    c_api
    filepaths
+   logos
 
 Documents
 ---------
@@ -30,6 +31,10 @@ Documents
 
 `File Path Function Arguments`_
   How pygame handles file system paths.
+
+`Pygame Logos`_
+   The logos of Pygame in different resolutions.
+
 
 `LGPL License`_
   This is the license pygame is distributed under.
@@ -188,3 +193,5 @@ Reference
 .. _File Path Function Arguments: filepaths.html
 
 .. _LGPL License: _static/LGPL.txt
+
+.. _Pygame Logos: logos.html

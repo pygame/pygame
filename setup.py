@@ -411,11 +411,6 @@ data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
-# add files in distribution directory
-# pygame_data_files.append('LGPL')
-# pygame_data_files.append('readme.html')
-# pygame_data_files.append('install.html')
-
 add_stubs = True
 # add *.pyi files into distribution directory
 if add_stubs:
