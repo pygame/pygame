@@ -6,7 +6,7 @@ from ._common import _Coordinate, _CanBeRect
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
-class Rect(object):
+class Rect:
     x: int
     y: int
     top: int
