@@ -209,7 +209,7 @@ following formats.
 .. function:: frombuffer
 
    | :sl:`create a new Surface that shares data inside a bytes buffer`
-   | :sg:`frombufferbuffer, size, format) -> Surface`
+   | :sg:`frombuffer(buffer, size, format) -> Surface`
 
    Create a new Surface that shares pixel data directly from a buffer. This
    buffer can be bytes, a bytearray, a memoryview, a
