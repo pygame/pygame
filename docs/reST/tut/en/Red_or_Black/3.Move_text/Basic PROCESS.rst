@@ -34,7 +34,7 @@ Previous project looks like a single image instead of game. Because there is no 
    ball = pygame.image.load("Bagic-PROCESS-sourcecode.png")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -67,7 +67,7 @@ Previous project looks like a single image instead of game. Because there is no 
    ball = pygame.image.load("Bagic-PROCESS-resultscreen.png")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

@@ -196,7 +196,7 @@ def output_main(device_id=None):
         pg.event.set_blocked(pg.MOUSEMOTION)
         mouse_note = 0
         on_notes = set()
-        while 1:
+        while True:
             e = pg.event.wait()
             if e.type == pg.MOUSEBUTTONDOWN:
                 mouse_note, velocity, __, __ = regions.get_at(e.pos)

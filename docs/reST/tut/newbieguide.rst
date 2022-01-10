@@ -311,7 +311,7 @@ want to know whether the ``t`` and ``f`` keys are down at the same time, just
 check::
 
     if (key.get_pressed[K_t] and key.get_pressed[K_f]):
-        print "Yup!"
+        print("Yup!")
 
 In the queue system, however, each keypress arrives in the queue as a
 completely separate event, so you'd need to remember that the ``t`` key was
@@ -327,7 +327,7 @@ still be sitting in the event queue, however, waiting to be retrieved and
 processed.
 
 The lesson is: choose the system that meets your requirements.  If you don't
-have much going on in your loop -- say you're just sitting in a ``while 1``
+have much going on in your loop -- say you're just sitting in a ``while True``
 loop, waiting for input, use ``get_pressed()`` or another state function; the
 latency will be lower.  On the other hand, if every keypress is crucial, but
 latency isn't as important -- say your user is typing something in an editbox,

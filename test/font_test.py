@@ -596,7 +596,7 @@ class VisualTests(unittest.TestCase):
         s = f.render("(some comparison text)", False, (0, 0, 0))
         screen.blit(s, (offset, y))
         pygame.display.flip()
-        while 1:
+        while True:
             for evt in pygame.event.get():
                 if evt.type == pygame.KEYDOWN:
                     if evt.key == pygame.K_ESCAPE:
