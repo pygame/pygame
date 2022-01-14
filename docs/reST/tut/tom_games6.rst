@@ -150,9 +150,9 @@ like this::
               image = image.convert()
           else:
               image = image.convert_alpha()
-      except pygame.error, message:
+      except FileNotFoundError:
           print(f"Cannot load image: {fullname}")
-          raise SystemExit, message
+          raise SystemExit
       return image, image.get_rect()
 
   class Ball(pygame.sprite.Sprite):
@@ -319,7 +319,8 @@ like this::
           pygame.display.flip()
 
 
-  if __name__ == "__main__": main()
+  if __name__ == "__main__":
+      main()
 
 
 As well as showing you the final product, I'll point you back to TomPong, upon which all of this is based. Download it, have a look
