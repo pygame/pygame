@@ -50,24 +50,10 @@
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
 
-/* The structure passed to the low level blit functions */
-typedef struct {
-    int width;
-    int height;
-    Uint8 *s_pixels;
-    int s_pxskip;
-    int s_skip;
-    Uint8 *d_pixels;
-    int d_pxskip;
-    int d_skip;
-    SDL_PixelFormat *src;
-    SDL_PixelFormat *dst;
-    Uint8 src_blanket_alpha;
-    int src_has_colorkey;
-    Uint32 src_colorkey;
-    SDL_BlendMode src_blend;
-    SDL_BlendMode dst_blend;
-} SDL_BlitInfo;
+#include "_blit_info.h"
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+#include "simd_blitters.h"
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 static void
 alphablit_alpha(SDL_BlitInfo *info);
@@ -301,6 +287,27 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MULT: {
+#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+                    if (src->format->BytesPerPixel == 4 &&
+                            dst->format->BytesPerPixel == 4 &&
+                            src->format->Rmask == dst->format->Rmask &&
+                            src->format->Gmask == dst->format->Gmask &&
+                            src->format->Bmask == dst->format->Bmask &&
+                            info.src_blend != SDL_BLENDMODE_NONE) {
+#if PG_ENABLE_ARM_NEON
+                        if (SDL_HasNEON() == SDL_TRUE) {
+                            blit_blend_rgba_mul_simd(&info);
+                            break;
+                        }
+#endif /* PG_ENABLE_ARM_NEON */
+#ifdef __SSE2__
+                        if (SDL_HasSSE2()) {
+                            blit_blend_rgba_mul_simd(&info);
+                            break;
+                        }
+#endif /* __SSE2__*/
+                    }
+#endif /*__SSE2__ || PG_ENABLE_ARM_NEON*/
                     blit_blend_rgba_mul(&info);
                     break;
                 }
