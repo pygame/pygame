@@ -30,8 +30,7 @@ import os
 # Choose Windows display driver
 if os.name == "nt":
     # pypy does not find the dlls, so we add package folder to PATH.
-    pygame_dir = os.path.split(__file__)[0]
-    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
+    os.environ["PATH"] = os.environ["PATH"] + ";" + os.path.split(__file__)[0]
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
@@ -283,12 +282,6 @@ try:
 except (ImportError, IOError):
     mixer = MissingModule("mixer", urgent=0)
 
-# always fails, but MissingModule needs an exception to process
-try:
-    import pygame.movie
-except (ImportError, IOError):
-    movie = MissingModule("movie", urgent=0)
-
 try:
     import pygame.scrap
 except (ImportError, IOError):
@@ -368,4 +361,4 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, MissingModule, copyreg
+del pygame, os, sys, MissingModule, copyreg, warn_unwanted_files, packager_imports
