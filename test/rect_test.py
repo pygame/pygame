@@ -2077,7 +2077,7 @@ class RectTypeTest(unittest.TestCase):
         f = [[50, 50, 1, 1], [20, 20, 5, 5]]
         self.assertFalse(r.collidelistall(f))
 
-    class _ObjectWithRectAttribute(object):
+    class _ObjectWithRectAttribute:
 
         def __init__(self, r):
             self.rect = r
@@ -2109,7 +2109,7 @@ class RectTypeTest(unittest.TestCase):
         ]
         self.assertFalse(r.collidelistall(f))
 
-    class _ObjectWithCallableRectAttribute(object):
+    class _ObjectWithCallableRectAttribute:
 
         def __init__(self, r):
             self._rect = r
@@ -2144,7 +2144,7 @@ class RectTypeTest(unittest.TestCase):
         ]
         self.assertFalse(r.collidelistall(f))
 
-    class _ObjectWithRectProperty(object):
+    class _ObjectWithRectProperty:
 
         def __init__(self, r):
             self._rect = r
