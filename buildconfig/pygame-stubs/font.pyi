@@ -21,7 +21,7 @@ def SysFont(
     italic: Hashable = False,
 ) -> Font: ...
 
-class Font(object):
+class Font:
 
     bold: bool
     italic: bool

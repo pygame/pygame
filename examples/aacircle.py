@@ -25,7 +25,7 @@ def main():
 
     pygame.display.flip()
     try:
-        while 1:
+        while True:
             event = pygame.event.wait()
             if event.type == pygame.QUIT:
                 break
