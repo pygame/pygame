@@ -3721,8 +3721,7 @@ static PyMethodDef _surface_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surface)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -3769,14 +3768,17 @@ MODINIT_DEFINE(surface)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
-
-    if (PyDict_SetItemString(dict, "SurfaceType",
-                             (PyObject *)&pgSurface_Type)) {
+    Py_INCREF(&pgSurface_Type);
+    if (PyModule_AddObject(module, "SurfaceType",
+                           (PyObject *)&pgSurface_Type)) {
+        Py_DECREF(&pgSurface_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "Surface", (PyObject *)&pgSurface_Type)) {
+
+    Py_INCREF(&pgSurface_Type);
+    if (PyModule_AddObject(module, "Surface", (PyObject *)&pgSurface_Type)) {
+        Py_DECREF(&pgSurface_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -3787,18 +3789,14 @@ MODINIT_DEFINE(surface)
     c_api[2] = pgSurface_Blit;
     c_api[3] = pgSurface_SetSurface;
     apiobj = encapsulate_api(c_api, "surface");
-    if (apiobj == NULL) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    /* Py_INCREF (pgSurface_Type.tp_dict); INCREF's done in SetItemString */
-    if (PyDict_SetItemString(dict, "_dict", pgSurface_Type.tp_dict)) {
+    Py_XINCREF(pgSurface_Type.tp_dict);
+    if (PyModule_AddObject(module, "_dict", pgSurface_Type.tp_dict)) {
+        Py_XDECREF(pgSurface_Type.tp_dict);
         Py_DECREF(module);
         return NULL;
     }

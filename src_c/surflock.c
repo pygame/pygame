@@ -261,8 +261,7 @@ static PyMethodDef _surflock_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surflock)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -284,7 +283,6 @@ MODINIT_DEFINE(surflock)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
     /* export the c api */
     c_api[0] = &pgLifetimeLock_Type;
@@ -296,13 +294,8 @@ MODINIT_DEFINE(surflock)
     c_api[6] = pgSurface_UnlockBy;
     c_api[7] = pgSurface_LockLifetime;
     apiobj = encapsulate_api(c_api, "surflock");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

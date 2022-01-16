@@ -806,8 +806,7 @@ static PyMethodDef _pg_module_methods[] = {
 
 MODINIT_DEFINE(rwobject)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -825,7 +824,6 @@ MODINIT_DEFINE(rwobject)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
     /* export the c api */
     c_api[0] = pgRWops_FromObject;
@@ -836,13 +834,8 @@ MODINIT_DEFINE(rwobject)
     c_api[5] = pgRWops_ReleaseObject;
     c_api[6] = pgRWops_GetFileExtension;
     apiobj = encapsulate_api(c_api, "rwobject");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode == -1) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

@@ -4126,13 +4126,8 @@ MODINIT_DEFINE(math)
     c_api[4] = pgVectorCompatible_Check;
     */
     apiobj = encapsulate_api(c_api, "math");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
-        Py_DECREF(apiobj);
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
