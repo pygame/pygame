@@ -31,51 +31,61 @@ static void
 blit_blend_rgba_mul_simd(SDL_BlitInfo *info);
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
-static void
-blit_blend_rgba_mul_simd(SDL_BlitInfo *info)
-{
-    int n;
-    int width = info->width;
-    int height = info->height;
-    Uint8 *src = info->s_pixels;
-    int srcpxskip = info->s_pxskip;
-    int srcskip = info->s_skip;
-    Uint8 *dst = info->d_pixels;
-    int dstpxskip = info->d_pxskip;
-    int dstskip = info->d_skip;
-    SDL_PixelFormat *srcfmt = info->src;
-    SDL_PixelFormat *dstfmt = info->dst;
-    int srcbpp = srcfmt->BytesPerPixel;
-    int dstbpp = dstfmt->BytesPerPixel;
-    Uint8 dR, dG, dB, dA, sR, sG, sB, sA;
-    Uint32 pixel;
-    Uint32 tmp;
-    int srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
-    int dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 
-    if (srcbpp == 4 && dstbpp == 4 && srcfmt->Rmask == dstfmt->Rmask &&
-        srcfmt->Gmask == dstfmt->Gmask && srcfmt->Bmask == dstfmt->Bmask &&
-        srcfmt->Amask == dstfmt->Amask &&
-        info->src_blend != SDL_BLENDMODE_NONE) {
-        int incr = srcpxskip > 0 ? 1 : -1;
-        if (incr < 0) {
-            src += 3;
-            dst += 3;
-        }
-        while (height--) {
-            LOOP_UNROLLED4(
-                {
-                    REPEAT_4({
-                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) >> 8 : 0;
-                        (*dst) = (tmp <= 255 ? tmp : 255);
-                        src += incr;
-                        dst += incr;
-                    });
-                },
-                n, width);
-            src += srcskip;
-            dst += dstskip;
-        }
-        return;
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+static void
+blit_blend_rgba_mul_simd(SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->width;
+    int             height = info->height;
+
+    Uint32          *srcp = (Uint32 *)info->s_pixels;
+    int             srcskip = info->s_skip >> 2;
+    int             srcpxskip = info->s_pxskip >> 2;
+
+    Uint32          *dstp = (Uint32 *)info->d_pixels;
+    int             dstskip = info->d_skip >> 2;
+    int             dstpxskip = info->d_pxskip >> 2;
+
+    Uint32          two_five_fives;
+
+    __m128i mm_src, mm_dst, mm_zero, mm_two_five_fives;
+
+    mm_zero = _mm_setzero_si128();
+    two_five_fives = 0xFFFFFFFF;
+    mm_two_five_fives = _mm_cvtsi32_si128(two_five_fives);
+    mm_two_five_fives = _mm_unpacklo_epi8(mm_two_five_fives, mm_zero);
+
+    while (height--)
+    {
+        LOOP_UNROLLED4(
+        {
+            mm_src = _mm_cvtsi32_si128(*srcp);
+            /*mm_src = 0x000000000000000000000000AARRGGBB*/
+            mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
+            /*mm_src = 0x000000000000000000AA00RR00GG00BB*/
+            mm_dst = _mm_cvtsi32_si128(*dstp);
+            /*mm_dst = 0x000000000000000000000000AARRGGBB*/
+            mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
+            /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
+
+            mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
+            /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
+            mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
+            /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
+            mm_dst = _mm_srli_epi16(mm_dst, 8);
+            /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
+            mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
+            /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
+            *dstp = _mm_cvtsi128_si32(mm_dst);
+            /*dstp = 0xAARRGGBB*/
+            srcp += srcpxskip;
+            dstp += dstpxskip;
+        }, n, width);
+        srcp += srcskip;
+        dstp += dstskip;
     }
+
 }
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
