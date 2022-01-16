@@ -25,7 +25,7 @@ accessed by passing ``None`` as the font name.
 Before pygame 2.0.3, pygame.font accepts any UCS-2 / UTF-16 character
 ('\\u0001' to '\\uFFFF'). After 2.0.3, pygame.font built with SDL_ttf
 2.0.15 accepts any valid UCS-4 / UTF-32 character 
-(like emojis, if the font has them) ('\\U00000001' to '\\UFFFFFFFF')).
+(like emojis, if the font has them) ('\\U00000001' to '\\U0010FFFF')).
 More about this in :func:`Font.render`.
 
 Before pygame 2.0.3, this character space restriction can be avoided by

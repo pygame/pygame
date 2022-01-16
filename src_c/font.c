@@ -725,9 +725,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     rw = pgRWops_FromObject(obj);
 
     if (rw == NULL && PyUnicode_Check(obj)) {
-        PyObject *font_defaultname_string =
-            PyUnicode_FromString(font_defaultname);
-        if (!PyUnicode_Compare(font_defaultname_string, obj)) {
+        if (!PyUnicode_CompareWithASCIIString(obj, font_defaultname)) {
             /* clear out existing file loading error before attempt to get
              * default font */
             PyErr_Clear();
