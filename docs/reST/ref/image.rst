@@ -15,10 +15,10 @@ Note that there is no Image class; an image is loaded as a Surface object. The
 Surface class allows manipulation (drawing lines, setting pixels, capturing
 regions, etc.).
 
-In the vast majority of installations, including those from pip, pygame is
-built to support extended formats with SDL2_Image. However, installations are
-guaranteed to support uncompressed ``BMP`` images. When built with full image
-support, the :func:`pygame.image.load()` function can support the following
+In the vast majority of installations, pygame is built to support extended
+formats, using the SDL_Image library behind the scenes. However, some
+installations may only support uncompressed ``BMP`` images. With full image
+support, the :func:`pygame.image.load()` function can load the following
 formats.
 
    * ``BMP``
