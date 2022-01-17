@@ -578,8 +578,14 @@ class VisualTests(unittest.TestCase):
             pygame.quit()
         self.aborted = True
 
-    def query(self, bold=False, italic=False, underline=False, strikethrough=False,
-              antialiase=False):
+    def query(
+        self,
+        bold=False,
+        italic=False,
+        underline=False,
+        strikethrough=False,
+        antialiase=False,
+    ):
         if self.aborted:
             return False
         spacing = 10

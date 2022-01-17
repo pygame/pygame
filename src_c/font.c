@@ -708,8 +708,8 @@ static PyGetSetDef font_getsets[] = {
      DOC_FONTITALIC, NULL},
     {"underline", (getter)font_getter_underline, (setter)font_setter_underline,
      DOC_FONTUNDERLINE, NULL},
-    {"strikethrough", (getter)font_getter_strikethrough, (setter)font_setter_strikethrough,
-     DOC_FONTSTRIKETHROUGH, NULL},
+    {"strikethrough", (getter)font_getter_strikethrough,
+     (setter)font_setter_strikethrough, DOC_FONTSTRIKETHROUGH, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
@@ -724,8 +724,10 @@ static PyMethodDef font_methods[] = {
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
     {"get_underline", font_get_underline, METH_NOARGS, DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
-    {"get_strikethrough", font_get_strikethrough, METH_NOARGS, DOC_FONTGETSTRIKETHROUGH},
-    {"set_strikethrough", font_set_strikethrough, METH_VARARGS, DOC_FONTSETSTRIKETHROUGH},
+    {"get_strikethrough", font_get_strikethrough, METH_NOARGS,
+     DOC_FONTGETSTRIKETHROUGH},
+    {"set_strikethrough", font_set_strikethrough, METH_VARARGS,
+     DOC_FONTSETSTRIKETHROUGH},
 
     {"metrics", font_metrics, METH_VARARGS, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
