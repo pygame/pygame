@@ -162,7 +162,8 @@ loaded instead.
       is a fake stretching of the font that doesn't look good on many
       font types. If possible load the font from a real bold font
       file. While bold, the font will have a different width than when
-      normal. This can be mixed with the italic and underline modes.
+      normal. This can be mixed with the italic, underline and
+      strikethrough modes.
 
       .. versionadded:: 2.0.0
 
@@ -179,8 +180,8 @@ loaded instead.
       text. This is a fake skewing of the font that doesn't look good
       on many font types. If possible load the font from a real italic
       font file. While italic the font will have a different width
-      than when normal. This can be mixed with the bold and underline
-      modes.
+      than when normal. This can be mixed with the bold, underline and
+      strikethrough modes.
 
       .. versionadded:: 2.0.0
 
@@ -195,11 +196,28 @@ loaded instead.
 
       When set to True, all rendered fonts will include an
       underline. The underline is always one pixel thick, regardless
-      of font size. This can be mixed with the bold and italic modes.
+      of font size. This can be mixed with the bold, italic and
+      strikethrough modes.
 
       .. versionadded:: 2.0.0
 
       .. ## Font.underline ##
+   
+   .. attribute:: strikethrough
+
+      | :sl:`Gets or sets whether the font should be rendered with a strikethrough.`
+      | :sg:`strikethrough -> bool`
+
+      Whether the font should be rendered with a strikethrough.
+
+      When set to True, all rendered fonts will include an
+      strikethrough. The strikethrough is always one pixel thick,
+      regardless of font size. This can be mixed with the bold,
+      italic and underline modes.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Font.strikethrough ##
 
    .. method:: render
 
@@ -277,7 +295,7 @@ loaded instead.
 
       When enabled, all rendered fonts will include an underline. The underline
       is always one pixel thick, regardless of font size. This can be mixed
-      with the bold and italic modes.
+      with the bold, italic and strikethrough modes.
 
       .. note:: This is the same as the :attr:`underline` attribute.
 
@@ -293,6 +311,30 @@ loaded instead.
        .. note:: This is the same as the :attr:`underline` attribute.
 
       .. ## Font.get_underline ##
+   
+   .. method:: set_strikethrough
+
+      | :sl:`control if text is rendered with a strikethrough`
+      | :sg:`set_strikethrough(bool) -> None`
+
+      When enabled, all rendered fonts will include a strikethrough. The
+      strikethrough is always one pixel thick, regardless of font size.
+      This can be mixed with the bold, italic and underline modes.
+
+      .. note:: This is the same as the :attr:`strikethrough` attribute.
+
+      .. ## Font.set_strikethrough ##
+
+   .. method:: get_strikethrough
+
+      | :sl:`check if text will be rendered with a strikethrough`
+      | :sg:`get_strikethrough() -> bool`
+
+      Return True when the font strikethrough is enabled.
+
+       .. note:: This is the same as the :attr:`strikethrough` attribute.
+
+      .. ## Font.get_strikethrough ##
 
    .. method:: set_bold
 
@@ -302,7 +344,8 @@ loaded instead.
       Enables the bold rendering of text. This is a fake stretching of the font
       that doesn't look good on many font types. If possible load the font from
       a real bold font file. While bold, the font will have a different width
-      than when normal. This can be mixed with the italic and underline modes.
+      than when normal. This can be mixed with the italic, underline and
+      strikethrough modes.
 
       .. note:: This is the same as the :attr:`bold` attribute.
 
@@ -327,8 +370,8 @@ loaded instead.
       Enables fake rendering of italic text. This is a fake skewing of the font
       that doesn't look good on many font types. If possible load the font from
       a real italic font file. While italic the font will have a different
-      width than when normal. This can be mixed with the bold and underline
-      modes.
+      width than when normal. This can be mixed with the bold, underline and
+      strikethrough modes.
 
       .. note:: This is the same as the :attr:`italic` attribute.
 

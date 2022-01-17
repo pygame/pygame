@@ -11,10 +11,13 @@
 #define DOC_FONTBOLD "bold -> bool\nGets or sets whether the font should be rendered in (faked) bold."
 #define DOC_FONTITALIC "italic -> bool\nGets or sets whether the font should be rendered in (faked) italics."
 #define DOC_FONTUNDERLINE "underline -> bool\nGets or sets whether the font should be rendered with an underline."
+#define DOC_FONTSTRIKETHROUGH "strikethrough -> bool\nGets or sets whether the font should be rendered with a strikethrough."
 #define DOC_FONTRENDER "render(text, antialias, color, background=None) -> Surface\ndraw text on a new Surface"
 #define DOC_FONTSIZE "size(text) -> (width, height)\ndetermine the amount of space needed to render text"
 #define DOC_FONTSETUNDERLINE "set_underline(bool) -> None\ncontrol if text is rendered with an underline"
 #define DOC_FONTGETUNDERLINE "get_underline() -> bool\ncheck if text will be rendered with an underline"
+#define DOC_FONTSETSTRIKETHROUGH "set_strikethrough(bool) -> None\ncontrol if text is rendered with a strikethrough"
+#define DOC_FONTGETSTRIKETHROUGH "get_strikethrough() -> bool\ncheck if text will be rendered with a strikethrough"
 #define DOC_FONTSETBOLD "set_bold(bool) -> None\nenable fake rendering of bold text"
 #define DOC_FONTGETBOLD "get_bold() -> bool\ncheck if text will be rendered bold"
 #define DOC_FONTSETITALIC "set_italic(bool) -> None\nenable fake rendering of italic text"
@@ -79,6 +82,10 @@ pygame.font.Font.underline
  underline -> bool
 Gets or sets whether the font should be rendered with an underline.
 
+pygame.font.Font.strikethrough
+ strikethrough -> bool
+Gets or sets whether the font should be rendered with a strikethrough.
+
 pygame.font.Font.render
  render(text, antialias, color, background=None) -> Surface
 draw text on a new Surface
@@ -94,6 +101,14 @@ control if text is rendered with an underline
 pygame.font.Font.get_underline
  get_underline() -> bool
 check if text will be rendered with an underline
+
+pygame.font.Font.set_strikethrough
+ set_strikethrough(bool) -> None
+control if text is rendered with an strikethrough
+
+pygame.font.Font.get_strikethrough
+ get_strikethrough() -> bool
+check if text will be rendered with an strikethrough
 
 pygame.font.Font.set_bold
  set_bold(bool) -> None
