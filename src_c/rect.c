@@ -34,6 +34,8 @@
 
 #include <limits.h>
 
+#include <SDL_stdinc.h>
+
 static PyTypeObject pgRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
 
@@ -1464,6 +1466,28 @@ Unimplemented:
     return Py_NotImplemented;
 }
 
+static int
+_rounded_int_from_object(PyObject *value, int *val)
+{
+    float val1;
+
+    if (!pg_FloatFromObj(value, &val1)) {
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+        return 0;
+    }
+
+    if (val1 >= INT_MAX - 1 || val1 <= INT_MIN + 1) {
+        PyErr_Format(PyExc_TypeError,
+                        "invalid rect assignment, expected value between %d and %d", INT_MIN,
+                        INT_MAX);
+        return 0;
+    }
+
+    *val = (int)(SDL_lroundf(val1));
+
+    return 1;
+}
+
 /*width*/
 static PyObject *
 pg_rect_getwidth(pgRectObject *self, void *closure)
@@ -1482,8 +1506,7 @@ pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.w = val1;
@@ -1508,8 +1531,7 @@ pg_rect_setheight(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.h = val1;
@@ -1534,8 +1556,7 @@ pg_rect_settop(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.y = val1;
@@ -1560,8 +1581,7 @@ pg_rect_setleft(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.x = val1;
@@ -1586,8 +1606,7 @@ pg_rect_setright(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1612,8 +1631,7 @@ pg_rect_setbottom(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.y = val1 - self->r.h;
@@ -1638,8 +1656,7 @@ pg_rect_setcenterx(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.x = val1 - (self->r.w >> 1);
@@ -1664,8 +1681,7 @@ pg_rect_setcentery(pgRectObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    if (!pg_IntFromObj(value, &val1)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
+    if (!_rounded_int_from_object(value, &val1)) {
         return -1;
     }
     self->r.y = val1 - (self->r.h >> 1);

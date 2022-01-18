@@ -1,11 +1,9 @@
 import math
-import sys
-import unittest
 import platform
+import unittest
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
-
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -1272,6 +1270,52 @@ class RectTypeTest(unittest.TestCase):
         r2.move_ip(move_x, move_y)
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
+
+    def test_move_by_increments(self):
+        i = 0
+        # (initial, increment, expected)
+        data_rows = [
+            (i, 0.1, i),
+            (i, 0.4, i),
+            (i, 0.5, i + 1),
+            (i, 1.1, i + 1),
+            (i, 1.5, i + 2),  # >0f
+            (i, -0.1, i),
+            (i, -0.4, i),
+            (i, -0.5, i - 1),
+            (i, -0.6, i - 1),
+            (i, -1.6, i - 2),  # <0f
+            (i, 1, i + 1),
+            (i, 4, i + 4),  # >0i
+            (i, -1, i - 1),
+            (i, -4, i - 4),  # <0i
+        ]
+        attribute_names = [
+            "x",
+            "y",
+            "w",
+            "h",
+            "width",
+            "height",
+            "top",
+            "left",
+            "bottom",
+            "right",
+            "centerx",
+            "centery",
+        ]
+
+        for attribute_name in attribute_names:
+            for row in data_rows:
+                initial, inc, expected = row
+                with self.subTest(row=row, name=f"r.{attribute_name}"):
+                    actual = Rect(initial, initial, initial, initial)
+                    setattr(actual, attribute_name, initial)
+                    new_value = getattr(actual, attribute_name) + inc
+                    # act
+                    setattr(actual, attribute_name, new_value)
+                    # assert
+                    self.assertEqual(expected, getattr(actual, attribute_name))
 
     def test_update_XYWidthHeight(self):
         """Test update with 4 int values(x, y, w, h)"""
