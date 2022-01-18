@@ -1973,9 +1973,16 @@ MODINIT_DEFINE(_camera)
 
     /* create the module */
     module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
 
     Py_INCREF(&pgCamera_Type);
-    PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type);
+    if (PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type)) {
+        Py_DECREF(&pgCamera_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
 
     return module;
 }

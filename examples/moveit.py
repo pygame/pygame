@@ -53,7 +53,7 @@ def main():
         o = GameObject(player, x * 40, x)
         objects.append(o)
 
-    while 1:
+    while True:
         for event in pg.event.get():
             if event.type in (pg.QUIT, pg.KEYDOWN):
                 return

@@ -32,7 +32,7 @@ def list_cameras_darwin():
     return cameras
 
 
-class Camera(object):
+class Camera:
     def __init__(self, device=0, size=(640, 480), mode="RGB"):
         self._device_index = device
         self._size = size

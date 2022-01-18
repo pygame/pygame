@@ -6,7 +6,7 @@ cd $(dirname `readlink -f "$0"`)
 PORTMIDI="portmidi-src-217"
 SRC_ZIP="${PORTMIDI}.zip"
 
-curl -sL http://downloads.sourceforge.net/project/portmedia/portmidi/217/${SRC_ZIP} > ${SRC_ZIP}
+curl -sL --retry 10 http://downloads.sourceforge.net/project/portmedia/portmidi/217/${SRC_ZIP} > ${SRC_ZIP}
 sha512sum -c portmidi.sha512
 unzip $SRC_ZIP
 

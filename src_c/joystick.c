@@ -637,8 +637,7 @@ static PyMethodDef _joystick_methods[] = {
 
 MODINIT_DEFINE(joystick)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_JOYSTICK_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -671,16 +670,20 @@ MODINIT_DEFINE(joystick)
     }
     joy_instance_map = PyObject_GetAttrString(module, "_joy_instance_map");
     Py_DECREF(module);
+    if (!joy_instance_map) {
+        return NULL;
+    }
 
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
-    if (PyDict_SetItemString(dict, "JoystickType",
-                             (PyObject *)&pgJoystick_Type) == -1) {
+    Py_INCREF(&pgJoystick_Type);
+    if (PyModule_AddObject(module, "JoystickType",
+                           (PyObject *)&pgJoystick_Type)) {
+        Py_DECREF(&pgJoystick_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -689,13 +692,8 @@ MODINIT_DEFINE(joystick)
     c_api[0] = &pgJoystick_Type;
     c_api[1] = pgJoystick_New;
     apiobj = encapsulate_api(c_api, "joystick");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode == -1) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

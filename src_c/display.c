@@ -334,6 +334,7 @@ pg_vidinfo_str(PyObject *self)
     int current_w = -1;
     int current_h = -1;
     pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+    const char *pixel_format_name = SDL_GetPixelFormatName(info->vfmt->format);
 
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
@@ -353,6 +354,7 @@ pg_vidinfo_str(PyObject *self)
             "         shifts = (%d, %d, %d, %d),\n"
             "         losses =  (%d, %d, %d, %d),\n"
             "         current_w = %d, current_h = %d\n"
+            "         pixel_format = %s\n"
             ">\n",
             info->hw_available, info->wm_available, info->video_mem,
             info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
@@ -361,7 +363,7 @@ pg_vidinfo_str(PyObject *self)
             info->vfmt->Bmask, info->vfmt->Amask, info->vfmt->Rshift,
             info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
             info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-            info->vfmt->Aloss, current_w, current_h);
+            info->vfmt->Aloss, current_w, current_h, pixel_format_name);
     return PyUnicode_FromString(str);
 }
 

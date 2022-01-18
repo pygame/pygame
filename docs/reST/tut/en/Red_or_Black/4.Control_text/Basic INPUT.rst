@@ -34,7 +34,7 @@ Usually, we learn how to output something first (Think about Hello World!), lear
    ball = pygame.image.load("Bagic-INPUT-sourcecode.png")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -67,7 +67,7 @@ Usually, we learn how to output something first (Think about Hello World!), lear
    ball = pygame.image.load("Bagic-INPUT-resultscreen.png")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
