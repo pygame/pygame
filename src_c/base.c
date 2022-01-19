@@ -551,6 +551,51 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 }
 
 static int
+pg_DoubleFromObj(PyObject *obj, double *val)
+{
+    double d = (double)PyFloat_AsDouble(obj);
+
+    if (d == -1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        return 0;
+    }
+
+    *val = d;
+    return 1;
+}
+
+static int
+pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
+{
+    int result = 0;
+    PyObject *item = PySequence_GetItem(obj, _index);
+
+    if (!item) {
+        PyErr_Clear();
+        return 0;
+    }
+    result = pg_DoubleFromObj(item, val);
+    Py_DECREF(item);
+    return result;
+}
+
+static int
+pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
+{
+    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
+        return pg_TwoDoublesFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
+    }
+    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
+        return 0;
+    }
+    if (!pg_DoubleFromObjIndex(obj, 0, val1) ||
+        !pg_DoubleFromObjIndex(obj, 1, val2)) {
+        return 0;
+    }
+    return 1;
+}
+
+static int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
     if (PyNumber_Check(obj)) {
@@ -2146,7 +2191,10 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-#define FILLED_SLOTS 24
+    c_api[24] = pg_DoubleFromObj;
+    c_api[25] = pg_DoubleFromObjIndex;
+    c_api[26] = pg_TwoDoublesFromObj;
+#define FILLED_SLOTS 27
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
