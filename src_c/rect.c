@@ -34,7 +34,12 @@
 
 #include <limits.h>
 
-#include <SDL_stdinc.h>
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && \
+    !defined(round)
+#define pg_round(d) (((d < 0) ? (ceil((d)-0.5)) : (floor((d) + 0.5))))
+#else
+#define pg_round(d) round(d)
+#endif
 
 static PyTypeObject pgRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
@@ -1484,7 +1489,7 @@ _rounded_int_from_object(PyObject *value, int *val)
         return 0;
     }
 
-    *val = (int)SDL_lround(tmpVal);
+    *val = (int)pg_round(tmpVal);
     return 1;
 }
 
@@ -1507,8 +1512,8 @@ _rounded_two_ints_from_object(PyObject *value, int *val1, int *val2)
         return 0;
     }
 
-    *val1 = (int)SDL_lround(tmpVal1);
-    *val2 = (int)SDL_lround(tmpVal2);
+    *val1 = (int)pg_round(tmpVal1);
+    *val2 = (int)pg_round(tmpVal2);
     return 1;
 }
 
