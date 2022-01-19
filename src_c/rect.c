@@ -1731,7 +1731,6 @@ pg_rect_settopleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1758,7 +1757,6 @@ pg_rect_settopright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1785,7 +1783,6 @@ pg_rect_setbottomleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1812,7 +1809,6 @@ pg_rect_setbottomright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1839,7 +1835,6 @@ pg_rect_setmidtop(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1866,7 +1861,6 @@ pg_rect_setmidleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1894,7 +1888,6 @@ pg_rect_setmidbottom(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1922,7 +1915,6 @@ pg_rect_setmidright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1950,7 +1942,6 @@ pg_rect_setcenter(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1977,7 +1968,6 @@ pg_rect_setsize(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!_rounded_two_ints_from_object(value, &val1, &val2)) {
-        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.w = val1;
