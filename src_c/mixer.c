@@ -1012,10 +1012,9 @@ static PyTypeObject pgSound_Type = {
     0,             /* tp_dictoffset */
     sound_init,    /* tp_init */
     0,             /* tp_alloc */
-    0,             /* tp_new */
+    PyType_GenericNew,    /* tp_new */
 };
 
-// PyType_GenericNew,                    /* tp_new */
 
 /* channel object methods */
 static PyObject *
@@ -1293,6 +1292,29 @@ channel_dealloc(PyObject *self)
     PyObject_Free(self);
 }
 
+static int
+channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
+{
+    int channelnum;
+    if (!PyArg_ParseTuple(args, "i", &channelnum)) {
+        return -1;
+    }
+
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
+
+    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1)) {
+        PyErr_SetString(PyExc_IndexError, "invalid channel index");
+        return -1;
+    }
+
+    self->chan = channelnum;
+    return 0;
+}
+
+
 static PyTypeObject pgChannel_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Channel", /* name */
     sizeof(pgChannelObject),                  /* basic size */
@@ -1328,9 +1350,9 @@ static PyTypeObject pgChannel_Type = {
     0,                                        /* tp_descr_get */
     0,                                        /* tp_descr_set */
     0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
+    (initproc) channel_init,                  /* tp_init */
     0,                                        /* tp_alloc */
-    0,                                        /* tp_new */
+    PyType_GenericNew,                        /* tp_new */
 };
 
 /*mixer module methods*/
@@ -1394,17 +1416,6 @@ get_busy(PyObject *self)
         return PyBool_FromLong(0);
 
     return PyBool_FromLong(Mix_Playing(-1));
-}
-
-static PyObject *
-Channel(PyObject *self, PyObject *args)
-{
-    int chan;
-    if (!PyArg_ParseTuple(args, "i", &chan))
-        return NULL;
-
-    MIXER_INIT_CHECK();
-    return pgChannel_New(chan);
 }
 
 static PyObject *
@@ -1883,7 +1894,6 @@ static PyMethodDef _mixer_methods[] = {
     {"set_reserved", set_reserved, METH_VARARGS, DOC_PYGAMEMIXERSETRESERVED},
 
     {"get_busy", (PyCFunction)get_busy, METH_NOARGS, DOC_PYGAMEMIXERGETBUSY},
-    {"Channel", Channel, METH_VARARGS, DOC_PYGAMEMIXERCHANNEL},
     {"find_channel", (PyCFunction)mixer_find_channel,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERFINDCHANNEL},
     {"fadeout", mixer_fadeout, METH_VARARGS, DOC_PYGAMEMIXERFADEOUT},
@@ -1973,7 +1983,6 @@ MODINIT_DEFINE(mixer)
     }
 
     /* create the module */
-    pgSound_Type.tp_new = &PyType_GenericNew;
     module = PyModule_Create(&_module);
     if (module == NULL) {
         return NULL;
@@ -1998,7 +2007,13 @@ MODINIT_DEFINE(mixer)
         Py_DECREF(module);
         return NULL;
     }
-
+    Py_INCREF(&pgChannel_Type);
+    if (PyModule_AddObject(module, "Channel",
+                           (PyObject *)&pgChannel_Type)) {
+        Py_DECREF(&pgChannel_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
     /* export the c api */
     c_api[0] = &pgSound_Type;
     c_api[1] = pgSound_New;

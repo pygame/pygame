@@ -476,6 +476,27 @@ clock_str(PyObject *self)
     return PyUnicode_FromString(str);
 }
 
+static PyObject *
+clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyClockObject *_clock = (PyClockObject *)type->tp_alloc(type, 0);
+
+    if (!SDL_WasInit(SDL_INIT_TIMER)) {
+        if (SDL_InitSubSystem(SDL_INIT_TIMER))
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    _clock->fps_tick = 0;
+    _clock->timepassed = 0;
+    _clock->rawpassed = 0;
+    _clock->last_tick = SDL_GetTicks();
+    _clock->fps = 0.0f;
+    _clock->fps_count = 0;
+    _clock->rendered = NULL;
+
+    return (PyObject *)_clock;
+}
+
 static PyTypeObject PyClock_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Clock", /* name */
     sizeof(PyClockObject),                  /* basic size */
@@ -513,34 +534,8 @@ static PyTypeObject PyClock_Type = {
     0,                                      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
+    clock_new,                              /* tp_new */
 };
-
-PyObject *
-ClockInit(PyObject *self)
-{
-    PyClockObject *_clock = PyObject_New(PyClockObject, &PyClock_Type);
-
-    if (!_clock) {
-        return NULL;
-    }
-
-    /*just doublecheck that timer is initialized*/
-    if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER))
-            return RAISE(pgExc_SDLError, SDL_GetError());
-    }
-
-    _clock->fps_tick = 0;
-    _clock->timepassed = 0;
-    _clock->rawpassed = 0;
-    _clock->last_tick = SDL_GetTicks();
-    _clock->fps = 0.0f;
-    _clock->fps_count = 0;
-    _clock->rendered = NULL;
-
-    return (PyObject *)_clock;
-}
 
 static PyMethodDef _time_methods[] = {
     {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
@@ -554,8 +549,6 @@ static PyMethodDef _time_methods[] = {
     {"set_timer", (PyCFunction)time_set_timer, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETIMESETTIMER},
 
-    {"Clock", (PyCFunction)ClockInit, METH_NOARGS, DOC_PYGAMETIMECLOCK},
-
     {NULL, NULL, 0, NULL}};
 
 #ifdef __SYMBIAN32__
@@ -566,6 +559,7 @@ initpygame_time(void)
 MODINIT_DEFINE(time)
 #endif
 {
+    PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "time",
                                          DOC_PYGAMETIME,
@@ -595,5 +589,17 @@ MODINIT_DEFINE(time)
     }
 
     /* create the module */
-    return PyModule_Create(&_module);
+    module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
+
+    Py_INCREF(&PyClock_Type);
+    if (PyModule_AddObject(module, "Clock", (PyObject *)&PyClock_Type)) {
+        Py_DECREF(&PyClock_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    return module;
 }
