@@ -54,6 +54,7 @@ Multiple coordinates can be set using slices or swizzling
    | :sg:`Vector2() -> Vector2`
    | :sg:`Vector2(int) -> Vector2`
    | :sg:`Vector2(float) -> Vector2`
+   | :sg:`Vector2(complex) -> Vector2`
    | :sg:`Vector2(Vector2) -> Vector2`
    | :sg:`Vector2(x, y) -> Vector2`
    | :sg:`Vector2((x, y)) -> Vector2`
@@ -335,7 +336,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector2.project ##
 
    
-   .. method :: copy
+   .. method:: copy
 
       | :sl:`Returns a copy of itself.`
       | :sg:`copy() -> Vector2`
@@ -360,6 +361,18 @@ Multiple coordinates can be set using slices or swizzling
       Sets coordinates x and y in place.
 
       .. versionadded:: 1.9.5
+
+      .. ## Vector2.update ##
+
+
+   .. method:: to_complex
+
+      | :sl:`Converts vector to complex number.`
+      | :sg:`to_complex() -> complex`
+
+      Returns complex number where x is real and y is imaginary.
+
+      .. versionadded:: 2.1.3
 
       .. ## Vector2.update ##
 

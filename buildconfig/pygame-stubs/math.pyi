@@ -99,7 +99,7 @@ class Vector2:
     @overload
     def __init__(
         self,
-        x: Union[float, Tuple[float, float], List[float], Vector2] = 0,
+        x: Union[float, Tuple[float, float], List[float], Vector2, complex] = 0,
     ) -> None: ...
     @overload
     def __init__(self, x: float, y: float) -> None: ...
@@ -159,6 +159,7 @@ class Vector2:
         x: Union[float, Vector2, Tuple[float, float], List[float]] = 0,
         y: float = 0,
     ) -> None: ...
+    def to_complex(self) -> complex: ...
 
 class Vector3:
     x: float

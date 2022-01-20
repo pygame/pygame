@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
-#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
+#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(complex) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> Vector2\ncalculates the cross- or vector-product"
 #define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
@@ -29,6 +29,7 @@
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2COPY "copy() -> Vector2\nReturns a copy of itself."
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
+#define DOC_VECTOR2TOCOMPLEX "to_complex() -> complex\nConverts vector to complex number."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
@@ -86,6 +87,7 @@ pygame.math.Vector2
  Vector2() -> Vector2
  Vector2(int) -> Vector2
  Vector2(float) -> Vector2
+ Vector2(complex) -> Vector2
  Vector2(Vector2) -> Vector2
  Vector2(x, y) -> Vector2
  Vector2((x, y)) -> Vector2
@@ -207,6 +209,10 @@ pygame.math.Vector2.update
  update(x, y) -> None
  update((x, y)) -> None
 Sets the coordinates of the vector.
+
+pygame.math.Vector2.to_complex
+ to_complex() -> complex
+Converts vector to complex number.
 
 pygame.math.Vector3
  Vector3() -> Vector3
