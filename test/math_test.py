@@ -64,6 +64,11 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
 
+    def testConstructionComplex(self):
+        v = Vector2(2 + 1j)
+        self.assertEqual(v.x, 2)
+        self.assertEqual(v.y, 1)
+
     def testAttributeAccess(self):
         tmp = self.v1.x
         self.assertEqual(tmp, self.v1.x)
@@ -939,6 +944,10 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v, 0.5 * self.e2)
         v.from_polar((1, 0))
         self.assertEqual(v, self.e1)
+
+    def test_to_complex(self):
+        v = Vector2(1.5 + 3j)
+        self.assertEqual(v.to_complex(), 1.5 + 3j)
 
     def test_subclass_operation(self):
         class Vector(pygame.math.Vector2):
