@@ -948,6 +948,7 @@ class Vector2TypeTest(unittest.TestCase):
     def test_to_complex(self):
         v = Vector2(1.5 + 3j)
         self.assertEqual(v.to_complex(), 1.5 + 3j)
+        self.assertEqual(complex(v), 1.5 + 3j)
 
     def test_subclass_operation(self):
         class Vector(pygame.math.Vector2):

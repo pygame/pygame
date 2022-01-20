@@ -2245,6 +2245,7 @@ static PyMethodDef vector2_methods[] = {
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
+    {"__complex__", (PyCFunction)vector2_to_complex, METH_NOARGS, NULL},
 
     {NULL} /* Sentinel */
 };
