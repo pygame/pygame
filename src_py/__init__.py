@@ -38,6 +38,10 @@ elif "DISPLAY" in os.environ and "SDL_VIDEO_X11_WMCLASS" not in os.environ:
     os.environ["SDL_VIDEO_X11_WMCLASS"] = os.path.basename(sys.argv[0])
 
 
+def _attribute_undefined(name):
+    raise RuntimeError(f"{name} is not available")
+
+
 class MissingModule:
     _NOT_IMPLEMENTED_ = True
 
@@ -147,7 +151,10 @@ try:
     from pygame.cursors import Cursor
 except (ImportError, IOError):
     cursors = MissingModule("cursors", urgent=1)
-    Cursor = lambda: Missing_Function
+
+    def Cursor(*args):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Cursor")
+
 
 try:
     import pygame.sprite
@@ -221,24 +228,37 @@ def warn_unwanted_files():
 try:
     from pygame.surface import Surface, SurfaceType
 except (ImportError, IOError):
-    Surface = lambda: Missing_Function
+
+    def Surface(size, flags, depth, masks):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Surface")
+
+    SurfaceType = Surface
 
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
     mask = MissingModule("mask", urgent=0)
-    Mask = lambda: Missing_Function
+
+    def Mask(size, fill):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Mask")
+
 
 try:
     from pygame.pixelarray import PixelArray
 except (ImportError, IOError):
-    PixelArray = lambda: Missing_Function
+
+    def PixelArray(surface):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.PixelArray")
+
 
 try:
     from pygame.overlay import Overlay
 except (ImportError, IOError):
-    Overlay = lambda: Missing_Function
+
+    def Overlay(format, size):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Overlay")
+
 
 try:
     import pygame.time

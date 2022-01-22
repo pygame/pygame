@@ -1,6 +1,8 @@
-from typing import Tuple, overload
+from typing import Dict, Tuple, overload
 
 from ._common import _ColorValue
+
+THECOLORS: Dict[str, Tuple[int, int, int, int]]
 
 class Color:
     r: int

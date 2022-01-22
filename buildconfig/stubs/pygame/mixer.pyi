@@ -4,7 +4,7 @@ import numpy
 
 from pygame.event import Event
 
-from . import music as music
+from . import mixer_music as mixer_music
 from ._common import _FileArg
 
 def init(

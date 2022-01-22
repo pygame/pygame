@@ -1,4 +1,4 @@
-from typing import Any, Generator, Iterable, Optional, Tuple, Union
+from typing import Any, Generator, Iterable, Literal, Optional, Tuple, Union
 
 from pygame.color import Color
 from pygame.rect import Rect
@@ -35,6 +35,7 @@ def messagebox(
 ) -> int: ...
 
 class Window:
+    DEFAULT_SIZE: Tuple[Literal[640], Literal[480]]
     def __init__(
         self,
         title: str = "pygame",
@@ -44,8 +45,8 @@ class Window:
         fullscreen_desktop: bool = False,
         **kwargs: bool
     ) -> None: ...
-    @staticmethod
-    def from_display_module() -> Window: ...
+    @classmethod
+    def from_display_module(cls) -> Window: ...
     grab: bool
     relative_mouse: bool
     def set_windowed(self) -> None: ...
@@ -127,8 +128,8 @@ class Renderer:
         vsync: bool = False,
         target_texture: bool = False,
     ) -> None: ...
-    @staticmethod
-    def from_window(window: Window) -> Renderer: ...
+    @classmethod
+    def from_window(cls, window: Window) -> Renderer: ...
     draw_blend_mode: int
     draw_color: Color
     def clear(self) -> None: ...
@@ -152,3 +153,7 @@ class Renderer:
     def to_surface(
         self, surface: Optional[Surface] = None, area: Optional[_CanBeRect] = None
     ) -> Surface: ...
+    @staticmethod
+    def compose_custom_blend_mode(
+        color_mode: Tuple[int, int, int], alpha_mode: Tuple[int, int, int]
+    ) -> int: ...

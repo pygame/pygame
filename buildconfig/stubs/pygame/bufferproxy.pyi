@@ -3,6 +3,7 @@ from typing import Any, overload
 class BufferProxy:
     parent: Any
     length: int
+    raw: bytes
     @overload
     def __init__(self) -> None: ...
     @overload

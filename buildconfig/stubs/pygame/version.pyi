@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Literal
 
 class SoftwareVersion(Tuple[int, int, int]):
     def __new__(cls, major: int, minor: int, patch: int) -> PygameVersion: ...
@@ -7,6 +7,7 @@ class SoftwareVersion(Tuple[int, int, int]):
     major: int
     minor: int
     patch: int
+    fields: Tuple[Literal["major"], Literal["minor"], Literal["patch"]]
 
 class PygameVersion(SoftwareVersion): ...
 class SDLVersion(SoftwareVersion): ...

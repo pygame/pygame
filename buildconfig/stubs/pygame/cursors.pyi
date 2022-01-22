@@ -37,10 +37,12 @@ diamond: Cursor
 broken_x: Cursor
 tri_left: Cursor
 tri_right: Cursor
+ball: Cursor
 thickarrow_strings: _Big_string
 sizer_x_strings: _Small_string
 sizer_y_strings: _Big_string
 sizer_xy_strings: _Small_string
+textmarker_strings: _Small_string
 
 def compile(
     strings: Sequence[str],
@@ -49,7 +51,7 @@ def compile(
     xor: str = "o",
 ) -> Tuple[Sequence[int], Sequence[int]]: ...
 def load_xbm(
-    cursorfile: str, maskfile: str
+    curs: str, mask: str
 ) -> Tuple[List[int], List[int], Tuple[int, ...], Tuple[int, ...]]: ...
 
 class Cursor(Iterable[object]):
@@ -73,6 +75,8 @@ class Cursor(Iterable[object]):
     ) -> None: ...
     def __iter__(self) -> Iterator[object]: ...
     def __len__(self) -> int: ...
+    def __copy__(self) -> Cursor: ...
+    copy = __copy__
     type: str
     data: Union[
         Tuple[int],

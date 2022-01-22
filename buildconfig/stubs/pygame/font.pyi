@@ -1,8 +1,12 @@
-from typing import Hashable, Iterable, List, Optional, Tuple, Union
+from typing import Callable, Hashable, Iterable, List, Literal, Optional, Tuple, Union
 
 from pygame.surface import Surface
 
 from ._common import _ColorValue, _FileArg
+
+# TODO: Figure out a way to type this attribute such that mypy knows it's not
+# always defined at runtime
+UCS4: Literal[1]
 
 def init() -> None: ...
 def quit() -> None: ...
@@ -19,10 +23,10 @@ def SysFont(
     size: int,
     bold: Hashable = False,
     italic: Hashable = False,
+    constructor: Optional[Callable[[Optional[str], int, bool, bool], Font]] = None,
 ) -> Font: ...
 
 class Font:
-
     bold: bool
     italic: bool
     underline: bool

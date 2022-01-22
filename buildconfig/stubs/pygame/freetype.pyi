@@ -1,7 +1,6 @@
-from typing import Any, Iterable, List, Optional, Text, Tuple, Union
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from pygame.color import Color
-from pygame.font import Font
 from pygame.rect import Rect
 from pygame.surface import Surface
 
@@ -21,8 +20,15 @@ def SysFont(
     size: int,
     bold: int = False,
     italic: int = False,
+    constructor: Optional[Callable[[Optional[str], int, bool, bool], Font]] = None,
 ) -> Font: ...
 def get_default_font() -> str: ...
+def get_fonts() -> List[str]: ...
+def match_font(
+    name: Union[str, bytes, Iterable[Union[str, bytes]]],
+    bold: Any = False,
+    italic: Any = False,
+) -> str: ...
 
 STYLE_NORMAL: int
 STYLE_UNDERLINE: int
@@ -33,7 +39,7 @@ STYLE_DEFAULT: int
 
 class Font:
     name: str
-    path: Text
+    path: str
     size: Union[float, Tuple[float, float]]
     height: int
     ascender: int
