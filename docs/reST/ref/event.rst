@@ -431,6 +431,8 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
    Creates a new event with the given type and attributes. The attributes can
    come from a dictionary argument with string keys or from keyword arguments.
 
+   .. versionchanged:: 2.1.3 Event works the same way ``EventType`` does.
+
    .. ## pygame.event.Event ##
 
 .. class:: EventType
@@ -441,6 +443,10 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
    with an :func:`pygame.event.Event()` function call. The ``EventType`` type
    is not directly callable. ``EventType`` instances support attribute
    assignment and deletion.
+
+   .. note::
+      from version 2.1.3 ``Event`` and ``EventType`` are the same. Both can be created
+      with the same arguments as ``Event``.
 
    .. attribute:: type
 
@@ -470,6 +476,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
       .. ## pygame.event.EventType.__dict__ ##
 
    .. versionadded:: 1.9.2 Mutable attributes.
+   .. versionchanged:: 2.1.3 Added ``__init__`` function
 
    .. ## pygame.event.EventType ##
 
