@@ -1,8 +1,8 @@
-from typing import Callable, Hashable, Iterable, List, Literal, Optional, Tuple, Union
+from typing import Callable, Hashable, Iterable, List, Optional, Tuple, Union
 
 from pygame.surface import Surface
 
-from ._common import _ColorValue, _FileArg
+from ._common import ColorValue, FileArg, Literal
 
 # TODO: Figure out a way to type this attribute such that mypy knows it's not
 # always defined at runtime
@@ -30,13 +30,13 @@ class Font:
     bold: bool
     italic: bool
     underline: bool
-    def __init__(self, name: Optional[_FileArg], size: int) -> None: ...
+    def __init__(self, name: Optional[FileArg], size: int) -> None: ...
     def render(
         self,
-        text: Union[str, bytes],
+        text: Union[str, bytes, None],
         antialias: bool,
-        color: _ColorValue,
-        background: Optional[_ColorValue] = None,
+        color: ColorValue,
+        background: Optional[ColorValue] = None,
     ) -> Surface: ...
     def size(self, text: Union[str, bytes]) -> Tuple[int, int]: ...
     def set_underline(self, value: bool) -> None: ...
@@ -52,3 +52,5 @@ class Font:
     def get_height(self) -> int: ...
     def get_ascent(self) -> int: ...
     def get_descent(self) -> int: ...
+
+FontType = Font

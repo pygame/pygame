@@ -3,12 +3,12 @@ from typing import Optional, Sequence, Union
 from pygame.color import Color
 from pygame.surface import Surface
 
-from ._common import _ColorValue, _Coordinate, _RectValue
+from ._common import ColorValue, Coordinate, RectValue
 
 def flip(surface: Surface, flip_x: bool, flip_y: bool) -> Surface: ...
 def scale(
     surface: Surface,
-    size: _Coordinate,
+    size: Coordinate,
     dest_surface: Optional[Surface] = None,
 ) -> Surface: ...
 def scale_by(
@@ -21,7 +21,7 @@ def rotozoom(surface: Surface, angle: float, scale: float) -> Surface: ...
 def scale2x(surface: Surface, dest_surface: Optional[Surface] = None) -> Surface: ...
 def smoothscale(
     surface: Surface,
-    size: _Coordinate,
+    size: Coordinate,
     dest_surface: Optional[Surface] = None,
 ) -> Surface: ...
 def smoothscale_by(
@@ -31,21 +31,23 @@ def smoothscale_by(
 ) -> Surface: ...
 def get_smoothscale_backend() -> str: ...
 def set_smoothscale_backend(backend: str) -> None: ...
-def chop(surface: Surface, rect: _RectValue) -> Surface: ...
+def chop(surface: Surface, rect: RectValue) -> Surface: ...
 def laplacian(surface: Surface, dest_surface: Optional[Surface] = None) -> Surface: ...
 def average_surfaces(
     surfaces: Sequence[Surface],
     dest_surface: Optional[Surface] = None,
     palette_colors: Union[bool, int] = 1,
 ) -> Surface: ...
-def average_color(surface: Surface, rect: Optional[_RectValue] = None, consider_alpha: bool = False) -> Color: ...
+def average_color(
+    surface: Surface, rect: Optional[RectValue] = None, consider_alpha: bool = False
+) -> Color: ...
 def threshold(
     dest_surface: Optional[Surface],
     surface: Surface,
-    search_color: Optional[_ColorValue],
-    threshold: Optional[_ColorValue] = (0, 0, 0, 0),
-    set_color: Optional[_ColorValue] = (0, 0, 0, 0),
-    set_behavior: Optional[int] = 1,
+    search_color: Optional[ColorValue],
+    threshold: ColorValue = (0, 0, 0, 0),
+    set_color: Optional[ColorValue] = (0, 0, 0, 0),
+    set_behavior: int = 1,
     search_surf: Optional[Surface] = None,
-    inverse_set: Optional[bool] = False,
+    inverse_set: bool = False,
 ) -> int: ...

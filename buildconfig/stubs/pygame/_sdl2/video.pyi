@@ -1,10 +1,10 @@
-from typing import Any, Generator, Iterable, Literal, Optional, Tuple, Union
+from typing import Any, Generator, Iterable, Optional, Tuple, Union
 
 from pygame.color import Color
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from .._common import _CanBeRect
+from .._common import RectValue, Literal
 
 WINDOWPOS_UNDEFINED: int
 WINDOWPOS_CENTERED: int
@@ -90,24 +90,24 @@ class Texture:
     def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
         self,
-        srcrect: Optional[_CanBeRect] = None,
-        dstrect: Optional[Union[_CanBeRect, Iterable[int]]] = None,
+        srcrect: Optional[RectValue] = None,
+        dstrect: Optional[RectValue] = None,
         angle: int = 0,
         origin: Optional[Iterable[int]] = None,
         flip_x: bool = False,
         flip_y: bool = False,
     ) -> None: ...
-    def update(self, surface: Surface, area: Optional[_CanBeRect] = None) -> None: ...
+    def update(self, surface: Surface, area: Optional[RectValue] = None) -> None: ...
 
 class Image:
     def __init__(
         self,
         textureOrImage: Union[Texture, Image],
-        srcrect: Optional[_CanBeRect] = None,
+        srcrect: Optional[RectValue] = None,
     ) -> None: ...
     def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
-        self, srcrect: Optional[_CanBeRect] = None, dstrect: Optional[_CanBeRect] = None
+        self, srcrect: Optional[RectValue] = None, dstrect: Optional[RectValue] = None
     ) -> None: ...
     angle: float
     origin: Optional[Iterable[float]]
@@ -135,23 +135,23 @@ class Renderer:
     def clear(self) -> None: ...
     def present(self) -> None: ...
     def get_viewport(self) -> Rect: ...
-    def set_viewport(self, area: Optional[_CanBeRect]) -> None: ...
+    def set_viewport(self, area: Optional[RectValue]) -> None: ...
     logical_size: Iterable[int]
     scale: Iterable[float]
     target: Union[Texture, None]
     def blit(
         self,
         source: Union[Texture, Image],
-        dest: Optional[_CanBeRect] = None,
-        area: Optional[_CanBeRect] = None,
+        dest: Optional[RectValue] = None,
+        area: Optional[RectValue] = None,
         special_flags: int = 0,
     ) -> Rect: ...
     def draw_line(self, p1: Iterable[int], p2: Iterable[int]) -> None: ...
     def draw_point(self, point: Iterable[int]) -> None: ...
-    def draw_rect(self, rect: _CanBeRect) -> None: ...
-    def fill_rect(self, rect: _CanBeRect) -> None: ...
+    def draw_rect(self, rect: RectValue) -> None: ...
+    def fill_rect(self, rect: RectValue) -> None: ...
     def to_surface(
-        self, surface: Optional[Surface] = None, area: Optional[_CanBeRect] = None
+        self, surface: Optional[Surface] = None, area: Optional[RectValue] = None
     ) -> Surface: ...
     @staticmethod
     def compose_custom_blend_mode(

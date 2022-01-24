@@ -2,7 +2,7 @@ from typing import Sequence, Tuple
 
 from pygame.surface import Surface
 
-from ._common import _ColorValue
+from ._common import ColorValue
 
 class PixelArray:
     surface: Surface
@@ -14,14 +14,14 @@ class PixelArray:
     def make_surface(self) -> Surface: ...
     def replace(
         self,
-        color: _ColorValue,
-        repcolor: _ColorValue,
+        color: ColorValue,
+        repcolor: ColorValue,
         distance: float = 0,
         weights: Sequence[float] = (0.299, 0.587, 0.114),
     ) -> None: ...
     def extract(
         self,
-        color: _ColorValue,
+        color: ColorValue,
         distance: float = 0,
         weights: Sequence[float] = (0.299, 0.587, 0.114),
     ) -> PixelArray: ...
