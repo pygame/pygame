@@ -1281,7 +1281,9 @@ class RectTypeTest(unittest.TestCase):
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy (but only for: bottom, right, centerx, centery)")
+    @unittest.skipIf(
+        IS_PYPY, "fails on pypy (but only for: bottom, right, centerx, centery)"
+    )
     def test_set_float_values(self):
         zero = 0
         pos = 124
