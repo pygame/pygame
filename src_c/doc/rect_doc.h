@@ -21,6 +21,7 @@
 #define DOC_RECTCOLLIDERECT "colliderect(Rect) -> bool\ntest if two rectangles overlap"
 #define DOC_RECTCOLLIDELIST "collidelist(list) -> index\ntest if one rectangle in a list intersects"
 #define DOC_RECTCOLLIDELISTALL "collidelistall(list) -> indices\ntest if all rectangles in a list intersect"
+#define DOC_RECTCOLLIDELISTOBJECTS "collidelistobjects(list, key=None) -> objects\ntest if all rectangles of an object in a list intersect"
 #define DOC_RECTCOLLIDEDICT "collidedict(dict) -> (key, value)\ncollidedict(dict) -> None\ncollidedict(dict, use_values=0) -> (key, value)\ncollidedict(dict, use_values=0) -> None\ntest if one rectangle in a dictionary intersects"
 #define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), ...]\ncollidedictall(dict, use_values=0) -> [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
 
@@ -128,6 +129,10 @@ test if one rectangle in a list intersects
 pygame.Rect.collidelistall
  collidelistall(list) -> indices
 test if all rectangles in a list intersect
+
+pygame.Rect.collidelistobjects
+ collidelistobjects(list, key=None) -> objects
+test if all rectangles of an object in a list intersect
 
 pygame.Rect.collidedict
  collidedict(dict) -> (key, value)
