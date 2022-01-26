@@ -21,6 +21,25 @@ class VideoModuleTest(unittest.TestCase):
         renderer.set_viewport(rect)
         self.assertEqual(renderer.get_viewport(), (0, 0, 1920, 1080))
 
+    def test_window_default_caption(self):
+        window = video.Window()
+        self.assertEqual(window.title, self.default_caption)
+
+    def test_window_software_render(self):
+        window = video.Window()
+        screen = window.get_surface()
+
+        screen.fill("red")
+        window.flip()
+
+    def test_window_opacity(self):
+        window = video.Window()
+
+        self.assertEqual(window.opacity, 1.0)
+
+        window.opacity = 0.4
+        self.assertAlmostEqual(window.opacity, 0.4, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

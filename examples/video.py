@@ -11,15 +11,9 @@ Experimental!
 """
 import os
 import pygame as pg
-
-if pg.get_sdl_version()[0] < 2:
-    raise SystemExit(
-        "This example requires pygame 2 and SDL2. _sdl2 is experimental and will change."
-    )
 from pygame._sdl2 import Window, Texture, Image, Renderer, get_drivers, messagebox
 
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
-
 
 def load_img(file):
     return pg.image.load(os.path.join(data_dir, file))
@@ -63,12 +57,12 @@ renderer.draw_color = backgrounds[bg_index]
 win2 = Window("2nd window", size=(256, 256), always_on_top=True)
 win2.opacity = 0.5
 win2.set_icon(load_img("bomb.gif"))
-renderer2 = Renderer(win2)
-tex2 = Texture.from_surface(renderer2, load_img("asprite.bmp"))
-renderer2.clear()
-tex2.draw()
-renderer2.present()
-del tex2
+
+screen2 = win2.get_surface()
+asprite = load_img("asprite.bmp")
+asprite = pg.transform.scale(asprite, (128,128))
+screen2.blit(asprite, (64,64))
+win2.flip()
 
 full = 0
 
@@ -157,6 +151,6 @@ while running:
     renderer.present()
 
     clock.tick(60)
-    win.title = str("FPS: {}".format(clock.get_fps()))
+    win.title = str(f"FPS: {round(clock.get_fps(), 1)}".format(clock.get_fps()))
 
 pg.quit()
