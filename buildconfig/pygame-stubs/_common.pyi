@@ -1,5 +1,5 @@
 from os import PathLike
-from typing import IO, List, Sequence, Tuple, Union
+from typing import IO, List, Sequence, Tuple, Union, Callable
 
 from typing_extensions import Protocol
 
@@ -16,7 +16,7 @@ _FileArg = Union[_AnyPath, IO[bytes], IO[str]]
 
 _Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
-# This typehint is used when a function would return an RGBA tuble
+# This typehint is used when a function would return an RGBA tuple
 _RgbaOutput = Tuple[int, int, int, int]
 _ColorValue = Union[Color, int, str, Tuple[int, int, int], List[int], _RgbaOutput]
 
@@ -31,4 +31,7 @@ _CanBeRect = Union[
 class _HasRectAttribute(Protocol):
     rect: _CanBeRect
 
-_RectValue = Union[_CanBeRect, _HasRectAttribute]
+class _HasCallableRectAttribute(Protocol):
+    rect: Callable[[], _RectValue]
+
+_RectValue = Union[_CanBeRect, _HasRectAttribute, _HasCallableRectAttribute]

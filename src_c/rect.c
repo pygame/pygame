@@ -695,6 +695,8 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
     return ret;
 }
 
+// todo clean up!
+// todo check refrences, memory
 static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {

@@ -358,6 +358,7 @@
       Returns a list of all the objects that contain rectangles that collide
       with the Rect. If no intersecting rectangles are found, an empty list is
       returned.
+      TODO describe key=
 
       .. ## Rect.collidelistobjects ##
 

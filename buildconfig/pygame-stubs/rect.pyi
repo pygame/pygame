@@ -1,7 +1,7 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Any, Callable
 
 from pygame.math import Vector2
-from ._common import _Coordinate, _CanBeRect
+from ._common import _Coordinate, _CanBeRect, _RectValue
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
@@ -208,6 +208,14 @@ class Rect:
     def collidelistall(
         self, rect_list: Sequence[Union[Rect, _CanBeRect]]
     ) -> List[int]: ...
+    @overload
+    def collidelistobjects(
+        self, obj_list: Sequence[_RectValue], key: Callable[[Any], _RectValue]=None
+    ) -> List[_RectValue]: ...
+    @overload
+    def collidelistobjects(
+        self, obj_list: List, key: Callable[[Any], _RectValue]=None
+    ) -> List: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.
