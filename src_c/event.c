@@ -1485,7 +1485,7 @@ Unimplemented:
 }
 
 static int
-pg_event_populate(pgEventObject *event, int type, PyObject *dict)
+_pg_event_populate(pgEventObject *event, int type, PyObject *dict)
 {
     event->type = _pg_pgevent_deproxify(type);
     if (!dict) {
@@ -1539,7 +1539,7 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
         }
     }
 
-    if (pg_event_populate(self, type, dict) == -1) {
+    if (_pg_event_populate(self, type, dict) == -1) {
         return -1;
     }
 
@@ -1623,7 +1623,7 @@ pgEvent_New2(int type, PyObject *dict)
     if (!e)
         return PyErr_NoMemory();
 
-    if (pg_event_populate(e, type, dict) == -1) {
+    if (_pg_event_populate(e, type, dict) == -1) {
         PyObject_Free(e);
         return NULL;
     }

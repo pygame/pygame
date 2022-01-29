@@ -477,24 +477,24 @@ clock_str(PyObject *self)
 }
 
 static PyObject *
-clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+clock_init(PyClockObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyClockObject *_clock = (PyClockObject *)type->tp_alloc(type, 0);
-
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER))
-            return RAISE(pgExc_SDLError, SDL_GetError());
+        if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            return -1;
+        }
     }
 
-    _clock->fps_tick = 0;
-    _clock->timepassed = 0;
-    _clock->rawpassed = 0;
-    _clock->last_tick = SDL_GetTicks();
-    _clock->fps = 0.0f;
-    _clock->fps_count = 0;
-    _clock->rendered = NULL;
+    self->fps_tick = 0;
+    self->timepassed = 0;
+    self->rawpassed = 0;
+    self->last_tick = SDL_GetTicks();
+    self->fps = 0.0f;
+    self->fps_count = 0;
+    self->rendered = NULL;
 
-    return (PyObject *)_clock;
+    return 0;
 }
 
 static PyTypeObject PyClock_Type = {
@@ -532,9 +532,9 @@ static PyTypeObject PyClock_Type = {
     0,                                      /* tp_descr_get */
     0,                                      /* tp_descr_set */
     0,                                      /* tp_dictoffset */
-    0,                                      /* tp_init */
+    (initproc) clock_init,                  /* tp_init */
     0,                                      /* tp_alloc */
-    clock_new,                              /* tp_new */
+    PyType_GenericNew,                      /* tp_new */
 };
 
 static PyMethodDef _time_methods[] = {
