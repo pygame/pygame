@@ -156,7 +156,7 @@ def create_bounding_rect(surface, surf_color, default_pos):
     return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
 
 
-class InvalidBool(object):
+class InvalidBool:
     """To help test invalid bool values."""
 
     __nonzero__ = None
@@ -195,7 +195,7 @@ class PythonDrawTestCase(unittest.TestCase):
 ### Ellipse Testing ###########################################################
 
 
-class DrawEllipseMixin(object):
+class DrawEllipseMixin:
     """Mixin tests for drawing ellipses.
 
     This class contains all the general ellipse drawing tests.
@@ -1075,7 +1075,7 @@ class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
 ### Line/Lines/AALine/AALines Testing #########################################
 
 
-class BaseLineMixin(object):
+class BaseLineMixin:
     """Mixin base for drawing various lines.
 
     This class contains general helper methods and setup for testing the
@@ -3837,7 +3837,7 @@ CROSS = (
 )
 
 
-class DrawPolygonMixin(object):
+class DrawPolygonMixin:
     """Mixin tests for drawing polygons.
 
     This class contains all the general polygon drawing tests.
@@ -4446,7 +4446,7 @@ class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
 ### Rect Testing ##############################################################
 
 
-class DrawRectMixin(object):
+class DrawRectMixin:
     """Mixin tests for drawing rects.
 
     This class contains all the general rect drawing tests.
@@ -4950,6 +4950,35 @@ class DrawRectMixin(object):
 
             self.assertNotEqual(color_at_pt, self.color)
 
+    def test_rect__draw_line_width(self):
+        surface = pygame.Surface((100, 100))
+        surface.fill("black")
+        color = pygame.Color(255, 255, 255)
+        rect_width = 80
+        rect_height = 50
+        line_width = 10
+        pygame.draw.rect(
+            surface, color, pygame.Rect(0, 0, rect_width, rect_height), line_width
+        )
+        for i in range(line_width):
+            self.assertEqual(surface.get_at((i, i)), color)
+            self.assertEqual(surface.get_at((rect_width - i - 1, i)), color)
+            self.assertEqual(surface.get_at((i, rect_height - i - 1)), color)
+            self.assertEqual(
+                surface.get_at((rect_width - i - 1, rect_height - i - 1)), color
+            )
+        self.assertEqual(surface.get_at((line_width, line_width)), (0, 0, 0))
+        self.assertEqual(
+            surface.get_at((rect_width - line_width - 1, line_width)), (0, 0, 0)
+        )
+        self.assertEqual(
+            surface.get_at((line_width, rect_height - line_width - 1)), (0, 0, 0)
+        )
+        self.assertEqual(
+            surface.get_at((rect_width - line_width - 1, rect_height - line_width - 1)),
+            (0, 0, 0),
+        )
+
     def test_rect__bounding_rect(self):
         """Ensures draw rect returns the correct bounding rect.
 
@@ -5067,7 +5096,7 @@ class DrawRectTest(DrawRectMixin, DrawTestCase):
 ### Circle Testing ############################################################
 
 
-class DrawCircleMixin(object):
+class DrawCircleMixin:
     """Mixin tests for drawing circles.
 
     This class contains all the general circle drawing tests.
@@ -5849,7 +5878,7 @@ class DrawCircleTest(DrawCircleMixin, DrawTestCase):
 ### Arc Testing ###############################################################
 
 
-class DrawArcMixin(object):
+class DrawArcMixin:
     """Mixin tests for drawing arcs.
 
     This class contains all the general arc drawing tests.

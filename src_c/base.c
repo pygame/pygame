@@ -480,10 +480,12 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_IntFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_IntFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -523,10 +525,12 @@ pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_FloatFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_FloatFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -553,10 +557,15 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
         PyObject *longobj;
 
         if (!(longobj = PyNumber_Long(obj))) {
+            PyErr_Clear();
             return 0;
         }
         *val = (Uint32)PyLong_AsUnsignedLong(longobj);
         Py_DECREF(longobj);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
         return 1;
     }
     return 0;
@@ -568,10 +577,12 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_UintFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_UintFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -2058,11 +2069,9 @@ static PyMethodDef _base_methods[] = {
 
 MODINIT_DEFINE(base)
 {
-    static int is_loaded = 0;
-    PyObject *module, *dict, *apiobj;
-    PyObject *atexit_register = NULL;
+    PyObject *module, *apiobj, *atexit;
+    PyObject *atexit_register;
     PyObject *pgExc_SDLError;
-    int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2075,59 +2084,41 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL};
 
-    if (!is_loaded) {
-        /* import need modules. Do this first so if there is an error
-           the module is not loaded.
-        */
-        PyObject *atexit = PyImport_ImportModule("atexit");
+    /* import need modules. Do this first so if there is an error
+        the module is not loaded.
+    */
+    atexit = PyImport_ImportModule("atexit");
+    if (!atexit) {
+        return NULL;
+    }
 
-        if (!atexit) {
-            return NULL;
-        }
-        atexit_register = PyObject_GetAttrString(atexit, "register");
-        Py_DECREF(atexit);
-        if (!atexit_register) {
-            return NULL;
-        }
+    atexit_register = PyObject_GetAttrString(atexit, "register");
+    Py_DECREF(atexit);
+    if (!atexit_register) {
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
-    if (module == NULL) {
-        return NULL;
+    if (!module) {
+        goto error;
     }
-    dict = PyModule_GetDict(module);
 
     /* create the exceptions */
     pgExc_SDLError =
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, "error", pgExc_SDLError);
-    Py_DECREF(pgExc_SDLError);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_AddObject(module, "error", pgExc_SDLError)) {
+        Py_XDECREF(pgExc_SDLError);
+        goto error;
     }
 
     pgExc_BufferError =
         PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
-
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, "BufferError", pgExc_BufferError);
-    if (ecode) {
-        Py_DECREF(pgExc_BufferError);
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
+    /* Because we need a reference to BufferError in the base module */
+    Py_XINCREF(pgExc_BufferError);
+    if (PyModule_AddObject(module, "BufferError", pgExc_BufferError)) {
+        Py_XDECREF(pgExc_BufferError);
+        goto error;
     }
 
     /* export the c api */
@@ -2162,62 +2153,43 @@ MODINIT_DEFINE(base)
 #endif
 
     apiobj = encapsulate_api(c_api, "base");
-    if (apiobj == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        goto error;
     }
 
     if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
+        goto error;
     }
 
-    if (!is_loaded) {
-        /*some intialization*/
-        PyObject *quit = PyObject_GetAttrString(module, "quit");
-        PyObject *rval;
+    /*some intialization*/
+    PyObject *quit = PyObject_GetAttrString(module, "quit");
+    PyObject *rval;
 
-        if (quit == NULL) { /* assertion */
-            Py_DECREF(atexit_register);
-            Py_DECREF(pgExc_BufferError);
-            Py_DECREF(module);
-            return NULL;
-        }
-        rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
-        Py_DECREF(atexit_register);
-        Py_DECREF(quit);
-        if (rval == NULL) {
-            Py_DECREF(module);
-            Py_DECREF(pgExc_BufferError);
-            return NULL;
-        }
-        Py_DECREF(rval);
-        Py_AtExit(pg_atexit_quit);
+    if (!quit) { /* assertion */
+        goto error;
+    }
+    rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
+    Py_DECREF(atexit_register);
+    Py_DECREF(quit);
+    atexit_register = NULL;
+    if (!rval) {
+        goto error;
+    }
+    Py_DECREF(rval);
+    Py_AtExit(pg_atexit_quit);
 #ifdef HAVE_SIGNAL_H
-        pg_install_parachute();
+    pg_install_parachute();
 #endif
 
 #ifdef MS_WIN32
-        SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+    SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
-#if defined(macintosh)
-#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-        SDL_InitQuickDraw(&pg_qd);
-#endif
-#endif
-    }
-    is_loaded = 1;
     return module;
+
+error:
+    Py_XDECREF(pgExc_BufferError);
+    Py_XDECREF(atexit_register);
+    Py_XDECREF(module);
+    return NULL;
 }

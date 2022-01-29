@@ -2269,7 +2269,7 @@ static PyMethodDef vector2_methods[] = {
     {"rotate_rad_ip", (PyCFunction)vector2_rotate_rad_ip, METH_O,
      DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
-     DOC_VECTOR2ROTATERADIP},
+     DOC_VECTOR2ROTATEIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -3191,7 +3191,7 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_rad_ip", (PyCFunction)vector3_rotate_rad_ip, METH_VARARGS,
      DOC_VECTOR3ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector3_rotate_ip_rad, METH_VARARGS,
-     DOC_VECTOR3ROTATERADIP},
+     DOC_VECTOR3ROTATEIPRAD},
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O, DOC_VECTOR3ROTATEX},
     {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
      DOC_VECTOR3ROTATEXIP},
@@ -3200,7 +3200,7 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_x_rad_ip", (PyCFunction)vector3_rotate_x_rad_ip, METH_O,
      DOC_VECTOR3ROTATEXRADIP},
     {"rotate_x_ip_rad", (PyCFunction)vector3_rotate_x_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEXRADIP},
+     DOC_VECTOR3ROTATEXIPRAD},
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O, DOC_VECTOR3ROTATEY},
     {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
      DOC_VECTOR3ROTATEYIP},
@@ -3209,7 +3209,7 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_y_rad_ip", (PyCFunction)vector3_rotate_y_rad_ip, METH_O,
      DOC_VECTOR3ROTATEYRADIP},
     {"rotate_y_ip_rad", (PyCFunction)vector3_rotate_y_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEYRADIP},
+     DOC_VECTOR3ROTATEYIPRAD},
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O, DOC_VECTOR3ROTATEZ},
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
      DOC_VECTOR3ROTATEZIP},
@@ -3218,7 +3218,7 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_z_rad_ip", (PyCFunction)vector3_rotate_z_rad_ip, METH_O,
      DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
-     DOC_VECTOR3ROTATEZRADIP},
+     DOC_VECTOR3ROTATEZIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -4206,13 +4206,8 @@ MODINIT_DEFINE(math)
     c_api[4] = pgVectorCompatible_Check;
     */
     apiobj = encapsulate_api(c_api, "math");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
-        Py_DECREF(apiobj);
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

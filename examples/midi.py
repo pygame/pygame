@@ -16,6 +16,9 @@ import os
 import pygame as pg
 import pygame.midi
 
+# black and white piano keys use b/w color values directly
+BACKGROUNDCOLOR = "slategray"
+
 
 def print_device_info():
     pygame.midi.init()
@@ -130,8 +133,6 @@ def output_main(device_id=None):
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
 
-    bg_color = pg.Color("slategray")
-
     key_mapping = make_key_mapping(
         [
             pg.K_TAB,
@@ -180,11 +181,11 @@ def output_main(device_id=None):
         keyboard = Keyboard(start_note, n_notes)
 
         screen = pg.display.set_mode(keyboard.rect.size)
-        screen.fill(bg_color)
+        screen.fill(BACKGROUNDCOLOR)
         pg.display.flip()
 
         background = pg.Surface(screen.get_size())
-        background.fill(bg_color)
+        background.fill(BACKGROUNDCOLOR)
         dirty_rects = []
         keyboard.draw(screen, background, dirty_rects)
         pg.display.update(dirty_rects)
@@ -195,7 +196,7 @@ def output_main(device_id=None):
         pg.event.set_blocked(pg.MOUSEMOTION)
         mouse_note = 0
         on_notes = set()
-        while 1:
+        while True:
             e = pg.event.wait()
             if e.type == pg.MOUSEBUTTONDOWN:
                 mouse_note, velocity, __, __ = regions.get_at(e.pos)
@@ -252,7 +253,7 @@ def make_key_mapping(keys, start_note):
     return mapping
 
 
-class NullKey(object):
+class NullKey:
     """A dummy key that ignores events passed to it by other keys
 
     A NullKey instance is the left key instance used by default
@@ -423,7 +424,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
         )
         c_event_right_black_up[down_state_all] = (down_state_self_white, image_rects[2])
 
-    class Key(object):
+    class Key:
         """A key widget, maintains key state and draws the key's image
 
         Constructor arguments:
@@ -620,7 +621,7 @@ def key_images():
     return strip, rects
 
 
-class Keyboard(object):
+class Keyboard:
     """Musical keyboard widget
 
     Constructor arguments:

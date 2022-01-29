@@ -334,6 +334,7 @@ pg_vidinfo_str(PyObject *self)
     int current_w = -1;
     int current_h = -1;
     pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+    const char *pixel_format_name = SDL_GetPixelFormatName(info->vfmt->format);
 
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
@@ -353,6 +354,7 @@ pg_vidinfo_str(PyObject *self)
             "         shifts = (%d, %d, %d, %d),\n"
             "         losses =  (%d, %d, %d, %d),\n"
             "         current_w = %d, current_h = %d\n"
+            "         pixel_format = %s\n"
             ">\n",
             info->hw_available, info->wm_available, info->video_mem,
             info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
@@ -361,7 +363,7 @@ pg_vidinfo_str(PyObject *self)
             info->vfmt->Bmask, info->vfmt->Amask, info->vfmt->Rshift,
             info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
             info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-            info->vfmt->Aloss, current_w, current_h);
+            info->vfmt->Aloss, current_w, current_h, pixel_format_name);
     return PyUnicode_FromString(str);
 }
 
@@ -1621,6 +1623,7 @@ pg_update(PyObject *self, PyObject *arg)
 
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
+
     if (pg_renderer != NULL) {
         return pg_flip(self);
     }
@@ -1633,21 +1636,14 @@ pg_update(PyObject *self, PyObject *arg)
     if (PyTuple_Size(arg) == 0) {
         return pg_flip(self);
     }
-    else {
-        obj = PyTuple_GET_ITEM(arg, 0);
-        if (obj == Py_None)
-            gr = &temp;
-        else {
-            gr = pgRect_FromObject(arg, &temp);
-            if (!gr)
-                PyErr_Clear();
-            else if (gr != &temp) {
-                memcpy(&temp, gr, sizeof(temp));
-                gr = &temp;
-            }
-        }
+
+    if (PyTuple_GET_ITEM(arg, 0) == Py_None) {
+        /* This is to comply with old behaviour of the function, might be worth
+         * deprecating this in the future */
+        Py_RETURN_NONE;
     }
 
+    gr = pgRect_FromObject(arg, &temp);
     if (gr) {
         SDL_Rect sdlr;
 
@@ -1663,12 +1659,12 @@ pg_update(PyObject *self, PyObject *arg)
         if (PyTuple_Size(arg) != 1)
             return RAISE(
                 PyExc_ValueError,
-                "update requires a rectstyle or sequence of recstyles");
+                "update requires a rectstyle or sequence of rectstyles");
         seq = PyTuple_GET_ITEM(arg, 0);
         if (!seq || !PySequence_Check(seq))
             return RAISE(
                 PyExc_ValueError,
-                "update requires a rectstyle or sequence of recstyles");
+                "update requires a rectstyle or sequence of rectstyles");
 
         num = PySequence_Length(seq);
         rects = PyMem_New(SDL_Rect, num);

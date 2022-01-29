@@ -2,20 +2,16 @@ import pygame
 
 pygame.init()
 
-# Define some colors.
-BLACK = pygame.Color("black")
-WHITE = pygame.Color("white")
-
 # This is a simple class that will help us print to the screen.
 # It has nothing to do with the joysticks, just outputting the
 # information.
-class TextPrint(object):
+class TextPrint:
     def __init__(self):
         self.reset()
         self.font = pygame.font.Font(None, 20)
 
     def tprint(self, screen, text):
-        text_bitmap = self.font.render(text, True, BLACK)
+        text_bitmap = self.font.render(text, True, "black")
         screen.blit(text_bitmap, (self.x, self.y))
         self.y += self.line_height
 
@@ -84,7 +80,7 @@ def main():
         # Drawing step
         # First, clear the screen to white. Don't put other drawing commands
         # above this, or they will be erased with this command.
-        screen.fill(WHITE)
+        screen.fill("white")
         text_print.reset()
 
         text_print.tprint(screen, "Number of joysticks: {}".format(len(joysticks)))

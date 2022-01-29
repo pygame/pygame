@@ -471,7 +471,9 @@ class FontTypeTest(unittest.TestCase):
         # http://www.mail-archive.com/pygame-users@seul.org/msg11675.html
 
         pygame_font.init()
-        self.assertRaises(IOError, pygame_font.Font, str("some-fictional-font.ttf"), 20)
+        self.assertRaises(
+            FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20
+        )
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
@@ -510,7 +512,7 @@ class FontTypeTest(unittest.TestCase):
         try:
             with open(temp, "rb") as f:
                 pass
-        except IOError:
+        except FileNotFoundError:
             raise unittest.SkipTest("the path cannot be opened")
         try:
             pygame_font.Font(temp, 20)
@@ -594,7 +596,7 @@ class VisualTests(unittest.TestCase):
         s = f.render("(some comparison text)", False, (0, 0, 0))
         screen.blit(s, (offset, y))
         pygame.display.flip()
-        while 1:
+        while True:
             for evt in pygame.event.get():
                 if evt.type == pygame.KEYDOWN:
                     if evt.key == pygame.K_ESCAPE:

@@ -95,7 +95,7 @@ from pygame.time import get_ticks
 from pygame.mask import from_surface
 
 
-class Sprite(object):
+class Sprite:
     """simple base class for visible game objects
 
     pygame.sprite.Sprite(*groups): return Sprite
@@ -343,7 +343,7 @@ class DirtySprite(Sprite):
         )
 
 
-class AbstractGroup(object):
+class AbstractGroup:
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
@@ -386,7 +386,7 @@ class AbstractGroup(object):
         :param sprite: The sprite we are adding.
         :param layer: the layer to add to, if the group type supports layers
         """
-        self.spritedict[sprite] = 0
+        self.spritedict[sprite] = None
 
     def remove_internal(self, sprite):
         """

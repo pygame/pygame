@@ -20,10 +20,6 @@
 #ifndef _PYGAME_FREETYPE_INTERNAL_H_
 #define _PYGAME_FREETYPE_INTERNAL_H_
 
-#define PGFT_PYGAME1_COMPAT
-#define HAVE_PYGAME_SDL_VIDEO
-#define HAVE_PYGAME_SDL_RWOPS
-
 #include "pgcompat.h"
 #include "pgplatform.h"
 

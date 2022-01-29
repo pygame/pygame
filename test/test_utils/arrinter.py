@@ -103,7 +103,7 @@ PAI_WRITEABLE = 0x400
 PAI_ARR_HAS_DESCR = 0x800
 
 
-class ArrayInterface(object):
+class ArrayInterface:
     def __init__(self, arr):
         try:
             self._cobj = arr.__array_struct__
@@ -176,7 +176,7 @@ def format_strides(nd, strides):
     return ", ".join([str(strides[i]) for i in range(nd)])
 
 
-class Exporter(object):
+class Exporter:
     def __init__(
         self, shape, typekind=None, itemsize=None, strides=None, descr=None, flags=None
     ):

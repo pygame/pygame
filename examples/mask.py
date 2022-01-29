@@ -171,7 +171,7 @@ def main(*args):
         s.setVelocity((random.uniform(-5, 5), random.uniform(-5, 5)))
         sprites.append(s)
     pg.time.set_timer(pg.USEREVENT, 33)
-    while 1:
+    while True:
         event = pg.event.wait()
         if event.type == pg.QUIT:
             return

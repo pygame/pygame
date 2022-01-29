@@ -47,7 +47,7 @@ class SoftwareVersion(tuple):
         return f"{str(self.__class__.__name__)}({', '.join(fields)})"
 
     def __str__(self):
-        return f"{major}.{minor}.{patch}"
+        return f"{self.major}.{self.minor}.{self.patch}"
 
     major = property(lambda self: self[0])
     minor = property(lambda self: self[1])

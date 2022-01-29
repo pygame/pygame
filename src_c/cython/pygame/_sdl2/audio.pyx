@@ -103,7 +103,7 @@ cdef class AudioDevice:
                  callback):
         """ An AudioDevice is for sound playback and capture of 'sound cards'.
 
-        :param bytes devicename: One of the device names from get_audio_device_name.
+        :param string devicename: One of the device names from get_audio_device_names.
                                  If None is passed in, it uses the default audio device.
         :param int frequency: Number of samples per second. 44100, 22050, ...
         :param int audioformat: AUDIO_F32SYS, AUDIO_F32SYS, AUDIO_U16SYS, AUDIO_S16SYS, ...
@@ -128,6 +128,8 @@ cdef class AudioDevice:
         memset(&self.desired, 0, sizeof(SDL_AudioSpec))
         self._iscapture = iscapture
         self._callback = callback
+        if not isinstance(devicename, str):
+            raise TypeError("devicename must be a string")
         self._devicename = devicename
 
         self.desired.freq = frequency;
@@ -138,7 +140,7 @@ cdef class AudioDevice:
         self.desired.userdata = <void*>self
 
         self._deviceid = SDL_OpenAudioDevice(
-            devicename,
+            self._devicename.encode("utf-8"),
             self._iscapture,
             &self.desired,
             &self.obtained,

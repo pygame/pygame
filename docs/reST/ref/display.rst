@@ -242,6 +242,9 @@ required).
    instead of the entire area. If no argument is passed it updates the entire
    Surface area like ``pygame.display.flip()``.
 
+   Note that calling ``display.update(None)`` means no part of the window is
+   updated. Whereas ``display.update()`` means the whole window is updated.
+
    You can pass the function a single rectangle, or a sequence of rectangles.
    It is more efficient to pass many rectangles at once than to call update
    multiple times with single or a partial list of rectangles. If passing a
@@ -610,8 +613,8 @@ required).
    | :sg:`set_caption(title, icontitle=None) -> None`
 
    If the display has a window title, this function will change the name on the
-   window. Some systems support an alternate shorter title to be used for
-   minimized displays.
+   window. In pygame 1.x, some systems supported an alternate shorter title to
+   be used for minimized displays, but in pygame 2 ``icontitle`` does nothing.
 
    .. ## pygame.display.set_caption ##
 
@@ -620,8 +623,8 @@ required).
    | :sl:`Get the current window caption`
    | :sg:`get_caption() -> (title, icontitle)`
 
-   Returns the title and icontitle for the display Surface. These will often be
-   the same value.
+   Returns the title and icontitle for the display window. In pygame 2.x
+   these will always be the same value.
 
    .. ## pygame.display.get_caption ##
 

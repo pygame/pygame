@@ -20,22 +20,6 @@ class DisplayModuleTest(unittest.TestCase):
     def tearDown(self):
         display.quit()
 
-    def test_update(self):
-        """see if pygame.display.update takes rects with negative values.
-        "|Tags:display|"
-        """
-        screen = pygame.display.set_mode((100, 100))
-        screen.fill((55, 55, 55))
-
-        r1 = pygame.Rect(0, 0, 100, 100)
-        pygame.display.update(r1)
-
-        r2 = pygame.Rect(-10, 0, 100, 100)
-        pygame.display.update(r2)
-
-        r3 = pygame.Rect(-10, 0, -100, -100)
-        pygame.display.update(r3)
-
     def test_Info(self):
         inf = pygame.display.Info()
         self.assertNotEqual(inf.current_h, -1)
@@ -480,15 +464,22 @@ class DisplayModuleTest(unittest.TestCase):
     )
     def test_set_gamma(self):
         pygame.display.set_mode((1, 1))
-        gammas = [0.0, 0.25, 0.5, 0.88, 1.0]
+
+        gammas = [0.25, 0.5, 0.88, 1.0]
         for gamma in gammas:
-            self.assertEqual(pygame.display.set_gamma(gamma), True)
-        gammas = [(0.5, 0.5, 0.5), (1.0, 1.0, 1.0), (0.22, 0.33, 0.44), (0.0, 0.0, 0.0)]
-        for gammaTuple in gammas:
-            self.assertEqual(
-                pygame.display.set_gamma(gammaTuple[0], gammaTuple[1], gammaTuple[2]),
-                True,
-            )
+            with self.subTest(gamma=gamma):
+                self.assertEqual(pygame.display.set_gamma(gamma), True)
+
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy", "Needs a not dummy videodriver"
+    )
+    def test_set_gamma__tuple(self):
+        pygame.display.set_mode((1, 1))
+
+        gammas = [(0.5, 0.5, 0.5), (1.0, 1.0, 1.0), (0.25, 0.33, 0.44)]
+        for r, g, b in gammas:
+            with self.subTest(r=r, g=g, b=b):
+                self.assertEqual(pygame.display.set_gamma(r, g, b), True)
 
     @unittest.skipIf(
         not hasattr(pygame.display, "set_gamma_ramp"),
@@ -635,6 +626,112 @@ class DisplayModuleTest(unittest.TestCase):
                 self.assertEqual(
                     (test_surf.get_width(), test_surf.get_height()), width_height
                 )
+
+
+class DisplayUpdateTest(unittest.TestCase):
+    def question(self, qstr):
+        """this is used in the interactive subclass."""
+
+    def setUp(self):
+        display.init()
+        self.screen = pygame.display.set_mode((500, 500))
+        self.screen.fill("black")
+        pygame.display.flip()
+        pygame.event.pump()  # so mac updates
+
+    def tearDown(self):
+        display.quit()
+
+    def test_update_negative(self):
+        """takes rects with negative values."""
+        self.screen.fill("green")
+
+        r1 = pygame.Rect(0, 0, 100, 100)
+        pygame.display.update(r1)
+
+        r2 = pygame.Rect(-10, 0, 100, 100)
+        pygame.display.update(r2)
+
+        r3 = pygame.Rect(-10, 0, -100, -100)
+        pygame.display.update(r3)
+
+        self.question("Is the screen green in (0, 0, 100, 100)?")
+
+    def test_update_sequence(self):
+        """only updates the part of the display given by the rects."""
+        self.screen.fill("green")
+        rects = [
+            pygame.Rect(0, 0, 100, 100),
+            pygame.Rect(100, 0, 100, 100),
+            pygame.Rect(200, 0, 100, 100),
+            pygame.Rect(300, 300, 100, 100),
+        ]
+        pygame.display.update(rects)
+        pygame.event.pump()  # so mac updates
+
+        self.question(f"Is the screen green in {rects}?")
+
+    def test_update_none_skipped(self):
+        """None is skipped inside sequences."""
+        self.screen.fill("green")
+        rects = (
+            None,
+            pygame.Rect(100, 0, 100, 100),
+            None,
+            pygame.Rect(200, 0, 100, 100),
+            pygame.Rect(300, 300, 100, 100),
+        )
+        pygame.display.update(rects)
+        pygame.event.pump()  # so mac updates
+
+        self.question(f"Is the screen green in {rects}?")
+
+    def test_update_none(self):
+        """does NOT update the display."""
+        self.screen.fill("green")
+        pygame.display.update(None)
+        pygame.event.pump()  # so mac updates
+        self.question(f"Is the screen black and NOT green?")
+
+    def test_update_no_args(self):
+        """does NOT update the display."""
+        self.screen.fill("green")
+        pygame.display.update()
+        pygame.event.pump()  # so mac updates
+        self.question(f"Is the WHOLE screen green?")
+
+    def test_update_args(self):
+        """updates the display using the args as a rect."""
+        self.screen.fill("green")
+        pygame.display.update(100, 100, 100, 100)
+        pygame.event.pump()  # so mac updates
+        self.question("Is the screen green in (100, 100, 100, 100)?")
+
+    def test_update_incorrect_args(self):
+        """raises a ValueError when inputs are wrong."""
+
+        with self.assertRaises(ValueError):
+            pygame.display.update(100, "asdf", 100, 100)
+
+        with self.assertRaises(ValueError):
+            pygame.display.update([100, "asdf", 100, 100])
+
+    def test_update_no_init(self):
+        """raises a pygame.error."""
+
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
+            pygame.display.update()
+
+
+class DisplayUpdateInteractiveTest(DisplayUpdateTest):
+    """Because we want these tests to run as interactive and not interactive."""
+
+    __tags__ = ["interactive"]
+
+    def question(self, qstr):
+        """since this is the interactive sublcass we ask a question."""
+        question(qstr)
 
 
 class DisplayInteractiveTest(unittest.TestCase):

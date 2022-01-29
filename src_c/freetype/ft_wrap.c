@@ -379,7 +379,7 @@ init(FreeTypeInstance *ft, pgFontObject *fontobj)
 
     font = _PGFT_GetFont(ft, fontobj);
     if (!font) {
-        PyErr_SetString(PyExc_IOError, _PGFT_GetError(ft));
+        PyErr_SetString(PyExc_FileNotFoundError, _PGFT_GetError(ft));
         return -1;
     }
     fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
@@ -417,6 +417,20 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, pgFontObject *fontobj,
     char *filename_alloc;
     size_t file_len;
 
+    /* There seems to be an intermittent crash with opening
+       a missing file and freetype 2.11.1 on mac homebrew.
+       python3 test/ftfont_test.py -k test_font_file_not_found
+
+       So instead we look for a missing file with SDL_RWFromFile first.
+    */
+    SDL_RWops *sdlfile = SDL_RWFromFile(filename, "rb");
+    if (!sdlfile) {
+        PyErr_Format(PyExc_FileNotFoundError,
+                     "No such file or directory: '%s'.", filename);
+        return -1;
+    }
+    SDL_RWclose(sdlfile);
+
     file_len = strlen(filename);
     filename_alloc = _PGFT_malloc(file_len + 1);
     if (!filename_alloc) {
@@ -434,7 +448,6 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, pgFontObject *fontobj,
     return init(ft, fontobj);
 }
 
-#ifdef HAVE_PYGAME_SDL_RWOPS
 static unsigned long
 RWops_read(FT_Stream stream, unsigned long offset, unsigned char *buffer,
            unsigned long count)
@@ -488,7 +501,6 @@ _PGFT_GetRWops(pgFontObject *fontobj)
         return fontobj->id.open_args.stream->descriptor.pointer;
     return NULL;
 }
-#endif
 
 void
 _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)

@@ -44,13 +44,15 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to C int and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, ``0`` on failure.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_TwoIntsFromObj(PyObject *obj, int *val1, int *v2)
 
    Convert the two number like objects in length 2 sequence *obj*
    to C int and place in arguments *val1* and *val2* respectively.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, ``0`` on failure.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_FloatFromObj(PyObject *obj, float *val)
 
@@ -63,13 +65,15 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to C float and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 
    Convert the two number like objects in length 2 sequence *obj*
    to C float and place in arguments *val1* and *val2* respectively.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_UintFromObj(PyObject *obj, Uint32 *val)
 
@@ -82,7 +86,8 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to unsigned 32 bit integer and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 

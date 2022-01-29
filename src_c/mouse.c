@@ -475,8 +475,6 @@ static PyMethodDef _mouse_methods[] = {
 
 MODINIT_DEFINE(mouse)
 {
-    PyObject *module;
-
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mouse",
                                          DOC_PYGAMEMOUSE,
@@ -500,9 +498,5 @@ MODINIT_DEFINE(mouse)
     }
 
     /* create the module */
-    module = PyModule_Create(&_module);
-    if (module == NULL) {
-        return NULL;
-    }
-    return module;
+    return PyModule_Create(&_module);
 }

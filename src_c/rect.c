@@ -113,38 +113,26 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
     }
     else if (length == 4) {
         if (!pg_IntFromObjIndex(obj, 0, val1)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for first argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for first argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 1, val2)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for second argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for second argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 2, val3)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for third argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for third argument");
             return 0;
         }
 
         if (!pg_IntFromObjIndex(obj, 3, val4)) {
-            if (!PyErr_Occurred()) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number expected for forth argument");
-            }
-
+            PyErr_SetString(PyExc_TypeError,
+                            "number expected for fourth argument");
             return 0;
         }
     }
@@ -257,6 +245,7 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             PyObject *sub = PySequence_GetItem(obj, 0);
             if (!sub || !PySequence_Check(sub) ||
                 PySequence_Length(sub) != 2) {
+                PyErr_Clear();
                 Py_XDECREF(sub);
                 return NULL;
             }
@@ -275,6 +264,7 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             sub = PySequence_GetItem(obj, 1);
             if (sub == NULL || !PySequence_Check(sub) ||
                 PySequence_Length(sub) != 2) {
+                PyErr_Clear();
                 Py_XDECREF(sub);
                 return NULL;
             }
@@ -302,11 +292,16 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
         PyObject *rectattr;
         SDL_Rect *returnrect;
         rectattr = PyObject_GetAttrString(obj, "rect");
+        if (rectattr == NULL) {
+            PyErr_Clear();
+            return NULL;
+        }
         if (PyCallable_Check(rectattr)) /*call if it's a method*/
         {
             PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
             Py_DECREF(rectattr);
             if (rectresult == NULL) {
+                PyErr_Clear();
                 return NULL;
             }
             rectattr = rectresult;
@@ -927,7 +922,7 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for forth argument");
+                         "number expected for fourth argument");
         }
     }
     else {
@@ -988,7 +983,13 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
     }
-    return _pg_rect_contains(self, arg);
+    int ret = _pg_rect_contains(self, arg);
+    if (ret < 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "'in <pygame.Rect>' requires rect style object"
+                        " or int as left operand");
+    }
+    return ret;
 }
 
 static PyObject *
@@ -2056,8 +2057,7 @@ static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(rect)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_RECT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2087,13 +2087,16 @@ MODINIT_DEFINE(rect)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
-    if (PyDict_SetItemString(dict, "RectType", (PyObject *)&pgRect_Type)) {
+    Py_INCREF(&pgRect_Type);
+    if (PyModule_AddObject(module, "RectType", (PyObject *)&pgRect_Type)) {
+        Py_DECREF(&pgRect_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "Rect", (PyObject *)&pgRect_Type)) {
+    Py_INCREF(&pgRect_Type);
+    if (PyModule_AddObject(module, "Rect", (PyObject *)&pgRect_Type)) {
+        Py_DECREF(&pgRect_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -2105,13 +2108,8 @@ MODINIT_DEFINE(rect)
     c_api[3] = pgRect_FromObject;
     c_api[4] = pgRect_Normalize;
     apiobj = encapsulate_api(c_api, "rect");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
