@@ -15,11 +15,11 @@ import random
 MIN_SPEED = 0.25
 MAX_SPEED = 5
 MAX_BALLS = 1600
-SCREEN_SIZE = pg.Vector2(1024, 896)
+SCREEN_SIZE = pg.Vector2(1000, 600)
 CIRCLE_RADIUS = 5
 
 pg.init()
-screen = pg.display.set_mode(SCREEN_SIZE, flags = pg.SCALED)
+screen = pg.display.set_mode(SCREEN_SIZE)
 clock = pg.time.Clock()
 
 target_position = None
@@ -50,7 +50,6 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
-            pg.quit()
 
         if event.type == pg.MOUSEBUTTONUP:
             target_position = pg.mouse.get_pos()
@@ -69,3 +68,5 @@ while running:
     pg.display.flip()
     delta_time = clock.tick(60)
     pg.display.set_caption(f"fps: {round(clock.get_fps(), 2)}, ball count: {len(balls)}")
+
+pg.quit()
