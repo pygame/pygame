@@ -808,12 +808,10 @@ class LintFormatCommand(Command):
                 "black": python_directories,
             }
 
-        version_option = "--version"
         formatters = ["black", "clang-format"]
         for linter, option in commands.items():
             print(" ".join([linter] + option))
             check_linter_exists(linter)
-            subprocess.run([linter] + version_option) # print version of the linter used
             result = subprocess.run([linter] + option)
             if result.returncode:
                 msg = f"'{linter}' failed."
