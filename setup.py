@@ -789,18 +789,6 @@ class LintFormatCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        def print_linter_version(linter):
-            import subprocess
-            command_line = f"{linter} --version"
-            print(f"version of {linter}: {command_line}")
-            version_result = subprocess.run(command_line, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if version_result.returncode:
-                print(f"Failed: {command_line}")
-                print(version_result.stdout)
-                print(version_result.stderr)
-            else:
-                print(version_result.stdout)
-
         c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
         c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
@@ -820,11 +808,12 @@ class LintFormatCommand(Command):
                 "black": python_directories,
             }
 
+        version_option = "--version"
         formatters = ["black", "clang-format"]
         for linter, option in commands.items():
-            check_linter_exists(linter)
-            print_linter_version(linter)
             print(" ".join([linter] + option))
+            check_linter_exists(linter)
+            subprocess.run([linter] + version_option) # print version of the linter used
             result = subprocess.run([linter] + option)
             if result.returncode:
                 msg = f"'{linter}' failed."
