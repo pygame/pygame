@@ -700,29 +700,20 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
 static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {
-    printf("5");
     SDL_Rect temp;
     if (keyfunc == NULL) {
-        printf("6");
-
         return pgRect_FromObject(obj, &temp);
     }
-    printf("7");
     if (!PyCallable_Check(keyfunc)) {
         PyErr_SetString(PyExc_TypeError, "invalid key function");
         return NULL;
     }
 
-    printf("8");
-    //PyObject *obj_with_rect = PyObject_CallObject(keyfunc, obj);
     PyObject *obj_with_rect = PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
-    printf("9");
     if (obj_with_rect == NULL) {
-        printf(",10");
         return NULL;
     }
 
-    printf(",11");
     return pgRect_FromObject(obj_with_rect, &temp);
 }
 
@@ -740,7 +731,6 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *ret = NULL;
     static char *keywords[] = {"list", "key", NULL};
 
-    printf("1");
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
                                      keywords, &list,
                                      &keyfunc)) {
@@ -748,7 +738,6 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
                      "Could not parse args and kw.");
     }
 
-    printf("2");
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of rectstyle objects.");
@@ -759,19 +748,11 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    printf("3");
     if (keyfunc == Py_None) {
-        printf("3.5 ");
         keyfunc = NULL;
     }
 
-    if (keyfunc == NULL) {
-        printf(" 3.7 ");
-    }
-
-    printf("4");
     size = PySequence_Length(list); /*warning, size could be -1?*/
-    printf("size %d", size);
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
@@ -1232,7 +1213,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
      DOC_RECTCOLLIDELISTALL},
     {"collideobjectsall", (PyCFunction)pg_rect_collideobjectsall,
-     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELISTOBJECTS},
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTSALL},
     {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
      DOC_RECTCOLLIDEDICT},
     {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
