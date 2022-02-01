@@ -793,16 +793,13 @@ class LintFormatCommand(Command):
             import subprocess
             command_line = f"{linter} --version"
             print(f"version of {linter}: {command_line}")
-            try:
-                version_result = subprocess.run(command_line, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                if version_result.returncode:
-                    print(f"Failed: {command_line}")
-                    print(version_result.stdout)
-                    print(version_result.stderr)
-                else:
-                    print(version_result.stdout)
-            except subprocess.CalledProcessError as calledProcessError:
-                print(f"Failure: {calledProcessError}")
+            version_result = subprocess.run(command_line, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if version_result.returncode:
+                print(f"Failed: {command_line}")
+                print(version_result.stdout)
+                print(version_result.stderr)
+            else:
+                print(version_result.stdout)
 
         c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
         c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
