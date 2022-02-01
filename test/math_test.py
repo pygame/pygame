@@ -1155,6 +1155,13 @@ class Vector3TypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, assign_nonfloat)
 
+    def testCopy(self):
+        v_copy0 = Vector3(2014.0, 2032.0, 2076.0)
+        v_copy1 = v_copy0.copy()
+        self.assertEqual(v_copy0.x, v_copy1.x)
+        self.assertEqual(v_copy0.y, v_copy1.y)
+        self.assertEqual(v_copy0.z, v_copy1.z)
+
     def testSequence(self):
         v = Vector3(1.2, 3.4, -9.6)
         self.assertEqual(len(v), 3)
