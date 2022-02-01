@@ -209,11 +209,11 @@ class Rect:
         self, rect_list: Sequence[Union[Rect, _CanBeRect]]
     ) -> List[int]: ...
     @overload
-    def collidelistobjects(
+    def collideobjectsall(
         self, obj_list: Sequence[_RectValue], key: Callable[[Any], _RectValue]=None
     ) -> List[_RectValue]: ...
     @overload
-    def collidelistobjects(
+    def collideobjectsall(
         self, obj_list: List, key: Callable[[Any], _RectValue]=None
     ) -> List: ...
     # Also undocumented: the dict collision methods take a 'values' argument

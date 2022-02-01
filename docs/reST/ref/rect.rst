@@ -350,17 +350,17 @@
 
       .. ## Rect.collidelistall ##
 
-   .. method:: collidelistobjects
+   .. method:: collideobjectsall
 
       | :sl:`test if all rectangles of an object in a list intersect`
-      | :sg:`collidelistobjects(list, key=None) -> objects`
+      | :sg:`collideobjectsall(list, key=None) -> objects`
 
       Returns a list of all the objects that contain rectangles that collide
       with the Rect. If no intersecting rectangles are found, an empty list is
       returned.
       TODO describe key=
 
-      .. ## Rect.collidelistobjects ##
+      .. ## Rect.collideobjectsall ##
 
    .. method:: collidedict
 

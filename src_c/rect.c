@@ -730,7 +730,7 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 
 
 static PyObject *
-pg_rect_collidelistobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
+pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect;
     Py_ssize_t size;
@@ -741,7 +741,7 @@ pg_rect_collidelistobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"list", "key", NULL};
 
     printf("1");
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collidelistobjects",
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
                                      keywords, &list,
                                      &keyfunc)) {
         return RAISE(PyExc_TypeError,
@@ -1231,7 +1231,7 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTCOLLIDELIST},
     {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
      DOC_RECTCOLLIDELISTALL},
-    {"collidelistobjects", (PyCFunction)pg_rect_collidelistobjects,
+    {"collideobjectsall", (PyCFunction)pg_rect_collideobjectsall,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELISTOBJECTS},
     {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
      DOC_RECTCOLLIDEDICT},
