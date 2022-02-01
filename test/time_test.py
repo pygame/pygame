@@ -41,7 +41,7 @@ class ClockTypeTest(unittest.TestCase):
 
         iterations = 10
         delay = 0.1
-        delay_miliseconds = delay * (10 ** 3)  # actual time difference between ticks
+        delay_miliseconds = delay * (10**3)  # actual time difference between ticks
         framerate_limit = 5
         delta = 50  # allowable error in milliseconds
 
@@ -67,7 +67,7 @@ class ClockTypeTest(unittest.TestCase):
     def test_get_time(self):
         # Testing parameters
         delay = 0.1  # seconds
-        delay_miliseconds = delay * (10 ** 3)
+        delay_miliseconds = delay * (10**3)
         iterations = 10
         delta = 50  # milliseconds
 
@@ -90,7 +90,7 @@ class ClockTypeTest(unittest.TestCase):
             t1 = time.time()
             c1 = c.get_time()  # elapsed time in milliseconds
             d0 = (t1 - t0) * (
-                10 ** 3
+                10**3
             )  #'time' module elapsed time converted to milliseconds
             self.assertAlmostEqual(d0, c1, delta=delta)
 

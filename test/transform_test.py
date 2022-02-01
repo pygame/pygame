@@ -1252,7 +1252,7 @@ class TransformModuleTest(unittest.TestCase):
         two_pixel_surface = pygame.Surface((2, 1), depth=32)
         two_pixel_surface.fill(pygame.Color(0, 0, 0), pygame.Rect(0, 0, 1, 1))
         two_pixel_surface.fill(pygame.Color(255, 255, 255), pygame.Rect(1, 0, 1, 1))
-        for k in [2 ** x for x in range(5, 8)]:  # Enlarge to targets 32, 64...256
+        for k in [2**x for x in range(5, 8)]:  # Enlarge to targets 32, 64...256
             bigger_surface = pygame.transform.smoothscale(two_pixel_surface, (k, 1))
             self.assertEqual(
                 bigger_surface.get_at((k // 2, 0)), pygame.Color(127, 127, 127)
