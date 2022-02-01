@@ -724,26 +724,9 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 
     printf(",11");
     return pgRect_FromObject(obj_with_rect, &temp);
-
-    //return NULL;
-    // else {
-    //    PyObject *rect_obj = PyObject_CallOneArg(keyfunc, obj);
-    //    return pgRect_FromObject(rect_obj, &temp);
-    //}
 }
 
-/*
 
-    double amt;
-    static char *keywords[] = {"color", "amount", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kw, "Od", keywords, &colobj,
-                                     &amt)) {
-        return NULL;
-    }
-
-
-*/
 
 
 static PyObject *
