@@ -287,27 +287,43 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MULT: {
-#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+#if defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H)
                     if (src->format->BytesPerPixel == 4 &&
                             dst->format->BytesPerPixel == 4 &&
                             src->format->Rmask == dst->format->Rmask &&
                             src->format->Gmask == dst->format->Gmask &&
                             src->format->Bmask == dst->format->Bmask &&
-                            info.src_blend != SDL_BLENDMODE_NONE) {
-#if PG_ENABLE_ARM_NEON
-                        if (SDL_HasNEON() == SDL_TRUE) {
-                            blit_blend_rgba_mul_simd(&info);
-                            break;
-                        }
-#endif /* PG_ENABLE_ARM_NEON */
-#ifdef __SSE2__
-                        if (SDL_HasSSE2()) {
-                            blit_blend_rgba_mul_simd(&info);
-                            break;
-                        }
-#endif /* __SSE2__*/
+                            info.src_blend != SDL_BLENDMODE_NONE &&
+                            SDL_HasAVX2()) {
+                        blit_blend_rgba_mul_simd_avx2(&info);
+                        break;
                     }
-#endif /*__SSE2__ || PG_ENABLE_ARM_NEON*/
+#endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                            dst->format->BytesPerPixel == 4 &&
+                            src->format->Rmask == dst->format->Rmask &&
+                            src->format->Gmask == dst->format->Gmask &&
+                            src->format->Bmask == dst->format->Bmask &&
+                            info.src_blend != SDL_BLENDMODE_NONE &&
+                            SDL_HasSSE2()) {
+                        blit_blend_rgba_mul_simd(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                            dst->format->BytesPerPixel == 4 &&
+                            src->format->Rmask == dst->format->Rmask &&
+                            src->format->Gmask == dst->format->Gmask &&
+                            src->format->Bmask == dst->format->Bmask &&
+                            info.src_blend != SDL_BLENDMODE_NONE &&
+                            SDL_HasNEON()) {
+                        blit_blend_rgba_mul_simd(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+
                     blit_blend_rgba_mul(&info);
                     break;
                 }
