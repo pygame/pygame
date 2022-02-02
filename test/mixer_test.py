@@ -211,8 +211,8 @@ class MixerModuleTest(unittest.TestCase):
         import shutil
 
         ep = example_path("data")
-        temp_file = os.path.join(ep, u"你好.wav")
-        org_file = os.path.join(ep, u"house_lo.wav")
+        temp_file = os.path.join(ep, "你好.wav")
+        org_file = os.path.join(ep, "house_lo.wav")
         shutil.copy(org_file, temp_file)
         try:
             with open(temp_file, "rb") as f:

@@ -363,7 +363,7 @@ class ImageModuleTest(unittest.TestCase):
         import shutil
 
         orig = example_path("data/asprite.bmp")
-        temp = os.path.join(example_path("data"), u"你好.bmp")
+        temp = os.path.join(example_path("data"), "你好.bmp")
         shutil.copy(orig, temp)
         try:
             im = pygame.image.load(temp)
@@ -393,7 +393,7 @@ class ImageModuleTest(unittest.TestCase):
 
     def test_save_unicode_path(self):
         """save unicode object with non-ASCII chars"""
-        self._unicode_save(u"你好.bmp")
+        self._unicode_save("你好.bmp")
 
     def assertPremultipliedAreEqual(self, string1, string2, source_string):
         self.assertEqual(len(string1), len(string2))
