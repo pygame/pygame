@@ -1338,7 +1338,8 @@ vector_move_towards(pgVector *self, PyObject *args)
         return NULL;
 
     if (!pgVectorCompatible_Check(target, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Target Vector is not the same size as self");
+        PyErr_SetString(PyExc_TypeError,
+                        "Target Vector is not the same size as self");
         return NULL;
     }
 
@@ -1371,7 +1372,8 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
         return NULL;
 
     if (!pgVectorCompatible_Check(target, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Target Vector is not the same size as self");
+        PyErr_SetString(PyExc_TypeError,
+                        "Target Vector is not the same size as self");
         return NULL;
     }
 
