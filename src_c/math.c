@@ -1337,6 +1337,11 @@ vector_move_towards(pgVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &max_distance))
         return NULL;
 
+    if (!pgVectorCompatible_Check(target, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Target Vector is not the same size as self");
+        return NULL;
+    }
+
     if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
         return NULL;
@@ -1364,6 +1369,11 @@ vector_move_towards_ip(pgVector *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &max_distance))
         return NULL;
+
+    if (!pgVectorCompatible_Check(target, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Target Vector is not the same size as self");
+        return NULL;
+    }
 
     if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
