@@ -695,18 +695,12 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
     return ret;
 }
 
-// todo clean up!
-// todo check refrences, memory
 static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {
     SDL_Rect temp;
     if (keyfunc == NULL) {
         return pgRect_FromObject(obj, &temp);
-    }
-    if (!PyCallable_Check(keyfunc)) {
-        PyErr_SetString(PyExc_TypeError, "invalid key function");
-        return NULL;
     }
 
     PyObject *obj_with_rect = PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
@@ -716,9 +710,6 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 
     return pgRect_FromObject(obj_with_rect, &temp);
 }
-
-
-
 
 static PyObject *
 pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
@@ -740,16 +731,21 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
-                     "Argument must be a sequence of rectstyle objects.");
+                     "Argument must be a sequence of objects.");
+    }
+
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
+
+    if (keyfunc != NULL  && !PyCallable_Check(keyfunc)) {
+        return RAISE(PyExc_TypeError,
+                     "Key function must be callable with one argument.");
     }
 
     ret = PyList_New(0);
     if (!ret) {
         return NULL;
-    }
-
-    if (keyfunc == Py_None) {
-        keyfunc = NULL;
     }
 
     size = PySequence_Length(list); /*warning, size could be -1?*/
@@ -760,7 +756,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return RAISE(PyExc_TypeError,
-                         "Argument must be a sequence of rectstyle objects.");
+                         "Argument must be a sequence of objects.");
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
