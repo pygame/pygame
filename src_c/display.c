@@ -266,7 +266,7 @@ pg_get_active(PyObject *self)
 static void
 pg_vidinfo_dealloc(PyObject *self)
 {
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyObject *
@@ -391,7 +391,7 @@ pgVidInfo_New(const pg_VideoInfo *i)
     pgVidInfoObject *info;
     if (!i)
         return RAISE(pgExc_SDLError, SDL_GetError());
-    info = PyObject_NEW(pgVidInfoObject, &pgVidInfo_Type);
+    info = PyObject_New(pgVidInfoObject, &pgVidInfo_Type);
     if (!info)
         return NULL;
     info->info = *i;

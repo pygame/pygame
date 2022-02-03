@@ -486,7 +486,7 @@ surface_cleanup(pgSurfaceObject *self)
     }
     if (self->subsurface) {
         Py_XDECREF(self->subsurface->owner);
-        PyMem_Del(self->subsurface);
+        PyMem_Free(self->subsurface);
         self->subsurface = NULL;
     }
     if (self->dependency) {
@@ -507,7 +507,7 @@ surface_dealloc(PyObject *self)
     if (((pgSurfaceObject *)self)->weakreflist)
         PyObject_ClearWeakRefs(self);
     surface_cleanup((pgSurfaceObject *)self);
-    self->ob_type->tp_free(self);
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *
@@ -2520,7 +2520,7 @@ surf_subsurface(PyObject *self, PyObject *args)
 
     subobj = surf_subtype_new(Py_TYPE(self), sub, 1);
     if (!subobj) {
-        PyMem_Del(data);
+        PyMem_Free(data);
         return NULL;
     }
     Py_INCREF(self);

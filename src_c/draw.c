@@ -314,10 +314,10 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     if (NULL == xlist || NULL == ylist) {
         if (xlist) {
-            PyMem_Del(xlist);
+            PyMem_Free(xlist);
         }
         if (ylist) {
-            PyMem_Del(ylist);
+            PyMem_Free(ylist);
         }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw aalines");
@@ -333,8 +333,8 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
         Py_DECREF(item);
 
         if (!result) {
-            PyMem_Del(xlist);
-            PyMem_Del(ylist);
+            PyMem_Free(xlist);
+            PyMem_Free(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
 
@@ -343,8 +343,8 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (!pgSurface_Lock(surfobj)) {
-        PyMem_Del(xlist);
-        PyMem_Del(ylist);
+        PyMem_Free(xlist);
+        PyMem_Free(ylist);
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
@@ -365,8 +365,8 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
                     drawn_area);
     }
 
-    PyMem_Del(xlist);
-    PyMem_Del(ylist);
+    PyMem_Free(xlist);
+    PyMem_Free(ylist);
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
@@ -443,10 +443,10 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     if (NULL == xlist || NULL == ylist) {
         if (xlist) {
-            PyMem_Del(xlist);
+            PyMem_Free(xlist);
         }
         if (ylist) {
-            PyMem_Del(ylist);
+            PyMem_Free(ylist);
         }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw lines");
@@ -458,8 +458,8 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
         Py_DECREF(item);
 
         if (!result) {
-            PyMem_Del(xlist);
-            PyMem_Del(ylist);
+            PyMem_Free(xlist);
+            PyMem_Free(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
 
@@ -471,14 +471,14 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     y = ylist[0];
 
     if (width < 1) {
-        PyMem_Del(xlist);
-        PyMem_Del(ylist);
+        PyMem_Free(xlist);
+        PyMem_Free(ylist);
         return pgRect_New4(x, y, 0, 0);
     }
 
     if (!pgSurface_Lock(surfobj)) {
-        PyMem_Del(xlist);
-        PyMem_Del(ylist);
+        PyMem_Free(xlist);
+        PyMem_Free(ylist);
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
@@ -492,8 +492,8 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
                         xlist[0], ylist[0], width, drawn_area);
     }
 
-    PyMem_Del(xlist);
-    PyMem_Del(ylist);
+    PyMem_Free(xlist);
+    PyMem_Free(ylist);
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
@@ -812,10 +812,10 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     if (NULL == xlist || NULL == ylist) {
         if (xlist) {
-            PyMem_Del(xlist);
+            PyMem_Free(xlist);
         }
         if (ylist) {
-            PyMem_Del(ylist);
+            PyMem_Free(ylist);
         }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw polygon");
@@ -831,8 +831,8 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
         Py_DECREF(item);
 
         if (!result) {
-            PyMem_Del(xlist);
-            PyMem_Del(ylist);
+            PyMem_Free(xlist);
+            PyMem_Free(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
 
@@ -841,14 +841,14 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (!pgSurface_Lock(surfobj)) {
-        PyMem_Del(xlist);
-        PyMem_Del(ylist);
+        PyMem_Free(xlist);
+        PyMem_Free(ylist);
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
     draw_fillpoly(surf, xlist, ylist, length, color, drawn_area);
-    PyMem_Del(xlist);
-    PyMem_Del(ylist);
+    PyMem_Free(xlist);
+    PyMem_Free(ylist);
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");

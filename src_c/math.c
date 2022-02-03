@@ -576,7 +576,7 @@ pgVector_NEW(Py_ssize_t dim)
 static void
 vector_dealloc(pgVector *self)
 {
-    PyMem_Del(self->coords);
+    PyMem_Free(self->coords);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -992,7 +992,7 @@ vector_subscript(pgVector *self, PyObject *key)
     else {
         PyErr_Format(PyExc_TypeError,
                      "vector indices must be integers, not %.200s",
-                     key->ob_type->tp_name);
+                     Py_TYPE(key)->tp_name);
         return NULL;
     }
 }
@@ -1047,7 +1047,7 @@ vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
     else {
         PyErr_Format(PyExc_TypeError,
                      "list indices must be integers, not %.200s",
-                     key->ob_type->tp_name);
+                     Py_TYPE(key)->tp_name);
         return -1;
     }
 }
@@ -2174,7 +2174,7 @@ static PyObject *
 vector2_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
-    return Py_BuildValue("(O(dd))", oself->ob_type, self->coords[0],
+    return Py_BuildValue("(O(dd))", Py_TYPE(oself), self->coords[0],
                          self->coords[1]);
 }
 
@@ -2998,7 +2998,7 @@ vector3_cross(pgVector *self, PyObject *other)
     else {
         other_coords = PyMem_New(double, self->dim);
         if (!PySequence_AsVectorCoords(other, other_coords, 3)) {
-            PyMem_Del(other_coords);
+            PyMem_Free(other_coords);
             return NULL;
         }
     }
@@ -3006,7 +3006,7 @@ vector3_cross(pgVector *self, PyObject *other)
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
         if (!pgVector_Check(other))
-            PyMem_Del(other_coords);
+            PyMem_Free(other_coords);
         return NULL;
     }
     ret_coords = ret->coords;
@@ -3018,7 +3018,7 @@ vector3_cross(pgVector *self, PyObject *other)
                      (self_coords[1] * other_coords[0]));
 
     if (!pgVector_Check(other))
-        PyMem_Del(other_coords);
+        PyMem_Free(other_coords);
 
     return (PyObject *)ret;
 }
@@ -3091,7 +3091,7 @@ static PyObject *
 vector3_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
-    return Py_BuildValue("(O(ddd))", oself->ob_type, self->coords[0],
+    return Py_BuildValue("(O(ddd))", Py_TYPE(oself), self->coords[0],
                          self->coords[1], self->coords[2]);
 }
 
@@ -3261,7 +3261,7 @@ static void
 vectoriter_dealloc(vectoriter *it)
 {
     Py_XDECREF(it->vec);
-    PyObject_Del(it);
+    PyObject_Free(it);
 }
 
 static PyObject *
@@ -3359,7 +3359,7 @@ static void
 vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it)
 {
     Py_XDECREF(it->vec);
-    PyObject_Del(it);
+    PyObject_Free(it);
 }
 
 static PyObject *
@@ -3399,7 +3399,7 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
             return NULL;
         }
         if (!PySequence_AsVectorCoords(other, other_coords, dim)) {
-            PyMem_Del(other_coords);
+            PyMem_Free(other_coords);
             return NULL;
         }
         /* use diff == diff to check for NaN */
@@ -3456,11 +3456,11 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
                 }
                 break;
             default:
-                PyMem_Del(other_coords);
+                PyMem_Free(other_coords);
                 PyErr_BadInternalCall();
                 return NULL;
         }
-        PyMem_Del(other_coords);
+        PyMem_Free(other_coords);
     }
     else if (RealNumber_Check(other)) {
         /* the following PyFloat_AsDouble call should never fail because
