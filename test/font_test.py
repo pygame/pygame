@@ -317,7 +317,7 @@ class FontTypeTest(unittest.TestCase):
             self.assertNotEqual(bm[0], um[0])
             self.assertNotEqual(bm[1], um[0])
 
-        u = u"\U00013000"
+        u = "\U00013000"
         bm = f.metrics(u)
 
         self.assertEqual(len(bm), 1)
@@ -504,7 +504,7 @@ class FontTypeTest(unittest.TestCase):
 
         fdir = str(FONTDIR)
         temp = os.path.join(fdir, path)
-        pgfont = os.path.join(fdir, u"test_sans.ttf")
+        pgfont = os.path.join(fdir, "test_sans.ttf")
         shutil.copy(pgfont, temp)
         try:
             with open(temp, "rb") as f:
@@ -518,10 +518,10 @@ class FontTypeTest(unittest.TestCase):
 
     def test_load_from_file_unicode_0(self):
         """ASCII string as a unicode object"""
-        self._load_unicode(u"temp_file.ttf")
+        self._load_unicode("temp_file.ttf")
 
     def test_load_from_file_unicode_1(self):
-        self._load_unicode(u"你好.ttf")
+        self._load_unicode("你好.ttf")
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(

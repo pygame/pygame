@@ -24,12 +24,12 @@ class ImageextModuleTest(unittest.TestCase):
     @unittest.skip("SDL silently removes invalid characters")
     def test_save_bad_filename(self):
         im = pygame.Surface((10, 10), 0, 32)
-        u = u"a\x00b\x00c.png"
+        u = "a\x00b\x00c.png"
         self.assertRaises(pygame.error, imageext.save_extended, im, u)
 
     @unittest.skip("SDL silently removes invalid characters")
     def test_load_bad_filename(self):
-        u = u"a\x00b\x00c.png"
+        u = "a\x00b\x00c.png"
         self.assertRaises(pygame.error, imageext.load_extended, u)
 
     def test_save_unknown_extension(self):
@@ -54,7 +54,7 @@ class ImageextModuleTest(unittest.TestCase):
         import shutil
 
         orig = example_path("data/alien1.png")
-        temp = os.path.join(example_path("data"), u"你好.png")
+        temp = os.path.join(example_path("data"), "你好.png")
         shutil.copy(orig, temp)
         try:
             im = imageext.load_extended(temp)
@@ -84,10 +84,10 @@ class ImageextModuleTest(unittest.TestCase):
 
     def test_save_unicode_path_0(self):
         """unicode object with ASCII chars"""
-        self._unicode_save(u"temp_file.png")
+        self._unicode_save("temp_file.png")
 
     def test_save_unicode_path_1(self):
-        self._unicode_save(u"你好.png")
+        self._unicode_save("你好.png")
 
 
 if __name__ == "__main__":

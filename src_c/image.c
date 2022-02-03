@@ -960,7 +960,8 @@ image_fromstring(PyObject *self, PyObject *arg)
         return NULL;
 
     if (w < 1 || h < 1)
-        return RAISE(PyExc_ValueError, "Resolution must be positive values");
+        return RAISE(PyExc_ValueError,
+                     "Resolution must be nonzero positive values");
 
     PyBytes_AsStringAndSize(string, &data, &len);
 
@@ -968,7 +969,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h)
             return RAISE(
                 PyExc_ValueError,
-                "String length does not equal format and resolution size");
+                "Bytes length does not equal format and resolution size");
 
         surf = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
         if (!surf)
@@ -983,7 +984,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 3)
             return RAISE(
                 PyExc_ValueError,
-                "String length does not equal format and resolution size");
+                "Bytes length does not equal format and resolution size");
         surf =
             SDL_CreateRGBSurface(0, w, h, 24, 0xFF << 16, 0xFF << 8, 0xFF, 0);
         if (!surf)
@@ -1013,7 +1014,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
-                "String length does not equal format and resolution size");
+                "Bytes length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface((alphamult ? SDL_SRCALPHA : 0), w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                                     0xFF, 0xFF << 8, 0xFF << 16,
@@ -1037,7 +1038,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
-                "String length does not equal format and resolution size");
+                "Bytes length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface(SDL_SRCALPHA, w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                                     0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
@@ -1102,7 +1103,8 @@ image_frombuffer(PyObject *self, PyObject *arg)
         return NULL;
 
     if (w < 1 || h < 1)
-        return RAISE(PyExc_ValueError, "Resolution must be positive values");
+        return RAISE(PyExc_ValueError,
+                     "Resolution must be nonzero positive values");
 
     /* breaking constness here, we should really not change this string */
     if (pgObject_AsCharBuffer(buffer, (const char **)&data, &len) == -1)
