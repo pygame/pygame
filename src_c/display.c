@@ -1993,25 +1993,18 @@ pg_iconify(PyObject *self)
 static PyObject *
 pg_get_scaled_renderer_info(PyObject *self)
 {
-    SDL_Window *win = pg_GetDefaultWindow();
     SDL_RendererInfo r_info;
 
     VIDEO_INIT_CHECK();
-    if (!win)
-        return RAISE(pgExc_SDLError, "No open window");
-
-    if (pg_renderer != NULL) {
-        if (SDL_GetRendererInfo(pg_renderer, &r_info) == 0) {
-            return PyTuple_Pack(2, PyUnicode_FromString(r_info.name),
-                                PyLong_FromLong(r_info.flags));
-        }
-        else {
-            Py_RETURN_NONE;
-        }
-    }
-    else {
+    if (!pg_renderer) {
         Py_RETURN_NONE;
     }
+
+    if (SDL_GetRendererInfo(pg_renderer, &r_info)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return Py_BuildValue("(si)", r_info.name, r_info.flags);
 }
 
 static PyObject *
@@ -2019,25 +2012,33 @@ pg_get_desktop_screen_sizes(PyObject *self)
 {
     int display_count, i;
     SDL_DisplayMode dm;
-    PyObject *result;
+    PyObject *result, *size_tuple;
 
     VIDEO_INIT_CHECK();
 
     display_count = SDL_GetNumVideoDisplays();
+    if (display_count < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     result = PyList_New(display_count);
-    if (result == NULL) {
-        Py_RETURN_NONE;
+    if (!result) {
+        return NULL;
     }
+
     for (i = 0; i < display_count; i++) {
-        if (SDL_GetDesktopDisplayMode(i, &dm) != 0) {
-            Py_RETURN_NONE;
+        if (SDL_GetDesktopDisplayMode(i, &dm)) {
+            Py_DECREF(result);
+            return RAISE(pgExc_SDLError, SDL_GetError());
         }
-        if (PyList_SetItem(result, i,
-                           PyTuple_Pack(2, PyLong_FromLong(dm.w),
-                                        PyLong_FromLong(dm.h))) != 0) {
-            Py_RETURN_NONE;
+
+        size_tuple = Py_BuildValue("(ii)", dm.w, dm.h);
+        if (!size_tuple) {
+            Py_DECREF(result);
+            return NULL;
         }
+
+        PyList_SET_ITEM(result, i, size_tuple);
     }
     return result;
 }
@@ -2476,7 +2477,7 @@ pg_set_allow_screensaver(PyObject *self, PyObject *arg, PyObject *kwargs)
     int val = 1;
     static char *keywords[] = {"value", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "|i", keywords, &val)) {
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "|p", keywords, &val)) {
         return NULL;
     }
 
