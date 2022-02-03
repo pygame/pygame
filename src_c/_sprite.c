@@ -948,22 +948,22 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_8Renderer_blit {
  *     cdef readonly int height
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,             # <<<<<<<<<<<<<<
- *                        bint flipX=*, bint flipY=*)
+ *                        bint flip_x=*, bint flip_y=*)
  *     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
  */
 struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw_internal {
   int __pyx_n;
   float angle;
   SDL_Point *originptr;
-  int flipX;
-  int flipY;
+  int flip_x;
+  int flip_y;
 };
 
 /* "_sdl2/video.pxd":432
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
- *                        bint flipX=*, bint flipY=*)
+ *                        bint flip_x=*, bint flip_y=*)
  *     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,             # <<<<<<<<<<<<<<
- *                     bint flipX=*, bint flipY=*)
+ *                     bint flip_x=*, bint flip_y=*)
  * 
  */
 struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw {
@@ -972,8 +972,8 @@ struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw {
   PyObject *dstrect;
   float angle;
   PyObject *origin;
-  int flipX;
-  int flipY;
+  int flip_x;
+  int flip_y;
 };
 
 /* "_sdl2/video.pxd":448
@@ -1064,7 +1064,7 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Texture {
 
 
 /* "_sdl2/video.pxd":435
- *                     bint flipX=*, bint flipY=*)
+ *                     bint flip_x=*, bint flip_y=*)
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
  *     cdef Color _color
@@ -1077,8 +1077,8 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Image {
   float angle;
   SDL_Point _origin;
   SDL_Point *_originptr;
-  int flipX;
-  int flipY;
+  int flip_x;
+  int flip_y;
   float alpha;
   SDL_BlendMode blend_mode;
   struct __pyx_obj_6pygame_5_sdl2_5video_Texture *texture;
@@ -1231,7 +1231,7 @@ static struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *__pyx_vtabptr_6pyg
 
 
 /* "_sdl2/video.pxd":435
- *                     bint flipX=*, bint flipY=*)
+ *                     bint flip_x=*, bint flip_y=*)
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
  *     cdef Color _color

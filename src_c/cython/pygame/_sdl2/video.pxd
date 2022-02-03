@@ -428,17 +428,17 @@ cdef class Texture:
     cdef readonly int height
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
-                       bint flipX=*, bint flipY=*)
+                       bint flip_x=*, bint flip_y=*)
     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
-                    bint flipX=*, bint flipY=*)
+                    bint flip_x=*, bint flip_y=*)
 
 cdef class Image:
     cdef Color _color
     cdef public float angle
     cdef SDL_Point _origin
     cdef SDL_Point* _originptr
-    cdef public bint flipX
-    cdef public bint flipY
+    cdef public bint flip_x
+    cdef public bint flip_y
     cdef public float alpha
     cdef public SDL_BlendMode blend_mode
 
