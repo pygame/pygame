@@ -249,10 +249,6 @@ supported Python version. #endif */
     if (!SDL_WasInit(SDL_INIT_VIDEO)) \
     return RAISE(pgExc_SDLError, "video system not initialized")
 
-#define CDROM_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_CDROM)) \
-    return RAISE(pgExc_SDLError, "cdrom system not initialized")
-
 #define JOYSTICK_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
     return RAISE(pgExc_SDLError, "joystick system not initialized")
@@ -319,7 +315,6 @@ struct pgColorObject {
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2
-#define PYGAMEAPI_CDROM_NUMSLOTS 2
 #define PYGAMEAPI_BASE_NUMSLOTS 24
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
 
