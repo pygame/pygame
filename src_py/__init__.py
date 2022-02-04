@@ -83,7 +83,7 @@ class MissingModule:
 from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
-from pygame.rect import Rect
+from pygame.rect import Rect, FRect
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
@@ -343,7 +343,17 @@ def __rect_reduce(r):
     return __rect_constructor, (r.x, r.y, r.w, r.h)
 
 
+def __frect_constructor(x, y, w, h):
+    return FRect(x, y, w, h)
+
+
+def __frect_reduce(r):
+    assert isinstance(r, FRect)
+    return __frect_constructor, (r.x, r.y, r.w, r.h)
+
+
 copyreg.pickle(Rect, __rect_reduce, __rect_constructor)
+copyreg.pickle(FRect, __frect_reduce, __frect_constructor)
 
 
 # make Colors pickleable

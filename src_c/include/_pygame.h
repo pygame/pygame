@@ -163,15 +163,32 @@ typedef struct pg_bufferinfo_s {
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
 typedef struct {
-    PyObject_HEAD SDL_Rect r;
+    PyObject_HEAD
+    SDL_Rect r;
     PyObject *weakreflist;
 } pgRectObject;
 
+typedef struct {
+    float x;
+    float y;
+    float w;
+    float h;
+} pg_BaseFloatRect;
+
+typedef struct {
+    PyObject_HEAD
+    pg_BaseFloatRect r;
+    PyObject* weakreflist;
+} pgFRectObject;
+
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+#define pgFRect_AsRect(x) (((pgFRectObject *)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
+#define pgFRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 5))
 
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
+#define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
 #define pgRect_New4 \
