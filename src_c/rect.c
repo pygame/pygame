@@ -44,7 +44,7 @@ static PyTypeObject pgFRect_Type;
 
 /* encase it is defined in the future by Python.h */
 #ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double) x))
+#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double)x))
 #endif
 
 /*
@@ -55,13 +55,13 @@ https://github.com/libsdl-org/SDL/blob/120c76c84bbce4c1bfed4e9eb74e10678bd83120/
 #define CODE_BOTTOM 1
 #endif
 #ifndef CODE_TOP
-#define CODE_TOP    2
+#define CODE_TOP 2
 #endif
 #ifndef CODE_LEFT
-#define CODE_LEFT   4
+#define CODE_LEFT 4
 #endif
 #ifndef CODE_RIGHT
-#define CODE_RIGHT  8
+#define CODE_RIGHT 8
 #endif
 
 static int
@@ -176,7 +176,8 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
 }
 
 static int
-four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float *val4)
+four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3,
+                     float *val4)
 {
     Py_ssize_t length = PySequence_Length(obj);
 
@@ -270,7 +271,8 @@ _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
 static PyObject *
 _pg_frect_subtype_new4(PyTypeObject *type, float x, float y, float w, float h)
 {
-    pgFRectObject *rect = (pgFRectObject *)pgFRect_Type.tp_new(type, NULL, NULL);
+    pgFRectObject *rect =
+        (pgFRectObject *)pgFRect_Type.tp_new(type, NULL, NULL);
 
     if (rect) {
         rect->r.x = x;
@@ -687,7 +689,7 @@ pg_frect_move(pgFRectObject *self, PyObject *args)
     }
 
     return _pg_frect_subtype_new4(Py_TYPE(self), self->r.x + x, self->r.y + y,
-                                 self->r.w, self->r.h);
+                                  self->r.w, self->r.h);
 }
 
 static PyObject *
@@ -703,7 +705,6 @@ pg_rect_move_ip(pgRectObject *self, PyObject *args)
     self->r.y += y;
     Py_RETURN_NONE;
 }
-
 
 static PyObject *
 pg_frect_move_ip(pgFRectObject *self, PyObject *args)
@@ -743,8 +744,8 @@ pg_frect_inflate(pgFRectObject *self, PyObject *args)
     }
 
     return _pg_frect_subtype_new4(Py_TYPE(self), self->r.x - x / 2,
-                                 self->r.y - y / 2, self->r.w + x,
-                                 self->r.h + y);
+                                  self->r.y - y / 2, self->r.w + x,
+                                  self->r.h + y);
 }
 
 static PyObject *
@@ -1154,8 +1155,8 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
             PyErr_SetString(
-                    PyExc_TypeError,
-                    "Argument must be a sequence of rectstyle objects.");
+                PyExc_TypeError,
+                "Argument must be a sequence of rectstyle objects.");
             Py_XDECREF(obj);
             break;
         }
@@ -1196,8 +1197,8 @@ pg_frect_collidelist(pgFRectObject *self, PyObject *args)
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgFRect_FromObject(obj, &temp))) {
             PyErr_SetString(
-                    PyExc_TypeError,
-                    "Argument must be a sequence of rectstyle objects.");
+                PyExc_TypeError,
+                "Argument must be a sequence of rectstyle objects.");
             Py_XDECREF(obj);
             break;
         }
@@ -1566,7 +1567,7 @@ pg_rect_clip(pgRectObject *self, PyObject *args)
 
     return _pg_rect_subtype_new4(Py_TYPE(self), x, y, w, h);
 
-    nointersect:
+nointersect:
     return _pg_rect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
@@ -1619,7 +1620,7 @@ pg_frect_clip(pgFRectObject *self, PyObject *args)
 
     return _pg_frect_subtype_new4(Py_TYPE(self), x, y, w, h);
 
-    nointersect:
+nointersect:
     return _pg_frect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
@@ -1731,30 +1732,35 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 }
 
 /*
-this functions are the same as SDL_IntersectRectAndLine but this one can handle floats
+this functions are the same as SDL_IntersectRectAndLine but this one can handle
+floats
 https://github.com/libsdl-org/SDL/blob/120c76c84bbce4c1bfed4e9eb74e10678bd83120/src/video/SDL_rect.c#L316
 */
 
 static int
-_PG_IntersectFRectAndLine_ComputeOutCode(const pg_BaseFloatRect* rect, float x, float y)
+_PG_IntersectFRectAndLine_ComputeOutCode(const pg_BaseFloatRect *rect, float x,
+                                         float y)
 {
     int code = 0;
     if (y < rect->y) {
         code |= CODE_TOP;
-    } else if (y >= rect->y + rect->h) {
+    }
+    else if (y >= rect->y + rect->h) {
         code |= CODE_BOTTOM;
     }
     if (x < rect->x) {
         code |= CODE_LEFT;
-    } else if (x >= rect->x + rect->w) {
+    }
+    else if (x >= rect->x + rect->w) {
         code |= CODE_RIGHT;
     }
     return code;
 }
 
 static SDL_bool
-PG_IntersectFRectAndLine(pg_BaseFloatRect* rect, float* X1, float* Y1, float* X2, float* Y2) {
-
+PG_IntersectFRectAndLine(pg_BaseFloatRect *rect, float *X1, float *Y1,
+                         float *X2, float *Y2)
+{
     float x = 0;
     float y = 0;
     float x1, y1;
@@ -1795,12 +1801,14 @@ PG_IntersectFRectAndLine(pg_BaseFloatRect* rect, float* X1, float* Y1, float* X2
         /* Horizontal line, easy to clip */
         if (x1 < rectx1) {
             *X1 = rectx1;
-        } else if (x1 > rectx2) {
+        }
+        else if (x1 > rectx2) {
             *X1 = rectx2;
         }
         if (x2 < rectx1) {
             *X2 = rectx1;
-        } else if (x2 > rectx2) {
+        }
+        else if (x2 > rectx2) {
             *X2 = rectx2;
         }
         return SDL_TRUE;
@@ -1810,12 +1818,14 @@ PG_IntersectFRectAndLine(pg_BaseFloatRect* rect, float* X1, float* Y1, float* X2
         /* Vertical line, easy to clip */
         if (y1 < recty1) {
             *Y1 = recty1;
-        } else if (y1 > recty2) {
+        }
+        else if (y1 > recty2) {
             *Y1 = recty2;
         }
         if (y2 < recty1) {
             *Y2 = recty1;
-        } else if (y2 > recty2) {
+        }
+        else if (y2 > recty2) {
             *Y2 = recty2;
         }
         return SDL_TRUE;
@@ -1833,36 +1843,47 @@ PG_IntersectFRectAndLine(pg_BaseFloatRect* rect, float* X1, float* Y1, float* X2
             if (outcode1 & CODE_TOP) {
                 y = recty1;
                 x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
-            } else if (outcode1 & CODE_BOTTOM) {
+            }
+            else if (outcode1 & CODE_BOTTOM) {
                 y = recty2;
                 x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
-            } else if (outcode1 & CODE_LEFT) {
+            }
+            else if (outcode1 & CODE_LEFT) {
                 x = rectx1;
                 y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
-            } else if (outcode1 & CODE_RIGHT) {
+            }
+            else if (outcode1 & CODE_RIGHT) {
                 x = rectx2;
                 y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
             }
             x1 = x;
             y1 = y;
             outcode1 = _PG_IntersectFRectAndLine_ComputeOutCode(rect, x, y);
-        } else {
+        }
+        else {
             if (outcode2 & CODE_TOP) {
                 y = recty1;
                 x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
-            } else if (outcode2 & CODE_BOTTOM) {
+            }
+            else if (outcode2 & CODE_BOTTOM) {
                 y = recty2;
                 x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
-            } else if (outcode2 & CODE_LEFT) {
-                /* If this assertion ever fires, here's the static analysis that warned about it:
-                   http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-b0d01a.html#EndPath */
-                SDL_assert(x2 != x1);  /* if equal: division by zero. */
+            }
+            else if (outcode2 & CODE_LEFT) {
+                /* If this assertion ever fires, here's the static analysis
+                   that warned about it:
+                   http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-b0d01a.html#EndPath
+                 */
+                SDL_assert(x2 != x1); /* if equal: division by zero. */
                 x = rectx1;
                 y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
-            } else if (outcode2 & CODE_RIGHT) {
-                /* If this assertion ever fires, here's the static analysis that warned about it:
-                   http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-39b114.html#EndPath */
-                SDL_assert(x2 != x1);  /* if equal: division by zero. */
+            }
+            else if (outcode2 & CODE_RIGHT) {
+                /* If this assertion ever fires, here's the static analysis
+                   that warned about it:
+                   http://buildbot.libsdl.org/sdl-static-analysis/sdl-macosx-static-analysis/sdl-macosx-static-analysis-1101/report-39b114.html#EndPath
+                 */
+                SDL_assert(x2 != x1); /* if equal: division by zero. */
                 x = rectx2;
                 y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
             }
@@ -1877,7 +1898,6 @@ PG_IntersectFRectAndLine(pg_BaseFloatRect* rect, float* X1, float* Y1, float* X2
     *Y2 = y2;
     return SDL_TRUE;
 }
-
 
 /* TODO: figure out how to implement SDL_IntersectRectAndLine with floats */
 static PyObject *
@@ -2042,8 +2062,7 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
 static int
 pg_frect_contains_seq(pgFRectObject *self, PyObject *arg)
 {
-    if (PyFloat_Check(arg) ||
-        PyLong_Check(arg)) {
+    if (PyFloat_Check(arg) || PyLong_Check(arg)) {
         float coord = (float)PyFloat_AsDouble(arg);
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
@@ -2253,7 +2272,8 @@ pg_rect_reduce(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_reduce(pgFRectObject *self, PyObject *args)
 {
-    return Py_BuildValue("(O(ffff))", Py_TYPE(self), self->r.x, self->r.y, self->r.w, self->r.h);
+    return Py_BuildValue("(O(ffff))", Py_TYPE(self), self->r.x, self->r.y,
+                         self->r.w, self->r.h);
 }
 
 /* for copy module */
@@ -2268,76 +2288,78 @@ static PyObject *
 pg_frect_copy(pgFRectObject *self, PyObject *args)
 {
     return _pg_frect_subtype_new4(Py_TYPE(self), self->r.x, self->r.y,
-                                 self->r.w, self->r.h);
+                                  self->r.w, self->r.h);
 }
 
 static struct PyMethodDef pg_rect_methods[] = {
-        {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
-                                                                  DOC_RECTNORMALIZE},
-        {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
-        {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS,
-                                                                  DOC_RECTCLIPLINE},
-        {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
-        {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
-        {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
-        {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
-        {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
-        {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
-        {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
-        {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
-        {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
-                                                                  DOC_RECTUNIONALL},
-        {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
-        {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
-                                                                  DOC_RECTINFLATEIP},
-        {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
-        {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
-                                                                  DOC_RECTUNIONALLIP},
-        {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDEPOINT},
-        {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDERECT},
-        {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDELIST},
-        {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDELISTALL},
-        {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDEDICT},
-        {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
-                                                                  DOC_RECTCOLLIDEDICTALL},
-        {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
-                                                                  DOC_RECTCONTAINS},
-        {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
-        {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
-        {NULL, NULL, 0, NULL}};
+    {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
+     DOC_RECTNORMALIZE},
+    {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
+    {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS,
+     DOC_RECTCLIPLINE},
+    {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
+    {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
+    {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
+    {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
+    {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
+    {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
+    {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
+    {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
+    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
+     DOC_RECTUNIONALL},
+    {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
+    {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
+     DOC_RECTINFLATEIP},
+    {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
+    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
+     DOC_RECTUNIONALLIP},
+    {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
+     DOC_RECTCOLLIDEPOINT},
+    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
+     DOC_RECTCOLLIDERECT},
+    {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
+     DOC_RECTCOLLIDELIST},
+    {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
+     DOC_RECTCOLLIDELISTALL},
+    {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
+     DOC_RECTCOLLIDEDICT},
+    {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
+     DOC_RECTCOLLIDEDICTALL},
+    {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
+     DOC_RECTCONTAINS},
+    {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
+    {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}};
 
 static struct PyMethodDef pg_frect_methods[] = {
-        {"normalize", (PyCFunction)pg_frect_normalize, METH_NOARGS, NULL},
-        {"clip", (PyCFunction)pg_frect_clip, METH_VARARGS, NULL},
-        {"clipline", (PyCFunction)pg_frect_clipline, METH_VARARGS, NULL},
-        {"clamp", (PyCFunction)pg_frect_clamp, METH_VARARGS, NULL},
-        {"clamp_ip", (PyCFunction)pg_frect_clamp_ip, METH_VARARGS, NULL},
-        {"copy", (PyCFunction)pg_frect_copy, METH_NOARGS, NULL},
-        {"fit", (PyCFunction)pg_frect_fit, METH_VARARGS, NULL},
-        {"move", (PyCFunction)pg_frect_move, METH_VARARGS, NULL},
-        {"update", (PyCFunction)pg_frect_update, METH_VARARGS, NULL},
-        {"inflate", (PyCFunction)pg_frect_inflate, METH_VARARGS, NULL},
-        {"union", (PyCFunction)pg_frect_union, METH_VARARGS, NULL},
-        {"unionall", (PyCFunction)pg_frect_unionall, METH_VARARGS, NULL},
-        {"move_ip", (PyCFunction)pg_frect_move_ip, METH_VARARGS, NULL},
-        {"inflate_ip", (PyCFunction)pg_frect_inflate_ip, METH_VARARGS, NULL},
-        {"union_ip", (PyCFunction)pg_frect_union_ip, METH_VARARGS, NULL},
-        {"unionall_ip", (PyCFunction)pg_frect_unionall_ip, METH_VARARGS, NULL},
-        {"collidepoint", (PyCFunction)pg_frect_collidepoint, METH_VARARGS, NULL},
-        {"colliderect", (PyCFunction)pg_frect_colliderect, METH_VARARGS, NULL},
-        {"collidelist", (PyCFunction)pg_frect_collidelist, METH_VARARGS, NULL},
-        {"collidelistall", (PyCFunction)pg_frect_collidelistall, METH_VARARGS, NULL},
-        {"collidedict", (PyCFunction)pg_frect_collidedict, METH_VARARGS, NULL},
-        {"collidedictall", (PyCFunction)pg_frect_collidedictall, METH_VARARGS, NULL},
-        {"contains", (PyCFunction)pg_frect_contains, METH_VARARGS, NULL},
-        {"__reduce__", (PyCFunction)pg_frect_reduce, METH_NOARGS, NULL},
-        {"__copy__", (PyCFunction)pg_frect_copy, METH_NOARGS, NULL},
-        {NULL, NULL, 0, NULL}};
+    {"normalize", (PyCFunction)pg_frect_normalize, METH_NOARGS, NULL},
+    {"clip", (PyCFunction)pg_frect_clip, METH_VARARGS, NULL},
+    {"clipline", (PyCFunction)pg_frect_clipline, METH_VARARGS, NULL},
+    {"clamp", (PyCFunction)pg_frect_clamp, METH_VARARGS, NULL},
+    {"clamp_ip", (PyCFunction)pg_frect_clamp_ip, METH_VARARGS, NULL},
+    {"copy", (PyCFunction)pg_frect_copy, METH_NOARGS, NULL},
+    {"fit", (PyCFunction)pg_frect_fit, METH_VARARGS, NULL},
+    {"move", (PyCFunction)pg_frect_move, METH_VARARGS, NULL},
+    {"update", (PyCFunction)pg_frect_update, METH_VARARGS, NULL},
+    {"inflate", (PyCFunction)pg_frect_inflate, METH_VARARGS, NULL},
+    {"union", (PyCFunction)pg_frect_union, METH_VARARGS, NULL},
+    {"unionall", (PyCFunction)pg_frect_unionall, METH_VARARGS, NULL},
+    {"move_ip", (PyCFunction)pg_frect_move_ip, METH_VARARGS, NULL},
+    {"inflate_ip", (PyCFunction)pg_frect_inflate_ip, METH_VARARGS, NULL},
+    {"union_ip", (PyCFunction)pg_frect_union_ip, METH_VARARGS, NULL},
+    {"unionall_ip", (PyCFunction)pg_frect_unionall_ip, METH_VARARGS, NULL},
+    {"collidepoint", (PyCFunction)pg_frect_collidepoint, METH_VARARGS, NULL},
+    {"colliderect", (PyCFunction)pg_frect_colliderect, METH_VARARGS, NULL},
+    {"collidelist", (PyCFunction)pg_frect_collidelist, METH_VARARGS, NULL},
+    {"collidelistall", (PyCFunction)pg_frect_collidelistall, METH_VARARGS,
+     NULL},
+    {"collidedict", (PyCFunction)pg_frect_collidedict, METH_VARARGS, NULL},
+    {"collidedictall", (PyCFunction)pg_frect_collidedictall, METH_VARARGS,
+     NULL},
+    {"contains", (PyCFunction)pg_frect_contains, METH_VARARGS, NULL},
+    {"__reduce__", (PyCFunction)pg_frect_reduce, METH_NOARGS, NULL},
+    {"__copy__", (PyCFunction)pg_frect_copy, METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
 
@@ -2430,25 +2452,25 @@ pg_frect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 }
 
 static PySequenceMethods pg_rect_as_sequence = {
-        pg_rect_length,                    /*length*/
-        NULL,                              /*concat*/
-        NULL,                              /*repeat*/
-        (ssizeargfunc)pg_rect_item,        /*item*/
-        NULL,                              /*slice*/
-        (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
-        NULL,                              /*ass_slice*/
-        (objobjproc)pg_rect_contains_seq,  /*contains*/
+    pg_rect_length,                    /*length*/
+    NULL,                              /*concat*/
+    NULL,                              /*repeat*/
+    (ssizeargfunc)pg_rect_item,        /*item*/
+    NULL,                              /*slice*/
+    (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
+    NULL,                              /*ass_slice*/
+    (objobjproc)pg_rect_contains_seq,  /*contains*/
 };
 
 static PySequenceMethods pg_frect_as_sequence = {
-        pg_rect_length,                      /*length*/
-        NULL,                                /*concat*/
-        NULL,                                /*repeat*/
-        (ssizeargfunc)pg_frect_item,         /*item*/
-        NULL,                                /*slice*/
-        (ssizeobjargproc)pg_frect_ass_item,  /*ass_item*/
-        NULL,                                /*ass_slice*/
-        (objobjproc)pg_frect_contains_seq,   /*contains*/
+    pg_rect_length,                     /*length*/
+    NULL,                               /*concat*/
+    NULL,                               /*repeat*/
+    (ssizeargfunc)pg_frect_item,        /*item*/
+    NULL,                               /*slice*/
+    (ssizeobjargproc)pg_frect_ass_item, /*ass_item*/
+    NULL,                               /*ass_slice*/
+    (objobjproc)pg_frect_contains_seq,  /*contains*/
 };
 
 static PyObject *
@@ -2615,9 +2637,9 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 }
 
 static PyMappingMethods pg_rect_as_mapping = {
-        (lenfunc)pg_rect_length,             /*mp_length*/
-        (binaryfunc)pg_rect_subscript,       /*mp_subscript*/
-        (objobjargproc)pg_rect_ass_subscript /*mp_ass_subscript*/
+    (lenfunc)pg_rect_length,             /*mp_length*/
+    (binaryfunc)pg_rect_subscript,       /*mp_subscript*/
+    (objobjargproc)pg_rect_ass_subscript /*mp_ass_subscript*/
 };
 
 /* numeric functions */
@@ -2628,24 +2650,24 @@ pg_rect_bool(pgRectObject *self)
 }
 
 static PyNumberMethods pg_rect_as_number = {
-        (binaryfunc)NULL,      /*add*/
-        (binaryfunc)NULL,      /*subtract*/
-        (binaryfunc)NULL,      /*multiply*/
-        (binaryfunc)NULL,      /*remainder*/
-        (binaryfunc)NULL,      /*divmod*/
-        (ternaryfunc)NULL,     /*power*/
-        (unaryfunc)NULL,       /*negative*/
-        (unaryfunc)NULL,       /*pos*/
-        (unaryfunc)NULL,       /*abs*/
-        (inquiry)pg_rect_bool, /*nonzero / bool*/
-        (unaryfunc)NULL,       /*invert*/
-        (binaryfunc)NULL,      /*lshift*/
-        (binaryfunc)NULL,      /*rshift*/
-        (binaryfunc)NULL,      /*and*/
-        (binaryfunc)NULL,      /*xor*/
-        (binaryfunc)NULL,      /*or*/
-        (unaryfunc)NULL,       /*int*/
-        (unaryfunc)NULL,       /*float*/
+    (binaryfunc)NULL,      /*add*/
+    (binaryfunc)NULL,      /*subtract*/
+    (binaryfunc)NULL,      /*multiply*/
+    (binaryfunc)NULL,      /*remainder*/
+    (binaryfunc)NULL,      /*divmod*/
+    (ternaryfunc)NULL,     /*power*/
+    (unaryfunc)NULL,       /*negative*/
+    (unaryfunc)NULL,       /*pos*/
+    (unaryfunc)NULL,       /*abs*/
+    (inquiry)pg_rect_bool, /*nonzero / bool*/
+    (unaryfunc)NULL,       /*invert*/
+    (binaryfunc)NULL,      /*lshift*/
+    (binaryfunc)NULL,      /*rshift*/
+    (binaryfunc)NULL,      /*and*/
+    (binaryfunc)NULL,      /*xor*/
+    (binaryfunc)NULL,      /*or*/
+    (unaryfunc)NULL,       /*int*/
+    (unaryfunc)NULL,       /*float*/
 };
 
 static PyObject *
@@ -2728,7 +2750,7 @@ pg_rect_richcompare(PyObject *o1, PyObject *o2, int opid)
             break;
     }
 
-    Unimplemented:
+Unimplemented:
     Py_INCREF(Py_NotImplemented);
     return Py_NotImplemented;
 }
@@ -2781,7 +2803,7 @@ pg_frect_richcompare(PyObject *o1, PyObject *o2, int opid)
             break;
     }
 
-    Unimplemented:
+Unimplemented:
     Py_INCREF(Py_NotImplemented);
     return Py_NotImplemented;
 }
@@ -3737,154 +3759,169 @@ pg_rect_getsafepickle(pgRectObject *self, void *closure)
 }
 
 static PyGetSetDef pg_frect_getsets[] = {
-        {"x", (getter)pg_frect_getleft, (setter)pg_frect_setleft, NULL, NULL},
-        {"y", (getter)pg_frect_gettop, (setter)pg_frect_settop, NULL, NULL},
-        {"w", (getter)pg_frect_getwidth, (setter)pg_frect_setwidth, NULL, NULL},
-        {"h", (getter)pg_frect_getheight, (setter)pg_frect_setheight, NULL, NULL},
-        {"width", (getter)pg_frect_getwidth, (setter)pg_frect_setwidth, NULL, NULL},
-        {"height", (getter)pg_frect_getheight, (setter)pg_frect_setheight, NULL, NULL},
-        {"top", (getter)pg_frect_gettop, (setter)pg_frect_settop, NULL, NULL},
-        {"left", (getter)pg_frect_getleft, (setter)pg_frect_setleft, NULL, NULL},
-        {"bottom", (getter)pg_frect_getbottom, (setter)pg_frect_setbottom, NULL, NULL},
-        {"right", (getter)pg_frect_getright, (setter)pg_frect_setright, NULL, NULL},
-        {"centerx", (getter)pg_frect_getcenterx, (setter)pg_frect_setcenterx, NULL, NULL},
-        {"centery", (getter)pg_frect_getcentery, (setter)pg_frect_setcentery, NULL, NULL},
-        {"topleft", (getter)pg_frect_gettopleft, (setter)pg_frect_settopleft, NULL, NULL},
-        {"topright", (getter)pg_frect_gettopright, (setter)pg_frect_settopright, NULL, NULL},
-        {"bottomleft", (getter)pg_frect_getbottomleft, (setter)pg_frect_setbottomleft, NULL, NULL},
-        {"bottomright", (getter)pg_frect_getbottomright, (setter)pg_frect_setbottomright, NULL, NULL},
-        {"midtop", (getter)pg_frect_getmidtop, (setter)pg_frect_setmidtop, NULL, NULL},
-        {"midleft", (getter)pg_frect_getmidleft, (setter)pg_frect_setmidleft, NULL, NULL},
-        {"midbottom", (getter)pg_frect_getmidbottom, (setter)pg_frect_setmidbottom, NULL, NULL},
-        {"midright", (getter)pg_frect_getmidright, (setter)pg_frect_setmidright, NULL, NULL},
-        {"size", (getter)pg_frect_getsize, (setter)pg_frect_setsize, NULL, NULL},
-        {"center", (getter)pg_frect_getcenter, (setter)pg_frect_setcenter, NULL,  NULL},
+    {"x", (getter)pg_frect_getleft, (setter)pg_frect_setleft, NULL, NULL},
+    {"y", (getter)pg_frect_gettop, (setter)pg_frect_settop, NULL, NULL},
+    {"w", (getter)pg_frect_getwidth, (setter)pg_frect_setwidth, NULL, NULL},
+    {"h", (getter)pg_frect_getheight, (setter)pg_frect_setheight, NULL, NULL},
+    {"width", (getter)pg_frect_getwidth, (setter)pg_frect_setwidth, NULL,
+     NULL},
+    {"height", (getter)pg_frect_getheight, (setter)pg_frect_setheight, NULL,
+     NULL},
+    {"top", (getter)pg_frect_gettop, (setter)pg_frect_settop, NULL, NULL},
+    {"left", (getter)pg_frect_getleft, (setter)pg_frect_setleft, NULL, NULL},
+    {"bottom", (getter)pg_frect_getbottom, (setter)pg_frect_setbottom, NULL,
+     NULL},
+    {"right", (getter)pg_frect_getright, (setter)pg_frect_setright, NULL,
+     NULL},
+    {"centerx", (getter)pg_frect_getcenterx, (setter)pg_frect_setcenterx, NULL,
+     NULL},
+    {"centery", (getter)pg_frect_getcentery, (setter)pg_frect_setcentery, NULL,
+     NULL},
+    {"topleft", (getter)pg_frect_gettopleft, (setter)pg_frect_settopleft, NULL,
+     NULL},
+    {"topright", (getter)pg_frect_gettopright, (setter)pg_frect_settopright,
+     NULL, NULL},
+    {"bottomleft", (getter)pg_frect_getbottomleft,
+     (setter)pg_frect_setbottomleft, NULL, NULL},
+    {"bottomright", (getter)pg_frect_getbottomright,
+     (setter)pg_frect_setbottomright, NULL, NULL},
+    {"midtop", (getter)pg_frect_getmidtop, (setter)pg_frect_setmidtop, NULL,
+     NULL},
+    {"midleft", (getter)pg_frect_getmidleft, (setter)pg_frect_setmidleft, NULL,
+     NULL},
+    {"midbottom", (getter)pg_frect_getmidbottom, (setter)pg_frect_setmidbottom,
+     NULL, NULL},
+    {"midright", (getter)pg_frect_getmidright, (setter)pg_frect_setmidright,
+     NULL, NULL},
+    {"size", (getter)pg_frect_getsize, (setter)pg_frect_setsize, NULL, NULL},
+    {"center", (getter)pg_frect_getcenter, (setter)pg_frect_setcenter, NULL,
+     NULL},
 
-        {"__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL, NULL},
-        {NULL, 0, NULL, NULL, NULL} /* Sentinel */
+    {"__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL,
+     NULL},
+    {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
 static PyGetSetDef pg_rect_getsets[] = {
-        {"x", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
-        {"y", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
-        {"w", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
-        {"h", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL, NULL},
-        {"width", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
-        {"height", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL,
-                NULL},
-        {"top", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
-        {"left", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
-        {"bottom", (getter)pg_rect_getbottom, (setter)pg_rect_setbottom, NULL,
-                NULL},
-        {"right", (getter)pg_rect_getright, (setter)pg_rect_setright, NULL, NULL},
-        {"centerx", (getter)pg_rect_getcenterx, (setter)pg_rect_setcenterx, NULL,
-                NULL},
-        {"centery", (getter)pg_rect_getcentery, (setter)pg_rect_setcentery, NULL,
-                NULL},
-        {"topleft", (getter)pg_rect_gettopleft, (setter)pg_rect_settopleft, NULL,
-                NULL},
-        {"topright", (getter)pg_rect_gettopright, (setter)pg_rect_settopright,
-                NULL, NULL},
-        {"bottomleft", (getter)pg_rect_getbottomleft,
-                (setter)pg_rect_setbottomleft, NULL, NULL},
-        {"bottomright", (getter)pg_rect_getbottomright,
-                (setter)pg_rect_setbottomright, NULL, NULL},
-        {"midtop", (getter)pg_rect_getmidtop, (setter)pg_rect_setmidtop, NULL,
-                NULL},
-        {"midleft", (getter)pg_rect_getmidleft, (setter)pg_rect_setmidleft, NULL,
-                NULL},
-        {"midbottom", (getter)pg_rect_getmidbottom, (setter)pg_rect_setmidbottom,
-                NULL, NULL},
-        {"midright", (getter)pg_rect_getmidright, (setter)pg_rect_setmidright,
-                NULL, NULL},
-        {"size", (getter)pg_rect_getsize, (setter)pg_rect_setsize, NULL, NULL},
-        {"center", (getter)pg_rect_getcenter, (setter)pg_rect_setcenter, NULL,
-                NULL},
+    {"x", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
+    {"y", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
+    {"w", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
+    {"h", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL, NULL},
+    {"width", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
+    {"height", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL,
+     NULL},
+    {"top", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
+    {"left", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
+    {"bottom", (getter)pg_rect_getbottom, (setter)pg_rect_setbottom, NULL,
+     NULL},
+    {"right", (getter)pg_rect_getright, (setter)pg_rect_setright, NULL, NULL},
+    {"centerx", (getter)pg_rect_getcenterx, (setter)pg_rect_setcenterx, NULL,
+     NULL},
+    {"centery", (getter)pg_rect_getcentery, (setter)pg_rect_setcentery, NULL,
+     NULL},
+    {"topleft", (getter)pg_rect_gettopleft, (setter)pg_rect_settopleft, NULL,
+     NULL},
+    {"topright", (getter)pg_rect_gettopright, (setter)pg_rect_settopright,
+     NULL, NULL},
+    {"bottomleft", (getter)pg_rect_getbottomleft,
+     (setter)pg_rect_setbottomleft, NULL, NULL},
+    {"bottomright", (getter)pg_rect_getbottomright,
+     (setter)pg_rect_setbottomright, NULL, NULL},
+    {"midtop", (getter)pg_rect_getmidtop, (setter)pg_rect_setmidtop, NULL,
+     NULL},
+    {"midleft", (getter)pg_rect_getmidleft, (setter)pg_rect_setmidleft, NULL,
+     NULL},
+    {"midbottom", (getter)pg_rect_getmidbottom, (setter)pg_rect_setmidbottom,
+     NULL, NULL},
+    {"midright", (getter)pg_rect_getmidright, (setter)pg_rect_setmidright,
+     NULL, NULL},
+    {"size", (getter)pg_rect_getsize, (setter)pg_rect_setsize, NULL, NULL},
+    {"center", (getter)pg_rect_getcenter, (setter)pg_rect_setcenter, NULL,
+     NULL},
 
-        {"__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL,
-                NULL},
-        {NULL, 0, NULL, NULL, NULL} /* Sentinel */
+    {"__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL,
+     NULL},
+    {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
 static PyTypeObject pgRect_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0) "pygame.Rect", /*name*/
-        sizeof(pgRectObject),                         /*basicsize*/
-        0,                                            /*itemsize*/
-        /* methods */
-        (destructor)pg_rect_dealloc, /*dealloc*/
-        (printfunc)NULL,             /*print*/
-        NULL,                        /*getattr*/
-        NULL,                        /*setattr*/
-        NULL,                        /*compare/reserved*/
-        (reprfunc)pg_rect_repr,      /*repr*/
-        &pg_rect_as_number,          /*as_number*/
-        &pg_rect_as_sequence,        /*as_sequence*/
-        &pg_rect_as_mapping,         /*as_mapping*/
-        (hashfunc)NULL,              /*hash*/
-        (ternaryfunc)NULL,           /*call*/
-        (reprfunc)pg_rect_str,       /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Rect", /*name*/
+    sizeof(pgRectObject),                         /*basicsize*/
+    0,                                            /*itemsize*/
+    /* methods */
+    (destructor)pg_rect_dealloc, /*dealloc*/
+    (printfunc)NULL,             /*print*/
+    NULL,                        /*getattr*/
+    NULL,                        /*setattr*/
+    NULL,                        /*compare/reserved*/
+    (reprfunc)pg_rect_repr,      /*repr*/
+    &pg_rect_as_number,          /*as_number*/
+    &pg_rect_as_sequence,        /*as_sequence*/
+    &pg_rect_as_mapping,         /*as_mapping*/
+    (hashfunc)NULL,              /*hash*/
+    (ternaryfunc)NULL,           /*call*/
+    (reprfunc)pg_rect_str,       /*str*/
 
-        /* Space for future expansion */
-        0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-        DOC_PYGAMERECT,                      /* Documentation string */
-        NULL,                                /* tp_traverse */
-        NULL,                                /* tp_clear */
-        (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
-        offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
-        NULL,                                /* tp_iter */
-        NULL,                                /* tp_iternext */
-        pg_rect_methods,                     /* tp_methods */
-        NULL,                                /* tp_members */
-        pg_rect_getsets,                     /* tp_getset */
-        NULL,                                /* tp_base */
-        NULL,                                /* tp_dict */
-        NULL,                                /* tp_descr_get */
-        NULL,                                /* tp_descr_set */
-        0,                                   /* tp_dictoffset */
-        (initproc)pg_rect_init,              /* tp_init */
-        NULL,                                /* tp_alloc */
-        pg_rect_new,                         /* tp_new */
+    /* Space for future expansion */
+    0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    DOC_PYGAMERECT,                      /* Documentation string */
+    NULL,                                /* tp_traverse */
+    NULL,                                /* tp_clear */
+    (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
+    offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
+    NULL,                                /* tp_iter */
+    NULL,                                /* tp_iternext */
+    pg_rect_methods,                     /* tp_methods */
+    NULL,                                /* tp_members */
+    pg_rect_getsets,                     /* tp_getset */
+    NULL,                                /* tp_base */
+    NULL,                                /* tp_dict */
+    NULL,                                /* tp_descr_get */
+    NULL,                                /* tp_descr_set */
+    0,                                   /* tp_dictoffset */
+    (initproc)pg_rect_init,              /* tp_init */
+    NULL,                                /* tp_alloc */
+    pg_rect_new,                         /* tp_new */
 };
 
 // FRECT_TYPE
 static PyTypeObject pgFRect_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "pygame.FRect", /*name*/
-        sizeof(pgFRectObject),                         /*basicsize*/
-        0,                                            /*itemsize*/
-        /* methods */
-        (destructor)pg_frect_dealloc, /*dealloc*/
-        (printfunc)NULL,             /*print*/
-        NULL,                        /*getattr*/
-        NULL,                        /*setattr*/
-        NULL,                        /*compare/reserved*/
-        (reprfunc)pg_frect_repr,      /*repr*/
-        &pg_rect_as_number,          /*as_number*/
-        &pg_frect_as_sequence,        /*as_sequence*/
-        &pg_rect_as_mapping,         /*as_mapping*/
-        (hashfunc)NULL,              /*hash*/
-        (ternaryfunc)NULL,           /*call*/
-        (reprfunc)pg_frect_str,       /*str*/
-        /* Space for future expansion */
-        0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-        NULL,                      /* Documentation string */
-        NULL,                                /* tp_traverse */
-        NULL,                                /* tp_clear */
-        (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
-        offsetof(pgFRectObject, weakreflist), /* tp_weaklistoffset */
-        NULL,                                /* tp_iter */
-        NULL,                                /* tp_iternext */
-        pg_frect_methods,                    /* tp_methods */
-        NULL,                                /* tp_members */
-        pg_frect_getsets,                    /* tp_getset */
-        NULL,                                /* tp_base */
-        NULL,                                /* tp_dict */
-        NULL,                                /* tp_descr_get */
-        NULL,                                /* tp_descr_set */
-        0,                                   /* tp_dictoffset */
-        (initproc)pg_frect_init,             /* tp_init */
-        NULL,                                /* tp_alloc */
-        pg_frect_new,                        /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.FRect", /*name*/
+    sizeof(pgFRectObject),                         /*basicsize*/
+    0,                                             /*itemsize*/
+    /* methods */
+    (destructor)pg_frect_dealloc, /*dealloc*/
+    (printfunc)NULL,              /*print*/
+    NULL,                         /*getattr*/
+    NULL,                         /*setattr*/
+    NULL,                         /*compare/reserved*/
+    (reprfunc)pg_frect_repr,      /*repr*/
+    &pg_rect_as_number,           /*as_number*/
+    &pg_frect_as_sequence,        /*as_sequence*/
+    &pg_rect_as_mapping,          /*as_mapping*/
+    (hashfunc)NULL,               /*hash*/
+    (ternaryfunc)NULL,            /*call*/
+    (reprfunc)pg_frect_str,       /*str*/
+    /* Space for future expansion */
+    0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    NULL,                                 /* Documentation string */
+    NULL,                                 /* tp_traverse */
+    NULL,                                 /* tp_clear */
+    (richcmpfunc)pg_rect_richcompare,     /* tp_richcompare */
+    offsetof(pgFRectObject, weakreflist), /* tp_weaklistoffset */
+    NULL,                                 /* tp_iter */
+    NULL,                                 /* tp_iternext */
+    pg_frect_methods,                     /* tp_methods */
+    NULL,                                 /* tp_members */
+    pg_frect_getsets,                     /* tp_getset */
+    NULL,                                 /* tp_base */
+    NULL,                                 /* tp_dict */
+    NULL,                                 /* tp_descr_get */
+    NULL,                                 /* tp_descr_set */
+    0,                                    /* tp_dictoffset */
+    (initproc)pg_frect_init,              /* tp_init */
+    NULL,                                 /* tp_alloc */
+    pg_frect_new,                         /* tp_new */
 };
 
 static int
@@ -3924,7 +3961,7 @@ pg_frect_init(pgFRectObject *self, PyObject *args, PyObject *kwds)
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _pg_module_doc[] =
-        /*DOC*/ "Module for the rectangle object\n";
+    /*DOC*/ "Module for the rectangle object\n";
 
 MODINIT_DEFINE(rect)
 {
@@ -3950,8 +3987,7 @@ MODINIT_DEFINE(rect)
     }
 
     /* Create the module and add the functions */
-    if (PyType_Ready(&pgRect_Type) < 0 ||
-        PyType_Ready(&pgFRect_Type) < 0) {
+    if (PyType_Ready(&pgRect_Type) < 0 || PyType_Ready(&pgFRect_Type) < 0) {
         return NULL;
     }
 
