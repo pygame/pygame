@@ -1890,9 +1890,9 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
 
     return 0;
 #else
-    PyErr_SetString(
-        PyExc_RuntimeError,
-        "_camera backend not available on your platform") return -1;
+    PyErr_SetString(PyExc_RuntimeError,
+                    "_camera backend not available on your platform");
+    return -1;
 #endif
 }
 

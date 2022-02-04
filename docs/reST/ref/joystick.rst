@@ -34,7 +34,7 @@ And in pygame 2, which supports hotplugging::
 
 Note that in pygame 2, joysticks events use a unique "instance ID". The device index
 passed in the constructor to a Joystick object is not unique after devices have
-been added and removed. You must call :meth:`JoystickType.get_instance_id()` to find
+been added and removed. You must call :meth:`Joystick.get_instance_id()` to find
 the instance ID that was assigned to a Joystick on opening.
 
 The event queue needs to be pumped frequently for some of the methods to work.
@@ -89,23 +89,13 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
    .. ## pygame.joystick.get_count ##
 
-.. function:: Joystick
+.. class:: Joystick
 
-   | :sl:`Create a new joystick object.`
-   | :sg:`Joystick(id) -> JoystickType instance`
+   | :sl:`Create a new Joystick object.`
+   | :sg:`Joystick(id) -> Joystick`
 
    Create a new joystick to access a physical device. The id argument must be a
    value from ``0`` to ``pygame.joystick.get_count() - 1``.
-
-   .. ## pygame.joystick.Joystick ##
-
-.. class:: JoystickType
-
-   | :sl:`A pygame object to represent a joystick device.`
-
-   A pygame object to represent a joystick device connected to the computer.
-   This object cannot be initialised, the only way to open a new joystick is
-   through :func:`pygame.joystick.Joystick`.
 
    Joysticks are initialised on creation and are shut down when deallocated.
    Once the device is initialized the pygame event queue will start receiving
@@ -126,7 +116,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
          In future it will not be possible to reinitialise a closed Joystick
          object. Will be removed in Pygame 2.1.
 
-      .. ## JoystickType.init ##
+      .. ## Joystick.init ##
 
    .. method:: quit
 
@@ -138,7 +128,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       It is safe to call this more than once.
 
-      .. ## JoystickType.quit ##
+      .. ## Joystick.quit ##
 
    .. method:: get_init
 
@@ -147,7 +137,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       Return True if the Joystick object is currently initialised.
 
-      .. ## JoystickType.get_init ##
+      .. ## Joystick.get_init ##
 
    .. method:: get_id
 
@@ -195,7 +185,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       .. versionadded:: 2.0.0dev11
 
-      .. ## JoystickType.get_id ##
+      .. ## Joystick.get_id ##
 
    .. method:: get_name
 
@@ -207,7 +197,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       identifies the device. This method can safely be called while the
       Joystick is not initialized.
 
-      .. ## JoystickType.get_name ##
+      .. ## Joystick.get_name ##
 
    .. method:: get_numaxes
 
@@ -227,7 +217,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Analog joysticks usually have a bit of noise in their axis, which will 
       generate a lot of rapid small motion events.
 
-      .. ## JoystickType.get_numaxes ##
+      .. ## Joystick.get_numaxes ##
 
    .. method:: get_axis
 
@@ -245,7 +235,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       When using gamepads both the control sticks and the analog triggers are
       usually reported as axes.
 
-      .. ## JoystickType.get_axis ##
+      .. ## Joystick.get_axis ##
 
    .. method:: get_numballs
 
@@ -259,7 +249,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       The ``pygame.JOYBALLMOTION`` event will be sent when the trackball is
       rolled. It will report the amount of movement on the trackball.
 
-      .. ## JoystickType.get_numballs ##
+      .. ## Joystick.get_numballs ##
 
    .. method:: get_ball
 
@@ -271,7 +261,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       The ball number must be an integer from ``0`` to ``get_numballs() - 1``.
 
-      .. ## JoystickType.get_ball ##
+      .. ## Joystick.get_ball ##
 
    .. method:: get_numbuttons
 
@@ -284,7 +274,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Buttons generate a ``pygame.JOYBUTTONDOWN`` and ``pygame.JOYBUTTONUP``
       event when they are pressed and released.
 
-      .. ## JoystickType.get_numbuttons ##
+      .. ## Joystick.get_numbuttons ##
 
    .. method:: get_button
 
@@ -293,7 +283,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       Returns the current state of a joystick button.
 
-      .. ## JoystickType.get_button ##
+      .. ## Joystick.get_button ##
 
    .. method:: get_numhats
 
@@ -309,7 +299,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       values that are either ``-1``, ``0``, or ``1``. A position of ``(0, 0)`` 
       means the hat is centered.
 
-      .. ## JoystickType.get_numhats ##
+      .. ## Joystick.get_numhats ##
 
    .. method:: get_hat
 
@@ -327,7 +317,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       The hat number must be between ``0`` and ``get_numhats() - 1``.
 
-      .. ## JoystickType.get_hat ##
+      .. ## Joystick.get_hat ##
 
    .. method:: rumble
 
@@ -337,7 +327,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Start a rumble effect on the joystick, with the specified strength ranging
       from 0 to 1. Duration is length of the effect, in ms. Setting the duration
       to 0 will play the effect until another one overwrites it or
-      :meth:`JoystickType.stop_rumble` is called. If an effect is already
+      :meth:`Joystick.stop_rumble` is called. If an effect is already
       playing, then it will be overwritten.
 
       Returns True if the rumble was played successfully or False if the
@@ -345,7 +335,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       .. versionadded:: 2.0.2
 
-      .. ## JoystickType.rumble ##
+      .. ## Joystick.rumble ##
 
    .. method:: stop_rumble
 
@@ -353,11 +343,11 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       | :sg:`stop_rumble() -> None`
 
       Stops any rumble effect playing on the joystick. See
-      :meth:`JoystickType.rumble` for more information.
+      :meth:`Joystick.rumble` for more information.
 
       .. versionadded:: 2.0.2
 
-      .. ## JoystickType.stop_rumble ##
+      .. ## Joystick.stop_rumble ##
 
    .. ## pygame.joystick.Joystick ##
 

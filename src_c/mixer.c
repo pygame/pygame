@@ -1000,21 +1000,20 @@ static PyTypeObject pgSound_Type = {
     0,                           /* tp_richcompare */
     offsetof(pgSoundObject, weakreflist),
     /* tp_weaklistoffset */
-    0,             /* tp_iter */
-    0,             /* tp_iternext */
-    sound_methods, /* tp_methods */
-    0,             /* tp_members */
-    sound_getset,  /* tp_getset */
-    0,             /* tp_base */
-    0,             /* tp_dict */
-    0,             /* tp_descr_get */
-    0,             /* tp_descr_set */
-    0,             /* tp_dictoffset */
-    sound_init,    /* tp_init */
-    0,             /* tp_alloc */
-    PyType_GenericNew,    /* tp_new */
+    0,                 /* tp_iter */
+    0,                 /* tp_iternext */
+    sound_methods,     /* tp_methods */
+    0,                 /* tp_members */
+    sound_getset,      /* tp_getset */
+    0,                 /* tp_base */
+    0,                 /* tp_dict */
+    0,                 /* tp_descr_get */
+    0,                 /* tp_descr_set */
+    0,                 /* tp_dictoffset */
+    sound_init,        /* tp_init */
+    0,                 /* tp_alloc */
+    PyType_GenericNew, /* tp_new */
 };
-
 
 /* channel object methods */
 static PyObject *
@@ -1314,7 +1313,6 @@ channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
     return 0;
 }
 
-
 static PyTypeObject pgChannel_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Channel", /* name */
     sizeof(pgChannelObject),                  /* basic size */
@@ -1350,7 +1348,7 @@ static PyTypeObject pgChannel_Type = {
     0,                                        /* tp_descr_get */
     0,                                        /* tp_descr_set */
     0,                                        /* tp_dictoffset */
-    (initproc) channel_init,                  /* tp_init */
+    (initproc)channel_init,                   /* tp_init */
     0,                                        /* tp_alloc */
     PyType_GenericNew,                        /* tp_new */
 };
@@ -2008,8 +2006,7 @@ MODINIT_DEFINE(mixer)
         return NULL;
     }
     Py_INCREF(&pgChannel_Type);
-    if (PyModule_AddObject(module, "Channel",
-                           (PyObject *)&pgChannel_Type)) {
+    if (PyModule_AddObject(module, "Channel", (PyObject *)&pgChannel_Type)) {
         Py_DECREF(&pgChannel_Type);
         Py_DECREF(module);
         return NULL;

@@ -476,7 +476,7 @@ clock_str(PyObject *self)
     return PyUnicode_FromString(str);
 }
 
-static PyObject *
+static int
 clock_init(PyClockObject *self, PyObject *args, PyObject *kwargs)
 {
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
@@ -532,7 +532,7 @@ static PyTypeObject PyClock_Type = {
     0,                                      /* tp_descr_get */
     0,                                      /* tp_descr_set */
     0,                                      /* tp_dictoffset */
-    (initproc) clock_init,                  /* tp_init */
+    (initproc)clock_init,                   /* tp_init */
     0,                                      /* tp_alloc */
     PyType_GenericNew,                      /* tp_new */
 };
