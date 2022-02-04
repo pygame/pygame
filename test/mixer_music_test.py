@@ -91,8 +91,8 @@ class MixerMusicModuleTest(unittest.TestCase):
         import shutil
 
         ep = example_path("data")
-        temp_file = os.path.join(ep, u"你好.wav")
-        org_file = os.path.join(ep, u"house_lo.wav")
+        temp_file = os.path.join(ep, "你好.wav")
+        org_file = os.path.join(ep, "house_lo.wav")
         try:
             with open(temp_file, "w") as f:
                 pass
@@ -111,7 +111,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         import tempfile
 
         ep = example_path("data")
-        org_file = os.path.join(ep, u"house_lo.wav")
+        org_file = os.path.join(ep, "house_lo.wav")
         tmpfd, tmppath = tempfile.mkstemp(".wav")
         os.close(tmpfd)
         shutil.copy(org_file, tmppath)

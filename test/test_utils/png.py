@@ -317,7 +317,7 @@ class Writer:
         planes=None,
         colormap=None,
         maxval=None,
-        chunk_limit=2 ** 20,
+        chunk_limit=2**20,
     ):
         """
         Create a PNG encoder object.
@@ -499,7 +499,7 @@ class Writer:
         if not isinteger(width) or not isinteger(height):
             raise ValueError("width and height must be integers")
         # http://www.w3.org/TR/PNG/#7Integers-and-byte-order
-        if width > 2 ** 32 - 1 or height > 2 ** 32 - 1:
+        if width > 2**32 - 1 or height > 2**32 - 1:
             raise ValueError("width and height cannot exceed 2**32-1")
 
         if alpha and transparent is not None:
@@ -976,7 +976,7 @@ def write_chunk(outfile, tag, data=strtobytes("")):
     outfile.write(data)
     checksum = zlib.crc32(tag)
     checksum = zlib.crc32(data, checksum)
-    checksum &= 2 ** 32 - 1
+    checksum &= 2**32 - 1
     outfile.write(struct.pack("!I", checksum))
 
 
@@ -1430,7 +1430,7 @@ class Reader:
             # http://bugs.python.org/issue1202 .
             # We coerce it to be positive here (in a way which works on
             # Python 2.3 and older).
-            verify &= 2 ** 32 - 1
+            verify &= 2**32 - 1
             verify = struct.pack("!I", verify)
             if checksum != verify:
                 # print repr(checksum)
@@ -1636,7 +1636,7 @@ class Reader:
             # Samples per byte
             spb = 8 // self.bitdepth
             out = array("B")
-            mask = 2 ** self.bitdepth - 1
+            mask = 2**self.bitdepth - 1
             shifts = map(self.bitdepth.__mul__, reversed(range(spb)))
             for o in raw:
                 out.extend(map(lambda i: mask & (o >> i), shifts))
@@ -1660,7 +1660,7 @@ class Reader:
         # Samples per byte
         spb = 8 // self.bitdepth
         out = array("B")
-        mask = 2 ** self.bitdepth - 1
+        mask = 2**self.bitdepth - 1
         shifts = map(self.bitdepth.__mul__, reversed(range(spb)))
         l = width
         for o in bytes:
@@ -1741,7 +1741,7 @@ class Reader:
             raise FormatError("End of file whilst reading chunk length and type.")
         length, type = struct.unpack("!I4s", x)
         type = bytestostr(type)
-        if length > 2 ** 31 - 1:
+        if length > 2**31 - 1:
             raise FormatError("Chunk %s is too large: %d." % (type, length))
         return length, type
 
@@ -1830,7 +1830,7 @@ class Reader:
             self.plte = data
             if len(data) % 3 != 0:
                 raise FormatError("PLTE chunk's length should be a multiple of 3.")
-            if len(data) > (2 ** self.bitdepth) * 3:
+            if len(data) > (2**self.bitdepth) * 3:
                 raise FormatError("PLTE chunk is too long.")
             if len(data) == 0:
                 raise FormatError("Empty PLTE is not allowed.")
@@ -2119,7 +2119,7 @@ class Reader:
 
         width, height, pixels, meta = get()
         maxval = 2 ** meta["bitdepth"] - 1
-        targetmaxval = 2 ** targetbitdepth - 1
+        targetmaxval = 2**targetbitdepth - 1
         factor = float(targetmaxval) / float(maxval)
         meta["bitdepth"] = targetbitdepth
 
@@ -2722,7 +2722,7 @@ class Test(unittest.TestCase):
         img.save("testfromarray.png")
 
     def testfromarrayL16(self):
-        img = from_array(group(range(2 ** 16), 256), "L;16")
+        img = from_array(group(range(2**16), 256), "L;16")
         img.save("testL16.png")
 
     def testfromarrayRGB(self):
@@ -3488,7 +3488,7 @@ def test_suite(options, args):
         flat row flat pixel array.
         """
 
-        maxval = 2 ** bitdepth - 1
+        maxval = 2**bitdepth - 1
         if maxval > 255:
             a = array("H")
         else:
@@ -3716,7 +3716,7 @@ def write_pnm(file, width, height, pixels, meta):
     """Write a Netpbm PNM/PAM file."""
 
     bitdepth = meta["bitdepth"]
-    maxval = 2 ** bitdepth - 1
+    maxval = 2**bitdepth - 1
     # Rudely, the number of image planes can be used to determine
     # whether we are L (PGM), LA (PAM), RGB (PPM), or RGBA (PAM).
     planes = meta["planes"]
@@ -3956,7 +3956,7 @@ def _main(argv):
         # care about TUPLTYPE.
         greyscale = depth <= 2
         pamalpha = depth in (2, 4)
-        supported = map(lambda x: 2 ** x - 1, range(1, 17))
+        supported = map(lambda x: 2**x - 1, range(1, 17))
         try:
             mi = supported.index(maxval)
         except ValueError:
