@@ -622,14 +622,6 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assertFalse(pygame.get_init())
 
-    def todo_test_segfault(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.base.segfault:
-
-        # crash
-
-        self.fail()
-
 
 if __name__ == "__main__":
     unittest.main()
