@@ -461,8 +461,8 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
     return NULL;
 }
 
-static pg_BaseFloatRect *
-pgFRect_FromObject(PyObject *obj, pg_BaseFloatRect *temp)
+static SDL_FRect *
+pgFRect_FromObject(PyObject *obj, SDL_FRect *temp)
 {
     float val;
     Py_ssize_t length;
@@ -539,7 +539,7 @@ pgFRect_FromObject(PyObject *obj, pg_BaseFloatRect *temp)
     }
     if (PyObject_HasAttrString(obj, "rect")) {
         PyObject *rectattr;
-        pg_BaseFloatRect *returnrect;
+        SDL_FRect *returnrect;
         rectattr = PyObject_GetAttrString(obj, "rect");
         if (rectattr == NULL) {
             PyErr_Clear();
@@ -569,7 +569,7 @@ pgRect_New(SDL_Rect *r)
 }
 
 static PyObject *
-pgFRect_New(pg_BaseFloatRect *r)
+pgFRect_New(SDL_FRect *r)
 {
     return _pg_frect_subtype_new4(&pgFRect_Type, r->x, r->y, r->w, r->h);
 }
@@ -601,7 +601,7 @@ pgRect_Normalize(SDL_Rect *rect)
 }
 
 static void
-pgFRect_Normalize(pg_BaseFloatRect *rect)
+pgFRect_Normalize(SDL_FRect *rect)
 {
     if (rect->w < 0) {
         rect->x += rect->w;
@@ -633,7 +633,7 @@ _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
 }
 
 static int
-_pg_do_frects_intersect(pg_BaseFloatRect *A, pg_BaseFloatRect *B)
+_pg_do_frects_intersect(SDL_FRect *A, SDL_FRect *B)
 {
     if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
         // zero sized rects should not collide with anything #1197
@@ -797,8 +797,8 @@ pg_rect_update(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_update(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect temp;
-    pg_BaseFloatRect *argrect = pgFRect_FromObject(args, &temp);
+    SDL_FRect temp;
+    SDL_FRect *argrect = pgFRect_FromObject(args, &temp);
 
     if (argrect == NULL) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
@@ -829,7 +829,7 @@ pg_rect_union(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_union(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     float x, y, w, h;
 
     if (!(argrect = pgFRect_FromObject(args, &temp))) {
@@ -865,7 +865,7 @@ pg_rect_union_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_union_ip(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     float x, y, w, h;
 
     if (!(argrect = pgFRect_FromObject(args, &temp)))
@@ -931,7 +931,7 @@ pg_rect_unionall(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_unionall(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t loop, size;
     PyObject *list, *obj;
     float t, l, b, r;
@@ -1029,7 +1029,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_unionall_ip(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t loop, size;
     PyObject *list, *obj;
     float t, l, b, r;
@@ -1124,7 +1124,7 @@ pg_rect_colliderect(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_colliderect(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
 
     if (!(argrect = pgFRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
@@ -1177,7 +1177,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_collidelist(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t size;
     int loop;
     PyObject *list, *obj;
@@ -1274,7 +1274,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_collidelistall(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t size;
     int loop;
     PyObject *list, *obj;
@@ -1371,7 +1371,7 @@ pg_rect_collidedict(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_collidedict(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t loop = 0;
     Py_ssize_t values = 0; /* Defaults to expecting keys as rects. */
     PyObject *dict, *key, *val;
@@ -1467,7 +1467,7 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_collidedictall(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     Py_ssize_t loop = 0;
     Py_ssize_t values = 0; /* Defaults to expecting keys as rects. */
     PyObject *dict, *key, *val;
@@ -1574,7 +1574,7 @@ nointersect:
 static PyObject *
 pg_frect_clip(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *A, *B, temp;
+    SDL_FRect *A, *B, temp;
     float x, y, w, h;
 
     A = &self->r;
@@ -1738,7 +1738,7 @@ https://github.com/libsdl-org/SDL/blob/120c76c84bbce4c1bfed4e9eb74e10678bd83120/
 */
 
 static int
-_PG_IntersectFRectAndLine_ComputeOutCode(const pg_BaseFloatRect *rect, float x,
+_PG_IntersectFRectAndLine_ComputeOutCode(const SDL_FRect *rect, float x,
                                          float y)
 {
     int code = 0;
@@ -1758,7 +1758,7 @@ _PG_IntersectFRectAndLine_ComputeOutCode(const pg_BaseFloatRect *rect, float x,
 }
 
 static SDL_bool
-PG_IntersectFRectAndLine(pg_BaseFloatRect *rect, float *X1, float *Y1,
+PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1,
                          float *X2, float *Y2)
 {
     float x = 0;
@@ -1904,7 +1904,7 @@ static PyObject *
 pg_frect_clipline(pgFRectObject *self, PyObject *args)
 {
     PyObject *arg1 = NULL, *arg2 = NULL, *arg3 = NULL, *arg4 = NULL;
-    pg_BaseFloatRect *rect = &self->r, *rect_copy = NULL;
+    SDL_FRect *rect = &self->r, *rect_copy = NULL;
     float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
     if (!PyArg_ParseTuple(args, "O|OOO", &arg1, &arg2, &arg3, &arg4)) {
@@ -2011,7 +2011,7 @@ _pg_rect_contains(pgRectObject *self, PyObject *arg)
 static int
 _pg_frect_contains(pgFRectObject *self, PyObject *arg)
 {
-    pg_BaseFloatRect *argrect, temp_arg;
+    SDL_FRect *argrect, temp_arg;
     if (!(argrect = pgFRect_FromObject((PyObject *)arg, &temp_arg))) {
         return -1;
     }
@@ -2112,7 +2112,7 @@ pg_rect_clamp(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_clamp(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     float x, y;
 
     if (!(argrect = pgFRect_FromObject(args, &temp))) {
@@ -2169,7 +2169,7 @@ pg_rect_fit(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_fit(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     float w, h, x, y;
     float xratio, yratio, maxratio;
 
@@ -2228,7 +2228,7 @@ pg_rect_clamp_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_frect_clamp_ip(pgFRectObject *self, PyObject *args)
 {
-    pg_BaseFloatRect *argrect, temp;
+    SDL_FRect *argrect, temp;
     float x, y;
 
     if (!(argrect = pgFRect_FromObject(args, &temp))) {
@@ -2758,7 +2758,7 @@ Unimplemented:
 static PyObject *
 pg_frect_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
-    pg_BaseFloatRect *o1rect, *o2rect, temp1, temp2;
+    SDL_FRect *o1rect, *o2rect, temp1, temp2;
     int cmp;
 
     o1rect = pgFRect_FromObject(o1, &temp1);
@@ -3944,8 +3944,8 @@ pg_rect_init(pgRectObject *self, PyObject *args, PyObject *kwds)
 static int
 pg_frect_init(pgFRectObject *self, PyObject *args, PyObject *kwds)
 {
-    pg_BaseFloatRect temp;
-    pg_BaseFloatRect *argrect = pgFRect_FromObject(args, &temp);
+    SDL_FRect temp;
+    SDL_FRect *argrect = pgFRect_FromObject(args, &temp);
 
     if (argrect == NULL) {
         PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
