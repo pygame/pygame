@@ -2057,8 +2057,7 @@ static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(rect)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_RECT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2088,13 +2087,16 @@ MODINIT_DEFINE(rect)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
-    if (PyDict_SetItemString(dict, "RectType", (PyObject *)&pgRect_Type)) {
+    Py_INCREF(&pgRect_Type);
+    if (PyModule_AddObject(module, "RectType", (PyObject *)&pgRect_Type)) {
+        Py_DECREF(&pgRect_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "Rect", (PyObject *)&pgRect_Type)) {
+    Py_INCREF(&pgRect_Type);
+    if (PyModule_AddObject(module, "Rect", (PyObject *)&pgRect_Type)) {
+        Py_DECREF(&pgRect_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -2106,13 +2108,8 @@ MODINIT_DEFINE(rect)
     c_api[3] = pgRect_FromObject;
     c_api[4] = pgRect_Normalize;
     apiobj = encapsulate_api(c_api, "rect");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

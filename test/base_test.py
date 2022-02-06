@@ -38,7 +38,7 @@ class BaseModuleTest(unittest.TestCase):
         """Ensure the SDL version is valid"""
         self.assertEqual(len(pygame.get_sdl_version()), 3)
 
-    class ExporterBase(object):
+    class ExporterBase:
         def __init__(self, shape, typechar, itemsize):
             import ctypes
 

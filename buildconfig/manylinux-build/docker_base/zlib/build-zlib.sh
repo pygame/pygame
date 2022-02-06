@@ -5,7 +5,7 @@ cd $(dirname `readlink -f "$0"`)
 
 ZLIB_VER=1.2.11
 ZLIB_NAME="zlib-$ZLIB_VER"
-curl -sL https://www.zlib.net/${ZLIB_NAME}.tar.gz > ${ZLIB_NAME}.tar.gz
+curl -sL --retry 10 https://www.zlib.net/${ZLIB_NAME}.tar.gz > ${ZLIB_NAME}.tar.gz
 
 sha512sum -c zlib.sha512
 tar -xf ${ZLIB_NAME}.tar.gz

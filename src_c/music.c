@@ -560,23 +560,15 @@ MODINIT_DEFINE(mixer_music)
     }
     cobj = PyCapsule_New(&current_music, "pygame.music_mixer._MUSIC_POINTER",
                          NULL);
-    if (cobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj) < 0) {
-        Py_DECREF(cobj);
+    if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj)) {
+        Py_XDECREF(cobj);
         Py_DECREF(module);
         return NULL;
     }
     cobj =
         PyCapsule_New(&queue_music, "pygame.music_mixer._QUEUE_POINTER", NULL);
-    if (cobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj) < 0) {
-        Py_DECREF(cobj);
+    if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj)) {
+        Py_XDECREF(cobj);
         Py_DECREF(module);
         return NULL;
     }

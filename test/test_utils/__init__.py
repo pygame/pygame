@@ -20,7 +20,7 @@ def geterror():
     return sys.exc_info()[1]
 
 
-class AssertRaisesRegexMixin(object):
+class AssertRaisesRegexMixin:
     """Provides a way to prevent DeprecationWarnings in python >= 3.2.
 
     For this mixin to override correctly it needs to be before the

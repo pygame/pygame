@@ -5,7 +5,7 @@ cd $(dirname `readlink -f "$0"`)
 
 GETTEXT=gettext-0.21
 
-curl -sL https://ftp.gnu.org/gnu/gettext/${GETTEXT}.tar.gz > ${GETTEXT}.tar.gz
+curl -sL --retry 10 https://ftp.gnu.org/gnu/gettext/${GETTEXT}.tar.gz > ${GETTEXT}.tar.gz
 sha512sum -c gettext.sha512
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
