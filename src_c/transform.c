@@ -287,8 +287,10 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
     int isin = (int)(sangle * 65536);
     int icos = (int)(cangle * 65536);
 
-    int ax = ((dst->w) << 15) - (int)(cangle * ((dst->w - 1) << 15));
-    int ay = ((dst->h) << 15) - (int)(sangle * ((dst->w - 1) << 15));
+    int ax =
+        ((dst->w) << 15) - (int)(cangle * (((long long)dst->w - 1) << 15));
+    int ay =
+        ((dst->h) << 15) - (int)(sangle * (((long long)dst->w - 1) << 15));
 
     int xmaxval = ((src->w) << 16) - 1;
     int ymaxval = ((src->h) << 16) - 1;
@@ -323,7 +325,7 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
                     else
                         *dstpos++ =
                             *(Uint16 *)(srcpix + ((dy >> 16) * srcpitch) +
-                                        (dx >> 16 << 1));
+                                        ((long long)dx >> 16 << 1));
                     dx += icos;
                     dy += isin;
                 }
@@ -341,7 +343,7 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
                     else
                         *dstpos++ =
                             *(Uint32 *)(srcpix + ((dy >> 16) * srcpitch) +
-                                        (dx >> 16 << 2));
+                                        ((long long)dx >> 16 << 2));
                     dx += icos;
                     dy += isin;
                 }
@@ -355,18 +357,14 @@ rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
                 dy = (ay - (icos * (cy - y))) + yd;
                 for (x = 0; x < dst->w; x++) {
                     if (dx < 0 || dy < 0 || dx > xmaxval || dy > ymaxval) {
-                        dstpos[0] = ((Uint8 *)&bgcolor)[0];
-                        dstpos[1] = ((Uint8 *)&bgcolor)[1];
-                        dstpos[2] = ((Uint8 *)&bgcolor)[2];
+                        memcpy(dstpos, &bgcolor, 3 * sizeof(Uint8));
                         dstpos += 3;
                     }
                     else {
                         Uint8 *srcpos =
                             (Uint8 *)(srcpix + ((dy >> 16) * srcpitch) +
                                       ((dx >> 16) * 3));
-                        dstpos[0] = srcpos[0];
-                        dstpos[1] = srcpos[1];
-                        dstpos[2] = srcpos[2];
+                        memcpy(dstpos, srcpos, 3 * sizeof(Uint8));
                         dstpos += 3;
                     }
                     dx += icos;
@@ -627,7 +625,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
     surf = pgSurface_AsSurface(surfobj);
     if (surf->w < 1 || surf->h < 1) {
         Py_INCREF(surfobj);
-        return surfobj;
+        return (PyObject *)surfobj;
     }
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
@@ -1134,7 +1132,13 @@ filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     int dstdiff = dstpitch - (dstwidth * 4);
     int *xidx0, *xmult0, *xmult1;
     int x, y;
-    int factorwidth = 4;
+    const int factorwidth = 4;
+
+#ifdef _MSC_VER
+    /* Make MSVC static analyzer happy by assuring dstwidth >= 2 to supress
+     * a false analyzer report */
+    __analysis_assume(dstwidth >= 2);
+#endif
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
@@ -1482,6 +1486,12 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
     char *keywords[] = {"backend", NULL};
     const char *type;
 
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure type is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(type = "inited");
+#endif
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", keywords, &type))
         return NULL;
 
@@ -1725,7 +1735,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *dest_surf_obj;
     SDL_Surface *dest_surf = NULL;
 
-    pgSurfaceObject *surf_obj = NULL;
+    pgSurfaceObject *surf_obj;
     SDL_Surface *surf = NULL;
 
     PyObject *search_color_obj;
@@ -1819,7 +1829,6 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     surf = pgSurface_AsSurface(surf_obj);
-
     if (NULL == surf) {
         return RAISE(PyExc_TypeError, "invalid surf argument");
     }
@@ -2228,7 +2237,7 @@ surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 int
-average_surfaces(SDL_Surface **surfaces, int num_surfaces,
+average_surfaces(SDL_Surface **surfaces, size_t num_surfaces,
                  SDL_Surface *destsurf, int palette_colors)
 {
     /*
@@ -2246,7 +2255,8 @@ average_surfaces(SDL_Surface **surfaces, int num_surfaces,
     Uint32 *the_idx;
     Uint32 the_color;
     SDL_Surface *surf;
-    int height, width, x, y, surf_idx;
+    size_t surf_idx;
+    int height, width, x, y;
 
     float div_inv;
 
@@ -2450,8 +2460,6 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
     /* Iterate over 'surfaces' passed in. */
 
     /* need to get the first surface to see how big it is */
-
-    loop = 0;
 
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
@@ -2790,7 +2798,7 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 static PyObject *
 surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     PyObject *rectobj = NULL;
     SDL_Surface *surf;
     SDL_Rect *rect, temp;

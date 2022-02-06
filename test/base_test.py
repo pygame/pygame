@@ -38,7 +38,7 @@ class BaseModuleTest(unittest.TestCase):
         """Ensure the SDL version is valid"""
         self.assertEqual(len(pygame.get_sdl_version()), 3)
 
-    class ExporterBase(object):
+    class ExporterBase:
         def __init__(self, shape, typechar, itemsize):
             import ctypes
 
@@ -621,14 +621,6 @@ class BaseModuleTest(unittest.TestCase):
         pygame.quit()
 
         self.assertFalse(pygame.get_init())
-
-    def todo_test_segfault(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.base.segfault:
-
-        # crash
-
-        self.fail()
 
 
 if __name__ == "__main__":

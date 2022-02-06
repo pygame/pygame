@@ -892,10 +892,10 @@ MODINIT_DEFINE(key)
         return NULL;
     }
 
-    Py_INCREF((PyObject *)&pgScancodeWrapper_Type);
+    Py_INCREF(&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
-                           (PyObject *)&pgScancodeWrapper_Type) == -1) {
-        Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
+                           (PyObject *)&pgScancodeWrapper_Type)) {
+        Py_DECREF(&pgScancodeWrapper_Type);
         Py_DECREF(module);
         return NULL;
     }

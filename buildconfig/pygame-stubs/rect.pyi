@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+from typing import Dict, List, Literal, Sequence, Tuple, TypeVar, Union, overload
 
 from pygame.math import Vector2
 from ._common import _Coordinate, _CanBeRect
@@ -6,7 +6,7 @@ from ._common import _Coordinate, _CanBeRect
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
-class Rect(object):
+class Rect:
     x: int
     y: int
     top: int
@@ -47,6 +47,7 @@ class Rect(object):
             Rect, Tuple[float, float, float, float], List[float]
         ],
     ) -> None: ...
+    def __len__(self) -> Literal[4]: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload

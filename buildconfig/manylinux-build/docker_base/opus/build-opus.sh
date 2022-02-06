@@ -5,7 +5,7 @@ cd $(dirname `readlink -f "$0"`)
 
 OPUS=opus-1.3.1
 
-curl -sL https://archive.mozilla.org/pub/opus/${OPUS}.tar.gz > ${OPUS}.tar.gz
+curl -sL --retry 10 https://archive.mozilla.org/pub/opus/${OPUS}.tar.gz > ${OPUS}.tar.gz
 sha512sum -c opus.sha512
 
 tar xzf ${OPUS}.tar.gz

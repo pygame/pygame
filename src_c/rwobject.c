@@ -31,6 +31,15 @@
 
 #include "doc/pygame_doc.h"
 
+#if defined(_WIN32)
+#define PG_LSEEK _lseeki64
+#elif defined(__APPLE__)
+/* Mac does not implement lseek64 */
+#define PG_LSEEK lseek
+#else
+#define PG_LSEEK lseek64
+#endif
+
 typedef struct {
     PyObject *read;
     PyObject *write;
@@ -536,7 +545,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     PyGILState_STATE state;
 
     if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
+        return PG_LSEEK(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
@@ -576,7 +585,7 @@ end:
     return retval;
 #else  /* ~WITH_THREAD */
     if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
+        return PG_LSEEK(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
@@ -616,7 +625,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #endif /* WITH_THREAD */
 
     if (helper->fileno != -1) {
-        retval = read(helper->fileno, ptr, size * maxnum);
+        retval = read(helper->fileno, ptr, (unsigned int)(size * maxnum));
         if (retval == -1) {
             return -1;
         }
@@ -806,8 +815,7 @@ static PyMethodDef _pg_module_methods[] = {
 
 MODINIT_DEFINE(rwobject)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -825,7 +833,6 @@ MODINIT_DEFINE(rwobject)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
     /* export the c api */
     c_api[0] = pgRWops_FromObject;
@@ -836,13 +843,8 @@ MODINIT_DEFINE(rwobject)
     c_api[5] = pgRWops_ReleaseObject;
     c_api[6] = pgRWops_GetFileExtension;
     apiobj = encapsulate_api(c_api, "rwobject");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode == -1) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

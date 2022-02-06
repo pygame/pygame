@@ -1143,7 +1143,7 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError,
                      "cannot set palette without pygame.display initialized");
 
-    len = MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(list));
 
     for (i = 0; i < len; i++) {
         item = PySequence_GetItem(list, i);
@@ -1232,10 +1232,10 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     Uint8 rgba[4];
     int result;
     int hascolor = SDL_FALSE;
-    int bpp = surf->format->BytesPerPixel;
 
     if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
         return NULL;
+
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
@@ -1263,7 +1263,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
 
     pgSurface_Prep(self);
     result = 0;
-    if (hascolor && bpp == 1) {
+    if (hascolor && surf->format->BytesPerPixel == 1) {
         /* For an indexed surface, remove the previous colorkey first.
          */
         result = SDL_SetColorKey(surf, SDL_FALSE, color);
@@ -1475,7 +1475,9 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, src->format, 0);
         }
         else {
-            int bpp;
+            /* will be updated later, initialize to make static analyzer happy
+             */
+            int bpp = 0;
             SDL_PixelFormat format;
 
             memcpy(&format, surf->format, sizeof(format));
@@ -1921,7 +1923,7 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int sx, sy;
     int the_args = 0;
 
-    PyObject *blitsequence = NULL;
+    PyObject *blitsequence;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
     PyObject *special_flags = NULL;
@@ -1962,7 +1964,6 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto bliterror;
         }
-        bliterrornum = 0;
         argrect = NULL;
         special_flags = NULL;
         the_args = 0;
@@ -3164,7 +3165,6 @@ _get_buffer_2D(PyObject *obj, Py_buffer *view_p, int flags)
 static int
 _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
 {
-    const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
     SDL_Surface *surface = pgSurface_AsSurface(obj);
     int pixelsize = surface->format->BytesPerPixel;
     char *startpixel = (char *)surface->pixels;
@@ -3198,23 +3198,41 @@ _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
     view_p->strides[0] = pixelsize;
     view_p->strides[1] = surface->pitch;
     switch (surface->format->Rmask) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         case 0xffU:
-            view_p->strides[2] = lilendian ? 1 : -1;
-            startpixel += lilendian ? 0 : pixelsize - 1;
+            view_p->strides[2] = 1;
             break;
         case 0xff00U:
             assert(pixelsize == 4);
-            view_p->strides[2] = lilendian ? 1 : -1;
-            startpixel += lilendian ? 1 : pixelsize - 2;
+            view_p->strides[2] = 1;
+            startpixel += 1;
             break;
         case 0xff0000U:
-            view_p->strides[2] = lilendian ? -1 : 1;
-            startpixel += lilendian ? 2 : pixelsize - 3;
+            view_p->strides[2] = -1;
+            startpixel += 2;
             break;
         default: /* 0xff000000U */
             assert(pixelsize == 4);
-            view_p->strides[2] = lilendian ? -1 : 1;
-            startpixel += lilendian ? 3 : 0;
+            view_p->strides[2] = -1;
+            startpixel += 3;
+#else  /* SDL_BYTEORDER != SDL_LIL_ENDIAN */
+        case 0xffU:
+            view_p->strides[2] = -1;
+            startpixel += pixelsize - 1;
+            break;
+        case 0xff00U:
+            assert(pixelsize == 4);
+            view_p->strides[2] = -1;
+            startpixel += pixelsize - 2;
+            break;
+        case 0xff0000U:
+            view_p->strides[2] = 1;
+            startpixel += pixelsize - 3;
+            break;
+        default: /* 0xff000000U */
+            assert(pixelsize == 4);
+            view_p->strides[2] = 1;
+#endif /* SDL_BYTEORDER != SDL_LIL_ENDIAN */
     }
     view_p->buf = startpixel;
     Py_INCREF(obj);
@@ -3254,7 +3272,6 @@ static int
 _get_buffer_colorplane(PyObject *obj, Py_buffer *view_p, int flags, char *name,
                        Uint32 mask)
 {
-    const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
     SDL_Surface *surface = pgSurface_AsSurface(obj);
     int pixelsize = surface->format->BytesPerPixel;
     char *startpixel = (char *)surface->pixels;
@@ -3274,21 +3291,34 @@ _get_buffer_colorplane(PyObject *obj, Py_buffer *view_p, int flags, char *name,
         return -1;
     }
     switch (mask) {
-            /* This switch statement is exhaustive over possible mask value,
-               the allowable masks for 24 bit and 32 bit surfaces */
+        /* This switch statement is exhaustive over possible mask value,
+           the allowable masks for 24 bit and 32 bit surfaces */
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         case 0x000000ffU:
-            startpixel += lilendian ? 0 : pixelsize - 1;
             break;
         case 0x0000ff00U:
-            startpixel += lilendian ? 1 : pixelsize - 2;
+            startpixel += 1;
             break;
         case 0x00ff0000U:
-            startpixel += lilendian ? 2 : pixelsize - 3;
+            startpixel += 2;
             break;
         case 0xff000000U:
-            startpixel += lilendian ? 3 : 0;
+            startpixel += 3;
             break;
+#else  /* SDL_BYTEORDER != SDL_LIL_ENDIAN */
+        case 0x000000ffU:
+            startpixel += pixelsize - 1;
+            break;
+        case 0x0000ff00U:
+            startpixel += pixelsize - 2;
+            break;
+        case 0x00ff0000U:
+            startpixel += pixelsize - 3;
+            break;
+        case 0xff000000U:
+            break;
+#endif /* SDL_BYTEORDER != SDL_LIL_ENDIAN */
 
 #ifndef NDEBUG
             /* Assert this switch statement is exhaustive */
@@ -3721,8 +3751,7 @@ static PyMethodDef _surface_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surface)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -3769,14 +3798,17 @@ MODINIT_DEFINE(surface)
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
-
-    if (PyDict_SetItemString(dict, "SurfaceType",
-                             (PyObject *)&pgSurface_Type)) {
+    Py_INCREF(&pgSurface_Type);
+    if (PyModule_AddObject(module, "SurfaceType",
+                           (PyObject *)&pgSurface_Type)) {
+        Py_DECREF(&pgSurface_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "Surface", (PyObject *)&pgSurface_Type)) {
+
+    Py_INCREF(&pgSurface_Type);
+    if (PyModule_AddObject(module, "Surface", (PyObject *)&pgSurface_Type)) {
+        Py_DECREF(&pgSurface_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -3787,18 +3819,14 @@ MODINIT_DEFINE(surface)
     c_api[2] = pgSurface_Blit;
     c_api[3] = pgSurface_SetSurface;
     apiobj = encapsulate_api(c_api, "surface");
-    if (apiobj == NULL) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    /* Py_INCREF (pgSurface_Type.tp_dict); INCREF's done in SetItemString */
-    if (PyDict_SetItemString(dict, "_dict", pgSurface_Type.tp_dict)) {
+    Py_XINCREF(pgSurface_Type.tp_dict);
+    if (PyModule_AddObject(module, "_dict", pgSurface_Type.tp_dict)) {
+        Py_XDECREF(pgSurface_Type.tp_dict);
         Py_DECREF(module);
         return NULL;
     }

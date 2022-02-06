@@ -85,6 +85,12 @@ surf_colorspace(PyObject *self, PyObject *arg)
     int cspace;
     surfobj2 = NULL;
 
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure color is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(color = "inited");
+#endif
+
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!s|O!", &pgSurface_Type, &surfobj, &color,
                           &pgSurface_Type, &surfobj2))
@@ -589,7 +595,7 @@ bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
                 b = *s++;
                 g = *s++;
                 r = *s++;
-                *s++;
+                s++;
                 *d32++ = ((r >> rloss) << rshift) | ((g >> gloss) << gshift) |
                          ((b >> bloss) << bshift);
             }
@@ -1928,6 +1934,9 @@ Camera(pgCameraObject *self, PyObject *arg)
     }
 
     return (PyObject *)cameraobj;
+#else
+    return RAISE(PyExc_RuntimeError,
+                 "_camera backend not available on your platform");
 #endif
 }
 
@@ -1973,9 +1982,16 @@ MODINIT_DEFINE(_camera)
 
     /* create the module */
     module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
 
     Py_INCREF(&pgCamera_Type);
-    PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type);
+    if (PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type)) {
+        Py_DECREF(&pgCamera_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
 
     return module;
 }

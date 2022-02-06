@@ -1,6 +1,6 @@
 from typing import Any, overload
 
-class BufferProxy(object):
+class BufferProxy:
     parent: Any
     length: int
     @overload

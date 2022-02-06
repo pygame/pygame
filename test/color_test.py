@@ -204,7 +204,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertTrue([255, 0, 0, 0] != Color(255, 0, 0, 0))
 
         # Comparison is not implemented for invalid color values.
-        class Test(object):
+        class Test:
             def __eq__(self, other):
                 return -1
 
