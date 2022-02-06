@@ -199,7 +199,7 @@ size_text(Layout *ftext, FreeTypeInstance *ft, TextContext *context,
             PyErr_NoMemory();
             return -1;
         }
-        ftext->buffer_size = string_length;
+        ftext->buffer_size = (int)string_length;
     }
 
     /* Retrieve the glyph indices of recognized text characters */

@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Any, Callable
+from typing import Dict, List, Literal, Sequence, Tuple, TypeVar, Union, overload, Callable
 
 from mypy.typeshed.stdlib.typing_extensions import Protocol
 from pygame.math import Vector2
@@ -48,6 +48,7 @@ class Rect:
             Rect, Tuple[float, float, float, float], List[float]
         ],
     ) -> None: ...
+    def __len__(self) -> Literal[4]: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload

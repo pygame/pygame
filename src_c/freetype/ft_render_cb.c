@@ -50,11 +50,11 @@ __render_glyph_GRAY1(int x, int y, FontSurface *surface,
      * Assumption, target buffer was filled with zeros before any rendering.
      */
 
-    for (j = 0; j < bitmap->rows; ++j) {
+    for (j = 0; j < (unsigned int)bitmap->rows; ++j) {
         src_cpy = src;
         dst_cpy = dst;
 
-        for (i = 0; i < bitmap->width; ++i) {
+        for (i = 0; i < (unsigned int)bitmap->width; ++i) {
             assert(src_cpy < src_end);
             src_byte = *src_cpy;
             if (src_byte) {
@@ -78,8 +78,8 @@ __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
 
-    const int max_x = MIN(x + bitmap->width, surface->width);
-    const int max_y = MIN(y + bitmap->rows, surface->height);
+    const int max_x = MIN(x + (int)bitmap->width, (int)surface->width);
+    const int max_y = MIN(y + (int)bitmap->rows, (int)surface->height);
 
     const int rx = MAX(0, x);
     const int ry = MAX(0, y);
@@ -138,11 +138,11 @@ __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
      * any rendering.
      */
 
-    for (j = 0; j < bitmap->rows; ++j) {
+    for (j = 0; j < (unsigned int)bitmap->rows; ++j) {
         src_cpy = src;
         dst_cpy = dst;
 
-        for (i = 0; i < bitmap->width; ++i) {
+        for (i = 0; i < (unsigned int)bitmap->width; ++i) {
             if (*src_cpy & '\200') /* Round up on 128 */ {
                 *dst_cpy = shade;
             }
@@ -237,11 +237,11 @@ __render_glyph_INT(int x, int y, FontSurface *surface, const FT_Bitmap *bitmap,
      */
 
     if (item_size == 1) {
-        for (j = 0; j < bitmap->rows; ++j) {
+        for (j = 0; j < (unsigned int)bitmap->rows; ++j) {
             src_cpy = src;
             dst_cpy = dst;
 
-            for (i = 0; i < bitmap->width; ++i) {
+            for (i = 0; i < (unsigned int)bitmap->width; ++i) {
                 src_byte = *src_cpy;
                 if (src_byte) {
                     *dst_cpy =
@@ -260,11 +260,11 @@ __render_glyph_INT(int x, int y, FontSurface *surface, const FT_Bitmap *bitmap,
         FT_Byte dst_byte;
         int b, int_offset = surface->format->Ashift / 8;
 
-        for (j = 0; j < bitmap->rows; ++j) {
+        for (j = 0; j < (unsigned int)bitmap->rows; ++j) {
             src_cpy = src;
             dst_cpy = dst;
 
-            for (i = 0; i < bitmap->width; ++i) {
+            for (i = 0; i < (unsigned int)bitmap->width; ++i) {
                 dst_byte = dst_cpy[int_offset];
                 for (b = 0; b < item_size; ++b) {
                     dst_cpy[b] = 0;
@@ -293,8 +293,8 @@ __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
 
-    const int max_x = MIN(x + bitmap->width, surface->width);
-    const int max_y = MIN(y + bitmap->rows, surface->height);
+    const int max_x = MIN(x + (int)bitmap->width, (int)surface->width);
+    const int max_y = MIN(y + (int)bitmap->rows, (int)surface->height);
 
     const int rx = MAX(0, x);
     const int ry = MAX(0, y);
@@ -650,8 +650,8 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         const int off_x = (x < 0) ? -x : 0;                                   \
         const int off_y = (y < 0) ? -y : 0;                                   \
                                                                               \
-        const int max_x = MIN(x + bitmap->width, surface->width);             \
-        const int max_y = MIN(y + bitmap->rows, surface->height);             \
+        const int max_x = MIN(x + (int)bitmap->width, (int)surface->width);   \
+        const int max_y = MIN(y + (int)bitmap->rows, (int)surface->height);   \
                                                                               \
         const int rx = MAX(0, x);                                             \
         const int ry = MAX(0, y);                                             \
@@ -702,8 +702,8 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         const int off_x = (x < 0) ? -x : 0;                                 \
         const int off_y = (y < 0) ? -y : 0;                                 \
                                                                             \
-        const int max_x = MIN(x + bitmap->width, surface->width);           \
-        const int max_y = MIN(y + bitmap->rows, surface->height);           \
+        const int max_x = MIN(x + (int)bitmap->width, (int)surface->width); \
+        const int max_y = MIN(y + (int)bitmap->rows, (int)surface->height); \
                                                                             \
         const int rx = MAX(0, x);                                           \
         const int ry = MAX(0, y);                                           \

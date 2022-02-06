@@ -2098,7 +2098,7 @@ MODINIT_DEFINE(color)
                                          "color",
                                          _color_doc,
                                          -1,
-                                         _color_methods,
+                                         NULL,
                                          NULL,
                                          NULL,
                                          NULL,
