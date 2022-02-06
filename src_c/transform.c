@@ -593,7 +593,6 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (!_get_factor(factorobj, &scale, &scaley)) {
-        printf("returning here\n");
         return NULL;
     }
 

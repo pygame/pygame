@@ -61,7 +61,7 @@ Instead, always begin with the original image and scale to the desired size.)
    separately. For example, :code:`transform.scale_by(surf, (2, 1))` doubles
    the image width but keeps the height the same.
 
-   .. versionadded:: 2.1.1
+   .. versionadded:: 2.1.3
 
    .. ## pygame.transform.scale_by ##
 
@@ -145,7 +145,7 @@ Instead, always begin with the original image and scale to the desired size.)
    :code:`transform.smoothscale_by(surf, (2, 1))` doubles the image width but
    keeps the height the same.
 
-   .. versionadded:: 2.1.1
+   .. versionadded:: 2.1.3
 
    .. ## pygame.transform.smoothscale_by ##
 
