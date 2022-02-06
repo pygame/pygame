@@ -359,13 +359,20 @@
 
    .. method:: collideobjectsall
 
-      | :sl:`test if all rectangles of an object in a list intersect`
-      | :sg:`collideobjectsall(list, key=None) -> objects`
+      | :sl:`test if all objects in a list intersect`
+      | :sg:`collideobjectsall(rect_list) -> objects`
+      | :sg:`collideobjectsall(obj_list, key=func) -> objects`
 
       Returns a list of all the objects that contain rectangles that collide
-      with the Rect. If no intersecting rectangles are found, an empty list is
+      with the Rect. If no intersecting objects are found, an empty list is
       returned.
-      TODO describe key=
+
+      If key is given, then it should be a method taking an object from the list
+      as input and returning a rect like object e.g. ``lambda obj: obj.rectangle``.
+      If an object has multiple attributes of type Rect then key could return one
+      of them.
+
+      .. versionadded:: 2.1.3
 
       .. ## Rect.collideobjectsall ##
 
