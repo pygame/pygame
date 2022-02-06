@@ -59,25 +59,32 @@ extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
 static int
-_get_factor(PyObject* factorobj, float* x, float* y) {
+_get_factor(PyObject *factorobj, float *x, float *y)
+{
     Py_ssize_t len = PyObject_Length(factorobj);
     if (PyErr_Occurred()) {
         PyErr_Clear();
     }
 
     if (len > 2) {
-        PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+        PyErr_Format(PyExc_TypeError,
+                     "factor should be either one number or a sequence of two "
+                     "numbers.");
         return 0;
     }
     if (len == 2) {
         if (!pg_TwoFloatsFromObj(factorobj, x, y)) {
-            PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+            PyErr_Format(PyExc_TypeError,
+                         "factor should be either one number or a sequence of "
+                         "two numbers.");
             return 0;
         }
         return 1;
     }
     if (!pg_FloatFromObj(factorobj, x)) {
-        PyErr_Format(PyExc_TypeError, "factor should be either one number or a sequence of two numbers.");
+        PyErr_Format(PyExc_TypeError,
+                     "factor should be either one number or a sequence of two "
+                     "numbers.");
         return 0;
     }
     *y = *x;
@@ -576,7 +583,7 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
         return (PyObject *)pgSurface_New(newsurf);
 }
 
-static PyObject*
+static PyObject *
 surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj;
@@ -588,8 +595,8 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
     int width, height;
     static char *keywords[] = {"surface", "factor", "dest_surface", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, 
-                                     &surfobj, &factorobj, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, &surfobj,
+                                     &factorobj, &surfobj2))
         return NULL;
 
     if (!_get_factor(factorobj, &scale, &scaley)) {
@@ -1536,7 +1543,7 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
         return (PyObject *)pgSurface_New(newsurf);
 }
 
-static PyObject*
+static PyObject *
 surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj;
@@ -1548,8 +1555,8 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
     int width, height;
     static char *keywords[] = {"surface", "factor", "dest_surface", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, 
-                                     &surfobj, &factorobj, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", keywords, &surfobj,
+                                     &factorobj, &surfobj2))
         return NULL;
 
     if (!_get_factor(factorobj, &scale, &scaley)) {
@@ -2865,8 +2872,8 @@ static PyMethodDef _transform_methods[] = {
      DOC_PYGAMETRANSFORMSCALE2X},
     {"smoothscale", (PyCFunction)surf_scalesmooth,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSMOOTHSCALE},
-    {"smoothscale_by", (PyCFunction)surf_scalesmooth_by, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMETRANSFORMSMOOTHSCALEBY},
+    {"smoothscale_by", (PyCFunction)surf_scalesmooth_by,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSMOOTHSCALEBY},
     {"get_smoothscale_backend", surf_get_smoothscale_backend, METH_NOARGS,
      DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND},
     {"set_smoothscale_backend", (PyCFunction)surf_set_smoothscale_backend,
