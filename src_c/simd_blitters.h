@@ -54,49 +54,20 @@ blit_blend_rgba_mul_simd(SDL_BlitInfo * info)
     int             dstskip = info->d_skip >> 2;
     int             dstpxskip = info->d_pxskip >> 2;
 
+    int             srcdoublepxskip = 2 * dstpxskip;
+    int             dstdoublepxskip = 2 * dstpxskip;
+
+    int             pre_2_width = width % 2;
+    int             post_2_width = (width - pre_2_width)/2;
+
     __m128i mm_src, mm_dst, mm_zero, mm_two_five_fives;
 
     mm_zero = _mm_setzero_si128();
     mm_two_five_fives = _mm_set_epi64x(0x00FF00FF00FF00FF, 0x00FF00FF00FF00FF);
 
-    if (((width % 2) == 0) && ((srcskip % 2) == 0) && ((dstskip % 2) == 0)) {
-        width = width / 2;
-        srcskip = srcskip / 2;
-        dstskip = dstskip / 2;
-        while (height--)
-        {
-            LOOP_UNROLLED4(
-            {
-                mm_src = _mm_cvtsi64_si128(*srcp64);
-                /*mm_src = 0x0000000000000000AARRGGBBAARRGGBB*/
-                mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
-                /*mm_src = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-                mm_dst = _mm_cvtsi64_si128(*dstp64);
-                /*mm_dst = 0x0000000000000000AARRGGBBAARRGGBB*/
-                mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
-                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-
-                mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
-                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
-                mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
-                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
-                mm_dst = _mm_srli_epi16(mm_dst, 8);
-                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-                mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
-                /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
-                *dstp64 = _mm_cvtsi128_si64(mm_dst);
-                /*dstp = 0xAARRGGBB*/
-                srcp64++;
-                dstp64++;
-            }, n, width);
-            srcp64 += srcskip;
-            dstp64 += dstskip;
-        }
-    }
-    else
+    while (height--)
     {
-        while (height--)
-        {
+        if (pre_2_width > 0){
             LOOP_UNROLLED4(
             {
                 mm_src = _mm_cvtsi32_si128(*srcp);
@@ -120,14 +91,45 @@ blit_blend_rgba_mul_simd(SDL_BlitInfo * info)
                 /*dstp = 0xAARRGGBB*/
                 srcp += srcpxskip;
                 dstp += dstpxskip;
-            }, n, width);
-            srcp += srcskip;
-            dstp += dstskip;
+            }, n, pre_2_width);
         }
+        srcp64 = (Uint64*)srcp;
+        dstp64 = (Uint64*)dstp;
+        if (post_2_width > 0){
+            LOOP_UNROLLED4(
+            {
+                mm_src = _mm_cvtsi64_si128(*srcp64);
+                /*mm_src = 0x0000000000000000AARRGGBBAARRGGBB*/
+                mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
+                /*mm_src = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
+                mm_dst = _mm_cvtsi64_si128(*dstp64);
+                /*mm_dst = 0x0000000000000000AARRGGBBAARRGGBB*/
+                mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
+                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
+
+                mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
+                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
+                mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
+                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
+                mm_dst = _mm_srli_epi16(mm_dst, 8);
+                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
+                mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
+                /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
+                *dstp64 = _mm_cvtsi128_si64(mm_dst);
+                /*dstp = 0xAARRGGBB*/
+                srcp64++;
+                dstp64++;
+                srcp += srcdoublepxskip;
+                dstp += dstdoublepxskip;
+            }, n, post_2_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
     }
 
 }
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
 
 
 #if defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H)
@@ -139,14 +141,17 @@ blit_blend_rgba_mul_simd_avx2(SDL_BlitInfo * info)
     int             height = info->height;
 
     Uint32          *srcp = (Uint32 *)info->s_pixels;
-    Uint64          *srcp64 = (Uint64 *)info->s_pixels;
     int             srcskip = info->s_skip >> 2;
     int             srcpxskip = info->s_pxskip >> 2;
+    int             srceightpxskip = 8 * srcpxskip;
 
     Uint32          *dstp = (Uint32 *)info->d_pixels;
-    Uint64          *dstp64 = (Uint64 *)info->d_pixels;
     int             dstskip = info->d_skip >> 2;
     int             dstpxskip = info->d_pxskip >> 2;
+    int             dsteightpxskip = 8 * dstpxskip;
+
+    int             pre_8_width = width % 8;
+    int             post_8_width = (width - pre_8_width)/8;
 
     __m256i         *srcp256 = (__m256i*)info->s_pixels;
     __m256i         *dstp256 = (__m256i*)info->d_pixels;
@@ -165,17 +170,41 @@ blit_blend_rgba_mul_simd_avx2(SDL_BlitInfo * info)
                                            0x00,0xFF,0x00,0xFF,0x00,0xFF,0x00,0xFF,
                                            0x00,0xFF,0x00,0xFF,0x00,0xFF,0x00,0xFF);
 
-    if (((width % 8) == 0) && ((srcskip % 8) == 0) && ((dstskip % 8) == 0)) {
-        width = width / 8;
-        srcskip = srcskip / 8;
-        dstskip = dstskip / 8;
-
-        while (height--)
-        {
+    while (height--)
+    {
+        if (pre_8_width > 0){
             LOOP_UNROLLED4(
             {
-                mm256_src = _mm256_load_si256(srcp256);
-                mm256_dst = _mm256_load_si256(dstp256);
+                mm_src = _mm_cvtsi32_si128(*srcp);
+                /*mm_src = 0x000000000000000000000000AARRGGBB*/
+                mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
+                /*mm_src = 0x000000000000000000AA00RR00GG00BB*/
+                mm_dst = _mm_cvtsi32_si128(*dstp);
+                /*mm_dst = 0x000000000000000000000000AARRGGBB*/
+                mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
+                /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
+
+                mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
+                /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
+                mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
+                /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
+                mm_dst = _mm_srli_epi16(mm_dst, 8);
+                /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
+                mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
+                /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
+                *dstp = _mm_cvtsi128_si32(mm_dst);
+                /*dstp = 0xAARRGGBB*/
+                srcp += srcpxskip;
+                dstp += dstpxskip;
+            }, n, pre_8_width);
+        }
+        srcp256 = (__m256i*)srcp;
+        dstp256 = (__m256i*)dstp;
+        if (post_8_width > 0){
+            LOOP_UNROLLED4(
+            {
+                mm256_src = _mm256_loadu_si256(srcp256);
+                mm256_dst = _mm256_loadu_si256(dstp256);
 
                 mm256_srcA = _mm256_shuffle_epi8(mm256_src, mm256_shuff_mask_A);
                 mm256_srcB = _mm256_shuffle_epi8(mm256_src, mm256_shuff_mask_B);
@@ -196,77 +225,12 @@ blit_blend_rgba_mul_simd_avx2(SDL_BlitInfo * info)
 
                 srcp256++;
                 dstp256++;
-            }, n, width);
-            srcp256 += srcskip;
-            dstp256 += dstskip;
+                srcp += srceightpxskip;
+                dstp += dsteightpxskip;
+            }, n, post_8_width);
         }
+        srcp += srcskip;
+        dstp += dstskip;
     }
-    else if (((width % 2) == 0) && ((srcskip % 2) == 0) && ((dstskip % 2) == 0)) {
-        width = width / 2;
-        srcskip = srcskip / 2;
-        dstskip = dstskip / 2;
-        while (height--)
-        {
-            LOOP_UNROLLED4(
-            {
-                mm_src = _mm_cvtsi64_si128(*srcp64);
-                /*mm_src = 0x0000000000000000AARRGGBBAARRGGBB*/
-                mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
-                /*mm_src = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-                mm_dst = _mm_cvtsi64_si128(*dstp64);
-                /*mm_dst = 0x0000000000000000AARRGGBBAARRGGBB*/
-                mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
-                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-
-                mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
-                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
-                mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
-                /*mm_dst = 0xAAAARRRRGGGGBBBBAAAARRRRGGGGBBBB*/
-                mm_dst = _mm_srli_epi16(mm_dst, 8);
-                /*mm_dst = 0x00AA00RR00GG00BB00AA00RR00GG00BB*/
-                mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
-                /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
-                *dstp64 = _mm_cvtsi128_si64(mm_dst);
-                /*dstp = 0xAARRGGBB*/
-                srcp64++;
-                dstp64++;
-            }, n, width);
-            srcp64 += srcskip;
-            dstp64 += dstskip;
-        }
-    }
-    else
-    {
-        while (height--)
-        {
-            LOOP_UNROLLED4(
-            {
-                mm_src = _mm_cvtsi32_si128(*srcp);
-                /*mm_src = 0x000000000000000000000000AARRGGBB*/
-                mm_src = _mm_unpacklo_epi8(mm_src, mm_zero);
-                /*mm_src = 0x000000000000000000AA00RR00GG00BB*/
-                mm_dst = _mm_cvtsi32_si128(*dstp);
-                /*mm_dst = 0x000000000000000000000000AARRGGBB*/
-                mm_dst = _mm_unpacklo_epi8(mm_dst, mm_zero);
-                /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
-
-                mm_dst = _mm_mullo_epi16(mm_src, mm_dst);
-                /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
-                mm_dst = _mm_add_epi16(mm_dst, mm_two_five_fives);
-                /*mm_dst = 0x0000000000000000AAAARRRRGGGGBBBB*/
-                mm_dst = _mm_srli_epi16(mm_dst, 8);
-                /*mm_dst = 0x000000000000000000AA00RR00GG00BB*/
-                mm_dst = _mm_packus_epi16(mm_dst, mm_dst);
-                /*mm_dst = 0x00000000AARRGGBB00000000AARRGGBB*/
-                *dstp = _mm_cvtsi128_si32(mm_dst);
-                /*dstp = 0xAARRGGBB*/
-                srcp += srcpxskip;
-                dstp += dstpxskip;
-            }, n, width);
-            srcp += srcskip;
-            dstp += dstskip;
-        }
-    }
-
 }
 #endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
