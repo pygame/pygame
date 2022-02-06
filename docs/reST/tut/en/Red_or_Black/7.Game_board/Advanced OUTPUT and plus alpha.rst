@@ -30,7 +30,7 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    ball = pygame.image.load("AdvancedOutputAlpha1.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -62,7 +62,7 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    ball = pygame.image.load("AdvancedOutputAlpha2.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -94,7 +94,7 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    ball = pygame.image.load("AdvancedOutputAlpha3.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

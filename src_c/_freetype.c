@@ -847,16 +847,10 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (!source) {
         goto end;
     }
-    else {
-        PyObject *path = 0;
 
-        if (pgRWops_IsFileObject(source)) {
-            path = PyObject_GetAttrString(file, "name");
-        }
-        else {
-            Py_INCREF(file);
-            path = file;
-        }
+    PyObject *path = NULL;
+    if (pgRWops_IsFileObject(source)) {
+        path = PyObject_GetAttrString(file, "name");
         if (!path) {
             PyObject *str;
             PyErr_Clear();
@@ -868,7 +862,14 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF(str);
             }
         }
-        else if (PyUnicode_Check(path)) {
+    }
+    else {
+        Py_INCREF(file);
+        path = file;
+    }
+
+    if (path) {
+        if (PyUnicode_Check(path)) {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
@@ -881,14 +882,15 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         else {
             self->path = PyObject_Str(path);
         }
-        Py_XDECREF(path);
-        if (!self->path) {
-            goto end;
-        }
+        Py_DECREF(path);
+    }
 
-        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
-            goto end;
-        }
+    if (!self->path) {
+        goto end;
+    }
+
+    if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
+        goto end;
     }
 #endif /* WIN32 */
 
@@ -935,7 +937,7 @@ _ftfont_repr(pgFontObject *self)
 static PyObject *
 _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 {
-    const long style_flag = (long)closure;
+    const intptr_t style_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->style & (FT_UInt16)style_flag);
 }
@@ -943,7 +945,7 @@ _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const long style_flag = (long)closure;
+    const intptr_t style_flag = (intptr_t)closure;
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
@@ -1178,7 +1180,7 @@ _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrender_flag(pgFontObject *self, void *closure)
 {
-    const long render_flag = (long)closure;
+    const intptr_t render_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->render_flags & (FT_UInt16)render_flag);
 }
@@ -1186,10 +1188,10 @@ _ftfont_getrender_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const long render_flag = (long)closure;
+    const intptr_t render_flag = (intptr_t)closure;
 
     /* Generic setter; We do not know the name of the attribute */
-    DEL_ATTR_NOT_SUPPORTED_CHECK(NULL, value);
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
@@ -1938,7 +1940,7 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
                               rotation))
         goto error;
 
-    surface = pgSurface_AsSurface(surface_obj);
+    surface = surface_obj ? pgSurface_AsSurface(surface_obj) : NULL;
     if (!surface) {
         PyErr_SetString(pgExc_SDLError, "display Surface quit");
         goto error;
@@ -2205,10 +2207,9 @@ MODINIT_DEFINE(_freetype)
     FREETYPE_MOD_STATE(module)->cache_size = 0;
     FREETYPE_MOD_STATE(module)->resolution = PGFT_DEFAULT_RESOLUTION;
 
-    Py_INCREF((PyObject *)&pgFont_Type);
-    if (PyModule_AddObject(module, FONT_TYPE_NAME, (PyObject *)&pgFont_Type) ==
-        -1) {
-        Py_DECREF((PyObject *)&pgFont_Type);
+    Py_INCREF(&pgFont_Type);
+    if (PyModule_AddObject(module, FONT_TYPE_NAME, (PyObject *)&pgFont_Type)) {
+        Py_DECREF(&pgFont_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -2239,13 +2240,8 @@ MODINIT_DEFINE(_freetype)
     c_api[1] = &pgFont_New;
 
     apiobj = encapsulate_api(c_api, "freetype");
-    if (!apiobj) {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
-        Py_DECREF(apiobj);
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

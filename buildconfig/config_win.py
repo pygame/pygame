@@ -29,7 +29,7 @@ def as_machine_type(size):
 def get_machine_type():
     return as_machine_type(get_ptr_size())
 
-class Dependency(object):
+class Dependency:
     huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
@@ -171,7 +171,7 @@ class Dependency(object):
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
             self.found = True
 
-class DependencyPython(object):
+class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
         self.lib_dir = ''
@@ -252,7 +252,7 @@ class DependencyDLL(Dependency):
                         return True
         return False
 
-class DependencyDummy(object):
+class DependencyDummy:
     def __init__(self, name):
         self.name = name
         self.inc_dir = None
@@ -264,7 +264,7 @@ class DependencyDummy(object):
     def configure(self):
         pass
 
-class DependencyWin(object):
+class DependencyWin:
     def __init__(self, name, cflags):
         self.name = name
         self.inc_dir = None
@@ -276,7 +276,7 @@ class DependencyWin(object):
     def configure(self):
         pass
 
-class DependencyGroup(object):
+class DependencyGroup:
     def __init__(self):
         self.dependencies =[]
         self.dlls = []

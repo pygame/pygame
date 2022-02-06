@@ -146,7 +146,7 @@ def run():
 
     pg.display.flip()
 
-    while 1:
+    while True:
         if pg.event.wait().type in (pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN):
             break
 

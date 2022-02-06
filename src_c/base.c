@@ -40,7 +40,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 extern int
-SDL_RegisterApp(char *, Uint32, void *);
+SDL_RegisterApp(const char *, Uint32, void *);
 #endif
 
 #if defined(macintosh)
@@ -374,7 +374,7 @@ pg_get_sdl_byteorder(PyObject *self)
 static void
 _pg_quit(void)
 {
-    int num, i;
+    Py_ssize_t num, i;
     PyObject *quit, *privatefuncs, *temp;
 
     /* Put all the module names we want to quit in this array */
@@ -755,7 +755,7 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     cinter_p->inter.two = 2;
     cinter_p->inter.nd = ndim;
     cinter_p->inter.typekind = _pg_as_arrayinter_typekind(view_p);
-    cinter_p->inter.itemsize = view_p->itemsize;
+    cinter_p->inter.itemsize = (int)view_p->itemsize;
     cinter_p->inter.flags = _pg_as_arrayinter_flags(view_p);
     if (view_p->shape) {
         cinter_p->inter.shape = cinter_p->imem;
@@ -1171,10 +1171,20 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     if (view->format) {
         switch (view->format[0]) {
             case '<':
-                return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
             case '>':
             case '!':
-                return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
         }
     }
     return 0;
@@ -1195,7 +1205,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     if (!PyDict_Check(inter)) {
         PyErr_Format(PyExc_ValueError,
                      "expected '__array_interface__' to return a dict: got %s",
-                     Py_TYPE(dict)->tp_name);
+                     Py_TYPE(inter)->tp_name);
         Py_DECREF(inter);
         return -1;
     }
@@ -1589,7 +1599,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
                         "'shape' and 'strides' are not the same length");
         return -1;
     }
-    view_p->ndim = ndim;
+    view_p->ndim = (int)ndim;
     view_p->buf = PyLong_AsVoidPtr(PyTuple_GET_ITEM(data, 0));
     if (!view_p->buf && PyErr_Occurred()) {
         return -1;
@@ -2039,15 +2049,6 @@ pg_uninstall_parachute(void)
 
 /* bind functions to python */
 
-static PyObject *
-pg_do_segfault(PyObject *self, PyObject *args)
-{
-    // force crash
-    *((int *)1) = 45;
-    memcpy((char *)2, (char *)3, 10);
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
@@ -2063,17 +2064,13 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
-
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
 {
-    static int is_loaded = 0;
-    PyObject *module, *dict, *apiobj;
-    PyObject *atexit_register = NULL;
+    PyObject *module, *apiobj, *atexit;
+    PyObject *atexit_register;
     PyObject *pgExc_SDLError;
-    int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2086,59 +2083,41 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL};
 
-    if (!is_loaded) {
-        /* import need modules. Do this first so if there is an error
-           the module is not loaded.
-        */
-        PyObject *atexit = PyImport_ImportModule("atexit");
+    /* import need modules. Do this first so if there is an error
+        the module is not loaded.
+    */
+    atexit = PyImport_ImportModule("atexit");
+    if (!atexit) {
+        return NULL;
+    }
 
-        if (!atexit) {
-            return NULL;
-        }
-        atexit_register = PyObject_GetAttrString(atexit, "register");
-        Py_DECREF(atexit);
-        if (!atexit_register) {
-            return NULL;
-        }
+    atexit_register = PyObject_GetAttrString(atexit, "register");
+    Py_DECREF(atexit);
+    if (!atexit_register) {
+        return NULL;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
-    if (module == NULL) {
-        return NULL;
+    if (!module) {
+        goto error;
     }
-    dict = PyModule_GetDict(module);
 
     /* create the exceptions */
     pgExc_SDLError =
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, "error", pgExc_SDLError);
-    Py_DECREF(pgExc_SDLError);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_AddObject(module, "error", pgExc_SDLError)) {
+        Py_XDECREF(pgExc_SDLError);
+        goto error;
     }
 
     pgExc_BufferError =
         PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
-
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, "BufferError", pgExc_BufferError);
-    if (ecode) {
-        Py_DECREF(pgExc_BufferError);
-        Py_XDECREF(atexit_register);
-        Py_DECREF(module);
-        return NULL;
+    /* Because we need a reference to BufferError in the base module */
+    Py_XINCREF(pgExc_BufferError);
+    if (PyModule_AddObject(module, "BufferError", pgExc_BufferError)) {
+        Py_XDECREF(pgExc_BufferError);
+        goto error;
     }
 
     /* export the c api */
@@ -2173,62 +2152,43 @@ MODINIT_DEFINE(base)
 #endif
 
     apiobj = encapsulate_api(c_api, "base");
-    if (apiobj == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        goto error;
     }
 
     if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        Py_DECREF(module);
-        return NULL;
+        goto error;
     }
 
-    if (!is_loaded) {
-        /*some intialization*/
-        PyObject *quit = PyObject_GetAttrString(module, "quit");
-        PyObject *rval;
+    /*some intialization*/
+    PyObject *quit = PyObject_GetAttrString(module, "quit");
+    PyObject *rval;
 
-        if (quit == NULL) { /* assertion */
-            Py_DECREF(atexit_register);
-            Py_DECREF(pgExc_BufferError);
-            Py_DECREF(module);
-            return NULL;
-        }
-        rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
-        Py_DECREF(atexit_register);
-        Py_DECREF(quit);
-        if (rval == NULL) {
-            Py_DECREF(module);
-            Py_DECREF(pgExc_BufferError);
-            return NULL;
-        }
-        Py_DECREF(rval);
-        Py_AtExit(pg_atexit_quit);
+    if (!quit) { /* assertion */
+        goto error;
+    }
+    rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
+    Py_DECREF(atexit_register);
+    Py_DECREF(quit);
+    atexit_register = NULL;
+    if (!rval) {
+        goto error;
+    }
+    Py_DECREF(rval);
+    Py_AtExit(pg_atexit_quit);
 #ifdef HAVE_SIGNAL_H
-        pg_install_parachute();
+    pg_install_parachute();
 #endif
 
 #ifdef MS_WIN32
-        SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+    SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
-#if defined(macintosh)
-#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-        SDL_InitQuickDraw(&pg_qd);
-#endif
-#endif
-    }
-    is_loaded = 1;
     return module;
+
+error:
+    Py_XDECREF(pgExc_BufferError);
+    Py_XDECREF(atexit_register);
+    Py_XDECREF(module);
+    return NULL;
 }

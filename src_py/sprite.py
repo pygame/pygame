@@ -95,7 +95,7 @@ from pygame.time import get_ticks
 from pygame.mask import from_surface
 
 
-class Sprite(object):
+class Sprite:
     """simple base class for visible game objects
 
     pygame.sprite.Sprite(*groups): return Sprite
@@ -343,7 +343,7 @@ class DirtySprite(Sprite):
         )
 
 
-class AbstractGroup(object):
+class AbstractGroup:
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
@@ -1527,7 +1527,7 @@ def collide_circle(left, right):
 
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
-    distancesquared = xdistance ** 2 + ydistance ** 2
+    distancesquared = xdistance**2 + ydistance**2
 
     try:
         leftradius = left.radius
@@ -1535,7 +1535,7 @@ def collide_circle(left, right):
         leftrect = left.rect
         # approximating the radius of a square by using half of the diagonal,
         # might give false positives (especially if its a long small rect)
-        leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+        leftradius = 0.5 * ((leftrect.width**2 + leftrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         left.radius = leftradius
 
@@ -1545,7 +1545,7 @@ def collide_circle(left, right):
         rightrect = right.rect
         # approximating the radius of a square by using half of the diagonal
         # might give false positives (especially if its a long small rect)
-        rightradius = 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+        rightradius = 0.5 * ((rightrect.width**2 + rightrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         right.radius = rightradius
     return distancesquared <= (leftradius + rightradius) ** 2
@@ -1607,13 +1607,13 @@ class collide_circle_ratio(
         ratio = self.ratio
         xdistance = left.rect.centerx - right.rect.centerx
         ydistance = left.rect.centery - right.rect.centery
-        distancesquared = xdistance ** 2 + ydistance ** 2
+        distancesquared = xdistance**2 + ydistance**2
 
         try:
             leftradius = left.radius
         except AttributeError:
             leftrect = left.rect
-            leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+            leftradius = 0.5 * ((leftrect.width**2 + leftrect.height**2) ** 0.5)
             # store the radius on the sprite for next time
             left.radius = leftradius
         leftradius *= ratio
@@ -1622,7 +1622,7 @@ class collide_circle_ratio(
             rightradius = right.radius
         except AttributeError:
             rightrect = right.rect
-            rightradius = 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+            rightradius = 0.5 * ((rightrect.width**2 + rightrect.height**2) ** 0.5)
             # store the radius on the sprite for next time
             right.radius = rightradius
         rightradius *= ratio

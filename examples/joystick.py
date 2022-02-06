@@ -5,7 +5,7 @@ pygame.init()
 # This is a simple class that will help us print to the screen.
 # It has nothing to do with the joysticks, just outputting the
 # information.
-class TextPrint(object):
+class TextPrint:
     def __init__(self):
         self.reset()
         self.font = pygame.font.Font(None, 20)

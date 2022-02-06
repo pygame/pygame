@@ -29,7 +29,7 @@ def surfdemo_show(array_img, name):
     surfarray.blit_array(screen, array_img)
     pg.display.flip()
     pg.display.set_caption(name)
-    while 1:
+    while True:
         e = pg.event.wait()
         if e.type == pg.MOUSEBUTTONDOWN:
             break
