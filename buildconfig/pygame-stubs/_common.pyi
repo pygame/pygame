@@ -31,7 +31,9 @@ _CanBeRect = Union[
 class _HasRectAttribute(Protocol):
     rect: _CanBeRect
 
+_RectValue = Union[_CanBeRect, _HasRectAttribute]
+
 class _HasCallableRectAttribute(Protocol):
-    rect: Callable[[], _RectValue]
+    rect: Callable[[], "_RectValue"]
 
 _RectValue = Union[_CanBeRect, _HasRectAttribute, _HasCallableRectAttribute]

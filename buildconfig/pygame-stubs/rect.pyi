@@ -1,5 +1,6 @@
 from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Any, Callable
 
+from mypy.typeshed.stdlib.typing_extensions import Protocol
 from pygame.math import Vector2
 from ._common import _Coordinate, _CanBeRect, _RectValue
 
@@ -208,13 +209,21 @@ class Rect:
     def collidelistall(
         self, rect_list: Sequence[Union[Rect, _CanBeRect]]
     ) -> List[int]: ...
+    class _T(Protocol): pass
+    # given a list ob objects, a key is the needed to get the rect
     @overload
     def collideobjectsall(
-        self, obj_list: Sequence[_RectValue], key: Callable[[Any], _RectValue]=None
+        self, obj_list: Sequence[_T], key: Callable[[_T], Union[Rect, _RectValue]]
     ) -> List[_RectValue]: ...
+    # given a list of rect like objects
     @overload
     def collideobjectsall(
-        self, obj_list: List, key: Callable[[Any], _RectValue]=None
+        self, rect_list: Sequence[Union[Rect, _RectValue]], key: None=...
+    ) -> List: ...
+    # given a list of rect like objects, still could use a key to extract a different rect
+    @overload
+    def collideobjectsall(
+        self, rect_list: Sequence[Union[Rect, _RectValue]], key: Callable[[Union[Rect, _RectValue]], Union[Rect, _RectValue]]
     ) -> List: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
