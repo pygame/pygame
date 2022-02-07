@@ -3333,8 +3333,11 @@ class SurfaceBlendTest(unittest.TestCase):
         for src in sources:
             src_palette = [src.unmap_rgb(src.map_rgb(c)) for c in self._test_palette]
             for dst in destinations:
-                if (src.get_bitsize() == 32 and dst.get_bitsize() == 32 and
-                        src.get_flags() & pygame.SRCALPHA):
+                if (
+                    src.get_bitsize() == 32
+                    and dst.get_bitsize() == 32
+                    and src.get_flags() & pygame.SRCALPHA
+                ):
                     for blend_name, dst_color, op in blend_32x32:
                         dc = dst.unmap_rgb(dst.map_rgb(dst_color))
                         p = []
@@ -3346,8 +3349,7 @@ class SurfaceBlendTest(unittest.TestCase):
                             p.append(c)
                         src_col = src.get_at((0, 0))
                         dst.fill(dst_color)
-                        dst.blit(src, (0, 0),
-                                 special_flags=getattr(pygame, blend_name))
+                        dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
                         self._assert_surface(
                             dst,
                             p,
@@ -3355,8 +3357,12 @@ class SurfaceBlendTest(unittest.TestCase):
                                 ", op: %s, src bpp: %i"
                                 ", src flags: %i, dst_col: %s, src_col: %s"
                                 % (
-                                blend_name, src.get_bitsize(),
-                                src.get_flags(), dc, src_col)
+                                    blend_name,
+                                    src.get_bitsize(),
+                                    src.get_flags(),
+                                    dc,
+                                    src_col,
+                                )
                             ),
                         )
                 else:
