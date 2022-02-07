@@ -831,11 +831,12 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     double old_length;
     double fraction;
     static char *keywords[] = {"max_length", "min_length", NULL};
-    
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords, &max_length, &min_length)) {
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords,
+                                     &max_length, &min_length)) {
         return NULL;
     }
-    
+
     /* Get magnitude of Vector */
     old_length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
@@ -2411,8 +2412,8 @@ static PyMethodDef vector2_methods[] = {
     {"project", (PyCFunction)vector2_project, METH_O, DOC_VECTOR2PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_VARARGS | METH_KEYWORDS,
-     DOC_VECTOR2CLAMPMAGNITUDE},
+    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude,
+     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR2CLAMPMAGNITUDE},
     {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip,
      METH_VARARGS | METH_KEYWORDS, DOC_VECTOR2CLAMPMAGNITUDEIP},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
@@ -3368,8 +3369,8 @@ static PyMethodDef vector3_methods[] = {
     {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR3COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude, METH_VARARGS | METH_KEYWORDS,
-     DOC_VECTOR3CLAMPMAGNITUDE},
+    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude,
+     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR3CLAMPMAGNITUDE},
     {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip,
      METH_VARARGS | METH_KEYWORDS, DOC_VECTOR3CLAMPMAGNITUDEIP},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
