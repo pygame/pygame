@@ -2593,7 +2593,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#else /* 32 bit 2 pixel path */
+#else
 
         /* two pixels at a time - 32 bit version - only works when blit width
            is an even number */
@@ -2702,7 +2702,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#endif /* 32 bit 2 pixel path */
+#endif
     }
     else {
         /* one pixel at a time */
