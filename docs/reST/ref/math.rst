@@ -380,7 +380,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method :: clamp_magnitude
 
       | :sl:`blah blah.`
-      | :sg:`clamp_magnitude(min_length, max_length) -> Vector2`
+      | :sg:`clamp_magnitude(max_length, min_length) -> Vector2`
 
       blah blah
 
@@ -392,7 +392,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method :: clamp_magnitude_ip
 
       | :sl:`blah blah.`
-      | :sg:`clamp_magnitude_ip(min_length, max_length) -> Vector2`
+      | :sg:`clamp_magnitude_ip(max_length, min_length) -> Vector2`
 
       blah blah
 
@@ -944,7 +944,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method :: clamp_magnitude
 
       | :sl:`blah blah.`
-      | :sg:`clamp_magnitude(min_length, max_length) -> Vector3`
+      | :sg:`clamp_magnitude(max_length, min_length) -> Vector3`
 
       blah blah
 
@@ -956,7 +956,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method :: clamp_magnitude_ip
 
       | :sl:`blah blah.`
-      | :sg:`clamp_magnitude_ip(min_length, max_length) -> Vector3`
+      | :sg:`clamp_magnitude_ip(max_length, min_length) -> Vector3`
 
       blah blah
 
