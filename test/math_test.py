@@ -541,7 +541,7 @@ class Vector2TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v1.elementwise() ** self.s1,
-            (self.v1.x ** self.s1, self.v1.y ** self.s1),
+            (self.v1.x**self.s1, self.v1.y**self.s1),
         )
         self.assertEqual(
             self.v1.elementwise() % self.s1, (self.v1.x % self.s1, self.v1.y % self.s1)
@@ -583,7 +583,7 @@ class Vector2TypeTest(unittest.TestCase):
             -3.5 // self.v1.elementwise(), (-3.5 // self.v1.x, -3.5 // self.v1.y)
         )
         self.assertEqual(
-            -(3.5 ** self.v1.elementwise()), (-(3.5 ** self.v1.x), -(3.5 ** self.v1.y))
+            -(3.5 ** self.v1.elementwise()), (-(3.5**self.v1.x), -(3.5**self.v1.y))
         )
         self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y))
         self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x and 2 < self.v1.y)
@@ -617,7 +617,7 @@ class Vector2TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v1.elementwise() ** self.v2,
-            (self.v1.x ** self.v2.x, self.v1.y ** self.v2.y),
+            (self.v1.x**self.v2.x, self.v1.y**self.v2.y),
         )
         self.assertEqual(
             self.v1.elementwise() % self.v2,
@@ -664,7 +664,7 @@ class Vector2TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v2 ** self.v1.elementwise(),
-            (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y),
+            (self.v2.x**self.v1.x, self.v2.y**self.v1.y),
         )
         self.assertEqual(
             self.v2 % self.v1.elementwise(),
@@ -716,7 +716,7 @@ class Vector2TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v2.elementwise() ** self.v1.elementwise(),
-            (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y),
+            (self.v2.x**self.v1.x, self.v2.y**self.v1.y),
         )
         self.assertEqual(
             self.v2.elementwise() % self.v1.elementwise(),
@@ -768,7 +768,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v1.elementwise() * s2, (v1.x * s2, v1.y * s2))
         self.assertEqual(v1.elementwise() / s2, (v1.x / s2, v1.y / s2))
         self.assertEqual(v1.elementwise() // s1, (v1.x // s1, v1.y // s1))
-        self.assertEqual(v1.elementwise() ** s1, (v1.x ** s1, v1.y ** s1))
+        self.assertEqual(v1.elementwise() ** s1, (v1.x**s1, v1.y**s1))
         self.assertEqual(v1.elementwise() % s1, (v1.x % s1, v1.y % s1))
         self.assertEqual(v1.elementwise() > s1, v1.x > s1 and v1.y > s1)
         self.assertEqual(v1.elementwise() < s1, v1.x < s1 and v1.y < s1)
@@ -783,7 +783,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(s1 * v1.elementwise(), (s1 * v1.x, s1 * v1.y))
         self.assertEqual(s1 / v1.elementwise(), (s1 / v1.x, s1 / v1.y))
         self.assertEqual(s1 // v1.elementwise(), (s1 // v1.x, s1 // v1.y))
-        self.assertEqual(s1 ** v1.elementwise(), (s1 ** v1.x, s1 ** v1.y))
+        self.assertEqual(s1 ** v1.elementwise(), (s1**v1.x, s1**v1.y))
         self.assertEqual(s1 % v1.elementwise(), (s1 % v1.x, s1 % v1.y))
         self.assertEqual(s1 < v1.elementwise(), s1 < v1.x and s1 < v1.y)
         self.assertEqual(s1 > v1.elementwise(), s1 > v1.x and s1 > v1.y)
@@ -800,7 +800,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v1.elementwise() * v2, (v1.x * v2.x, v1.y * v2.y))
         self.assertEqual(v1.elementwise() / v2, (v1.x / v2.x, v1.y / v2.y))
         self.assertEqual(v1.elementwise() // v2, (v1.x // v2.x, v1.y // v2.y))
-        self.assertEqual(v1.elementwise() ** v2, (v1.x ** v2.x, v1.y ** v2.y))
+        self.assertEqual(v1.elementwise() ** v2, (v1.x**v2.x, v1.y**v2.y))
         self.assertEqual(v1.elementwise() % v2, (v1.x % v2.x, v1.y % v2.y))
         self.assertEqual(v1.elementwise() > v2, v1.x > v2.x and v1.y > v2.y)
         self.assertEqual(v1.elementwise() < v2, v1.x < v2.x and v1.y < v2.y)
@@ -814,7 +814,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v2 * v1.elementwise(), (v2.x * v1.x, v2.y * v1.y))
         self.assertEqual(v2 / v1.elementwise(), (v2.x / v1.x, v2.y / v1.y))
         self.assertEqual(v2 // v1.elementwise(), (v2.x // v1.x, v2.y // v1.y))
-        self.assertEqual(v2 ** v1.elementwise(), (v2.x ** v1.x, v2.y ** v1.y))
+        self.assertEqual(v2 ** v1.elementwise(), (v2.x**v1.x, v2.y**v1.y))
         self.assertEqual(v2 % v1.elementwise(), (v2.x % v1.x, v2.y % v1.y))
         self.assertEqual(v2 < v1.elementwise(), v2.x < v1.x and v2.y < v1.y)
         self.assertEqual(v2 > v1.elementwise(), v2.x > v1.x and v2.y > v1.y)
@@ -836,7 +836,7 @@ class Vector2TypeTest(unittest.TestCase):
             v2.elementwise() // v1.elementwise(), (v2.x // v1.x, v2.y // v1.y)
         )
         self.assertEqual(
-            v2.elementwise() ** v1.elementwise(), (v2.x ** v1.x, v2.y ** v1.y)
+            v2.elementwise() ** v1.elementwise(), (v2.x**v1.x, v2.y**v1.y)
         )
         self.assertEqual(
             v2.elementwise() % v1.elementwise(), (v2.x % v1.x, v2.y % v1.y)
@@ -1829,7 +1829,7 @@ class Vector3TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v1.elementwise() ** self.s1,
-            (self.v1.x ** self.s1, self.v1.y ** self.s1, self.v1.z ** self.s1),
+            (self.v1.x**self.s1, self.v1.y**self.s1, self.v1.z**self.s1),
         )
         self.assertEqual(
             self.v1.elementwise() % self.s1,
@@ -1873,7 +1873,7 @@ class Vector3TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             -(3.5 ** self.v1.elementwise()),
-            (-(3.5 ** self.v1.x), -(3.5 ** self.v1.y), -(3.5 ** self.v1.z)),
+            (-(3.5**self.v1.x), -(3.5**self.v1.y), -(3.5**self.v1.z)),
         )
         self.assertEqual(
             3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y, 3 % self.v1.z)
@@ -1924,7 +1924,7 @@ class Vector3TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v1.elementwise() ** self.v2,
-            (self.v1.x ** self.v2.x, self.v1.y ** self.v2.y, self.v1.z ** self.v2.z),
+            (self.v1.x**self.v2.x, self.v1.y**self.v2.y, self.v1.z**self.v2.z),
         )
         self.assertEqual(
             self.v1.elementwise() % self.v2,
@@ -1979,7 +1979,7 @@ class Vector3TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v2 ** self.v1.elementwise(),
-            (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y, self.v2.z ** self.v1.z),
+            (self.v2.x**self.v1.x, self.v2.y**self.v1.y, self.v2.z**self.v1.z),
         )
         self.assertEqual(
             self.v2 % self.v1.elementwise(),
@@ -2039,7 +2039,7 @@ class Vector3TypeTest(unittest.TestCase):
         )
         self.assertEqual(
             self.v2.elementwise() ** self.v1.elementwise(),
-            (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y, self.v2.z ** self.v1.z),
+            (self.v2.x**self.v1.x, self.v2.y**self.v1.y, self.v2.z**self.v1.z),
         )
         self.assertEqual(
             self.v2.elementwise() % self.v1.elementwise(),
