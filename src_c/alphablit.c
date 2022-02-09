@@ -683,7 +683,8 @@ blit_blend_rgba_mul(SDL_BlitInfo *info)
             LOOP_UNROLLED4(
                 {
                     REPEAT_4({
-                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) + 255 >> 8 : 0;
+                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) + 255 >> 8
+                                                 : 0;
                         (*dst) = (tmp <= 255 ? tmp : 255);
                         src += incr;
                         dst += incr;

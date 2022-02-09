@@ -198,8 +198,8 @@
     dB = (tmp >= 0 ? tmp : 0);
 
 #define BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA) \
-    dR = (dR && sR) ? ((dR * sR) + 255) >> 8 : 0;          \
-    dG = (dG && sG) ? ((dG * sG) + 255) >> 8 : 0;          \
+    dR = (dR && sR) ? ((dR * sR) + 255) >> 8 : 0;  \
+    dG = (dG && sG) ? ((dG * sG) + 255) >> 8 : 0;  \
     dB = (dB && sB) ? ((dB * sB) + 255) >> 8 : 0;
 
 #define BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA) \
@@ -245,9 +245,9 @@
     dA = (tmp >= 0 ? tmp : 0);
 
 #define BLEND_RGBA_MULT(sR, sG, sB, sA, dR, dG, dB, dA) \
-    dR = (dR && sR) ? ((dR * sR) + 255) >> 8 : 0;               \
-    dG = (dG && sG) ? ((dG * sG) + 255) >> 8 : 0;               \
-    dB = (dB && sB) ? ((dB * sB) + 255) >> 8 : 0;               \
+    dR = (dR && sR) ? ((dR * sR) + 255) >> 8 : 0;       \
+    dG = (dG && sG) ? ((dG * sG) + 255) >> 8 : 0;       \
+    dB = (dB && sB) ? ((dB * sB) + 255) >> 8 : 0;       \
     dA = (dA && sA) ? ((dA * sA) + 255) >> 8 : 0;
 
 #define BLEND_RGBA_MIN(sR, sG, sB, sA, dR, dG, dB, dA) \
