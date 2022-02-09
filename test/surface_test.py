@@ -3228,7 +3228,7 @@ class SurfaceBlendTest(unittest.TestCase):
         blend = [
             ("BLEND_ADD", (0, 25, 100, 255), lambda a, b: min(a + b, 255)),
             ("BLEND_SUB", (100, 25, 0, 100), lambda a, b: max(a - b, 0)),
-            ("BLEND_MULT", (100, 200, 0, 0), lambda a, b: (a * b) // 256),
+            ("BLEND_MULT", (100, 200, 0, 0), lambda a, b: ((a * b) + 255) >> 8),
             ("BLEND_MIN", (255, 0, 0, 255), min),
             ("BLEND_MAX", (0, 255, 0, 255), max),
         ]
@@ -3317,7 +3317,7 @@ class SurfaceBlendTest(unittest.TestCase):
         blend = [
             ("BLEND_RGBA_ADD", (0, 25, 100, 255), lambda a, b: min(a + b, 255)),
             ("BLEND_RGBA_SUB", (0, 25, 100, 255), lambda a, b: max(a - b, 0)),
-            ("BLEND_RGBA_MULT", (0, 7, 100, 255), lambda a, b: (a * b) // 256),
+            ("BLEND_RGBA_MULT", (0, 7, 100, 255), lambda a, b: ((a * b) + 255) >> 8),
             ("BLEND_RGBA_MIN", (0, 255, 0, 255), min),
             ("BLEND_RGBA_MAX", (0, 255, 0, 255), max),
         ]
@@ -3758,7 +3758,7 @@ class SurfaceBlendTest(unittest.TestCase):
         blend = [
             ("BLEND_ADD", (0, 25, 100, 255), lambda a, b: min(a + b, 255)),
             ("BLEND_SUB", (0, 25, 100, 255), lambda a, b: max(a - b, 0)),
-            ("BLEND_MULT", (0, 7, 100, 255), lambda a, b: (a * b) // 256),
+            ("BLEND_MULT", (0, 7, 100, 255), lambda a, b: ((a * b) + 255) >> 8),
             ("BLEND_MIN", (0, 255, 0, 255), min),
             ("BLEND_MAX", (0, 255, 0, 255), max),
         ]
@@ -3792,7 +3792,7 @@ class SurfaceBlendTest(unittest.TestCase):
         blend = [
             ("BLEND_RGBA_ADD", (0, 25, 100, 255), lambda a, b: min(a + b, 255)),
             ("BLEND_RGBA_SUB", (0, 25, 100, 255), lambda a, b: max(a - b, 0)),
-            ("BLEND_RGBA_MULT", (0, 7, 100, 255), lambda a, b: (a * b) // 256),
+            ("BLEND_RGBA_MULT", (0, 7, 100, 255), lambda a, b: ((a * b) + 255) >> 8),
             ("BLEND_RGBA_MIN", (0, 255, 0, 255), min),
             ("BLEND_RGBA_MAX", (0, 255, 0, 255), max),
         ]

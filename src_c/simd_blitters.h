@@ -129,7 +129,7 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
         dstp += dstskip;
     }
 }
-#else /* not defined(ENV64BIT) */
+#else
 static void
 blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
 {

@@ -291,7 +291,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2()) {
+                        SDL_HasAVX2() && (src != dst)) {
                         blit_blend_rgba_mul_avx2(&info);
                         break;
                     }
@@ -302,7 +302,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasSSE2()) {
+                        SDL_HasSSE2() && (src != dst)) {
                         blit_blend_rgba_mul_sse2(&info);
                         break;
                     }
@@ -314,7 +314,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasNEON()) {
+                        SDL_HasNEON() && (src != dst)) {
                         blit_blend_rgba_mul_sse2(&info);
                         break;
                     }
@@ -683,7 +683,7 @@ blit_blend_rgba_mul(SDL_BlitInfo *info)
             LOOP_UNROLLED4(
                 {
                     REPEAT_4({
-                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) >> 8 : 0;
+                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) + 255 >> 8 : 0;
                         (*dst) = (tmp <= 255 ? tmp : 255);
                         src += incr;
                         dst += incr;
@@ -1783,15 +1783,15 @@ blit_blend_mul(SDL_BlitInfo *info)
             LOOP_UNROLLED4(
                 {
                     tmp = ((dst[dstoffsetR] && src[srcoffsetR])
-                               ? (dst[dstoffsetR] * src[srcoffsetR]) >> 8
+                               ? (dst[dstoffsetR] * src[srcoffsetR]) + 255 >> 8
                                : 0);
                     dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
                     tmp = ((dst[dstoffsetG] && src[srcoffsetG])
-                               ? (dst[dstoffsetG] * src[srcoffsetG]) >> 8
+                               ? (dst[dstoffsetG] * src[srcoffsetG]) + 255 >> 8
                                : 0);
                     dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
                     tmp = ((dst[dstoffsetB] && src[srcoffsetB])
-                               ? (dst[dstoffsetB] * src[srcoffsetB]) >> 8
+                               ? (dst[dstoffsetB] * src[srcoffsetB]) + 255 >> 8
                                : 0);
                     dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
                     src += srcpxskip;
