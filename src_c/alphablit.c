@@ -50,10 +50,7 @@
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
 
-#include "_blit_info.h"
-#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 #include "simd_blitters.h"
-#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 static void
 alphablit_alpha(SDL_BlitInfo *info);
@@ -288,7 +285,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MULT: {
-#if defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H)
                     if (src->format->BytesPerPixel == 4 &&
                         dst->format->BytesPerPixel == 4 &&
                         src->format->Rmask == dst->format->Rmask &&
@@ -296,10 +292,9 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
                         SDL_HasAVX2()) {
-                        blit_blend_rgba_mul_simd_avx2(&info);
+                        blit_blend_rgba_mul_avx2(&info);
                         break;
                     }
-#endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
 #if defined(__SSE2__)
                     if (src->format->BytesPerPixel == 4 &&
                         dst->format->BytesPerPixel == 4 &&
@@ -308,7 +303,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
                         SDL_HasSSE2()) {
-                        blit_blend_rgba_mul_simd(&info);
+                        blit_blend_rgba_mul_sse2(&info);
                         break;
                     }
 #endif /* __SSE2__*/
@@ -320,7 +315,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
                         SDL_HasNEON()) {
-                        blit_blend_rgba_mul_simd(&info);
+                        blit_blend_rgba_mul_sse2(&info);
                         break;
                     }
 #endif /* PG_ENABLE_ARM_NEON */
