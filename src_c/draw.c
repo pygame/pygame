@@ -80,6 +80,8 @@ static void
 draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                 int width, Uint32 color, int top_left, int top_right,
                 int bottom_left, int bottom_right, int *drawn_area);
+static void
+draw_pie(SDL_Surface *surf, int x1, int y1, Uint32 color, int radius, double angle_start, double angle_end, int width);
 
 // validation of a draw color
 #define CHECK_LOAD_COLOR(colorobj)                                         \
@@ -2462,6 +2464,11 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                              y2 - bottom_right + 1, bottom_right, width, color,
                              0, 0, 0, 1, drawn_area);
     }
+}
+
+static void
+draw_pie(SDL_Surface *surf, int x1, int y1, Uint32 color, int radius, double angle_start, double angle_end, int width) {
+    
 }
 
 /* List of python functions */
