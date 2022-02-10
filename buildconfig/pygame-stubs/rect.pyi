@@ -215,7 +215,7 @@ class Rect:
     @overload
     def collideobjectsall(
         self, obj_list: Sequence[_T], key: Callable[[_T], Union[Rect, _RectValue]]
-    ) -> List[_RectValue]: ...
+    ) -> List[_T]: ...
     # given a list of rect like objects
     @overload
     def collideobjectsall(
@@ -226,6 +226,21 @@ class Rect:
     def collideobjectsall(
         self, rect_list: Sequence[Union[Rect, _RectValue]], key: Callable[[Union[Rect, _RectValue]], Union[Rect, _RectValue]]
     ) -> List: ...
+    # given a list ob objects, a key is the needed to get the rect
+    @overload
+    def collideobjects(
+        self, obj_list: Sequence[_T], key: Callable[[_T], Union[Rect, _RectValue]]
+    ) -> _T: ...
+    # given a list of rect like objects
+    @overload
+    def collideobjects(
+        self, rect_list: Sequence[Union[Rect, _RectValue]], key: None=...
+    ) -> Union[Rect, _RectValue]: ...
+    # given a list of rect like objects, still could use a key to extract a different rect
+    @overload
+    def collideobjects(
+        self, rect_list: Sequence[Union[Rect, _RectValue]], key: Callable[[Union[Rect, _RectValue]], Union[Rect, _RectValue]]
+    ) -> Union[Rect, _RectValue]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.

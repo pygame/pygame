@@ -1993,7 +1993,26 @@ class RectTypeTest(unittest.TestCase):
         f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
         self.assertFalse(r.collidelistall(f))
 
-    def test_collidelistallobjects(self):
+    def test_collideobjects(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
+
+        # Rect.collidelist(list): return index
+        # test if one rectangle in a list intersects
+        #
+        # Test whether the rectangle collides with any in a sequence of
+        # rectangles. The index of the first collision found is returned. If
+        # no collisions are found an index of -1 is returned.
+
+        r = Rect(1, 1, 10, 10)
+        l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
+
+        self.assertEqual(r.collideobjects(l), l[1])
+
+        f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
+        self.assertEqual(r.collideobjects(f), None)
+
+    def test_collideobjectsall(self):
         r = Rect(1, 1, 10, 10)
 
         l = [

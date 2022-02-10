@@ -774,6 +774,54 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
+pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
+{
+    SDL_Rect *argrect;
+    Py_ssize_t size;
+    int loop;
+    PyObject *list, *obj;
+    PyObject *keyfunc = NULL;
+    static char *keywords[] = {"list", "key", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjects",
+                                     keywords, &list, &keyfunc)) {
+        return RAISE(PyExc_TypeError, "Could not parse args and kw.");
+    }
+
+    if (!PySequence_Check(list)) {
+        return RAISE(PyExc_TypeError,
+                     "Argument must be a sequence of objects.");
+    }
+
+    if (keyfunc == Py_None) {
+        keyfunc = NULL;
+    }
+
+    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
+        return RAISE(PyExc_TypeError,
+                     "Key function must be callable with one argument.");
+    }
+
+    size = PySequence_Length(list); /*warning, size could be -1?*/
+    for (loop = 0; loop < size; ++loop) {
+        obj = PySequence_GetItem(list, loop);
+
+        if (!obj || !(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+            Py_XDECREF(obj);
+            return RAISE(PyExc_TypeError,
+                         "Argument must be a sequence of objects.");
+        }
+
+        if (_pg_do_rects_intersect(&self->r, argrect)) {
+            return obj;
+        }
+        Py_DECREF(obj);
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 pg_rect_collidedict(pgRectObject *self, PyObject *args)
 {
     SDL_Rect *argrect, temp;
@@ -1210,6 +1258,8 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTCOLLIDELISTALL},
     {"collideobjectsall", (PyCFunction)pg_rect_collideobjectsall,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTSALL},
+    {"collideobjects", (PyCFunction)pg_rect_collideobjects,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTS},
     {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
      DOC_RECTCOLLIDEDICT},
     {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,

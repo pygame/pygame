@@ -357,6 +357,25 @@
 
       .. ## Rect.collidelistall ##
 
+   .. method:: collideobjects
+
+      | :sl:`test if an objects in a list intersects`
+      | :sg:`collideobjects(rect_list) -> object`
+      | :sg:`collideobjects(obj_list, key=func) -> object`
+
+      Test wheter the rectangle collides with any object in the sequence.
+      The object of the first collision found is returned. If no collisions are
+      found then ``None`` is returned
+
+      If key is given, then it should be a method taking an object from the list
+      as input and returning a rect like object e.g. ``lambda obj: obj.rectangle``.
+      If an object has multiple attributes of type Rect then key could return one
+      of them.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Rect.collideobjects ##
+
    .. method:: collideobjectsall
 
       | :sl:`test if all objects in a list intersect`
