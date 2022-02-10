@@ -208,7 +208,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     char *scrap = NULL;
     PyObject *retval;
     char *scrap_type;
-    unsigned long count;
+    size_t count;
 
     PYGAME_SCRAP_INIT_CHECK();
 

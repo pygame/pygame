@@ -177,8 +177,8 @@ v4l2_xioctl(int fd, int request, void *arg)
    currently two step processes. */
 /* TODO: Write single step conversions where they may actually be useful */
 int
-v4l2_process_image(pgCameraObject *self, const void *image,
-                   unsigned int buffer_size, SDL_Surface *surf)
+v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
+                   SDL_Surface *surf)
 {
     if (!surf)
         return 0;
@@ -337,7 +337,7 @@ v4l2_process_image(pgCameraObject *self, const void *image,
 int
 v4l2_query_buffer(pgCameraObject *self)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < self->n_buffers; ++i) {
         struct v4l2_buffer buf;

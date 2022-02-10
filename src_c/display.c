@@ -346,13 +346,13 @@ pg_vidinfo_str(PyObject *self)
     }
 
     sprintf(str,
-            "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
-            "         blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
-            "         blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
-            "         bitsize  = %d, bytesize = %d,\n"
-            "         masks =  (%d, %d, %d, %d),\n"
-            "         shifts = (%d, %d, %d, %d),\n"
-            "         losses =  (%d, %d, %d, %d),\n"
+            "<VideoInfo(hw = %u, wm = %u,video_mem = %u\n"
+            "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
+            "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
+            "         bitsize  = %u, bytesize = %u,\n"
+            "         masks =  (%u, %u, %u, %u),\n"
+            "         shifts = (%u, %u, %u, %u),\n"
+            "         losses =  (%u, %u, %u, %u),\n"
             "         current_w = %d, current_h = %d\n"
             "         pixel_format = %s\n"
             ">\n",
@@ -478,15 +478,15 @@ pg_get_wm_info(PyObject *self)
         return dict;
 
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
-    tmp = PyLong_FromLong((long)info.info.win.window);
+    tmp = PyLong_FromLongLong((long long)info.info.win.window);
     PyDict_SetItemString(dict, "window", tmp);
     Py_DECREF(tmp);
 
-    tmp = PyLong_FromLong((long)info.info.win.hdc);
+    tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
 
-    tmp = PyLong_FromLong((long)info.info.win.hinstance);
+    tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
 #endif
@@ -1018,9 +1018,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         // if the program goes into fullscreen first the "saved
                         // x and y" are "undefined position" that should be
                         // interpreted as a cue to center the window
-                        if (x == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                        if (x == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
-                        if (y == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                        if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
@@ -1063,10 +1063,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     h_1 = display_bounds.h;
 
                     if (((float)w_1) / (float)h_1 > aspect_ratio) {
-                        w_1 = h_1 * aspect_ratio;
+                        w_1 = (int)(h_1 * aspect_ratio);
                     }
                     else {
-                        h_1 = w_1 / aspect_ratio;
+                        h_1 = (int)(w_1 / aspect_ratio);
                     }
                 }
                 else {
@@ -1498,7 +1498,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             mode.w = 640;
         if (!mode.h)
             mode.h = 480;
-        if (SDL_BITSPERPIXEL(mode.format) != bpp)
+        if ((int)SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
         if (last_width == mode.w && last_height == mode.h &&
             last_width != -1) {
@@ -1617,7 +1617,6 @@ pg_update(PyObject *self, PyObject *arg)
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Rect *gr, temp = {0};
     int wide, high;
-    PyObject *obj;
 
     VIDEO_INIT_CHECK();
 
@@ -1718,13 +1717,14 @@ pg_set_palette(PyObject *self, PyObject *args)
     SDL_Color *colors;
     PyObject *list, *item = NULL;
     int i, len;
-    int r, g, b;
+    Uint8 rgba[4];
 
     VIDEO_INIT_CHECK();
     if (!PyArg_ParseTuple(args, "|O", &list))
         return NULL;
     if (!surface)
         return RAISE(pgExc_SDLError, "No display mode is set");
+
     Py_INCREF(surface);
     surf = pgSurface_AsSurface(surface);
     pal = surf->format->palette;
@@ -1743,7 +1743,16 @@ pg_set_palette(PyObject *self, PyObject *args)
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
     }
 
-    len = MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(list));
+    if (len < 0) {
+        return NULL;
+    }
+
+#ifdef _MSC_VER
+    /* Make MSVC static analyzer happy by assuring len >= 2 to supress
+     * a false analyzer report */
+    __analysis_assume(len >= 2);
+#endif
 
     colors = (SDL_Color *)malloc(len * sizeof(SDL_Color));
     if (!colors) {
@@ -1753,29 +1762,24 @@ pg_set_palette(PyObject *self, PyObject *args)
 
     for (i = 0; i < len; i++) {
         item = PySequence_GetItem(list, i);
-        if (!PySequence_Check(item) || PySequence_Length(item) != 3) {
+        if (!item) {
+            free((char *)colors);
+            Py_DECREF(surface);
+            return NULL;
+        }
+
+        if (!pg_RGBAFromFuzzyColorObj(item, rgba)) {
             Py_DECREF(item);
             free((char *)colors);
             Py_DECREF(surface);
-            return RAISE(PyExc_TypeError,
-                         "takes a sequence of sequence of RGB");
+            return NULL;
         }
-        if (!pg_IntFromObjIndex(item, 0, &r) ||
-            !pg_IntFromObjIndex(item, 1, &g) ||
-            !pg_IntFromObjIndex(item, 2, &b)) {
-            Py_DECREF(item);
-            free((char *)colors);
-            Py_DECREF(surface);
-            return RAISE(PyExc_TypeError,
-                         "RGB sequence must contain numeric values");
-        }
-
-        colors[i].r = (unsigned char)r;
-        colors[i].g = (unsigned char)g;
-        colors[i].b = (unsigned char)b;
-        colors[i].a = SDL_ALPHA_OPAQUE;
-
         Py_DECREF(item);
+
+        colors[i].r = rgba[0];
+        colors[i].g = rgba[1];
+        colors[i].b = rgba[2];
+        colors[i].a = SDL_ALPHA_OPAQUE;
     }
 
     pal = SDL_AllocPalette(len);
@@ -1911,29 +1915,29 @@ pg_set_caption(PyObject *self, PyObject *arg)
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     char *title, *icontitle = NULL;
-    if (!PyArg_ParseTuple(arg, "es|es", "UTF-8", &title, "UTF-8", &icontitle))
+
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure title is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(title = "inited");
+#endif
+
+    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
         return NULL;
 
     if (state->title)
         free(state->title);
+
     state->title = (char *)malloc((strlen(title) + 1) * sizeof(char));
     if (!state->title) {
-        PyErr_NoMemory();
-        goto error;
+        return PyErr_NoMemory();
     }
     strcpy(state->title, title);
     if (win)
         SDL_SetWindowTitle(win, title);
+
     /* TODO: icon title? */
-
-    PyMem_Free(title);
-    PyMem_Free(icontitle);
     Py_RETURN_NONE;
-
-error:
-    PyMem_Free(title);
-    PyMem_Free(icontitle);
-    return NULL;
 }
 
 static PyObject *

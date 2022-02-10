@@ -69,8 +69,8 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
     }
 
     if (error_id && ft_msg && maxlen > error_msg_len - 42)
-        sprintf(ft->_error_msg, "%.*s: %.*s", maxlen - 2, error_msg,
-                maxlen - error_msg_len - 2, ft_msg);
+        sprintf(ft->_error_msg, "%.*s: %.*s", maxlen - 3, error_msg,
+                maxlen - error_msg_len - 3, ft_msg);
     else {
         strncpy(ft->_error_msg, error_msg, maxlen);
         ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
@@ -460,7 +460,7 @@ RWops_read(FT_Stream stream, unsigned long offset, unsigned char *buffer,
     if (count == 0)
         return 0;
 
-    return SDL_RWread(src, buffer, 1, (int)count);
+    return (unsigned long)SDL_RWread(src, buffer, 1, (int)count);
 }
 
 int
@@ -468,7 +468,7 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
                         SDL_RWops *src, long font_index)
 {
     FT_Stream stream;
-    int position;
+    Sint64 position;
 
     position = SDL_RWtell(src);
     if (position < 0) {
