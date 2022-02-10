@@ -300,7 +300,7 @@ endsound_callback(int channel)
             PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
-                Mix_GroupChannel(channelnum, (intptr_t)sound);
+                Mix_GroupChannel(channelnum, (int)(intptr_t)sound);
         }
         else {
             PyGILState_STATE gstate = PyGILState_Ensure();
@@ -656,7 +656,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     Mix_Volume(channelnum, 128);
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     return pgChannel_New(channelnum);
@@ -667,7 +667,7 @@ snd_get_num_channels(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
-    return PyLong_FromLong(Mix_GroupCount((intptr_t)chunk));
+    return PyLong_FromLong(Mix_GroupCount((int)(intptr_t)chunk));
 }
 
 static PyObject *
@@ -681,7 +681,7 @@ snd_fadeout(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_FadeOutGroup((intptr_t)chunk, _time);
+    Mix_FadeOutGroup((int)(intptr_t)chunk, _time);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
@@ -692,7 +692,7 @@ snd_stop(PyObject *self, PyObject *args)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
     Py_BEGIN_ALLOW_THREADS;
-    Mix_HaltGroup((intptr_t)chunk);
+    Mix_HaltGroup((int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
@@ -734,8 +734,7 @@ snd_get_length(PyObject *self, PyObject *args)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
-    else if (format == AUDIO_F32 || format == AUDIO_F32LSB ||
-             format == AUDIO_F32MSB) {
+    else if (format == AUDIO_F32LSB || format == AUDIO_F32MSB) {
         mixerbytes = 4;
     }
     else
@@ -1043,7 +1042,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
     }
     if (channelnum != -1)
-        Mix_GroupChannel(channelnum, (intptr_t)chunk);
+        Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     Py_XDECREF(channeldata[channelnum].sound);
@@ -1070,7 +1069,7 @@ chan_queue(PyObject *self, PyObject *args)
         Py_BEGIN_ALLOW_THREADS;
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
         if (channelnum != -1)
-            Mix_GroupChannel(channelnum, (intptr_t)chunk);
+            Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
         Py_END_ALLOW_THREADS;
 
         channeldata[channelnum].sound = sound;

@@ -100,8 +100,8 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 static PyObject *
 aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *start = NULL, *end = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *start, *end;
     SDL_Surface *surf = NULL;
     float startx, starty, endx, endy;
     int blend = 1; /* Default blend. */
@@ -178,8 +178,8 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 line(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *start = NULL, *end = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *start, *end;
     SDL_Surface *surf = NULL;
     int startx, starty, endx, endy;
     Uint8 rgba[4];
@@ -246,9 +246,9 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *closedobj = NULL;
-    PyObject *points = NULL, *item = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *closedobj;
+    PyObject *points, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
     Uint8 rgba[4];
@@ -389,9 +389,9 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *closedobj = NULL;
-    PyObject *points = NULL, *item = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *closedobj;
+    PyObject *points, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
     Uint8 rgba[4];
@@ -512,8 +512,8 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *rectobj = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -590,8 +590,8 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *rectobj = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -657,8 +657,8 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 circle(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -752,8 +752,8 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *points = NULL, *item = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *points, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -866,9 +866,8 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
-    PyObject *colorobj = NULL, *rectobj = NULL;
-    PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
+    pgSurfaceObject *surfobj;
+    PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -1377,7 +1376,6 @@ static void
 drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 {
     Uint8 *pixel, *end;
-    Uint8 *colorptr;
 
     if (x1 == x2) {
         return;
@@ -1404,13 +1402,11 @@ drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
             }
             break;
         case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                color <<= 8;
-            colorptr = (Uint8 *)&color;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+            color <<= 8;
+#endif
             for (; pixel <= end; pixel += 3) {
-                pixel[0] = colorptr[0];
-                pixel[1] = colorptr[1];
-                pixel[2] = colorptr[2];
+                memcpy(pixel, &color, 3 * sizeof(Uint8));
             }
             break;
         default: /*case 4*/

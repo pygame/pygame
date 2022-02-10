@@ -108,7 +108,7 @@ pygame_scrap_lost(void);
  *         0 otherwise.
  */
 extern int
-pygame_scrap_put(char *type, int srclen, char *src);
+pygame_scrap_put(char *type, Py_ssize_t srclen, char *src);
 
 /**
  * \brief Gets the current content from the clipboard.
@@ -123,7 +123,7 @@ pygame_scrap_put(char *type, int srclen, char *src);
  *         specified type was available.
  */
 extern char *
-pygame_scrap_get(char *type, unsigned long *count);
+pygame_scrap_get(char *type, size_t *count);
 
 /**
  * \brief Gets the currently available content types from the clipboard.
