@@ -683,8 +683,9 @@ blit_blend_rgba_mul(SDL_BlitInfo *info)
             LOOP_UNROLLED4(
                 {
                     REPEAT_4({
-                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) + 255 >> 8
-                                                 : 0;
+                        tmp = ((*dst) && (*src))
+                                  ? (((*dst) * (*src)) + 255) >> 8
+                                  : 0;
                         (*dst) = (tmp <= 255 ? tmp : 255);
                         src += incr;
                         dst += incr;
@@ -1783,17 +1784,20 @@ blit_blend_mul(SDL_BlitInfo *info)
         while (height--) {
             LOOP_UNROLLED4(
                 {
-                    tmp = ((dst[dstoffsetR] && src[srcoffsetR])
-                               ? (dst[dstoffsetR] * src[srcoffsetR]) + 255 >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetR] && src[srcoffsetR])
+                             ? ((dst[dstoffsetR] * src[srcoffsetR]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
-                    tmp = ((dst[dstoffsetG] && src[srcoffsetG])
-                               ? (dst[dstoffsetG] * src[srcoffsetG]) + 255 >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetG] && src[srcoffsetG])
+                             ? ((dst[dstoffsetG] * src[srcoffsetG]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
-                    tmp = ((dst[dstoffsetB] && src[srcoffsetB])
-                               ? (dst[dstoffsetB] * src[srcoffsetB]) + 255 >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetB] && src[srcoffsetB])
+                             ? ((dst[dstoffsetB] * src[srcoffsetB]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
                     src += srcpxskip;
                     dst += dstpxskip;

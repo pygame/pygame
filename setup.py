@@ -83,29 +83,30 @@ compiler_options = {
 
 
 def spawn(self, cmd, **kwargs):
-    extra_options = compiler_options.get(self.compiler_type)
-    if extra_options is not None:
-        # filenames are closer to the end of command line
-        for argument in reversed(cmd):
-            # Check if argument contains a filename. We must check for all
-            # possible extensions; checking for target extension is faster.
-            if not argument.endswith(self.obj_extension):
-                continue
+    if 'ARM' not in platform.uname().version:
+        extra_options = compiler_options.get(self.compiler_type)
+        if extra_options is not None:
+            # filenames are closer to the end of command line
+            for argument in reversed(cmd):
+                # Check if argument contains a filename. We must check for all
+                # possible extensions; checking for target extension is faster.
+                if not argument.endswith(self.obj_extension):
+                    continue
 
-            # check for a filename only to avoid building a new string
-            # with variable extension
-            off_end = -len(self.obj_extension)
-            off_start = -len(filename) + off_end
-            if argument.endswith(filename, off_start, off_end):
-                if self.compiler_type == 'bcpp':
-                    # Borland accepts a source file name at the end,
-                    # insert the options before it
-                    cmd[-1:-1] = extra_options
-                else:
-                    cmd += extra_options
+                # check for a filename only to avoid building a new string
+                # with variable extension
+                off_end = -len(self.obj_extension)
+                off_start = -len(filename) + off_end
+                if argument.endswith(filename, off_start, off_end):
+                    if self.compiler_type == 'bcpp':
+                        # Borland accepts a source file name at the end,
+                        # insert the options before it
+                        cmd[-1:-1] = extra_options
+                    else:
+                        cmd += extra_options
 
-            # filename is found, no need to search any further
-            break
+                # filename is found, no need to search any further
+                break
 
     distutils.ccompiler.spawn(cmd, dry_run=self.dry_run, **kwargs)
 
@@ -413,10 +414,6 @@ for e in extensions:
         if sys.platform == "win32"
         else ("-Wall", "-Wno-error=unknown-pragmas")
     )
-
-    # if "surface" in e.name and sys.platform == "win32":
-    #     # skip -Werror on alphablit because sse2neon is used on arm mac
-    #     e.extra_compile_args.append("/arch:AVX2")
 
     if "surface" in e.name and sys.platform == "darwin":
         # skip -Werror on alphablit because sse2neon is used on arm mac
