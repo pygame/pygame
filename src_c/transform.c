@@ -91,7 +91,6 @@ _get_factor(PyObject *factorobj, float *x, float *y)
     return 1;
 }
 
-#if IS_SDLv2
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
 {
