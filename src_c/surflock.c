@@ -230,7 +230,7 @@ _lifelock_dealloc(PyObject *self)
     pgSurface_UnlockBy((pgSurfaceObject *)lifelock->surface,
                        lifelock->lockobj);
     Py_DECREF(lifelock->surface);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyObject *
@@ -241,7 +241,7 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    life = PyObject_NEW(pgLifetimeLockObject, &pgLifetimeLock_Type);
+    life = PyObject_New(pgLifetimeLockObject, &pgLifetimeLock_Type);
     if (life != NULL) {
         life->surface = surfobj;
         life->lockobj = lockobj;

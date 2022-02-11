@@ -1290,7 +1290,7 @@ static PyMethodDef channel_methods[] = {
 static void
 channel_dealloc(PyObject *self)
 {
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyTypeObject pgChannel_Type = {
@@ -1923,7 +1923,7 @@ pgChannel_New(int channelnum)
     if (channelnum < 0 || channelnum >= Mix_GroupCount(-1))
         return RAISE(PyExc_IndexError, "invalid channel index");
 
-    chanobj = PyObject_NEW(pgChannelObject, &pgChannel_Type);
+    chanobj = PyObject_New(pgChannelObject, &pgChannel_Type);
     if (!chanobj)
         return NULL;
 

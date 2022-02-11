@@ -83,7 +83,7 @@ mask_copy(PyObject *self, PyObject *args)
     }
 
     return (PyObject *)create_mask_using_bitmask_and_type(new_bitmask,
-                                                          self->ob_type);
+                                                          Py_TYPE(self));
 }
 
 /* Redirects mask.copy() to mask.__copy__(). This is done to allow

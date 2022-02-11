@@ -52,7 +52,7 @@ pg_time_autoquit(PyObject *self)
             todel = hunt;
             hunt = hunt->next;
             Py_DECREF(todel->event);
-            PyMem_Del(todel);
+            PyMem_Free(todel);
         }
         pg_event_timer = NULL;
         pg_timer_id = 0;
@@ -89,7 +89,7 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     if (SDL_LockMutex(timermutex) < 0) {
         /* this case will almost never happen, but still handle it */
-        PyMem_Del(new);
+        PyMem_Free(new);
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
     }
@@ -462,7 +462,7 @@ clock_dealloc(PyObject *self)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     Py_XDECREF(_clock->rendered);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 PyObject *
@@ -519,7 +519,7 @@ static PyTypeObject PyClock_Type = {
 PyObject *
 ClockInit(PyObject *self)
 {
-    PyClockObject *_clock = PyObject_NEW(PyClockObject, &PyClock_Type);
+    PyClockObject *_clock = PyObject_New(PyClockObject, &PyClock_Type);
 
     if (!_clock) {
         return NULL;

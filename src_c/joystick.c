@@ -93,7 +93,7 @@ joy_dealloc(PyObject *self)
         jstick->next->prev = jstick->prev;
     }
 
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyObject *
@@ -601,7 +601,7 @@ pgJoystick_New(int id)
     }
 
     /* Construct the Python object */
-    jstick = PyObject_NEW(pgJoystickObject, &pgJoystick_Type);
+    jstick = PyObject_New(pgJoystickObject, &pgJoystick_Type);
     if (!jstick) {
         return NULL;
     }
