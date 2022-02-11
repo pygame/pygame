@@ -688,8 +688,6 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *obj;
     SDL_RWops *rw;
 
-    const char *filename;
-
     self->font = NULL;
     if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
         return -1;
