@@ -113,7 +113,7 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
     }
 }
 #else
-static void
+void
 blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
 {
     int n;
