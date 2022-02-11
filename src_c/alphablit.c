@@ -285,6 +285,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MULT: {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     if (src->format->BytesPerPixel == 4 &&
                         dst->format->BytesPerPixel == 4 &&
                         src->format->Rmask == dst->format->Rmask &&
@@ -319,7 +320,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         break;
                     }
 #endif /* PG_ENABLE_ARM_NEON */
-
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
                     blit_blend_rgba_mul(&info);
                     break;
                 }

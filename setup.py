@@ -83,7 +83,11 @@ compiler_options = {
 
 
 def spawn(self, cmd, **kwargs):
-    if 'ARM' not in platform.uname().version:
+    if (('ARM' not in platform.uname().version) and
+            platform.machine() != 'aarch64' and
+            'arm' not in platform.machine()):
+        # try to be thorough in detecting that we are not on an ARM platform as there is no AVX on
+        # Arm architecture
         extra_options = compiler_options.get(self.compiler_type)
         if extra_options is not None:
             # filenames are closer to the end of command line
