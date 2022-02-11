@@ -108,7 +108,7 @@ blit_blend_rgba_mul_avx2(SDL_BlitInfo *info)
                     mm256_dstB = _mm256_srli_epi16(mm256_dstB, 8);
 
                     mm256_dst = _mm256_packus_epi16(mm256_dstA, mm256_dstB);
-                    _mm256_store_si256(dstp256, mm256_dst);
+                    _mm256_storeu_si256(dstp256, mm256_dst);
 
                     srcp256++;
                     dstp256++;
