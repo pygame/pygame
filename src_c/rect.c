@@ -812,7 +812,6 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
         if (!obj) {
             Py_XDECREF(obj);
-            Py_DECREF(ret);
             return RAISE(PyExc_TypeError, "Get item from sequence failed.");
         }
 
