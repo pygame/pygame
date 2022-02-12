@@ -37,13 +37,6 @@
 
 #include "structmember.h"
 
-/* Require SDL_ttf 2.0.6 or later for rwops support */
-#ifdef TTF_MAJOR_VERSION
-#define FONT_HAVE_RWOPS 1
-#else
-#define FONT_HAVE_RWOPS 0
-#endif
-
 #ifndef SDL_TTF_VERSION_ATLEAST
 #define SDL_TTF_COMPILEDVERSION                                  \
     SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, \
@@ -90,24 +83,6 @@ utf_8_needs_UCS_4(const char *str)
     return 0;
 }
 #endif
-
-static PyObject *
-pg_open_obj(PyObject *obj, const char *mode)
-{
-    PyObject *result;
-    PyObject *open;
-    PyObject *bltins = PyImport_ImportModule("builtins");
-    if (!bltins)
-        return NULL;
-    open = PyObject_GetAttrString(bltins, "open");
-    Py_DECREF(bltins);
-    if (!open)
-        return NULL;
-
-    result = PyObject_CallFunction(open, "Os", obj, mode);
-    Py_DECREF(open);
-    return result;
-}
 
 /* Return an encoded file path, a file-like object or a NULL pointer.
  * May raise a Python error. Use PyErr_Occurred to check.
@@ -711,11 +686,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     int fontsize;
     TTF_Font *font = NULL;
     PyObject *obj;
-    PyObject *test;
-    PyObject *oencoded = NULL;
     SDL_RWops *rw;
-
-    const char *filename;
 
     self->font = NULL;
     if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
@@ -747,130 +718,53 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             goto error;
         }
         fontsize = (int)(fontsize * .6875);
-        if (fontsize <= 1)
-            fontsize = 1;
     }
 
-    /* SDL accepts UTF8 */
-    oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
-    if (!oencoded || oencoded == Py_None) {
-        /* got a file object, or an error */
-        Py_XDECREF(oencoded);
-        oencoded = NULL;
-        PyErr_Clear();
-        goto fileobject;
-    }
-    filename = PyBytes_AS_STRING(oencoded);
+    rw = pgRWops_FromObject(obj);
 
-#if FONT_HAVE_RWOPS
-    /* Try opening the path through RWops first */
-    if (filename) {
-        rw = SDL_RWFromFile(filename, "rb");
-        if (rw != NULL) {
-            Py_BEGIN_ALLOW_THREADS;
-            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-            Py_END_ALLOW_THREADS;
-        }
-        else {
-            /*
-            PyErr_Format(PyExc_IOError,
-                                 "unable to read font file '%.1024s'",
-                                 filename);
-            goto error;
-            */
-
-            /* silently ignore this failure. We will try opening the path
-               with fopen (pg_open_obj) again later.
-               RWops can open assets bundled with P4A on Android, but not
-               font_resource() paths */
-        }
-        if (font != NULL)
-            goto success;
-    }
-#endif
-
-    if (font == NULL) {
-        /*check if it is a valid file, else SDL_ttf segfaults*/
-        test = pg_open_obj(obj, "rb");
-        if (test == NULL) {
-            if (filename) {
-                if (strcmp(filename, font_defaultname) == 0) {
-                    PyObject *tmp;
-                    PyErr_Clear();
-                    tmp = font_resource(font_defaultname);
-                    if (tmp == NULL) {
-                        if (!PyErr_Occurred()) {
-                            PyErr_Format(PyExc_IOError,
-                                         "unable to read font file '%.1024s'",
-                                         filename);
-                        }
-                        goto error;
-                    }
-                    Py_DECREF(obj);
-                    obj = tmp;
-                    filename = PyBytes_AS_STRING(obj);
-                    test = pg_open_obj(obj, "rb");
-                }
-            }
-            if (test == NULL) {
-                if (!PyErr_Occurred()) {
-                    PyErr_Format(PyExc_IOError,
-                                 "unable to read font file '%.1024s'",
-                                 filename);
+    if (rw == NULL && PyUnicode_Check(obj)) {
+        if (!PyUnicode_CompareWithASCIIString(obj, font_defaultname)) {
+            /* clear out existing file loading error before attempt to get
+             * default font */
+            PyErr_Clear();
+            Py_DECREF(obj);
+            obj = font_resource(font_defaultname);
+            if (obj == NULL) {
+                if (PyErr_Occurred() == NULL) {
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "default font '%.1024s' not found",
+                                 font_defaultname);
                 }
                 goto error;
             }
-        }
-        {
-            PyObject *tmp;
-            if (!(tmp = PyObject_CallMethod(test, "close", NULL))) {
-                Py_DECREF(test);
-                goto error;
-            }
-            Py_DECREF(tmp);
-        }
-        Py_DECREF(test);
-        /* opened file (test) is not used for loading,
-           SDL_TTF fopens the file _again_.*/
+            /* Unlike when the default font is loaded with None, the fontsize
+             * is not scaled down here. This was probably unintended
+             * implementation detail,
+             * but this rewritten code aims to keep the exact behavior as the
+             * old one */
 
-        Py_BEGIN_ALLOW_THREADS;
-        font = TTF_OpenFont(filename, fontsize);
-        Py_END_ALLOW_THREADS;
+            rw = pgRWops_FromObject(obj);
+        }
     }
 
-fileobject:
-    if (font == NULL) {
-#if FONT_HAVE_RWOPS
-        rw = pgRWops_FromFileObject(obj);
-
-        if (rw == NULL) {
-            goto error;
-        }
-
-        Py_BEGIN_ALLOW_THREADS;
-        font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-        Py_END_ALLOW_THREADS;
-#else
-        PyErr_SetString(PyExc_NotImplementedError,
-                        "nonstring fonts require SDL_ttf-2.0.6");
-        goto error;
-#endif
-    }
-
-    if (font == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, SDL_GetError());
+    if (rw == NULL) {
         goto error;
     }
 
-success:
-    Py_XDECREF(oencoded);
+    if (fontsize <= 1)
+        fontsize = 1;
+
+    Py_BEGIN_ALLOW_THREADS;
+    font = TTF_OpenFontRW(rw, 1, fontsize);
+    Py_END_ALLOW_THREADS;
+
     Py_DECREF(obj);
     self->font = font;
     self->ttf_init_generation = current_ttf_generation;
+
     return 0;
 
 error:
-    Py_XDECREF(oencoded);
     Py_XDECREF(obj);
     return -1;
 }
