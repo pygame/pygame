@@ -5758,7 +5758,6 @@ class DrawCircleMixin:
         surf = pygame.Surface((200, 200))
         circle_color = pygame.Color("red")
         surf_color = pygame.Color("black")
-        surf.fill((0, 0, 0))
         center = (100, 100)
         radius = 0
         width = 1

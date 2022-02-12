@@ -86,7 +86,7 @@ The test runner will list each excluded module along with the tag responsible.
    recreates normal pygame usage where ``pygame.init()`` and ``pygame.quit()``
    are called only once per program execution, and avoids unfortunate
    interactions between test modules. Also, a time limit is placed on test
-   execution, so frozen tests are killed when there time allotment expired. Use
+   execution, so frozen tests are killed when their time allotment expired. Use
    the single process option if threading is not working properly or if tests
    are taking too long. It is not guaranteed that all tests will pass in single
    process mode.

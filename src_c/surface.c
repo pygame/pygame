@@ -486,7 +486,7 @@ surface_cleanup(pgSurfaceObject *self)
     }
     if (self->subsurface) {
         Py_XDECREF(self->subsurface->owner);
-        PyMem_Del(self->subsurface);
+        PyMem_Free(self->subsurface);
         self->subsurface = NULL;
     }
     if (self->dependency) {
@@ -507,7 +507,7 @@ surface_dealloc(PyObject *self)
     if (((pgSurfaceObject *)self)->weakreflist)
         PyObject_ClearWeakRefs(self);
     surface_cleanup((pgSurfaceObject *)self);
-    self->ob_type->tp_free(self);
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *
@@ -711,6 +711,18 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     if (!(flags & PGS_SRCALPHA)) {
         /* We ignore the error if any. */
         SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+        /* When the display format has a full alpha channel (MacOS right now),
+         * Surfaces may be created with an unreqested alpha channel, which
+         * could cause issues.
+         * pygame Surfaces are supposed to be (0, 0, 0, 255) by default.
+         * This is a simple fix to fill it with (0, 0, 0, 255) if necessary.
+         * See Github issue: https://github.com/pygame/pygame/issues/1395
+         */
+        if (Amask != 0) {
+            SDL_FillRect(surface, NULL,
+                         SDL_MapRGBA(surface->format, 0, 0, 0, 255));
+        }
     }
 
     if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
@@ -2521,7 +2533,7 @@ surf_subsurface(PyObject *self, PyObject *args)
 
     subobj = surf_subtype_new(Py_TYPE(self), sub, 1);
     if (!subobj) {
-        PyMem_Del(data);
+        PyMem_Free(data);
         return NULL;
     }
     Py_INCREF(self);
