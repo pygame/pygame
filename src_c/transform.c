@@ -2695,11 +2695,12 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 
 void
 average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
-              Uint8 *g, Uint8 *b, Uint8 *a)
+              Uint8 *g, Uint8 *b, Uint8 *a, SDL_bool consider_alpha)
 {
     Uint32 color, rmask, gmask, bmask, amask;
     Uint8 *pixels;
-    unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift;
+    unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift,
+        alpha;
     unsigned int rloss, gloss, bloss, aloss;
     int row, col, width_and_x, height_and_y;
 
@@ -2738,69 +2739,157 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
     width_and_x = width + x;
     height_and_y = height + y;
 
-    switch (format->BytesPerPixel) {
-        case 1: {
-            Uint8 color8;
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
-                for (col = x; col < width_and_x; col++) {
-                    color8 = *(Uint8 *)pixels;
-                    rtot += ((color8 & rmask) >> rshift) << rloss;
-                    gtot += ((color8 & gmask) >> gshift) << gloss;
-                    btot += ((color8 & bmask) >> bshift) << bloss;
-                    atot += ((color8 & amask) >> ashift) << aloss;
-                    pixels++;
+    if (consider_alpha) {
+        switch (format->BytesPerPixel) {
+            case 1: {
+                Uint8 color8;
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
+                    for (col = x; col < width_and_x; col++) {
+                        color8 = *(Uint8 *)pixels;
+                        alpha = ((color8 & amask) >> ashift) << aloss;
+                        atot += alpha;
+                        rtot +=
+                            ((((color8 & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color8 & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color8 & bmask) >> bshift) << bloss) * alpha);
+                        pixels++;
+                    }
                 }
-            }
-        } break;
-        case 2:
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 2;
-                for (col = x; col < width_and_x; col++) {
-                    color = (Uint32) * ((Uint16 *)pixels);
-                    rtot += ((color & rmask) >> rshift) << rloss;
-                    gtot += ((color & gmask) >> gshift) << gloss;
-                    btot += ((color & bmask) >> bshift) << bloss;
-                    atot += ((color & amask) >> ashift) << aloss;
-                    pixels += 2;
+            } break;
+            case 2:
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 2;
+                    for (col = x; col < width_and_x; col++) {
+                        color = (Uint32) * ((Uint16 *)pixels);
+                        alpha = ((color & amask) >> ashift) << aloss;
+                        atot += alpha;
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
+                        pixels += 2;
+                    }
                 }
-            }
-            break;
-        case 3:
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 3;
-                for (col = x; col < width_and_x; col++) {
+                break;
+            case 3:
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 3;
+                    for (col = x; col < width_and_x; col++) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    color = (pixels[0]) + (pixels[1] << 8) + (pixels[2] << 16);
+                        color =
+                            (pixels[0]) + (pixels[1] << 8) + (pixels[2] << 16);
 #else
-                    color = (pixels[2]) + (pixels[1] << 8) + (pixels[0] << 16);
+                        color =
+                            (pixels[2]) + (pixels[1] << 8) + (pixels[0] << 16);
 #endif
-                    rtot += ((color & rmask) >> rshift) << rloss;
-                    gtot += ((color & gmask) >> gshift) << gloss;
-                    btot += ((color & bmask) >> bshift) << bloss;
-                    atot += ((color & amask) >> ashift) << aloss;
-                    pixels += 3;
+                        alpha = ((color & amask) >> ashift) << aloss;
+                        atot += alpha;
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
+                        pixels += 3;
+                    }
                 }
-            }
-            break;
-        default: /* case 4: */
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 4;
-                for (col = x; col < width_and_x; col++) {
-                    color = *(Uint32 *)pixels;
-                    rtot += ((color & rmask) >> rshift) << rloss;
-                    gtot += ((color & gmask) >> gshift) << gloss;
-                    btot += ((color & bmask) >> bshift) << bloss;
-                    atot += ((color & amask) >> ashift) << aloss;
-                    pixels += 4;
+                break;
+            default: /* case 4: */
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 4;
+                    for (col = x; col < width_and_x; col++) {
+                        color = *(Uint32 *)pixels;
+                        alpha = ((color & amask) >> ashift) << aloss;
+                        atot += alpha;
+                        rtot +=
+                            ((((color & rmask) >> rshift) << rloss) * alpha);
+                        gtot +=
+                            ((((color & gmask) >> gshift) << gloss) * alpha);
+                        btot +=
+                            ((((color & bmask) >> bshift) << bloss) * alpha);
+                        pixels += 4;
+                    }
                 }
-            }
-            break;
+                break;
+        }
+        *a = atot / size;
+        size = (atot == 0 ? size : atot);
+        *r = rtot / size;
+        *g = gtot / size;
+        *b = btot / size;
     }
-    *r = rtot / size;
-    *g = gtot / size;
-    *b = btot / size;
-    *a = atot / size;
+    else {
+        switch (format->BytesPerPixel) {
+            case 1: {
+                Uint8 color8;
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
+                    for (col = x; col < width_and_x; col++) {
+                        color8 = *(Uint8 *)pixels;
+                        rtot += ((color8 & rmask) >> rshift) << rloss;
+                        gtot += ((color8 & gmask) >> gshift) << gloss;
+                        btot += ((color8 & bmask) >> bshift) << bloss;
+                        atot += ((color8 & amask) >> ashift) << aloss;
+                        pixels++;
+                    }
+                }
+            } break;
+            case 2:
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 2;
+                    for (col = x; col < width_and_x; col++) {
+                        color = (Uint32) * ((Uint16 *)pixels);
+                        rtot += ((color & rmask) >> rshift) << rloss;
+                        gtot += ((color & gmask) >> gshift) << gloss;
+                        btot += ((color & bmask) >> bshift) << bloss;
+                        atot += ((color & amask) >> ashift) << aloss;
+                        pixels += 2;
+                    }
+                }
+                break;
+            case 3:
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 3;
+                    for (col = x; col < width_and_x; col++) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                        color =
+                            (pixels[0]) + (pixels[1] << 8) + (pixels[2] << 16);
+#else
+                        color =
+                            (pixels[2]) + (pixels[1] << 8) + (pixels[0] << 16);
+#endif
+                        rtot += ((color & rmask) >> rshift) << rloss;
+                        gtot += ((color & gmask) >> gshift) << gloss;
+                        btot += ((color & bmask) >> bshift) << bloss;
+                        atot += ((color & amask) >> ashift) << aloss;
+                        pixels += 3;
+                    }
+                }
+                break;
+            default: /* case 4: */
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x * 4;
+                    for (col = x; col < width_and_x; col++) {
+                        color = *(Uint32 *)pixels;
+                        rtot += ((color & rmask) >> rshift) << rloss;
+                        gtot += ((color & gmask) >> gshift) << gloss;
+                        btot += ((color & bmask) >> bshift) << bloss;
+                        atot += ((color & amask) >> ashift) << aloss;
+                        pixels += 4;
+                    }
+                }
+                break;
+        }
+        *r = rtot / size;
+        *g = gtot / size;
+        *b = btot / size;
+        *a = atot / size;
+    }
 }
 
 /* Optimisation was only disabled for one function - see above */
@@ -2822,10 +2911,12 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Rect *rect, temp;
     Uint8 r, g, b, a;
     int x, y, w, h;
-    static char *keywords[] = {"surface", "rect", NULL};
+    static char *keywords[] = {"surface", "rect", "consider_alpha", NULL};
+    SDL_bool consider_alpha = SDL_FALSE;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O", keywords,
-                                     &pgSurface_Type, &surfobj, &rectobj))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|Op", keywords,
+                                     &pgSurface_Type, &surfobj, &rectobj,
+                                     &consider_alpha))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
@@ -2847,7 +2938,7 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    average_color(surf, x, y, w, h, &r, &g, &b, &a);
+    average_color(surf, x, y, w, h, &r, &g, &b, &a, consider_alpha);
     Py_END_ALLOW_THREADS;
 
     pgSurface_Unlock(surfobj);
