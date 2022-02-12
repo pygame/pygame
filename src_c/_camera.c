@@ -85,6 +85,12 @@ surf_colorspace(PyObject *self, PyObject *arg)
     int cspace;
     surfobj2 = NULL;
 
+#ifdef _MSC_VER
+    /* MSVC static analyzer false alarm: assure color is NULL-terminated by
+     * making analyzer assume it was initialised */
+    __analysis_assume(color = "inited");
+#endif
+
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!s|O!", &pgSurface_Type, &surfobj, &color,
                           &pgSurface_Type, &surfobj2))
@@ -589,7 +595,7 @@ bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
                 b = *s++;
                 g = *s++;
                 r = *s++;
-                *s++;
+                s++;
                 *d32++ = ((r >> rloss) << rshift) | ((g >> gloss) << gshift) |
                          ((b >> bloss) << bshift);
             }
@@ -1770,7 +1776,7 @@ camera_dealloc(PyObject *self)
 #else
     free(((pgCameraObject *)self)->device_name);
 #endif
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 /*
 PyObject* camera_getattr(PyObject* self, char* attrname) {
@@ -1832,7 +1838,7 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
         return NULL;
 
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
+    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
 
     if (cameraobj) {
         cameraobj->device_name =
@@ -1894,7 +1900,7 @@ Camera(pgCameraObject *self, PyObject *arg)
                      "Couldn't find a camera with that name");
     }
 
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
+    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
 
     if (color) {
         if (!strcmp(color, "YUV")) {
@@ -1928,6 +1934,9 @@ Camera(pgCameraObject *self, PyObject *arg)
     }
 
     return (PyObject *)cameraobj;
+#else
+    return RAISE(PyExc_RuntimeError,
+                 "_camera backend not available on your platform");
 #endif
 }
 

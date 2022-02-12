@@ -248,9 +248,9 @@ loaded instead.
       Font rendering is not thread safe: only a single thread can render text
       at any time.
 
-      .. versionchanged:: 2.0.3 Rendering UCS_4 unicode works and does not
-        raise an exception. Use `if hasattr(pygame.font, 'UCS_4'):` to see if
-        pygame supports rendering UCS_4 unicode including more languages and
+      .. versionchanged:: 2.0.3 Rendering UCS4 unicode works and does not
+        raise an exception. Use `if hasattr(pygame.font, "UCS4"):` to see if
+        pygame supports rendering UCS4 unicode including more languages and
         emoji.
 
       .. ## Font.render ##

@@ -179,49 +179,45 @@ def _pg_strip_utf8(string):
     else:
         return ""
 */
-static char *
-_pg_strip_utf8(char *str)
+static void
+_pg_strip_utf8(char *str, char *ret)
 {
-    char *retptr;
-    char ret[UNICODE_LEN] = {0};
-    Uint8 firstbyte;
+    Uint8 firstbyte = (Uint8)*str;
 
-    memcpy(&firstbyte, str, 1);
+    /* Zero unicode buffer */
+    memset(ret, 0, UNICODE_LEN);
 
     /* 1111 0000 is 0xF0 */
-    if (firstbyte < 0xF0) {
-        /* 1110 0000 is 0xE0 */
-        if (firstbyte >= 0xE0) {
-            /* Copy first 3 bytes */
-            memcpy(&ret, str, 3);
-        }
-        /* 1100 0000 is 0xC0 */
-        else if (firstbyte >= 0xC0) {
-            /* Copy first 2 bytes */
-            memcpy(&ret, str, 2);
-        }
-        /* 1000 0000 is 0x80 */
-        else if (firstbyte < 0x80) {
-            /* Copy first byte */
-            memcpy(&ret, str, 1);
-        }
+    if (firstbyte >= 0xF0) {
+        /* Too large UTF8 string, do nothing */
+        return;
     }
-    retptr = PyMem_New(char, UNICODE_LEN);
-    memcpy(retptr, &ret, UNICODE_LEN);
-    return retptr;
+
+    /* 1110 0000 is 0xE0 */
+    if (firstbyte >= 0xE0) {
+        /* Copy first 3 bytes */
+        memcpy(ret, str, 3);
+    }
+    /* 1100 0000 is 0xC0 */
+    else if (firstbyte >= 0xC0) {
+        /* Copy first 2 bytes */
+        memcpy(ret, str, 2);
+    }
+    /* 1000 0000 is 0x80 */
+    else if (firstbyte < 0x80) {
+        /* Copy first byte */
+        memcpy(ret, str, 1);
+    }
 }
 
 static int
 _pg_put_event_unicode(SDL_Event *event, char *uni)
 {
     int i;
-    char *temp;
     for (i = 0; i < MAX_SCAN_UNICODE; i++) {
         if (!scanunicode[i].key) {
             scanunicode[i].key = event->key.keysym.scancode;
-            temp = _pg_strip_utf8(uni);
-            memcpy(scanunicode[i].unicode, temp, UNICODE_LEN);
-            PyMem_Del(temp);
+            _pg_strip_utf8(uni, scanunicode[i].unicode);
             return 1;
         }
     }
@@ -631,7 +627,7 @@ pg_event_filter(void *_, SDL_Event *event)
     else if (event->type == SDL_TEXTINPUT) {
         if (_pg_last_keydown_event) {
             _pg_put_event_unicode(_pg_last_keydown_event, event->text.text);
-            PyMem_Del(_pg_last_keydown_event);
+            PyMem_Free(_pg_last_keydown_event);
             _pg_last_keydown_event = NULL;
         }
     }
@@ -1250,15 +1246,15 @@ dict_from_event(SDL_Event *event)
 
 #ifdef WIN32
         case SDL_SYSWMEVENT:
-            _pg_insobj(
-                dict, "hwnd",
-                PyLong_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
+            _pg_insobj(dict, "hwnd",
+                       PyLong_FromLongLong(
+                           (long long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg",
                        PyLong_FromLong(event->syswm.msg->msg.win.msg));
             _pg_insobj(dict, "wparam",
-                       PyLong_FromLong(event->syswm.msg->msg.win.wParam));
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.wParam));
             _pg_insobj(dict, "lparam",
-                       PyLong_FromLong(event->syswm.msg->msg.win.lParam));
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.lParam));
             break;
 #endif /* WIN32 */
 
@@ -1325,7 +1321,7 @@ pg_event_dealloc(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
     Py_XDECREF(e->dict);
-    PyObject_Del(self);
+    PyObject_Free(self);
 }
 
 #ifdef PYPY_VERSION
@@ -1550,7 +1546,7 @@ pgEvent_New(SDL_Event *event)
         e->dict = PyDict_New();
     }
     if (!e->dict) {
-        PyObject_Del(e);
+        PyObject_Free(e);
         return PyErr_NoMemory();
     }
     return (PyObject *)e;
@@ -1568,13 +1564,13 @@ pgEvent_New2(int type, PyObject *dict)
     if (!dict) {
         dict = PyDict_New();
         if (!dict) {
-            PyObject_Del(e);
+            PyObject_Free(e);
             return PyErr_NoMemory();
         }
     }
     else {
         if (PyDict_GetItemString(dict, "type")) {
-            PyObject_Del(e);
+            PyObject_Free(e);
             return RAISE(PyExc_ValueError,
                          "redundant type field in event dict");
         }
@@ -1760,7 +1756,7 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 static int
 _pg_eventtype_from_seq(PyObject *seq, int ind)
 {
-    int val;
+    int val = 0;
     if (!pg_IntFromObjIndex(seq, ind, &val)) {
         PyErr_SetString(PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1774,7 +1770,7 @@ _pg_eventtype_from_seq(PyObject *seq, int ind)
 }
 
 static PyObject *
-_pg_eventtype_as_seq(PyObject *obj, int *len)
+_pg_eventtype_as_seq(PyObject *obj, Py_ssize_t *len)
 {
     *len = 1;
     if (PySequence_Check(obj)) {
@@ -1804,7 +1800,8 @@ _pg_flush_events(Uint32 type)
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int loop, len, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq, *obj = NULL;
     int dopump = 1;
 
@@ -1858,7 +1855,8 @@ static PyObject *
 _pg_get_all_events_except(PyObject *obj)
 {
     SDL_Event event;
-    int loop, type, len, ret;
+    Py_ssize_t len;
+    int loop, type, ret;
     PyObject *seq, *list;
 
     SDL_Event *filtered_events;
@@ -1872,8 +1870,10 @@ _pg_get_all_events_except(PyObject *obj)
         return PyErr_NoMemory();
 
     list = PyList_New(0);
-    if (!list)
+    if (!list) {
+        free(filtered_events);
         return PyErr_NoMemory();
+    }
 
     seq = _pg_eventtype_as_seq(obj, &len);
     if (!seq)
@@ -1994,8 +1994,9 @@ error:
 static PyObject *
 _pg_get_seq_events(PyObject *obj)
 {
+    Py_ssize_t len;
     SDL_Event event;
-    int loop, type, len, ret;
+    int loop, type, ret;
     PyObject *seq, *list;
 
     list = PyList_New(0);
@@ -2082,7 +2083,8 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int len, type, loop, res;
+    Py_ssize_t len;
+    int type, loop, res;
     PyObject *seq, *obj = NULL;
     int dopump = 1;
 
@@ -2173,7 +2175,8 @@ pg_event_post(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *obj)
 {
-    int len, loop, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2204,7 +2207,8 @@ pg_event_set_allowed(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *obj)
 {
-    int len, loop, type;
+    Py_ssize_t len;
+    int loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2240,7 +2244,8 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *obj)
 {
-    int loop, type, len, isblocked = 0;
+    Py_ssize_t len;
+    int loop, type, isblocked = 0;
     PyObject *seq;
 
     VIDEO_INIT_CHECK();

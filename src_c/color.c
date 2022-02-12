@@ -563,14 +563,14 @@ Fail:
 static int
 _coerce_obj(PyObject *obj, Uint8 rgba[])
 {
-    if (PyType_IsSubtype(obj->ob_type, &pgColor_Type)) {
+    if (PyType_IsSubtype(Py_TYPE(obj), &pgColor_Type)) {
         rgba[0] = ((pgColorObject *)obj)->data[0];
         rgba[1] = ((pgColorObject *)obj)->data[1];
         rgba[2] = ((pgColorObject *)obj)->data[2];
         rgba[3] = ((pgColorObject *)obj)->data[3];
         return 1;
     }
-    else if (PyType_IsSubtype(obj->ob_type, &PyTuple_Type)) {
+    else if (PyType_IsSubtype(Py_TYPE(obj), &PyTuple_Type)) {
         if (pg_RGBAFromObj(obj, rgba)) {
             return 1;
         }
@@ -1810,7 +1810,7 @@ _color_subscript(pgColorObject *self, PyObject *item)
     else {
         PyErr_Format(PyExc_TypeError,
                      "Color indices must be integers, not %.200s",
-                     item->ob_type->tp_name);
+                     Py_TYPE(item)->tp_name);
         return NULL;
     }
 }
@@ -2098,7 +2098,7 @@ MODINIT_DEFINE(color)
                                          "color",
                                          _color_doc,
                                          -1,
-                                         _color_methods,
+                                         NULL,
                                          NULL,
                                          NULL,
                                          NULL,

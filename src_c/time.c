@@ -30,14 +30,14 @@
 
 typedef struct pgEventTimer {
     struct pgEventTimer *next;
-    long timer_id;
+    intptr_t timer_id;
     pgEventObject *event;
     int repeat;
 } pgEventTimer;
 
 static pgEventTimer *pg_event_timer = NULL;
 static SDL_mutex *timermutex = NULL;
-static long pg_timer_id = 0;
+static intptr_t pg_timer_id = 0;
 
 static PyObject *
 pg_time_autoquit(PyObject *self)
@@ -52,7 +52,7 @@ pg_time_autoquit(PyObject *self)
             todel = hunt;
             hunt = hunt->next;
             Py_DECREF(todel->event);
-            PyMem_Del(todel);
+            PyMem_Free(todel);
         }
         pg_event_timer = NULL;
         pg_timer_id = 0;
@@ -76,7 +76,7 @@ pg_time_autoinit(PyObject *self)
     Py_RETURN_NONE;
 }
 
-static int
+static intptr_t
 _pg_add_event_timer(pgEventObject *ev, int repeat)
 {
     pgEventTimer *new;
@@ -89,7 +89,7 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     if (SDL_LockMutex(timermutex) < 0) {
         /* this case will almost never happen, but still handle it */
-        PyMem_Del(new);
+        PyMem_Free(new);
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
     }
@@ -118,24 +118,25 @@ _pg_remove_event_timer(pgEventObject *ev)
         while (hunt->event->type != ev->type) {
             prev = hunt;
             hunt = hunt->next;
-            if (!hunt)
-                break;
+            if (!hunt) {
+                /* Reached end without finding a match, quit early */
+                SDL_UnlockMutex(timermutex);
+                return;
+            }
         }
-        if (hunt) {
-            if (prev)
-                prev->next = hunt->next;
-            else
-                pg_event_timer = hunt->next;
-            Py_DECREF(hunt->event);
-            PyMem_Del(hunt);
-        }
+        if (prev)
+            prev->next = hunt->next;
+        else
+            pg_event_timer = hunt->next;
+        Py_DECREF(hunt->event);
+        PyMem_Del(hunt);
     }
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
 }
 
 static pgEventTimer *
-_pg_get_event_on_timer(long timer_id)
+_pg_get_event_on_timer(intptr_t timer_id)
 {
     pgEventTimer *hunt;
 
@@ -165,7 +166,7 @@ timer_callback(Uint32 interval, void *param)
     SDL_Event event;
     PyGILState_STATE gstate;
 
-    evtimer = _pg_get_event_on_timer((long)param);
+    evtimer = _pg_get_event_on_timer((intptr_t)param);
     if (!evtimer)
         return 0;
 
@@ -287,7 +288,7 @@ static PyObject *
 time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int ticks, loops = 0;
-    long timer_id;
+    intptr_t timer_id;
     PyObject *obj;
     pgEventObject *e;
 
@@ -461,7 +462,7 @@ clock_dealloc(PyObject *self)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     Py_XDECREF(_clock->rendered);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 PyObject *
@@ -518,7 +519,7 @@ static PyTypeObject PyClock_Type = {
 PyObject *
 ClockInit(PyObject *self)
 {
-    PyClockObject *_clock = PyObject_NEW(PyClockObject, &PyClock_Type);
+    PyClockObject *_clock = PyObject_New(PyClockObject, &PyClock_Type);
 
     if (!_clock) {
         return NULL;
