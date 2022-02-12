@@ -1,5 +1,5 @@
 from os import PathLike
-from typing import IO, List, Sequence, Tuple, Union, Callable
+from typing import IO, List, Sequence, Tuple, Union
 
 from typing_extensions import Protocol
 
@@ -31,7 +31,4 @@ _CanBeRect = Union[
 class _HasRectAttribute(Protocol):
     rect: _CanBeRect
 
-class _HasCallableRectAttribute(Protocol):
-    rect: Callable[[], "_RectValue"]
-
-_RectValue = Union[_CanBeRect, _HasRectAttribute, _HasCallableRectAttribute]
+_RectValue = Union[_CanBeRect, _HasRectAttribute]
