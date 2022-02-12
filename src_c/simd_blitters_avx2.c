@@ -121,5 +121,10 @@ blit_blend_rgba_mul_avx2(SDL_BlitInfo *info)
         dstp += dstskip;
     }
 }
+#else
+void
+blit_blend_rgba_mul_avx2(SDL_BlitInfo *info)
+{
+}
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
           !defined(SDL_DISABLE_IMMINTRIN_H) */
