@@ -1292,6 +1292,21 @@ channel_dealloc(PyObject *self)
 }
 
 static int
+_channel_init(pgChannelObject *self, int channelnum)
+{
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
+    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1)) {
+        PyErr_SetString(PyExc_IndexError, "invalid channel index");
+        return -1;
+    }
+    self->chan = channelnum;
+    return 0;
+}
+
+static int
 channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
 {
     int channelnum;
@@ -1299,18 +1314,7 @@ channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
         return -1;
     }
 
-    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
-        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
-        return -1;
-    }
-
-    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1)) {
-        PyErr_SetString(PyExc_IndexError, "invalid channel index");
-        return -1;
-    }
-
-    self->chan = channelnum;
-    return 0;
+    return _channel_init(self, channelnum);
 }
 
 static PyTypeObject pgChannel_Type = {
@@ -1926,16 +1930,14 @@ pgSound_New(Mix_Chunk *chunk)
 static PyObject *
 pgChannel_New(int channelnum)
 {
-    pgChannelObject *chanobj;
-
-    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1))
-        return RAISE(PyExc_IndexError, "invalid channel index");
-
-    chanobj = PyObject_New(pgChannelObject, &pgChannel_Type);
-    if (!chanobj)
+    pgChannelObject *chanobj = PyObject_New(pgChannelObject, &pgChannel_Type);
+    if (!chanobj) {
         return NULL;
-
-    chanobj->chan = channelnum;
+    }
+    if (_channel_init(chanobj, channelnum)) {
+        Py_DECREF(chanobj);
+        return NULL;
+    }
     return (PyObject *)chanobj;
 }
 

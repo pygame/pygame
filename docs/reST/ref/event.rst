@@ -436,7 +436,9 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 
    .. note::
       From version 2.1.3 ``EventType`` is an alias for ``Event``. Beforehand,
-      ``Event`` was a function that returned ``EventType`` instances.
+      ``Event`` was a function that returned ``EventType`` instances. Use of
+      ``Event`` is preferred over ``EventType`` wherever it is possible, as
+      the latter could be deprecated in a future version.
 
    .. attribute:: type
 
