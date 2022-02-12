@@ -2018,6 +2018,25 @@ class RectTypeTest(unittest.TestCase):
             self.rect2 = r2
             self.rect3 = r3
 
+    def test_collideobjects_call_variants(self):
+        # arrange
+        r = Rect(1, 1, 10, 10)
+        rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
+        objects = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+        ]
+
+        # act / verify
+        r.collideobjects(rects)
+        r.collideobjects(rects, key=None)
+        r.collideobjects(objects, key=lambda o: o.rect1)
+        self.assertRaises(TypeError, r.collideobjects, objects)
+
     def test_collideobjects_without_key(self):
         r = Rect(1, 1, 10, 10)
         types_to_test = [
@@ -2132,6 +2151,25 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+
+    def test_collideobjectsall_call_variants(self):
+        # arrange
+        r = Rect(1, 1, 10, 10)
+        rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
+        objects = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+        ]
+
+        # act / verify
+        r.collideobjectsall(rects)
+        r.collideobjectsall(rects, key=None)
+        r.collideobjectsall(objects, key=lambda o: o.rect1)
+        self.assertRaises(TypeError, r.collideobjectsall, objects)
 
     def test_collideobjectsall(self):
         r = Rect(1, 1, 10, 10)

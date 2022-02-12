@@ -372,6 +372,45 @@
       If an object has multiple attributes of type Rect then key could return one
       of them.
 
+      .. code-block:: python
+          :linenos:
+
+          r = Rect(1, 1, 10, 10)
+
+          rects = [
+              Rect(1, 1, 10, 10),
+              Rect(5, 5, 10, 10),
+              Rect(15, 15, 1, 1),
+              Rect(2, 2, 1, 1),
+          ]
+
+          result = r.collideobjects(rects)  # -> <rect(1, 1, 10, 10)>
+          print(result)
+
+          class ObjectWithSomRectAttribute:
+              def __init__(self, name, collision_box, draw_rect):
+                  self.name = name
+                  self.draw_rect = draw_rect
+                  self.collision_box = collision_box
+
+              def __repr__(self):
+                  return f'<{self.__class__.__name__}("{self.name}", {list(self.collision_box)}, {list(self.draw_rect)})>'
+
+          objects = [
+              ObjectWithSomRectAttribute("A", Rect(15, 15, 1, 1), Rect(150, 150, 50, 50)),
+              ObjectWithSomRectAttribute("B", Rect(1, 1, 10, 10), Rect(300, 300, 50, 50)),
+              ObjectWithSomRectAttribute("C", Rect(5, 5, 10, 10), Rect(200, 500, 50, 50)),
+          ]
+
+          # collision = r.collideobjects(objects) # this does not work because the items in the list are no Rect like object
+          collision = r.collideobjects(
+              objects, key=lambda o: o.collision_box
+          )  # -> <ObjectWithSomRectAttribute("B", [1, 1, 10, 10], [300, 300, 50, 50])>
+          print(collision)
+
+          screen_rect = r.collideobjects(objects, key=lambda o: o.draw_rect)  # -> None
+          print(screen_rect)
+
       .. versionadded:: 2.1.3
 
       .. ## Rect.collideobjects ##
@@ -390,6 +429,47 @@
       as input and returning a rect like object e.g. ``lambda obj: obj.rectangle``.
       If an object has multiple attributes of type Rect then key could return one
       of them.
+
+      .. code-block:: python
+          :linenos:
+
+          r = Rect(1, 1, 10, 10)
+
+          rects = [
+              Rect(1, 1, 10, 10),
+              Rect(5, 5, 10, 10),
+              Rect(15, 15, 1, 1),
+              Rect(2, 2, 1, 1),
+          ]
+
+          result = r.collideobjectsall(
+              rects
+          )  # -> [<rect(1, 1, 10, 10)>, <rect(5, 5, 10, 10)>, <rect(2, 2, 1, 1)>]
+          print(result)
+
+          class ObjectWithSomRectAttribute:
+              def __init__(self, name, collision_box, draw_rect):
+                  self.name = name
+                  self.draw_rect = draw_rect
+                  self.collision_box = collision_box
+
+              def __repr__(self):
+                  return f'<{self.__class__.__name__}("{self.name}", {list(self.collision_box)}, {list(self.draw_rect)})>'
+
+          objects = [
+              ObjectWithSomRectAttribute("A", Rect(1, 1, 10, 10), Rect(300, 300, 50, 50)),
+              ObjectWithSomRectAttribute("B", Rect(5, 5, 10, 10), Rect(200, 500, 50, 50)),
+              ObjectWithSomRectAttribute("C", Rect(15, 15, 1, 1), Rect(150, 150, 50, 50)),
+          ]
+
+          # collisions = r.collideobjectsall(objects) # this does not work because ObjectWithSomRectAttribute is not a Rect like object
+          collisions = r.collideobjectsall(
+              objects, key=lambda o: o.collision_box
+          )  # -> [<ObjectWithSomRectAttribute("A", [1, 1, 10, 10], [300, 300, 50, 50])>, <ObjectWithSomRectAttribute("B", [5, 5, 10, 10], [200, 500, 50, 50])>]
+          print(collisions)
+
+          screen_rects = r.collideobjectsall(objects, key=lambda o: o.draw_rect)  # -> []
+          print(screen_rects)
 
       .. versionadded:: 2.1.3
 

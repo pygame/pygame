@@ -750,11 +750,18 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
-        if (!obj || !(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+        if (!obj) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
-            return RAISE(PyExc_TypeError,
-                         "Argument must be a sequence of objects.");
+            return RAISE(PyExc_TypeError, "Get item from sequence failed.");
+        }
+
+        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+            Py_XDECREF(obj);
+            Py_DECREF(ret);
+            return RAISE(
+                PyExc_TypeError,
+                "Item in sequence or returned by key function must be Rect.");
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
@@ -803,10 +810,17 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
-        if (!obj || !(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+        if (!obj) {
             Py_XDECREF(obj);
-            return RAISE(PyExc_TypeError,
-                         "Argument must be a sequence of objects.");
+            Py_DECREF(ret);
+            return RAISE(PyExc_TypeError, "Get item from sequence failed.");
+        }
+
+        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+            Py_XDECREF(obj);
+            return RAISE(
+                PyExc_TypeError,
+                "Item in sequence or returned by key function must be Rect.");
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
