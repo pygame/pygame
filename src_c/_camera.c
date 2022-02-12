@@ -1776,7 +1776,7 @@ camera_dealloc(PyObject *self)
 #else
     free(((pgCameraObject *)self)->device_name);
 #endif
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 /*
 PyObject* camera_getattr(PyObject* self, char* attrname) {
@@ -1838,7 +1838,7 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
         return NULL;
 
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
+    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
 
     if (cameraobj) {
         cameraobj->device_name =
@@ -1900,7 +1900,7 @@ Camera(pgCameraObject *self, PyObject *arg)
                      "Couldn't find a camera with that name");
     }
 
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
+    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
 
     if (color) {
         if (!strcmp(color, "YUV")) {
