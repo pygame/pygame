@@ -627,7 +627,7 @@ pg_event_filter(void *_, SDL_Event *event)
     else if (event->type == SDL_TEXTINPUT) {
         if (_pg_last_keydown_event) {
             _pg_put_event_unicode(_pg_last_keydown_event, event->text.text);
-            PyMem_Del(_pg_last_keydown_event);
+            PyMem_Free(_pg_last_keydown_event);
             _pg_last_keydown_event = NULL;
         }
     }
@@ -1321,7 +1321,7 @@ pg_event_dealloc(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
     Py_XDECREF(e->dict);
-    PyObject_Del(self);
+    PyObject_Free(self);
 }
 
 #ifdef PYPY_VERSION
@@ -1546,7 +1546,7 @@ pgEvent_New(SDL_Event *event)
         e->dict = PyDict_New();
     }
     if (!e->dict) {
-        PyObject_Del(e);
+        PyObject_Free(e);
         return PyErr_NoMemory();
     }
     return (PyObject *)e;
@@ -1564,13 +1564,13 @@ pgEvent_New2(int type, PyObject *dict)
     if (!dict) {
         dict = PyDict_New();
         if (!dict) {
-            PyObject_Del(e);
+            PyObject_Free(e);
             return PyErr_NoMemory();
         }
     }
     else {
         if (PyDict_GetItemString(dict, "type")) {
-            PyObject_Del(e);
+            PyObject_Free(e);
             return RAISE(PyExc_ValueError,
                          "redundant type field in event dict");
         }
