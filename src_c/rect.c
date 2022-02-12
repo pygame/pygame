@@ -723,10 +723,8 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"list", "key", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
-                                     keywords, &list,
-                                     &keyfunc)) {
-        return RAISE(PyExc_TypeError,
-                     "Could not parse args and kw.");
+                                     keywords, &list, &keyfunc)) {
+        return RAISE(PyExc_TypeError, "Could not parse args and kw.");
     }
 
     if (!PySequence_Check(list)) {
@@ -738,7 +736,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         keyfunc = NULL;
     }
 
-    if (keyfunc != NULL  && !PyCallable_Check(keyfunc)) {
+    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
@@ -765,7 +763,6 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
                 Py_DECREF(obj);
                 return NULL; /* Exception already set. */
             }
-
         }
         Py_DECREF(obj);
     }
