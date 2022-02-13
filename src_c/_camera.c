@@ -1783,6 +1783,119 @@ PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
 */
+
+static int
+camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
+{
+#if defined(__unix__)
+    int w, h;
+    char *dev_name = NULL;
+    char *color = NULL;
+
+    w = DEFAULT_WIDTH;
+    h = DEFAULT_HEIGHT;
+
+    if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color)) {
+        return -1;
+    }
+
+    self->device_name = (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+    if (!self->device_name) {
+        PyErr_NoMemory();
+        return -1;
+    }
+    strcpy(self->device_name, dev_name);
+    self->camera_type = 0;
+    self->pixelformat = 0;
+    if (color) {
+        if (!strcmp(color, "YUV")) {
+            self->color_out = YUV_OUT;
+        }
+        else if (!strcmp(color, "HSV")) {
+            self->color_out = HSV_OUT;
+        }
+        else {
+            self->color_out = RGB_OUT;
+        }
+    }
+    else {
+        self->color_out = RGB_OUT;
+    }
+    self->buffers = NULL;
+    self->n_buffers = 0;
+    self->width = w;
+    self->height = h;
+    self->size = 0;
+    self->hflip = 0;
+    self->vflip = 0;
+    self->brightness = 0;
+    self->fd = -1;
+
+    return 0;
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    PyObject *name_obj = NULL;
+    WCHAR *dev_name = NULL;
+    int w, h;
+    char *color = NULL;
+    IMFActivate *p = NULL;
+
+    w = DEFAULT_WIDTH;
+    h = DEFAULT_HEIGHT;
+
+    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color)) {
+        return -1;
+    }
+
+    /* needs to be freed with PyMem_Free later */
+    dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
+
+    p = windows_device_from_name(dev_name);
+
+    if (!p) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Couldn't find a camera with that name");
+        return -1;
+    }
+
+    if (color) {
+        if (!strcmp(color, "YUV")) {
+            self->color_out = YUV_OUT;
+        }
+        else if (!strcmp(color, "HSV")) {
+            self->color_out = HSV_OUT;
+        }
+        else {
+            self->color_out = RGB_OUT;
+        }
+    }
+    else {
+        self->color_out = RGB_OUT;
+    }
+
+    self->device_name = dev_name;
+    self->width = w;
+    self->height = h;
+    self->open = 0;
+    self->hflip = 0;
+    self->vflip = 0;
+    self->last_vflip = 0;
+
+    self->raw_buf = NULL;
+    self->buf = NULL;
+    self->t_handle = NULL;
+
+    if (!windows_init_device(NULL)) {
+        return -1;
+    }
+
+    return 0;
+#else
+    PyErr_SetString(PyExc_RuntimeError,
+                    "_camera backend not available on your platform");
+    return -1;
+#endif
+}
+
 PyTypeObject pgCamera_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Camera",
     sizeof(pgCameraObject),
@@ -1818,133 +1931,15 @@ PyTypeObject pgCamera_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    0,                      /* tp_init */
+    (initproc)camera_init,  /* tp_init */
     0,                      /* tp_alloc */
-    0,                      /* tp_new */
+    PyType_GenericNew,      /* tp_new */
 };
-
-PyObject *
-Camera(pgCameraObject *self, PyObject *arg)
-{
-#if defined(__unix__)
-    int w, h;
-    char *dev_name = NULL;
-    char *color = NULL;
-    pgCameraObject *cameraobj;
-
-    w = DEFAULT_WIDTH;
-    h = DEFAULT_HEIGHT;
-
-    if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
-        return NULL;
-
-    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
-
-    if (cameraobj) {
-        cameraobj->device_name =
-            (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
-        if (!cameraobj->device_name) {
-            Py_DECREF(cameraobj);
-            return PyErr_NoMemory();
-        }
-        strcpy(cameraobj->device_name, dev_name);
-        cameraobj->camera_type = 0;
-        cameraobj->pixelformat = 0;
-        if (color) {
-            if (!strcmp(color, "YUV")) {
-                cameraobj->color_out = YUV_OUT;
-            }
-            else if (!strcmp(color, "HSV")) {
-                cameraobj->color_out = HSV_OUT;
-            }
-            else {
-                cameraobj->color_out = RGB_OUT;
-            }
-        }
-        else {
-            cameraobj->color_out = RGB_OUT;
-        }
-        cameraobj->buffers = NULL;
-        cameraobj->n_buffers = 0;
-        cameraobj->width = w;
-        cameraobj->height = h;
-        cameraobj->size = 0;
-        cameraobj->hflip = 0;
-        cameraobj->vflip = 0;
-        cameraobj->brightness = 0;
-        cameraobj->fd = -1;
-    }
-
-    return (PyObject *)cameraobj;
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    pgCameraObject *cameraobj;
-    PyObject *name_obj = NULL;
-    WCHAR *dev_name = NULL;
-    int w, h;
-    char *color = NULL;
-    IMFActivate *p = NULL;
-
-    w = DEFAULT_WIDTH;
-    h = DEFAULT_HEIGHT;
-
-    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color))
-        return NULL;
-
-    /* needs to be freed with PyMem_Free later */
-    dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
-
-    p = windows_device_from_name(dev_name);
-
-    if (!p) {
-        return RAISE(PyExc_ValueError,
-                     "Couldn't find a camera with that name");
-    }
-
-    cameraobj = PyObject_New(pgCameraObject, &pgCamera_Type);
-
-    if (color) {
-        if (!strcmp(color, "YUV")) {
-            cameraobj->color_out = YUV_OUT;
-        }
-        else if (!strcmp(color, "HSV")) {
-            cameraobj->color_out = HSV_OUT;
-        }
-        else {
-            cameraobj->color_out = RGB_OUT;
-        }
-    }
-    else {
-        cameraobj->color_out = RGB_OUT;
-    }
-
-    cameraobj->device_name = dev_name;
-    cameraobj->width = w;
-    cameraobj->height = h;
-    cameraobj->open = 0;
-    cameraobj->hflip = 0;
-    cameraobj->vflip = 0;
-    cameraobj->last_vflip = 0;
-
-    cameraobj->raw_buf = NULL;
-    cameraobj->buf = NULL;
-    cameraobj->t_handle = NULL;
-
-    if (!windows_init_device(self)) {
-        return NULL;
-    }
-
-    return (PyObject *)cameraobj;
-#else
-    return RAISE(PyExc_RuntimeError,
-                 "_camera backend not available on your platform");
-#endif
-}
 
 /* Camera module definition */
 PyMethodDef camera_builtins[] = {
     {"colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE},
     {"list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS},
-    {"Camera", (PyCFunction)Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(_camera)
@@ -1992,6 +1987,11 @@ MODINIT_DEFINE(_camera)
         Py_DECREF(module);
         return NULL;
     }
-
+    Py_INCREF(&pgCamera_Type);
+    if (PyModule_AddObject(module, "Camera", (PyObject *)&pgCamera_Type)) {
+        Py_DECREF(&pgCamera_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
     return module;
 }
