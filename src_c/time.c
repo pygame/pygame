@@ -476,16 +476,24 @@ clock_str(PyObject *self)
     return PyUnicode_FromString(str);
 }
 
-static int
-clock_init(PyClockObject *self, PyObject *args, PyObject *kwargs)
+static PyObject *
+clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 {
+    char *kwids[] = {NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "", kwids)) {
+        /* This function does not actually take in any arguments, but this
+         * argparse function is used to generate pythonic error messages if
+         * any args are passed */
+        return NULL;
+    }
+
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
         if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            return -1;
+            return RAISE(pgExc_SDLError, SDL_GetError());
         }
     }
 
+    PyClockObject *self = (PyClockObject *)(type->tp_alloc(type, 0));
     self->fps_tick = 0;
     self->timepassed = 0;
     self->rawpassed = 0;
@@ -494,7 +502,7 @@ clock_init(PyClockObject *self, PyObject *args, PyObject *kwargs)
     self->fps_count = 0;
     self->rendered = NULL;
 
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyTypeObject PyClock_Type = {
@@ -532,9 +540,9 @@ static PyTypeObject PyClock_Type = {
     0,                                      /* tp_descr_get */
     0,                                      /* tp_descr_set */
     0,                                      /* tp_dictoffset */
-    (initproc)clock_init,                   /* tp_init */
+    0,                                      /* tp_init */
     0,                                      /* tp_alloc */
-    PyType_GenericNew,                      /* tp_new */
+    clock_new,                              /* tp_new */
 };
 
 static PyMethodDef _time_methods[] = {
