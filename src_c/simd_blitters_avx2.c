@@ -264,3 +264,321 @@ blit_blend_rgb_mul_avx2(SDL_BlitInfo *info)
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
           !defined(SDL_DISABLE_IMMINTRIN_H) */
+
+#if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+    !defined(SDL_DISABLE_IMMINTRIN_H)
+void
+blit_blend_rgba_add_avx2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+    int srceightpxskip = 8 * srcpxskip;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+    int dsteightpxskip = 8 * dstpxskip;
+
+    int pre_8_width = width % 8;
+    int post_8_width = (width - pre_8_width) / 8;
+
+    __m256i *srcp256 = (__m256i *)info->s_pixels;
+    __m256i *dstp256 = (__m256i *)info->d_pixels;
+
+    __m128i mm_src, mm_dst;
+    __m256i mm256_src, mm256_dst;
+
+    while (height--) {
+        if (pre_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_dst = _mm_adds_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_8_width);
+        }
+        srcp256 = (__m256i *)srcp;
+        dstp256 = (__m256i *)dstp;
+        if (post_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm256_src = _mm256_loadu_si256(srcp256);
+                    mm256_dst = _mm256_loadu_si256(dstp256);
+
+                    mm256_dst = _mm256_adds_epu8(mm256_dst, mm256_src);
+
+                    _mm256_storeu_si256(dstp256, mm256_dst);
+
+                    srcp256++;
+                    dstp256++;
+                    srcp += srceightpxskip;
+                    dstp += dsteightpxskip;
+                },
+                n, post_8_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#else
+void
+blit_blend_rgba_add_avx2(SDL_BlitInfo *info)
+{
+}
+#endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+          !defined(SDL_DISABLE_IMMINTRIN_H) */
+
+#if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+    !defined(SDL_DISABLE_IMMINTRIN_H)
+void
+blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+    int srceightpxskip = 8 * srcpxskip;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+    int dsteightpxskip = 8 * dstpxskip;
+
+    int pre_8_width = width % 8;
+    int post_8_width = (width - pre_8_width) / 8;
+
+    /* if either surface has a non-zero alpha mask use that as our mask */
+    Uint32 amask = info->src->Amask | info->dst->Amask;
+
+    __m256i *srcp256 = (__m256i *)info->s_pixels;
+    __m256i *dstp256 = (__m256i *)info->d_pixels;
+
+    __m128i mm_src, mm_dst, mm_alpha_mask;
+    __m256i mm256_src, mm256_dst, mm256_alpha_mask;
+
+    mm_alpha_mask = _mm_cvtsi32_si128(amask);
+    mm256_alpha_mask = _mm256_set_epi32(amask, amask, amask, amask, amask,
+                                        amask, amask, amask);
+
+    while (height--) {
+        if (pre_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_src = _mm_xor_si128(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_adds_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_8_width);
+        }
+        srcp256 = (__m256i *)srcp;
+        dstp256 = (__m256i *)dstp;
+        if (post_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm256_src = _mm256_loadu_si256(srcp256);
+                    mm256_dst = _mm256_loadu_si256(dstp256);
+
+                    mm256_src = _mm256_xor_si256(mm256_src, mm256_alpha_mask);
+                    mm256_dst = _mm256_adds_epu8(mm256_dst, mm256_src);
+
+                    _mm256_storeu_si256(dstp256, mm256_dst);
+
+                    srcp256++;
+                    dstp256++;
+                    srcp += srceightpxskip;
+                    dstp += dsteightpxskip;
+                },
+                n, post_8_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#else
+void
+blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
+{
+}
+#endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+          !defined(SDL_DISABLE_IMMINTRIN_H) */
+
+#if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+    !defined(SDL_DISABLE_IMMINTRIN_H)
+void
+blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+    int srceightpxskip = 8 * srcpxskip;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+    int dsteightpxskip = 8 * dstpxskip;
+
+    int pre_8_width = width % 8;
+    int post_8_width = (width - pre_8_width) / 8;
+
+    __m256i *srcp256 = (__m256i *)info->s_pixels;
+    __m256i *dstp256 = (__m256i *)info->d_pixels;
+
+    __m128i mm_src, mm_dst;
+    __m256i mm256_src, mm256_dst;
+
+    while (height--) {
+        if (pre_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_dst = _mm_subs_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_8_width);
+        }
+        srcp256 = (__m256i *)srcp;
+        dstp256 = (__m256i *)dstp;
+        if (post_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm256_src = _mm256_loadu_si256(srcp256);
+                    mm256_dst = _mm256_loadu_si256(dstp256);
+
+                    mm256_dst = _mm256_subs_epu8(mm256_dst, mm256_src);
+
+                    _mm256_storeu_si256(dstp256, mm256_dst);
+
+                    srcp256++;
+                    dstp256++;
+                    srcp += srceightpxskip;
+                    dstp += dsteightpxskip;
+                },
+                n, post_8_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#else
+void
+blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
+{
+}
+#endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+          !defined(SDL_DISABLE_IMMINTRIN_H) */
+
+#if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+    !defined(SDL_DISABLE_IMMINTRIN_H)
+void
+blit_blend_rgb_sub_avx2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+    int srceightpxskip = 8 * srcpxskip;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+    int dsteightpxskip = 8 * dstpxskip;
+
+    int pre_8_width = width % 8;
+    int post_8_width = (width - pre_8_width) / 8;
+
+    /* if either surface has a non-zero alpha mask use that as our mask */
+    Uint32 amask = info->src->Amask | info->dst->Amask;
+
+    __m256i *srcp256 = (__m256i *)info->s_pixels;
+    __m256i *dstp256 = (__m256i *)info->d_pixels;
+
+    __m128i mm_src, mm_dst, mm_alpha_mask;
+    __m256i mm256_src, mm256_dst, mm256_alpha_mask;
+
+    mm_alpha_mask = _mm_cvtsi32_si128(amask);
+    mm256_alpha_mask = _mm256_set_epi32(amask, amask, amask, amask, amask,
+                                        amask, amask, amask);
+
+    while (height--) {
+        if (pre_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_subs_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_8_width);
+        }
+        srcp256 = (__m256i *)srcp;
+        dstp256 = (__m256i *)dstp;
+        if (post_8_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm256_src = _mm256_loadu_si256(srcp256);
+                    mm256_dst = _mm256_loadu_si256(dstp256);
+
+                    mm256_src = _mm256_subs_epu8(mm256_src, mm256_alpha_mask);
+                    mm256_dst = _mm256_subs_epu8(mm256_dst, mm256_src);
+
+                    _mm256_storeu_si256(dstp256, mm256_dst);
+
+                    srcp256++;
+                    dstp256++;
+                    srcp += srceightpxskip;
+                    dstp += dsteightpxskip;
+                },
+                n, post_8_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#else
+void
+blit_blend_rgb_sub_avx2(SDL_BlitInfo *info)
+{
+}
+#endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+          !defined(SDL_DISABLE_IMMINTRIN_H) */
