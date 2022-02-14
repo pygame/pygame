@@ -188,6 +188,13 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     }
                 }
             }
+            /* Convert alpha multiply blends to regular blends if either of
+             the surfaces don't have alpha channels */
+            if (the_args == PYGAME_BLEND_RGBA_MULT &&
+                (info.src_blend == SDL_BLENDMODE_NONE ||
+                 info.dst_blend == SDL_BLENDMODE_NONE)) {
+                the_args = PYGAME_BLEND_MULT;
+            }
 
             switch (the_args) {
                 case 0: {
@@ -264,6 +271,45 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_MULT: {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgb_mul_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgb_mul_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgb_mul_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
                     blit_blend_mul(&info);
                     break;
                 }
@@ -322,11 +368,14 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     }
 #endif /* PG_ENABLE_ARM_NEON */
 #endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+<<<<<<< HEAD
 #endif /* __EMSCRIPTEN__ */
                     /* if we call MULT_RGBA on a surface without alpha
                        we will be forced down this slow non-SIMD path
                        right now. When we upgrade RGB_MULT to SIMD
                        force them down there instead*/
+=======
+>>>>>>> 6fe54c35 (Add SIMD versions of RGB_MUL blitter)
                     blit_blend_rgba_mul(&info);
                     break;
                 }
