@@ -1484,6 +1484,69 @@ Unimplemented:
     return Py_NotImplemented;
 }
 
+static int
+_pg_event_populate(pgEventObject *event, int type, PyObject *dict)
+{
+    event->type = _pg_pgevent_deproxify(type);
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        if (PyDict_GetItemString(dict, "type")) {
+            PyErr_SetString(PyExc_ValueError,
+                            "redundant type field in event dict");
+            return -1;
+        }
+        Py_INCREF(dict);
+    }
+    event->dict = dict;
+    return 0;
+}
+
+static int
+pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
+{
+    int type;
+    PyObject *dict = NULL;
+
+    if (!PyArg_ParseTuple(args, "i|O!", &type, &PyDict_Type, &dict)) {
+        return -1;
+    }
+
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        Py_INCREF(dict);
+    }
+
+    if (kwargs) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(kwargs, &pos, &key, &value)) {
+            if (PyDict_SetItem(dict, key, value) < 0) {
+                Py_DECREF(dict);
+                return -1;
+            }
+        }
+    }
+
+    if (_pg_event_populate(self, type, dict) == -1) {
+        return -1;
+    }
+
+    Py_DECREF(dict);
+    return 0;
+}
+
 static PyTypeObject pgEvent_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Event", /*name*/
     sizeof(pgEventObject),                  /*basic size*/
@@ -1524,9 +1587,9 @@ static PyTypeObject pgEvent_Type = {
     0,                             /* tp_descr_get */
     0,                             /* tp_descr_set */
     offsetof(pgEventObject, dict), /* tp_dictoffset */
-    0,                             /* tp_init */
+    (initproc)pg_event_init,       /* tp_init */
     0,                             /* tp_alloc */
-    0,                             /* tp_new */
+    PyType_GenericNew,             /* tp_new */
 };
 
 static PyObject *
@@ -1560,60 +1623,14 @@ pgEvent_New2(int type, PyObject *dict)
     if (!e)
         return PyErr_NoMemory();
 
-    e->type = _pg_pgevent_deproxify(type);
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict) {
-            PyObject_Free(e);
-            return PyErr_NoMemory();
-        }
+    if (_pg_event_populate(e, type, dict) == -1) {
+        PyObject_Free(e);
+        return NULL;
     }
-    else {
-        if (PyDict_GetItemString(dict, "type")) {
-            PyObject_Free(e);
-            return RAISE(PyExc_ValueError,
-                         "redundant type field in event dict");
-        }
-        Py_INCREF(dict);
-    }
-    e->dict = dict;
     return (PyObject *)e;
 }
 
 /* event module functions */
-static PyObject *
-pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
-{
-    PyObject *dict = NULL;
-    PyObject *event;
-    int type;
-    if (!PyArg_ParseTuple(arg, "i|O!", &type, &PyDict_Type, &dict))
-        return NULL;
-
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict)
-            return PyErr_NoMemory();
-    }
-    else
-        Py_INCREF(dict);
-
-    if (keywords) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(keywords, &pos, &key, &value)) {
-            if (PyDict_SetItem(dict, key, value) < 0) {
-                Py_DECREF(dict);
-                return NULL; /* Exception already set. */
-            }
-        }
-    }
-
-    event = pgEvent_New2(type, dict);
-
-    Py_DECREF(dict);
-    return event;
-}
 
 static PyObject *
 event_name(PyObject *self, PyObject *arg)
@@ -2287,8 +2304,6 @@ static PyMethodDef _event_methods[] = {
     {"__PYGAMEquit__", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
-    {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
@@ -2362,6 +2377,12 @@ MODINIT_DEFINE(event)
 
     Py_INCREF(&pgEvent_Type);
     if (PyModule_AddObject(module, "EventType", (PyObject *)&pgEvent_Type)) {
+        Py_DECREF(&pgEvent_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(&pgEvent_Type);
+    if (PyModule_AddObject(module, "Event", (PyObject *)&pgEvent_Type)) {
         Py_DECREF(&pgEvent_Type);
         Py_DECREF(module);
         return NULL;
