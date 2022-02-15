@@ -475,7 +475,7 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
                     mm_src = _mm_cvtsi32_si128(*srcp);
                     mm_dst = _mm_cvtsi32_si128(*dstp);
 
-                    mm_src = _mm_xor_si128(mm_src, mm_alpha_mask);
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
                     mm_dst = _mm_adds_epu8(mm_dst, mm_src);
 
                     *dstp = _mm_cvtsi128_si32(mm_dst);
@@ -493,7 +493,7 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
                     mm_src = _mm_cvtsi64_si128(*srcp64);
                     mm_dst = _mm_cvtsi64_si128(*dstp64);
 
-                    mm_src = _mm_xor_si128(mm_src, mm_alpha_mask);
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
                     mm_dst = _mm_adds_epu8(mm_dst, mm_src);
 
                     *dstp64 = _mm_cvtsi128_si64(mm_dst);
@@ -534,7 +534,7 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
                 mm_src = _mm_cvtsi32_si128(*srcp);
                 mm_dst = _mm_cvtsi32_si128(*dstp);
 
-                mm_src = _mm_xor_si128(mm_src, mm_alpha_mask);
+                mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
                 mm_dst = _mm_adds_epu8(mm_dst, mm_src);
 
                 *dstp = _mm_cvtsi128_si32(mm_dst);

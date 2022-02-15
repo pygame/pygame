@@ -382,7 +382,7 @@ blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
                     mm_src = _mm_cvtsi32_si128(*srcp);
                     mm_dst = _mm_cvtsi32_si128(*dstp);
 
-                    mm_src = _mm_xor_si128(mm_src, mm_alpha_mask);
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
                     mm_dst = _mm_adds_epu8(mm_dst, mm_src);
 
                     *dstp = _mm_cvtsi128_si32(mm_dst);
@@ -400,7 +400,7 @@ blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
                     mm256_src = _mm256_loadu_si256(srcp256);
                     mm256_dst = _mm256_loadu_si256(dstp256);
 
-                    mm256_src = _mm256_xor_si256(mm256_src, mm256_alpha_mask);
+                    mm256_src = _mm256_subs_epu8(mm256_src, mm256_alpha_mask);
                     mm256_dst = _mm256_adds_epu8(mm256_dst, mm256_src);
 
                     _mm256_storeu_si256(dstp256, mm256_dst);
