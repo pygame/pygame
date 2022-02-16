@@ -801,7 +801,6 @@ vector2_to_complex(pgVector *self)
     return PyComplex_FromDoubles(self->coords[0], self->coords[1]);
 }
 
-
 static PyNumberMethods vector_as_number = {
     (binaryfunc)vector_add,  /* nb_add;       __add__ */
     (binaryfunc)vector_sub,  /* nb_subtract;  __sub__ */
@@ -1916,8 +1915,7 @@ _vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
             }
             return 0;
         }
-        else if (PyComplex_Check(xOrSequence))
-        {
+        else if (PyComplex_Check(xOrSequence)) {
             self->coords[0] = PyComplex_RealAsDouble(xOrSequence);
             self->coords[1] = PyComplex_ImagAsDouble(xOrSequence);
             return 0;
@@ -2250,7 +2248,8 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2FROMPOLAR},
     {"project", (PyCFunction)vector2_project, METH_O, DOC_VECTOR2PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
-    {"to_complex", (PyCFunction)vector2_to_complex, METH_NOARGS, DOC_VECTOR2TOCOMPLEX},
+    {"to_complex", (PyCFunction)vector2_to_complex, METH_NOARGS,
+     DOC_VECTOR2TOCOMPLEX},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
