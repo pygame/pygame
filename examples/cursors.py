@@ -93,8 +93,8 @@ colorCursor = pg.cursors.Cursor((20, 20), surf)
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 imagename = os.path.join(main_dir, "data", "cursor.png")
 image = pg.image.load(imagename)
-
 imageCursor = pg.cursors.Cursor((0, 0), image)
+
 
 def main():
     pg.init()
