@@ -3434,7 +3434,7 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
             return NULL;
         }
         /* use diff == diff to check for NaN */
-        /* TODO: how should NaN be handled with LT/LE/GT/GE? */
+        /* TODO: how should NaN be handled with LT/LE/GT/GE?  */
         switch (op) {
             case Py_EQ:
                 for (i = 0; i < dim; i++) {
