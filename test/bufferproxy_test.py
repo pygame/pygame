@@ -169,7 +169,7 @@ class BufferProxyTest(unittest.TestCase):
         def after_callback(parent):
             return r[1]
 
-        class Obj:
+        class Obj(object):
             pass
 
         p = Obj()

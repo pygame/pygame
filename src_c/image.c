@@ -69,6 +69,7 @@ static PyObject *
 image_load_basic(PyObject *self, PyObject *obj)
 {
     PyObject *final;
+    PyObject *oencoded;
     SDL_Surface *surf;
 
     SDL_RWops *rw = pgRWops_FromObject(obj);
@@ -482,9 +483,9 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped, int hascolorkey,
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
-    pgSurfaceObject *surfobj;
+    pgSurfaceObject *surfobj = NULL;
     PyObject *string = NULL;
-    char *format, *data;
+    char *format, *data, *pixels;
     SDL_Surface *surf;
     int w, h, flipped = 0;
     Py_ssize_t len;
@@ -493,12 +494,6 @@ image_tostring(PyObject *self, PyObject *arg)
     int hascolorkey;
     Uint32 color, colorkey;
     Uint32 alpha;
-
-#ifdef _MSC_VER
-    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
-     * making analyzer assume it was initialised */
-    __analysis_assume(format = "inited");
-#endif
 
     if (!PyArg_ParseTuple(arg, "O!s|i", &pgSurface_Type, &surfobj, &format,
                           &flipped))
@@ -531,9 +526,10 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
+        pixels = (char *)surf->pixels;
         for (h = 0; h < surf->h; ++h)
             memcpy(DATAROW(data, h, surf->w, surf->h, flipped),
-                   (char *)surf->pixels + (h * surf->pitch), surf->w);
+                   pixels + (h * surf->pitch), surf->w);
         pgSurface_Unlock(surfobj);
     }
     else if (!strcmp(format, "RGB")) {
@@ -545,6 +541,7 @@ image_tostring(PyObject *self, PyObject *arg)
 
         pgSurface_Lock(surfobj);
 
+        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -618,6 +615,7 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
+        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -694,6 +692,7 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
+        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
                 for (h = 0; h < surf->h; ++h) {
@@ -759,6 +758,8 @@ image_tostring(PyObject *self, PyObject *arg)
                          "Can only create pre-multiplied alpha strings if the "
                          "surface has per-pixel alpha");
 
+        hascolorkey = 0;
+
         string =
             PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
@@ -766,6 +767,7 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
+        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
                 for (h = 0; h < surf->h; ++h) {
@@ -849,6 +851,8 @@ image_tostring(PyObject *self, PyObject *arg)
                          "Can only create pre-multiplied alpha strings if the "
                          "surface has per-pixel alpha");
 
+        hascolorkey = 0;
+
         string =
             PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
@@ -856,6 +860,7 @@ image_tostring(PyObject *self, PyObject *arg)
         PyBytes_AsStringAndSize(string, &data, &len);
 
         pgSurface_Lock(surfobj);
+        pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
                 for (h = 0; h < surf->h; ++h) {
@@ -950,19 +955,12 @@ image_fromstring(PyObject *self, PyObject *arg)
     Py_ssize_t len;
     int loopw, looph;
 
-#ifdef _MSC_VER
-    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
-     * making analyzer assume it was initialised */
-    __analysis_assume(format = "inited");
-#endif
-
     if (!PyArg_ParseTuple(arg, "O!(ii)s|i", &PyBytes_Type, &string, &w, &h,
                           &format, &flipped))
         return NULL;
 
     if (w < 1 || h < 1)
-        return RAISE(PyExc_ValueError,
-                     "Resolution must be nonzero positive values");
+        return RAISE(PyExc_ValueError, "Resolution must be positive values");
 
     PyBytes_AsStringAndSize(string, &data, &len);
 
@@ -970,7 +968,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h)
             return RAISE(
                 PyExc_ValueError,
-                "Bytes length does not equal format and resolution size");
+                "String length does not equal format and resolution size");
 
         surf = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
         if (!surf)
@@ -985,7 +983,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 3)
             return RAISE(
                 PyExc_ValueError,
-                "Bytes length does not equal format and resolution size");
+                "String length does not equal format and resolution size");
         surf =
             SDL_CreateRGBSurface(0, w, h, 24, 0xFF << 16, 0xFF << 8, 0xFF, 0);
         if (!surf)
@@ -1015,7 +1013,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
-                "Bytes length does not equal format and resolution size");
+                "String length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface((alphamult ? SDL_SRCALPHA : 0), w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                                     0xFF, 0xFF << 8, 0xFF << 16,
@@ -1039,7 +1037,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
-                "Bytes length does not equal format and resolution size");
+                "String length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface(SDL_SRCALPHA, w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                                     0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
@@ -1100,18 +1098,11 @@ image_frombuffer(PyObject *self, PyObject *arg)
     Py_ssize_t len;
     pgSurfaceObject *surfobj;
 
-#ifdef _MSC_VER
-    /* MSVC static analyzer false alarm: assure format is NULL-terminated by
-     * making analyzer assume it was initialised */
-    __analysis_assume(format = "inited");
-#endif
-
     if (!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))
         return NULL;
 
     if (w < 1 || h < 1)
-        return RAISE(PyExc_ValueError,
-                     "Resolution must be nonzero positive values");
+        return RAISE(PyExc_ValueError, "Resolution must be positive values");
 
     /* breaking constness here, we should really not change this string */
     if (pgObject_AsCharBuffer(buffer, (const char **)&data, &len) == -1)
@@ -1340,18 +1331,19 @@ SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle)
         }
         else
             h.pixel_bits = 24;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        int s = alpha ? 0 : 8;
-        amask = 0x000000ff >> s;
-        rmask = 0x0000ff00 >> s;
-        gmask = 0x00ff0000 >> s;
-        bmask = 0xff000000 >> s;
-#else  /* SDL_BYTEORDER != SDL_BIG_ENDIAN */
-        amask = alpha ? 0xff000000 : 0;
-        rmask = 0x00ff0000;
-        gmask = 0x0000ff00;
-        bmask = 0x000000ff;
-#endif /* SDL_BYTEORDER != SDL_BIG_ENDIAN */
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+            int s = alpha ? 0 : 8;
+            amask = 0x000000ff >> s;
+            rmask = 0x0000ff00 >> s;
+            gmask = 0x00ff0000 >> s;
+            bmask = 0xff000000 >> s;
+        }
+        else {
+            amask = alpha ? 0xff000000 : 0;
+            rmask = 0x00ff0000;
+            gmask = 0x0000ff00;
+            bmask = 0x000000ff;
+        }
     }
     bpp = h.pixel_bits >> 3;
     if (rle)

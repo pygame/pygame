@@ -6,7 +6,7 @@ cd $(dirname `readlink -f "$0"`)
 SNDFILEVER=1.0.31
 SNDNAME="libsndfile-$SNDFILEVER"
 SNDFILE="$SNDNAME.tar.bz2"
-curl -sL --retry 10 https://github.com/libsndfile/libsndfile/releases/download/${SNDFILEVER}/${SNDFILE} > ${SNDFILE}
+curl -sL https://github.com/libsndfile/libsndfile/releases/download/${SNDFILEVER}/${SNDFILE} > ${SNDFILE}
 
 sha512sum -c sndfile.sha512
 tar xf ${SNDFILE}

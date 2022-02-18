@@ -17,7 +17,7 @@ Header file: src_c/include/pygame.h
 .. c:type:: pgVidInfoObject
 
    A pygame object that wraps an SDL_VideoInfo struct.
-   The object returned by :py:func:`pygame.display.Info()`.
+   The object returned by :py:func:`pgyame.display.Info()`.
 
 .. c:var:: PyTypeObject *pgVidInfo_Type
 

@@ -95,7 +95,7 @@ from pygame.time import get_ticks
 from pygame.mask import from_surface
 
 
-class Sprite:
+class Sprite(object):
     """simple base class for visible game objects
 
     pygame.sprite.Sprite(*groups): return Sprite
@@ -343,7 +343,7 @@ class DirtySprite(Sprite):
         )
 
 
-class AbstractGroup:
+class AbstractGroup(object):
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can

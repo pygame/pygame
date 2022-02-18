@@ -80,10 +80,10 @@ static SDL_mutex *_pg_img_mutex = 0;
 #define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
 #endif /* ~WIN32 */
 
-static char *
-find_extension(char *fullname)
+static const char *
+find_extension(const char *fullname)
 {
-    char *dot;
+    const char *dot;
 
     if (fullname == NULL) {
         return NULL;
@@ -101,9 +101,11 @@ image_load_ext(PyObject *self, PyObject *arg)
 {
     PyObject *obj;
     PyObject *final;
-    char *name = NULL, *ext = NULL;
+    const char *name = NULL;
+    char *ext = NULL;
     SDL_Surface *surf;
     SDL_RWops *rw = NULL;
+    int lock_mutex = 0;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
@@ -117,20 +119,19 @@ image_load_ext(PyObject *self, PyObject *arg)
         ext = find_extension(name);
 
 #ifdef WITH_THREAD
-    /*
     if (ext)
         lock_mutex = !strcasecmp(ext, "gif");
-    */
     Py_BEGIN_ALLOW_THREADS;
-
-    /* using multiple threads does not work for (at least) SDL_image
-     * <= 2.0.4
-    SDL_LockMutex(_pg_img_mutex);
-    surf = IMG_LoadTyped_RW(rw, 1, ext);
-    SDL_UnlockMutex(_pg_img_mutex);
-    */
-
-    surf = IMG_LoadTyped_RW(rw, 1, ext);
+    if (0) {
+        /* using multiple threads does not work for (at least) SDL_image
+         * <= 2.0.4 */
+        SDL_LockMutex(_pg_img_mutex);
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        SDL_UnlockMutex(_pg_img_mutex);
+    }
+    else {
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+    }
     Py_END_ALLOW_THREADS;
 #else  /* ~WITH_THREAD */
     surf = IMG_LoadTyped_RW(rw, 1, ext);
@@ -195,29 +196,28 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
     doing = "create png info struct";
     if (!(info_ptr = png_create_info_struct(png_ptr)))
         goto fail;
-
     if (setjmp(png_jmpbuf(png_ptr)))
         goto fail;
 
-    /* doing = "init IO"; */
+    doing = "init IO";
     png_set_write_fn(png_ptr, rwops, png_write_fn, png_flush_fn);
 
-    /* doing = "write header"; */
+    doing = "write header";
     png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
-    /* doing = "write info"; */
+    doing = "write info";
     png_write_info(png_ptr, info_ptr);
 
-    /* doing = "write image"; */
+    doing = "write image";
     png_write_image(png_ptr, rows);
 
-    /* doing = "write end"; */
+    doing = "write end";
     png_write_end(png_ptr, NULL);
 
     if (rw == NULL) {
-        doing = "close file";
+        doing = "closing file";
         if (0 != SDL_RWclose(rwops))
             goto fail;
     }
@@ -301,12 +301,6 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     ss_rect.h = ss_h;
     SDL_BlitSurface(surface, &ss_rect, ss_surface, NULL);
 
-#ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
-     * a false analyzer report */
-    __analysis_assume(ss_size >= 2);
-#endif
-
     if (ss_size == 0) {
         ss_size = ss_h;
         ss_rows = (unsigned char **)malloc(sizeof(unsigned char *) * ss_size);
@@ -363,8 +357,7 @@ j_init_destination(j_compress_ptr cinfo)
 {
     j_outfile_mgr *dest = (j_outfile_mgr *)cinfo->dest;
 
-    /* Allocate the output buffer --- it will be released when done with
-     * image
+    /* Allocate the output buffer --- it will be released when done with image
      */
     dest->buffer = (JOCTET *)(*cinfo->mem->alloc_small)(
         (j_common_ptr)cinfo, JPOOL_IMAGE, OUTPUT_BUF_SIZE * sizeof(JOCTET));
@@ -411,12 +404,11 @@ j_stdio_dest(j_compress_ptr cinfo, SDL_RWops *outfile)
 {
     j_outfile_mgr *dest;
 
-    /* The destination object is made permanent so that multiple JPEG
-     * images can be written to the same file without re-executing
-     * jpeg_stdio_dest. This makes it dangerous to use this manager and a
-     * different destination manager serially with the same JPEG object,
-     * because their private object sizes may be different.  Caveat
-     * programmer.
+    /* The destination object is made permanent so that multiple JPEG images
+     * can be written to the same file without re-executing jpeg_stdio_dest.
+     * This makes it dangerous to use this manager and a different destination
+     * manager serially with the same JPEG object, because their private object
+     * sizes may be different.  Caveat programmer.
      */
     if (cinfo->dest == NULL) { /* first time for this JPEG object? */
         cinfo->dest =
@@ -558,12 +550,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
         free_ss_surface = 1;
     }
 
-#ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
-     * a false analyzer report */
-    __analysis_assume(ss_size >= 2);
-#endif
-
     ss_size = ss_h;
     ss_rows = (unsigned char **)malloc(sizeof(unsigned char *) * ss_size);
     if (ss_rows == NULL) {
@@ -598,11 +584,11 @@ image_save_ext(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *obj;
-    char *namehint = NULL;
+    const char *namehint = NULL;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;
     int result = 1;
-    char *name = NULL;
+    const char *name = NULL;
     SDL_RWops *rw = NULL;
 
     if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj, &obj,
@@ -635,12 +621,12 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
 
     if (result > 0) {
-        char *ext = find_extension(name);
+        const char *ext = find_extension(name);
         if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
 #if (SDL_IMAGE_MAJOR_VERSION * 1000 + SDL_IMAGE_MINOR_VERSION * 100 + \
      SDL_IMAGE_PATCHLEVEL) < 2002
-            /* SDL_Image is a version less than 2.0.2 and therefore does
-             * not have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
+            /* SDL_Image is a version less than 2.0.2 and therefore does not
+             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
              */
             if (rw != NULL) {
                 PyErr_SetString(pgExc_SDLError,

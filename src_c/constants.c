@@ -63,7 +63,8 @@ static PyMethodDef _constant_methods[] = {{NULL}};
 
 MODINIT_DEFINE(constants)
 {
-    PyObject *module, *all_list;
+    PyObject *module;
+    PyObject *all_list;
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "constants",
@@ -81,11 +82,7 @@ MODINIT_DEFINE(constants)
     }
 
     // Attempt to create __all__ variable for constants module
-    all_list = PyList_New(0);
-    if (!all_list) {
-        Py_DECREF(module);
-        return NULL;
-    }
+    all_list = (PyObject *)PyList_New(0);
 
     DEC_CONST(LIL_ENDIAN);
     DEC_CONST(BIG_ENDIAN);
@@ -616,11 +613,7 @@ MODINIT_DEFINE(constants)
 #define PYGAME_USEREVENT_DROPFILE 0x1000
     DEC_CONSTS(USEREVENT_DROPFILE, PYGAME_USEREVENT_DROPFILE);
 
-    if (PyModule_AddObject(module, "__all__", all_list)) {
-        Py_DECREF(all_list);
-        Py_DECREF(module);
-        return NULL;
-    }
+    PyModule_AddObject(module, "__all__", all_list);
 
     return module;
 }

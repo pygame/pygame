@@ -52,7 +52,7 @@ The full code for this example looks like this::
       pygame.display.flip()
 
       # Event loop
-      while True:
+      while 1:
           for event in pygame.event.get():
               if event.type == QUIT:
                   return

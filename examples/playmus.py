@@ -23,7 +23,7 @@ import pygame as pg
 import pygame.freetype
 
 
-class Window:
+class Window(object):
     """The application's Pygame window
 
     A Window instance manages the creation of and drawing to a

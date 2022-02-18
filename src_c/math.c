@@ -54,8 +54,7 @@
 
 #define VECTOR_EPSILON (1e-6)
 #define VECTOR_MAX_SIZE (4)
-#define STRING_BUF_SIZE_REPR (112)
-#define STRING_BUF_SIZE_STR (103)
+#define STRING_BUF_SIZE (100)
 #define SWIZZLE_ERR_NO_ERR 0
 #define SWIZZLE_ERR_DOUBLE_IDX 1
 #define SWIZZLE_ERR_EXTRACTION_ERR 2
@@ -238,7 +237,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *
 vector_elementwise(pgVector *self, PyObject *args);
 static int
-_vector_check_snprintf_success(int return_code, int max_size);
+_vector_check_snprintf_success(int return_code);
 static PyObject *
 vector_repr(pgVector *self);
 static PyObject *
@@ -584,7 +583,7 @@ pgVector_NEW(Py_ssize_t dim)
 static void
 vector_dealloc(pgVector *self)
 {
-    PyMem_Free(self->coords);
+    PyMem_Del(self->coords);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -597,7 +596,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
 {
     Py_ssize_t i, dim;
     double *vec_coords;
-    double other_coords[VECTOR_MAX_SIZE] = {0};
+    double other_coords[VECTOR_MAX_SIZE];
     double tmp;
     PyObject *other;
     pgVector *vec, *ret = NULL;
@@ -1000,7 +999,7 @@ vector_subscript(pgVector *self, PyObject *key)
     else {
         PyErr_Format(PyExc_TypeError,
                      "vector indices must be integers, not %.200s",
-                     Py_TYPE(key)->tp_name);
+                     key->ob_type->tp_name);
         return NULL;
     }
 }
@@ -1055,7 +1054,7 @@ vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
     else {
         PyErr_Format(PyExc_TypeError,
                      "list indices must be integers, not %.200s",
-                     Py_TYPE(key)->tp_name);
+                     key->ob_type->tp_name);
         return -1;
     }
 }
@@ -1589,7 +1588,7 @@ vector_distance_squared_to(pgVector *self, PyObject *other)
 }
 
 static int
-_vector_check_snprintf_success(int return_code, int max_size)
+_vector_check_snprintf_success(int return_code)
 {
     if (return_code < 0) {
         PyErr_SetString(PyExc_SystemError,
@@ -1597,7 +1596,7 @@ _vector_check_snprintf_success(int return_code, int max_size)
                         "this to github.com/pygame/pygame/issues");
         return 0;
     }
-    if (return_code >= max_size) {
+    if (return_code >= STRING_BUF_SIZE) {
         PyErr_SetString(PyExc_SystemError,
                         "Internal buffer to small for snprintf! Please report "
                         "this to github.com/pygame/pygame/issues");
@@ -1609,62 +1608,53 @@ _vector_check_snprintf_success(int return_code, int max_size)
 static PyObject *
 vector_repr(pgVector *self)
 {
-    /* The repr() of the largest possible Vector3 looks like
-     * "<Vector3({d}, {d}, {d})>" where 'd' has a maximum size of 32 bytes
-     *  so allocate a 16 + 3 * 32 == 112 byte buffer
-     */
-    char buffer[STRING_BUF_SIZE_REPR];
+    Py_ssize_t i;
     int tmp;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
 
-    if (self->dim == 2) {
-        tmp = PyOS_snprintf(buffer, STRING_BUF_SIZE_REPR, "<Vector2(%g, %g)>",
-                            self->coords[0], self->coords[1]);
-    }
-    else if (self->dim == 3) {
-        tmp = PyOS_snprintf(buffer, STRING_BUF_SIZE_REPR,
-                            "<Vector3(%g, %g, %g)>", self->coords[0],
-                            self->coords[1], self->coords[2]);
-    }
-    else {
-        return RAISE(
-            PyExc_NotImplementedError,
-            "repr() for Vectors of higher dimensions are not implemented yet");
-    }
-
-    if (!_vector_check_snprintf_success(tmp, STRING_BUF_SIZE_REPR))
+    bufferIdx = 1;
+    tmp = PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%ld(", self->dim);
+    if (!_vector_check_snprintf_success(tmp))
         return NULL;
-
-    return PyUnicode_FromString(buffer);
+    for (i = 0; i < self->dim - 1; ++i) {
+        tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ",
+                            buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+        if (!_vector_check_snprintf_success(tmp))
+            return NULL;
+    }
+    tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>",
+                        buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    if (!_vector_check_snprintf_success(tmp))
+        return NULL;
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
 vector_str(pgVector *self)
 {
-    /* The str() of the largest possible Vector3 looks like
-     * "[{d}, {d}, {d}]" where 'd' has a maximum size of 32 bytes
-     *  so allocate a 7 + 3 * 32 == 103 byte buffer
-     */
-    char buffer[STRING_BUF_SIZE_STR];
+    Py_ssize_t i;
     int tmp;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
 
-    if (self->dim == 2) {
-        tmp = PyOS_snprintf(buffer, STRING_BUF_SIZE_STR, "[%g, %g]",
-                            self->coords[0], self->coords[1]);
-    }
-    else if (self->dim == 3) {
-        tmp = PyOS_snprintf(buffer, STRING_BUF_SIZE_STR, "[%g, %g, %g]",
-                            self->coords[0], self->coords[1], self->coords[2]);
-    }
-    else {
-        return RAISE(
-            PyExc_NotImplementedError,
-            "repr() for Vectors of higher dimensions are not implemented yet");
-    }
-
-    if (!_vector_check_snprintf_success(tmp, STRING_BUF_SIZE_STR))
+    bufferIdx = 1;
+    tmp = PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[");
+    if (!_vector_check_snprintf_success(tmp))
         return NULL;
-
-    return PyUnicode_FromString(buffer);
+    for (i = 0; i < self->dim - 1; ++i) {
+        tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ",
+                            buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+        if (!_vector_check_snprintf_success(tmp))
+            return NULL;
+    }
+    tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]",
+                        buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    if (!_vector_check_snprintf_success(tmp))
+        return NULL;
+    return PyUnicode_FromString(buffer[bufferIdx % 2]);
 }
 
 static PyObject *
@@ -2097,8 +2087,8 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                 /* this should NEVER happen and means a bug in the code */
                 PyErr_SetString(
                     PyExc_RuntimeError,
-                    "Please report this bug in vector2_rotate_helper to "
-                    "the developers at github.com/pygame/pygame/issues");
+                    "Please report this bug in vector2_rotate_helper to the "
+                    "developers at github.com/pygame/pygame/issues");
                 return 0;
         }
     }
@@ -2284,7 +2274,7 @@ static PyObject *
 vector2_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
-    return Py_BuildValue("(O(dd))", Py_TYPE(oself), self->coords[0],
+    return Py_BuildValue("(O(dd))", oself->ob_type, self->coords[0],
                          self->coords[1]);
 }
 
@@ -2617,8 +2607,8 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
                 /* this should NEVER happen and means a bug in the code */
                 PyErr_SetString(
                     PyExc_RuntimeError,
-                    "Please report this bug in vector3_rotate_helper to "
-                    "the developers at github.com/pygame/pygame/issues");
+                    "Please report this bug in vector3_rotate_helper to the "
+                    "developers at github.com/pygame/pygame/issues");
                 return 0;
         }
     }
@@ -2826,8 +2816,8 @@ vector3_rotate_x_ip_rad(pgVector *self, PyObject *angleObject)
     if (PyErr_WarnEx(
             PyExc_DeprecationWarning,
             "vector3_rotate_x_rad_ip() now has all the functionality of "
-            "vector3_rotate_x_ip_rad(), so vector3_rotate_x_ip_rad() will "
-            "be deprecated in pygame 2.1.1",
+            "vector3_rotate_x_ip_rad(), so vector3_rotate_x_ip_rad() will be "
+            "deprecated in pygame 2.1.1",
             1) == -1) {
         return NULL;
     }
@@ -2931,8 +2921,8 @@ vector3_rotate_y_ip_rad(pgVector *self, PyObject *angleObject)
     if (PyErr_WarnEx(
             PyExc_DeprecationWarning,
             "vector3_rotate_y_rad_ip() now has all the functionality of "
-            "vector3_rotate_y_ip_rad(), so vector3_rotate_y_ip_rad() will "
-            "be deprecated in pygame 2.1.1",
+            "vector3_rotate_y_ip_rad(), so vector3_rotate_y_ip_rad() will be "
+            "deprecated in pygame 2.1.1",
             1) == -1) {
         return NULL;
     }
@@ -3037,8 +3027,8 @@ vector3_rotate_z_ip_rad(pgVector *self, PyObject *angleObject)
     if (PyErr_WarnEx(
             PyExc_DeprecationWarning,
             "vector3_rotate_z_rad_ip() now has all the functionality of "
-            "vector3_rotate_z_ip_rad(), so vector3_rotate_z_ip_rad() will "
-            "be deprecated in pygame 2.1.1",
+            "vector3_rotate_z_ip_rad(), so vector3_rotate_z_ip_rad() will be "
+            "deprecated in pygame 2.1.1",
             1) == -1) {
         return NULL;
     }
@@ -3111,12 +3101,8 @@ vector3_cross(pgVector *self, PyObject *other)
     }
     else {
         other_coords = PyMem_New(double, self->dim);
-        if (!other_coords) {
-            return PyErr_NoMemory();
-        }
-
         if (!PySequence_AsVectorCoords(other, other_coords, 3)) {
-            PyMem_Free(other_coords);
+            PyMem_Del(other_coords);
             return NULL;
         }
     }
@@ -3124,7 +3110,7 @@ vector3_cross(pgVector *self, PyObject *other)
     ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret == NULL) {
         if (!pgVector_Check(other))
-            PyMem_Free(other_coords);
+            PyMem_Del(other_coords);
         return NULL;
     }
     ret_coords = ret->coords;
@@ -3136,7 +3122,7 @@ vector3_cross(pgVector *self, PyObject *other)
                      (self_coords[1] * other_coords[0]));
 
     if (!pgVector_Check(other))
-        PyMem_Free(other_coords);
+        PyMem_Del(other_coords);
 
     return (PyObject *)ret;
 }
@@ -3209,7 +3195,7 @@ static PyObject *
 vector3_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
-    return Py_BuildValue("(O(ddd))", Py_TYPE(oself), self->coords[0],
+    return Py_BuildValue("(O(ddd))", oself->ob_type, self->coords[0],
                          self->coords[1], self->coords[2]);
 }
 
@@ -3383,7 +3369,7 @@ static void
 vectoriter_dealloc(vectoriter *it)
 {
     Py_XDECREF(it->vec);
-    PyObject_Free(it);
+    PyObject_Del(it);
 }
 
 static PyObject *
@@ -3481,7 +3467,7 @@ static void
 vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it)
 {
     Py_XDECREF(it->vec);
-    PyObject_Free(it);
+    PyObject_Del(it);
 }
 
 static PyObject *
@@ -3521,7 +3507,7 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
             return NULL;
         }
         if (!PySequence_AsVectorCoords(other, other_coords, dim)) {
-            PyMem_Free(other_coords);
+            PyMem_Del(other_coords);
             return NULL;
         }
         /* use diff == diff to check for NaN */
@@ -3578,11 +3564,11 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
                 }
                 break;
             default:
-                PyMem_Free(other_coords);
+                PyMem_Del(other_coords);
                 PyErr_BadInternalCall();
                 return NULL;
         }
-        PyMem_Free(other_coords);
+        PyMem_Del(other_coords);
     }
     else if (RealNumber_Check(other)) {
         /* the following PyFloat_AsDouble call should never fail because
@@ -3661,7 +3647,7 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
 {
     Py_ssize_t i, dim;
     double mod, other_value = 0.0;
-    double other_coords[VECTOR_MAX_SIZE] = {0};
+    double other_coords[VECTOR_MAX_SIZE];
     PyObject *other;
     pgVector *vec, *ret;
     if (vector_elementwiseproxy_Check(o1)) {
@@ -3792,8 +3778,8 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
                     return NULL;
                 }
                 mod = fmod(vec->coords[i], other_coords[i]);
-                /* note: checking mod*value < 0 is incorrect -- underflows
-                   to 0 if value < sqrt(smallest nonzero double) */
+                /* note: checking mod*value < 0 is incorrect -- underflows to
+                   0 if value < sqrt(smallest nonzero double) */
                 if (mod && ((other_coords[i] < 0) != (mod < 0))) {
                     mod += other_coords[i];
                 }
@@ -4051,9 +4037,10 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
 
     /* Added in release 2.2 */
     (binaryfunc)
-        vector_elementwiseproxy_floor_div,   /* nb_floor_divide; __floor__ */
-    (binaryfunc)vector_elementwiseproxy_div, /* nb_true_divide; __truediv__ */
-    (binaryfunc)0, /* nb_inplace_floor_divide; __ifloor__ */
+        vector_elementwiseproxy_floor_div, /* nb_floor_divide; __floor__ */
+    (binaryfunc)
+        vector_elementwiseproxy_div, /* nb_true_divide;          __truediv__ */
+    (binaryfunc)0,                   /* nb_inplace_floor_divide; __ifloor__ */
     (binaryfunc)0, /* nb_inplace_true_divide;  __itruediv__ */
 };
 
@@ -4217,17 +4204,11 @@ MODINIT_DEFINE(math)
     /*
     Py_INCREF(&pgVector4_Type);
     */
-    if ((PyModule_AddObject(module, "Vector2", (PyObject *)&pgVector2_Type) !=
-         0) ||
-        (PyModule_AddObject(module, "Vector3", (PyObject *)&pgVector3_Type) !=
-         0) ||
-        (PyModule_AddObject(module, "VectorElementwiseProxy",
-                            (PyObject *)&pgVectorElementwiseProxy_Type) !=
-         0) ||
-        (PyModule_AddObject(module, "VectorIterator",
-                            (PyObject *)&pgVectorIter_Type) != 0) /*||
-(PyModule_AddObject(module, "Vector4", (PyObject *)&pgVector4_Type) !=
-0)*/) {
+    if ((PyModule_AddObject(module, "Vector2", (PyObject *)&pgVector2_Type) != 0) ||
+        (PyModule_AddObject(module, "Vector3", (PyObject *)&pgVector3_Type) != 0) ||
+        (PyModule_AddObject(module, "VectorElementwiseProxy", (PyObject *)&pgVectorElementwiseProxy_Type) != 0) ||
+        (PyModule_AddObject(module, "VectorIterator", (PyObject *)&pgVectorIter_Type) != 0) /*||
+        (PyModule_AddObject(module, "Vector4", (PyObject *)&pgVector4_Type) != 0)*/) {
         if (!PyObject_HasAttrString(module, "Vector2"))
             Py_DECREF(&pgVector2_Type);
         if (!PyObject_HasAttrString(module, "Vector3"))
@@ -4253,8 +4234,13 @@ MODINIT_DEFINE(math)
     c_api[4] = pgVectorCompatible_Check;
     */
     apiobj = encapsulate_api(c_api, "math");
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_XDECREF(apiobj);
+    if (apiobj == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
+        Py_DECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

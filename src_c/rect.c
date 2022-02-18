@@ -200,7 +200,7 @@ pg_rect_dealloc(pgRectObject *self)
     }
 
 #ifdef PYPY_VERSION
-    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX - 1) {
+    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
         pg_rect_freelist_num++;
         pg_rect_freelist[pg_rect_freelist_num] = self;
     }
@@ -368,7 +368,7 @@ pg_rect_normalize(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move(pgRectObject *self, PyObject *args)
 {
-    int x = 0, y = 0;
+    int x, y;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -381,7 +381,7 @@ pg_rect_move(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move_ip(pgRectObject *self, PyObject *args)
 {
-    int x = 0, y = 0;
+    int x, y;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -395,7 +395,7 @@ pg_rect_move_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate(pgRectObject *self, PyObject *args)
 {
-    int x = 0, y = 0;
+    int x, y;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -409,7 +409,7 @@ pg_rect_inflate(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 {
-    int x = 0, y = 0;
+    int x, y;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -574,7 +574,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 {
-    int x = 0, y = 0;
+    int x, y;
     int inside;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
@@ -1167,7 +1167,7 @@ pg_rect_item(pgRectObject *self, Py_ssize_t i)
 static int
 pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 {
-    int val = 0;
+    int val;
     int *data = (int *)&self->r;
 
     if (i < 0 || i > 3) {
@@ -1264,7 +1264,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         return pg_rect_ass_item(self, i, value);
     }
     else if (op == Py_Ellipsis) {
-        int val = 0;
+        int val;
 
         if (pg_IntFromObj(value, &val)) {
             self->r.x = val;
@@ -1314,7 +1314,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         Py_ssize_t stop;
         Py_ssize_t step;
         Py_ssize_t slicelen;
-        int val = 0;
+        int val;
         Py_ssize_t i;
 
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
@@ -2057,7 +2057,8 @@ static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(rect)
 {
-    PyObject *module, *apiobj;
+    PyObject *module, *dict, *apiobj;
+    int ecode;
     static void *c_api[PYGAMEAPI_RECT_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2087,16 +2088,13 @@ MODINIT_DEFINE(rect)
     if (module == NULL) {
         return NULL;
     }
+    dict = PyModule_GetDict(module);
 
-    Py_INCREF(&pgRect_Type);
-    if (PyModule_AddObject(module, "RectType", (PyObject *)&pgRect_Type)) {
-        Py_DECREF(&pgRect_Type);
+    if (PyDict_SetItemString(dict, "RectType", (PyObject *)&pgRect_Type)) {
         Py_DECREF(module);
         return NULL;
     }
-    Py_INCREF(&pgRect_Type);
-    if (PyModule_AddObject(module, "Rect", (PyObject *)&pgRect_Type)) {
-        Py_DECREF(&pgRect_Type);
+    if (PyDict_SetItemString(dict, "Rect", (PyObject *)&pgRect_Type)) {
         Py_DECREF(module);
         return NULL;
     }
@@ -2108,8 +2106,13 @@ MODINIT_DEFINE(rect)
     c_api[3] = pgRect_FromObject;
     c_api[4] = pgRect_Normalize;
     apiobj = encapsulate_api(c_api, "rect");
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_XDECREF(apiobj);
+    if (apiobj == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    Py_DECREF(apiobj);
+    if (ecode) {
         Py_DECREF(module);
         return NULL;
     }

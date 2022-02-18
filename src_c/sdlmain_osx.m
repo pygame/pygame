@@ -116,7 +116,6 @@ _WMEnable(PyObject *self)
 }
 @end
 
-/* The below functions are unused for now, hence commented
 static void
 setApplicationMenu(void)
 {
@@ -185,7 +184,6 @@ setupWindowMenu(void)
     [windowMenu release];
     [windowMenuItem release];
 }
-*/
 
 static PyObject *
 _ScrapInit(PyObject *self)
@@ -344,6 +342,8 @@ static PyMethodDef macosx_builtins[] =
 
 MODINIT_DEFINE (sdlmain_osx)
 {
+    PyObject *module;
+
     /* create the module */
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -363,5 +363,6 @@ MODINIT_DEFINE (sdlmain_osx)
         return NULL;
     }
 
-    return PyModule_Create(&_module);
+    module = PyModule_Create(&_module);
+    return module;
 }

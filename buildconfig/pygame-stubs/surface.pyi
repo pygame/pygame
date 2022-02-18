@@ -6,7 +6,7 @@ from pygame.rect import Rect
 
 from ._common import _CanBeRect, _ColorValue, _Coordinate, _RgbaOutput
 
-class Surface:
+class Surface(object):
     _pixels_address: int
     @overload
     def __init__(

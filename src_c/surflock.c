@@ -230,7 +230,7 @@ _lifelock_dealloc(PyObject *self)
     pgSurface_UnlockBy((pgSurfaceObject *)lifelock->surface,
                        lifelock->lockobj);
     Py_DECREF(lifelock->surface);
-    PyObject_Free(self);
+    PyObject_DEL(self);
 }
 
 static PyObject *
@@ -241,7 +241,7 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    life = PyObject_New(pgLifetimeLockObject, &pgLifetimeLock_Type);
+    life = PyObject_NEW(pgLifetimeLockObject, &pgLifetimeLock_Type);
     if (life != NULL) {
         life->surface = surfobj;
         life->lockobj = lockobj;
@@ -261,7 +261,8 @@ static PyMethodDef _surflock_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surflock)
 {
-    PyObject *module, *apiobj;
+    PyObject *module, *dict, *apiobj;
+    int ecode;
     static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -283,6 +284,7 @@ MODINIT_DEFINE(surflock)
     if (module == NULL) {
         return NULL;
     }
+    dict = PyModule_GetDict(module);
 
     /* export the c api */
     c_api[0] = &pgLifetimeLock_Type;
@@ -294,8 +296,13 @@ MODINIT_DEFINE(surflock)
     c_api[6] = pgSurface_UnlockBy;
     c_api[7] = pgSurface_LockLifetime;
     apiobj = encapsulate_api(c_api, "surflock");
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_XDECREF(apiobj);
+    if (apiobj == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    Py_DECREF(apiobj);
+    if (ecode) {
         Py_DECREF(module);
         return NULL;
     }

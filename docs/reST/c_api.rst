@@ -8,6 +8,7 @@ pygame C API
    c_api/slots.rst
    c_api/base.rst
    c_api/bufferproxy.rst
+   c_api/cdrom.rst
    c_api/color.rst
    c_api/display.rst
    c_api/event.rst

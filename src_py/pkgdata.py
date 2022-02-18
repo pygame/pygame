@@ -21,6 +21,8 @@ __all__ = ["getResource"]
 import sys
 import os
 
+from io import BytesIO
+
 try:
     from pkg_resources import resource_stream, resource_exists
 except ImportError:

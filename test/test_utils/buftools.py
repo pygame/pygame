@@ -261,7 +261,7 @@ class Exporter(pygame.newbuffer.BufferMixin):
         return False
 
 
-class Importer:
+class Importer(object):
     """An object that imports a new buffer interface
 
     The fields of the Py_buffer C struct are exposed by identically

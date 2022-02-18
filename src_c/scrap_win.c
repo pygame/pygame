@@ -73,10 +73,10 @@ _convert_internal_type(char *type)
  * \param size The size of the buffer.
  * \return The length of the format name.
  */
-static size_t
+static int
 _lookup_clipboard_format(UINT format, char *buf, int size)
 {
-    size_t len;
+    int len;
     char *cpy;
 
     memset(buf, 0, size);
@@ -118,7 +118,7 @@ _lookup_clipboard_format(UINT format, char *buf, int size)
  * \return The character buffer containing the BMP information.
  */
 static char *
-_create_dib_buffer(char *data, size_t *count)
+_create_dib_buffer(char *data, unsigned long *count)
 {
     BITMAPFILEHEADER hdr;
     LPBITMAPINFOHEADER bihdr;
@@ -137,11 +137,6 @@ _create_dib_buffer(char *data, size_t *count)
                 bihdr->biClrUsed * sizeof(RGBQUAD) + bihdr->biSizeImage);
     hdr.bfOffBits = (DWORD)(sizeof(BITMAPFILEHEADER) + bihdr->biSize +
                             bihdr->biClrUsed * sizeof(RGBQUAD));
-
-#ifdef _MSC_VER
-    /* Suppress false analyzer report */
-    __analysis_assume(*count > 0);
-#endif
 
     /* Copy both to the buffer. */
     buf = malloc(sizeof(hdr) + (*count));
@@ -189,10 +184,10 @@ pygame_scrap_lost(void)
 }
 
 int
-pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
+pygame_scrap_put(char *type, int srclen, char *src)
 {
     UINT format;
-    Py_ssize_t nulledlen = srclen + 1;
+    int nulledlen = srclen + 1;
     HANDLE hMem;
 
     if (!pygame_scrap_initialized()) {
@@ -213,13 +208,12 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
     hMem = GlobalAlloc((GMEM_MOVEABLE | GMEM_DDESHARE), nulledlen);
     if (hMem) {
         char *dst = GlobalLock(hMem);
-        if (dst) {
-            memset(dst, 0, nulledlen);
-            if (format == CF_DIB || format == CF_DIBV5)
-                memcpy(dst, src + sizeof(BITMAPFILEHEADER), nulledlen - 1);
-            else
-                memcpy(dst, src, srclen);
-        }
+
+        memset(dst, 0, nulledlen);
+        if (format == CF_DIB || format == CF_DIBV5)
+            memcpy(dst, src + sizeof(BITMAPFILEHEADER), nulledlen - 1);
+        else
+            memcpy(dst, src, srclen);
 
         GlobalUnlock(hMem);
         EmptyClipboard();
@@ -241,7 +235,7 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
 }
 
 char *
-pygame_scrap_get(char *type, size_t *count)
+pygame_scrap_get(char *type, unsigned long *count)
 {
     UINT format = _convert_format(type);
     char *retval = NULL;
@@ -322,7 +316,7 @@ pygame_scrap_get_types(void)
     char **tmptypes;
     int i = 0;
     int count = -1;
-    size_t len;
+    int len;
     char tmp[100] = {'\0'};
     int size = 0;
 

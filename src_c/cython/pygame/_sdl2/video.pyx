@@ -709,11 +709,11 @@ cdef class Texture:
         return rect
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,
-                       bint flip_x=False, bint flip_y=False):
+                       bint flipX=False, bint flipY=False):
         cdef int flip = SDL_FLIP_NONE
-        if flip_x:
+        if flipX:
             flip |= SDL_FLIP_HORIZONTAL
-        if flip_y:
+        if flipY:
             flip |= SDL_FLIP_VERTICAL
 
         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
@@ -722,7 +722,7 @@ cdef class Texture:
             raise error()
 
     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
-                    bint flip_x=False, bint flip_y=False):
+                    bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
@@ -731,8 +731,8 @@ cdef class Texture:
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
                        If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
-        :param bool flip_x: flip horizontally.
-        :param bool flip_y: flip vertically.
+        :param bool flipX: flip horizontally.
+        :param bool flipY: flip vertically.
         """
         cdef SDL_Rect src, dst
         cdef SDL_Rect *csrcrect = NULL
@@ -765,7 +765,7 @@ cdef class Texture:
             originptr = NULL
 
         self.draw_internal(csrcrect, cdstrect, angle, originptr,
-                           flip_x, flip_y)
+                           flipX, flipY)
 
     def update(self, surface, area=None):
         # https://wiki.libsdl.org/SDL_UpdateTexture
@@ -803,8 +803,8 @@ cdef class Image:
         self._origin.x = 0
         self._origin.y = 0
         self._originptr = NULL
-        self.flip_x = False
-        self.flip_y = False
+        self.flipX = False
+        self.flipY = False
 
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._color = pgColor_NewLength(defaultColor, 3)
@@ -916,7 +916,7 @@ cdef class Image:
         self.texture.blend_mode = self.blend_mode
 
         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
-                                   self._originptr, self.flip_x, self.flip_y)
+                                   self._originptr, self.flipX, self.flipY)
 
 
 cdef class Renderer:

@@ -210,12 +210,12 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                 case 0: {
                     if (info.src_blend != SDL_BLENDMODE_NONE &&
                         src->format->Amask) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         if (src->format->BytesPerPixel == 4 &&
                             dst->format->BytesPerPixel == 4 &&
                             src->format->Rmask == dst->format->Rmask &&
                             src->format->Gmask == dst->format->Gmask &&
-                            src->format->Bmask == dst->format->Bmask) {
+                            src->format->Bmask == dst->format->Bmask &&
+                            SDL_BYTEORDER == SDL_LIL_ENDIAN) {
 /* If our source and destination are the same ARGB 32bit
    format we can use SSE2 to speed up the blend */
 #if PG_ENABLE_ARM_NEON
@@ -261,7 +261,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                             }
 #endif /* __SSE2__*/
                         }
-#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
                         alphablit_alpha(&info);
                     }
                     else if (info.src_has_colorkey) {
@@ -1026,15 +1025,14 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src;
     Uint32 amask = srcfmt->Amask;
-    // Uint64 multmask;
+    Uint64 multmask;
     Uint64 ones;
 
-    // __m128i multmask_128;
-    __m128i src1, dst1, sub_dst, mm_alpha, mm_zero, ones_128;
+    __m128i src1, dst1, sub_dst, mm_alpha, mm_zero, multmask_128, ones_128;
 
     mm_zero = _mm_setzero_si128();
-    // multmask = 0x00FF00FF00FF00FF;  // 0F0F0F0F
-    // multmask_128 = _mm_loadl_epi64((const __m128i *)&multmask);
+    multmask = 0x00FF00FF00FF00FF;  // 0F0F0F0F
+    multmask_128 = _mm_loadl_epi64((const __m128i *)&multmask);
     ones = 0x0001000100010001;
     ones_128 = _mm_loadl_epi64((const __m128i *)&ones);
 
@@ -2280,8 +2278,8 @@ alphablit_alpha_sse2_argb_surf_alpha(SDL_BlitInfo *info)
     SDL_PixelFormat *srcfmt = info->src;
     SDL_PixelFormat *dstfmt = info->dst;
 
-    // int srcbpp = srcfmt->BytesPerPixel;
-    // int dstbpp = dstfmt->BytesPerPixel;
+    int srcbpp = srcfmt->BytesPerPixel;
+    int dstbpp = dstfmt->BytesPerPixel;
 
     Uint32 dst_amask = dstfmt->Amask;
     Uint32 src_amask = srcfmt->Amask;
@@ -2794,20 +2792,20 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
     int srcskip = info->s_skip >> 2;
     int dstskip = info->d_skip >> 2;
 
-    // SDL_PixelFormat *srcfmt = info->src;
-    // SDL_PixelFormat *dstfmt = info->dst;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
 
     Uint64 *srcp64 = (Uint64 *)info->s_pixels;
     Uint64 *dstp64 = (Uint64 *)info->d_pixels;
 
-    // Uint64 src_amask64 = ((Uint64)srcfmt->Amask << 32) | srcfmt->Amask;
+    Uint64 src_amask64 = ((Uint64)srcfmt->Amask << 32) | srcfmt->Amask;
 
     Uint64 rgb_mask64 = 0x00FFFFFF00FFFFFF;
 
     Uint32 *srcp32 = (Uint32 *)info->s_pixels;
     Uint32 *dstp32 = (Uint32 *)info->d_pixels;
 
-    // Uint32 src_amask32 = srcfmt->Amask;
+    Uint32 src_amask32 = srcfmt->Amask;
 
     Uint32 rgb_mask32 = 0x00FFFFFF;
 

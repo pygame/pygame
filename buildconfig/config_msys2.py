@@ -39,7 +39,7 @@ def get_absolute_win_path(msys2_path):
     else:
         return output.stdout.strip()
 
-class Dependency:
+class Dependency(object):
     huntpaths = ['..', '../..', '../*', '../../*']
     inc_hunt = ['include']
     lib_hunt = ['lib']
@@ -187,7 +187,7 @@ class Dependency:
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
             self.found = True
 
-class DependencyPython:
+class DependencyPython(object):
     def __init__(self, name, module, header):
         self.name = name
         self.lib_dir = ''
@@ -268,7 +268,7 @@ class DependencyDLL(Dependency):
                         return True
         return False
 
-class DependencyDummy:
+class DependencyDummy(object):
     def __init__(self, name):
         self.name = name
         self.inc_dir = None
@@ -280,7 +280,7 @@ class DependencyDummy:
     def configure(self):
         pass
 
-class DependencyWin:
+class DependencyWin(object):
     def __init__(self, name, cflags):
         self.name = name
         self.inc_dir = None
@@ -292,7 +292,7 @@ class DependencyWin:
     def configure(self):
         pass
 
-class DependencyGroup:
+class DependencyGroup(object):
     def __init__(self):
         self.dependencies =[]
         self.dlls = []

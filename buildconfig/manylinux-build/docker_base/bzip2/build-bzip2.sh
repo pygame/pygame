@@ -6,7 +6,7 @@ cd $(dirname `readlink -f "$0"`)
 BZIP2_VER=1.0.8
 BZIP2=bzip2-$BZIP2_VER
 
-curl -sL --retry 10 https://sourceware.org/pub/bzip2/${BZIP2}.tar.gz > ${BZIP2}.tar.gz
+curl -sL https://sourceware.org/pub/bzip2/${BZIP2}.tar.gz > ${BZIP2}.tar.gz
 sha512sum -c bzip2.sha512
 
 tar xzf ${BZIP2}.tar.gz

@@ -30,7 +30,7 @@ Contact: rumia0601@gmail.com
    ball = pygame.image.load("AdvancedOutputAlpha1.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -62,7 +62,7 @@ Contact: rumia0601@gmail.com
    ball = pygame.image.load("AdvancedOutputAlpha2.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -94,7 +94,7 @@ Contact: rumia0601@gmail.com
    ball = pygame.image.load("AdvancedOutputAlpha3.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

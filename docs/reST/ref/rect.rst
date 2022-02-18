@@ -68,13 +68,6 @@
    rect1.bottom=rect2.top), the two meet exactly on the screen but do not
    overlap, and ``rect1.colliderect(rect2)`` returns false.
 
-   The Rect object is also iterable:
-
-   ::
-
-      r = Rect(0, 1, 2, 3)
-      x, y, w, h = r
-
    .. versionadded:: 1.9.2
       The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
       will recognize this and return instances of the subclass.

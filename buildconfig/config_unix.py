@@ -137,8 +137,7 @@ def main():
     origincdirs = ['/include', '/include/SDL2']
     origlibdirs = ['/lib', '/lib64', '/X11R6/lib',
                    '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu',
-                   '/lib/arm-linux-gnueabihf/', '/lib/aarch64-linux-gnu/', 
-                   '/lib/powerpc64le-linux-gnu/']
+                   '/lib/arm-linux-gnueabihf/', '/lib/aarch64-linux-gnu/']
 
     if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
         origlibdirs = os.environ['ORIGLIBDIRS'].split(":")

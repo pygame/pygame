@@ -10,7 +10,7 @@ Exports read and get_definitions.
 import os
 PATH = os.path.join('buildconfig', 'Setup_Win_Common.in')
 
-class Definition:
+class Definition(object):
     def __init__(self, name, value):
         self.name = name
         self.value = value

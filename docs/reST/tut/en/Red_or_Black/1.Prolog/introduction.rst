@@ -30,7 +30,7 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
    ball = pygame.image.load("introduction-PuyoPuyo.png")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -65,7 +65,7 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
    ball = pygame.image.load("introduction-TPS.png")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -102,7 +102,7 @@ Yes. Pygame can solve that. Pygame is an external library of **Python** which en
    ball = pygame.image.load("introduction-Battleship.png")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

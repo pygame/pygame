@@ -225,22 +225,20 @@ typedef enum {
 #error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a
 supported Python version. #endif */
 
-#define RAISE(x, y) (PyErr_SetString((x), (y)), NULL)
-#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)                            \
-    do {                                                                     \
-        if (!value) {                                                        \
-            PyErr_Format(PyExc_AttributeError, "Cannot delete attribute %s", \
-                         name);                                              \
-            return -1;                                                       \
-        }                                                                    \
-    } while (0)
-
-#define DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value)                           \
-    do {                                                                      \
-        if (!value) {                                                         \
-            PyErr_SetString(PyExc_AttributeError, "Cannot delete attribute"); \
-            return -1;                                                        \
-        }                                                                     \
+#define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
+#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)                 \
+    do {                                                          \
+        if (!value) {                                             \
+            if (name) {                                           \
+                PyErr_Format(PyExc_AttributeError,                \
+                             "Cannot delete attribute %s", name); \
+            }                                                     \
+            else {                                                \
+                PyErr_SetString(PyExc_AttributeError,             \
+                                "Cannot delete attribute");       \
+            }                                                     \
+            return -1;                                            \
+        }                                                         \
     } while (0)
 
 /*
@@ -250,6 +248,10 @@ supported Python version. #endif */
 #define VIDEO_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_VIDEO)) \
     return RAISE(pgExc_SDLError, "video system not initialized")
+
+#define CDROM_INIT_CHECK()            \
+    if (!SDL_WasInit(SDL_INIT_CDROM)) \
+    return RAISE(pgExc_SDLError, "cdrom system not initialized")
 
 #define JOYSTICK_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
@@ -317,6 +319,7 @@ struct pgColorObject {
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2
+#define PYGAMEAPI_CDROM_NUMSLOTS 2
 #define PYGAMEAPI_BASE_NUMSLOTS 24
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
 

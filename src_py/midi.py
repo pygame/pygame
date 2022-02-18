@@ -246,7 +246,7 @@ def get_device_info(an_id):
     return _pypm.GetDeviceInfo(an_id)
 
 
-class Input:
+class Input(object):
     """Input is used to get midi input from midi devices.
     Input(device_id)
     Input(device_id, buffer_size)
@@ -344,7 +344,7 @@ class Input:
         raise MidiException((result, err_text))
 
 
-class Output:
+class Output(object):
     """Output is used to send midi to an output device
     Output(device_id)
     Output(device_id, latency = 0)

@@ -33,7 +33,7 @@ giving objects some motion and interactive capabilities. So your game, in pseudo
       # [create new object as instance of ball class]
       ball = Ball()
 
-      while True:
+      while 1:
           # [check for user input]
 
           # [call ball's update function]

@@ -1,6 +1,7 @@
 # -*- coding:latin-1 -*-
 
 import re
+import sys
 from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 import subprocess
 import os

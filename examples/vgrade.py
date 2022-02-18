@@ -88,7 +88,7 @@ def main():
     pg.event.set_blocked(pg.MOUSEMOTION)  # keep our queue cleaner
     pg.time.set_timer(pg.USEREVENT, 500)
 
-    while True:
+    while 1:
         event = pg.event.wait()
         if event.type in (pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN):
             break

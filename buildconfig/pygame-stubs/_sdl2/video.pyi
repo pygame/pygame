@@ -93,8 +93,8 @@ class Texture:
         dstrect: Optional[Union[_CanBeRect, Iterable[int]]] = None,
         angle: int = 0,
         origin: Optional[Iterable[int]] = None,
-        flip_x: bool = False,
-        flip_y: bool = False,
+        flipX: bool = False,
+        flipY: bool = False,
     ) -> None: ...
     def update(self, surface: Surface, area: Optional[_CanBeRect] = None) -> None: ...
 
@@ -110,8 +110,8 @@ class Image:
     ) -> None: ...
     angle: float
     origin: Optional[Iterable[float]]
-    flip_x: bool
-    flip_y: bool
+    flipX: bool
+    flipY: bool
     color: Color
     alpha: float
     blend_mode: int

@@ -41,15 +41,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(surface.get_flags(), expected_flags)
         self.assertEqual(surface.get_bitsize(), expected_depth)
 
-    def test_surface_created_opaque_black(self):
-        surf = pygame.Surface((20, 20))
-        self.assertEqual(surf.get_at((0, 0)), (0, 0, 0, 255))
-
-        # See https://github.com/pygame/pygame/issues/1395
-        pygame.display.set_mode((500, 500))
-        surf = pygame.Surface((20, 20))
-        self.assertEqual(surf.get_at((0, 0)), (0, 0, 0, 255))
-
     def test_set_clip(self):
         """see if surface.set_clip(None) works correctly."""
         s = pygame.Surface((800, 600))
@@ -134,7 +125,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
     def test_flags_default0_nodisplay(self):
-        """is set to zero, and SRCALPHA is not set by default with no display initialized."""
+        """is set to zero, and SRCALPH is not set by default with no display initialized."""
         pygame.display.quit()
         surf = pygame.Surface((70, 70))
         self.assertEqual(surf.get_flags() & SRCALPHA, 0)

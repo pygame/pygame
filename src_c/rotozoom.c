@@ -68,10 +68,10 @@ zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int smooth)
     /*
      * Allocate memory for row increments
      */
-    if ((sax = (int *)malloc((dst->w + 1) * sizeof(int))) == NULL) {
+    if ((sax = (int *)malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
         return (-1);
     }
-    if ((say = (int *)malloc((dst->h + 1) * sizeof(int))) == NULL) {
+    if ((say = (int *)malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
         free(sax);
         return (-1);
     }

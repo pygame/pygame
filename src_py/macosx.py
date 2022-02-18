@@ -1,6 +1,8 @@
 import platform
 import os
 import sys
+from pygame.pkgdata import getResource
+from pygame import sdlmain_osx
 
 __all__ = ["Video_AutoInit"]
 

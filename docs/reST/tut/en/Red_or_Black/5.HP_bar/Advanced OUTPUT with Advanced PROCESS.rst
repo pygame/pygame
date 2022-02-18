@@ -30,7 +30,7 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    ball = pygame.image.load("AdvancedOutputProcess1.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -62,7 +62,7 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    ball = pygame.image.load("AdvancedOutputProcess2.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -94,7 +94,7 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    ball = pygame.image.load("AdvancedOutputProcess3.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -128,7 +128,7 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    ball = pygame.image.load("AdvancedOutputProcess4.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -160,7 +160,7 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    ball = pygame.image.load("AdvancedOutputProcess5.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -192,7 +192,7 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    ball = pygame.image.load("AdvancedOutputProcess6.gif")
    ballrect = ball.get_rect()
 
-   while True:
+   while 1:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

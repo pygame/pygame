@@ -5,7 +5,7 @@ cd $(dirname `readlink -f "$0"`)
 
 WEBP=libwebp-1.2.1
 
-curl -sL --retry 10 http://storage.googleapis.com/downloads.webmproject.org/releases/webp/${WEBP}.tar.gz > ${WEBP}.tar.gz
+curl -sL http://storage.googleapis.com/downloads.webmproject.org/releases/webp/${WEBP}.tar.gz > ${WEBP}.tar.gz
 sha512sum -c webp.sha512
 
 tar xzf ${WEBP}.tar.gz

@@ -181,7 +181,7 @@
    .. method:: draw
 
       | :sl:`Copy a portion of the texture to the rendering target.`
-      | :sg:`draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None`
+      | :sg:`draw(srcrect=None, dstrect=None, angle=0, origin=None, flipX=False, flipY=False) -> None`
 
    .. method:: update
 
@@ -213,15 +213,15 @@
       | :sl:`Gets and sets the origin. Origin=None means the Image will be rotated around its center.`
       | :sg:`origin -> (float, float) or None.`
 
-   .. attribute:: flip_x
+   .. attribute:: flipX
 
       | :sl:`Gets and sets whether the Image is flipped on the x axis.`
-      | :sg:`flip_x -> bool`
+      | :sg:`flipX -> bool`
 
-   .. attribute:: flip_y
+   .. attribute:: flipY
 
       | :sl:`Gets and sets whether the Image is flipped on the y axis.`
-      | :sg:`flip_y -> bool`
+      | :sg:`flipY -> bool`
 
    .. attribute:: color
 
@@ -306,7 +306,7 @@
    .. method:: blit
 
       | :sl:`For compatibility purposes. Textures created by different Renderers cannot be shared!`
-      | :sg:`blit(source, dest, area=None, special_flags=0)-> Rect`
+      | :sg:`blit(soure, dest, area=None, special_flags=0)-> Rect`
 
    .. method:: draw_line
 

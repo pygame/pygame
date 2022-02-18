@@ -125,7 +125,7 @@ def benchmark_workers(a_bench_func=None, the_data=None):
     return best_number
 
 
-class WorkerQueue:
+class WorkerQueue(object):
     def __init__(self, num_workers=20):
         self.queue = Queue()
         self.pool = []

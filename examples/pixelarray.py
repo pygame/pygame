@@ -26,7 +26,7 @@ def show(image):
     screen.fill((255, 255, 255))
     screen.blit(image, (0, 0))
     pg.display.flip()
-    while True:
+    while 1:
         event = pg.event.wait()
         if event.type == pg.QUIT:
             pg.quit()

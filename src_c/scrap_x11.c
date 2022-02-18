@@ -673,7 +673,7 @@ pygame_scrap_lost(void)
 }
 
 int
-pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
+pygame_scrap_put(char *type, int srclen, char *src)
 {
     Atom clip;
     Atom cliptype;
@@ -752,7 +752,7 @@ SETSELECTIONOWNER:
 }
 
 char *
-pygame_scrap_get(char *type, size_t *count)
+pygame_scrap_get(char *type, unsigned long *count)
 {
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");

@@ -7,7 +7,6 @@
 #     python setup.py install
 
 import io
-import platform
 
 with io.open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
@@ -16,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.1.3.dev1",
+    "version":          "2.1.2.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -84,6 +83,7 @@ IS_PYPY = '__pypy__' in sys.builtin_module_names
 def compilation_help():
     """ On failure point people to a web page for help.
     """
+    import platform
     the_system = platform.system()
     if the_system == 'Linux':
         if hasattr(platform, 'linux_distribution'):
@@ -136,6 +136,33 @@ def consume_arg(name):
 # get us to the correct directory
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
+#os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
+#                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
+#                       "-Wmissing-prototypes -Wmissing-declarations " + \
+#                       "-Wnested-externs -Wshadow -Wredundant-decls"
+if consume_arg("-warnings"):
+    os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
+                       "-Wimplicit-function-declaration " + \
+                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
+                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
+                       "-Wuninitialized -Wparentheses " +\
+                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
+                       "-Wconversion -Wstrict-prototypes " + \
+                       "-Wmissing-prototypes -Wmissing-declarations " + \
+                       "-Wnested-externs -Wshadow -Wredundant-decls"
+
+if consume_arg('-pygame-ci'):
+    cflags = os.environ.get('CFLAGS', '')
+    if cflags:
+        cflags += ' '
+    cflags += '-Werror=nested-externs -Werror=switch -Werror=implicit ' + \
+              '-Werror=implicit-function-declaration -Werror=return-type ' + \
+              '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
+              '-Werror=format-security -Werror=uninitialized ' + \
+              '-Werror=trigraphs -Werror=parentheses -Werror=unused-value ' + \
+              '-Werror=cast-align -Werror=int-conversion ' + \
+              '-Werror=incompatible-pointer-types'
+    os.environ['CFLAGS'] = cflags
 
 STRIPPED=False
 
@@ -359,38 +386,10 @@ else:
         compilation_help()
         raise
 
-
-for e in extensions:
-    # Only define the ARM_NEON defines if they have been enabled at build time.
-    if enable_arm_neon:
+# Only define the ARM_NEON defines if they have been enabled at build time.
+if enable_arm_neon:
+    for e in extensions:
         e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
-
-    e.extra_compile_args.extend(
-        # some warnings are skipped here
-        ("/W3", "/wd4142", "/wd4996")
-        if sys.platform == "win32"
-        else ("-Wall", "-Wno-error=unknown-pragmas")
-    )
-
-    if "surface" in e.name and sys.platform == "darwin":
-        # skip -Werror on alphablit because sse2neon is used on arm mac
-        continue
-
-    if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
-        # TODO: fix freetype issues here
-        e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
-
-    if "mask" in e.name and sys.platform == "win32":
-        # skip analyze warnings that pop up a lot in mask for now. TODO fix
-        e.extra_compile_args.extend(("/wd6385", "/wd6386"))
-
-    if (
-        "CI" in os.environ
-        and not e.name.startswith("_sdl2")
-        and e.name not in ("pypm", "_sprite", "gfxdraw")
-    ):
-        # Do -Werror only on CI, and exclude -Werror on Cython C files and gfxdraw
-        e.extra_compile_args.append("/WX" if sys.platform == "win32" else "-Werror")
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
@@ -602,24 +601,12 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         # excluding system headers from analyze out put was only added after MSCV_VER 1913
         if msc_ver >= 1913:
             os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
-
-        for e in extensions:
-            e.extra_compile_args.extend(
-                (
-                    "/analyze",
-                    "/wd28251",
-                    "/wd28301",
-                )
-            )
-
-            if msc_ver >= 1913:
-                e.extra_compile_args.extend(
-                    (
-                        "/experimental:external",
-                        "/external:W0",
-                        "/external:env:CAExcludePath",
-                    )
-                )
+            for e in extensions:
+                e.extra_compile_args += ['/analyze', '/experimental:external',
+                                         '/external:W0', '/external:env:CAExcludePath' ]
+        else:
+            for e in extensions:
+                e.extra_compile_args += ['/analyze']
 
     def has_flag(compiler, flagname):
         """
