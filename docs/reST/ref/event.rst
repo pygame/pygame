@@ -92,19 +92,6 @@ You can also find a list of constants for keyboard keys
 
 |
 
-On MacOSX when a file is opened using a pygame application, a ``USEREVENT``
-with its ``code`` attribute set to ``pygame.USEREVENT_DROPFILE`` is generated.
-There is an additional attribute called ``filename`` where the name of the file
-being accessed is stored.
-
-::
-
-    USEREVENT         code=pygame.USEREVENT_DROPFILE, filename
-
-.. versionadded:: 1.9.2
-
-|
-
 When compiled with SDL2, pygame has these additional events and their
 attributes.
 
@@ -127,7 +114,7 @@ attributes.
 .. versionchanged:: 2.0.2 The ``touch`` attribute was added to all the ``MOUSE`` events.
 
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
-by  a touch input device, and not a real mouse. You might want to ignore such events, if your application
+by a touch input device, and not a real mouse. You might want to ignore such events, if your application
 already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
 
 .. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
@@ -163,13 +150,24 @@ pygame 2 also supports controller hot-plugging
    CLIPBOARDUPDATE
    RENDER_TARGETS_RESET     (SDL backend >= 2.0.2)
    RENDER_DEVICE_RESET      (SDL backend >= 2.0.4)
+   LOCALECHANGED            (SDL backend >= 2.0.14)
 
 Also in this version, ``instance_id`` attributes were added to joystick events,
 and the ``joy`` attribute was deprecated.
 
+``KEYMAPCHANGED`` is a type of an event sent when keymap changes due to a 
+system event such as an input language or keyboard layout change.
+
+``CLIPBOARDUPDATE`` is an event sent when clipboard changes. This can still
+be considered as an experimental feature, some kinds of clipboard changes might
+not trigger this event.
+
+``LOCALECHANGED`` is an event sent when user locale changes
+
 .. versionadded:: 2.0.0
 
-.. versionadded:: 2.1.3 ``KEYMAPCHANGED``, ``CLIPBOARDUPDATE``, ``RENDER_TARGETS_RESET`` and ``RENDER_DEVICE_RESET``
+.. versionadded:: 2.1.3 ``KEYMAPCHANGED``, ``CLIPBOARDUPDATE``, 
+   ``RENDER_TARGETS_RESET``, ``RENDER_DEVICE_RESET`` and ``LOCALECHANGED``
 
 |
 
@@ -214,13 +212,14 @@ On Android, the following events can be generated
 
 ::
 
-   APP_TERMINATING
-   APP_LOWMEMORY
-   APP_WILLENTERBACKGROUND
-   APP_DIDENTERBACKGROUND
-   APP_WILLENTERFOREGROUND
-   APP_DIDENTERFOREGROUND
-   LOCALECHANGED (SDL backend >= 2.0.14)
+   Event type                 Short description
+
+   APP_TERMINATING           OS is terminating the application
+   APP_LOWMEMORY             OS is low on memory, try to free memory if possible
+   APP_WILLENTERBACKGROUND   Application is entering background
+   APP_DIDENTERBACKGROUND    Application entered background
+   APP_WILLENTERFOREGROUND   Application is entering foreground
+   APP_DIDENTERFOREGROUND    Application entered foreground
 
 .. versionadded:: 2.1.3
 
