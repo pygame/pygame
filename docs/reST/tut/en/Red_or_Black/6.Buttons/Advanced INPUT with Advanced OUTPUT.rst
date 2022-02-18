@@ -30,7 +30,7 @@ Even if KEYDOWN event is used, it seems like this is not entirely GUI game becau
    ball = pygame.image.load("AdvancedInputOutput1.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -62,7 +62,7 @@ Even if KEYDOWN event is used, it seems like this is not entirely GUI game becau
    ball = pygame.image.load("AdvancedInputOutput2.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -96,7 +96,7 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    ball = pygame.image.load("AdvancedInputOutput3.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -128,7 +128,7 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    ball = pygame.image.load("AdvancedInputOutput4.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -160,7 +160,7 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    ball = pygame.image.load("AdvancedInputOutput5.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

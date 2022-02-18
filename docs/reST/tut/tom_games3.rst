@@ -47,7 +47,7 @@ a nasty traceback, which non-programmers won't understand. The code is fairly si
       from socket import *
       from pygame.locals import *
   except ImportError, err:
-      print "couldn't load module. %s" % (err)
+      print(f"couldn't load module. {err}")
       sys.exit(2)
 
 
@@ -71,16 +71,16 @@ control over your resources. Take this example of an image loading function::
 
   def load_png(name):
       """ Load image and return image object"""
-      fullname = os.path.join('data', name)
+      fullname = os.path.join("data", name)
       try:
           image = pygame.image.load(fullname)
           if image.get_alpha() is None:
               image = image.convert()
           else:
               image = image.convert_alpha()
-      except pygame.error, message:
-          print 'Cannot load image:', fullname
-          raise SystemExit, message
+      except FileNotFoundError:
+          print(f"Cannot load image: {fullname}")
+          raise SystemExit
       return image, image.get_rect()
 
 Here we make a more sophisticated image loading function than the one provided by :func:`pygame.image.load`. Note that

@@ -9,11 +9,12 @@ char **pygame_scrap_types;
 int
 pygame_scrap_contains(char *type)
 {
-    return (strcmp(type, pygame_scrap_plaintext_type) == 0) && SDL_HasClipboardText();
+    return (strcmp(type, pygame_scrap_plaintext_type) == 0) &&
+           SDL_HasClipboardText();
 }
 
 char *
-pygame_scrap_get(char *type, unsigned long *count)
+pygame_scrap_get(char *type, size_t *count)
 {
     char *retval = NULL;
     char *clipboard = NULL;
@@ -38,7 +39,7 @@ pygame_scrap_get(char *type, unsigned long *count)
 char **
 pygame_scrap_get_types(void)
 {
-      if (!pygame_scrap_initialized()) {
+    if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return NULL;
     }
@@ -70,13 +71,13 @@ pygame_scrap_lost(void)
 }
 
 int
-pygame_scrap_put(char *type, int srclen, char *src)
+pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
 {
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
-    
+
     if (strcmp(type, pygame_scrap_plaintext_type) == 0) {
         if (SDL_SetClipboardText(src) == 0) {
             return 1;

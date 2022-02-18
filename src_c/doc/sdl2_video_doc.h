@@ -33,15 +33,15 @@
 #define DOC_TEXTUREBLENDMODE "blend_mode -> int\nGets and sets the blend mode for the Texture."
 #define DOC_TEXTURECOLOR "color -> color\nGets and sets an additional color value multiplied into render copy operations."
 #define DOC_TEXTUREGETRECT "get_rect(**kwargs) -> Rect\nGet the rectangular area of the texture."
-#define DOC_TEXTUREDRAW "draw(srcrect=None, dstrect=None, angle=0, origin=None, flipX=False, flipY=False) -> None\nCopy a portion of the texture to the rendering target."
+#define DOC_TEXTUREDRAW "draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None\nCopy a portion of the texture to the rendering target."
 #define DOC_TEXTUREUPDATE "update(surface, area=None) -> None\nUpdate the texture with a Surface. WARNING: Slow operation, use sparingly."
 #define DOC_PYGAMESDL2VIDEOIMAGE "Image(textureOrImage, srcrect=None) -> Image\nEasy way to use a portion of a Texture without worrying about srcrect all the time."
 #define DOC_IMAGEGETRECT "get_rect() -> Rect\nGet the rectangular area of the Image."
 #define DOC_IMAGEDRAW "draw(srcrect=None, dstrect=None) -> None\nCopy a portion of the Image to the rendering target."
 #define DOC_IMAGEANGLE "angle -> float\nGets and sets the angle the Image draws itself with."
 #define DOC_IMAGEORIGIN "origin -> (float, float) or None.\nGets and sets the origin. Origin=None means the Image will be rotated around its center."
-#define DOC_IMAGEFLIPX "flipX -> bool\nGets and sets whether the Image is flipped on the x axis."
-#define DOC_IMAGEFLIPY "flipY -> bool\nGets and sets whether the Image is flipped on the y axis."
+#define DOC_IMAGEFLIPX "flip_x -> bool\nGets and sets whether the Image is flipped on the x axis."
+#define DOC_IMAGEFLIPY "flip_y -> bool\nGets and sets whether the Image is flipped on the y axis."
 #define DOC_IMAGECOLOR "color -> Color\nGets and sets the Image color modifier."
 #define DOC_IMAGEALPHA "alpha -> float\nGets and sets the Image alpha modifier."
 #define DOC_IMAGEBLENDMODE "blend_mode -> int\nGets and sets the blend mode for the Image."
@@ -58,7 +58,7 @@
 #define DOC_RENDERERLOGICALSIZE "logical_size -> (int width, int height)\nGets and sets the logical size."
 #define DOC_RENDERERSCALE "scale -> (float x_scale, float y_scale)\nGets and sets the scale."
 #define DOC_RENDERERTARGET "target -> Texture or None\nGets and sets the render target. None represents the default target (the renderer)."
-#define DOC_RENDERERBLIT "blit(soure, dest, area=None, special_flags=0)-> Rect\nFor compatibility purposes. Textures created by different Renderers cannot be shared!"
+#define DOC_RENDERERBLIT "blit(source, dest, area=None, special_flags=0)-> Rect\nFor compatibility purposes. Textures created by different Renderers cannot be shared!"
 #define DOC_RENDERERDRAWLINE "draw_line(p1, p2) -> None\nDraws a line."
 #define DOC_RENDERERDRAWPOINT "draw_point(point) -> None\nDraws a point."
 #define DOC_RENDERERDRAWRECT "draw_rect(rect)-> None\nDraws a rectangle."
@@ -206,7 +206,7 @@ pygame._sdl2.video.Texture.get_rect
 Get the rectangular area of the texture.
 
 pygame._sdl2.video.Texture.draw
- draw(srcrect=None, dstrect=None, angle=0, origin=None, flipX=False, flipY=False) -> None
+ draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None
 Copy a portion of the texture to the rendering target.
 
 pygame._sdl2.video.Texture.update
@@ -233,12 +233,12 @@ pygame._sdl2.video.Image.origin
  origin -> (float, float) or None.
 Gets and sets the origin. Origin=None means the Image will be rotated around its center.
 
-pygame._sdl2.video.Image.flipX
- flipX -> bool
+pygame._sdl2.video.Image.flip_x
+ flip_x -> bool
 Gets and sets whether the Image is flipped on the x axis.
 
-pygame._sdl2.video.Image.flipY
- flipY -> bool
+pygame._sdl2.video.Image.flip_y
+ flip_y -> bool
 Gets and sets whether the Image is flipped on the y axis.
 
 pygame._sdl2.video.Image.color
@@ -306,7 +306,7 @@ pygame._sdl2.video.Renderer.target
 Gets and sets the render target. None represents the default target (the renderer).
 
 pygame._sdl2.video.Renderer.blit
- blit(soure, dest, area=None, special_flags=0)-> Rect
+ blit(source, dest, area=None, special_flags=0)-> Rect
 For compatibility purposes. Textures created by different Renderers cannot be shared!
 
 pygame._sdl2.video.Renderer.draw_line

@@ -35,7 +35,7 @@ CONFIGS = [
 CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}
 
 
-class InvalidBool(object):
+class InvalidBool:
     """To help test invalid bool values."""
 
     __nonzero__ = None

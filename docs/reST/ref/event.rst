@@ -31,7 +31,7 @@ with the system, you will need to call :func:`pygame.event.pump()` to keep
 everything current. Usually, this should be called once per game loop.
 Note: Joysticks will not send any events until the device has been initialized.
 
-The event queue contains :class:`pygame.event.EventType` event objects.
+The event queue contains :class:`pygame.event.Event` event objects.
 There are a variety of ways to access the queued events, from simply
 checking for the existence of events, to grabbing them directly off the stack.
 The event queue also offers some simple filtering which can slightly help
@@ -39,11 +39,11 @@ performance by blocking certain event types from the queue. Use
 :func:`pygame.event.set_allowed()` and :func:`pygame.event.set_blocked()` to
 change this filtering. By default, all event types can be placed on the queue.
 
-All :class:`pygame.event.EventType` instances contain an event type identifier
+All :class:`pygame.event.Event` instances contain an event type identifier
 and attributes specific to that event type. The event type identifier is
-accessible as the :attr:`pygame.event.EventType.type` property. Any of the
+accessible as the :attr:`pygame.event.Event.type` property. Any of the
 event specific attributes can be accessed through the
-:attr:`pygame.event.EventType.__dict__` attribute or directly as an attribute
+:attr:`pygame.event.Event.__dict__` attribute or directly as an attribute
 of the event object (as member lookups are passed through to the object's
 dictionary values). The event object has no method functions. Users can create
 their own new events with the :func:`pygame.event.Event()` function.
@@ -247,7 +247,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 .. function:: poll
 
    | :sl:`get a single event from the queue`
-   | :sg:`poll() -> EventType instance`
+   | :sg:`poll() -> Event instance`
 
    Returns a single event from the queue. If the event queue is empty an event
    of type ``pygame.NOEVENT`` will be returned immediately. The returned event
@@ -261,8 +261,8 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 .. function:: wait
 
    | :sl:`wait for a single event from the queue`
-   | :sg:`wait() -> EventType instance`
-   | :sg:`wait(timeout) -> EventType instance`
+   | :sg:`wait() -> Event instance`
+   | :sg:`wait(timeout) -> Event instance`
 
    Returns a single event from the queue. If the queue is empty this function
    will wait until one is created. From pygame 2.0.0, if a ``timeout`` argument
@@ -422,25 +422,23 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 
    .. ## pygame.event.custom_type ##
 
-.. function:: Event
-
-   | :sl:`create a new event object`
-   | :sg:`Event(type, dict) -> EventType instance`
-   | :sg:`Event(type, \**attributes) -> EventType instance`
-
-   Creates a new event with the given type and attributes. The attributes can
-   come from a dictionary argument with string keys or from keyword arguments.
-
-   .. ## pygame.event.Event ##
-
-.. class:: EventType
+.. class:: Event
 
    | :sl:`pygame object for representing events`
+   | :sg:`Event(type, dict) -> Event`
+   | :sg:`Event(type, \**attributes) -> Event`
 
-   A pygame object that represents an event. User event instances are created
-   with an :func:`pygame.event.Event()` function call. The ``EventType`` type
-   is not directly callable. ``EventType`` instances support attribute
-   assignment and deletion.
+   A pygame object used for representing an event. ``Event`` instances
+   support attribute assignment and deletion.
+
+   When creating the object, the attributes may come from a dictionary
+   argument with string keys or from keyword arguments.
+
+   .. note::
+      From version 2.1.3 ``EventType`` is an alias for ``Event``. Beforehand,
+      ``Event`` was a function that returned ``EventType`` instances. Use of
+      ``Event`` is preferred over ``EventType`` wherever it is possible, as
+      the latter could be deprecated in a future version.
 
    .. attribute:: type
 
@@ -454,7 +452,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
       For example, some predefined event identifiers are ``QUIT`` and
       ``MOUSEMOTION``.
 
-      .. ## pygame.event.EventType.type ##
+      .. ## pygame.event.Event.type ##
 
    .. attribute:: __dict__
 
@@ -467,10 +465,10 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
       For example, the attributes of a ``KEYDOWN`` event would be ``unicode``,
       ``key``, and ``mod``
 
-      .. ## pygame.event.EventType.__dict__ ##
+      .. ## pygame.event.Event.__dict__ ##
 
    .. versionadded:: 1.9.2 Mutable attributes.
 
-   .. ## pygame.event.EventType ##
+   .. ## pygame.event.Event ##
 
 .. ## pygame.event ##

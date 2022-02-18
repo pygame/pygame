@@ -563,14 +563,14 @@ Fail:
 static int
 _coerce_obj(PyObject *obj, Uint8 rgba[])
 {
-    if (PyType_IsSubtype(obj->ob_type, &pgColor_Type)) {
+    if (PyType_IsSubtype(Py_TYPE(obj), &pgColor_Type)) {
         rgba[0] = ((pgColorObject *)obj)->data[0];
         rgba[1] = ((pgColorObject *)obj)->data[1];
         rgba[2] = ((pgColorObject *)obj)->data[2];
         rgba[3] = ((pgColorObject *)obj)->data[3];
         return 1;
     }
-    else if (PyType_IsSubtype(obj->ob_type, &PyTuple_Type)) {
+    else if (PyType_IsSubtype(Py_TYPE(obj), &PyTuple_Type)) {
         if (pg_RGBAFromObj(obj, rgba)) {
             return 1;
         }
@@ -1810,7 +1810,7 @@ _color_subscript(pgColorObject *self, PyObject *item)
     else {
         PyErr_Format(PyExc_TypeError,
                      "Color indices must be integers, not %.200s",
-                     item->ob_type->tp_name);
+                     Py_TYPE(item)->tp_name);
         return NULL;
     }
 }
@@ -2091,16 +2091,14 @@ pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[])
 
 MODINIT_DEFINE(color)
 {
-    PyObject *colordict;
-    PyObject *module;
-    PyObject *apiobj;
+    PyObject *module = NULL, *colordict_module, *apiobj;
     static void *c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "color",
                                          _color_doc,
                                          -1,
-                                         _color_methods,
+                                         NULL,
                                          NULL,
                                          NULL,
                                          NULL,
@@ -2114,44 +2112,38 @@ MODINIT_DEFINE(color)
         return NULL;
     }
 
-    colordict = PyImport_ImportModule("pygame.colordict");
-    if (colordict) {
-        PyObject *_dict = PyModule_GetDict(colordict);
-        PyObject *colors = PyDict_GetItemString(_dict, "THECOLORS");
-        Py_INCREF(colors);
-        _COLORDICT = colors;
-        Py_DECREF(colordict);
+    colordict_module = PyImport_ImportModule("pygame.colordict");
+    if (!colordict_module) {
+        return NULL;
     }
-    else {
+
+    _COLORDICT = PyObject_GetAttrString(colordict_module, "THECOLORS");
+    Py_DECREF(colordict_module);
+    if (!_COLORDICT) {
         return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgColor_Type) < 0) {
-        Py_DECREF(_COLORDICT);
-        return NULL;
+        goto error;
     }
 
     /* create the module */
     module = PyModule_Create(&_module);
-    if (module == NULL) {
-        Py_DECREF(_COLORDICT);
-        return NULL;
+    if (!module) {
+        goto error;
     }
     pgColor_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF(&pgColor_Type);
     if (PyModule_AddObject(module, "Color", (PyObject *)&pgColor_Type)) {
         Py_DECREF(&pgColor_Type);
-        Py_DECREF(_COLORDICT);
-        Py_DECREF(module);
-        return NULL;
+        goto error;
     }
     Py_INCREF(_COLORDICT);
     if (PyModule_AddObject(module, "THECOLORS", _COLORDICT)) {
+        /* Yes, _COLORDICT is decref'd twice here and we want that */
         Py_DECREF(_COLORDICT);
-        Py_DECREF(_COLORDICT);
-        Py_DECREF(module);
-        return NULL;
+        goto error;
     }
 
     c_api[0] = &pgColor_Type;
@@ -2161,16 +2153,14 @@ MODINIT_DEFINE(color)
     c_api[4] = pg_RGBAFromFuzzyColorObj;
 
     apiobj = encapsulate_api(c_api, "color");
-    if (apiobj == NULL) {
-        Py_DECREF(_COLORDICT);
-        Py_DECREF(module);
-        return NULL;
-    }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_DECREF(apiobj);
-        Py_DECREF(_COLORDICT);
-        Py_DECREF(module);
-        return NULL;
+        Py_XDECREF(apiobj);
+        goto error;
     }
     return module;
+
+error:
+    Py_XDECREF(module);
+    Py_DECREF(_COLORDICT);
+    return NULL;
 }

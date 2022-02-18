@@ -156,7 +156,7 @@ def create_bounding_rect(surface, surf_color, default_pos):
     return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
 
 
-class InvalidBool(object):
+class InvalidBool:
     """To help test invalid bool values."""
 
     __nonzero__ = None
@@ -195,7 +195,7 @@ class PythonDrawTestCase(unittest.TestCase):
 ### Ellipse Testing ###########################################################
 
 
-class DrawEllipseMixin(object):
+class DrawEllipseMixin:
     """Mixin tests for drawing ellipses.
 
     This class contains all the general ellipse drawing tests.
@@ -1075,7 +1075,7 @@ class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
 ### Line/Lines/AALine/AALines Testing #########################################
 
 
-class BaseLineMixin(object):
+class BaseLineMixin:
     """Mixin base for drawing various lines.
 
     This class contains general helper methods and setup for testing the
@@ -3837,7 +3837,7 @@ CROSS = (
 )
 
 
-class DrawPolygonMixin(object):
+class DrawPolygonMixin:
     """Mixin tests for drawing polygons.
 
     This class contains all the general polygon drawing tests.
@@ -4446,7 +4446,7 @@ class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
 ### Rect Testing ##############################################################
 
 
-class DrawRectMixin(object):
+class DrawRectMixin:
     """Mixin tests for drawing rects.
 
     This class contains all the general rect drawing tests.
@@ -5096,7 +5096,7 @@ class DrawRectTest(DrawRectMixin, DrawTestCase):
 ### Circle Testing ############################################################
 
 
-class DrawCircleMixin(object):
+class DrawCircleMixin:
     """Mixin tests for drawing circles.
 
     This class contains all the general circle drawing tests.
@@ -5758,7 +5758,6 @@ class DrawCircleMixin(object):
         surf = pygame.Surface((200, 200))
         circle_color = pygame.Color("red")
         surf_color = pygame.Color("black")
-        surf.fill((0, 0, 0))
         center = (100, 100)
         radius = 0
         width = 1
@@ -5878,7 +5877,7 @@ class DrawCircleTest(DrawCircleMixin, DrawTestCase):
 ### Arc Testing ###############################################################
 
 
-class DrawArcMixin(object):
+class DrawArcMixin:
     """Mixin tests for drawing arcs.
 
     This class contains all the general arc drawing tests.

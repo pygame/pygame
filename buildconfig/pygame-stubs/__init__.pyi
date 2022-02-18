@@ -38,13 +38,26 @@ from pygame import scrap as scrap
 from ._common import _AnyPath
 
 # These classes are auto imported with pygame, so I put their declaration here
-class Rect(rect.Rect): ...
-class Surface(surface.Surface): ...
-class Color(color.Color): ...
-class PixelArray(pixelarray.PixelArray): ...
-class Vector2(math.Vector2): ...
-class Vector3(math.Vector3): ...
-class Cursor(cursors.Cursor): ...
+from pygame.rect import Rect
+from pygame.surface import Surface
+from pygame.color import Color
+from pygame.pixelarray import PixelArray
+from pygame.math import Vector2, Vector3
+from pygame.cursors import Cursor
+from pygame.bufferproxy import BufferProxy
+from pygame.mask import Mask
+
+__all__ = [
+    "Rect",
+    "Surface",
+    "Color",
+    "PixelArray",
+    "Vector2",
+    "Vector3",
+    "Cursor",
+    "BufferProxy",
+    "Mask",
+]
 
 def init() -> Tuple[int, int]: ...
 def quit() -> None: ...

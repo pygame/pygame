@@ -72,7 +72,7 @@ pygame_scrap_lost(void)
 }
 
 int
-pygame_scrap_put(char *type, int srclen, char *src)
+pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
 {
     uint32_t format;
     int nulledlen = srclen + 1;

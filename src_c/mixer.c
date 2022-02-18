@@ -300,7 +300,7 @@ endsound_callback(int channel)
             PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
-                Mix_GroupChannel(channelnum, (intptr_t)sound);
+                Mix_GroupChannel(channelnum, (int)(intptr_t)sound);
         }
         else {
             PyGILState_STATE gstate = PyGILState_Ensure();
@@ -454,27 +454,45 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
         Mix_VolumeMusic(127);
     }
 
+    current_music = NULL;
+    queue_music = NULL;
+
     music = import_music();
-    if (music != NULL) {
-        PyObject *ptr, *_dict;
-        _dict = PyModule_GetDict(music);
-        ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
-        current_music =
-            (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                               "pygame.music_mixer."
-                                               "_MUSIC_POINTER");
-        ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
-        queue_music = (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                                         "pygame.music_mixer."
-                                                         "_QUEUE_POINTER");
+    if (music) {
+        PyObject *ptr;
+        ptr = PyObject_GetAttrString(music, "_MUSIC_POINTER");
+        if (ptr) {
+            current_music =
+                (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                                   "pygame.music_mixer."
+                                                   "_MUSIC_POINTER");
+            if (!current_music) {
+                PyErr_Clear();
+            }
+        }
+        else {
+            PyErr_Clear();
+        }
+
+        ptr = PyObject_GetAttrString(music, "_QUEUE_POINTER");
+        if (ptr) {
+            queue_music =
+                (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                                   "pygame.music_mixer."
+                                                   "_QUEUE_POINTER");
+            if (!queue_music) {
+                PyErr_Clear();
+            }
+        }
+        else {
+            PyErr_Clear();
+        }
+
         Py_DECREF(music);
     }
     else {
-        current_music = NULL;
-        queue_music = NULL;
         PyErr_Clear();
     }
-
     Py_RETURN_NONE;
 }
 
@@ -638,7 +656,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     Mix_Volume(channelnum, 128);
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     return pgChannel_New(channelnum);
@@ -649,7 +667,7 @@ snd_get_num_channels(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
-    return PyLong_FromLong(Mix_GroupCount((intptr_t)chunk));
+    return PyLong_FromLong(Mix_GroupCount((int)(intptr_t)chunk));
 }
 
 static PyObject *
@@ -663,7 +681,7 @@ snd_fadeout(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_FadeOutGroup((intptr_t)chunk, _time);
+    Mix_FadeOutGroup((int)(intptr_t)chunk, _time);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
@@ -674,7 +692,7 @@ snd_stop(PyObject *self, PyObject *args)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
     Py_BEGIN_ALLOW_THREADS;
-    Mix_HaltGroup((intptr_t)chunk);
+    Mix_HaltGroup((int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
@@ -716,8 +734,7 @@ snd_get_length(PyObject *self, PyObject *args)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
-    else if (format == AUDIO_F32 || format == AUDIO_F32LSB ||
-             format == AUDIO_F32MSB) {
+    else if (format == AUDIO_F32LSB || format == AUDIO_F32MSB) {
         mixerbytes = 4;
     }
     else
@@ -983,22 +1000,20 @@ static PyTypeObject pgSound_Type = {
     0,                           /* tp_richcompare */
     offsetof(pgSoundObject, weakreflist),
     /* tp_weaklistoffset */
-    0,             /* tp_iter */
-    0,             /* tp_iternext */
-    sound_methods, /* tp_methods */
-    0,             /* tp_members */
-    sound_getset,  /* tp_getset */
-    0,             /* tp_base */
-    0,             /* tp_dict */
-    0,             /* tp_descr_get */
-    0,             /* tp_descr_set */
-    0,             /* tp_dictoffset */
-    sound_init,    /* tp_init */
-    0,             /* tp_alloc */
-    0,             /* tp_new */
+    0,                 /* tp_iter */
+    0,                 /* tp_iternext */
+    sound_methods,     /* tp_methods */
+    0,                 /* tp_members */
+    sound_getset,      /* tp_getset */
+    0,                 /* tp_base */
+    0,                 /* tp_dict */
+    0,                 /* tp_descr_get */
+    0,                 /* tp_descr_set */
+    0,                 /* tp_dictoffset */
+    sound_init,        /* tp_init */
+    0,                 /* tp_alloc */
+    PyType_GenericNew, /* tp_new */
 };
-
-// PyType_GenericNew,                    /* tp_new */
 
 /* channel object methods */
 static PyObject *
@@ -1025,7 +1040,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
     }
     if (channelnum != -1)
-        Mix_GroupChannel(channelnum, (intptr_t)chunk);
+        Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     Py_XDECREF(channeldata[channelnum].sound);
@@ -1052,7 +1067,7 @@ chan_queue(PyObject *self, PyObject *args)
         Py_BEGIN_ALLOW_THREADS;
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
         if (channelnum != -1)
-            Mix_GroupChannel(channelnum, (intptr_t)chunk);
+            Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
         Py_END_ALLOW_THREADS;
 
         channeldata[channelnum].sound = sound;
@@ -1273,7 +1288,33 @@ static PyMethodDef channel_methods[] = {
 static void
 channel_dealloc(PyObject *self)
 {
-    PyObject_DEL(self);
+    PyObject_Free(self);
+}
+
+static int
+_channel_init(pgChannelObject *self, int channelnum)
+{
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
+    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1)) {
+        PyErr_SetString(PyExc_IndexError, "invalid channel index");
+        return -1;
+    }
+    self->chan = channelnum;
+    return 0;
+}
+
+static int
+channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
+{
+    int channelnum;
+    if (!PyArg_ParseTuple(args, "i", &channelnum)) {
+        return -1;
+    }
+
+    return _channel_init(self, channelnum);
 }
 
 static PyTypeObject pgChannel_Type = {
@@ -1311,9 +1352,9 @@ static PyTypeObject pgChannel_Type = {
     0,                                        /* tp_descr_get */
     0,                                        /* tp_descr_set */
     0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
+    (initproc)channel_init,                   /* tp_init */
     0,                                        /* tp_alloc */
-    0,                                        /* tp_new */
+    PyType_GenericNew,                        /* tp_new */
 };
 
 /*mixer module methods*/
@@ -1377,17 +1418,6 @@ get_busy(PyObject *self)
         return PyBool_FromLong(0);
 
     return PyBool_FromLong(Mix_Playing(-1));
-}
-
-static PyObject *
-Channel(PyObject *self, PyObject *args)
-{
-    int chan;
-    if (!PyArg_ParseTuple(args, "i", &chan))
-        return NULL;
-
-    MIXER_INIT_CHECK();
-    return pgChannel_New(chan);
 }
 
 static PyObject *
@@ -1459,7 +1489,8 @@ mixer_unpause(PyObject *self)
 
 /* Function to get the SDL mixer version data (linked or compiled).
  *
- * Ref: https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer_8.html#SEC8
+ * Ref:
+ * https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer_8.html#SEC8
  */
 static PyObject *
 mixer_get_sdl_mixer_version(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -1865,7 +1896,6 @@ static PyMethodDef _mixer_methods[] = {
     {"set_reserved", set_reserved, METH_VARARGS, DOC_PYGAMEMIXERSETRESERVED},
 
     {"get_busy", (PyCFunction)get_busy, METH_NOARGS, DOC_PYGAMEMIXERGETBUSY},
-    {"Channel", Channel, METH_VARARGS, DOC_PYGAMEMIXERCHANNEL},
     {"find_channel", (PyCFunction)mixer_find_channel,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERFINDCHANNEL},
     {"fadeout", mixer_fadeout, METH_VARARGS, DOC_PYGAMEMIXERFADEOUT},
@@ -1875,7 +1905,8 @@ static PyMethodDef _mixer_methods[] = {
      DOC_PYGAMEMIXERUNPAUSE},
     {"get_sdl_mixer_version", (PyCFunction)mixer_get_sdl_mixer_version,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERGETSDLMIXERVERSION},
-    /*  { "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
+    /*  { "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency
+       },*/
 
     {NULL, NULL, 0, NULL}};
 
@@ -1899,23 +1930,20 @@ pgSound_New(Mix_Chunk *chunk)
 static PyObject *
 pgChannel_New(int channelnum)
 {
-    pgChannelObject *chanobj;
-
-    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1))
-        return RAISE(PyExc_IndexError, "invalid channel index");
-
-    chanobj = PyObject_NEW(pgChannelObject, &pgChannel_Type);
-    if (!chanobj)
+    pgChannelObject *chanobj = PyObject_New(pgChannelObject, &pgChannel_Type);
+    if (!chanobj) {
         return NULL;
-
-    chanobj->chan = channelnum;
+    }
+    if (_channel_init(chanobj, channelnum)) {
+        Py_DECREF(chanobj);
+        return NULL;
+    }
     return (PyObject *)chanobj;
 }
 
 MODINIT_DEFINE(mixer)
 {
-    PyObject *module, *dict, *apiobj, *music = NULL;
-    int ecode;
+    PyObject *module, *apiobj, *music = NULL;
     static void *c_api[PYGAMEAPI_MIXER_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -1955,28 +1983,36 @@ MODINIT_DEFINE(mixer)
     }
 
     /* create the module */
-    pgSound_Type.tp_new = &PyType_GenericNew;
     module = PyModule_Create(&_module);
     if (module == NULL) {
         return NULL;
     }
-    dict = PyModule_GetDict(module);
 
-    if (PyDict_SetItemString(dict, "Sound", (PyObject *)&pgSound_Type) < 0) {
+    Py_INCREF(&pgSound_Type);
+    if (PyModule_AddObject(module, "Sound", (PyObject *)&pgSound_Type)) {
+        Py_DECREF(&pgSound_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "SoundType", (PyObject *)&pgSound_Type) <
-        0) {
+    Py_INCREF(&pgSound_Type);
+    if (PyModule_AddObject(module, "SoundType", (PyObject *)&pgSound_Type)) {
+        Py_DECREF(&pgSound_Type);
         Py_DECREF(module);
         return NULL;
     }
-    if (PyDict_SetItemString(dict, "ChannelType",
-                             (PyObject *)&pgChannel_Type) < 0) {
+    Py_INCREF(&pgChannel_Type);
+    if (PyModule_AddObject(module, "ChannelType",
+                           (PyObject *)&pgChannel_Type)) {
+        Py_DECREF(&pgChannel_Type);
         Py_DECREF(module);
         return NULL;
     }
-
+    Py_INCREF(&pgChannel_Type);
+    if (PyModule_AddObject(module, "Channel", (PyObject *)&pgChannel_Type)) {
+        Py_DECREF(&pgChannel_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
     /* export the c api */
     c_api[0] = &pgSound_Type;
     c_api[1] = pgSound_New;
@@ -1984,22 +2020,17 @@ MODINIT_DEFINE(mixer)
     c_api[3] = &pgChannel_Type;
     c_api[4] = pgChannel_New;
     apiobj = encapsulate_api(c_api, "mixer");
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode < 0) {
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }
 
     music = import_music();
-    if (music != NULL) {
-        if (PyModule_AddObject(module, "music", music) < 0) {
-            Py_DECREF(module);
+    if (music) {
+        if (PyModule_AddObject(module, "music", music)) {
             Py_DECREF(music);
+            Py_DECREF(module);
             return NULL;
         }
     }

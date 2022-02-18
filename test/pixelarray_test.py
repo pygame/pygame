@@ -23,7 +23,7 @@ import pygame
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
-class TestMixin(object):
+class TestMixin:
     def assert_surfaces_equal(self, s1, s2, msg=None):
         """Checks if two surfaces are equal in size and color."""
         w, h = s1.get_size()

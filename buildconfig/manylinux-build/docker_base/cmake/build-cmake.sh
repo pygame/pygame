@@ -9,7 +9,7 @@ CMAKE=cmake-3.12.4
 
 if [ ! -d $CMAKE ]; then
 
-	curl -sL https://cmake.org/files/v3.12/${CMAKE}.tar.gz > ${CMAKE}.tar.gz
+	curl -sL --retry 10 https://cmake.org/files/v3.12/${CMAKE}.tar.gz > ${CMAKE}.tar.gz
 	sha512sum -c cmake.sha512
 
 	tar xzf ${CMAKE}.tar.gz

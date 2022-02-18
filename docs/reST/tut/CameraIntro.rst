@@ -94,7 +94,7 @@ showing live video.  It is basically what you would expect, looping get_image(),
 blitting to the display surface, and flipping it.  For performance reasons,
 we will be supplying the camera with the same surface to use each time. ::
 
-  class Capture(object):
+  class Capture:
       def __init__(self):
           self.size = (640,480)
           # create a display surface. standard pygame stuff
