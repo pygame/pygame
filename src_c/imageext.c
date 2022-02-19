@@ -221,6 +221,7 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
             color_ptr[i].blue = palette->colors[i].b;
         }
         png_set_PLTE(png_ptr, info_ptr, color_ptr, ncolors);
+        free(color_ptr);
     }
 
     /* doing = "write info"; */
