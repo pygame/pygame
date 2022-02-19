@@ -208,12 +208,13 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
-
-    if (palette){
+    if (palette) {
+        doing = "set pallete";
         const int ncolors = palette->ncolors;
         int i;
-        if (!(color_ptr = (png_colorp)SDL_malloc(sizeof(png_colorp) * ncolors)))
-            goto fail;      
+        if (!(color_ptr =
+                  (png_colorp)SDL_malloc(sizeof(png_colorp) * ncolors)))
+            goto fail;
         for (i = 0; i < ncolors; i++) {
             color_ptr[i].red = palette->colors[i].r;
             color_ptr[i].green = palette->colors[i].g;
@@ -221,7 +222,6 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
         }
         png_set_PLTE(png_ptr, info_ptr, color_ptr, ncolors);
     }
-
 
     /* doing = "write info"; */
     png_write_info(png_ptr, info_ptr);
@@ -265,7 +265,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     SDL_Rect ss_rect;
     int r, i;
     int alpha = 0;
-    SDL_Palette* palette;    
+    SDL_Palette *palette;
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
     int has_colorkey = 0;
@@ -340,7 +340,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
     }
 
-    if (palette){
+    if (palette) {
         r = write_png(file, rw, ss_rows, palette, surface->w, surface->h,
                       PNG_COLOR_TYPE_PALETTE, 8);
     }
