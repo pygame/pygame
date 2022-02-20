@@ -55,6 +55,9 @@ while running:
             target_position = pg.mouse.get_pos()
 
         if event.type == pg.KEYUP:
+            if event.key == pg.K_ESCAPE:
+                running = False
+
             if event.key == pg.K_r:
                 reset()
 
