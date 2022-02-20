@@ -1140,7 +1140,7 @@ class Vector2TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
-        
+
     def test_clamp_mag_v2(self):
         v1 = Vector2(7, 2)
         v2 = v1.clamp_magnitude(5)
@@ -2428,7 +2428,7 @@ class Vector3TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
-    
+
     def test_clamp_mag_v3(self):
         v1 = Vector3(7, 2, 2)
         v2 = v1.clamp_magnitude(5)
