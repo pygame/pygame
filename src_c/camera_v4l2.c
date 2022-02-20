@@ -35,8 +35,15 @@ v4l2_list_cameras(int *num_devices)
     num = *num_devices;
 
     devices = (char **)malloc(sizeof(char *) * 65);
+    if (!devices) {
+        return NULL;
+    }
 
     device = (char *)malloc(sizeof(char) * 13);
+    if (!device) {
+        return NULL;
+    }
+
     strcpy(device, "/dev/video");
     fd = open(device, O_RDONLY);
     if (fd != -1) {
@@ -47,7 +54,11 @@ v4l2_list_cameras(int *num_devices)
     close(fd);
     /* v4l2 cameras can be /dev/video and /dev/video0 to /dev/video63 */
     for (i = 0; i < 64; i++) {
-        sprintf(device, "/dev/video%d", i);
+        int ret = PyOS_snprintf(device, 13, "/dev/video%d", i);
+        if (ret < 0 || ret >= 13) {
+            return NULL;
+        }
+
         fd = open(device, O_RDONLY);
         if (fd != -1) {
             devices[num] = device;

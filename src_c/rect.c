@@ -1377,11 +1377,8 @@ static PyNumberMethods pg_rect_as_number = {
 static PyObject *
 pg_rect_repr(pgRectObject *self)
 {
-    char string[256];
-
-    sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w,
-            self->r.h);
-    return PyUnicode_FromString(string);
+    return PyUnicode_FromFormat("<rect(%d, %d, %d, %d)>", self->r.x, self->r.y,
+                                self->r.w, self->r.h);
 }
 
 static PyObject *

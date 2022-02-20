@@ -1000,14 +1000,14 @@ _ftfont_setstrength(pgFontObject *self, PyObject *value, void *closure)
         return -1;
     }
     strength = PyFloat_AS_DOUBLE(strengthobj);
-    Py_DECREF(strengthobj);
     if (strength < 0.0 || strength > 1.0) {
-        char msg[80];
-
-        sprintf(msg, "strength value %.4e is outside range [0, 1]", strength);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_Format(PyExc_ValueError,
+                     "strength value '%S' is outside range [0, 1]",
+                     strengthobj);
+        Py_DECREF(strengthobj);
         return -1;
     }
+    Py_DECREF(strengthobj);
     self->strength = strength;
     return 0;
 }
@@ -1059,16 +1059,15 @@ _ftfont_setunderlineadjustment(pgFontObject *self, PyObject *value,
         return -1;
     }
     adjustment = PyFloat_AS_DOUBLE(adjustmentobj);
-    Py_DECREF(adjustmentobj);
     if (adjustment < -2.0 || adjustment > 2.0) {
-        char msg[100];
-
-        sprintf(msg,
-                "underline adjustment value %.4e is outside range [-2.0, 2.0]",
-                adjustment);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_Format(
+            PyExc_ValueError,
+            "underline adjustment value '%S' is outside range [-2.0, 2.0]",
+            adjustmentobj);
+        Py_DECREF(adjustmentobj);
         return -1;
     }
+    Py_DECREF(adjustmentobj);
     self->underline_adjustment = adjustment;
     return 0;
 }

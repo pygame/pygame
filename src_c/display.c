@@ -330,7 +330,6 @@ pg_vidinfo_getattr(PyObject *self, char *name)
 PyObject *
 pg_vidinfo_str(PyObject *self)
 {
-    char str[1024];
     int current_w = -1;
     int current_h = -1;
     pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
@@ -345,26 +344,25 @@ pg_vidinfo_str(PyObject *self)
         current_h = info->current_h;
     }
 
-    sprintf(str,
-            "<VideoInfo(hw = %u, wm = %u,video_mem = %u\n"
-            "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
-            "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
-            "         bitsize  = %u, bytesize = %u,\n"
-            "         masks =  (%u, %u, %u, %u),\n"
-            "         shifts = (%u, %u, %u, %u),\n"
-            "         losses =  (%u, %u, %u, %u),\n"
-            "         current_w = %d, current_h = %d\n"
-            "         pixel_format = %s)\n"
-            ">\n",
-            info->hw_available, info->wm_available, info->video_mem,
-            info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
-            info->blit_sw_CC, info->blit_sw_A, info->vfmt->BitsPerPixel,
-            info->vfmt->BytesPerPixel, info->vfmt->Rmask, info->vfmt->Gmask,
-            info->vfmt->Bmask, info->vfmt->Amask, info->vfmt->Rshift,
-            info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
-            info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-            info->vfmt->Aloss, current_w, current_h, pixel_format_name);
-    return PyUnicode_FromString(str);
+    return PyUnicode_FromFormat(
+        "<VideoInfo(hw = %u, wm = %u,video_mem = %u\n"
+        "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
+        "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
+        "         bitsize  = %u, bytesize = %u,\n"
+        "         masks =  (%u, %u, %u, %u),\n"
+        "         shifts = (%u, %u, %u, %u),\n"
+        "         losses =  (%u, %u, %u, %u),\n"
+        "         current_w = %d, current_h = %d\n"
+        "         pixel_format = %s)\n"
+        ">",
+        info->hw_available, info->wm_available, info->video_mem, info->blit_hw,
+        info->blit_hw_CC, info->blit_hw_A, info->blit_sw, info->blit_sw_CC,
+        info->blit_sw_A, info->vfmt->BitsPerPixel, info->vfmt->BytesPerPixel,
+        info->vfmt->Rmask, info->vfmt->Gmask, info->vfmt->Bmask,
+        info->vfmt->Amask, info->vfmt->Rshift, info->vfmt->Gshift,
+        info->vfmt->Bshift, info->vfmt->Ashift, info->vfmt->Rloss,
+        info->vfmt->Gloss, info->vfmt->Bloss, info->vfmt->Aloss, current_w,
+        current_h, pixel_format_name);
 }
 
 static PyTypeObject pgVidInfo_Type = {

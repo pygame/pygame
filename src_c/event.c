@@ -1278,42 +1278,8 @@ PyObject *
 pg_event_str(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
-    char *str;
-    PyObject *strobj;
-    PyObject *pyobj;
-    char *s;
-    size_t size;
-    PyObject *encodedobj;
-
-    strobj = PyObject_Str(e->dict);
-    if (strobj == NULL) {
-        return NULL;
-    }
-    encodedobj = PyUnicode_AsUTF8String(strobj);
-    Py_DECREF(strobj);
-    strobj = encodedobj;
-    encodedobj = NULL;
-    if (strobj == NULL) {
-        return NULL;
-    }
-    s = PyBytes_AsString(strobj);
-    size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
-            sizeof(e->type) * 3 + 1);
-
-    str = (char *)PyMem_Malloc(size);
-    if (!str) {
-        Py_DECREF(strobj);
-        return PyErr_NoMemory();
-    }
-    sprintf(str, "<Event(%d-%s %s)>", e->type,
-            _pg_name_from_eventtype(e->type), s);
-
-    Py_DECREF(strobj);
-
-    pyobj = PyUnicode_FromString(str);
-    PyMem_Free(str);
-
-    return (pyobj);
+    return PyUnicode_FromFormat("<Event(%d-%s %S)>", e->type,
+                                _pg_name_from_eventtype(e->type), e->dict);
 }
 
 static int
