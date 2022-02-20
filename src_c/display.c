@@ -349,7 +349,7 @@ pg_vidinfo_str(PyObject *self)
         "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
         "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
         "         bitsize  = %u, bytesize = %u,\n"
-        "         masks =  (%u, %u, %u, %u),\n"
+        "         masks =  (0x%08x, 0x%08x, 0x%08x, 0x%08x),\n"
         "         shifts = (%u, %u, %u, %u),\n"
         "         losses =  (%u, %u, %u, %u),\n"
         "         current_w = %d, current_h = %d\n"
