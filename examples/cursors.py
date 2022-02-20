@@ -7,6 +7,7 @@ This example will show you:
 *The different types of cursors that exist
 *How to create a cursor
 *How to set a cursor
+*Make a simple button
 
 """
 
@@ -16,10 +17,12 @@ import os
 
 #Create a system cursor
 
-system_cursor = pg.SYSTEM_CURSOR_CROSSHAIR
+system_cursor1 = pg.SYSTEM_CURSOR_CROSSHAIR
+system_cursor2 = pg.SYSTEM_CURSOR_HAND
+system_cursor3 = pg.SYSTEM_CURSOR_IBEAM
 
 
-#Create color cursor
+#Create a color cursor
 
 surf = pg.Surface((40, 40)) 
 surf.fill((120, 50, 50))     
@@ -34,7 +37,7 @@ image = pg.image.load(image_name)
 image_cursor  = pg.cursors.Cursor((image.get_width()//2, image.get_height()//2), image)
 
 
-#Create bitmap cursor from simple strings
+#Create a bitmap cursor from simple strings
 
 # sized 24x24
 thickarrow_strings = (
@@ -69,91 +72,140 @@ bitmap_cursor1 = pg.cursors.Cursor(
 )
 
 
-#Create bitmap cursor from premade simple strings
+#Create a bitmap cursor from premade simple strings
 
 bitmap_cursor2 = pg.cursors.diamond
 
 
-#Calculate if mouse position is inside circle
 
+#Calculate if mouse position is inside circle
 def check_circle(mouse_pos_x, mouse_pos_y, center_x, center_y, radius):
     return (mouse_pos_x - center_x) ** 2 + (mouse_pos_y - center_y) ** 2 < radius ** 2
 
+
 def main():
+
     pg.init()
+    pg.display.set_caption("Cursors Example")
+
     pg.font.init()
-    font = pg.font.Font(None, 24)
+    font = pg.font.Font(None, 30)
+    font1 = pg.font.Font(None, 24)
 
-    bg = pg.display.set_mode((600, 400))
-    bg.fill((225,225,225))
+    bg = pg.display.set_mode((500, 400))
+    bg.fill((183, 201, 226))
 
-
-    text2 = font.render("Hover over the circles to change their color!", True, (0, 0, 0))
-    text_rect2 = text2.get_rect(center=(bg.get_width()/2, 100))
-    bg.blit(text2, text_rect2)
 
     #Initialize circles
-    radius = 60
-    circle_red = pg.draw.circle(bg, (255, 255, 255), (100, 200), radius)
-    circle_green = pg.draw.circle(bg, (255, 255, 255), (300, 200), radius)
-    circle_blue = pg.draw.circle(bg, (255, 255, 255), (500, 200), radius)
+    radius1 = 40
+    radius2 = 40
+    radius3 = 40
+    radius4 = 40
+    radius5 = 40
+    radius6 = 40
+    radius7 = 40
+
+    pos_x1 = 82
+    pos_x2 = 138
+    pos_x3 = 194
+    pos_x4 = 250
+    pos_x5 = 306
+    pos_x6 = 362
+    pos_x7 = 418
+
+    pos_y1 = 140
+    pos_y2 = 220
+    pos_y3 = 140
+    pos_y4 = 220
+    pos_y5 = 140
+    pos_y6 = 220
+    pos_y7 = 140
+
+    circle1 = pg.draw.circle(bg, (255, 255, 255), (pos_x1, pos_y1), radius1)
+    circle2 = pg.draw.circle(bg, (255, 255, 255), (pos_x2, pos_y2), radius2)
+    circle3 = pg.draw.circle(bg, (255, 255, 255), (pos_x3, pos_y3), radius3)
+    circle4 = pg.draw.circle(bg, (255, 255, 255), (pos_x4, pos_y4), radius4)
+    circle5 = pg.draw.circle(bg, (255, 255, 255), (pos_x5, pos_y5), radius5)
+    circle6 = pg.draw.circle(bg, (255, 255, 255), (pos_x6, pos_y6), radius6)
+    circle7 = pg.draw.circle(bg, (255, 255, 255), (pos_x7, pos_y7), radius7)
+
 
     #Initialize button
-    button_text = font.render("Click here to change the cursor", True, (0, 0, 0))
-    button = pg.draw.rect(bg, (180,180,180),(175, 300, button_text.get_width()+5, button_text.get_height() + 50))
+    button_text = font1.render("Click here to change cursor", True, (0, 0, 0))
+    button = pg.draw.rect(bg, (180,180,180),(139, 300, button_text.get_width()+5, button_text.get_height() + 50))
     button_text_rect = button_text.get_rect(center=(button.center))
     bg.blit(button_text, button_text_rect)
 
-    pg.display.set_caption("Cursors Example")
 
     pg.display.update()
 
 
-    cursors = [system_cursor, color_cursor, image_cursor, bitmap_cursor1, bitmap_cursor2]
+    cursors = [system_cursor1, system_cursor3, color_cursor, bitmap_cursor1, system_cursor2, bitmap_cursor2, image_cursor]
     index = 0
     pg.mouse.set_cursor(cursors[index])
 
-    
     while True:
 
         mouse_pos = pg.mouse.get_pos
         mouse_x = mouse_pos()[0]
         mouse_y = mouse_pos()[1]
 
-        if check_circle(mouse_x, mouse_y, circle_red.centerx, circle_red.centery, radius):
-            circle_red = pg.draw.circle(bg, (255, 0, 0), (100, 200), radius)
-     
-        elif check_circle(mouse_x, mouse_y, circle_green.centerx, circle_green.centery, radius):
-            circle_green = pg.draw.circle(bg, (0, 255, 0), (300, 200), radius)
-       
-        elif check_circle(mouse_x, mouse_y, circle_blue.centerx, circle_blue.centery, radius):
-            circle_blue = pg.draw.circle(bg, (0, 0, 255), (500, 200), radius)
-      
+        #Check if mouse is inside a circle to change its color
+        if check_circle(mouse_x, mouse_y, circle1.centerx, circle1.centery, radius1):
+            circle1 = pg.draw.circle(bg, (255, 0, 0), (pos_x1, pos_y1), radius1)
         else:
-            circle_red = pg.draw.circle(bg, (255, 255, 255), (100, 200), radius)
-            circle_green = pg.draw.circle(bg, (255, 255, 255), (300, 200), radius)
-            circle_blue = pg.draw.circle(bg, (255, 255, 255), (500, 200), radius)
+            circle1 = pg.draw.circle(bg, (255, 255, 255), (pos_x1, pos_y1), radius1)
+
+        if check_circle(mouse_x, mouse_y, circle2.centerx, circle2.centery, radius2):
+            circle2 = pg.draw.circle(bg, (255, 127, 0), (pos_x2, pos_y2), radius2)
+        else:
+            circle2 = pg.draw.circle(bg, (255, 255, 255), (pos_x2, pos_y2), radius2)
+
+        if check_circle(mouse_x, mouse_y, circle3.centerx, circle3.centery, radius3):
+            circle3 = pg.draw.circle(bg, (255, 255, 0), (pos_x3, pos_y3), radius3)
+        else:
+            circle3 = pg.draw.circle(bg, (255, 255, 255), (pos_x3, pos_y3), radius3)
+
+        if check_circle(mouse_x, mouse_y, circle4.centerx, circle4.centery, radius3):
+            circle4 = pg.draw.circle(bg, (0, 255, 0), (pos_x4, pos_y4), radius4)
+        else:
+            circle4 = pg.draw.circle(bg, (255, 255, 255), (pos_x4, pos_y4), radius4)
+
+        if check_circle(mouse_x, mouse_y, circle5.centerx, circle5.centery, radius4):
+            circle5 = pg.draw.circle(bg, (0, 0, 255), (pos_x5, pos_y5), radius5)
+        else:
+            circle5 = pg.draw.circle(bg, (255, 255, 255), (pos_x5, pos_y5), radius5)
       
+        if check_circle(mouse_x, mouse_y, circle6.centerx, circle6.centery, radius6):
+            circle6 = pg.draw.circle(bg, (75, 0, 130), (pos_x6, pos_y6), radius6)
+        else:
+            circle6 = pg.draw.circle(bg, (255, 255, 255), (pos_x6, pos_y6), radius6)
 
-        bg.fill((200,200,200), (0, 15 ,bg.get_width(), 50))
+        if check_circle(mouse_x, mouse_y, circle7.centerx, circle7.centery, radius7):
+            circle7 = pg.draw.circle(bg, (148, 0, 211), (pos_x7, pos_y7), radius7)
+        else:
+            circle7 = pg.draw.circle(bg, (255, 255, 255), (pos_x7, pos_y7), radius7)
 
-        text1 = font.render(("This is a "+ pg.mouse.get_cursor().type +" cursor"), True, (0, 0, 0))
+    
+
+        bg.fill((183, 201, 226), (0, 15 ,bg.get_width(), 50))
+        text1 = font.render(("This is a "+ pg.mouse.get_cursor().type + " cursor"), True, (0, 0, 0))
         text_rect1 = text1.get_rect(center=(bg.get_width()/2, 40))
-
         bg.blit(text1, text_rect1)
-
+        
         
         for event in pg.event.get():
 
-            button = pg.draw.rect(bg, (180,180,180),(175, 300, button_text.get_width()+5, button_text.get_height() + 50))
+            button = pg.draw.rect(bg, (100,149,240),(139, 300, button_text.get_width()+5, button_text.get_height() + 50))
             bg.blit(button_text, button_text_rect)
 
+            #Check if button was clicked and change cursor
             if mouse_x > button.x and mouse_x < button.x + button.width and mouse_y > button.y and mouse_y < button.y + button.height:
-                button = pg.draw.rect(bg, (120,120,120),(175, 300, button_text.get_width()+5, button_text.get_height() + 50))
+                button = pg.draw.rect(bg, (60, 100, 255),(139, 300, button_text.get_width()+5, button_text.get_height() + 50))
                 bg.blit(button_text, button_text_rect)
 
                 if pg.mouse.get_pressed()[0]:
-                    button = pg.draw.rect(bg, (50,50,50),(175, 300, button_text.get_width()+5, button_text.get_height() + 50))
+                    button = pg.draw.rect(bg, (0,0,139),(139, 300, button_text.get_width()+5, button_text.get_height() + 50))
                     bg.blit(button_text, button_text_rect)
                     index += 1
                     index %= len(cursors)
@@ -164,8 +216,6 @@ def main():
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit
-
-
 
 
 if __name__ == "__main__":
