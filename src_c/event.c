@@ -247,8 +247,18 @@ _pg_get_event_unicode(SDL_Event *event)
     return PyUnicode_FromString("");
 }
 
-/* The next two functions are used for proxying SDL events to and from
- * PGPOST_* events. These functions do NOT proxy on SDL1.
+#define _PG_HANDLE_PROXIFY(name) \
+    case SDL_##name:             \
+    case PGPOST_##name:          \
+        return proxify ? PGPOST_##name : SDL_##name
+
+#define _PG_HANDLE_PROXIFY_PGE(name) \
+    case PGE_##name:                 \
+    case PGPOST_##name:              \
+        return proxify ? PGPOST_##name : PGE_##name
+
+/* The next three functions are used for proxying SDL events to and from
+ * PGPOST_* events.
  *
  * Some SDL1 events (SDL_ACTIVEEVENT, SDL_VIDEORESIZE and SDL_VIDEOEXPOSE)
  * are redefined with SDL2, they HAVE to be proxied.
@@ -261,275 +271,112 @@ _pg_get_event_unicode(SDL_Event *event)
  */
 
 static Uint32
-_pg_pgevent_proxify(Uint32 type)
+_pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
 {
     switch (type) {
-        case SDL_ACTIVEEVENT:
-            return PGPOST_ACTIVEEVENT;
+        _PG_HANDLE_PROXIFY(ACTIVEEVENT);
+        _PG_HANDLE_PROXIFY(APP_TERMINATING);
+        _PG_HANDLE_PROXIFY(APP_LOWMEMORY);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case SDL_AUDIODEVICEADDED:
-            return PGPOST_AUDIODEVICEADDED;
-        case SDL_AUDIODEVICEREMOVED:
-            return PGPOST_AUDIODEVICEREMOVED;
+        _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
+        _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
-        case SDL_CONTROLLERAXISMOTION:
-            return PGPOST_CONTROLLERAXISMOTION;
-        case SDL_CONTROLLERBUTTONDOWN:
-            return PGPOST_CONTROLLERBUTTONDOWN;
-        case SDL_CONTROLLERBUTTONUP:
-            return PGPOST_CONTROLLERBUTTONUP;
-        case SDL_CONTROLLERDEVICEADDED:
-            return PGPOST_CONTROLLERDEVICEADDED;
-        case SDL_CONTROLLERDEVICEREMOVED:
-            return PGPOST_CONTROLLERDEVICEREMOVED;
-        case SDL_CONTROLLERDEVICEREMAPPED:
-            return PGPOST_CONTROLLERDEVICEREMAPPED;
+        _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
+        _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEADDED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMOVED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMAPPED);
 #if SDL_VERSION_ATLEAST(2, 0, 14)
-        case SDL_CONTROLLERTOUCHPADDOWN:
-            return PGPOST_CONTROLLERTOUCHPADDOWN;
-        case SDL_CONTROLLERTOUCHPADMOTION:
-            return PGPOST_CONTROLLERTOUCHPADMOTION;
-        case SDL_CONTROLLERTOUCHPADUP:
-            return PGPOST_CONTROLLERTOUCHPADUP;
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERSENSORUPDATE);
 #endif
-        case SDL_DOLLARGESTURE:
-            return PGPOST_DOLLARGESTURE;
-        case SDL_DOLLARRECORD:
-            return PGPOST_DOLLARRECORD;
-        case SDL_DROPFILE:
-            return PGPOST_DROPFILE;
+        _PG_HANDLE_PROXIFY(DOLLARGESTURE);
+        _PG_HANDLE_PROXIFY(DOLLARRECORD);
+        _PG_HANDLE_PROXIFY(DROPFILE);
 #if SDL_VERSION_ATLEAST(2, 0, 5)
-        case SDL_DROPTEXT:
-            return PGPOST_DROPTEXT;
-        case SDL_DROPBEGIN:
-            return PGPOST_DROPBEGIN;
-        case SDL_DROPCOMPLETE:
-            return PGPOST_DROPCOMPLETE;
+        _PG_HANDLE_PROXIFY(DROPTEXT);
+        _PG_HANDLE_PROXIFY(DROPBEGIN);
+        _PG_HANDLE_PROXIFY(DROPCOMPLETE);
 #endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-        case SDL_FINGERMOTION:
-            return PGPOST_FINGERMOTION;
-        case SDL_FINGERDOWN:
-            return PGPOST_FINGERDOWN;
-        case SDL_FINGERUP:
-            return PGPOST_FINGERUP;
-        case SDL_KEYDOWN:
-            return PGPOST_KEYDOWN;
-        case SDL_KEYUP:
-            return PGPOST_KEYUP;
-        case SDL_JOYAXISMOTION:
-            return PGPOST_JOYAXISMOTION;
-        case SDL_JOYBALLMOTION:
-            return PGPOST_JOYBALLMOTION;
-        case SDL_JOYHATMOTION:
-            return PGPOST_JOYHATMOTION;
-        case SDL_JOYBUTTONDOWN:
-            return PGPOST_JOYBUTTONDOWN;
-        case SDL_JOYBUTTONUP:
-            return PGPOST_JOYBUTTONUP;
-        case SDL_JOYDEVICEADDED:
-            return PGPOST_JOYDEVICEADDED;
-        case SDL_JOYDEVICEREMOVED:
-            return PGPOST_JOYDEVICEREMOVED;
-        case PGE_MIDIIN:
-            return PGPOST_MIDIIN;
-        case PGE_MIDIOUT:
-            return PGPOST_MIDIOUT;
-        case SDL_MOUSEMOTION:
-            return PGPOST_MOUSEMOTION;
-        case SDL_MOUSEBUTTONDOWN:
-            return PGPOST_MOUSEBUTTONDOWN;
-        case SDL_MOUSEBUTTONUP:
-            return PGPOST_MOUSEBUTTONUP;
-        case SDL_MOUSEWHEEL:
-            return PGPOST_MOUSEWHEEL;
-        case SDL_MULTIGESTURE:
-            return PGPOST_MULTIGESTURE;
-        case SDL_NOEVENT:
-            return PGPOST_NOEVENT;
-        case SDL_QUIT:
-            return PGPOST_QUIT;
-        case SDL_SYSWMEVENT:
-            return PGPOST_SYSWMEVENT;
-        case SDL_TEXTEDITING:
-            return PGPOST_TEXTEDITING;
-        case SDL_TEXTINPUT:
-            return PGPOST_TEXTINPUT;
-        case SDL_VIDEORESIZE:
-            return PGPOST_VIDEORESIZE;
-        case SDL_VIDEOEXPOSE:
-            return PGPOST_VIDEOEXPOSE;
-
-        case PGE_WINDOWSHOWN:
-            return PGPOST_WINDOWSHOWN;
-        case PGE_WINDOWHIDDEN:
-            return PGPOST_WINDOWHIDDEN;
-        case PGE_WINDOWEXPOSED:
-            return PGPOST_WINDOWEXPOSED;
-        case PGE_WINDOWMOVED:
-            return PGPOST_WINDOWMOVED;
-        case PGE_WINDOWRESIZED:
-            return PGPOST_WINDOWRESIZED;
-        case PGE_WINDOWSIZECHANGED:
-            return PGPOST_WINDOWSIZECHANGED;
-        case PGE_WINDOWMINIMIZED:
-            return PGPOST_WINDOWMINIMIZED;
-        case PGE_WINDOWMAXIMIZED:
-            return PGPOST_WINDOWMAXIMIZED;
-        case PGE_WINDOWRESTORED:
-            return PGPOST_WINDOWRESTORED;
-        case PGE_WINDOWENTER:
-            return PGPOST_WINDOWENTER;
-        case PGE_WINDOWLEAVE:
-            return PGPOST_WINDOWLEAVE;
-        case PGE_WINDOWFOCUSGAINED:
-            return PGPOST_WINDOWFOCUSGAINED;
-        case PGE_WINDOWFOCUSLOST:
-            return PGPOST_WINDOWFOCUSLOST;
-        case PGE_WINDOWCLOSE:
-            return PGPOST_WINDOWCLOSE;
-        case PGE_WINDOWTAKEFOCUS:
-            return PGPOST_WINDOWTAKEFOCUS;
-        case PGE_WINDOWHITTEST:
-            return PGPOST_WINDOWHITTEST;
+        _PG_HANDLE_PROXIFY(FINGERMOTION);
+        _PG_HANDLE_PROXIFY(FINGERDOWN);
+        _PG_HANDLE_PROXIFY(FINGERUP);
+        _PG_HANDLE_PROXIFY(KEYDOWN);
+        _PG_HANDLE_PROXIFY(KEYUP);
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
+#endif
+        _PG_HANDLE_PROXIFY(JOYAXISMOTION);
+        _PG_HANDLE_PROXIFY(JOYBALLMOTION);
+        _PG_HANDLE_PROXIFY(JOYHATMOTION);
+        _PG_HANDLE_PROXIFY(JOYBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(JOYBUTTONUP);
+        _PG_HANDLE_PROXIFY(JOYDEVICEADDED);
+        _PG_HANDLE_PROXIFY(JOYDEVICEREMOVED);
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        _PG_HANDLE_PROXIFY(LOCALECHANGED);
+#endif
+        _PG_HANDLE_PROXIFY(MOUSEMOTION);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONUP);
+        _PG_HANDLE_PROXIFY(MOUSEWHEEL);
+        _PG_HANDLE_PROXIFY(MULTIGESTURE);
+        _PG_HANDLE_PROXIFY(NOEVENT);
+        _PG_HANDLE_PROXIFY(QUIT);
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
+#endif
+        _PG_HANDLE_PROXIFY(SYSWMEVENT);
+        _PG_HANDLE_PROXIFY(TEXTEDITING);
+        _PG_HANDLE_PROXIFY(TEXTINPUT);
+        _PG_HANDLE_PROXIFY(VIDEORESIZE);
+        _PG_HANDLE_PROXIFY(VIDEOEXPOSE);
+        _PG_HANDLE_PROXIFY_PGE(MIDIIN);
+        _PG_HANDLE_PROXIFY_PGE(MIDIOUT);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSHOWN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHIDDEN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWEXPOSED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMOVED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSIZECHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMINIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMAXIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESTORED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWENTER);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWLEAVE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSGAINED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSLOST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWCLOSE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWTAKEFOCUS);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHITTEST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWICCPROFCHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWDISPLAYCHANGED);
         default:
             return type;
     }
 }
 
 static Uint32
+_pg_pgevent_proxify(Uint32 type)
+{
+    return _pg_pgevent_proxify_helper(type, 1);
+}
+
+static Uint32
 _pg_pgevent_deproxify(Uint32 type)
 {
-    switch (type) {
-        case PGPOST_ACTIVEEVENT:
-            return SDL_ACTIVEEVENT;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case PGPOST_AUDIODEVICEADDED:
-            return SDL_AUDIODEVICEADDED;
-        case PGPOST_AUDIODEVICEREMOVED:
-            return SDL_AUDIODEVICEREMOVED;
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
-        case PGPOST_CONTROLLERAXISMOTION:
-            return SDL_CONTROLLERAXISMOTION;
-        case PGPOST_CONTROLLERBUTTONDOWN:
-            return SDL_CONTROLLERBUTTONDOWN;
-        case PGPOST_CONTROLLERBUTTONUP:
-            return SDL_CONTROLLERBUTTONUP;
-        case PGPOST_CONTROLLERDEVICEADDED:
-            return SDL_CONTROLLERDEVICEADDED;
-        case PGPOST_CONTROLLERDEVICEREMOVED:
-            return SDL_CONTROLLERDEVICEREMOVED;
-        case PGPOST_CONTROLLERDEVICEREMAPPED:
-            return SDL_CONTROLLERDEVICEREMAPPED;
-#if SDL_VERSION_ATLEAST(2, 0, 14)
-        case PGPOST_CONTROLLERTOUCHPADDOWN:
-            return SDL_CONTROLLERTOUCHPADDOWN;
-        case PGPOST_CONTROLLERTOUCHPADMOTION:
-            return SDL_CONTROLLERTOUCHPADMOTION;
-        case PGPOST_CONTROLLERTOUCHPADUP:
-            return SDL_CONTROLLERTOUCHPADUP;
-#endif
-        case PGPOST_DOLLARGESTURE:
-            return SDL_DOLLARGESTURE;
-        case PGPOST_DOLLARRECORD:
-            return SDL_DOLLARRECORD;
-        case PGPOST_DROPFILE:
-            return SDL_DROPFILE;
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-        case PGPOST_DROPTEXT:
-            return SDL_DROPTEXT;
-        case PGPOST_DROPBEGIN:
-            return SDL_DROPBEGIN;
-        case PGPOST_DROPCOMPLETE:
-            return SDL_DROPCOMPLETE;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-        case PGPOST_FINGERMOTION:
-            return SDL_FINGERMOTION;
-        case PGPOST_FINGERDOWN:
-            return SDL_FINGERDOWN;
-        case PGPOST_FINGERUP:
-            return SDL_FINGERUP;
-        case PGPOST_KEYDOWN:
-            return SDL_KEYDOWN;
-        case PGPOST_KEYUP:
-            return SDL_KEYUP;
-        case PGPOST_JOYAXISMOTION:
-            return SDL_JOYAXISMOTION;
-        case PGPOST_JOYBALLMOTION:
-            return SDL_JOYBALLMOTION;
-        case PGPOST_JOYHATMOTION:
-            return SDL_JOYHATMOTION;
-        case PGPOST_JOYBUTTONDOWN:
-            return SDL_JOYBUTTONDOWN;
-        case PGPOST_JOYBUTTONUP:
-            return SDL_JOYBUTTONUP;
-        case PGPOST_JOYDEVICEADDED:
-            return SDL_JOYDEVICEADDED;
-        case PGPOST_JOYDEVICEREMOVED:
-            return SDL_JOYDEVICEREMOVED;
-        case PGPOST_MIDIIN:
-            return PGE_MIDIIN;
-        case PGPOST_MIDIOUT:
-            return PGE_MIDIOUT;
-        case PGPOST_MOUSEMOTION:
-            return SDL_MOUSEMOTION;
-        case PGPOST_MOUSEBUTTONDOWN:
-            return SDL_MOUSEBUTTONDOWN;
-        case PGPOST_MOUSEBUTTONUP:
-            return SDL_MOUSEBUTTONUP;
-        case PGPOST_MOUSEWHEEL:
-            return SDL_MOUSEWHEEL;
-        case PGPOST_MULTIGESTURE:
-            return SDL_MULTIGESTURE;
-        case PGPOST_NOEVENT:
-            return SDL_NOEVENT;
-        case PGPOST_QUIT:
-            return SDL_QUIT;
-        case PGPOST_SYSWMEVENT:
-            return SDL_SYSWMEVENT;
-        case PGPOST_TEXTEDITING:
-            return SDL_TEXTEDITING;
-        case PGPOST_TEXTINPUT:
-            return SDL_TEXTINPUT;
-        case PGPOST_VIDEORESIZE:
-            return SDL_VIDEORESIZE;
-        case PGPOST_VIDEOEXPOSE:
-            return SDL_VIDEOEXPOSE;
-
-        case PGPOST_WINDOWSHOWN:
-            return PGE_WINDOWSHOWN;
-        case PGPOST_WINDOWHIDDEN:
-            return PGE_WINDOWHIDDEN;
-        case PGPOST_WINDOWEXPOSED:
-            return PGE_WINDOWEXPOSED;
-        case PGPOST_WINDOWMOVED:
-            return PGE_WINDOWMOVED;
-        case PGPOST_WINDOWRESIZED:
-            return PGE_WINDOWRESIZED;
-        case PGPOST_WINDOWSIZECHANGED:
-            return PGE_WINDOWSIZECHANGED;
-        case PGPOST_WINDOWMINIMIZED:
-            return PGE_WINDOWMINIMIZED;
-        case PGPOST_WINDOWMAXIMIZED:
-            return PGE_WINDOWMAXIMIZED;
-        case PGPOST_WINDOWRESTORED:
-            return PGE_WINDOWRESTORED;
-        case PGPOST_WINDOWENTER:
-            return PGE_WINDOWENTER;
-        case PGPOST_WINDOWLEAVE:
-            return PGE_WINDOWLEAVE;
-        case PGPOST_WINDOWFOCUSGAINED:
-            return PGE_WINDOWFOCUSGAINED;
-        case PGPOST_WINDOWFOCUSLOST:
-            return PGE_WINDOWFOCUSLOST;
-        case PGPOST_WINDOWCLOSE:
-            return PGE_WINDOWCLOSE;
-        case PGPOST_WINDOWTAKEFOCUS:
-            return PGE_WINDOWTAKEFOCUS;
-        case PGPOST_WINDOWHITTEST:
-            return PGE_WINDOWHITTEST;
-        default:
-            return type;
-    }
+    return _pg_pgevent_proxify_helper(type, 0);
 }
 
 static SDL_Event *_pg_last_keydown_event = NULL;
@@ -770,10 +617,32 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
+        case SDL_APP_TERMINATING:
+            return "AppTerminating";
+        case SDL_APP_LOWMEMORY:
+            return "AppLowMemory";
+        case SDL_APP_WILLENTERBACKGROUND:
+            return "AppWillEnterBackground";
+        case SDL_APP_DIDENTERBACKGROUND:
+            return "AppDidEnterBackground";
+        case SDL_APP_WILLENTERFOREGROUND:
+            return "AppWillEnterForeground";
+        case SDL_APP_DIDENTERFOREGROUND:
+            return "AppDidEnterForeground";
+        case SDL_CLIPBOARDUPDATE:
+            return "ClipboardUpdate";
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_KEYMAPCHANGED:
+            return "KeyMapChanged";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_LOCALECHANGED:
+            return "LocaleChanged";
+#endif
         case SDL_MOUSEMOTION:
             return "MouseMotion";
         case SDL_MOUSEBUTTONDOWN:
@@ -851,6 +720,8 @@ _pg_name_from_eventtype(int type)
             return "ControllerTouchpadMotion";
         case SDL_CONTROLLERTOUCHPADUP:
             return "ControllerTouchpadUp";
+        case SDL_CONTROLLERSENSORUPDATE:
+            return "ControllerSensorUpdate";
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
@@ -858,7 +729,14 @@ _pg_name_from_eventtype(int type)
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
-
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        case SDL_RENDER_TARGETS_RESET:
+            return "RenderTargetsReset";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_RENDER_DEVICE_RESET:
+            return "RenderDeviceReset";
+#endif
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
@@ -891,6 +769,10 @@ _pg_name_from_eventtype(int type)
             return "WindowTakeFocus";
         case PGE_WINDOWHITTEST:
             return "WindowHitTest";
+        case PGE_WINDOWICCPROFCHANGED:
+            return "WindowICCProfChanged";
+        case PGE_WINDOWDISPLAYCHANGED:
+            return "WindowDisplayChanged";
     }
     if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
         return "UserEvent";
@@ -1099,6 +981,9 @@ dict_from_event(SDL_Event *event)
                        PyLong_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->jbutton.button));
             break;
+        case PGE_WINDOWDISPLAYCHANGED:
+            _pg_insobj(dict, "display_index",
+                       PyLong_FromLong(event->window.data1));
         case PGE_WINDOWMOVED:
         case PGE_WINDOWRESIZED:
         case PGE_WINDOWSIZECHANGED:
@@ -1158,8 +1043,24 @@ dict_from_event(SDL_Event *event)
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyLong_FromLong(event->wheel.x));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
+
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.preciseX));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.preciseY));
+
+#else /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
+            /* fallback to regular x and y when SDL version used does not
+             * support precise fields */
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.x));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.y));
+
+#endif /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
             _pg_insobj(
                 dict, "touch",
                 PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
@@ -1292,6 +1193,8 @@ dict_from_event(SDL_Event *event)
         case PGE_WINDOWCLOSE:
         case PGE_WINDOWTAKEFOCUS:
         case PGE_WINDOWHITTEST:
+        case PGE_WINDOWICCPROFCHANGED:
+        case PGE_WINDOWDISPLAYCHANGED:
         case SDL_TEXTEDITING:
         case SDL_TEXTINPUT:
         case SDL_MOUSEWHEEL:
@@ -1484,6 +1387,69 @@ Unimplemented:
     return Py_NotImplemented;
 }
 
+static int
+_pg_event_populate(pgEventObject *event, int type, PyObject *dict)
+{
+    event->type = _pg_pgevent_deproxify(type);
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        if (PyDict_GetItemString(dict, "type")) {
+            PyErr_SetString(PyExc_ValueError,
+                            "redundant type field in event dict");
+            return -1;
+        }
+        Py_INCREF(dict);
+    }
+    event->dict = dict;
+    return 0;
+}
+
+static int
+pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
+{
+    int type;
+    PyObject *dict = NULL;
+
+    if (!PyArg_ParseTuple(args, "i|O!", &type, &PyDict_Type, &dict)) {
+        return -1;
+    }
+
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        Py_INCREF(dict);
+    }
+
+    if (kwargs) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(kwargs, &pos, &key, &value)) {
+            if (PyDict_SetItem(dict, key, value) < 0) {
+                Py_DECREF(dict);
+                return -1;
+            }
+        }
+    }
+
+    if (_pg_event_populate(self, type, dict) == -1) {
+        return -1;
+    }
+
+    Py_DECREF(dict);
+    return 0;
+}
+
 static PyTypeObject pgEvent_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "Event", /*name*/
     sizeof(pgEventObject),                  /*basic size*/
@@ -1524,9 +1490,9 @@ static PyTypeObject pgEvent_Type = {
     0,                             /* tp_descr_get */
     0,                             /* tp_descr_set */
     offsetof(pgEventObject, dict), /* tp_dictoffset */
-    0,                             /* tp_init */
+    (initproc)pg_event_init,       /* tp_init */
     0,                             /* tp_alloc */
-    0,                             /* tp_new */
+    PyType_GenericNew,             /* tp_new */
 };
 
 static PyObject *
@@ -1560,60 +1526,14 @@ pgEvent_New2(int type, PyObject *dict)
     if (!e)
         return PyErr_NoMemory();
 
-    e->type = _pg_pgevent_deproxify(type);
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict) {
-            PyObject_Free(e);
-            return PyErr_NoMemory();
-        }
+    if (_pg_event_populate(e, type, dict) == -1) {
+        PyObject_Free(e);
+        return NULL;
     }
-    else {
-        if (PyDict_GetItemString(dict, "type")) {
-            PyObject_Free(e);
-            return RAISE(PyExc_ValueError,
-                         "redundant type field in event dict");
-        }
-        Py_INCREF(dict);
-    }
-    e->dict = dict;
     return (PyObject *)e;
 }
 
 /* event module functions */
-static PyObject *
-pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
-{
-    PyObject *dict = NULL;
-    PyObject *event;
-    int type;
-    if (!PyArg_ParseTuple(arg, "i|O!", &type, &PyDict_Type, &dict))
-        return NULL;
-
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict)
-            return PyErr_NoMemory();
-    }
-    else
-        Py_INCREF(dict);
-
-    if (keywords) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(keywords, &pos, &key, &value)) {
-            if (PyDict_SetItem(dict, key, value) < 0) {
-                Py_DECREF(dict);
-                return NULL; /* Exception already set. */
-            }
-        }
-    }
-
-    event = pgEvent_New2(type, dict);
-
-    Py_DECREF(dict);
-    return event;
-}
 
 static PyObject *
 event_name(PyObject *self, PyObject *arg)
@@ -2287,8 +2207,6 @@ static PyMethodDef _event_methods[] = {
     {"__PYGAMEquit__", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
-    {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
@@ -2362,6 +2280,12 @@ MODINIT_DEFINE(event)
 
     Py_INCREF(&pgEvent_Type);
     if (PyModule_AddObject(module, "EventType", (PyObject *)&pgEvent_Type)) {
+        Py_DECREF(&pgEvent_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(&pgEvent_Type);
+    if (PyModule_AddObject(module, "Event", (PyObject *)&pgEvent_Type)) {
         Py_DECREF(&pgEvent_Type);
         Py_DECREF(module);
         return NULL;

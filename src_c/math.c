@@ -128,6 +128,9 @@ _vector_find_string_helper(PyObject *str_obj, const char *substr,
 static Py_ssize_t
 _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,
                            Py_ssize_t dim);
+static void
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
+                            double *target_coords, double max_distance);
 
 /* generic vector functions */
 static PyObject *
@@ -207,6 +210,10 @@ static PyObject *
 vector_dot(pgVector *self, PyObject *other);
 static PyObject *
 vector_scale_to_length(pgVector *self, PyObject *length);
+static PyObject *
+vector_move_towards(pgVector *self, PyObject *args);
+static PyObject *
+vector_move_towards_ip(pgVector *self, PyObject *args);
 static PyObject *
 vector_slerp(pgVector *self, PyObject *args);
 static PyObject *
@@ -1288,6 +1295,99 @@ vector_scale_to_length(pgVector *self, PyObject *length)
     Py_RETURN_NONE;
 }
 
+static void
+_vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
+                            double *target_coords, double max_distance)
+{
+    Py_ssize_t i;
+    double delta[VECTOR_MAX_SIZE];
+    double dist;
+
+    if (max_distance == 0)
+        return;
+
+    for (i = 0; i < dim; ++i)
+        delta[i] = target_coords[i] - origin_coords[i];
+
+    /* Get magnitude of Vector */
+    dist = sqrt(_scalar_product(delta, delta, dim));
+
+    if (dist <= max_distance) {
+        /* Return target Vector */
+        for (i = 0; i < dim; ++i)
+            origin_coords[i] = target_coords[i];
+        return;
+    }
+
+    for (i = 0; i < dim; ++i)
+        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
+
+    return;
+}
+
+static PyObject *
+vector_move_towards(pgVector *self, PyObject *args)
+{
+    Py_ssize_t i;
+    PyObject *target;
+    double target_coords[VECTOR_MAX_SIZE];
+    double max_distance;
+    pgVector *ret;
+
+    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &max_distance))
+        return NULL;
+
+    if (!pgVectorCompatible_Check(target, self->dim)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Target Vector is not the same size as self");
+        return NULL;
+    }
+
+    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL)
+        return NULL;
+
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i];
+
+    _vector_move_towards_helper(self->dim, ret->coords, target_coords,
+                                max_distance);
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector_move_towards_ip(pgVector *self, PyObject *args)
+{
+    PyObject *target;
+    double target_coords[VECTOR_MAX_SIZE];
+    double max_distance;
+
+    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &max_distance))
+        return NULL;
+
+    if (!pgVectorCompatible_Check(target, self->dim)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Target Vector is not the same size as self");
+        return NULL;
+    }
+
+    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+
+    _vector_move_towards_helper(self->dim, self->coords, target_coords,
+                                max_distance);
+
+    Py_RETURN_NONE;
+}
+
 static PyObject *
 vector_slerp(pgVector *self, PyObject *args)
 {
@@ -2204,6 +2304,10 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
      DOC_VECTOR2ROTATEIPRAD},
+    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS,
+     DOC_VECTOR2MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS,
+     DOC_VECTOR2MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -3153,6 +3257,10 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
      DOC_VECTOR3ROTATEZIPRAD},
+    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS,
+     DOC_VECTOR3MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS,
+     DOC_VECTOR3MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
