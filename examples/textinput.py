@@ -184,19 +184,6 @@ class Game:
     SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
     BG_COLOR = "black"
 
-    # Add font name for each language,
-    # otherwise some text can't be correctly displayed.
-    FONT_NAMES = [
-        "notosanscjktcregular",
-        "notosansmonocjktcregular",
-        "notosansregular,",
-        "microsoftjhengheimicrosoftjhengheiuilight",
-        "microsoftyaheimicrosoftyaheiuilight",
-        "msgothicmsuigothicmspgothic",
-        "msmincho",
-        "Arial",
-    ]
-
     def __init__(self, caption: str) -> None:
         # Initalize
         pg.init()
