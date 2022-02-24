@@ -43,7 +43,7 @@ class TextInput:
         self.promt = promt
         self.print_event = print_event
         # position of chatlist and chatbox
-        self.CHAT_LIST_POS = pg.Rect(pos, (screen_dimensions[0], 400))
+        self.CHAT_LIST_POS = pg.Rect((pos[0], pos[1] + 50), (screen_dimensions[0], 400))
         self.CHAT_BOX_POS = pg.Rect(pos, (screen_dimensions[1], 40))
         self.CHAT_LIST_MAXSIZE = 20
 
