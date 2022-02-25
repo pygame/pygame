@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 """ pygame.examples.cursors
-
 Click a button and the cursor will change.
-
 This example will show you:
 *The different types of cursors that exist
 *How to create a cursor
 *How to set a cursor
 *How to make a simple button
-
 """
 
 import pygame as pg
@@ -145,17 +142,23 @@ def main():
 
     cursors = [
         system_cursor1,
-        system_cursor3,
         color_cursor,
-        bitmap_cursor1,
         system_cursor2,
-        bitmap_cursor2,
         image_cursor,
+        system_cursor3,
+        bitmap_cursor1,
+        bitmap_cursor2,
     ]
+
     index = 0
     pg.mouse.set_cursor(cursors[index])
 
+    pressed = False
+    clock = pg.time.Clock()
+
     while True:
+
+        clock.tick(50)
 
         mouse_pos = pg.mouse.get_pos
         mouse_x = mouse_pos()[0]
@@ -197,7 +200,6 @@ def main():
         else:
             circle7 = pg.draw.circle(bg, (255, 255, 255), (pos_x7, pos_y7), radius7)
 
-
         bg.fill((183, 201, 226), (0, 15, bg.get_width(), 50))
         text1 = font.render(
             ("This is a " + pg.mouse.get_cursor().type + " cursor"), True, (0, 0, 0)
@@ -205,21 +207,32 @@ def main():
         text_rect1 = text1.get_rect(center=(bg.get_width() / 2, 40))
         bg.blit(text1, text_rect1)
 
+        button = pg.draw.rect(
+            bg,
+            (100, 149, 240),
+            (139, 300, button_text.get_width() + 5, button_text.get_height() + 50),
+        )
+        bg.blit(button_text, button_text_rect)
 
-        for event in pg.event.get():
-
+        # Check if button was clicked and change cursor
+        if button.collidepoint(mouse_x, mouse_y):
             button = pg.draw.rect(
                 bg,
-                (100, 149, 240),
-                (139, 300, button_text.get_width() + 5, button_text.get_height() + 50),
+                (60, 100, 255),
+                (
+                    139,
+                    300,
+                    button_text.get_width() + 5,
+                    button_text.get_height() + 50,
+                ),
             )
             bg.blit(button_text, button_text_rect)
 
-            # Check if button was clicked and change cursor
-            if button.collidepoint(mouse_x, mouse_y):
+            if pg.mouse.get_pressed()[0] == 1 and pressed == False:
+                pressed = True
                 button = pg.draw.rect(
                     bg,
-                    (60, 100, 255),
+                    (0, 0, 139),
                     (
                         139,
                         300,
@@ -228,30 +241,21 @@ def main():
                     ),
                 )
                 bg.blit(button_text, button_text_rect)
+                index += 1
+                index %= len(cursors)
+                pg.mouse.set_cursor(cursors[index])
 
-                if pg.mouse.get_pressed()[0]:
-                    button = pg.draw.rect(
-                        bg,
-                        (0, 0, 139),
-                        (
-                            139,
-                            300,
-                            button_text.get_width() + 5,
-                            button_text.get_height() + 50,
-                        ),
-                    )
-                    bg.blit(button_text, button_text_rect)
-                    index += 1
-                    index %= len(cursors)
-                    pg.mouse.set_cursor(cursors[index])
+            if pg.mouse.get_pressed()[0] == 0:
+                pressed = False
 
-            pg.display.update()
+        for event in pg.event.get():
 
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit
 
+        pg.display.update()
+
 
 if __name__ == "__main__":
     main()
-    
