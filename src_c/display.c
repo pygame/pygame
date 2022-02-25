@@ -354,7 +354,7 @@ pg_vidinfo_str(PyObject *self)
             "         shifts = (%u, %u, %u, %u),\n"
             "         losses =  (%u, %u, %u, %u),\n"
             "         current_w = %d, current_h = %d\n"
-            "         pixel_format = %s\n"
+            "         pixel_format = %s)\n"
             ">\n",
             info->hw_available, info->wm_available, info->video_mem,
             info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
