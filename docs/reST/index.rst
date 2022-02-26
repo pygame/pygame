@@ -192,6 +192,6 @@ Reference
 
 .. _File Path Function Arguments: filepaths.html
 
-.. _LGPL License: _static/LGPL.txt
+.. _LGPL License: LGPL.txt
 
 .. _Pygame Logos: logos.html
