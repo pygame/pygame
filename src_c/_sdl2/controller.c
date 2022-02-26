@@ -1491,7 +1491,7 @@ static const char __pyx_k_max_controllers[] = "max_controllers";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_pygame__sdl2_controller[] = "pygame._sdl2.controller";
-static const char __pyx_k_GAMECONTROLLER_INIT_CHECK[] = "GAMECONTROLLER_INIT_CHECK";
+static const char __pyx_k_gamecontroller_init_check[] = "_gamecontroller_init_check";
 static const char __pyx_k_Could_not_open_controller_d[] = "Could not open controller %d.";
 static const char __pyx_k_called_on_a_closed_controller[] = "called on a closed controller";
 static const char __pyx_k_Index_is_invalid_or_not_a_suppor[] = "Index is invalid or not a supported joystick.";
@@ -1502,7 +1502,6 @@ static const char __pyx_k_src_c_cython_pygame__sdl2_contro[] = "src_c\\cython\\p
 static PyObject *__pyx_n_s_CLOSEDCHECK;
 static PyObject *__pyx_n_s_Controller;
 static PyObject *__pyx_kp_s_Could_not_open_controller_d;
-static PyObject *__pyx_n_s_GAMECONTROLLER_INIT_CHECK;
 static PyObject *__pyx_kp_s_Index_is_invalid_or_not_a_suppor;
 static PyObject *__pyx_n_s_PYGAMEinit;
 static PyObject *__pyx_n_s_TypeError;
@@ -1521,6 +1520,7 @@ static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_error;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_from_joystick;
+static PyObject *__pyx_n_s_gamecontroller_init_check;
 static PyObject *__pyx_kp_s_gamecontroller_system_not_initia;
 static PyObject *__pyx_n_s_get_count;
 static PyObject *__pyx_n_s_get_eventstate;
@@ -1563,7 +1563,7 @@ static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_kp_s_utf_8;
 static PyObject *__pyx_n_s_zip;
-static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_6pygame_5_sdl2_10controller__gamecontroller_init_check(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_2__PYGAMEinit__(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_4init(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_6get_init(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
@@ -1625,26 +1625,26 @@ static PyObject *__pyx_codeobj__26;
 /* "pygame/_sdl2/controller.pyx":16
  * import_pygame_joystick()
  * 
- * def GAMECONTROLLER_INIT_CHECK():             # <<<<<<<<<<<<<<
+ * def _gamecontroller_init_check():             # <<<<<<<<<<<<<<
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
  *         raise error("gamecontroller system not initialized")
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygame_5_sdl2_10controller_1GAMECONTROLLER_INIT_CHECK(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyMethodDef __pyx_mdef_6pygame_5_sdl2_10controller_1GAMECONTROLLER_INIT_CHECK = {"GAMECONTROLLER_INIT_CHECK", (PyCFunction)__pyx_pw_6pygame_5_sdl2_10controller_1GAMECONTROLLER_INIT_CHECK, METH_NOARGS, 0};
-static PyObject *__pyx_pw_6pygame_5_sdl2_10controller_1GAMECONTROLLER_INIT_CHECK(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6pygame_5_sdl2_10controller_1_gamecontroller_init_check(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyMethodDef __pyx_mdef_6pygame_5_sdl2_10controller_1_gamecontroller_init_check = {"_gamecontroller_init_check", (PyCFunction)__pyx_pw_6pygame_5_sdl2_10controller_1_gamecontroller_init_check, METH_NOARGS, 0};
+static PyObject *__pyx_pw_6pygame_5_sdl2_10controller_1_gamecontroller_init_check(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("GAMECONTROLLER_INIT_CHECK (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(__pyx_self);
+  __Pyx_RefNannySetupContext("_gamecontroller_init_check (wrapper)", 0);
+  __pyx_r = __pyx_pf_6pygame_5_sdl2_10controller__gamecontroller_init_check(__pyx_self);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(CYTHON_UNUSED PyObject *__pyx_self) {
+static PyObject *__pyx_pf_6pygame_5_sdl2_10controller__gamecontroller_init_check(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -1654,11 +1654,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("GAMECONTROLLER_INIT_CHECK", 0);
+  __Pyx_RefNannySetupContext("_gamecontroller_init_check", 0);
 
   /* "pygame/_sdl2/controller.pyx":17
  * 
- * def GAMECONTROLLER_INIT_CHECK():
+ * def _gamecontroller_init_check():
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):             # <<<<<<<<<<<<<<
  *         raise error("gamecontroller system not initialized")
  * 
@@ -1667,7 +1667,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(
   if (unlikely(__pyx_t_1)) {
 
     /* "pygame/_sdl2/controller.pyx":18
- * def GAMECONTROLLER_INIT_CHECK():
+ * def _gamecontroller_init_check():
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
  *         raise error("gamecontroller system not initialized")             # <<<<<<<<<<<<<<
  * 
@@ -1696,7 +1696,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(
 
     /* "pygame/_sdl2/controller.pyx":17
  * 
- * def GAMECONTROLLER_INIT_CHECK():
+ * def _gamecontroller_init_check():
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):             # <<<<<<<<<<<<<<
  *         raise error("gamecontroller system not initialized")
  * 
@@ -1706,7 +1706,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(
   /* "pygame/_sdl2/controller.pyx":16
  * import_pygame_joystick()
  * 
- * def GAMECONTROLLER_INIT_CHECK():             # <<<<<<<<<<<<<<
+ * def _gamecontroller_init_check():             # <<<<<<<<<<<<<<
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
  *         raise error("gamecontroller system not initialized")
  */
@@ -1718,7 +1718,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_GAMECONTROLLER_INIT_CHECK(
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("pygame._sdl2.controller.GAMECONTROLLER_INIT_CHECK", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pygame._sdl2.controller._gamecontroller_init_check", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2324,7 +2324,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_8quit(CYTHON_UNUSED PyObje
  *         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
  * 
  * def set_eventstate(state):             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerEventState(int(state))
  */
 
@@ -2357,11 +2357,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10set_eventstate(CYTHON_UN
   /* "pygame/_sdl2/controller.pyx":56
  * 
  * def set_eventstate(state):
- *     GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *     _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *     SDL_GameControllerEventState(int(state))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2382,7 +2382,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10set_eventstate(CYTHON_UN
 
   /* "pygame/_sdl2/controller.pyx":57
  * def set_eventstate(state):
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerEventState(int(state))             # <<<<<<<<<<<<<<
  * 
  * def get_eventstate():
@@ -2397,7 +2397,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10set_eventstate(CYTHON_UN
  *         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
  * 
  * def set_eventstate(state):             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerEventState(int(state))
  */
 
@@ -2420,7 +2420,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10set_eventstate(CYTHON_UN
  *     SDL_GameControllerEventState(int(state))
  * 
  * def get_eventstate():             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_GameControllerEventState(-1) == 1
  */
 
@@ -2452,11 +2452,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_12get_eventstate(CYTHON_UN
   /* "pygame/_sdl2/controller.pyx":60
  * 
  * def get_eventstate():
- *     GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *     _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *     return SDL_GameControllerEventState(-1) == 1
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2477,7 +2477,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_12get_eventstate(CYTHON_UN
 
   /* "pygame/_sdl2/controller.pyx":61
  * def get_eventstate():
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_GameControllerEventState(-1) == 1             # <<<<<<<<<<<<<<
  * 
  * def get_count():
@@ -2493,7 +2493,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_12get_eventstate(CYTHON_UN
  *     SDL_GameControllerEventState(int(state))
  * 
  * def get_eventstate():             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_GameControllerEventState(-1) == 1
  */
 
@@ -2674,11 +2674,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_16update(CYTHON_UNUSED PyO
   /* "pygame/_sdl2/controller.pyx":75
  *         not necessary to call this function.
  *     """
- *     GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *     _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *     SDL_GameControllerUpdate()
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2699,7 +2699,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_16update(CYTHON_UNUSED PyO
 
   /* "pygame/_sdl2/controller.pyx":76
  *     """
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerUpdate()             # <<<<<<<<<<<<<<
  * 
  * def is_controller(index):
@@ -2767,11 +2767,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_18is_controller(CYTHON_UNU
   /* "pygame/_sdl2/controller.pyx":85
  *     :return: 1 if supported, 0 if unsupported or invalid index.
  *     """
- *     GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *     _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *     return SDL_IsGameController(index) == 1
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2792,7 +2792,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_18is_controller(CYTHON_UNU
 
   /* "pygame/_sdl2/controller.pyx":86
  *     """
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_IsGameController(index) == 1             # <<<<<<<<<<<<<<
  * 
  * def name_forindex(index):
@@ -2867,11 +2867,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_20name_forindex(CYTHON_UNU
   /* "pygame/_sdl2/controller.pyx":92
  *         or NULL if there's no name or the index is invalid.
  *     """
- *     GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *     _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *     max_controllers = SDL_NumJoysticks()
  *     if max_controllers < 0:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2892,7 +2892,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_20name_forindex(CYTHON_UNU
 
   /* "pygame/_sdl2/controller.pyx":93
  *     """
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     max_controllers = SDL_NumJoysticks()             # <<<<<<<<<<<<<<
  *     if max_controllers < 0:
  *         raise error()
@@ -2900,7 +2900,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_20name_forindex(CYTHON_UNU
   __pyx_v_max_controllers = SDL_NumJoysticks();
 
   /* "pygame/_sdl2/controller.pyx":94
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     max_controllers = SDL_NumJoysticks()
  *     if max_controllers < 0:             # <<<<<<<<<<<<<<
  *         raise error()
@@ -2938,7 +2938,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_20name_forindex(CYTHON_UNU
     __PYX_ERR(0, 95, __pyx_L1_error)
 
     /* "pygame/_sdl2/controller.pyx":94
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     max_controllers = SDL_NumJoysticks()
  *     if max_controllers < 0:             # <<<<<<<<<<<<<<
  *         raise error()
@@ -3105,11 +3105,11 @@ static int __pyx_pf_6pygame_5_sdl2_10controller_10Controller___init__(struct __p
   /* "pygame/_sdl2/controller.pyx":110
  *         :param int index: Index of the joystick.
  *         """
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         if not SDL_IsGameController(index):
  *             raise error('Index is invalid or not a supported joystick.')
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -3130,7 +3130,7 @@ static int __pyx_pf_6pygame_5_sdl2_10controller_10Controller___init__(struct __p
 
   /* "pygame/_sdl2/controller.pyx":111
  *         """
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         if not SDL_IsGameController(index):             # <<<<<<<<<<<<<<
  *             raise error('Index is invalid or not a supported joystick.')
  * 
@@ -3139,7 +3139,7 @@ static int __pyx_pf_6pygame_5_sdl2_10controller_10Controller___init__(struct __p
   if (unlikely(__pyx_t_4)) {
 
     /* "pygame/_sdl2/controller.pyx":112
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         if not SDL_IsGameController(index):
  *             raise error('Index is invalid or not a supported joystick.')             # <<<<<<<<<<<<<<
  * 
@@ -3168,7 +3168,7 @@ static int __pyx_pf_6pygame_5_sdl2_10controller_10Controller___init__(struct __p
 
     /* "pygame/_sdl2/controller.pyx":111
  *         """
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         if not SDL_IsGameController(index):             # <<<<<<<<<<<<<<
  *             raise error('Index is invalid or not a supported joystick.')
  * 
@@ -4066,7 +4066,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_2id___get__(s
  *     @property
  *     def name(self):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerName
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
 /* Python wrapper */
@@ -4097,11 +4097,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_4name___get__
   /* "pygame/_sdl2/controller.pyx":165
  *     def name(self):
  *         # https://wiki.libsdl.org/SDL_GameControllerName
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerName(self._controller).decode('utf-8')
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4122,7 +4122,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_4name___get__
 
   /* "pygame/_sdl2/controller.pyx":166
  *         # https://wiki.libsdl.org/SDL_GameControllerName
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         return SDL_GameControllerName(self._controller).decode('utf-8')
  * 
@@ -4147,7 +4147,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_4name___get__
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":167
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerName(self._controller).decode('utf-8')             # <<<<<<<<<<<<<<
  * 
@@ -4167,7 +4167,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_4name___get__
  *     @property
  *     def name(self):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerName
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
   /* function exit code */
@@ -4188,7 +4188,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_4name___get__
  * 
  *     def attached(self):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
 /* Python wrapper */
@@ -4218,11 +4218,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_14attached(st
   /* "pygame/_sdl2/controller.pyx":171
  *     def attached(self):
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetAttached(self._controller)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4243,7 +4243,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_14attached(st
 
   /* "pygame/_sdl2/controller.pyx":172
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         return SDL_GameControllerGetAttached(self._controller)
  * 
@@ -4268,7 +4268,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_14attached(st
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":173
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetAttached(self._controller)             # <<<<<<<<<<<<<<
  * 
@@ -4286,7 +4286,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_14attached(st
  * 
  *     def attached(self):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
   /* function exit code */
@@ -4339,7 +4339,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_16as_joystick
  *     def as_joystick(self):
  *         # create a pygame.joystick.Joystick() object by using index.
  *         JOYSTICK_INIT_CHECK()             # <<<<<<<<<<<<<<
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         joy = pgJoystick_New(self._index)
  */
   JOYSTICK_INIT_CHECK();
@@ -4347,11 +4347,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_16as_joystick
   /* "pygame/_sdl2/controller.pyx":178
  *         # create a pygame.joystick.Joystick() object by using index.
  *         JOYSTICK_INIT_CHECK()
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         joy = pgJoystick_New(self._index)
  *         return joy
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4372,7 +4372,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_16as_joystick
 
   /* "pygame/_sdl2/controller.pyx":179
  *         JOYSTICK_INIT_CHECK()
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         joy = pgJoystick_New(self._index)             # <<<<<<<<<<<<<<
  *         return joy
  * 
@@ -4383,7 +4383,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_16as_joystick
   __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":180
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         joy = pgJoystick_New(self._index)
  *         return joy             # <<<<<<<<<<<<<<
  * 
@@ -4421,7 +4421,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_16as_joystick
  * 
  *     def get_axis(self, SDL_GameControllerAxis axis):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
 /* Python wrapper */
@@ -4464,11 +4464,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_18get_axis(st
   /* "pygame/_sdl2/controller.pyx":184
  *     def get_axis(self, SDL_GameControllerAxis axis):
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetAxis(self._controller, axis)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 184, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4489,7 +4489,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_18get_axis(st
 
   /* "pygame/_sdl2/controller.pyx":185
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         return SDL_GameControllerGetAxis(self._controller, axis)
  * 
@@ -4514,7 +4514,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_18get_axis(st
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":186
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetAxis(self._controller, axis)             # <<<<<<<<<<<<<<
  * 
@@ -4532,7 +4532,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_18get_axis(st
  * 
  *     def get_axis(self, SDL_GameControllerAxis axis):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
   /* function exit code */
@@ -4553,7 +4553,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_18get_axis(st
  * 
  *     def get_button(self, SDL_GameControllerButton button):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetButton
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
 /* Python wrapper */
@@ -4596,11 +4596,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_20get_button(
   /* "pygame/_sdl2/controller.pyx":190
  *     def get_button(self, SDL_GameControllerButton button):
  *         # https://wiki.libsdl.org/SDL_GameControllerGetButton
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetButton(self._controller, button) == 1
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4621,7 +4621,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_20get_button(
 
   /* "pygame/_sdl2/controller.pyx":191
  *         # https://wiki.libsdl.org/SDL_GameControllerGetButton
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         return SDL_GameControllerGetButton(self._controller, button) == 1
  * 
@@ -4646,7 +4646,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_20get_button(
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":192
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         return SDL_GameControllerGetButton(self._controller, button) == 1             # <<<<<<<<<<<<<<
  * 
@@ -4664,7 +4664,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_20get_button(
  * 
  *     def get_button(self, SDL_GameControllerButton button):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_GameControllerGetButton
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  */
 
   /* function exit code */
@@ -4725,11 +4725,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_22get_mapping
   /* "pygame/_sdl2/controller.pyx":197
  *         #https://wiki.libsdl.org/SDL_GameControllerMapping
  *         # TODO: mapping should be a readable dict instead of a string.
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         raw_mapping = SDL_GameControllerMapping(self._controller)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4750,7 +4750,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_22get_mapping
 
   /* "pygame/_sdl2/controller.pyx":198
  *         # TODO: mapping should be a readable dict instead of a string.
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         raw_mapping = SDL_GameControllerMapping(self._controller)
  *         mapping = raw_mapping.decode('utf-8')
@@ -4775,7 +4775,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_22get_mapping
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/controller.pyx":199
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         raw_mapping = SDL_GameControllerMapping(self._controller)             # <<<<<<<<<<<<<<
  *         mapping = raw_mapping.decode('utf-8')
@@ -5083,11 +5083,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_24set_mapping
   /* "pygame/_sdl2/controller.pyx":220
  *         # https://wiki.libsdl.org/SDL_GameControllerAddMapping
  *         # TODO: mapping should be a readable dict instead of a string.
- *         GAMECONTROLLER_INIT_CHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
  *         self._CLOSEDCHECK()
  *         cdef SDL_Joystick *joy
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GAMECONTROLLER_INIT_CHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -5108,7 +5108,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_24set_mapping
 
   /* "pygame/_sdl2/controller.pyx":221
  *         # TODO: mapping should be a readable dict instead of a string.
- *         GAMECONTROLLER_INIT_CHECK()
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         cdef SDL_Joystick *joy
  *         cdef SDL_JoystickGUID guid
@@ -5521,14 +5521,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   /* "pygame/_sdl2/controller.pyx":248
  *         False otherwise.
  *         """
- *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
+ *         self._CLOSEDCHECK()
  *         if not SDL_VERSION_ATLEAST(2, 0, 9):
- *             return False
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_CLOSEDCHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
     __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
     if (likely(__pyx_t_3)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
@@ -5546,6 +5546,32 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
 
   /* "pygame/_sdl2/controller.pyx":249
  *         """
+ *         _gamecontroller_init_check()
+ *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
+ *         if not SDL_VERSION_ATLEAST(2, 0, 9):
+ *             return False
+ */
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_CLOSEDCHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/controller.pyx":250
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         if not SDL_VERSION_ATLEAST(2, 0, 9):             # <<<<<<<<<<<<<<
  *             return False
@@ -5554,7 +5580,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   __pyx_t_4 = ((!(SDL_VERSION_ATLEAST(2, 0, 9) != 0)) != 0);
   if (__pyx_t_4) {
 
-    /* "pygame/_sdl2/controller.pyx":250
+    /* "pygame/_sdl2/controller.pyx":251
  *         self._CLOSEDCHECK()
  *         if not SDL_VERSION_ATLEAST(2, 0, 9):
  *             return False             # <<<<<<<<<<<<<<
@@ -5566,8 +5592,8 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
     __pyx_r = Py_False;
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/controller.pyx":249
- *         """
+    /* "pygame/_sdl2/controller.pyx":250
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         if not SDL_VERSION_ATLEAST(2, 0, 9):             # <<<<<<<<<<<<<<
  *             return False
@@ -5575,7 +5601,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
  */
   }
 
-  /* "pygame/_sdl2/controller.pyx":252
+  /* "pygame/_sdl2/controller.pyx":253
  *             return False
  * 
  *         duration = max(duration, 0)             # <<<<<<<<<<<<<<
@@ -5585,14 +5611,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   __pyx_t_5 = 0;
   __Pyx_INCREF(__pyx_v_duration);
   __pyx_t_1 = __pyx_v_duration;
-  __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_4) {
-    __pyx_t_6 = __Pyx_PyInt_From_long(__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 252, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_From_long(__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_2 = __pyx_t_6;
     __pyx_t_6 = 0;
@@ -5607,7 +5633,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   __Pyx_DECREF_SET(__pyx_v_duration, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/controller.pyx":253
+  /* "pygame/_sdl2/controller.pyx":254
  * 
  *         duration = max(duration, 0)
  *         low = min(max(low_frequency, 0.0), 1.0)             # <<<<<<<<<<<<<<
@@ -5618,58 +5644,6 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   __pyx_t_8 = 0.0;
   __Pyx_INCREF(__pyx_v_low_frequency);
   __pyx_t_1 = __pyx_v_low_frequency;
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_6, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (__pyx_t_4) {
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_t_3;
-    __pyx_t_3 = 0;
-  } else {
-    __Pyx_INCREF(__pyx_t_1);
-    __pyx_t_2 = __pyx_t_1;
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_1 = __pyx_t_2;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_t_1, Py_LT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__pyx_t_4) {
-    __pyx_t_6 = PyFloat_FromDouble(__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_2 = __pyx_t_6;
-    __pyx_t_6 = 0;
-  } else {
-    __Pyx_INCREF(__pyx_t_1);
-    __pyx_t_2 = __pyx_t_1;
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_t_2;
-  __Pyx_INCREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_low = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "pygame/_sdl2/controller.pyx":254
- *         duration = max(duration, 0)
- *         low = min(max(low_frequency, 0.0), 1.0)
- *         high = min(max(high_frequency, 0.0), 1.0)             # <<<<<<<<<<<<<<
- * 
- *         res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
- */
-  __pyx_t_7 = 1.0;
-  __pyx_t_8 = 0.0;
-  __Pyx_INCREF(__pyx_v_high_frequency);
-  __pyx_t_1 = __pyx_v_high_frequency;
   __pyx_t_6 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 254, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = PyObject_RichCompare(__pyx_t_6, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 254, __pyx_L1_error)
@@ -5708,28 +5682,80 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   __pyx_t_1 = __pyx_t_2;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_low = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/controller.pyx":255
+ *         duration = max(duration, 0)
+ *         low = min(max(low_frequency, 0.0), 1.0)
+ *         high = min(max(high_frequency, 0.0), 1.0)             # <<<<<<<<<<<<<<
+ * 
+ *         res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
+ */
+  __pyx_t_7 = 1.0;
+  __pyx_t_8 = 0.0;
+  __Pyx_INCREF(__pyx_v_high_frequency);
+  __pyx_t_1 = __pyx_v_high_frequency;
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_6, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (__pyx_t_4) {
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __pyx_t_3;
+    __pyx_t_3 = 0;
+  } else {
+    __Pyx_INCREF(__pyx_t_1);
+    __pyx_t_2 = __pyx_t_1;
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_1 = __pyx_t_2;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_t_1, Py_LT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (__pyx_t_4) {
+    __pyx_t_6 = PyFloat_FromDouble(__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 255, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_2 = __pyx_t_6;
+    __pyx_t_6 = 0;
+  } else {
+    __Pyx_INCREF(__pyx_t_1);
+    __pyx_t_2 = __pyx_t_1;
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __pyx_t_2;
+  __Pyx_INCREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_high = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/controller.pyx":256
+  /* "pygame/_sdl2/controller.pyx":257
  *         high = min(max(high_frequency, 0.0), 1.0)
  * 
  *         res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)             # <<<<<<<<<<<<<<
  *         return bool(res)
  * 
  */
-  __pyx_t_1 = PyNumber_Multiply(__pyx_v_low, __pyx_int_65535); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_v_low, __pyx_int_65535); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_9 = __Pyx_PyInt_As_Uint16(__pyx_t_1); if (unlikely((__pyx_t_9 == ((Uint16)-1)) && PyErr_Occurred())) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_Uint16(__pyx_t_1); if (unlikely((__pyx_t_9 == ((Uint16)-1)) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_v_high, __pyx_int_65535); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_v_high, __pyx_int_65535); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_10 = __Pyx_PyInt_As_Uint16(__pyx_t_1); if (unlikely((__pyx_t_10 == ((Uint16)-1)) && PyErr_Occurred())) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_As_Uint16(__pyx_t_1); if (unlikely((__pyx_t_10 == ((Uint16)-1)) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_11 = __Pyx_PyInt_As_Uint32(__pyx_v_duration); if (unlikely((__pyx_t_11 == ((Uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_As_Uint32(__pyx_v_duration); if (unlikely((__pyx_t_11 == ((Uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
   __pyx_v_res = SDL_GameControllerRumble(__pyx_v_self->_controller, __pyx_t_9, __pyx_t_10, __pyx_t_11);
 
-  /* "pygame/_sdl2/controller.pyx":257
+  /* "pygame/_sdl2/controller.pyx":258
  * 
  *         res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
  *         return bool(res)             # <<<<<<<<<<<<<<
@@ -5737,11 +5763,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
  *     def stop_rumble(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 258, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 258, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyBool_FromLong((!(!__pyx_t_4))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong((!(!__pyx_t_4))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 258, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5772,7 +5798,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_26rumble(stru
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/controller.pyx":259
+/* "pygame/_sdl2/controller.pyx":260
  *         return bool(res)
  * 
  *     def stop_rumble(self):             # <<<<<<<<<<<<<<
@@ -5806,14 +5832,40 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_28stop_rumble
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("stop_rumble", 0);
 
-  /* "pygame/_sdl2/controller.pyx":263
+  /* "pygame/_sdl2/controller.pyx":264
  *         Stop any rumble effect playing on the controller.
  *         """
+ *         _gamecontroller_init_check()             # <<<<<<<<<<<<<<
+ *         self._CLOSEDCHECK()
+ *         if SDL_VERSION_ATLEAST(2, 0, 9):
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gamecontroller_init_check); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pygame/_sdl2/controller.pyx":265
+ *         """
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()             # <<<<<<<<<<<<<<
  *         if SDL_VERSION_ATLEAST(2, 0, 9):
  *             SDL_GameControllerRumble(self._controller, 0, 0, 1)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_CLOSEDCHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 263, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_CLOSEDCHECK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5827,13 +5879,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_28stop_rumble
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 263, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/controller.pyx":264
- *         """
+  /* "pygame/_sdl2/controller.pyx":266
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         if SDL_VERSION_ATLEAST(2, 0, 9):             # <<<<<<<<<<<<<<
  *             SDL_GameControllerRumble(self._controller, 0, 0, 1)
@@ -5841,22 +5893,22 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_10controller_10Controller_28stop_rumble
   __pyx_t_4 = (SDL_VERSION_ATLEAST(2, 0, 9) != 0);
   if (__pyx_t_4) {
 
-    /* "pygame/_sdl2/controller.pyx":265
+    /* "pygame/_sdl2/controller.pyx":267
  *         self._CLOSEDCHECK()
  *         if SDL_VERSION_ATLEAST(2, 0, 9):
  *             SDL_GameControllerRumble(self._controller, 0, 0, 1)             # <<<<<<<<<<<<<<
  */
     (void)(SDL_GameControllerRumble(__pyx_v_self->_controller, 0, 0, 1));
 
-    /* "pygame/_sdl2/controller.pyx":264
- *         """
+    /* "pygame/_sdl2/controller.pyx":266
+ *         _gamecontroller_init_check()
  *         self._CLOSEDCHECK()
  *         if SDL_VERSION_ATLEAST(2, 0, 9):             # <<<<<<<<<<<<<<
  *             SDL_GameControllerRumble(self._controller, 0, 0, 1)
  */
   }
 
-  /* "pygame/_sdl2/controller.pyx":259
+  /* "pygame/_sdl2/controller.pyx":260
  *         return bool(res)
  * 
  *     def stop_rumble(self):             # <<<<<<<<<<<<<<
@@ -6174,7 +6226,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_CLOSEDCHECK, __pyx_k_CLOSEDCHECK, sizeof(__pyx_k_CLOSEDCHECK), 0, 0, 1, 1},
   {&__pyx_n_s_Controller, __pyx_k_Controller, sizeof(__pyx_k_Controller), 0, 0, 1, 1},
   {&__pyx_kp_s_Could_not_open_controller_d, __pyx_k_Could_not_open_controller_d, sizeof(__pyx_k_Could_not_open_controller_d), 0, 0, 1, 0},
-  {&__pyx_n_s_GAMECONTROLLER_INIT_CHECK, __pyx_k_GAMECONTROLLER_INIT_CHECK, sizeof(__pyx_k_GAMECONTROLLER_INIT_CHECK), 0, 0, 1, 1},
   {&__pyx_kp_s_Index_is_invalid_or_not_a_suppor, __pyx_k_Index_is_invalid_or_not_a_suppor, sizeof(__pyx_k_Index_is_invalid_or_not_a_suppor), 0, 0, 1, 0},
   {&__pyx_n_s_PYGAMEinit, __pyx_k_PYGAMEinit, sizeof(__pyx_k_PYGAMEinit), 0, 0, 1, 1},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
@@ -6193,6 +6244,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_from_joystick, __pyx_k_from_joystick, sizeof(__pyx_k_from_joystick), 0, 0, 1, 1},
+  {&__pyx_n_s_gamecontroller_init_check, __pyx_k_gamecontroller_init_check, sizeof(__pyx_k_gamecontroller_init_check), 0, 0, 1, 1},
   {&__pyx_kp_s_gamecontroller_system_not_initia, __pyx_k_gamecontroller_system_not_initia, sizeof(__pyx_k_gamecontroller_system_not_initia), 0, 0, 1, 0},
   {&__pyx_n_s_get_count, __pyx_k_get_count, sizeof(__pyx_k_get_count), 0, 0, 1, 1},
   {&__pyx_n_s_get_eventstate, __pyx_k_get_eventstate, sizeof(__pyx_k_get_eventstate), 0, 0, 1, 1},
@@ -6295,11 +6347,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "pygame/_sdl2/controller.pyx":16
  * import_pygame_joystick()
  * 
- * def GAMECONTROLLER_INIT_CHECK():             # <<<<<<<<<<<<<<
+ * def _gamecontroller_init_check():             # <<<<<<<<<<<<<<
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
  *         raise error("gamecontroller system not initialized")
  */
-  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(0, 0, 0, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_contro, __pyx_n_s_GAMECONTROLLER_INIT_CHECK, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(0, 0, 0, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_contro, __pyx_n_s_gamecontroller_init_check, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 16, __pyx_L1_error)
 
   /* "pygame/_sdl2/controller.pyx":41
  * # not automatically initialize controller at this moment.
@@ -6344,7 +6396,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
  * 
  * def set_eventstate(state):             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerEventState(int(state))
  */
   __pyx_tuple__15 = PyTuple_Pack(1, __pyx_n_s_state); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 55, __pyx_L1_error)
@@ -6356,7 +6408,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *     SDL_GameControllerEventState(int(state))
  * 
  * def get_eventstate():             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_GameControllerEventState(-1) == 1
  */
   __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(0, 0, 0, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_contro, __pyx_n_s_get_eventstate, 59, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 59, __pyx_L1_error)
@@ -6758,20 +6810,20 @@ if (!__Pyx_RefNanny) {
  * 
  * import_pygame_joystick()             # <<<<<<<<<<<<<<
  * 
- * def GAMECONTROLLER_INIT_CHECK():
+ * def _gamecontroller_init_check():
  */
   import_pygame_joystick();
 
   /* "pygame/_sdl2/controller.pyx":16
  * import_pygame_joystick()
  * 
- * def GAMECONTROLLER_INIT_CHECK():             # <<<<<<<<<<<<<<
+ * def _gamecontroller_init_check():             # <<<<<<<<<<<<<<
  *     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
  *         raise error("gamecontroller system not initialized")
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_10controller_1GAMECONTROLLER_INIT_CHECK, NULL, __pyx_n_s_pygame__sdl2_controller); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_10controller_1_gamecontroller_init_check, NULL, __pyx_n_s_pygame__sdl2_controller); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_GAMECONTROLLER_INIT_CHECK, __pyx_t_2) < 0) __PYX_ERR(0, 16, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_gamecontroller_init_check, __pyx_t_2) < 0) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pygame/_sdl2/controller.pyx":41
@@ -6826,7 +6878,7 @@ if (!__Pyx_RefNanny) {
  *         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
  * 
  * def set_eventstate(state):             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     SDL_GameControllerEventState(int(state))
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_10controller_11set_eventstate, NULL, __pyx_n_s_pygame__sdl2_controller); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
@@ -6838,7 +6890,7 @@ if (!__Pyx_RefNanny) {
  *     SDL_GameControllerEventState(int(state))
  * 
  * def get_eventstate():             # <<<<<<<<<<<<<<
- *     GAMECONTROLLER_INIT_CHECK()
+ *     _gamecontroller_init_check()
  *     return SDL_GameControllerEventState(-1) == 1
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_10controller_13get_eventstate, NULL, __pyx_n_s_pygame__sdl2_controller); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)

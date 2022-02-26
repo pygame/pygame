@@ -1387,7 +1387,7 @@ class GroupSingle(AbstractGroup):
             return [self.__sprite]
         return []
 
-    def add_internal(self, sprite, _=None):
+    def add_internal(self, sprite, layer=None):
         if self.__sprite is not None:
             self.__sprite.remove_internal(self)
             self.remove_internal(self.__sprite)

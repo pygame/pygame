@@ -417,19 +417,19 @@ data_files = [('pygame', pygame_data_files)]
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
 
-add_stubs = True
 # add *.pyi files into distribution directory
-if add_stubs:
-    pygame_data_files.append(os.path.join('buildconfig', 'pygame-stubs', 'py.typed'))
-    type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
-    for type_file in type_files:
-        pygame_data_files.append(type_file)
-    _sdl2 = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '_sdl2', '*.pyi'))
-    if _sdl2:
-        _sdl2_data_files = []
-        data_files.append(('pygame/_sdl2', _sdl2_data_files))
-        for type_file in _sdl2:
-            _sdl2_data_files.append(type_file)
+stub_dir = os.path.join('buildconfig', 'stubs', 'pygame')
+pygame_data_files.append(os.path.join(stub_dir, 'py.typed'))
+type_files = glob.glob(os.path.join(stub_dir, '*.pyi'))
+for type_file in type_files:
+    pygame_data_files.append(type_file)
+
+_sdl2 = glob.glob(os.path.join(stub_dir, '_sdl2', '*.pyi'))
+if _sdl2:
+    _sdl2_data_files = []
+    data_files.append(('pygame/_sdl2', _sdl2_data_files))
+    for type_file in _sdl2:
+        _sdl2_data_files.append(type_file)
 
 
 # add non .py files in lib directory
