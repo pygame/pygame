@@ -160,9 +160,7 @@ def main():
 
         clock.tick(50)
 
-        mouse_pos = pg.mouse.get_pos
-        mouse_x = mouse_pos()[0]
-        mouse_y = mouse_pos()[1]
+        mouse_x, mouse_y = pg.mouse.get_pos()
 
         # Check if mouse is inside a circle to change its color
         if check_circle(mouse_x, mouse_y, circle1.centerx, circle1.centery, radius1):
@@ -229,7 +227,6 @@ def main():
             bg.blit(button_text, button_text_rect)
 
             if pg.mouse.get_pressed()[0] == 1 and pressed == False:
-                pressed = True
                 button = pg.draw.rect(
                     bg,
                     (0, 0, 139),
@@ -244,9 +241,13 @@ def main():
                 index += 1
                 index %= len(cursors)
                 pg.mouse.set_cursor(cursors[index])
+                pg.display.update()
+                pg.time.delay(40)
 
-            if pg.mouse.get_pressed()[0] == 0:
-                pressed = False
+        if pg.mouse.get_pressed()[0] == 1:
+            pressed = True
+        elif pg.mouse.get_pressed()[0] == 0:
+            pressed = False
 
         for event in pg.event.get():
 
