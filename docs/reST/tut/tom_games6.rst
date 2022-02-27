@@ -138,21 +138,21 @@ like this::
       from socket import *
       from pygame.locals import *
   except ImportError, err:
-      print "couldn't load module. %s" % (err)
+      print(f"couldn't load module. {err}")
       sys.exit(2)
 
   def load_png(name):
       """ Load image and return image object"""
-      fullname = os.path.join('data', name)
+      fullname = os.path.join("data", name)
       try:
           image = pygame.image.load(fullname)
           if image.get_alpha is None:
               image = image.convert()
           else:
               image = image.convert_alpha()
-      except pygame.error, message:
-          print 'Cannot load image:', fullname
-          raise SystemExit, message
+      except FileNotFoundError:
+          print(f"Cannot load image: {fullname}")
+          raise SystemExit
       return image, image.get_rect()
 
   class Ball(pygame.sprite.Sprite):
@@ -163,7 +163,7 @@ like this::
 
       def __init__(self, (xy), vector):
           pygame.sprite.Sprite.__init__(self)
-          self.image, self.rect = load_png('ball.png')
+          self.image, self.rect = load_png("ball.png")
           screen = pygame.display.get_surface()
           self.area = screen.get_rect()
           self.vector = vector
@@ -220,7 +220,7 @@ like this::
 
       def __init__(self, side):
           pygame.sprite.Sprite.__init__(self)
-          self.image, self.rect = load_png('bat.png')
+          self.image, self.rect = load_png("bat.png")
           screen = pygame.display.get_surface()
           self.area = screen.get_rect()
           self.side = side
@@ -255,7 +255,7 @@ like this::
       # Initialise screen
       pygame.init()
       screen = pygame.display.set_mode((640, 480))
-      pygame.display.set_caption('Basic Pong')
+      pygame.display.set_caption("Basic Pong")
 
       # Fill background
       background = pygame.Surface(screen.get_size())
@@ -285,7 +285,7 @@ like this::
       clock = pygame.time.Clock()
 
       # Event loop
-      while 1:
+      while True:
           # Make sure game doesn't run at more than 60 frames per second
           clock.tick(60)
 
@@ -319,7 +319,8 @@ like this::
           pygame.display.flip()
 
 
-  if __name__ == '__main__': main()
+  if __name__ == "__main__":
+      main()
 
 
 As well as showing you the final product, I'll point you back to TomPong, upon which all of this is based. Download it, have a look

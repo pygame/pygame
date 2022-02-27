@@ -52,6 +52,9 @@ freetype_misc.py
 glcube.py
    Using PyOpenGL and Pygame, this creates a spinning 3D multicolored cube.
 
+go_over_there.py
+   Demonstrates Vector.move_towards.
+
 headless_no_windows_needed.py
    For using pygame in scripts.
 

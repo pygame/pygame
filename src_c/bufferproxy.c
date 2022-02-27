@@ -245,7 +245,7 @@ _proxy_zombie_get_buffer(PyObject *obj, Py_buffer *view_p, int flags)
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *obj = 0;
+    PyObject *obj;
     getbufferproc get_buffer = (getbufferproc)pgObject_GetBuffer;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
@@ -614,8 +614,7 @@ pgBufproxy_Trip(PyObject *obj)
 
 MODINIT_DEFINE(bufferproxy)
 {
-    PyObject *module;
-    PyObject *apiobj;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_BUFPROXY_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -643,6 +642,9 @@ MODINIT_DEFINE(bufferproxy)
 
     /* create the module */
     module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
 
     Py_INCREF(&pgBufproxy_Type);
     if (PyModule_AddObject(module, PROXY_TYPE_NAME,
@@ -659,12 +661,8 @@ MODINIT_DEFINE(bufferproxy)
     c_api[2] = pgBufproxy_GetParent;
     c_api[3] = pgBufproxy_Trip;
     apiobj = encapsulate_api(c_api, PROXY_MODNAME);
-    if (apiobj == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_DECREF(apiobj);
+        Py_XDECREF(apiobj);
         Py_DECREF(module);
         return NULL;
     }

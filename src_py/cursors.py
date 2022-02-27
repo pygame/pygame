@@ -53,7 +53,7 @@ _cursor_id_table = {
 }
 
 
-class Cursor(object):
+class Cursor:
     def __init__(self, *args):
         """Cursor(size, hotspot, xormasks, andmasks) -> Cursor
         Cursor(hotspot, Surface) -> Cursor
@@ -93,6 +93,9 @@ class Cursor(object):
 
     def __len__(self):
         return len(self.data)
+
+    def __iter__(self):
+        return iter(self.data)
 
     def __getitem__(self, index):
         return self.data[index]

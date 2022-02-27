@@ -963,6 +963,9 @@ MODINIT_DEFINE(newbuffer)
 
     /* create the module */
     module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
 
     Py_INCREF(&BufferMixin_Type);
     if (PyModule_AddObject(module, "BufferMixin",

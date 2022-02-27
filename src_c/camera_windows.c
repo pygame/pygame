@@ -64,19 +64,19 @@
                  hr, line);
 
 #define CHECKHR(hr)            \
-    if FAILED (hr) {           \
+    if (FAILED(hr)) {          \
         FORMATHR(hr, __LINE__) \
         return 0;              \
     }
 
 #define HANDLEHR(hr)           \
-    if FAILED (hr) {           \
+    if (FAILED(hr)) {          \
         FORMATHR(hr, __LINE__) \
         goto cleanup;          \
     }
 
 #define T_HANDLEHR(hr)                 \
-    if FAILED (hr) {                   \
+    if (FAILED(hr)) {                  \
         self->t_error = hr;            \
         self->t_error_line = __LINE__; \
         break;                         \
@@ -92,7 +92,7 @@
 int
 _check_integrity(pgCameraObject *self)
 {
-    if FAILED (self->t_error) {
+    if (FAILED(self->t_error)) {
         /* MF_E_HW_MFT_FAILED_START_STREAMING */
         if (self->t_error == (HRESULT)-1072875772) {
             PyErr_SetString(PyExc_SystemError,
@@ -217,7 +217,7 @@ cleanup:
         RELEASE(ppDevices[i]);
     }
     CoTaskMemFree(ppDevices);
-    if FAILED (hr) {
+    if (FAILED(hr)) {
         if (devices) {
             for (int i = 0; i < (int)count; i++) {
                 free(devices[i]);
@@ -239,6 +239,7 @@ windows_device_from_name(WCHAR *device_name)
 {
     IMFAttributes *pAttributes = NULL;
     IMFActivate **ppDevices = NULL;
+    IMFActivate *ret_device;
     WCHAR *_device_name = NULL;
     UINT32 count = 0;
     HRESULT hr;
@@ -266,8 +267,9 @@ windows_device_from_name(WCHAR *device_name)
                     RELEASE(ppDevices[j]);
                 }
             }
+            ret_device = ppDevices[i];
             CoTaskMemFree(ppDevices);
-            return ppDevices[i];
+            return ret_device;
         }
         free(_device_name);
     }
@@ -419,7 +421,7 @@ cleanup:
         }
     }
 
-    if FAILED (hr) {
+    if (FAILED(hr)) {
         if (index > 0) {
             RELEASE(native_types[index]);
         }
@@ -725,6 +727,8 @@ windows_init_device(pgCameraObject *self)
 
     hr = MFStartup(MF_VERSION, MFSTARTUP_LITE);
     CHECKHR(hr);
+
+    return 1;
 }
 
 void

@@ -222,6 +222,43 @@ class ImageModuleTest(unittest.TestCase):
             del reader
             os.remove(f_path)
 
+    def testSavePaletteAsPNG8(self):
+        """see if we can save a png with color values in the proper channels."""
+        # Create a PNG file with known colors
+        pygame.display.init()
+
+        reddish_pixel = (215, 0, 0)
+        greenish_pixel = (0, 225, 0)
+        bluish_pixel = (0, 0, 235)
+        greyish_pixel = (115, 125, 135)
+
+        surf = pygame.Surface((1, 4), 0, 8)
+        surf.set_palette_at(0, reddish_pixel)
+        surf.set_palette_at(1, greenish_pixel)
+        surf.set_palette_at(2, bluish_pixel)
+        surf.set_palette_at(3, greyish_pixel)
+
+        f_path = tempfile.mktemp(suffix=".png")
+        pygame.image.save(surf, f_path)
+        try:
+            # Read the PNG file and verify that pygame saved it correctly
+            reader = png.Reader(filename=f_path)
+            reader.read()
+            palette = reader.palette()
+
+            # pixels is a generator
+            self.assertEqual(tuple(next(palette)), reddish_pixel)
+            self.assertEqual(tuple(next(palette)), greenish_pixel)
+            self.assertEqual(tuple(next(palette)), bluish_pixel)
+            self.assertEqual(tuple(next(palette)), greyish_pixel)
+
+        finally:
+            # Ensures proper clean up.
+            if not reader.file.closed:
+                reader.file.close()
+            del reader
+            os.remove(f_path)
+
     def test_save(self):
 
         s = pygame.Surface((10, 10))
@@ -363,7 +400,7 @@ class ImageModuleTest(unittest.TestCase):
         import shutil
 
         orig = example_path("data/asprite.bmp")
-        temp = os.path.join(example_path("data"), u"你好.bmp")
+        temp = os.path.join(example_path("data"), "你好.bmp")
         shutil.copy(orig, temp)
         try:
             im = pygame.image.load(temp)
@@ -393,7 +430,7 @@ class ImageModuleTest(unittest.TestCase):
 
     def test_save_unicode_path(self):
         """save unicode object with non-ASCII chars"""
-        self._unicode_save(u"你好.bmp")
+        self._unicode_save("你好.bmp")
 
     def assertPremultipliedAreEqual(self, string1, string2, source_string):
         self.assertEqual(len(string1), len(string2))

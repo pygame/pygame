@@ -35,7 +35,7 @@ CONFIGS = [
 CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}
 
 
-class InvalidBool(object):
+class InvalidBool:
     """To help test invalid bool values."""
 
     __nonzero__ = None
@@ -211,8 +211,8 @@ class MixerModuleTest(unittest.TestCase):
         import shutil
 
         ep = example_path("data")
-        temp_file = os.path.join(ep, u"你好.wav")
-        org_file = os.path.join(ep, u"house_lo.wav")
+        temp_file = os.path.join(ep, "你好.wav")
+        org_file = os.path.join(ep, "house_lo.wav")
         shutil.copy(org_file, temp_file)
         try:
             with open(temp_file, "rb") as f:
