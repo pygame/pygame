@@ -134,7 +134,7 @@ html_favicon = '_static/pygame.ico'
 html_static_path = ['_static']
 
 # Add any extra files that should be included in the build.
-html_extra_path = ['LGPL.txt']
+html_extra_path = ['../LGPL.txt']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
