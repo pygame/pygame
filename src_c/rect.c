@@ -724,7 +724,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
                                      keywords, &list, &keyfunc)) {
-        return RAISE(PyExc_TypeError, "Could not parse args and kw.");
+        return NULL;
     }
 
     if (!PySequence_Check(list)) {
@@ -746,14 +746,13 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    size = PySequence_Length(list); /*warning, size could be -1?*/
+    size = PySequence_Length(list);
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
         if (!obj) {
-            Py_XDECREF(obj);
             Py_DECREF(ret);
-            return RAISE(PyExc_TypeError, "Get item from sequence failed.");
+            return NULL;
         }
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
@@ -789,7 +788,7 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjects",
                                      keywords, &list, &keyfunc)) {
-        return RAISE(PyExc_TypeError, "Could not parse args and kw.");
+        return NULL;
     }
 
     if (!PySequence_Check(list)) {
@@ -806,13 +805,13 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
                      "Key function must be callable with one argument.");
     }
 
-    size = PySequence_Length(list); /*warning, size could be -1?*/
+    size = PySequence_Length(list);
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
         if (!obj) {
             Py_XDECREF(obj);
-            return RAISE(PyExc_TypeError, "Get item from sequence failed.");
+            return NULL;
         }
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
