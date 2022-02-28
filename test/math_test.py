@@ -1144,6 +1144,8 @@ class Vector2TypeTest(unittest.TestCase):
     def test_clamp_mag_v2_max(self):
         v1 = Vector2(7, 2)
         v2 = v1.clamp_magnitude(5)
+        v1.clamp_magnitude_ip(5)
+        self.assertEqual(v1, v2)
         expected_v2 = Vector2(4.80762, 1.37361)
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
