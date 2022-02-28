@@ -98,18 +98,21 @@ def get_urls(x86=True, x64=True):
         ],
         [
         # 'https://www.ijg.org/files/jpegsr9d.zip',
-        'https://www.pygame.org/ftp/jpegsr9d.zip',
+        # 'https://www.pygame.org/ftp/jpegsr9d.zip',
+        'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/jpegsr9d.zip',
         'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
         ],
     ])
     if x86:
         url_sha1.append([
-         'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
+         # 'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x86-pygame-1.9.2-20150922.zip',
          'dbce1d5ea27b3da17273e047826d172e1c34b478'
         ])
     if x64:
         url_sha1.append([
-         'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
+         # 'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x64-pygame-1.9.2-20150922.zip',
          '3a5af3427b3aa13a0aaf5c4cb08daaed341613ed'
         ])
     return url_sha1

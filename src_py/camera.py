@@ -10,8 +10,11 @@ _is_init = False
 
 
 class AbstractCamera(ABC):
+    # set_controls and get_controls are not a part of the AbstractCamera ABC,
+    # because implementations of the same can vary across different Camera
+    # types
     @abstractmethod
-    def __init__(self, device=0, size=(640, 480), mode="RGB"):
+    def __init__(self, *args, **kwargs):
         """ """
 
     @abstractmethod
@@ -23,19 +26,11 @@ class AbstractCamera(ABC):
         """ """
 
     @abstractmethod
-    def get_controls(self):
+    def get_size(self):
         """ """
 
     @abstractmethod
-    def set_controls(self, **kwargs):
-        """ """
-
-    @abstractmethod
-    def get_size(self, dest_surf=None):
-        """ """
-
-    @abstractmethod
-    def query_image(self, dest_surf=None):
+    def query_image(self):
         """ """
 
     @abstractmethod
@@ -47,7 +42,7 @@ class AbstractCamera(ABC):
         """ """
 
 
-def _pre_init_placeholder(*_, **__):
+def _pre_init_placeholder():
     if not _is_init:
         raise error("pygame.camera is not initialized")
 
@@ -56,16 +51,20 @@ def _pre_init_placeholder(*_, **__):
     raise NotImplementedError()
 
 
+def _pre_init_placeholder_varargs(*_, **__):
+    _pre_init_placeholder()
+
+
 class _PreInitPlaceholderCamera(AbstractCamera):
-    __init__ = _pre_init_placeholder
-    start = _pre_init_placeholder
-    stop = _pre_init_placeholder
-    get_controls = _pre_init_placeholder
-    set_controls = _pre_init_placeholder
-    get_size = _pre_init_placeholder
-    query_image = _pre_init_placeholder
-    get_image = _pre_init_placeholder
-    get_raw = _pre_init_placeholder
+    __init__ = _pre_init_placeholder_varargs
+    start = _pre_init_placeholder_varargs
+    stop = _pre_init_placeholder_varargs
+    get_controls = _pre_init_placeholder_varargs
+    set_controls = _pre_init_placeholder_varargs
+    get_size = _pre_init_placeholder_varargs
+    query_image = _pre_init_placeholder_varargs
+    get_image = _pre_init_placeholder_varargs
+    get_raw = _pre_init_placeholder_varargs
 
 
 list_cameras = _pre_init_placeholder
