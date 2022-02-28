@@ -817,7 +817,11 @@ vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
     for (i = 0; i < self->dim; ++i)
         ret->coords[i] = self->coords[i];
 
-    vector_clamp_magnitude_ip(ret, args, kwargs);
+    PyObject *ret_val = vector_clamp_magnitude_ip(ret, args, kwargs);
+    if (!ret_val) {
+        return NULL;
+    }
+    Py_DECREF(ret_val);
 
     return (PyObject *)ret;
 }
