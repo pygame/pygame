@@ -32,6 +32,34 @@ cdef extern from "SDL.h" nogil:
 
     ctypedef struct SDL_Point:
         int x, y
+    ctypedef struct SDL_Color:
+        Uint8 r, g, b, a
+
+    cdef extern from *:
+        """
+        #if SDL_VERSION_ATLEAST(2, 0, 18)
+            typedef SDL_FPoint _pgsdlFPoint;
+            typedef SDL_Vertex _pgsdlVertex;
+        #else
+            typedef struct {
+                float x;
+                float y;
+            } _pgsdlFPoint;
+
+            typedef struct {
+                _pgsdlFPoint position;
+                SDL_Color color;
+                _pgsdlFPoint tex_coord;
+            } _pgsdlVertex;
+        #endif
+        """
+    ctypedef struct SDL_FPoint "_pgsdlFPoint":
+        float x, y
+    ctypedef struct SDL_Vertex "_pgsdlVertex":
+        SDL_FPoint position
+        SDL_Color color
+        SDL_FPoint tex_coord
+    
     ctypedef enum SDL_RendererFlip:
         SDL_FLIP_NONE,
         SDL_FLIP_HORIZONTAL,
@@ -358,23 +386,33 @@ cdef extern from "SDL.h" nogil:
                                             int    depth,
                                             Uint32 format)
     # https://wiki.libsdl.org/SDL_RenderDrawLine
+    # https://wiki.libsdl.org/SDL_RenderDrawLines
     # https://wiki.libsdl.org/SDL_RenderDrawPoint
     # https://wiki.libsdl.org/SDL_RenderDrawRect
     # https://wiki.libsdl.org/SDL_RenderFillRect
+    # https://wiki.libsdl.org/SDL_RenderGeometry
     int SDL_RenderDrawLine(SDL_Renderer* renderer,
                            int x1,
                            int y1,
                            int x2,
                            int y2)
+    int SDL_RenderDrawLines(SDL_Renderer* renderer,
+                            const SDL_Point* points,
+                            int count)
     int SDL_RenderDrawPoint(SDL_Renderer* renderer,
                            int x,
                            int y)
-
     int SDL_RenderDrawRect(SDL_Renderer* renderer,
                            const SDL_Rect* rect)
 
     int SDL_RenderFillRect(SDL_Renderer*   renderer,
                            const SDL_Rect* rect)
+    int SDL_RenderGeometry(SDL_Renderer* renderer,
+                           SDL_Texture* texture,
+                           const SDL_Vertex* vertices,
+                           int num_vertices,
+                           const int* indices,
+                           int num_indices)
 
     # https://wiki.libsdl.org/SDL_RenderSetScale
     # https://wiki.libsdl.org/SDL_RenderGetScale

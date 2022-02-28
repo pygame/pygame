@@ -183,6 +183,16 @@
       | :sl:`Copy a portion of the texture to the rendering target.`
       | :sg:`draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None`
 
+   .. method:: draw_triangle
+      
+      | :sl:`Copy a triangle portion of the texture to the rendering target by vertices coordinates.`
+      | :sg:`draw_triangle(p1_xy, p2_xy, p3_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 1.0), p3_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255)) -> None`
+
+   .. method:: draw_quad
+      
+      | :sl:`Copy a quad portion of the texture to the rendering target by vertices coordinates.`
+      | :sg:`draw_quad(p1_xy, p2_xy, p3_xy, p4_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 0.0), p3_uv=(1.0, 1.0), p4_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255), p4_mod=(255, 255, 255, 255)) -> None`
+
    .. method:: update
 
       | :sl:`Update the texture with a Surface. WARNING: Slow operation, use sparingly.`
@@ -327,6 +337,26 @@
 
       | :sl:`Fills a rectangle.`
       | :sg:`fill_rect(rect)-> None`
+
+   .. method:: draw_triangle
+
+      | :sl:`Draws a triangle.`
+      | :sg:`draw_triangle(p1, p2, p3) -> None`
+
+   .. method:: fill_triangle
+
+      | :sl:`Fills a triangle.`
+      | :sg:`fill_triangle(p1, p2, p3) -> None`
+
+   .. method:: draw_quad
+
+      | :sl:`Draws a quad.`
+      | :sg:`draw_quad(p1, p2, p3, p4) -> None`
+
+   .. method:: fill_quad
+
+      | :sl:`Fills a quad.`
+      | :sg:`fill_quad(p1, p2, p3, p4) -> None`
 
    .. method:: to_surface
 

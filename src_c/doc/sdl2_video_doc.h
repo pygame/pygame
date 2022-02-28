@@ -34,6 +34,8 @@
 #define DOC_TEXTURECOLOR "color -> color\nGets and sets an additional color value multiplied into render copy operations."
 #define DOC_TEXTUREGETRECT "get_rect(**kwargs) -> Rect\nGet the rectangular area of the texture."
 #define DOC_TEXTUREDRAW "draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None\nCopy a portion of the texture to the rendering target."
+#define DOC_TEXTUREDRAWTRIANGLE "draw_triangle(p1_xy, p2_xy, p3_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 1.0), p3_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255)) -> None\nCopy a triangle portion of the texture to the rendering target by vertices coordinates."
+#define DOC_TEXTUREDRAWQUAD "draw_quad(p1_xy, p2_xy, p3_xy, p4_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 0.0), p3_uv=(1.0, 1.0), p4_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255), p4_mod=(255, 255, 255, 255)) -> None\nCopy a quad portion of the texture to the rendering target by vertices coordinates."
 #define DOC_TEXTUREUPDATE "update(surface, area=None) -> None\nUpdate the texture with a Surface. WARNING: Slow operation, use sparingly."
 #define DOC_PYGAMESDL2VIDEOIMAGE "Image(textureOrImage, srcrect=None) -> Image\nEasy way to use a portion of a Texture without worrying about srcrect all the time."
 #define DOC_IMAGEGETRECT "get_rect() -> Rect\nGet the rectangular area of the Image."
@@ -63,6 +65,10 @@
 #define DOC_RENDERERDRAWPOINT "draw_point(point) -> None\nDraws a point."
 #define DOC_RENDERERDRAWRECT "draw_rect(rect)-> None\nDraws a rectangle."
 #define DOC_RENDERERFILLRECT "fill_rect(rect)-> None\nFills a rectangle."
+#define DOC_RENDERERDRAWTRIANGLE "draw_triangle(p1, p2, p3) -> None\nDraws a triangle."
+#define DOC_RENDERERFILLTRIANGLE "fill_triangle(p1, p2, p3) -> None\nFills a triangle."
+#define DOC_RENDERERDRAWQUAD "draw_quad(p1, p2, p3, p4) -> None\nDraws a quad."
+#define DOC_RENDERERFILLQUAD "fill_quad(p1, p2, p3, p4) -> None\nFills a quad."
 #define DOC_RENDERERTOSURFACE "to_surface(surface=None, area=None)-> Surface\nRead pixels from current render target and create a pygame.Surface. WARNING: Slow operation, use sparingly."
 
 
@@ -209,6 +215,14 @@ pygame._sdl2.video.Texture.draw
  draw(srcrect=None, dstrect=None, angle=0, origin=None, flip_x=False, flip_y=False) -> None
 Copy a portion of the texture to the rendering target.
 
+pygame._sdl2.video.Texture.draw_triangle
+ draw_triangle(p1_xy, p2_xy, p3_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 1.0), p3_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255)) -> None
+Copy a triangle portion of the texture to the rendering target by vertices coordinates.
+
+pygame._sdl2.video.Texture.draw_quad
+ draw_quad(p1_xy, p2_xy, p3_xy, p4_xy, p1_uv=(0.0, 0.0), p2_uv=(1.0, 0.0), p3_uv=(1.0, 1.0), p4_uv=(0.0, 1.0), p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255), p4_mod=(255, 255, 255, 255)) -> None
+Copy a quad portion of the texture to the rendering target by vertices coordinates.
+
 pygame._sdl2.video.Texture.update
  update(surface, area=None) -> None
 Update the texture with a Surface. WARNING: Slow operation, use sparingly.
@@ -324,6 +338,22 @@ Draws a rectangle.
 pygame._sdl2.video.Renderer.fill_rect
  fill_rect(rect)-> None
 Fills a rectangle.
+
+pygame._sdl2.video.Renderer.draw_triangle
+ draw_triangle(p1, p2, p3) -> None
+Draws a triangle.
+
+pygame._sdl2.video.Renderer.fill_triangle
+ fill_triangle(p1, p2, p3) -> None
+Fills a triangle.
+
+pygame._sdl2.video.Renderer.draw_quad
+ draw_quad(p1, p2, p3, p4) -> None
+Draws a quad.
+
+pygame._sdl2.video.Renderer.fill_quad
+ fill_quad(p1, p2, p3, p4) -> None
+Fills a quad.
 
 pygame._sdl2.video.Renderer.to_surface
  to_surface(surface=None, area=None)-> Surface

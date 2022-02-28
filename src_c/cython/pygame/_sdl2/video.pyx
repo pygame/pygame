@@ -13,6 +13,8 @@ MESSAGEBOX_INFORMATION = _SDL_MESSAGEBOX_INFORMATION
 
 
 cdef extern from "SDL.h" nogil:
+    int SDL_VERSION_ATLEAST(int major, int minor, int patch) 
+
     Uint32 SDL_GetWindowPixelFormat(SDL_Window* window)
     SDL_bool SDL_IntersectRect(const SDL_Rect* A,
                                const SDL_Rect* B,
@@ -645,7 +647,7 @@ cdef class Texture:
     def alpha(self):
         # https://wiki.libsdl.org/SDL_GetTextureAlphaMod
         cdef Uint8 alpha
-        res = SDL_GetTextureAlphaMod(self._tex, &alpha)
+        cdef int res = SDL_GetTextureAlphaMod(self._tex, &alpha)
         if res < 0:
             raise error()
 
@@ -654,7 +656,7 @@ cdef class Texture:
     @alpha.setter
     def alpha(self, Uint8 new_value):
         # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
-        res = SDL_SetTextureAlphaMod(self._tex, new_value)
+        cdef int res = SDL_SetTextureAlphaMod(self._tex, new_value)
         if res < 0:
             raise error()
 
@@ -662,7 +664,7 @@ cdef class Texture:
     def blend_mode(self):
         # https://wiki.libsdl.org/SDL_GetTextureBlendMode
         cdef SDL_BlendMode blendMode
-        res = SDL_GetTextureBlendMode(self._tex, &blendMode)
+        cdef int res = SDL_GetTextureBlendMode(self._tex, &blendMode)
         if res < 0:
             raise error()
 
@@ -671,17 +673,17 @@ cdef class Texture:
     @blend_mode.setter
     def blend_mode(self, blendMode):
         # https://wiki.libsdl.org/SDL_SetTextureBlendMode
-        res = SDL_SetTextureBlendMode(self._tex, blendMode)
+        cdef int res = SDL_SetTextureBlendMode(self._tex, blendMode)
         if res < 0:
             raise error()
 
     @property
     def color(self):
         # https://wiki.libsdl.org/SDL_GetTextureColorMod
-        res = SDL_GetTextureColorMod(self._tex,
-            &self._color.data[0],
-            &self._color.data[1],
-            &self._color.data[2])
+        cdef int res = SDL_GetTextureColorMod(self._tex,
+                                              &self._color.data[0],
+                                              &self._color.data[1],
+                                              &self._color.data[2])
         if res < 0:
             raise error()
 
@@ -690,10 +692,10 @@ cdef class Texture:
     @color.setter
     def color(self, new_value):
         # https://wiki.libsdl.org/SDL_SetTextureColorMod
-        res = SDL_SetTextureColorMod(self._tex,
-                                     new_value[0],
-                                     new_value[1],
-                                     new_value[2])
+        cdef int res = SDL_SetTextureColorMod(self._tex,
+                                              new_value[0],
+                                              new_value[1],
+                                              new_value[2])
         if res < 0:
             raise error()
 
@@ -716,8 +718,8 @@ cdef class Texture:
         if flip_y:
             flip |= SDL_FLIP_VERTICAL
 
-        res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
-                               angle, originptr, <SDL_RendererFlip>flip)
+        cdef int res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
+                                        angle, originptr, <SDL_RendererFlip>flip)
         if res < 0:
             raise error()
 
@@ -767,6 +769,103 @@ cdef class Texture:
         self.draw_internal(csrcrect, cdstrect, angle, originptr,
                            flip_x, flip_y)
 
+    def draw_triangle(self, p1_xy, p2_xy, p3_xy,
+                      p1_uv=(0.0, 0.0), p2_uv=(1.0, 1.0), p3_uv=(0.0, 1.0),
+                      p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255), p3_mod=(255, 255, 255, 255)):
+        """ Copy a triangle portion of the texture to the rendering target by vertices coordinates.
+
+        :param p1_xy: first vertex coordinate on the render target to be drawn at.
+        :param p2_xy: second vertex coordinate on the render target to be drawn at.
+        :param p3_xy: third vertex coordinate on the render target to be drawn at.
+        :param p1_uv: first vertex coordinate on the texture to be drawn from.
+        :param p2_uv: second vertex coordinate on the texture to be drawn from.
+        :param p3_uv: third vertex coordinate on the texture to be drawn from.
+        :param p1_mod: first vertex color modulation.
+        :param p2_mod: second vertex color modulation.
+        :param p3_mod: third vertex color modulation.
+        """
+        if not SDL_VERSION_ATLEAST(2, 0, 18):
+            raise error("draw_triangle requires SDL 2.0.18 or newer")
+        
+        cdef Uint8 _r_mod, _g_mod, _b_mod, _a_mod
+        SDL_GetTextureColorMod(self._tex, &_r_mod, &_g_mod, &_b_mod)
+        SDL_GetTextureAlphaMod(self._tex, &_a_mod)
+
+        cdef float r_mod = float(_r_mod) / 255.0
+        cdef float g_mod = float(_g_mod) / 255.0
+        cdef float b_mod = float(_b_mod) / 255.0
+        cdef float a_mod = float(_a_mod) / 255.0
+
+        cdef SDL_Vertex vertices[3]
+        for i, vert in enumerate(((p1_xy, p1_mod, p1_uv),
+                                  (p2_xy, p2_mod, p2_uv),
+                                  (p3_xy, p3_mod, p3_uv))):
+            xy, mod, uv = vert
+            vertices[i].position.x = xy[0]
+            vertices[i].position.y = xy[1]
+            vertices[i].color.r = r_mod * mod[0]
+            vertices[i].color.g = g_mod * mod[1]
+            vertices[i].color.b = b_mod * mod[2]
+            vertices[i].color.a = a_mod * mod[3] if len(mod) > 3 else _a_mod
+            vertices[i].tex_coord.x = uv[0]
+            vertices[i].tex_coord.y = uv[1]
+        
+        cdef int res = SDL_RenderGeometry(self.renderer._renderer, self._tex, vertices, 3, NULL, 0)
+        if res < 0:
+            raise error()
+
+    def draw_quad(self, p1_xy, p2_xy, p3_xy, p4_xy,
+                  p1_uv=(0.0, 0.0), p2_uv=(1.0, 0.0), p3_uv=(1.0, 1.0), p4_uv=(0.0, 1.0),
+                  p1_mod=(255, 255, 255, 255), p2_mod=(255, 255, 255, 255),
+                  p3_mod=(255, 255, 255, 255), p4_mod=(255, 255, 255, 255)):
+        """ Copy a quad portion of the texture to the rendering target by vertices coordinates.
+
+        :param p1_xy: first vertex coordinate on the render target to be drawn at.
+        :param p2_xy: second vertex coordinate on the render target to be drawn at.
+        :param p3_xy: third vertex coordinate on the render target to be drawn at.
+        :param p4_xy: fourth vertex coordinate on the render target to be drawn at.
+        :param p1_uv: first vertex coordinate on the texture to be drawn from.
+        :param p2_uv: second vertex coordinate on the texture to be drawn from.
+        :param p3_uv: third vertex coordinate on the texture to be drawn from.
+        :param p4_uv: fourth vertex coordinate on the texture to be drawn from.
+        :param p1_mod: first vertex color modulation.
+        :param p2_mod: second vertex color modulation.
+        :param p3_mod: third vertex color modulation.
+        :param p4_mod: fourth vertex color modulation.
+        """
+        if not SDL_VERSION_ATLEAST(2, 0, 18):
+            raise error("draw_quad requires SDL 2.0.18 or newer")
+        
+        cdef Uint8 _r_mod, _g_mod, _b_mod, _a_mod
+        SDL_GetTextureColorMod(self._tex, &_r_mod, &_g_mod, &_b_mod)
+        SDL_GetTextureAlphaMod(self._tex, &_a_mod)
+
+        cdef float r_mod = float(_r_mod) / 255.0
+        cdef float g_mod = float(_g_mod) / 255.0
+        cdef float b_mod = float(_b_mod) / 255.0
+        cdef float a_mod = float(_a_mod) / 255.0
+
+        cdef SDL_Vertex vertices[6]
+        for i, vert in enumerate(((p1_xy, p1_mod, p1_uv),
+                                  (p2_xy, p2_mod, p2_uv),
+                                  (p3_xy, p3_mod, p3_uv),
+                                  (p3_xy, p3_mod, p3_uv),
+                                  (p4_xy, p4_mod, p4_uv),
+                                  (p1_xy, p1_mod, p1_uv))):
+            xy, mod, uv = vert
+            vertices[i].position.x = xy[0]
+            vertices[i].position.y = xy[1]
+            vertices[i].color.r = r_mod * mod[0]
+            vertices[i].color.g = g_mod * mod[1]
+            vertices[i].color.b = b_mod * mod[2]
+            vertices[i].color.a = a_mod * mod[3] if len(mod) > 3 else _a_mod
+            vertices[i].tex_coord.x = uv[0]
+            vertices[i].tex_coord.y = uv[1]
+
+        cdef int res = SDL_RenderGeometry(self.renderer._renderer, self._tex, vertices, 6, NULL, 0)
+        if res < 0:
+            raise error()
+
     def update(self, surface, area=None):
         # https://wiki.libsdl.org/SDL_UpdateTexture
         # Should it accept a raw pixel data array too?
@@ -792,7 +891,7 @@ cdef class Texture:
         if rectptr == NULL and area is not None:
             raise TypeError('area must be a rectangle or None')
 
-        res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
+        cdef int res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
         if res < 0:
             raise error()
 
@@ -985,7 +1084,7 @@ cdef class Renderer:
     def draw_blend_mode(self):
         # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
         cdef SDL_BlendMode blendMode
-        res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
+        cdef int res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
         if res < 0:
             raise error()
 
@@ -994,7 +1093,7 @@ cdef class Renderer:
     @draw_blend_mode.setter
     def draw_blend_mode(self, blendMode):
         # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
-        res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
+        cdef int res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
         if res < 0:
             raise error()
 
@@ -1010,11 +1109,11 @@ cdef class Renderer:
         """
         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
         self._draw_color[:] = new_value
-        res = SDL_SetRenderDrawColor(self._renderer,
-                                     new_value[0],
-                                     new_value[1],
-                                     new_value[2],
-                                     new_value[3])
+        cdef int res = SDL_SetRenderDrawColor(self._renderer,
+                                              new_value[0],
+                                              new_value[1],
+                                              new_value[2],
+                                              new_value[3])
         if res < 0:
             raise error()
 
@@ -1022,7 +1121,7 @@ cdef class Renderer:
         """ Clear the current rendering target with the drawing color.
         """
         # https://wiki.libsdl.org/SDL_RenderClear
-        res = SDL_RenderClear(self._renderer)
+        cdef int res = SDL_RenderClear(self._renderer)
         if res < 0:
             raise error()
 
@@ -1062,7 +1161,7 @@ cdef class Renderer:
     def scale(self):
         cdef float x
         cdef float y
-        SDL_RenderGetScale(self._renderer, &x, &y);
+        SDL_RenderGetScale(self._renderer, &x, &y)
         return (x, y)
 
     @scale.setter
@@ -1145,16 +1244,16 @@ cdef class Renderer:
 
     def draw_line(self, p1, p2):
         # https://wiki.libsdl.org/SDL_RenderDrawLine
-        res = SDL_RenderDrawLine(self._renderer,
-                                 p1[0], p1[1],
-                                 p2[0], p2[1])
+        cdef int res = SDL_RenderDrawLine(self._renderer,
+                                          p1[0], p1[1],
+                                          p2[0], p2[1])
         if res < 0:
             raise error()
 
     def draw_point(self, point):
         # https://wiki.libsdl.org/SDL_RenderDrawPoint
-        res = SDL_RenderDrawPoint(self._renderer,
-                                  point[0], point[1])
+        cdef int res = SDL_RenderDrawPoint(self._renderer,
+                                           point[0], point[1])
         if res < 0:
             raise error()
 
@@ -1162,9 +1261,11 @@ cdef class Renderer:
         # https://wiki.libsdl.org/SDL_RenderDrawRect
         cdef SDL_Rect _rect
         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+
         if rectptr == NULL:
             raise TypeError('expected a rectangle')
-        res = SDL_RenderDrawRect(self._renderer, rectptr)
+
+        cdef int res = SDL_RenderDrawRect(self._renderer, rectptr)
         if res < 0:
             raise error()
 
@@ -1172,10 +1273,69 @@ cdef class Renderer:
         # https://wiki.libsdl.org/SDL_RenderFillRect
         cdef SDL_Rect _rect
         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+
         if rectptr == NULL:
             raise TypeError('expected a rectangle')
-        res = SDL_RenderFillRect(self._renderer, rectptr)
 
+        cdef int res = SDL_RenderFillRect(self._renderer, rectptr)
+        if res < 0:
+            raise error()
+
+    def draw_triangle(self, p1, p2, p3):
+        # https://wiki.libsdl.org/SDL_RenderDrawLines
+        cdef SDL_Point points[4]
+        for i, pos in enumerate((p1, p2, p3, p1)):
+            points[i].x = pos[0]
+            points[i].y = pos[1]
+
+        res = SDL_RenderDrawLines(self._renderer, points, 4)
+        if res < 0:
+            raise error()
+
+    def fill_triangle(self, p1, p2, p3):
+        # https://wiki.libsdl.org/SDL_RenderGeometry
+        if not SDL_VERSION_ATLEAST(2, 0, 18):
+            raise error("fill_triangle requires SDL 2.0.18 or newer")
+
+        cdef SDL_Vertex vertices[3]
+        for i, pos in enumerate((p1, p2, p3)):
+            vertices[i].position.x = pos[0]
+            vertices[i].position.y = pos[1]
+            vertices[i].color.r = self._draw_color[0]
+            vertices[i].color.g = self._draw_color[1]
+            vertices[i].color.b = self._draw_color[2]
+            vertices[i].color.a = self._draw_color[3]
+
+        cdef int res = SDL_RenderGeometry(self._renderer, NULL, vertices, 3, NULL, 0)
+        if res < 0:
+            raise error()
+
+    def draw_quad(self, p1, p2, p3, p4):
+        # https://wiki.libsdl.org/SDL_RenderDrawLines
+        cdef SDL_Point points[5]
+        for i, pos in enumerate((p1, p2, p3, p4, p1)):
+            points[i].x = pos[0]
+            points[i].y = pos[1]
+
+        res = SDL_RenderDrawLines(self._renderer, points, 5)
+        if res < 0:
+            raise error()
+
+    def fill_quad(self, p1, p2, p3, p4):
+        # https://wiki.libsdl.org/SDL_RenderGeometry
+        if not SDL_VERSION_ATLEAST(2, 0, 18):
+            raise error("fill_quad requires SDL 2.0.18 or newer")
+
+        cdef SDL_Vertex vertices[6]
+        for i, pos in enumerate((p1, p2, p3, p3, p4, p1)):
+            vertices[i].position.x = pos[0]
+            vertices[i].position.y = pos[1]
+            vertices[i].color.r = self._draw_color[0]
+            vertices[i].color.g = self._draw_color[1]
+            vertices[i].color.b = self._draw_color[2]
+            vertices[i].color.a = self._draw_color[3]
+
+        cdef int res = SDL_RenderGeometry(self._renderer, NULL, vertices, 6, NULL, 0)
         if res < 0:
             raise error()
 
@@ -1259,12 +1419,12 @@ cdef class Renderer:
         :return: A blend mode to be used with Renderer.draw_blend_mode and Texure.blend_mode
         """
         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
-        res = SDL_ComposeCustomBlendMode(color_mode[0],
-                                         color_mode[1],
-                                         color_mode[2],
-                                         alpha_mode[0],
-                                         alpha_mode[1],
-                                         alpha_mode[2])
+        cdef int res = SDL_ComposeCustomBlendMode(color_mode[0],
+                                                  color_mode[1],
+                                                  color_mode[2],
+                                                  alpha_mode[0],
+                                                  alpha_mode[1],
+                                                  alpha_mode[2])
         if res < 0:
             raise error()
         return res
