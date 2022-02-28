@@ -373,6 +373,11 @@ On Android, the following events can be generated
    If ``None`` is passed as the argument, ALL of the event types are blocked
    from being placed on the queue.
 
+   Note: Blocking some kinds of events (like windowevents) could potentially
+   break internal pygame machinery that relies on these events being unblocked,
+   so use this function with caution. When unsure, it is better to simply
+   ignore an event during event handling, rather than trying to block the event.
+
    .. ## pygame.event.set_blocked ##
 
 .. function:: set_allowed
