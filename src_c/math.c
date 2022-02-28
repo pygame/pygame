@@ -828,7 +828,7 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t i;
     double min_length = 0; /* Default minimum. */
     double max_length;
-    double old_length;
+    double old_length_sq;
     double fraction;
     static char *keywords[] = {"max_length", "min_length", NULL};
 
@@ -838,30 +838,26 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     }
 
     /* Get magnitude of Vector */
-    old_length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+    old_length_sq = _scalar_product(self->coords, self->coords, self->dim);
 
-    if (old_length == 0) {
+    if (old_length_sq == 0) {
         PyErr_SetString(PyExc_ValueError,
                         "Cannot clamp a vector with zero length");
         return NULL;
     }
 
-    if (old_length > max_length) {
+    if (old_length_sq > max_length * max_length) {
         /* Scale to length */
-        fraction = max_length / old_length;
+        fraction = max_length / sqrt(old_length_sq);
         for (i = 0; i < self->dim; ++i)
             self->coords[i] *= fraction;
 
         Py_RETURN_NONE;
     }
-    
-    old_length =
-        sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
-    if (old_length < min_length) {
+    if (old_length_sq < min_length * min_length) {
         /* Scale to length */
-
-        fraction = min_length / old_length;
+        fraction = min_length / sqrt(old_length_sq);
         for (i = 0; i < self->dim; ++i)
             self->coords[i] *= fraction;
 
