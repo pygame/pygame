@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Protocol, Callable
 
 from ._common import Coordinate, Literal, RectValue
 
