@@ -7,6 +7,8 @@ from typing import (
     Union,
     overload,
     Callable,
+    Any,
+    Optional,
 )
 
 from ._common import Coordinate, Literal, RectValue
@@ -156,28 +158,12 @@ class Rect:
     ) -> bool: ...
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
-
-    T = TypeVar("T")
-    # given a list ob objects, a key is then needed to get the rect
-    @overload
     def collideobjectsall(
-        self, obj_list: Sequence[T], key: Callable[[T], Union[Rect, RectValue]]
-    ) -> List[T]: ...
-    # given a list of rect like objects
-    @overload
-    def collideobjectsall(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
-    ) -> List: ...
-    # given a list ob objects, a key is the needed to get the rect
-    @overload
+        self, objects: Sequence[Any], key: Optional[Callable[[Any], RectValue]] = None
+    ) -> List[Any]: ...
     def collideobjects(
-        self, obj_list: Sequence[T], key: Callable[[T], Union[Rect, RectValue]]
-    ) -> T: ...
-    # given a list of rect like objects
-    @overload
-    def collideobjects(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
-    ) -> Union[Rect, RectValue]: ...
+        self, objects: Sequence[Any], key: Optional[Callable[[Any], RectValue]] = None
+    ) -> Any: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.
