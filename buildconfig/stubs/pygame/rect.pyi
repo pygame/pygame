@@ -1,4 +1,13 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Protocol, Callable
+from typing import (
+    Dict,
+    List,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+    Callable,
+)
 
 from ._common import Coordinate, Literal, RectValue
 
@@ -148,41 +157,26 @@ class Rect:
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
 
-    class _T(Protocol):
-        pass
-    # given a list ob objects, a key is the needed to get the rect
+    T = TypeVar("T")
+    # given a list ob objects, a key is then needed to get the rect
     @overload
     def collideobjectsall(
-        self, obj_list: Sequence[_T], key: Callable[[_T], Union[Rect, RectValue]]
-    ) -> List[_T]: ...
+        self, obj_list: Sequence[T], key: Callable[[T], Union[Rect, RectValue]]
+    ) -> List[T]: ...
     # given a list of rect like objects
     @overload
     def collideobjectsall(
         self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
     ) -> List: ...
-    # given a list of rect like objects, still could use a key to extract a different rect
-    @overload
-    def collideobjectsall(
-        self,
-        rect_list: Sequence[Union[Rect, RectValue]],
-        key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]],
-    ) -> List: ...
     # given a list ob objects, a key is the needed to get the rect
     @overload
     def collideobjects(
-        self, obj_list: Sequence[_T], key: Callable[[_T], Union[Rect, RectValue]]
-    ) -> _T: ...
+        self, obj_list: Sequence[T], key: Callable[[T], Union[Rect, RectValue]]
+    ) -> T: ...
     # given a list of rect like objects
     @overload
     def collideobjects(
         self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
-    ) -> Union[Rect, RectValue]: ...
-    # given a list of rect like objects, still could use a key to extract a different rect
-    @overload
-    def collideobjects(
-        self,
-        rect_list: Sequence[Union[Rect, RectValue]],
-        key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]],
     ) -> Union[Rect, RectValue]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
