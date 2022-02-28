@@ -147,7 +147,9 @@ class Rect:
     ) -> bool: ...
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
-    class _T(Protocol): pass
+
+    class _T(Protocol):
+        pass
     # given a list ob objects, a key is the needed to get the rect
     @overload
     def collideobjectsall(
@@ -156,12 +158,14 @@ class Rect:
     # given a list of rect like objects
     @overload
     def collideobjectsall(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: None=...
+        self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
     ) -> List: ...
     # given a list of rect like objects, still could use a key to extract a different rect
     @overload
     def collideobjectsall(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]]
+        self,
+        rect_list: Sequence[Union[Rect, RectValue]],
+        key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]],
     ) -> List: ...
     # given a list ob objects, a key is the needed to get the rect
     @overload
@@ -171,12 +175,14 @@ class Rect:
     # given a list of rect like objects
     @overload
     def collideobjects(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: None=...
+        self, rect_list: Sequence[Union[Rect, RectValue]], key: None = ...
     ) -> Union[Rect, RectValue]: ...
     # given a list of rect like objects, still could use a key to extract a different rect
     @overload
     def collideobjects(
-        self, rect_list: Sequence[Union[Rect, RectValue]], key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]]
+        self,
+        rect_list: Sequence[Union[Rect, RectValue]],
+        key: Callable[[Union[Rect, RectValue]], Union[Rect, RectValue]],
     ) -> Union[Rect, RectValue]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
