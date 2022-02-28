@@ -30,8 +30,9 @@
 
 typedef struct pgEventTimer {
     struct pgEventTimer *next;
+    PyObject *event_dict;
     intptr_t timer_id;
-    pgEventObject *event;
+    int event_type;
     int repeat;
 } pgEventTimer;
 
@@ -53,8 +54,8 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
         while (hunt) {
             todel = hunt;
             hunt = hunt->next;
-            Py_DECREF(todel->event);
-            PyMem_Free(todel);
+            Py_XDECREF(todel->event_dict);
+            free(todel);
         }
         pg_event_timer = NULL;
         pg_timer_id = 0;
@@ -83,11 +84,11 @@ pg_time_autoinit(PyObject *self, PyObject *_null)
 }
 
 static intptr_t
-_pg_add_event_timer(pgEventObject *ev, int repeat)
+_pg_add_event_timer(int ev_type, PyObject *ev_dict, int repeat)
 {
     pgEventTimer *new;
 
-    new = PyMem_New(pgEventTimer, 1);
+    new = (pgEventTimer *)malloc(sizeof(pgEventTimer));
     if (!new) {
         PyErr_NoMemory();
         return 0;
@@ -95,7 +96,7 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     if (SDL_LockMutex(timermutex) < 0) {
         /* this case will almost never happen, but still handle it */
-        PyMem_Free(new);
+        free(new);
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
     }
@@ -104,7 +105,8 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     new->next = pg_event_timer;
     new->timer_id = pg_timer_id;
-    new->event = ev;
+    new->event_type = ev_type;
+    new->event_dict = ev_dict;
     new->repeat = repeat;
     pg_event_timer = new;
 
@@ -114,14 +116,14 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 }
 
 static void
-_pg_remove_event_timer(pgEventObject *ev)
+_pg_remove_event_timer(int ev_type)
 {
     pgEventTimer *hunt, *prev = NULL;
 
     SDL_LockMutex(timermutex);
     if (pg_event_timer) {
         hunt = pg_event_timer;
-        while (hunt->event->type != ev->type) {
+        while (hunt->event_type != ev_type) {
             prev = hunt;
             hunt = hunt->next;
             if (!hunt) {
@@ -134,8 +136,8 @@ _pg_remove_event_timer(pgEventObject *ev)
             prev->next = hunt->next;
         else
             pg_event_timer = hunt->next;
-        Py_DECREF(hunt->event);
-        PyMem_Del(hunt);
+        Py_XDECREF(hunt->event_dict);
+        free(hunt);
     }
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
@@ -169,32 +171,36 @@ static Uint32
 timer_callback(Uint32 interval, void *param)
 {
     pgEventTimer *evtimer;
-    SDL_Event event;
     PyGILState_STATE gstate;
+    int gil_held = 0;
 
     evtimer = _pg_get_event_on_timer((intptr_t)param);
     if (!evtimer)
         return 0;
 
-    /* This function runs in a separate thread, so we acquire the GIL,
-     * pgEvent_FillUserEvent and _pg_remove_event_timer do python API calls */
-    gstate = PyGILState_Ensure();
+    /* Acquire GIL only if python API calls will be made, and that will only
+     * happen only if dict is a non-null python dict */
+    if (evtimer->event_dict) {
+        gstate = PyGILState_Ensure();
+        gil_held = 1;
+    }
 
     if (SDL_WasInit(SDL_INIT_VIDEO)) {
-        pgEvent_FillUserEvent(evtimer->event, &event);
-        if (SDL_PushEvent(&event) <= 0)
-            Py_DECREF(evtimer->event->dict);
+        pg_post_event(evtimer->event_type, evtimer->event_dict);
     }
-    else
+    else {
         evtimer->repeat = 0;
+    }
 
     if (!evtimer->repeat) {
         /* This does memory cleanup */
-        _pg_remove_event_timer(evtimer->event);
+        _pg_remove_event_timer(evtimer->event_type);
         interval = 0;
     }
 
-    PyGILState_Release(gstate);
+    if (gil_held) {
+        PyGILState_Release(gstate);
+    }
     return interval;
 }
 
@@ -295,7 +301,8 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int ticks, loops = 0;
     intptr_t timer_id;
-    PyObject *obj;
+    PyObject *obj, *ev_dict = NULL;
+    int ev_type;
     pgEventObject *e;
 
     static char *kwids[] = {"event", "millis", "loops", NULL};
@@ -315,42 +322,45 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(pgExc_SDLError, "pygame is not initialized");
 
     if (PyLong_Check(obj)) {
-        e = (pgEventObject *)pgEvent_New2(PyLong_AsLong(obj), NULL);
-        if (!e)
+        ev_type = (int)PyLong_AsLong(obj);
+        if (ev_type == -1 && PyErr_Occurred()) {
             return NULL;
+        }
     }
     else if (pgEvent_Check(obj)) {
-        Py_INCREF(obj);
         e = (pgEventObject *)obj;
+        ev_type = e->type;
+        ev_dict = e->dict;
+        Py_XINCREF(ev_dict);
     }
     else
         return RAISE(PyExc_TypeError,
                      "first argument must be an event type or event object");
 
     /* stop original timer, if it exists */
-    _pg_remove_event_timer(e);
+    _pg_remove_event_timer(ev_type);
 
     if (ticks <= 0) {
-        Py_DECREF(e);
+        Py_XDECREF(ev_dict);
         Py_RETURN_NONE;
     }
 
     /* just doublecheck that timer is initialized */
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
         if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
-            Py_DECREF(e);
+            Py_XDECREF(ev_dict);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
     }
 
-    timer_id = _pg_add_event_timer(e, loops);
+    timer_id = _pg_add_event_timer(ev_type, ev_dict, loops);
     if (!timer_id) {
-        Py_DECREF(e);
+        Py_XDECREF(ev_dict);
         return NULL;
     }
 
     if (!SDL_AddTimer(ticks, timer_callback, (void *)timer_id)) {
-        _pg_remove_event_timer(e); /* Does cleanup */
+        _pg_remove_event_timer(ev_type); /* Does cleanup */
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 

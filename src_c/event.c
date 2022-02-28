@@ -45,10 +45,6 @@
 #define PG_PEEP_EVENT_ALL(x, y, z) \
     SDL_PeepEvents(x, y, z, SDL_FIRSTEVENT, SDL_LASTEVENT)
 
-/* These are used for checks. The checks are kinda redundant because we
- * have proxy events anyways, but this is needed for SDL1 */
-#define USEROBJ_CHECK (Sint32)0xFEEDF00D
-
 #define MAX_UINT32 0xFFFFFFFF
 
 #define PG_GET_LIST_LEN 128
@@ -667,19 +663,25 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
-/* This function can fill an SDL event from pygame event */
+/* This function posts an SDL "UserEvent" event, can also optionally take a
+ * python dict. This function does not need GIL to be held if dict is NULL, but
+ * needs GIL otherwise */
 static int
-pgEvent_FillUserEvent(pgEventObject *e, SDL_Event *event)
+pg_post_event(Uint32 type, PyObject *dict)
 {
-    Py_INCREF(e->dict);
+    int ret;
+    SDL_Event event = {0};
 
-    memset(event, 0, sizeof(SDL_Event));
-    event->type = _pg_pgevent_proxify(e->type);
-    event->user.code = USEROBJ_CHECK;
-    event->user.data1 = (void *)e->dict;
-    event->user.data2 = NULL;
+    Py_XINCREF(dict);
+    event.type = _pg_pgevent_proxify(type);
+    event.user.data1 = (void *)dict;
 
-    return 0;
+    ret = SDL_PushEvent(&event);
+    if (ret != 1) {
+        /* decref dict if event could not be posted */
+        Py_XDECREF(dict);
+    }
+    return ret;
 }
 
 static char *
@@ -928,13 +930,19 @@ dict_from_event(SDL_Event *event)
     long gain;
     long state;
 
-    /* check if a proxy event or userevent was posted */
-    if (event->type >= PGPOST_EVENTBEGIN && event->user.code == USEROBJ_CHECK)
-        return (PyObject *)event->user.data1;
-
     dict = PyDict_New();
     if (!dict)
         return NULL;
+
+    /* check if a proxy event or userevent was posted */
+    if (event->type >= PGPOST_EVENTBEGIN) {
+        if (!event->user.data1) {
+            /* the field being NULL implies empty dict */
+            return dict;
+        }
+        Py_DECREF(dict);
+        return (PyObject *)event->user.data1;
+    }
 
     switch (event->type) {
         case SDL_VIDEORESIZE:
@@ -1517,21 +1525,6 @@ pgEvent_New(SDL_Event *event)
     return (PyObject *)e;
 }
 
-static PyObject *
-pgEvent_New2(int type, PyObject *dict)
-{
-    pgEventObject *e;
-    e = PyObject_New(pgEventObject, &pgEvent_Type);
-    if (!e)
-        return PyErr_NoMemory();
-
-    if (_pg_event_populate(e, type, dict) == -1) {
-        PyObject_Free(e);
-        return NULL;
-    }
-    return (PyObject *)e;
-}
-
 /* event module functions */
 
 static PyObject *
@@ -2065,28 +2058,17 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 pg_event_post(PyObject *self, PyObject *obj)
 {
-    SDL_Event event;
-    pgEventObject *e;
-    int ret;
-
     VIDEO_INIT_CHECK();
     if (!pgEvent_Check(obj))
         return RAISE(PyExc_TypeError, "argument must be an Event object");
 
-    e = (pgEventObject *)obj;
-    if (SDL_EventState(_pg_pgevent_proxify(e->type), SDL_QUERY) == SDL_IGNORE)
-        Py_RETURN_FALSE;
-
-    pgEvent_FillUserEvent(e, &event);
-
-    ret = SDL_PushEvent(&event);
-    if (ret == 1)
-        Py_RETURN_TRUE;
-    else {
-        Py_DECREF(e->dict);
-        if (ret == 0)
+    pgEventObject *e = (pgEventObject *)obj;
+    switch (pg_post_event(e->type, e->dict)) {
+        case 0:
             Py_RETURN_FALSE;
-        else
+        case 1:
+            Py_RETURN_TRUE;
+        default:
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
 }
@@ -2291,13 +2273,12 @@ MODINIT_DEFINE(event)
     }
 
     /* export the c api */
-    assert(PYGAMEAPI_EVENT_NUMSLOTS == 6);
+    assert(PYGAMEAPI_EVENT_NUMSLOTS == 5);
     c_api[0] = &pgEvent_Type;
     c_api[1] = pgEvent_New;
-    c_api[2] = pgEvent_New2;
-    c_api[3] = pgEvent_FillUserEvent;
-    c_api[4] = pg_EnableKeyRepeat;
-    c_api[5] = pg_GetKeyRepeat;
+    c_api[2] = pg_post_event;
+    c_api[3] = pg_EnableKeyRepeat;
+    c_api[4] = pg_GetKeyRepeat;
 
     apiobj = encapsulate_api(c_api, "event");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

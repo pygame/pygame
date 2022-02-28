@@ -258,27 +258,20 @@ _format_view_to_audio(Py_buffer *view)
 static void
 _pg_push_mixer_event(int type, int code)
 {
-    pgEventObject *e;
     PyObject *dict, *dictcode;
-    SDL_Event event;
     PyGILState_STATE gstate = PyGILState_Ensure();
 
     dict = PyDict_New();
     if (dict) {
         if (type >= PGE_USEREVENT && type < PG_NUMEVENTS) {
             dictcode = PyLong_FromLong(code);
-            PyDict_SetItemString(dict, "code", dictcode);
-            Py_DECREF(dictcode);
+            if (dictcode) {
+                PyDict_SetItemString(dict, "code", dictcode);
+                Py_DECREF(dictcode);
+            }
         }
-        e = (pgEventObject *)pgEvent_New2(type, dict);
+        pg_post_event(type, dict);
         Py_DECREF(dict);
-
-        if (e) {
-            pgEvent_FillUserEvent(e, &event);
-            if (SDL_PushEvent(&event) <= 0)
-                Py_DECREF(dict);
-            Py_DECREF(e);
-        }
     }
     PyGILState_Release(gstate);
 }

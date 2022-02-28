@@ -52,27 +52,11 @@ mixmusic_callback(void *udata, Uint8 *stream, int len)
 }
 
 static void
-_pg_push_music_event(int type)
-{
-    pgEventObject *e;
-    SDL_Event event;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-
-    e = (pgEventObject *)pgEvent_New2(type, NULL);
-    if (e) {
-        pgEvent_FillUserEvent(e, &event);
-        if (SDL_PushEvent(&event) <= 0)
-            Py_DECREF(e->dict);
-        Py_DECREF(e);
-    }
-    PyGILState_Release(gstate);
-}
-
-static void
 endmusic_callback(void)
 {
-    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
-        _pg_push_music_event(endmusic_event);
+    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO)) {
+        pg_post_event(endmusic_event, NULL);
+    }
 
     if (queue_music) {
         if (current_music)
