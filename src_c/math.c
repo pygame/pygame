@@ -834,6 +834,10 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     double max_length;
     double old_length_sq;
     double fraction;
+
+    int length_greater;
+    int length_less;
+
     static char *keywords[] = {"max_length", "min_length", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords,
@@ -850,23 +854,26 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (old_length_sq > max_length * max_length) {
+    /*
+    Notes for other contributors reading this code:
+    The numerator for the fraction is different.
+    */
+    length_greater = old_length_sq > max_length * max_length;
+    if (length_greater) {
         /* Scale to length */
         fraction = max_length / sqrt(old_length_sq);
-        for (i = 0; i < self->dim; ++i)
-            self->coords[i] *= fraction;
-
         Py_RETURN_NONE;
     }
 
-    if (old_length_sq < min_length * min_length) {
+    length_less = old_length_sq < min_length * min_length;
+    if (length_less) {
         /* Scale to length */
         fraction = min_length / sqrt(old_length_sq);
-        for (i = 0; i < self->dim; ++i)
-            self->coords[i] *= fraction;
-
         Py_RETURN_NONE;
     }
+
+    for (i = 0; i < self->dim; ++i)
+        self->coords[i] *= fraction;
 
     Py_RETURN_NONE;
 }
