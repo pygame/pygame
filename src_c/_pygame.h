@@ -84,10 +84,11 @@ typedef enum {
 
     PGE_MIDIIN,
     PGE_MIDIOUT,
-    PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses
-                    */
+    PGE_KEYREPEAT, /* Internal pygame event, for managing key-presses */
 
-    /* DO NOT CHANGE THE ORDER OF EVENTS HERE */
+    /* Do not change the order of window events here, they should be in the
+     * same order as defined in 'SDL_WindowEventID' */
+    PGE_WINDOWEVENTSTART,
     PGE_WINDOWSHOWN,
     PGE_WINDOWHIDDEN,
     PGE_WINDOWEXPOSED,
@@ -196,7 +197,8 @@ typedef enum {
     PGPOST_WINDOWICCPROFCHANGED,
     PGPOST_WINDOWDISPLAYCHANGED,
 
-    PGE_USEREVENT, /* this event must stay in this position only */
+    PGE_USEREVENT, /* this event must stay in this position only, all events
+                      after this are custom user events */
 
     PG_NUMEVENTS =
         SDL_LASTEVENT /* Not an event. Indicates end of user events. */

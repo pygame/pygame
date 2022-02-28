@@ -53,6 +53,9 @@
 
 #define PG_GET_LIST_LEN 128
 
+/* Get event type of WINDOWEVENT from event.window.event */
+#define PG_TO_WINDOWEVENT(e) (PGE_WINDOWEVENTSTART + (e).window.event)
+
 // Map joystick instance IDs to device ids for partial backwards compatibility
 static PyObject *joy_instance_map = NULL;
 
@@ -419,16 +422,6 @@ _pg_pgevent_deproxify(Uint32 type)
     return _pg_pgevent_proxify_helper(type, 0);
 }
 
-static int
-_pg_translate_windowevent(void *_, SDL_Event *event)
-{
-    if (event->type == SDL_WINDOWEVENT) {
-        event->type = PGE_WINDOWSHOWN + event->window.event - 1;
-        return SDL_EventState(_pg_pgevent_proxify(event->type), SDL_QUERY);
-    }
-    return 1;
-}
-
 static int SDLCALL
 _pg_remove_pending_VIDEORESIZE(void *userdata, SDL_Event *event)
 {
@@ -490,6 +483,16 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_RESTORED:
                 newevent.type = SDL_ACTIVEEVENT;
                 SDL_PushEvent(&newevent);
+        }
+
+        /* If a user has blocked a particular window event, block it here. This
+         * can have side-effects because internal SDL functions may rely on
+         * window events. But this is just the user shooting themselves in the
+         * foot, we cannot do anything else other than emitting warnings in the
+         * block function */
+        if (SDL_EventState(_pg_pgevent_proxify(PG_TO_WINDOWEVENT(*event)),
+                           SDL_QUERY) == SDL_IGNORE) {
+            return 0;
         }
     }
 
@@ -1492,6 +1495,10 @@ pgEvent_New(SDL_Event *event)
 
     if (event) {
         e->type = _pg_pgevent_deproxify(event->type);
+        if (e->type == SDL_WINDOWEVENT) {
+            /* Do windowevent translation here */
+            e->type = PG_TO_WINDOWEVENT(*event);
+        }
         e->dict = dict_from_event(event);
     }
     else {
@@ -1573,53 +1580,36 @@ get_grab(PyObject *self, PyObject *_null)
     return PyBool_FromLong(mode);
 }
 
+/* This is a windowevent translate filter that must run before calling
+ * functions like event.clear, event.get and event.peek that deal with event
+ * type peeking/flushing in the entire event queue. This is not needed while
+ * calling functions like event.poll and event.wait because they only return
+ * the first event in the event queue, and that event can be special-cased in
+ * 'pgEvent_New' */
+static int
+_pg_translate_windowevent(void *_, SDL_Event *event)
+{
+    if (event->type == SDL_WINDOWEVENT) {
+        event->type = PG_TO_WINDOWEVENT(*event);
+    }
+    return 1;
+}
+
 static void
 _pg_event_pump(int dopump)
 {
     if (dopump) {
         SDL_PumpEvents();
     }
-    /* We need to translate WINDOWEVENTS. But if we do that from the
-     * from event filter, internal SDL stuff that rely on WINDOWEVENT
-     * might break. So after every event pump, we translate events from
-     * here */
     SDL_FilterEvents(_pg_translate_windowevent, NULL);
-}
-
-static int
-_pg_event_wait(SDL_Event *event, int timeout)
-{
-    /* Custom re-implementation of SDL_WaitEventTimeout, doing this has
-     * many advantages. This is copied from SDL source code, with a few
-     * minor modifications */
-    Uint32 finish = 0;
-
-    if (timeout > 0)
-        finish = SDL_GetTicks() + timeout;
-
-    while (1) {
-        _pg_event_pump(1); /* Use our custom pump here */
-        switch (PG_PEEP_EVENT_ALL(event, 1, SDL_GETEVENT)) {
-            case -1:
-                return 0; /* Because this never happens, SDL does it too*/
-            case 1:
-                return 1;
-
-            default:
-                if (timeout >= 0 && SDL_GetTicks() >= finish) {
-                    /* no events */
-                    return 0;
-                }
-                SDL_Delay(1);
-        }
-    }
 }
 
 static PyObject *
 pg_event_pump(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
-    _pg_event_pump(1);
+    /* _pg_event_pump not needed here */
+    SDL_PumpEvents();
     Py_RETURN_NONE;
 }
 
@@ -1629,8 +1619,7 @@ pg_event_poll(PyObject *self, PyObject *_null)
     SDL_Event event;
     VIDEO_INIT_CHECK();
 
-    /* polling is just waiting for 0 timeout */
-    if (!_pg_event_wait(&event, 0))
+    if (!SDL_PollEvent(&event))
         return pgEvent_New(NULL);
     return pgEvent_New(&event);
 }
@@ -1652,7 +1641,7 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
         timeout = -1;
 
     Py_BEGIN_ALLOW_THREADS;
-    status = _pg_event_wait(&event, timeout);
+    status = SDL_WaitEventTimeout(&event, timeout);
     Py_END_ALLOW_THREADS;
 
     if (!status)
