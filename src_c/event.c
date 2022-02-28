@@ -1619,9 +1619,16 @@ pg_event_poll(PyObject *self, PyObject *_null)
     SDL_Event event;
     VIDEO_INIT_CHECK();
 
-    if (!SDL_PollEvent(&event))
-        return pgEvent_New(NULL);
-    return pgEvent_New(&event);
+    /* SDL_PollEvent seems to be flaky with some unit tests, use peep event */
+    SDL_PumpEvents();
+    switch (PG_PEEP_EVENT_ALL(&event, 1, SDL_GETEVENT)) {
+        case 0:
+            return pgEvent_New(NULL);
+        case 1:
+            return pgEvent_New(&event);
+        default:
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 }
 
 static PyObject *
