@@ -34,7 +34,4 @@ class _HasRectAttribute(Protocol):
     # that returns a rect confirms to the rect protocol
     rect: Union[RectValue, Callable[[], RectValue]]
 
-class _HasCallableRectAttribute(Protocol):
-    rect: Callable[[], RectValue]
-
-RectValue = Union[_CanBeRect, _HasRectAttribute, _HasCallableRectAttribute]
+RectValue = Union[_CanBeRect, _HasRectAttribute]
