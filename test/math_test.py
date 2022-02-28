@@ -1146,14 +1146,14 @@ class Vector2TypeTest(unittest.TestCase):
         v2 = v1.clamp_magnitude(5)
         v1.clamp_magnitude_ip(5)
         self.assertEqual(v1, v2)
-        expected_v2 = Vector2(4.80762, 1.37361)
+        expected_v2 = Vector2(4.807619738204116, 1.3736056394868903)
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
 
     def test_clamp_mag_v2_min(self):
         v1 = Vector2(1, 2)
         v2 = v1.clamp_magnitude(5, 3)
-        expected_v2 = Vector2(1.34164, 2.68328)
+        expected_v2 = Vector2(1.3416407864998738, 2.6832815729997477)
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
 
@@ -2441,15 +2441,15 @@ class Vector3TypeTest(unittest.TestCase):
     def test_clamp_mag_v3_max(self):
         v1 = Vector3(7, 2, 2)
         v2 = v1.clamp_magnitude(5)
-        expected_v2 = Vector3(4.63586, 1.32453, 1.32453)
-        self.assertAlmostEqual(expected_v2.x, v2.x, 5)
-        self.assertAlmostEqual(expected_v2.y, v2.y, 5)
+        expected_v2 = Vector3(4.635863249727653, 1.3245323570650438, 1.3245323570650438)
+        self.assertAlmostEqual(expected_v2.x, v2.x)
+        self.assertAlmostEqual(expected_v2.y, v2.y)
         self.assertAlmostEqual(expected_v2.z, v2.z)
 
     def test_clamp_mag_v3_min(self):
         v1 = Vector3(3, 1, 2)
         v2 = v1.clamp_magnitude(10, 5)
-        expected_v2 = Vector3(4.00892, 1.33631, 2.67261)
+        expected_v2 = Vector3(4.008918628686366, 1.3363062095621219, 2.6726124191242437)
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
         self.assertAlmostEqual(expected_v2.z, v2.z)
