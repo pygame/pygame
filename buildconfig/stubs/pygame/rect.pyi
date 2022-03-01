@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+from typing import Dict, Iterator, List, Sequence, Tuple, TypeVar, Union, overload
 
 from ._common import Coordinate, Literal, RectValue
 
@@ -39,6 +39,7 @@ class Rect:
     @overload
     def __init__(self, single_arg: RectValue) -> None: ...
     def __len__(self) -> Literal[4]: ...
+    def __iter__(self) -> Iterator[int]: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload

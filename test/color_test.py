@@ -1087,6 +1087,14 @@ class ColorTypeTest(unittest.TestCase):
             self.assertEqual(imp.shape, (i,))
         self.assertRaises(BufferError, ColorImporter, c, buftools.PyBUF_WRITABLE)
 
+    def test_color_iter(self):
+        c = pygame.Color(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        color_iterator = c.__iter__()
+        for i, val in enumerate(color_iterator):
+            self.assertEqual(c[i], val)
+
     def test_lerp(self):
         # setup
         Color = pygame.color.Color

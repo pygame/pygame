@@ -50,6 +50,14 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((r.left, r.centery), r.midleft)
         self.assertEqual((r.right, r.centery), r.midright)
 
+    def test_rect_iter(self):
+        rect = Rect(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        rect_iterator = rect.__iter__()
+        for i, val in enumerate(rect_iterator):
+            self.assertEqual(rect[i], val)
+
     def test_normalize(self):
         """Ensures normalize works when width and height are both negative."""
         test_rect = Rect((1, 2), (-3, -6))
@@ -725,6 +733,9 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(Rect(4, 6, 0, 0) in r, "r contains Rect(4, 6, 0, 0)")
         self.assertTrue(2 in Rect(0, 0, 1, 2), "r does not contain 2")
         self.assertFalse(3 in Rect(0, 0, 1, 2), "r contains 3")
+
+        self.assertRaises(TypeError, lambda: "string" in Rect(0, 0, 1, 2))
+        self.assertRaises(TypeError, lambda: 4 + 3j in Rect(0, 0, 1, 2))
 
     def test_collidepoint(self):
         r = Rect(1, 2, 3, 4)
