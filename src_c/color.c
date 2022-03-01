@@ -81,6 +81,8 @@ _color_dealloc(pgColorObject *);
 static PyObject *
 _color_repr(pgColorObject *);
 static PyObject *
+_color_iter(pgColorObject *);
+static PyObject *
 _color_normalize(pgColorObject *, PyObject *);
 static PyObject *
 _color_correct_gamma(pgColorObject *, PyObject *);
@@ -264,6 +266,7 @@ static PyTypeObject pgColor_Type = {
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = DOC_PYGAMECOLOR,
     .tp_richcompare = _color_richcompare,
+    .tp_iter = (getiterfunc)_color_iter,
     .tp_methods = _color_methods,
     .tp_getset = _color_getsets,
     .tp_init = (initproc)_color_init,
@@ -703,6 +706,28 @@ _color_repr(pgColorObject *color)
     return PyUnicode_FromFormat("(%d, %d, %d, %d)", color->data[0],
                                 color->data[1], color->data[2],
                                 color->data[3]);
+}
+
+static PyObject *
+_color_iter(pgColorObject *self)
+{
+    Uint8 i;
+    PyObject *iter, *tup = PyTuple_New(self->len);
+    if (!tup) {
+        return NULL;
+    }
+    for (i = 0; i < self->len; i++) {
+        PyObject *val = PyLong_FromLong(self->data[i]);
+        if (!val) {
+            Py_DECREF(tup);
+            return NULL;
+        }
+
+        PyTuple_SET_ITEM(tup, i, val);
+    }
+    iter = PyTuple_Type.tp_iter(tup);
+    Py_DECREF(tup);
+    return iter;
 }
 
 /**
