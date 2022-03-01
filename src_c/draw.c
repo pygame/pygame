@@ -1629,7 +1629,7 @@ draw_arc(SDL_Surface *surf, int x0, int y0, int width, int height,
     short left =
         (start_angle < M_PI && end_angle < M_PI && end_angle > start_angle) ||
                 (start_angle > M_PI && end_angle > M_PI &&
-                    end_angle > start_angle) ||
+                 end_angle > start_angle) ||
                 (start_angle > M_PI && end_angle < M_PI)
             ? 0
             : 1;
