@@ -1627,10 +1627,10 @@ draw_arc(SDL_Surface *surf, int x0, int y0, int width, int height,
     double start_slope = tan(start_angle);
     double end_slope = tan(end_angle);
     short left =
-        start_angle < M_PI && end_angle < M_PI && end_angle > start_angle ||
-                start_angle > M_PI && end_angle > M_PI &&
-                    end_angle > start_angle ||
-                start_angle > M_PI && end_angle < M_PI
+        (start_angle < M_PI && end_angle < M_PI && end_angle > start_angle) ||
+                (start_angle > M_PI && end_angle > M_PI &&
+                    end_angle > start_angle) ||
+                (start_angle > M_PI && end_angle < M_PI)
             ? 0
             : 1;
     x0 += width / 2;
