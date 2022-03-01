@@ -50,7 +50,7 @@ copyright = u'2000-2022, pygame developers'
 # The short X.Y version.
 version = '2.1.3'
 # The full version, including alpha/beta/rc tags.
-release = '2.1.3.dev3'
+release = '2.1.3.dev5'
 
 # Format strings for the version directives
 versionadded_format = 'New in pygame %s'
