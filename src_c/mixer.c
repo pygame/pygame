@@ -979,40 +979,18 @@ sound_dealloc(pgSoundObject *self)
 }
 
 static PyTypeObject pgSound_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Sound", sizeof(pgSoundObject), 0,
-    (destructor)sound_dealloc, 0, 0, 0, /* setattr */
-    0,                                  /* compare */
-    0,                                  /* repr */
-    0,                                  /* as_number */
-    0,                                  /* as_sequence */
-    0,                                  /* as_mapping */
-    (hashfunc)NULL,                     /* hash */
-    (ternaryfunc)NULL,                  /* call */
-    (reprfunc)NULL,                     /* str */
-    0,                                  /* tp_getattro */
-    0,                                  /* tp_setattro */
-    sound_as_buffer,                    /* tp_as_buffer */
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-     Py_TPFLAGS_HAVE_NEWBUFFER), /* tp_flags */
-    DOC_PYGAMEMIXERSOUND,        /* Documentation string */
-    0,                           /* tp_traverse */
-    0,                           /* tp_clear */
-    0,                           /* tp_richcompare */
-    offsetof(pgSoundObject, weakreflist),
-    /* tp_weaklistoffset */
-    0,                 /* tp_iter */
-    0,                 /* tp_iternext */
-    sound_methods,     /* tp_methods */
-    0,                 /* tp_members */
-    sound_getset,      /* tp_getset */
-    0,                 /* tp_base */
-    0,                 /* tp_dict */
-    0,                 /* tp_descr_get */
-    0,                 /* tp_descr_set */
-    0,                 /* tp_dictoffset */
-    sound_init,        /* tp_init */
-    0,                 /* tp_alloc */
-    PyType_GenericNew, /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Sound",
+    .tp_basicsize = sizeof(pgSoundObject),
+    .tp_dealloc = (destructor)sound_dealloc,
+    .tp_as_buffer = sound_as_buffer,
+    .tp_flags =
+        (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER),
+    .tp_doc = DOC_PYGAMEMIXERSOUND,
+    .tp_weaklistoffset = offsetof(pgSoundObject, weakreflist),
+    .tp_methods = sound_methods,
+    .tp_getset = sound_getset,
+    .tp_init = sound_init,
+    .tp_new = PyType_GenericNew,
 };
 
 /* channel object methods */
@@ -1318,43 +1296,13 @@ channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgChannel_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Channel", /* name */
-    sizeof(pgChannelObject),                  /* basic size */
-    0,                                        /* itemsize */
-    channel_dealloc,                          /* dealloc */
-    0,                                        /* print */
-    0,                                        /* getattr */
-    0,                                        /* setattr */
-    0,                                        /* compare */
-    0,                                        /* repr */
-    0,                                        /* as_number */
-    0,                                        /* as_sequence */
-    0,                                        /* as_mapping */
-    (hashfunc)0,                              /* hash */
-    (ternaryfunc)0,                           /* call */
-    0,                                        /* str */
-    0,                                        /* tp_getattro */
-    0,                                        /* tp_setattro */
-    0,                                        /* tp_as_buffer */
-    0,                                        /* flags */
-    DOC_PYGAMEMIXERCHANNEL,                   /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    channel_methods,                          /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    (initproc)channel_init,                   /* tp_init */
-    0,                                        /* tp_alloc */
-    PyType_GenericNew,                        /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Channel",
+    .tp_basicsize = sizeof(pgChannelObject),
+    .tp_dealloc = channel_dealloc,
+    .tp_doc = DOC_PYGAMEMIXERCHANNEL,
+    .tp_methods = channel_methods,
+    .tp_init = (initproc)channel_init,
+    .tp_new = PyType_GenericNew,
 };
 
 /*mixer module methods*/

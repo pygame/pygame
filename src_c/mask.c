@@ -2550,43 +2550,16 @@ static PyBufferProcs pgMask_BufferProcs = {
     (getbufferproc)pgMask_GetBuffer, (releasebufferproc)pgMask_ReleaseBuffer};
 
 static PyTypeObject pgMask_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.mask.Mask", /* tp_name */
-    sizeof(pgMaskObject),                              /* tp_basicsize */
-    0,                                                 /* tp_itemsize */
-    mask_dealloc,                                      /* tp_dealloc */
-    0,                                                 /* tp_print */
-    0,                                                 /* tp_getattr */
-    0,                                                 /* tp_setattr */
-    0,                   /* tp_as_async (formerly tp_compare/tp_reserved) */
-    (reprfunc)mask_repr, /* tp_repr */
-    0,                   /* tp_as_number */
-    NULL,                /* tp_as_sequence */
-    0,                   /* tp_as_mapping */
-    (hashfunc)NULL,      /* tp_hash */
-    (ternaryfunc)NULL,   /* tp_call */
-    (reprfunc)NULL,      /* tp_str */
-    0L,                  /* tp_getattro */
-    0L,                  /* tp_setattro */
-    &pgMask_BufferProcs, /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEMASKMASK,                       /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    mask_methods,                             /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    mask_init,                                /* tp_init */
-    0,                                        /* tp_alloc */
-    mask_new,                                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mask.Mask",
+    .tp_basicsize = sizeof(pgMaskObject),
+    .tp_dealloc = mask_dealloc,
+    .tp_repr = (reprfunc)mask_repr,
+    .tp_as_buffer = &pgMask_BufferProcs,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEMASKMASK,
+    .tp_methods = mask_methods,
+    .tp_init = mask_init,
+    .tp_new = mask_new,
 };
 
 /*mask module methods*/

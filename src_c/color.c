@@ -286,53 +286,21 @@ static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Color", /* tp_name */
-    sizeof(pgColorObject),                         /* tp_basicsize */
-    0,                                             /* tp_itemsize */
-    (destructor)_color_dealloc,                    /* tp_dealloc */
-    0,                                             /* tp_print */
-    NULL,                                          /* tp_getattr */
-    NULL,                                          /* tp_setattr */
-    NULL,                                          /* tp_compare */
-    (reprfunc)_color_repr,                         /* tp_repr */
-    &_color_as_number,                             /* tp_as_number */
-    &_color_as_sequence,                           /* tp_as_sequence */
-    &_color_as_mapping,                            /* tp_as_mapping */
-    NULL,                                          /* tp_hash */
-    NULL,                                          /* tp_call */
-    NULL,                                          /* tp_str */
-    NULL,                                          /* tp_getattro */
-    NULL,                                          /* tp_setattro */
-    &_color_as_buffer,                             /* tp_as_buffer */
-    COLOR_TPFLAGS,
-    DOC_PYGAMECOLOR,       /* tp_doc */
-    NULL,                  /* tp_traverse */
-    NULL,                  /* tp_clear */
-    _color_richcompare,    /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    NULL,                  /* tp_iter */
-    NULL,                  /* tp_iternext */
-    _color_methods,        /* tp_methods */
-    NULL,                  /* tp_members */
-    _color_getsets,        /* tp_getset */
-    NULL,                  /* tp_base */
-    NULL,                  /* tp_dict */
-    NULL,                  /* tp_descr_get */
-    NULL,                  /* tp_descr_set */
-    0,                     /* tp_dictoffset */
-    (initproc)_color_init, /* tp_init */
-    NULL,                  /* tp_alloc */
-    _color_new,            /* tp_new */
-#ifndef __SYMBIAN32__
-    NULL, /* tp_free */
-    NULL, /* tp_is_gc */
-    NULL, /* tp_bases */
-    NULL, /* tp_mro */
-    NULL, /* tp_cache */
-    NULL, /* tp_subclasses */
-    NULL, /* tp_weaklist */
-    NULL  /* tp_del */
-#endif
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Color",
+    .tp_basicsize = sizeof(pgColorObject),
+    .tp_dealloc = (destructor)_color_dealloc,
+    .tp_repr = (reprfunc)_color_repr,
+    .tp_as_number = &_color_as_number,
+    .tp_as_sequence = &_color_as_sequence,
+    .tp_as_mapping = &_color_as_mapping,
+    .tp_as_buffer = &_color_as_buffer,
+    .tp_flags = COLOR_TPFLAGS,
+    .tp_doc = DOC_PYGAMECOLOR,
+    .tp_richcompare = _color_richcompare,
+    .tp_methods = _color_methods,
+    .tp_getset = _color_getsets,
+    .tp_init = (initproc)_color_init,
+    .tp_new = _color_new,
 };
 
 #define PyColor_Check(o) ((o)->ob_type == (PyTypeObject *)&pgColor_Type)

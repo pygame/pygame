@@ -506,43 +506,14 @@ clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject PyClock_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Clock", /* name */
-    sizeof(PyClockObject),                  /* basic size */
-    0,                                      /* itemsize */
-    clock_dealloc,                          /* dealloc */
-    0,                                      /* print */
-    0,                                      /* getattr */
-    0,                                      /* setattr */
-    0,                                      /* compare */
-    clock_str,                              /* repr */
-    0,                                      /* as_number */
-    0,                                      /* as_sequence */
-    0,                                      /* as_mapping */
-    (hashfunc)0,                            /* hash */
-    (ternaryfunc)0,                         /* call */
-    clock_str,                              /* str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    0,                                      /* tp_as_buffer */
-    0,                                      /* flags */
-    DOC_PYGAMETIMECLOCK,                    /* Documentation string */
-    0,                                      /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    0,                                      /* tp_weaklistoffset */
-    0,                                      /* tp_iter */
-    0,                                      /* tp_iternext */
-    clock_methods,                          /* tp_methods */
-    0,                                      /* tp_members */
-    0,                                      /* tp_getset */
-    0,                                      /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    0,                                      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    clock_new,                              /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Clock",
+    .tp_basicsize = sizeof(PyClockObject),
+    .tp_dealloc = clock_dealloc,
+    .tp_repr = clock_str,
+    .tp_str = clock_str,
+    .tp_doc = DOC_PYGAMETIMECLOCK,
+    .tp_methods = clock_methods,
+    .tp_new = clock_new,
 };
 
 static PyMethodDef _time_methods[] = {

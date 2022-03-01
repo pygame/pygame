@@ -377,43 +377,17 @@ static struct PyMethodDef surface_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgSurface_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Surface", /* name */
-    sizeof(pgSurfaceObject),                         /* basic size */
-    0,                                               /* itemsize */
-    surface_dealloc,                                 /* dealloc */
-    0,                                               /* print */
-    NULL,                                            /* getattr */
-    NULL,                                            /* setattr */
-    NULL,                                            /* compare */
-    surface_str,                                     /* repr */
-    NULL,                                            /* as_number */
-    NULL,                                            /* as_sequence */
-    NULL,                                            /* as_mapping */
-    (hashfunc)NULL,                                  /* hash */
-    (ternaryfunc)NULL,                               /* call */
-    (reprfunc)NULL,                                  /* str */
-    0,
-    0L,
-    0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMESURFACE,                        /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    offsetof(pgSurfaceObject, weakreflist),   /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    surface_methods,                          /* tp_methods */
-    0,                                        /* tp_members */
-    surface_getsets,                          /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    (initproc)surface_init,                   /* tp_init */
-    0,                                        /* tp_alloc */
-    surface_new,                              /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Surface",
+    .tp_basicsize = sizeof(pgSurfaceObject),
+    .tp_dealloc = surface_dealloc,
+    .tp_repr = surface_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMESURFACE,
+    .tp_weaklistoffset = offsetof(pgSurfaceObject, weakreflist),
+    .tp_methods = surface_methods,
+    .tp_getset = surface_getsets,
+    .tp_init = (initproc)surface_init,
+    .tp_new = surface_new,
 };
 
 #define pgSurface_Check(x) \

@@ -2357,68 +2357,25 @@ static PyGetSetDef vector2_getsets[] = {
  ********************************/
 
 static PyTypeObject pgVector2_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.Vector2", /* tp_name */
-    sizeof(pgVector),                                     /* tp_basicsize */
-    0,                                                    /* tp_itemsize */
-    /* Methods to implement standard operations */
-    (destructor)vector_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    (reprfunc)vector_repr,      /* tp_repr */
-    /* Method suites for standard classes */
-    &vector_as_number,   /* tp_as_number */
-    &vector_as_sequence, /* tp_as_sequence */
-    &vector_as_mapping,  /* tp_as_mapping */
-    /* More standard operations (here for binary compatibility) */
-    0,                                    /* tp_hash */
-    0,                                    /* tp_call */
-    (reprfunc)vector_str,                 /* tp_str */
-    (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
-    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
-    /* Functions to access object as input/output buffer */
-    0, /* tp_as_buffer */
-       /* Flags to define presence of optional/expanded features */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    /* Documentation string */
-    DOC_PYGAMEMATHVECTOR2, /* tp_doc */
-
-    /* Assigned meaning in release 2.0 */
-    /* call function for all accessible objects */
-    0, /* tp_traverse */
-    /* delete references to contained objects */
-    0, /* tp_clear */
-
-    /* Assigned meaning in release 2.1 */
-    /* rich comparisons */
-    (richcmpfunc)vector_richcompare, /* tp_richcompare */
-    /* weak reference enabler */
-    0, /* tp_weaklistoffset */
-
-    /* Added in release 2.2 */
-    /* Iterators */
-    vector_iter, /* tp_iter */
-    0,           /* tp_iternext */
-    /* Attribute descriptor and subclassing stuff */
-    vector2_methods,        /* tp_methods */
-    vector_members,         /* tp_members */
-    vector2_getsets,        /* tp_getset */
-    0,                      /* tp_base */
-    0,                      /* tp_dict */
-    0,                      /* tp_descr_get */
-    0,                      /* tp_descr_set */
-    0,                      /* tp_dictoffset */
-    (initproc)vector2_init, /* tp_init */
-    0,                      /* tp_alloc */
-    (newfunc)vector2_new,   /* tp_new */
-    0,                      /* tp_free */
-    0,                      /* tp_is_gc */
-    0,                      /* tp_bases */
-    0,                      /* tp_mro */
-    0,                      /* tp_cache */
-    0,                      /* tp_subclasses */
-    0,                      /* tp_weaklist */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.math.Vector2",
+    .tp_basicsize = sizeof(pgVector),
+    .tp_dealloc = (destructor)vector_dealloc,
+    .tp_repr = (reprfunc)vector_repr,
+    .tp_as_number = &vector_as_number,
+    .tp_as_sequence = &vector_as_sequence,
+    .tp_as_mapping = &vector_as_mapping,
+    .tp_str = (reprfunc)vector_str,
+    .tp_getattro = (getattrofunc)vector_getAttr_swizzle,
+    .tp_setattro = (setattrofunc)vector_setAttr_swizzle,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEMATHVECTOR2,
+    .tp_richcompare = (richcmpfunc)vector_richcompare,
+    .tp_iter = vector_iter,
+    .tp_methods = vector2_methods,
+    .tp_members = vector_members,
+    .tp_getset = vector2_getsets,
+    .tp_init = (initproc)vector2_init,
+    .tp_new = (newfunc)vector2_new,
 };
 
 /*************************************************************
@@ -3311,68 +3268,25 @@ static PyGetSetDef vector3_getsets[] = {
  ********************************/
 
 static PyTypeObject pgVector3_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.Vector3", /* tp_name */
-    sizeof(pgVector),                                     /* tp_basicsize */
-    0,                                                    /* tp_itemsize */
-    /* Methods to implement standard operations */
-    (destructor)vector_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    (reprfunc)vector_repr,      /* tp_repr */
-    /* Method suites for standard classes */
-    &vector_as_number,   /* tp_as_number */
-    &vector_as_sequence, /* tp_as_sequence */
-    &vector_as_mapping,  /* tp_as_mapping */
-    /* More standard operations (here for binary compatibility) */
-    0,                                    /* tp_hash */
-    0,                                    /* tp_call */
-    (reprfunc)vector_str,                 /* tp_str */
-    (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
-    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
-    /* Functions to access object as input/output buffer */
-    0, /* tp_as_buffer */
-       /* Flags to define presence of optional/expanded features */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    /* Documentation string */
-    DOC_PYGAMEMATHVECTOR3, /* tp_doc */
-
-    /* Assigned meaning in release 2.0 */
-    /* call function for all accessible objects */
-    0, /* tp_traverse */
-    /* delete references to contained objects */
-    0, /* tp_clear */
-
-    /* Assigned meaning in release 2.1 */
-    /* rich comparisons */
-    (richcmpfunc)vector_richcompare, /* tp_richcompare */
-    /* weak reference enabler */
-    0, /* tp_weaklistoffset */
-
-    /* Added in release 2.2 */
-    /* Iterators */
-    vector_iter, /* tp_iter */
-    0,           /* tp_iternext */
-    /* Attribute descriptor and subclassing stuff */
-    vector3_methods,        /* tp_methods */
-    vector_members,         /* tp_members */
-    vector3_getsets,        /* tp_getset */
-    0,                      /* tp_base */
-    0,                      /* tp_dict */
-    0,                      /* tp_descr_get */
-    0,                      /* tp_descr_set */
-    0,                      /* tp_dictoffset */
-    (initproc)vector3_init, /* tp_init */
-    0,                      /* tp_alloc */
-    (newfunc)vector3_new,   /* tp_new */
-    0,                      /* tp_free */
-    0,                      /* tp_is_gc */
-    0,                      /* tp_bases */
-    0,                      /* tp_mro */
-    0,                      /* tp_cache */
-    0,                      /* tp_subclasses */
-    0,                      /* tp_weaklist */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.math.Vector3",
+    .tp_basicsize = sizeof(pgVector),
+    .tp_dealloc = (destructor)vector_dealloc,
+    .tp_repr = (reprfunc)vector_repr,
+    .tp_as_number = &vector_as_number,
+    .tp_as_sequence = &vector_as_sequence,
+    .tp_as_mapping = &vector_as_mapping,
+    .tp_str = (reprfunc)vector_str,
+    .tp_getattro = (getattrofunc)vector_getAttr_swizzle,
+    .tp_setattro = (setattrofunc)vector_setAttr_swizzle,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEMATHVECTOR3,
+    .tp_richcompare = (richcmpfunc)vector_richcompare,
+    .tp_iter = vector_iter,
+    .tp_methods = vector3_methods,
+    .tp_members = vector_members,
+    .tp_getset = vector3_getsets,
+    .tp_init = (initproc)vector3_init,
+    .tp_new = (newfunc)vector3_new,
 };
 
 /********************************************
@@ -3425,34 +3339,14 @@ static PyMethodDef vectoriter_methods[] = {
 };
 
 static PyTypeObject pgVectorIter_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.VectorIterator", /* tp_name */
-    sizeof(vectoriter),             /* tp_basicsize */
-    0,                              /* tp_itemsize */
-    (destructor)vectoriter_dealloc, /* tp_dealloc */
-    0,                              /* tp_print */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    0,                              /* tp_compare */
-    0,                              /* tp_repr */
-    0,                              /* tp_as_number */
-    0,                              /* tp_as_sequence */
-    0,                              /* tp_as_mapping */
-    0,                              /* tp_hash */
-    0,                              /* tp_call */
-    0,                              /* tp_str */
-    PyObject_GenericGetAttr,        /* tp_getattro */
-    0,                              /* tp_setattro */
-    0,                              /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,             /* tp_flags */
-    0,                              /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
-    0,                              /* tp_richcompare */
-    0,                              /* tp_weaklistoffset */
-    PyObject_SelfIter,              /* tp_iter */
-    (iternextfunc)vectoriter_next,  /* tp_iternext */
-    vectoriter_methods,             /* tp_methods */
-    0,                              /* tp_members */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.math.VectorIterator",
+    .tp_basicsize = sizeof(vectoriter),
+    .tp_dealloc = (destructor)vectoriter_dealloc,
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_iter = PyObject_SelfIter,
+    .tp_iternext = (iternextfunc)vectoriter_next,
+    .tp_methods = vectoriter_methods,
 };
 
 static PyObject *
@@ -4058,69 +3952,13 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
 };
 
 static PyTypeObject pgVectorElementwiseProxy_Type = {
-    PyVarObject_HEAD_INIT(
-        NULL, 0) "pygame.math.VectorElementwiseProxy", /* tp_name */
-    sizeof(vector_elementwiseproxy),                   /* tp_basicsize */
-    0,                                                 /* tp_itemsize */
-    /* Methods to implement standard operations */
-    (destructor)vector_elementwiseproxy_dealloc, /* tp_dealloc */
-    0,                                           /* tp_print */
-    0,                                           /* tp_getattr */
-    0,                                           /* tp_setattr */
-    0,                                           /* tp_compare */
-    (reprfunc)0,                                 /* tp_repr */
-    /* Method suites for standard classes */
-    &vector_elementwiseproxy_as_number, /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    /* More standard operations (here for binary compatibility) */
-    0,               /* tp_hash */
-    0,               /* tp_call */
-    (reprfunc)0,     /* tp_str */
-    (getattrofunc)0, /* tp_getattro */
-    (setattrofunc)0, /* tp_setattro */
-    /* Functions to access object as input/output buffer */
-    0, /* tp_as_buffer */
-       /* Flags to define presence of optional/expanded features */
-    Py_TPFLAGS_DEFAULT,
-    /* Documentation string */
-    0, /* tp_doc */
-
-    /* Assigned meaning in release 2.0 */
-    /* call function for all accessible objects */
-    0, /* tp_traverse */
-    /* delete references to contained objects */
-    0, /* tp_clear */
-
-    /* Assigned meaning in release 2.1 */
-    /* rich comparisons */
-    (richcmpfunc)vector_elementwiseproxy_richcompare, /* tp_richcompare */
-    /* weak reference enabler */
-    0, /* tp_weaklistoffset */
-
-    /* Added in release 2.2 */
-    /* Iterators */
-    0, /* tp_iter */
-    0, /* tp_iternext */
-    /* Attribute descriptor and subclassing stuff */
-    0,           /* tp_methods */
-    0,           /* tp_members */
-    0,           /* tp_getset */
-    0,           /* tp_base */
-    0,           /* tp_dict */
-    0,           /* tp_descr_get */
-    0,           /* tp_descr_set */
-    0,           /* tp_dictoffset */
-    (initproc)0, /* tp_init */
-    0,           /* tp_alloc */
-    (newfunc)0,  /* tp_new */
-    0,           /* tp_free */
-    0,           /* tp_is_gc */
-    0,           /* tp_bases */
-    0,           /* tp_mro */
-    0,           /* tp_cache */
-    0,           /* tp_subclasses */
-    0,           /* tp_weaklist */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name =
+        "pygame.math.VectorElementwiseProxy",
+    .tp_basicsize = sizeof(vector_elementwiseproxy),
+    .tp_dealloc = (destructor)vector_elementwiseproxy_dealloc,
+    .tp_as_number = &vector_elementwiseproxy_as_number,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_richcompare = (richcmpfunc)vector_elementwiseproxy_richcompare,
 };
 
 static PyObject *

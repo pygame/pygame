@@ -1897,43 +1897,13 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
 }
 
 PyTypeObject pgCamera_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Camera",
-    sizeof(pgCameraObject),
-    0,
-    camera_dealloc,
-    0,
-    0,                 /*camera_getattr */
-    NULL,              /*setattr*/
-    NULL,              /*compare*/
-    NULL,              /*repr*/
-    NULL,              /*as_number*/
-    NULL,              /*as_sequence*/
-    NULL,              /*as_mapping*/
-    (hashfunc)NULL,    /*hash*/
-    (ternaryfunc)NULL, /*call*/
-    (reprfunc)NULL,    /*str*/
-    0L,
-    0L,
-    0L,
-    0L,
-    DOC_PYGAMECAMERACAMERA, /* Documentation string */
-    0,                      /* tp_traverse */
-    0,                      /* tp_clear */
-    0,                      /* tp_richcompare */
-    0,                      /* tp_weaklistoffset */
-    0,                      /* tp_iter */
-    0,                      /* tp_iternext */
-    cameraobj_builtins,     /* tp_methods */
-    0,                      /* tp_members */
-    0,                      /* tp_getset */
-    0,                      /* tp_base */
-    0,                      /* tp_dict */
-    0,                      /* tp_descr_get */
-    0,                      /* tp_descr_set */
-    0,                      /* tp_dictoffset */
-    (initproc)camera_init,  /* tp_init */
-    0,                      /* tp_alloc */
-    PyType_GenericNew,      /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Camera",
+    .tp_basicsize = sizeof(pgCameraObject),
+    .tp_dealloc = camera_dealloc,
+    .tp_doc = DOC_PYGAMECAMERACAMERA,
+    .tp_methods = cameraobj_builtins,
+    .tp_init = (initproc)camera_init,
+    .tp_new = PyType_GenericNew,
 };
 
 /* Camera module definition */

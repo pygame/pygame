@@ -736,44 +736,19 @@ static PyNumberMethods buffer_as_number = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject Py_buffer_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) BUFFER_TYPE_FULLNAME, /* tp_name */
-    sizeof(BufferObject),                                /* tp_basicsize */
-    0,                                                   /* tp_itemsize */
-    (destructor)buffer_dealloc,                          /* tp_dealloc */
-    0,                                                   /* tp_print */
-    0,                                                   /* tp_getattr */
-    0,                                                   /* tp_setattr */
-    0,                                                   /* tp_compare */
-    0,                                                   /* tp_repr */
-    &buffer_as_number,                                   /* tp_as_number */
-    0,                                                   /* tp_as_sequence */
-    0,                                                   /* tp_as_mapping */
-    0,                                                   /* tp_hash */
-    0,                                                   /* tp_call */
-    0,                                                   /* tp_str */
-    0,                                                   /* tp_getattro */
-    0,                                                   /* tp_setattro */
-    0,                                                   /* tp_as_buffer */
-    BUFFER_TPFLAGS,                                      /* tp_flags */
-    "Python level Py_buffer struct wrapper\n",
-    (traverseproc)buffer_traverse, /* tp_traverse */
-    0,                             /* tp_clear */
-    0,                             /* tp_richcompare */
-    0,                             /* tp_weaklistoffset */
-    0,                             /* tp_iter */
-    0,                             /* tp_iternext */
-    buffer_methods,                /* tp_methods */
-    0,                             /* tp_members */
-    buffer_getset,                 /* tp_getset */
-    0,                             /* tp_base */
-    0,                             /* tp_dict */
-    0,                             /* tp_descr_get */
-    0,                             /* tp_descr_set */
-    0,                             /* tp_dictoffset */
-    (initproc)buffer_init,         /* tp_init */
-    PyType_GenericAlloc,           /* tp_alloc */
-    buffer_new,                    /* tp_new */
-    PyObject_GC_Del,               /* tp_free */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = BUFFER_TYPE_FULLNAME,
+    .tp_basicsize = sizeof(BufferObject),
+    .tp_dealloc = (destructor)buffer_dealloc,
+    .tp_as_number = &buffer_as_number,
+    .tp_flags = BUFFER_TPFLAGS,
+    .tp_doc = "Python level Py_buffer struct wrapper\n",
+    .tp_traverse = (traverseproc)buffer_traverse, /* tp_traverse */
+    .tp_methods = buffer_methods,
+    .tp_getset = buffer_getset,
+    .tp_init = (initproc)buffer_init,
+    .tp_alloc = PyType_GenericAlloc,
+    .tp_new = buffer_new,
+    .tp_free = PyObject_GC_Del,
 };
 
 static PyObject *
@@ -887,51 +862,15 @@ static PyBufferProcs mixin_bufferprocs = {
 #define BUFFER_MIXIN_TYPE_FULLNAME "newbuffer.BufferMixin"
 
 static PyTypeObject BufferMixin_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) BUFFER_MIXIN_TYPE_FULLNAME, /* tp_name */
-    sizeof(PyObject),   /* tp_basicsize */
-    0,                  /* tp_itemsize */
-    0,                  /* tp_dealloc */
-    0,                  /* tp_print */
-    0,                  /* tp_getattr */
-    0,                  /* tp_setattr */
-    0,                  /* tp_compare */
-    0,                  /* tp_repr */
-    0,                  /* tp_as_number */
-    0,                  /* tp_as_sequence */
-    0,                  /* tp_as_mapping */
-    0,                  /* tp_hash */
-    0,                  /* tp_call */
-    0,                  /* tp_str */
-    0,                  /* tp_getattro */
-    0,                  /* tp_setattro */
-    &mixin_bufferprocs, /* tp_as_buffer */
-    MIXIN_TPFLAGS,      /* tp_flags */
-    "Python level new buffer protocol exporter\n",
-    0,                   /* tp_traverse */
-    0,                   /* tp_clear */
-    0,                   /* tp_richcompare */
-    0,                   /* tp_weaklistoffset */
-    0,                   /* tp_iter */
-    0,                   /* tp_iternext */
-    mixin_methods,       /* tp_methods */
-    0,                   /* tp_members */
-    0,                   /* tp_getset */
-    0,                   /* tp_base */
-    0,                   /* tp_dict */
-    0,                   /* tp_descr_get */
-    0,                   /* tp_descr_set */
-    0,                   /* tp_dictoffset */
-    0,                   /* tp_init */
-    PyType_GenericAlloc, /* tp_alloc */
-    PyType_GenericNew,   /* tp_new */
-    PyObject_Del,        /* tp_free */
-    0,                   /* tp_is_gc */
-    0,                   /* tp_bases */
-    0,                   /* tp_mro */
-    0,                   /* tp_cache */
-    0,                   /* tp_subclasses */
-    0,                   /* tp_weaklist */
-    0                    /* tp_del */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = BUFFER_MIXIN_TYPE_FULLNAME,
+    .tp_basicsize = sizeof(PyObject),
+    .tp_as_buffer = &mixin_bufferprocs,
+    .tp_flags = MIXIN_TPFLAGS,
+    .tp_doc = "Python level new buffer protocol exporter\n",
+    .tp_methods = mixin_methods,
+    .tp_alloc = PyType_GenericAlloc,
+    .tp_new = PyType_GenericNew,
+    .tp_free = PyObject_Del,
 };
 
 /*DOC*/ static char newbuffer_doc[] =

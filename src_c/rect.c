@@ -1994,43 +1994,22 @@ static PyGetSetDef pg_rect_getsets[] = {
 };
 
 static PyTypeObject pgRect_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Rect", /*name*/
-    sizeof(pgRectObject),                         /*basicsize*/
-    0,                                            /*itemsize*/
-    /* methods */
-    (destructor)pg_rect_dealloc, /*dealloc*/
-    (printfunc)NULL,             /*print*/
-    NULL,                        /*getattr*/
-    NULL,                        /*setattr*/
-    NULL,                        /*compare/reserved*/
-    (reprfunc)pg_rect_repr,      /*repr*/
-    &pg_rect_as_number,          /*as_number*/
-    &pg_rect_as_sequence,        /*as_sequence*/
-    &pg_rect_as_mapping,         /*as_mapping*/
-    (hashfunc)NULL,              /*hash*/
-    (ternaryfunc)NULL,           /*call*/
-    (reprfunc)pg_rect_str,       /*str*/
-
-    /* Space for future expansion */
-    0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMERECT,                      /* Documentation string */
-    NULL,                                /* tp_traverse */
-    NULL,                                /* tp_clear */
-    (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
-    offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
-    NULL,                                /* tp_iter */
-    NULL,                                /* tp_iternext */
-    pg_rect_methods,                     /* tp_methods */
-    NULL,                                /* tp_members */
-    pg_rect_getsets,                     /* tp_getset */
-    NULL,                                /* tp_base */
-    NULL,                                /* tp_dict */
-    NULL,                                /* tp_descr_get */
-    NULL,                                /* tp_descr_set */
-    0,                                   /* tp_dictoffset */
-    (initproc)pg_rect_init,              /* tp_init */
-    NULL,                                /* tp_alloc */
-    pg_rect_new,                         /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Rect",
+    .tp_basicsize = sizeof(pgRectObject),
+    .tp_dealloc = (destructor)pg_rect_dealloc,
+    .tp_repr = (reprfunc)pg_rect_repr,
+    .tp_as_number = &pg_rect_as_number,
+    .tp_as_sequence = &pg_rect_as_sequence,
+    .tp_as_mapping = &pg_rect_as_mapping,
+    .tp_str = (reprfunc)pg_rect_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMERECT,
+    .tp_richcompare = (richcmpfunc)pg_rect_richcompare,
+    .tp_weaklistoffset = offsetof(pgRectObject, weakreflist),
+    .tp_methods = pg_rect_methods,
+    .tp_getset = pg_rect_getsets,
+    .tp_init = (initproc)pg_rect_init,
+    .tp_new = pg_rect_new,
 };
 
 static int
