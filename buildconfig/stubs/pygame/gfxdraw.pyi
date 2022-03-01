@@ -1,3 +1,7 @@
+"""
+pygame module for drawing shapes
+"""
+
 from typing import Sequence
 
 from pygame.surface import Surface

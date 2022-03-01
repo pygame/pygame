@@ -1,3 +1,23 @@
+"""
+pygame module for accessing surface pixel data using array interfaces
+
+Functions to convert between NumPy arrays and Surface objects. This module
+will only be functional when pygame can use the external NumPy package.
+If NumPy can't be imported, surfarray becomes a MissingModule object.
+
+Every pixel is stored as a single integer value to represent the red,
+green, and blue colors. The 8bit images use a value that looks into a
+colormap. Pixels with higher depth use a bit packing process to place
+three or four values into a single number.
+
+The arrays are indexed by the X axis first, followed by the Y
+axis. Arrays that treat the pixels as a single integer are referred to
+as 2D arrays. This module can also separate the red, green, and blue
+color values into separate indices. These types of arrays are referred
+to as 3D arrays, and the last index is 0 for red, 1 for green, and 2 for
+blue.
+"""
+
 from typing import Tuple
 
 import numpy

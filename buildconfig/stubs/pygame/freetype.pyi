@@ -1,3 +1,7 @@
+"""
+Enhanced Pygame module for loading and rendering computer fonts
+"""
+
 from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from pygame.color import Color

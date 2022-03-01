@@ -1,3 +1,7 @@
+"""
+pygame module for vector classes
+"""
+
 from typing import Any, Generic, List, Sequence, Tuple, TypeVar, Union, overload
 
 _VectorTypeVar = TypeVar("_VectorTypeVar", Vector2, Vector3)

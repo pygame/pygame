@@ -1,3 +1,7 @@
+"""
+pygame module for monitoring time
+"""
+
 from typing import Tuple
 
 from ._common import RectValue

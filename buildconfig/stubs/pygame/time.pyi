@@ -1,3 +1,7 @@
+"""
+pygame module for monitoring time
+"""
+
 from typing import Union
 
 from pygame.event import Event

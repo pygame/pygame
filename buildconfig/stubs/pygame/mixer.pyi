@@ -1,3 +1,7 @@
+"""
+pygame module for loading and playing sounds
+"""
+
 from typing import Any, Optional, Tuple, Union, overload
 
 import numpy

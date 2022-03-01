@@ -1,3 +1,7 @@
+"""
+pygame module for loading and rendering fonts
+"""
+
 from typing import Callable, Hashable, Iterable, List, Optional, Tuple, Union
 
 from pygame.surface import Surface

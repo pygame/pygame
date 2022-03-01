@@ -1,3 +1,7 @@
+"""
+pygame module for controlling streamed audio
+"""
+
 from typing import Optional
 
 from ._common import FileArg

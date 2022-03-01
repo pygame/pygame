@@ -1,3 +1,7 @@
+"""
+Pygame module for interacting with joysticks, gamepads, and trackballs.
+"""
+
 from typing import Tuple
 
 def init() -> None: ...

@@ -1,3 +1,10 @@
+"""
+A compatibility shim for pygame.fastevent based on pygame.event.
+This module was deprecated in pygame 2.2, and is scheduled for removal in a
+future pygame version. If you are using pygame.fastevent, please migrate to
+using regular pygame.event module
+"""
+
 from typing import List
 
 from pygame.event import Event

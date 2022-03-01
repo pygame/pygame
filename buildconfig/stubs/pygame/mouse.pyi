@@ -1,3 +1,7 @@
+"""
+pygame module to work with the mouse
+"""
+
 from typing import Sequence, Tuple, Union, overload
 
 from pygame.cursors import Cursor

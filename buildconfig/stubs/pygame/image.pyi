@@ -1,3 +1,7 @@
+"""
+pygame module for image transfer
+"""
+
 from typing import Sequence, Tuple, Union
 
 from pygame.bufferproxy import BufferProxy

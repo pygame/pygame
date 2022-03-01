@@ -1,3 +1,7 @@
+"""
+pygame module for interacting with events and queues
+"""
+
 from typing import (
     Any,
     Dict,

@@ -1,3 +1,7 @@
+"""
+pygame module to transform surfaces
+"""
+
 from typing import Optional, Sequence, Union
 
 from pygame.color import Color

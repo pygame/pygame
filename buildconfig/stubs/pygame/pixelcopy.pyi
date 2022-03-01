@@ -1,3 +1,7 @@
+"""
+pygame module for general pixel array copying
+"""
+
 import numpy
 
 from pygame.surface import Surface

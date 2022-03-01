@@ -1,3 +1,21 @@
+"""
+Set of cursor resources available for use. These cursors come in a sequence 
+of values that are needed as the arguments for pygame.mouse.set_cursor(). 
+To dereference the sequence in place and create the cursor in one step, 
+call like this:
+    pygame.mouse.set_cursor(*pygame.cursors.arrow).
+
+Here is a list of available cursors:
+    arrow, diamond, ball, broken_x, tri_left, tri_right
+
+There is also a sample string cursor named 'thickarrow_strings'.
+The compile() function can convert these string cursors into cursor byte data
+that can be used to create Cursor objects.
+
+Alternately, you can also create Cursor objects using surfaces or cursors 
+constants, such as pygame.SYSTEM_CURSOR_ARROW.
+"""
+
 from typing import Any, Iterator, Sequence, Tuple, Union, overload
 
 from pygame.surface import Surface

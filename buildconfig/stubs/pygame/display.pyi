@@ -1,3 +1,7 @@
+"""
+pygame module to control the display window and screen
+"""
+
 from typing import Union, Tuple, List, Optional, Dict, Sequence, overload
 
 from pygame.surface import Surface

@@ -1,3 +1,7 @@
+"""
+pygame module for image masks.
+"""
+
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
 from pygame.rect import Rect

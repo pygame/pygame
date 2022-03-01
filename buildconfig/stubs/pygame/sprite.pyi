@@ -1,3 +1,52 @@
+"""
+pygame module with basic game object classes
+
+This module contains several simple classes to be used within games. There
+are the main Sprite class and several Group classes that contain Sprites.
+The use of these classes is entirely optional when using Pygame. The classes
+are fairly lightweight and only provide a starting place for the code
+that is common to most games.
+
+The Sprite class is intended to be used as a base class for the different
+types of objects in the game. There is also a base Group class that simply
+stores sprites. A game could create new types of Group classes that operate
+on specially customized Sprite instances they contain.
+
+The basic Sprite class can draw the Sprites it contains to a Surface. The
+Group.draw() method requires that each Sprite have a Surface.image attribute
+and a Surface.rect. The Group.clear() method requires these same attributes
+and can be used to erase all the Sprites with background. There are also
+more advanced Groups: pygame.sprite.RenderUpdates() and
+pygame.sprite.OrderedUpdates().
+
+Lastly, this module contains several collision functions. These help find
+sprites inside multiple groups that have intersecting bounding rectangles.
+To find the collisions, the Sprites are required to have a Surface.rect
+attribute assigned.
+
+The groups are designed for high efficiency in removing and adding Sprites
+to them. They also allow cheap testing to see if a Sprite already exists in
+a Group. A given Sprite can exist in any number of groups. A game could use
+some groups to control object rendering, and a completely separate set of
+groups to control interaction or player movement. Instead of adding type
+attributes or bools to a derived Sprite class, consider keeping the
+Sprites inside organized Groups. This will allow for easier lookup later
+in the game.
+
+Sprites and Groups manage their relationships with the add() and remove()
+methods. These methods can accept a single or multiple group arguments for
+membership.  The default initializers for these classes also take a
+single group or list of groups as arguments for initial membership. It is safe
+to repeatedly add and remove the same Sprite from a Group.
+
+While it is possible to design sprite and group classes that don't derive
+from the Sprite and AbstractGroup classes below, it is strongly recommended
+that you extend those when you create a new Sprite or Group class.
+
+Sprites are not thread safe, so lock them yourself if using threads.
+
+"""
+
 from typing import (
     Any,
     Callable,

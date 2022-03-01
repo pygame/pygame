@@ -1,3 +1,21 @@
+"""
+pygame.midi
+pygame module for interacting with midi input and output.
+
+The midi module can send output to midi devices, and get input
+from midi devices. It can also list midi devices on the system.
+
+Including real midi devices, and virtual ones.
+
+It uses the portmidi library. Is portable to which ever platforms
+portmidi supports (currently windows, OSX, and linux).
+
+This uses pyportmidi for now, but may use its own bindings at some
+point in the future. The pyportmidi bindings are included with pygame.
+
+New in pygame 1.9.0.
+"""
+
 from typing import List, Sequence, Tuple, Union
 
 from pygame.event import Event

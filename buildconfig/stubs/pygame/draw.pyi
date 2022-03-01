@@ -1,4 +1,8 @@
-from typing import Optional, Sequence
+"""
+pygame module for drawing shapes
+"""
+
+from typing import Sequence
 
 from pygame.rect import Rect
 from pygame.surface import Surface
