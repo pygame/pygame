@@ -862,14 +862,12 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     if (length_greater) {
         /* Scale to length */
         fraction = max_length / sqrt(old_length_sq);
-        Py_RETURN_NONE;
     }
 
     length_less = old_length_sq < min_length * min_length;
     if (length_less) {
         /* Scale to length */
         fraction = min_length / sqrt(old_length_sq);
-        Py_RETURN_NONE;
     }
 
     for (i = 0; i < self->dim; ++i)
