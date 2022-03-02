@@ -859,6 +859,8 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     The numerator for the fraction is different.
     */
     length_greater = old_length_sq > max_length * max_length;
+    fraction = 1;
+
     if (length_greater) {
         /* Scale to length */
         fraction = max_length / sqrt(old_length_sq);
