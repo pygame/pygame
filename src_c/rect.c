@@ -700,7 +700,12 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {
     SDL_Rect temp;
     if (keyfunc == NULL) {
-        return pgRect_FromObject(obj, &temp);
+        SDL_Rect *ret = pgRect_FromObject(obj, &temp);
+        if (!ret) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Sequence must contain rect or rect-like objects");
+        }
+        return ret;
     }
 
     PyObject *obj_with_rect = PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
@@ -708,7 +713,12 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
         return NULL;
     }
 
-    return pgRect_FromObject(obj_with_rect, &temp);
+    SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
+    if (!ret) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Key function must return rect or rect-like objects");
+    }
+    return ret;
 }
 
 static PyObject *
@@ -758,9 +768,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
-            return RAISE(
-                PyExc_TypeError,
-                "Item in sequence or returned by key function must be Rect.");
+            return NULL;
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
@@ -816,9 +824,7 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
             Py_XDECREF(obj);
-            return RAISE(
-                PyExc_TypeError,
-                "Item in sequence or returned by key function must be Rect.");
+            return NULL;
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
