@@ -715,6 +715,7 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 
     SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
     if (!ret) {
+        Py_DECREF(obj_with_rect);
         PyErr_SetString(PyExc_TypeError,
                         "Key function must return rect or rect-like objects");
     }
@@ -818,7 +819,6 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
         obj = PySequence_GetItem(list, loop);
 
         if (!obj) {
-            Py_XDECREF(obj);
             return NULL;
         }
 
