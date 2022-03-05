@@ -714,8 +714,8 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
     }
 
     SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
+    Py_DECREF(obj_with_rect);
     if (!ret) {
-        Py_DECREF(obj_with_rect);
         PyErr_SetString(PyExc_TypeError,
                         "Key function must return rect or rect-like objects");
     }
