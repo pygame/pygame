@@ -15,6 +15,7 @@ from ._common import Coordinate, Literal, RectValue
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
+_T = TypeVar("_T")
 
 class Rect:
     x: int
@@ -158,13 +159,12 @@ class Rect:
     ) -> bool: ...
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
-    T = TypeVar("T")
     def collideobjectsall(
-        self, objects: Sequence[T], key: Optional[Callable[[T], RectValue]] = None
-    ) -> List[T]: ...
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> List[_T]: ...
     def collideobjects(
-        self, objects: Sequence[T], key: Optional[Callable[[T], RectValue]] = None
-    ) -> Optional[T]: ...
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> Optional[_T]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.
