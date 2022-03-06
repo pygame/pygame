@@ -91,6 +91,15 @@ typedef struct pg_bufferinfo_s {
 /*
  * BASE module
  */
+enum pg_LogLevel {
+    LogLevel_NONE = 0,
+    LogLevel_ERROR,
+    LogLevel_WARN,
+    LogLevel_INFO,
+    LogLevel_DEBUG,
+    LogLevel_VERBOSE,
+    LogLevel_MAX
+};
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError ((PyObject *)PYGAMEAPI_GET_SLOT(base, 0))
 
@@ -158,6 +167,10 @@ typedef struct pg_bufferinfo_s {
 
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
+
+#define pg_log                                                    \
+    (*(void (*)(enum pg_LogLevel level, const char *const format, \
+                ...))PYGAMEAPI_GET_SLOT(base, 24))
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */

@@ -2,6 +2,7 @@ import math
 import platform
 import unittest
 
+import pygame
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
 
@@ -2072,6 +2073,7 @@ class RectTypeTest(unittest.TestCase):
             self.rect3 = r3
 
     def test_collidelistall_list_of_object_with_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2087,8 +2089,10 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithRectAttribute(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+        pygame.set_log_level(0)
 
     def test_collidelistall_list_of_object_with_callable_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2104,10 +2108,12 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+        pygame.set_log_level(0)
 
     def test_collidelistall_list_of_object_with_callable_rect_returning_object_with_rect_attribute(
         self,
     ):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2131,8 +2137,10 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+        pygame.set_log_level(0)
 
     def test_collidelistall_list_of_object_with_rect_property(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2148,8 +2156,10 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithRectProperty(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+        pygame.set_log_level(0)
 
     def test_collideobjects_call_variants(self):
+        pygame.set_log_level(5)
         # arrange
         r = Rect(1, 1, 10, 10)
         rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
@@ -2163,12 +2173,18 @@ class RectTypeTest(unittest.TestCase):
         ]
 
         # act / verify
+        print("rects")
         r.collideobjects(rects)
+        print("rects, key=None")
         r.collideobjects(rects, key=None)
+        print("objects, key=lambda")
         r.collideobjects(objects, key=lambda o: o.rect1)
+        print("assertRaises: objects")
         self.assertRaises(TypeError, r.collideobjects, objects)
+        pygame.set_log_level(0)
 
     def test_collideobjects_without_key(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
         types_to_test = [
             [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(4, 4, 1, 1)],
@@ -2249,8 +2265,10 @@ class RectTypeTest(unittest.TestCase):
                 actual = r.collideobjects(f)
                 # assert
                 self.assertEqual(actual, None)
+        pygame.set_log_level(0)
 
     def test_collideobjects_list_of_object_with_multiple_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2282,8 +2300,10 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+        pygame.set_log_level(0)
 
     def test_collideobjectsall_call_variants(self):
+        pygame.set_log_level(5)
         # arrange
         r = Rect(1, 1, 10, 10)
         rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
@@ -2301,8 +2321,10 @@ class RectTypeTest(unittest.TestCase):
         r.collideobjectsall(rects, key=None)
         r.collideobjectsall(objects, key=lambda o: o.rect1)
         self.assertRaises(TypeError, r.collideobjectsall, objects)
+        pygame.set_log_level(0)
 
     def test_collideobjectsall(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         types_to_test = [
@@ -2398,8 +2420,10 @@ class RectTypeTest(unittest.TestCase):
                 actual = r.collideobjectsall(f)
                 # assert
                 self.assertFalse(actual)
+        pygame.set_log_level(0)
 
     def test_collideobjectsall_list_of_object_with_multiple_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -2433,6 +2457,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+        pygame.set_log_level(0)
 
     def test_fit(self):
 
