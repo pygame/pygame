@@ -737,7 +737,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
                                      keywords, &list, &keyfunc)) {
         return NULL;
     }
-
+    
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of objects.");
@@ -758,10 +758,10 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     }
 
     size = PySequence_Length(list);
-    //if (size == -1) {
-    //    Py_DECREF(ret);
-    //    return NULL;
-    //}
+    if (size == -1) {
+        Py_DECREF(ret);
+        return NULL;
+    }
 
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
@@ -820,9 +820,9 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     }
 
     size = PySequence_Length(list);
-    //if (size == -1) {
-    //    return NULL;
-    //}
+    if (size == -1) {
+        return NULL;
+    }
 
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
