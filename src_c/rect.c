@@ -699,27 +699,32 @@ static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {
     SDL_Rect temp;
-    if (keyfunc == NULL) {
+    if (keyfunc) {
+        PyObject *obj_with_rect =
+            PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
+        if (!obj_with_rect) {
+            return NULL;
+        }
+
+        SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
+        Py_DECREF(obj_with_rect);
+        if (!ret) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Key function must return rect or rect-like objects");
+            return NULL;
+        }
+        return ret;
+    }
+    else {
         SDL_Rect *ret = pgRect_FromObject(obj, &temp);
         if (!ret) {
             PyErr_SetString(PyExc_TypeError,
                             "Sequence must contain rect or rect-like objects");
+            return NULL;
         }
         return ret;
     }
-
-    PyObject *obj_with_rect = PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
-    if (obj_with_rect == NULL) {
-        return NULL;
-    }
-
-    SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
-    Py_DECREF(obj_with_rect);
-    if (!ret) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Key function must return rect or rect-like objects");
-    }
-    return ret;
 }
 
 static PyObject *
@@ -737,7 +742,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
                                      keywords, &list, &keyfunc)) {
         return NULL;
     }
-    
+
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of objects.");
@@ -747,7 +752,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         keyfunc = NULL;
     }
 
-    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
+    if (keyfunc && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
@@ -814,7 +819,7 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
         keyfunc = NULL;
     }
 
-    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
+    if (keyfunc && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
