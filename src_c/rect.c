@@ -212,20 +212,11 @@ pg_rect_dealloc(pgRectObject *self)
 #endif
 }
 
-static void
-pg_log_pyobject_type(enum pg_LogLevel log_level, PyObject *obj)
-{
-    const char *p = Py_TYPE(obj)->tp_name;
-    pg_log(log_level, p);
-}
-
 static SDL_Rect *
 pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
 {
     int val;
     Py_ssize_t length;
-    pg_log(LogLevel_DEBUG, "pgRect_FromObject");
-    pg_log_pyobject_type(LogLevel_DEBUG, obj);
 
     if (pgRect_Check(obj)) {
         return &((pgRectObject *)obj)->r;
@@ -319,9 +310,6 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
         Py_DECREF(rectattr);
         return returnrect;
     }
-    pg_log(
-        LogLevel_DEBUG,
-        "pgRect_FromObject: not a Rect nor a Sequence nor has attribute rect");
     return NULL;
 }
 
@@ -711,41 +699,27 @@ static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 {
     SDL_Rect temp;
-    if (keyfunc) {
-        pg_log(LogLevel_VERBOSE, "check key func");
-        PyObject *obj_with_rect =
-            PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
-        if (!obj_with_rect) {
-            return NULL;
-        }
-
-        pg_log(LogLevel_INFO, "key function returned object");
-        SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
-        Py_DECREF(obj_with_rect);
-        if (!ret) {
-            pg_log(LogLevel_DEBUG, "got NO rect from obj_with_rect");
-            PyErr_SetString(
-                PyExc_TypeError,
-                "Key function must return rect or rect-like objects");
-            return NULL;
-        }
-        pg_log(LogLevel_INFO, "got rect from object: %i, %i, %i, %i", ret->x,
-               ret->y, ret->w, ret->h);
-        return ret;
-    }
-    else {
+    if (keyfunc == NULL) {
         SDL_Rect *ret = pgRect_FromObject(obj, &temp);
         if (!ret) {
-            pg_log(LogLevel_DEBUG, "got NO rect from obj");
-            PyErr_SetString(
-                PyExc_TypeError,
+            PyErr_SetString(PyExc_TypeError,
                             "Sequence must contain rect or rect-like objects");
-            return NULL;
         }
-        pg_log(LogLevel_INFO, "got rect from object: %i, %i, %i, %i", ret->x,
-               ret->y, ret->w, ret->h);
         return ret;
     }
+
+    PyObject *obj_with_rect = PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
+    if (obj_with_rect == NULL) {
+        return NULL;
+    }
+
+    SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
+    Py_DECREF(obj_with_rect);
+    if (!ret) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Key function must return rect or rect-like objects");
+    }
+    return ret;
 }
 
 static PyObject *
@@ -759,44 +733,35 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *ret = NULL;
     static char *keywords[] = {"list", "key", NULL};
 
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 1");
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
                                      keywords, &list, &keyfunc)) {
         return NULL;
     }
-
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 2");
-
+    
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of objects.");
     }
 
     if (keyfunc == Py_None) {
-        pg_log(LogLevel_INFO, "keyfunc is None");
         keyfunc = NULL;
     }
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 3");
 
-    if (keyfunc && !PyCallable_Check(keyfunc)) {
+    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 4");
 
     ret = PyList_New(0);
     if (!ret) {
         return NULL;
     }
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 5");
 
     size = PySequence_Length(list);
     if (size == -1) {
         Py_DECREF(ret);
         return NULL;
     }
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 6 size: %i", size);
 
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
@@ -805,30 +770,22 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
             Py_DECREF(ret);
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 7");
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE,
-               "pg_rect_collideobjectsall 8 argrect: %i, %i,%i,%i", argrect->x,
-               argrect->y, argrect->w, argrect->h);
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 9 collision");
             if (0 != PyList_Append(ret, obj)) {
                 Py_DECREF(ret);
                 Py_DECREF(obj);
                 return NULL; /* Exception already set. */
             }
-            pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 10 appended");
         }
-        pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 11 ");
         Py_DECREF(obj);
     }
-    pg_log(LogLevel_VERBOSE, "pg_rect_collideobjectsall 12 done");
 
     return ret;
 }
@@ -854,11 +811,10 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (keyfunc == Py_None) {
-        pg_log(LogLevel_INFO, "keyfunc is None");
         keyfunc = NULL;
     }
 
-    if (keyfunc && !PyCallable_Check(keyfunc)) {
+    if (keyfunc != NULL && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
@@ -874,24 +830,18 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
         if (!obj) {
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE, "got item from sequence");
-        pg_log_pyobject_type(LogLevel_DEBUG, obj);
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
             Py_XDECREF(obj);
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE, "got rect from object: %i, %i, %i, %i",
-               argrect->x, argrect->y, argrect->w, argrect->h);
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
             return obj;
         }
-        pg_log(LogLevel_VERBOSE, "rect does not collide");
         Py_DECREF(obj);
     }
 
-    pg_log(LogLevel_VERBOSE, "no colliding rect found");
     Py_RETURN_NONE;
 }
 

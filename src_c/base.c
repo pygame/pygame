@@ -83,9 +83,6 @@ SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
 static char *pg_env_blend_alpha_SDL2 = NULL;
 
-/* logging */
-static enum pg_LogLevel currentLogLevel = LogLevel_NONE;
-
 static void
 pg_install_parachute(void);
 static void
@@ -175,10 +172,8 @@ static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
-static PyObject *
-pg_setloglevel(PyObject *self, PyObject *arg);
 
-    static int
+static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
     SDL_version compiled;
@@ -653,44 +648,6 @@ pg_set_error(PyObject *s, PyObject *args)
     }
     SDL_SetError("%s", errstring);
 #endif
-    Py_RETURN_NONE;
-}
-
-// todo implement also a vpg_log as described here: http://c-faq.com/varargs/handoff.html
-// todo to use file and line: https://stackoverflow.com/questions/8884335/print-the-file-name-line-number-and-function-name-of-a-calling-function-c-pro
-static void
-pg_log(enum pg_LogLevel level, const char *const format, ...)
-{
-    if (level > currentLogLevel) {
-        return;
-    }
-
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-    printf("\n");
-}
-
-static PyObject *
-pg_setloglevel(PyObject *self, PyObject *arg)
-{
-    int logLevel = LogLevel_NONE;
-
-    if (!pg_IntFromObj(arg, &logLevel)) {
-        return RAISE(PyExc_TypeError, "argument must contain one number");
-    }
-
-    if (logLevel < LogLevel_NONE) {
-        return RAISE(PyExc_TypeError,
-                     "Argument must be in range of the LogLevels.");
-    }
-    if (logLevel >= LogLevel_MAX) {
-        return RAISE(PyExc_TypeError,
-                     "Argument must be in range of the LogLevels.");
-    }
-    currentLogLevel = logLevel;
-
     Py_RETURN_NONE;
 }
 
@@ -2107,8 +2064,6 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
-    {"set_log_level", (PyCFunction)pg_setloglevel, METH_O,
-     "set the log level"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
@@ -2190,8 +2145,7 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-    c_api[24] = pg_log;
-#define FILLED_SLOTS 25
+#define FILLED_SLOTS 24
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
