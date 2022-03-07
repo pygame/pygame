@@ -2,6 +2,7 @@ import math
 import platform
 import unittest
 
+import pygame
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
 
@@ -2150,6 +2151,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collidelistall(f))
 
     def test_collideobjects_call_variants(self):
+        pygame.set_log_level(5)
         # arrange
         r = Rect(1, 1, 10, 10)
         rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
@@ -2171,8 +2173,10 @@ class RectTypeTest(unittest.TestCase):
         r.collideobjects(objects, key=lambda o: o.rect1)
         print("assertRaises: objects")
         self.assertRaises(TypeError, r.collideobjects, objects)
+        pygame.set_log_level(0)
 
     def test_collideobjects_without_key(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
         types_to_test = [
             [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(4, 4, 1, 1)],
@@ -2253,11 +2257,13 @@ class RectTypeTest(unittest.TestCase):
                 actual = r.collideobjects(f)
                 # assert
                 self.assertEqual(actual, None)
+        pygame.set_log_level(0)
 
     def test_collideobjects_list_of_object_with_multiple_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
-        things = [
+        l = [
             self._ObjectWithMultipleRectAttribute(
                 Rect(1, 1, 10, 10), Rect(5, 5, 1, 1), Rect(-73, 3, 3, 3)
             ),
@@ -2271,9 +2277,9 @@ class RectTypeTest(unittest.TestCase):
                 Rect(2, 2, 1, 1), Rect(1, -81, 10, 10), Rect(3, 8, 3, 3)
             ),
         ]
-        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect1), things[0])
-        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect2), things[0])
-        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect3), things[1])
+        self.assertEqual(r.collideobjects(l, key=lambda o: o.rect1), l[0])
+        self.assertEqual(r.collideobjects(l, key=lambda o: o.rect2), l[0])
+        self.assertEqual(r.collideobjects(l, key=lambda o: o.rect3), l[1])
 
         f = [
             self._ObjectWithMultipleRectAttribute(
@@ -2286,8 +2292,10 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+        pygame.set_log_level(0)
 
     def test_collideobjectsall_call_variants(self):
+        pygame.set_log_level(5)
         # arrange
         r = Rect(1, 1, 10, 10)
         rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
@@ -2305,8 +2313,10 @@ class RectTypeTest(unittest.TestCase):
         r.collideobjectsall(rects, key=None)
         r.collideobjectsall(objects, key=lambda o: o.rect1)
         self.assertRaises(TypeError, r.collideobjectsall, objects)
+        pygame.set_log_level(0)
 
     def test_collideobjectsall(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
         types_to_test = [
@@ -2367,12 +2377,12 @@ class RectTypeTest(unittest.TestCase):
                 self._ObjectWithRectProperty(Rect(2, 2, 1, 1)),
             ],
         ]
-        for things in types_to_test:
-            with self.subTest(type=things[0].__class__.__name__):
+        for l in types_to_test:
+            with self.subTest(type=l[0].__class__.__name__):
                 # act
-                actual = r.collideobjectsall(things, key=None)
+                actual = r.collideobjectsall(l, key=None)
                 # assert
-                self.assertEqual(actual, [things[0], things[1], things[3]])
+                self.assertEqual(actual, [l[0], l[1], l[3]])
 
         types_to_test = [
             [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)],
@@ -2402,11 +2412,13 @@ class RectTypeTest(unittest.TestCase):
                 actual = r.collideobjectsall(f)
                 # assert
                 self.assertFalse(actual)
+        pygame.set_log_level(0)
 
     def test_collideobjectsall_list_of_object_with_multiple_rect_attribute(self):
+        pygame.set_log_level(5)
         r = Rect(1, 1, 10, 10)
 
-        things = [
+        l = [
             self._ObjectWithMultipleRectAttribute(
                 Rect(1, 1, 10, 10), Rect(5, 5, 1, 1), Rect(-73, 3, 3, 3)
             ),
@@ -2421,15 +2433,10 @@ class RectTypeTest(unittest.TestCase):
             ),
         ]
         self.assertEqual(
-            r.collideobjectsall(things, key=lambda o: o.rect1),
-            [things[0], things[1], things[3]],
+            r.collideobjectsall(l, key=lambda o: o.rect1), [l[0], l[1], l[3]]
         )
-        self.assertEqual(
-            r.collideobjectsall(things, key=lambda o: o.rect2), [things[0], things[1]]
-        )
-        self.assertEqual(
-            r.collideobjectsall(things, key=lambda o: o.rect3), [things[1], things[3]]
-        )
+        self.assertEqual(r.collideobjectsall(l, key=lambda o: o.rect2), [l[0], l[1]])
+        self.assertEqual(r.collideobjectsall(l, key=lambda o: o.rect3), [l[1], l[3]])
 
         f = [
             self._ObjectWithMultipleRectAttribute(
@@ -2442,6 +2449,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+        pygame.set_log_level(0)
 
     def test_fit(self):
 

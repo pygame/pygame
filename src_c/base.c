@@ -172,6 +172,8 @@ static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
+static PyObject *
+pg_setloglevel(PyObject *self, PyObject *arg);
 
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
@@ -648,6 +650,92 @@ pg_set_error(PyObject *s, PyObject *args)
     }
     SDL_SetError("%s", errstring);
 #endif
+    Py_RETURN_NONE;
+}
+
+// todo implement also a vpg_log as described here:
+// http://c-faq.com/varargs/handoff.html todo to use file and line:
+// https://stackoverflow.com/questions/8884335/print-the-file-name-line-number-and-function-name-of-a-calling-function-c-pro
+
+static void
+vpg_log(enum pg_LogLevel level, const char *const format, va_list argp)
+{
+    if (level > currentLogLevel) {
+        return;
+    }
+    // defining output channel
+    vprintf(format, argp);
+}
+
+static void
+pg_log(enum pg_LogLevel level, const char *const format, ...)
+{
+    if (level > currentLogLevel) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    vpg_log(level, format, args);
+    va_end(args);
+}
+
+static void
+vpg_log_ex(enum pg_LogLevel level, const char *const filename, int lineno,
+           const char *const format, va_list argp)
+{
+    if (level > currentLogLevel) {
+        return;
+    }
+
+    vpg_log(level, format, argp);
+    pg_log(level, " : %s(%i)\n", filename, lineno);
+}
+
+static void
+pg_log_ex(enum pg_LogLevel level, const char *const filename, int lineno,
+          const char *const format, ...)
+{
+    if (level > currentLogLevel) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    vpg_log_ex(level, filename, lineno, format, args);
+    va_end(args);
+}
+
+// todo introduce contants so pygame.set_log_level(pygame.LOGLEVEL_INFO) can be
+// used instead of int
+static PyObject *
+pg_setloglevel(PyObject *self, PyObject *arg)
+{
+    int logLevel = LogLevel_NONE;
+
+    if (!pg_IntFromObj(arg, &logLevel)) {
+        return RAISE(PyExc_TypeError, "argument must contain one number");
+    }
+
+    if (logLevel < LogLevel_NONE) {
+        return RAISE(PyExc_TypeError,
+                     "Argument must be in range of the LogLevels.");
+    }
+    if (logLevel >= LogLevel_MAX) {
+        return RAISE(PyExc_TypeError,
+                     "Argument must be in range of the LogLevels.");
+    }
+    if (logLevel < LogLevel_INFO && logLevel < currentLogLevel) {
+        pg_log_ex(LogLevel_INFO, __FILE__, __LINE__,
+                  "LogLevel changed %i -> %i", currentLogLevel, logLevel);
+    }
+    enum pg_LogLevel oldLevel = *currentLogLevelPointer;
+    *currentLogLevelPointer = logLevel;
+    if (logLevel >= LogLevel_INFO && logLevel >= oldLevel) {
+        pg_log_ex(LogLevel_INFO, __FILE__, __LINE__,
+                  "LogLevel changed %i -> %i", oldLevel, logLevel);
+    }
+
     Py_RETURN_NONE;
 }
 
@@ -2064,6 +2152,8 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
+    {"set_log_level", (PyCFunction)pg_setloglevel, METH_O,
+     "set the log level"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
@@ -2145,7 +2235,9 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-#define FILLED_SLOTS 24
+    c_api[24] = pg_log;
+    c_api[25] = pg_log_ex;
+#define FILLED_SLOTS 26
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
