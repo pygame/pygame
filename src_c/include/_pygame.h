@@ -95,9 +95,6 @@ enum pg_LogLevel {
     LogLevel_VERBOSE,
     LogLevel_MAX
 };
-/* logging */
-static enum pg_LogLevel currentLogLevel = LogLevel_NONE;
-// static enum pg_LogLevel *currentLogLevelPointer = &currentLogLevel;
 
 #include "pgimport.h"
 

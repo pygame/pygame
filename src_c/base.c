@@ -657,6 +657,10 @@ pg_set_error(PyObject *s, PyObject *args)
 // http://c-faq.com/varargs/handoff.html todo to use file and line:
 // https://stackoverflow.com/questions/8884335/print-the-file-name-line-number-and-function-name-of-a-calling-function-c-pro
 
+/* logging */
+static enum pg_LogLevel currentLogLevel = LogLevel_NONE;
+// static enum pg_LogLevel *currentLogLevelPointer = &currentLogLevel;
+
 static void
 vpg_log(enum pg_LogLevel level, const char *const format, va_list argp)
 {
