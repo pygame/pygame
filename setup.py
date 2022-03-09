@@ -453,6 +453,7 @@ add_datafiles(data_files, 'pygame/docs/generated',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
                    '*.js',               # For doc search
+                   'LGPL.txt',           # pygame license
                    ['ref',               # pygame reference
                        ['*.html',        # Reference pages
                         '*.js',          # Comments script
@@ -468,7 +469,9 @@ add_datafiles(data_files, 'pygame/docs/generated',
                         ['*.css',
                          '*.png',
                          '*.ico',
-                         '*.js']],
+                         '*.js',
+                         '*.zip',
+                         '*.svg']],
                    ['_images',            # Sphinx added reST ".. image::" refs
                         ['*.jpg',
                          '*.png',
