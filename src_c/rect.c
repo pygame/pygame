@@ -706,9 +706,8 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
 }
 
 static SDL_Rect *
-pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
+pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc, SDL_Rect *temp)
 {
-    SDL_Rect temp;
     if (keyfunc) {
         PG_LOG_VERBOSE("  check key func");
         PyObject *obj_with_rect =
@@ -719,7 +718,7 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
 
         PG_LOG_INFO("  key function returned object of type: %s",
                     Py_TYPE(obj_with_rect)->tp_name);
-        SDL_Rect *ret = pgRect_FromObject(obj_with_rect, &temp);
+        SDL_Rect *ret = pgRect_FromObject(obj_with_rect, temp);
         Py_DECREF(obj_with_rect);
         if (!ret) {
             pg_log(LogLevel_DEBUG, "  got NO rect from obj_with_rect");
@@ -733,7 +732,7 @@ pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc)
         return ret;
     }
     else {
-        SDL_Rect *ret = pgRect_FromObject(obj, &temp);
+        SDL_Rect *ret = pgRect_FromObject(obj, temp);
         if (!ret) {
             pg_log(LogLevel_DEBUG, "  got NO rect from obj");
             PyErr_SetString(PyExc_TypeError,
@@ -750,6 +749,7 @@ static PyObject *
 pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect;
+    SDL_Rect temp;
     Py_ssize_t size;
     int loop;
     PyObject *list, *obj;
@@ -805,7 +805,7 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         }
         pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 7");
 
-        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return NULL;
@@ -835,6 +835,7 @@ static PyObject *
 pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect;
+    SDL_Rect temp;
     Py_ssize_t size;
     int loop;
     PyObject *list, *obj;
@@ -876,7 +877,7 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
         }
 
         PG_LOG_VERBOSE(" got item from sequence: %s", Py_TYPE(obj)->tp_name);
-        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc))) {
+        if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             return NULL;
         }
