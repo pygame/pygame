@@ -729,8 +729,8 @@ pg_setloglevel(PyObject *self, PyObject *arg)
         pg_log_ex(LogLevel_INFO, __FILE__, __LINE__,
                   "LogLevel changed %i -> %i", currentLogLevel, logLevel);
     }
-    enum pg_LogLevel oldLevel = currentLogLevel;
-    currentLogLevel = logLevel;
+    enum pg_LogLevel oldLevel = *currentLogLevelPointer;
+    *currentLogLevelPointer = logLevel;
     if (logLevel >= LogLevel_INFO && logLevel >= oldLevel) {
         pg_log_ex(LogLevel_INFO, __FILE__, __LINE__,
                   "LogLevel changed %i -> %i", oldLevel, logLevel);
