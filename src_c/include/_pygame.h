@@ -86,19 +86,6 @@ typedef struct pg_bufferinfo_s {
     pybuffer_releaseproc release_buffer;
 } pg_buffer;
 
-enum pg_LogLevel {
-    LogLevel_NONE = 0,
-    LogLevel_ERROR,
-    LogLevel_WARN,
-    LogLevel_INFO,
-    LogLevel_DEBUG,
-    LogLevel_VERBOSE,
-    LogLevel_MAX
-};
-/* logging */
-static enum pg_LogLevel currentLogLevel = LogLevel_NONE;
-static enum pg_LogLevel *currentLogLevelPointer = &currentLogLevel;
-
 #include "pgimport.h"
 
 /*
@@ -171,94 +158,6 @@ static enum pg_LogLevel *currentLogLevelPointer = &currentLogLevel;
 
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
-
-//#define pg_log                                                    \
-////    (*(void (*)(enum pg_LogLevel level, const char *const format, \
-////                ...))PYGAMEAPI_GET_SLOT(base, 24))
-////
-////#define pg_log_ex                                                   \
-////    (*(void (*)(enum pg_LogLevel level, const char *const filename, \
-////                int lineno, const char *const format,               \
-////                ...))PYGAMEAPI_GET_SLOT(base, 25))
-//
-//// why using 'do { ... } while(0)' see : https://stackoverflow.com/a/1644898
-//// todo does not work, not sure why it eats the initial do{ if{
-//#define pg_log(level, format, ...)                                       \
-//    do { \
-//        if ((level) <= *currentLogLevelPointer) { \
-//            (*(void (*)(enum pg_LogLevel logLevel, \
-//                        const char *const filename, int lineno, \
-//                        const char *const fmt, ...))PYGAMEAPI_GET_SLOT(base,
-//                        \
-//                                                                       25))(
-//                                                                       \
-//                (level), __FILE__, __LINE__, (format), __VA_ARGS__);       \
-//        } \
-//    } while (0)
-//
-////#define pg_log(level, fmt, ...)                                     \
-////    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-////                int lineno, const char *const fmt,                     \
-////                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-////        (level), __FILE__, __LINE__, (fmt), __VA_ARGS__)
-//
-//#define PG_LOG_ERROR(format, ...) pg_log(LogLevel_ERROR, (format),
-//__VA_ARGS__)
-//
-//#define PG_LOG_WARN(format, ...) pg_log(LogLevel_WARN, (format), __VA_ARGS__)
-//
-//#define PG_LOG_INFO(format, ...) pg_log(LogLevel_INFO, (format), __VA_ARGS__)
-//
-//#define PG_LOG_DEBUG(format, ...) pg_log(LogLevel_DEBUG, (format),
-//__VA_ARGS__)
-//
-//#define PG_LOG_VERBOSE(format, ...) \
-//    pg_log(LogLevel_VERBOSE, (format), __VA_ARGS__)
-
-//#define pg_log                                                    \
-//    (*(void (*)(enum pg_LogLevel level, const char *const format, \
-//                ...))PYGAMEAPI_GET_SLOT(base, 24))
-//
-//#define pg_log_ex                                                   \
-//    (*(void (*)(enum pg_LogLevel level, const char *const filename, \
-//                int lineno, const char *const format,               \
-//                ...))PYGAMEAPI_GET_SLOT(base, 25))
-
-#define pg_log(level, format, ...)                                     \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        (level), __FILE__, __LINE__, (format), __VA_ARGS__)
-
-#define PG_LOG_ERROR(format, ...)                                      \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        LogLevel_ERROR, __FILE__, __LINE__, (format), __VA_ARGS__)
-
-#define PG_LOG_WARN(format, ...)                                       \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        LogLevel_WARN, __FILE__, __LINE__, (format), __VA_ARGS__)
-
-#define PG_LOG_INFO(format, ...)                                       \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        LogLevel_INFO, __FILE__, __LINE__, (format), __VA_ARGS__)
-
-#define PG_LOG_DEBUG(format, ...)                                      \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        LogLevel_DEBUG, __FILE__, __LINE__, (format), __VA_ARGS__)
-
-#define PG_LOG_VERBOSE(format, ...)                                    \
-    (*(void (*)(enum pg_LogLevel logLevel, const char *const filename, \
-                int lineno, const char *const fmt,                     \
-                ...))PYGAMEAPI_GET_SLOT(base, 25))(                    \
-        LogLevel_VERBOSE, __FILE__, __LINE__, (format), __VA_ARGS__)
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */

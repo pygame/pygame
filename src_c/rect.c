@@ -217,7 +217,6 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
 {
     int val;
     Py_ssize_t length;
-    PG_LOG_INFO("   pgRect_FromObject: %s", Py_TYPE(obj)->tp_name);
 
     if (pgRect_Check(obj)) {
         return &((pgRectObject *)obj)->r;
@@ -240,8 +239,6 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
                 return NULL;
             }
             temp->h = val;
-            PG_LOG_DEBUG("   got rect: %i, %i, %i, %i", temp->x, temp->y,
-                         temp->w, temp->h);
             return temp;
         }
         if (length == 2) {
@@ -282,8 +279,6 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
             }
             temp->h = val;
             Py_DECREF(sub);
-            PG_LOG_DEBUG("   got rect: %i, %i, %i, %i", temp->x, temp->y,
-                         temp->w, temp->h);
             return temp;
         }
         if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
@@ -313,13 +308,8 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
         }
         returnrect = pgRect_FromObject(rectattr, temp);
         Py_DECREF(rectattr);
-        PG_LOG_DEBUG("   got rect: %i, %i, %i, %i", returnrect->x,
-                     returnrect->y, returnrect->w, returnrect->h);
         return returnrect;
     }
-    pg_log(LogLevel_INFO,
-           "   pgRect_FromObject: not a Rect nor a Sequence nor has attribute "
-           "rect");
     return NULL;
 }
 
@@ -709,38 +699,29 @@ static SDL_Rect *
 pgRect_FromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc, SDL_Rect *temp)
 {
     if (keyfunc) {
-        PG_LOG_VERBOSE("  check key func");
         PyObject *obj_with_rect =
             PyObject_CallFunctionObjArgs(keyfunc, obj, NULL);
         if (!obj_with_rect) {
             return NULL;
         }
 
-        PG_LOG_INFO("  key function returned object of type: %s",
-                    Py_TYPE(obj_with_rect)->tp_name);
         SDL_Rect *ret = pgRect_FromObject(obj_with_rect, temp);
         Py_DECREF(obj_with_rect);
         if (!ret) {
-            pg_log(LogLevel_DEBUG, "  got NO rect from obj_with_rect");
             PyErr_SetString(
                 PyExc_TypeError,
                 "Key function must return rect or rect-like objects");
             return NULL;
         }
-        pg_log(LogLevel_INFO, "  got rect from object: %i, %i, %i, %i", ret->x,
-               ret->y, ret->w, ret->h);
         return ret;
     }
     else {
         SDL_Rect *ret = pgRect_FromObject(obj, temp);
         if (!ret) {
-            pg_log(LogLevel_DEBUG, "  got NO rect from obj");
             PyErr_SetString(PyExc_TypeError,
                             "Sequence must contain rect or rect-like objects");
             return NULL;
         }
-        pg_log(LogLevel_INFO, "  got rect from object: %i, %i, %i, %i", ret->x,
-               ret->y, ret->w, ret->h);
         return ret;
     }
 }
@@ -757,14 +738,10 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *ret = NULL;
     static char *keywords[] = {"list", "key", NULL};
 
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 1");
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
                                      keywords, &list, &keyfunc)) {
         return NULL;
     }
-
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 2");
 
     if (!PySequence_Check(list)) {
         return RAISE(PyExc_TypeError,
@@ -772,29 +749,24 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (keyfunc == Py_None) {
-        pg_log(LogLevel_INFO, " keyfunc is None");
         keyfunc = NULL;
     }
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 3");
 
     if (keyfunc && !PyCallable_Check(keyfunc)) {
         return RAISE(PyExc_TypeError,
                      "Key function must be callable with one argument.");
     }
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 4");
 
     ret = PyList_New(0);
     if (!ret) {
         return NULL;
     }
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 5");
 
     size = PySequence_Length(list);
     if (size == -1) {
         Py_DECREF(ret);
         return NULL;
     }
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 6 size: %i", size);
 
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
@@ -803,30 +775,22 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
             Py_DECREF(ret);
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 7");
 
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return NULL;
         }
-        pg_log(LogLevel_VERBOSE,
-               " pg_rect_collideobjectsall 8 argrect: %i, %i,%i,%i",
-               argrect->x, argrect->y, argrect->w, argrect->h);
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 9 collision");
             if (0 != PyList_Append(ret, obj)) {
                 Py_DECREF(ret);
                 Py_DECREF(obj);
                 return NULL; /* Exception already set. */
             }
-            pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 10 appended");
         }
-        pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 11 ");
         Py_DECREF(obj);
     }
-    pg_log(LogLevel_VERBOSE, " pg_rect_collideobjectsall 12 done");
 
     return ret;
 }
@@ -842,8 +806,6 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *keyfunc = NULL;
     static char *keywords[] = {"list", "key", NULL};
 
-    PG_LOG_INFO(" (%i, %i, %i, %i).collideobjects(...) ", self->r.x, self->r.y,
-                self->r.w, self->r.h);
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjects",
                                      keywords, &list, &keyfunc)) {
         return NULL;
@@ -855,7 +817,6 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (keyfunc == Py_None) {
-        PG_LOG_INFO(" keyfunc is None");
         keyfunc = NULL;
     }
 
@@ -876,22 +837,17 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        PG_LOG_VERBOSE(" got item from sequence: %s", Py_TYPE(obj)->tp_name);
         if (!(argrect = pgRect_FromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             return NULL;
         }
-        PG_LOG_VERBOSE(" got rect from object: %i, %i, %i, %i", argrect->x,
-                       argrect->y, argrect->w, argrect->h);
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
             return obj;
         }
-        PG_LOG_VERBOSE(" rect does not collide");
         Py_DECREF(obj);
     }
 
-    PG_LOG_INFO(" no colliding rect found");
     Py_RETURN_NONE;
 }
 
