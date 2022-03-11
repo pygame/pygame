@@ -694,42 +694,7 @@ buffer_bool(BufferObject *self)
     return self->view_p != NULL;
 }
 
-static PyNumberMethods buffer_as_number = {
-    (binaryfunc)0,        /* nb_add */
-    (binaryfunc)0,        /* nb_subtract */
-    (binaryfunc)0,        /* nb_multiply */
-    (binaryfunc)0,        /* nb_remainder */
-    (binaryfunc)0,        /* nb_divmod */
-    (ternaryfunc)0,       /* nb_power */
-    (unaryfunc)0,         /* nb_negative */
-    (unaryfunc)0,         /* nb_positive */
-    (unaryfunc)0,         /* nb_absolute */
-    (inquiry)buffer_bool, /* nb_nonzero / nb_bool */
-    (unaryfunc)0,         /* nb_invert */
-    (binaryfunc)0,        /* nb_lshift */
-    (binaryfunc)0,        /* nb_rshift */
-    (binaryfunc)0,        /* nb_and */
-    (binaryfunc)0,        /* nb_xor */
-    (binaryfunc)0,        /* nb_or */
-    (unaryfunc)0,         /* nb_int */
-    0,                    /* nb_reserved */
-    (unaryfunc)0,         /* nb_float */
-    (binaryfunc)0,        /* nb_inplace_add */
-    (binaryfunc)0,        /* nb_inplace_subtract */
-    (binaryfunc)0,        /* nb_inplace_multiply */
-    (binaryfunc)0,        /* nb_inplace_remainder */
-    (ternaryfunc)0,       /* nb_inplace_power */
-    (binaryfunc)0,        /* nb_inplace_lshift */
-    (binaryfunc)0,        /* nb_inplace_rshift */
-    (binaryfunc)0,        /* nb_inplace_and */
-    (binaryfunc)0,        /* nb_inplace_xor */
-    (binaryfunc)0,        /* nb_inplace_or */
-    (binaryfunc)0,        /* nb_floor_divide */
-    (binaryfunc)0,        /* nb_true_divide */
-    (binaryfunc)0,        /* nb_inplace_floor_divide */
-    (binaryfunc)0,        /* nb_inplace_true_divide */
-    (unaryfunc)0,         /* nb_index */
-};
+static PyNumberMethods buffer_as_number = {.nb_bool = (inquiry)buffer_bool};
 
 #define BUFFER_TYPE_FULLNAME "newbuffer.Py_buffer"
 #define BUFFER_TPFLAGS \

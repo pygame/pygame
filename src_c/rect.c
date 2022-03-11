@@ -1188,14 +1188,10 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 }
 
 static PySequenceMethods pg_rect_as_sequence = {
-    pg_rect_length,                    /*length*/
-    NULL,                              /*concat*/
-    NULL,                              /*repeat*/
-    (ssizeargfunc)pg_rect_item,        /*item*/
-    NULL,                              /*slice*/
-    (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
-    NULL,                              /*ass_slice*/
-    (objobjproc)pg_rect_contains_seq,  /*contains*/
+    .sq_length = pg_rect_length,
+    .sq_item = (ssizeargfunc)pg_rect_item,
+    .sq_ass_item = (ssizeobjargproc)pg_rect_ass_item,
+    .sq_contains = (objobjproc)pg_rect_contains_seq,
 };
 
 static PyObject *
@@ -1362,9 +1358,9 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 }
 
 static PyMappingMethods pg_rect_as_mapping = {
-    (lenfunc)pg_rect_length,             /*mp_length*/
-    (binaryfunc)pg_rect_subscript,       /*mp_subscript*/
-    (objobjargproc)pg_rect_ass_subscript /*mp_ass_subscript*/
+    .mp_length = (lenfunc)pg_rect_length,
+    .mp_subscript = (binaryfunc)pg_rect_subscript,
+    .mp_ass_subscript = (objobjargproc)pg_rect_ass_subscript,
 };
 
 /* numeric functions */
@@ -1375,24 +1371,7 @@ pg_rect_bool(pgRectObject *self)
 }
 
 static PyNumberMethods pg_rect_as_number = {
-    (binaryfunc)NULL,      /*add*/
-    (binaryfunc)NULL,      /*subtract*/
-    (binaryfunc)NULL,      /*multiply*/
-    (binaryfunc)NULL,      /*remainder*/
-    (binaryfunc)NULL,      /*divmod*/
-    (ternaryfunc)NULL,     /*power*/
-    (unaryfunc)NULL,       /*negative*/
-    (unaryfunc)NULL,       /*pos*/
-    (unaryfunc)NULL,       /*abs*/
-    (inquiry)pg_rect_bool, /*nonzero / bool*/
-    (unaryfunc)NULL,       /*invert*/
-    (binaryfunc)NULL,      /*lshift*/
-    (binaryfunc)NULL,      /*rshift*/
-    (binaryfunc)NULL,      /*and*/
-    (binaryfunc)NULL,      /*xor*/
-    (binaryfunc)NULL,      /*or*/
-    (unaryfunc)NULL,       /*int*/
-    (unaryfunc)NULL,       /*float*/
+    .nb_bool = (inquiry)pg_rect_bool,
 };
 
 static PyObject *

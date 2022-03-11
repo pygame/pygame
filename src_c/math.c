@@ -801,43 +801,19 @@ vector_copy(pgVector *self)
 }
 
 static PyNumberMethods vector_as_number = {
-    (binaryfunc)vector_add,  /* nb_add;       __add__ */
-    (binaryfunc)vector_sub,  /* nb_subtract;  __sub__ */
-    (binaryfunc)vector_mul,  /* nb_multiply;  __mul__ */
-    (binaryfunc)0,           /* nb_remainder; __mod__ */
-    (binaryfunc)0,           /* nb_divmod;    __divmod__ */
-    (ternaryfunc)0,          /* nb_power;     __pow__ */
-    (unaryfunc)vector_neg,   /* nb_negative;  __neg__ */
-    (unaryfunc)vector_pos,   /* nb_positive;  __pos__ */
-    (unaryfunc)0,            /* nb_absolute;  __abs__ */
-    (inquiry)vector_nonzero, /* nb_nonzero;   __nonzero__ */
-    (unaryfunc)0,            /* nb_invert;    __invert__ */
-    (binaryfunc)0,           /* nb_lshift;    __lshift__ */
-    (binaryfunc)0,           /* nb_rshift;    __rshift__ */
-    (binaryfunc)0,           /* nb_and;       __and__ */
-    (binaryfunc)0,           /* nb_xor;       __xor__ */
-    (binaryfunc)0,           /* nb_or;        __or__ */
-    (unaryfunc)0,            /* nb_int;       __int__ */
-    (unaryfunc)0,            /* nb_long;      __long__ */
-    (unaryfunc)0,            /* nb_float;     __float__ */
-    /* Added in release 2.0 */
-    (binaryfunc)vector_inplace_add, /* nb_inplace_add;       __iadd__ */
-    (binaryfunc)vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
-    (binaryfunc)vector_inplace_mul, /* nb_inplace_multiply;  __imul__ */
-    (binaryfunc)0,                  /* nb_inplace_remainder; __imod__ */
-    (ternaryfunc)0,                 /* nb_inplace_power;     __pow__ */
-    (binaryfunc)0,                  /* nb_inplace_lshift;    __ilshift__ */
-    (binaryfunc)0,                  /* nb_inplace_rshift;    __irshift__ */
-    (binaryfunc)0,                  /* nb_inplace_and;       __iand__ */
-    (binaryfunc)0,                  /* nb_inplace_xor;       __ixor__ */
-    (binaryfunc)0,                  /* nb_inplace_or;        __ior__ */
-
-    /* Added in release 2.2 */
-    (binaryfunc)vector_floor_div, /* nb_floor_divide;         __floor__ */
-    (binaryfunc)vector_div,       /* nb_true_divide;          __truediv__ */
-    (binaryfunc)
-        vector_inplace_floor_div,   /* nb_inplace_floor_divide; __ifloor__ */
-    (binaryfunc)vector_inplace_div, /* nb_inplace_true_divide;  __itruediv__ */
+    .nb_add = (binaryfunc)vector_add,
+    .nb_subtract = (binaryfunc)vector_sub,
+    .nb_multiply = (binaryfunc)vector_mul,
+    .nb_negative = (unaryfunc)vector_neg,
+    .nb_positive = (unaryfunc)vector_pos,
+    .nb_bool = (inquiry)vector_nonzero,
+    .nb_inplace_add = (binaryfunc)vector_inplace_add,
+    .nb_inplace_subtract = (binaryfunc)vector_inplace_sub,
+    .nb_inplace_multiply = (binaryfunc)vector_inplace_mul,
+    .nb_floor_divide = (binaryfunc)vector_floor_div,
+    .nb_true_divide = (binaryfunc)vector_div,
+    .nb_inplace_floor_divide = (binaryfunc)vector_inplace_floor_div,
+    .nb_inplace_true_divide = (binaryfunc)vector_inplace_div,
 };
 
 /*************************************************
@@ -938,14 +914,11 @@ vector_SetSlice(pgVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
     return 0;
 }
 
+/* sq_slice and sq_ass_slice are no longer used in this struct */
 static PySequenceMethods vector_as_sequence = {
-    (lenfunc)vector_len,                   /* sq_length;    __len__ */
-    (binaryfunc)0,                         /* sq_concat;    __add__ */
-    (ssizeargfunc)0,                       /* sq_repeat;    __mul__ */
-    (ssizeargfunc)vector_GetItem,          /* sq_item;      __getitem__ */
-    (ssizessizeargfunc)vector_GetSlice,    /* sq_slice;     __getslice__ */
-    (ssizeobjargproc)vector_SetItem,       /* sq_ass_item;  __setitem__ */
-    (ssizessizeobjargproc)vector_SetSlice, /* sq_ass_slice; __setslice__ */
+    .sq_length = (lenfunc)vector_len,
+    .sq_item = (ssizeargfunc)vector_GetItem,
+    .sq_ass_item = (ssizeobjargproc)vector_SetItem,
 };
 
 /***************************************************************************
@@ -1061,9 +1034,9 @@ vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
 }
 
 static PyMappingMethods vector_as_mapping = {
-    (lenfunc)vector_len,                /* mp_length */
-    (binaryfunc)vector_subscript,       /* mp_subscript */
-    (objobjargproc)vector_ass_subscript /* mp_ass_subscript */
+    .mp_length = (lenfunc)vector_len,
+    .mp_subscript = (binaryfunc)vector_subscript,
+    .mp_ass_subscript = (objobjargproc)vector_ass_subscript,
 };
 
 static int
@@ -3913,43 +3886,17 @@ vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self)
 }
 
 static PyNumberMethods vector_elementwiseproxy_as_number = {
-    (binaryfunc)vector_elementwiseproxy_add,  /* nb_add;       __add__ */
-    (binaryfunc)vector_elementwiseproxy_sub,  /* nb_subtract;  __sub__ */
-    (binaryfunc)vector_elementwiseproxy_mul,  /* nb_multiply;  __mul__ */
-    (binaryfunc)vector_elementwiseproxy_mod,  /* nb_remainder; __mod__ */
-    (binaryfunc)0,                            /* nb_divmod;    __divmod__ */
-    (ternaryfunc)vector_elementwiseproxy_pow, /* nb_power;     __pow__ */
-    (unaryfunc)vector_elementwiseproxy_neg,   /* nb_negative;  __neg__ */
-    (unaryfunc)vector_elementwiseproxy_pos,   /* nb_positive;  __pos__ */
-    (unaryfunc)vector_elementwiseproxy_abs,   /* nb_absolute;  __abs__ */
-    (inquiry)vector_elementwiseproxy_nonzero, /* nb_nonzero;   __nonzero__ */
-    (unaryfunc)0,                             /* nb_invert;    __invert__ */
-    (binaryfunc)0,                            /* nb_lshift;    __lshift__ */
-    (binaryfunc)0,                            /* nb_rshift;    __rshift__ */
-    (binaryfunc)0,                            /* nb_and;       __and__ */
-    (binaryfunc)0,                            /* nb_xor;       __xor__ */
-    (binaryfunc)0,                            /* nb_or;        __or__ */
-    (unaryfunc)0,                             /* nb_int;       __int__ */
-    (unaryfunc)0,                             /* nb_long;      __long__ */
-    (unaryfunc)0,                             /* nb_float;     __float__ */
-    /* Added in release 2.0 */
-    (binaryfunc)0,  /* nb_inplace_add;       __iadd__ */
-    (binaryfunc)0,  /* nb_inplace_subtract;  __isub__ */
-    (binaryfunc)0,  /* nb_inplace_multiply;  __imul__ */
-    (binaryfunc)0,  /* nb_inplace_remainder; __imod__ */
-    (ternaryfunc)0, /* nb_inplace_power;     __pow__ */
-    (binaryfunc)0,  /* nb_inplace_lshift;    __ilshift__ */
-    (binaryfunc)0,  /* nb_inplace_rshift;    __irshift__ */
-    (binaryfunc)0,  /* nb_inplace_and;       __iand__ */
-    (binaryfunc)0,  /* nb_inplace_xor;       __ixor__ */
-    (binaryfunc)0,  /* nb_inplace_or;        __ior__ */
-
-    /* Added in release 2.2 */
-    (binaryfunc)
-        vector_elementwiseproxy_floor_div,   /* nb_floor_divide; __floor__ */
-    (binaryfunc)vector_elementwiseproxy_div, /* nb_true_divide; __truediv__ */
-    (binaryfunc)0, /* nb_inplace_floor_divide; __ifloor__ */
-    (binaryfunc)0, /* nb_inplace_true_divide;  __itruediv__ */
+    .nb_add = (binaryfunc)vector_elementwiseproxy_add,
+    .nb_subtract = (binaryfunc)vector_elementwiseproxy_sub,
+    .nb_multiply = (binaryfunc)vector_elementwiseproxy_mul,
+    .nb_remainder = (binaryfunc)vector_elementwiseproxy_mod,
+    .nb_power = (ternaryfunc)vector_elementwiseproxy_pow,
+    .nb_negative = (unaryfunc)vector_elementwiseproxy_neg,
+    .nb_positive = (unaryfunc)vector_elementwiseproxy_pos,
+    .nb_absolute = (unaryfunc)vector_elementwiseproxy_abs,
+    .nb_bool = (inquiry)vector_elementwiseproxy_nonzero,
+    .nb_floor_divide = (binaryfunc)vector_elementwiseproxy_floor_div,
+    .nb_true_divide = (binaryfunc)vector_elementwiseproxy_div,
 };
 
 static PyTypeObject pgVectorElementwiseProxy_Type = {

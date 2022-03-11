@@ -89,7 +89,8 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 }
 
 static PyMappingMethods pg_scancodewrapper_mapping = {
-    NULL, (binaryfunc)pg_scancodewrapper_subscript, NULL};
+    .mp_subscript = (binaryfunc)pg_scancodewrapper_subscript,
+};
 
 static PyObject *
 pg_scancodewrapper_repr(pgScancodeWrapper *self)

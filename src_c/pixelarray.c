@@ -240,25 +240,19 @@ static PyGetSetDef _pxarray_getsets[] = {
  * of their behaviour (see lists numpy array).
  */
 static PySequenceMethods _pxarray_sequence = {
-    (lenfunc)_pxarray_length,           /*sq_length*/
-    0,                                  /*sq_concat*/
-    0,                                  /*sq_repeat*/
-    (ssizeargfunc)_pxarray_item,        /*sq_item*/
-    0,                                  /*reserved*/
-    (ssizeobjargproc)_pxarray_ass_item, /*sq_ass_item*/
-    0,                                  /*reserved*/
-    (objobjproc)_pxarray_contains,      /*sq_contains*/
-    0,                                  /*sq_inplace_concat*/
-    0                                   /*sq_inplace_repeat*/
+    .sq_length = (lenfunc)_pxarray_length,
+    .sq_item = (ssizeargfunc)_pxarray_item,
+    .sq_ass_item = (ssizeobjargproc)_pxarray_ass_item,
+    .sq_contains = (objobjproc)_pxarray_contains,
 };
 
 /**
  * Mapping interface support for the pgPixelArrayObject.
  */
 static PyMappingMethods _pxarray_mapping = {
-    (lenfunc)_pxarray_length,              /*mp_length*/
-    (binaryfunc)_pxarray_subscript,        /*mp_subscript*/
-    (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
+    .mp_length = (lenfunc)_pxarray_length,
+    .mp_subscript = (binaryfunc)_pxarray_subscript,
+    .mp_ass_subscript = (objobjargproc)_pxarray_ass_subscript,
 };
 
 static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,

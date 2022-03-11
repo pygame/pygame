@@ -1323,24 +1323,7 @@ _pg_event_nonzero(pgEventObject *self)
 }
 
 static PyNumberMethods pg_event_as_number = {
-    (binaryfunc)NULL,           /*Add*/
-    (binaryfunc)NULL,           /*subtract*/
-    (binaryfunc)NULL,           /*multiply*/
-    (binaryfunc)NULL,           /*remainder*/
-    (binaryfunc)NULL,           /*divmod*/
-    (ternaryfunc)NULL,          /*power*/
-    (unaryfunc)NULL,            /*negative*/
-    (unaryfunc)NULL,            /*pos*/
-    (unaryfunc)NULL,            /*abs*/
-    (inquiry)_pg_event_nonzero, /*nonzero*/
-    (unaryfunc)NULL,            /*invert*/
-    (binaryfunc)NULL,           /*lshift*/
-    (binaryfunc)NULL,           /*rshift*/
-    (binaryfunc)NULL,           /*and*/
-    (binaryfunc)NULL,           /*xor*/
-    (binaryfunc)NULL,           /*or*/
-    (unaryfunc)NULL,            /*int*/
-    (unaryfunc)NULL,            /*float*/
+    .nb_bool = (inquiry)_pg_event_nonzero,
 };
 
 static PyTypeObject pgEvent_Type;

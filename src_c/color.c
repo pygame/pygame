@@ -220,61 +220,32 @@ static PyGetSetDef _color_getsets[] = {
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyNumberMethods _color_as_number = {
-    (binaryfunc)_color_add,  /* nb_add */
-    (binaryfunc)_color_sub,  /* nb_subtract */
-    (binaryfunc)_color_mul,  /* nb_multiply */
-    (binaryfunc)_color_mod,  /* nb_remainder */
-    NULL,                    /* nb_divmod */
-    NULL,                    /* nb_power */
-    NULL,                    /* nb_negative */
-    NULL,                    /* nb_positive */
-    NULL,                    /* nb_absolute */
-    NULL,                    /* nb_nonzero / nb_bool*/
-    (unaryfunc)_color_inv,   /* nb_invert */
-    NULL,                    /* nb_lshift */
-    NULL,                    /* nb_rshift */
-    NULL,                    /* nb_and */
-    NULL,                    /* nb_xor */
-    NULL,                    /* nb_or */
-    (unaryfunc)_color_int,   /* nb_int */
-    NULL,                    /* nb_reserved */
-    (unaryfunc)_color_float, /* nb_float */
-    NULL,                    /* nb_inplace_add */
-    NULL,                    /* nb_inplace_subtract */
-    NULL,                    /* nb_inplace_multiply */
-    NULL,                    /* nb_inplace_remainder */
-    NULL,                    /* nb_inplace_power */
-    NULL,                    /* nb_inplace_lshift */
-    NULL,                    /* nb_inplace_rshift */
-    NULL,                    /* nb_inplace_and */
-    NULL,                    /* nb_inplace_xor */
-    NULL,                    /* nb_inplace_or */
-    (binaryfunc)_color_div,  /* nb_floor_divide */
-    NULL,                    /* nb_true_divide */
-    NULL,                    /* nb_inplace_floor_divide */
-    NULL,                    /* nb_inplace_true_divide */
-    (unaryfunc)_color_int,   /* nb_index */
+    .nb_add = (binaryfunc)_color_add,
+    .nb_subtract = (binaryfunc)_color_sub,
+    .nb_multiply = (binaryfunc)_color_mul,
+    .nb_remainder = (binaryfunc)_color_mod,
+    .nb_invert = (unaryfunc)_color_inv,
+    .nb_int = (unaryfunc)_color_int,
+    .nb_float = (unaryfunc)_color_float,
+    .nb_floor_divide = (binaryfunc)_color_div,
+    .nb_index = (unaryfunc)_color_int,
 };
 
 /**
  * Sequence interface support for pgColorObject.
  */
+/* sq_slice and sq_ass_slice are no longer used in this struct */
 static PySequenceMethods _color_as_sequence = {
-    (lenfunc)_color_length,           /* sq_length */
-    NULL,                             /* sq_concat */
-    NULL,                             /* sq_repeat */
-    (ssizeargfunc)_color_item,        /* sq_item */
-    (ssizessizeargfunc)_color_slice,  /* sq_slice */
-    (ssizeobjargproc)_color_ass_item, /* sq_ass_item */
-    NULL,                             /* sq_ass_slice */
-    NULL,                             /* sq_contains */
-    NULL,                             /* sq_inplace_concat */
-    NULL,                             /* sq_inplace_repeat */
+    .sq_length = (lenfunc)_color_length,
+    .sq_item = (ssizeargfunc)_color_item,
+    .sq_ass_item = (ssizeobjargproc)_color_ass_item,
 };
 
-static PyMappingMethods _color_as_mapping = {(lenfunc)_color_length,
-                                             (binaryfunc)_color_subscript,
-                                             (objobjargproc)_color_set_slice};
+static PyMappingMethods _color_as_mapping = {
+    .mp_length = (lenfunc)_color_length,
+    .mp_subscript = (binaryfunc)_color_subscript,
+    .mp_ass_subscript = (objobjargproc)_color_set_slice,
+};
 
 static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
                                          NULL};
