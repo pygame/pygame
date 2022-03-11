@@ -279,10 +279,6 @@ static PyMappingMethods _color_as_mapping = {(lenfunc)_color_length,
 static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
                                          NULL};
 
-#define COLOR_TPFLAGS_COMMON \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
-#define COLOR_TPFLAGS COLOR_TPFLAGS_COMMON
-
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
@@ -294,7 +290,7 @@ static PyTypeObject pgColor_Type = {
     .tp_as_sequence = &_color_as_sequence,
     .tp_as_mapping = &_color_as_mapping,
     .tp_as_buffer = &_color_as_buffer,
-    .tp_flags = COLOR_TPFLAGS,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = DOC_PYGAMECOLOR,
     .tp_richcompare = _color_richcompare,
     .tp_methods = _color_methods,

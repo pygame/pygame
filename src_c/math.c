@@ -3343,6 +3343,7 @@ static PyTypeObject pgVectorIter_Type = {
     .tp_basicsize = sizeof(vectoriter),
     .tp_dealloc = (destructor)vectoriter_dealloc,
     .tp_getattro = PyObject_GenericGetAttr,
+    /* VectorIterator is not subtypable for now, no Py_TPFLAGS_BASETYPE */
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_iter = PyObject_SelfIter,
     .tp_iternext = (iternextfunc)vectoriter_next,
@@ -3957,6 +3958,7 @@ static PyTypeObject pgVectorElementwiseProxy_Type = {
     .tp_basicsize = sizeof(vector_elementwiseproxy),
     .tp_dealloc = (destructor)vector_elementwiseproxy_dealloc,
     .tp_as_number = &vector_elementwiseproxy_as_number,
+    /* Elementwise Proxy is not subtypable for now, no Py_TPFLAGS_BASETYPE */
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_richcompare = (richcmpfunc)vector_elementwiseproxy_richcompare,
 };
