@@ -426,9 +426,10 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 {
     float factor_x, factor_y = 0;
 
-    if (!PyArg_ParseTuple(args, "f|f", &factor_x, &factor_y))
-        return RAISE(PyExc_TypeError,
-                     "argument must contain at least one number");
+    if (!PyArg_ParseTuple(args, "f|f", &factor_x, &factor_y)) {
+        return NULL;
+    }
+
     factor_x = factor_x < 0 ? -factor_x : factor_x;
     factor_y = factor_y < 0 ? -factor_y : factor_y;
 
