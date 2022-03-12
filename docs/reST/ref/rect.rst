@@ -133,6 +133,30 @@
 
       .. ## Rect.inflate_ip ##
 
+   .. method:: scale
+
+      | :sl:`scale the rectangle by given a multiplier`
+      | :sg:`scale(scalar) -> Rect`
+      | :sg:`scale(scalex, scaley) -> Rect`
+
+      Returns a new rectangle with the size scaled by the given multipliers.
+      The rectangle remains centered around its current center. A single 
+      scalar or separate width and height scalars are allowed. Values above
+      one will increase the size of the rectangle, whereas values between
+      zero and one will decrease the size of the rectangle.
+
+      .. ## Rect.scale ##
+
+   .. method:: scale_ip
+
+      | :sl:`grow or shrink the rectangle size, in place`
+      | :sg:`scale_ip(scalar) -> None`
+      | :sg:`scale(scalex, scaley) -> None`
+
+      Same as the ``Rect.scale()`` method, but operates in place.
+
+      .. ## Rect.scale_ip ##
+
    .. method:: update
 
       | :sl:`sets the position and size of the rectangle`
