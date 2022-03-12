@@ -813,7 +813,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width - 4, r2.width)
         self.assertEqual(r.height - 6, r2.height)
 
-    def test_scale__larger(self):
+    def test_scale_by__larger_single_argument(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = r.scale_by(2)
@@ -826,7 +826,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
-    def test_scale__smaller(self):
+    def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 8, 8)
         r2 = r.scale_by(0.5)
@@ -839,7 +839,37 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width - 4, r2.width)
         self.assertEqual(r.height - 4, r2.height)
 
-    def test_scale__subzero(self):
+    def test_scale_by__larger(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(2, 4)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by__smaller(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 8, 8)
+        # act
+        r2 = r.scale_by(0.5, 0.25)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left + 2, r2.left)
+        self.assertEqual(r.centery - r.h / 4 / 2, r2.top)
+        self.assertEqual(r.right - 2, r2.right)
+        self.assertEqual(r.centery + r.h / 4 / 2, r2.bottom)
+        self.assertEqual(r.width - 4, r2.width)
+        self.assertEqual(r.height // 4, r2.height)
+
+    def test_scale_by__subzero(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r.scale_by(0)
@@ -847,7 +877,83 @@ class RectTypeTest(unittest.TestCase):
         r.scale_by(-0.000001)
         r.scale_by(0.00001)
 
-    def test_scale_ip__larger(self):
+        rx1 = r.scale_by(10, 1)
+        self.assertEqual(r.centerx - r.w * 10 / 2, rx1.x)
+        self.assertEqual(r.y, rx1.y)
+        self.assertEqual(r.w * 10, rx1.w)
+        self.assertEqual(r.h, rx1.h)
+        rx2 = r.scale_by(-10, 1)
+        self.assertEqual(rx1.x, rx2.x)
+        self.assertEqual(rx1.y, rx2.y)
+        self.assertEqual(rx1.w, rx2.w)
+        self.assertEqual(rx1.h, rx2.h)
+
+        ry1 = r.scale_by(1, 10)
+        self.assertEqual(r.x, ry1.x)
+        self.assertEqual(r.centery - r.h * 10 / 2, ry1.y)
+        self.assertEqual(r.w, ry1.w)
+        self.assertEqual(r.h * 10, ry1.h)
+        ry2 = r.scale_by(1, -10)
+        self.assertEqual(ry1.x, ry2.x)
+        self.assertEqual(ry1.y, ry2.y)
+        self.assertEqual(ry1.w, ry2.w)
+        self.assertEqual(ry1.h, ry2.h)
+
+        r1 = r.scale_by(10)
+        self.assertEqual(r.centerx - r.w * 10 / 2, r1.x)
+        self.assertEqual(r.centery - r.h * 10 / 2, r1.y)
+        self.assertEqual(r.w * 10, r1.w)
+        self.assertEqual(r.h * 10, r1.h)
+
+    def test_scale_by_identity(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(1, 1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_negative_identity(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(-1, -1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_identity_single_argument(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_negative_identity_single_argment(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(-1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_ip__larger(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r2 = Rect(r)
@@ -861,7 +967,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
-    def test_scale_ip__smaller(self):
+    def test_scale_by_ip__smaller(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 8, 8)
         r2 = Rect(r)
@@ -875,7 +981,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width / 2, r2.width)
         self.assertEqual(r.height / 2, r2.height)
 
-    def test_scale_ip__subzero(self):
+    def test_scale_by_ip__subzero(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 6, 8)
         r.scale_by_ip(0)
