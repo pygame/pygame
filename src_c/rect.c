@@ -450,7 +450,7 @@ pg_rect_scale_by(pgRectObject *self, PyObject *args)
     pgRectObject *returnRect = (pgRectObject *)_pg_rect_subtype_new4(
         Py_TYPE(self), self->r.x, self->r.y, self->r.w, self->r.h);
     pg_rect_scale_by_ip(returnRect, args);
-    return returnRect;
+    return (PyObject *)returnRect;
 }
 
 static PyObject *
