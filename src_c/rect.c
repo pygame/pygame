@@ -422,26 +422,6 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_scale_by(pgRectObject *self, PyObject *args)
-{
-    float width, height = 0;
-
-    if (!PyArg_ParseTuple(args, "f|f", &width, &height))
-        return RAISE(PyExc_TypeError,
-                     "argument must contain at least one number");
-    width = width < 0 ? -width : width;
-    height = height < 0 ? -height : height;
-
-    height = (height > 0) ? height : width;
-
-    return _pg_rect_subtype_new4(
-        Py_TYPE(self),
-        (int)(self->r.x + (self->r.w / 2) - (self->r.w * width / 2)),
-        (int)(self->r.y + (self->r.h / 2) - (self->r.h * height / 2)),
-        (int)(self->r.w * width), (int)(self->r.h * height));
-}
-
-static PyObject *
 pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 {
     float width, height = 0;
@@ -459,6 +439,15 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
     self->r.w = (int)(self->r.w * width);
     self->r.h = (int)(self->r.h * height);
     Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_rect_scale_by(pgRectObject *self, PyObject *args)
+{
+    pgRectObject *rect = (pgRectObject *)_pg_rect_subtype_new4(
+        Py_TYPE(self), self->r.x, self->r.y, self->r.w, self->r.h);
+    pg_rect_scale_by_ip(rect, args);
+    return rect;
 }
 
 static PyObject *
