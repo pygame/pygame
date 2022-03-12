@@ -422,7 +422,7 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_scale(pgRectObject *self, PyObject *args)
+pg_rect_scale_by(pgRectObject *self, PyObject *args)
 {
     float width, height=0;
 
@@ -439,7 +439,7 @@ pg_rect_scale(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_scale_ip(pgRectObject *self, PyObject *args)
+pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 {
     SDL_Rect temp;
     SDL_Rect *argrect = pgRect_FromObject(args, &temp);
@@ -1146,7 +1146,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
     {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
-    {"scale", (PyCFunction)pg_rect_scale, METH_VARARGS, DOC_RECTSCALE},
+    {"scale_by", (PyCFunction)pg_rect_scale_by, METH_VARARGS, DOC_RECTSCALEBY},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
@@ -1154,7 +1154,8 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"scale_ip", (PyCFunction)pg_rect_scale_ip, METH_VARARGS, DOC_RECTSCALEIP},
+    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip, METH_VARARGS,
+     DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
      DOC_RECTUNIONALLIP},

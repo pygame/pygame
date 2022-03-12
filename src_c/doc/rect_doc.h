@@ -5,8 +5,8 @@
 #define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
 #define DOC_RECTINFLATE "inflate(x, y) -> Rect\ngrow or shrink the rectangle size"
 #define DOC_RECTINFLATEIP "inflate_ip(x, y) -> None\ngrow or shrink the rectangle size, in place"
-#define DOC_RECTSCALE "scale(scalar) -> Rect\nscale(scalex, scaley) -> Rect\nscale the rectangle by given a multiplier"
-#define DOC_RECTSCALEIP "scale_ip(scalar) -> None\nscale(scalex, scaley) -> None\ngrow or shrink the rectangle size, in place"
+#define DOC_RECTSCALEBY "scale_by(scalar) -> Rect\nscale_by(scalex, scaley) -> Rect\nscale the rectangle by given a multiplier"
+#define DOC_RECTSCALEBYIP "scale_by_ip(scalar) -> None\nscale_by_ip(scalex, scaley) -> None\ngrow or shrink the rectangle size, in place"
 #define DOC_RECTUPDATE "update(left, top, width, height) -> None\nupdate((left, top), (width, height)) -> None\nupdate(object) -> None\nsets the position and size of the rectangle"
 #define DOC_RECTCLAMP "clamp(Rect) -> Rect\nmoves the rectangle inside another"
 #define DOC_RECTCLAMPIP "clamp_ip(Rect) -> None\nmoves the rectangle inside another, in place"
@@ -57,14 +57,14 @@ pygame.Rect.inflate_ip
  inflate_ip(x, y) -> None
 grow or shrink the rectangle size, in place
 
-pygame.Rect.scale
- scale(scalar) -> Rect
- scale(scalex, scaley) -> Rect
+pygame.Rect.scale_by
+ scale_by(scalar) -> Rect
+ scale_by(scalex, scaley) -> Rect
 scale the rectangle by given a multiplier
 
-pygame.Rect.scale_ip
- scale_ip(scalar) -> None
- scale(scalex, scaley) -> None
+pygame.Rect.scale_by_ip
+ scale_by_ip(scalar) -> None
+ scale_by_ip(scalex, scaley) -> None
 grow or shrink the rectangle size, in place
 
 pygame.Rect.update
