@@ -50,6 +50,8 @@ class Surface:
         flags: int = 0,
         surface: Surface = ...,
     ) -> None: ...
+    def __copy__(self) -> Surface: ...
+    copy = __copy__
     def blit(
         self,
         source: Surface,
@@ -80,7 +82,6 @@ class Surface:
     def convert_alpha(self, surface: Surface) -> Surface: ...
     @overload
     def convert_alpha(self) -> Surface: ...
-    def copy(self) -> Surface: ...
     def fill(
         self,
         color: ColorValue,
