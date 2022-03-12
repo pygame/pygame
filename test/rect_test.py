@@ -828,7 +828,6 @@ class RectTypeTest(unittest.TestCase):
 
     def test_scale__smaller(self):
         """The scale method scales around the center of the rectangle"""
-        r = Rect(2, 4, 6, 8)
         r = Rect(2, 4, 8, 8)
         r2 = r.scale_by(0.5)
 
