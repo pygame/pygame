@@ -444,8 +444,6 @@ pg_rect_scale_by(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 {
-    SDL_Rect temp;
-    SDL_Rect *argrect = pgRect_FromObject(args, &temp);
     float width, height = 0;
 
     if (!PyArg_ParseTuple(args, "f|f", &width, &height))
