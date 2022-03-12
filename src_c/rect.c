@@ -424,20 +424,20 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 {
-    float width, height = 0;
+    float factor_x, factor_y = 0;
 
-    if (!PyArg_ParseTuple(args, "f|f", &width, &height))
+    if (!PyArg_ParseTuple(args, "f|f", &factor_x, &factor_y))
         return RAISE(PyExc_TypeError,
                      "argument must contain at least one number");
-    width = width < 0 ? -width : width;
-    height = height < 0 ? -height : height;
+    factor_x = factor_x < 0 ? -factor_x : factor_x;
+    factor_y = factor_y < 0 ? -factor_y : factor_y;
 
-    height = (height > 0) ? height : width;
+    factor_y = (factor_y > 0) ? factor_y : factor_x;
 
-    self->r.x = (int)(self->r.x + (self->r.w / 2) - (self->r.w * width / 2));
-    self->r.y = (int)(self->r.y + (self->r.h / 2) - (self->r.h * height / 2));
-    self->r.w = (int)(self->r.w * width);
-    self->r.h = (int)(self->r.h * height);
+    self->r.x = (int)(self->r.x + (self->r.w / 2) - (self->r.w * factor_x / 2));
+    self->r.y = (int)(self->r.y + (self->r.h / 2) - (self->r.h * factor_y / 2));
+    self->r.w = (int)(self->r.w * factor_x);
+    self->r.h = (int)(self->r.h * factor_y);
     Py_RETURN_NONE;
 }
 
