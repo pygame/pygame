@@ -9,8 +9,7 @@
 | :sl:`pygame module for drawing shapes`
 
 Draw several simple shapes to a surface. These functions will work for
-rendering to any format of surface. Rendering to hardware surfaces will be
-slower than regular software surfaces.
+rendering to any format of surface.
 
 Most of the functions take a width argument to represent the size of stroke
 (thickness) around the edge of the shape. If a width of 0 is passed the shape
@@ -65,11 +64,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          | if ``width < 0``, nothing will be drawn
          |
 
-         .. note::
-            When using ``width`` values ``> 1``, the edge lines will grow
-            outside the original boundary of the rect. For more details on
-            how the thickness for edge lines grow, refer to the ``width`` notes
-            of the :func:`pygame.draw.line` function.
    :param int border_radius: (optional) used for drawing rectangle with rounded corners.
       The supported range is [0, min(height, width) / 2], with 0 representing a rectangle
       without rounded corners.
@@ -94,8 +88,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    .. note::
       The :func:`pygame.Surface.fill()` method works just as well for drawing
-      filled rectangles and can be hardware accelerated on some platforms with
-      both software and hardware display modes.
+      filled rectangles and can be hardware accelerated on some platforms.
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
    .. versionchanged:: 2.0.0.dev8 Added support for border radius.
