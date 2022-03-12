@@ -435,8 +435,10 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 
     factor_y = (factor_y > 0) ? factor_y : factor_x;
 
-    self->r.x = (int)(self->r.x + (self->r.w / 2) - (self->r.w * factor_x / 2));
-    self->r.y = (int)(self->r.y + (self->r.h / 2) - (self->r.h * factor_y / 2));
+    self->r.x =
+        (int)(self->r.x + (self->r.w / 2) - (self->r.w * factor_x / 2));
+    self->r.y =
+        (int)(self->r.y + (self->r.h / 2) - (self->r.h * factor_y / 2));
     self->r.w = (int)(self->r.w * factor_x);
     self->r.h = (int)(self->r.h * factor_y);
     Py_RETURN_NONE;
