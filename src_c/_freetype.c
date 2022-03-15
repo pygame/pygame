@@ -41,7 +41,7 @@ static int
 _ft_clear(PyObject *);
 
 static PyObject *
-_ft_quit(PyObject *);
+_ft_quit(PyObject *, PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
@@ -51,7 +51,7 @@ _ft_get_error(PyObject *, PyObject *);
 static PyObject *
 _ft_get_init(PyObject *, PyObject *);
 static PyObject *
-_ft_autoinit(PyObject *);
+_ft_autoinit(PyObject *, PyObject *);
 static PyObject *
 _ft_get_cache_size(PyObject *, PyObject *);
 static PyObject *
@@ -97,7 +97,7 @@ _ftfont_getsizedheight(pgFontObject *, PyObject *);
 static PyObject *
 _ftfont_getsizedglyphheight(pgFontObject *, PyObject *);
 static PyObject *
-_ftfont_getsizes(pgFontObject *);
+_ftfont_getsizes(pgFontObject *, PyObject *);
 
 /* static PyObject *_ftfont_copy(pgFontObject *); */
 
@@ -1564,7 +1564,7 @@ _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
 }
 
 static PyObject *
-_ftfont_getsizes(pgFontObject *self)
+_ftfont_getsizes(pgFontObject *self, PyObject *_null)
 {
     int nsizes;
     int i;
@@ -2006,7 +2006,7 @@ pgFont_New(const char *filename, long font_index)
  ***************************************************************/
 
 static PyObject *
-_ft_autoinit(PyObject *self)
+_ft_autoinit(PyObject *self, PyObject *_null)
 {
     int cache_size = FREETYPE_MOD_STATE(self)->cache_size;
 
@@ -2025,7 +2025,7 @@ _ft_autoinit(PyObject *self)
 }
 
 static PyObject *
-_ft_quit(PyObject *self)
+_ft_quit(PyObject *self, PyObject *_null)
 {
     _FreeTypeState *state = FREETYPE_STATE;
 
@@ -2056,14 +2056,14 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
         state->cache_size = cache_size;
         state->resolution =
             (resolution ? (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
-        return _ft_autoinit(self);
+        return _ft_autoinit(self, NULL);
     }
 
     Py_RETURN_NONE;
 }
 
 static PyObject *
-_ft_get_error(PyObject *self, PyObject *args)
+_ft_get_error(PyObject *self, PyObject *_null)
 {
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
@@ -2076,7 +2076,7 @@ _ft_get_error(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_ft_get_version(PyObject *self, PyObject *args)
+_ft_get_version(PyObject *self, PyObject *_null)
 {
     /* Return the linked FreeType2 version */
     return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
@@ -2084,14 +2084,14 @@ _ft_get_version(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_ft_get_cache_size(PyObject *self, PyObject *args)
+_ft_get_cache_size(PyObject *self, PyObject *_null)
 {
     return PyLong_FromUnsignedLong(
         (unsigned long)(FREETYPE_STATE->cache_size));
 }
 
 static PyObject *
-_ft_get_default_resolution(PyObject *self, PyObject *args)
+_ft_get_default_resolution(PyObject *self, PyObject *_null)
 {
     return PyLong_FromUnsignedLong(
         (unsigned long)(FREETYPE_STATE->resolution));
@@ -2113,13 +2113,13 @@ _ft_set_default_resolution(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_ft_get_init(PyObject *self, PyObject *args)
+_ft_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(FREETYPE_MOD_STATE(self)->freetype ? 1 : 0);
 }
 
 static PyObject *
-_ft_get_default_font(PyObject *self, PyObject *args)
+_ft_get_default_font(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(DEFAULT_FONT_NAME);
 }

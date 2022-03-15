@@ -776,7 +776,7 @@ _color_repr(pgColorObject *color)
  * color.normalize()
  */
 static PyObject *
-_color_normalize(pgColorObject *color, PyObject *args)
+_color_normalize(pgColorObject *color, PyObject *_null)
 {
     double rgba[4];
     rgba[0] = color->data[0] / 255.0;
@@ -860,7 +860,7 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
  * color.premul_alpha()
  */
 static PyObject *
-_premul_alpha(pgColorObject *color, PyObject *args)
+_premul_alpha(pgColorObject *color, PyObject *_null)
 {
     Uint8 new_rgba[4];
     new_rgba[0] = (Uint8)(((color->data[0] + 1) * color->data[3]) >> 8);

@@ -177,7 +177,7 @@ display_resource_end:
 
 /* init routines */
 static PyObject *
-pg_display_quit(PyObject *self)
+pg_display_quit(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_STATE;
     _display_state_cleanup(state);
@@ -221,7 +221,7 @@ _pg_mac_display_init(void)
 }
 
 static PyObject *
-pg_display_init(PyObject *self)
+pg_display_init(PyObject *self, PyObject *_null)
 {
     const char *drivername;
     /* Compatibility:
@@ -249,13 +249,13 @@ pg_display_init(PyObject *self)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *_null)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
     return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) &&
@@ -449,7 +449,7 @@ pg_GetVideoInfo(pg_VideoInfo *info)
 }
 
 static PyObject *
-pgInfo(PyObject *self)
+pgInfo(PyObject *self, PyObject *_null)
 {
     pg_VideoInfo info;
     VIDEO_INIT_CHECK();
@@ -457,7 +457,7 @@ pgInfo(PyObject *self)
 }
 
 static PyObject *
-pg_get_wm_info(PyObject *self)
+pg_get_wm_info(PyObject *self, PyObject *_null)
 {
     PyObject *dict;
     PyObject *tmp;
@@ -586,7 +586,7 @@ pg_get_wm_info(PyObject *self)
 
 /* display functions */
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *_null)
 {
     const char *name = NULL;
     VIDEO_INIT_CHECK();
@@ -597,7 +597,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -886,7 +886,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /* note SDL works special like this too */
-        if (!pg_display_init(NULL))
+        if (!pg_display_init(NULL, NULL))
             return NULL;
     }
 
@@ -1384,7 +1384,7 @@ _pg_get_default_display_masks(int bpp, Uint32 *Rmask, Uint32 *Gmask,
 }
 
 static PyObject *
-pg_window_size(PyObject *self)
+pg_window_size(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int w, h;
@@ -1576,7 +1576,7 @@ pg_flip_internal(_DisplayState *state)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *_null)
 {
     if (pg_flip_internal(DISPLAY_MOD_STATE(self)) < 0) {
         return NULL;
@@ -1585,7 +1585,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays(PyObject *self)
+pg_num_displays(PyObject *self, PyObject *_null)
 {
     int ret = SDL_GetNumVideoDisplays();
     if (ret < 0)
@@ -1624,7 +1624,7 @@ pg_update(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, "Display mode not set");
 
     if (pg_renderer != NULL) {
-        return pg_flip(self);
+        return pg_flip(self, NULL);
     }
     SDL_GetWindowSize(win, &wide, &high);
 
@@ -1633,7 +1633,7 @@ pg_update(PyObject *self, PyObject *arg)
 
     /*determine type of argument we got*/
     if (PyTuple_Size(arg) == 0) {
-        return pg_flip(self);
+        return pg_flip(self, NULL);
     }
 
     if (PyTuple_GET_ITEM(arg, 0) == Py_None) {
@@ -1941,7 +1941,7 @@ pg_set_caption(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1967,7 +1967,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
         return NULL;
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        if (!pg_display_init(NULL))
+        if (!pg_display_init(NULL, NULL))
             return NULL;
     }
     Py_INCREF(surface);
@@ -1979,7 +1979,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     VIDEO_INIT_CHECK();
@@ -2048,7 +2048,7 @@ pg_get_desktop_screen_sizes(PyObject *self)
 }
 
 static PyObject *
-pg_is_fullscreen(PyObject *self)
+pg_is_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int flags;
@@ -2066,7 +2066,7 @@ pg_is_fullscreen(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self, PyObject *args)
+pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result, flags;

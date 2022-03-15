@@ -331,7 +331,7 @@ buffer_get_buffer(BufferObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-buffer_release_buffer(BufferObject *self, PyObject *args)
+buffer_release_buffer(BufferObject *self, PyObject *_null)
 {
     int flags = self->flags;
     Py_buffer *view_p = self->view_p;

@@ -246,7 +246,7 @@ vector_str(pgVector *self);
 static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
-vector_copy(pgVector *self);
+vector_copy(pgVector *self, PyObject *_null);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -790,7 +790,7 @@ vector_nonzero(pgVector *self)
 }
 
 static PyObject *
-vector_copy(pgVector *self)
+vector_copy(pgVector *self, PyObject *_null)
 {
     pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
     Py_ssize_t i;
@@ -1192,7 +1192,7 @@ vector_richcompare(PyObject *o1, PyObject *o2, int op)
 }
 
 static PyObject *
-vector_length(pgVector *self, PyObject *args)
+vector_length(pgVector *self, PyObject *_null)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -1200,7 +1200,7 @@ vector_length(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector_length_squared(pgVector *self, PyObject *args)
+vector_length_squared(pgVector *self, PyObject *_null)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -1208,7 +1208,7 @@ vector_length_squared(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector_normalize(pgVector *self, PyObject *args)
+vector_normalize(pgVector *self, PyObject *_null)
 {
     pgVector *ret;
 
@@ -1225,7 +1225,7 @@ vector_normalize(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector_normalize_ip(pgVector *self, PyObject *args)
+vector_normalize_ip(pgVector *self, PyObject *_null)
 {
     Py_ssize_t i;
     double length;
@@ -1245,7 +1245,7 @@ vector_normalize_ip(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector_is_normalized(pgVector *self, PyObject *args)
+vector_is_normalized(pgVector *self, PyObject *_null)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -2253,7 +2253,7 @@ vector2_angle_to(pgVector *self, PyObject *other)
 }
 
 static PyObject *
-vector2_as_polar(pgVector *self, PyObject *args)
+vector2_as_polar(pgVector *self, PyObject *_null)
 {
     double r, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
@@ -2275,13 +2275,13 @@ vector2_from_polar(pgVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 static PyObject *
-vector_getsafepickle(pgRectObject *self, void *closure)
+vector_getsafepickle(pgRectObject *self, void *_null)
 {
     Py_RETURN_TRUE;
 }
 /* for pickling */
 static PyObject *
-vector2_reduce(PyObject *oself, PyObject *args)
+vector2_reduce(PyObject *oself, PyObject *_null)
 {
     pgVector *self = (pgVector *)oself;
     return Py_BuildValue("(O(dd))", Py_TYPE(oself), self->coords[0],
@@ -3168,7 +3168,7 @@ vector3_angle_to(pgVector *self, PyObject *other)
 }
 
 static PyObject *
-vector3_as_spherical(pgVector *self, PyObject *args)
+vector3_as_spherical(pgVector *self, PyObject *_null)
 {
     double r, theta, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
@@ -3206,7 +3206,7 @@ vector3_project(pgVector *self, PyObject *other)
 
 /* For pickling. */
 static PyObject *
-vector3_reduce(PyObject *oself, PyObject *args)
+vector3_reduce(PyObject *oself, PyObject *_null)
 {
     pgVector *self = (pgVector *)oself;
     return Py_BuildValue("(O(ddd))", Py_TYPE(oself), self->coords[0],
@@ -4124,7 +4124,7 @@ static PyTypeObject pgVectorElementwiseProxy_Type = {
 };
 
 static PyObject *
-vector_elementwise(pgVector *vec, PyObject *args)
+vector_elementwise(pgVector *vec, PyObject *_null)
 {
     vector_elementwiseproxy *proxy;
     if (!pgVector_Check(vec)) {
@@ -4142,7 +4142,7 @@ vector_elementwise(pgVector *vec, PyObject *args)
 }
 
 static PyObject *
-math_enable_swizzling(pgVector *self)
+math_enable_swizzling(pgVector *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.math.enable_swizzling() is deprecated, "
@@ -4155,7 +4155,7 @@ math_enable_swizzling(pgVector *self)
 }
 
 static PyObject *
-math_disable_swizzling(pgVector *self)
+math_disable_swizzling(pgVector *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.math.disable_swizzling() is deprecated, "

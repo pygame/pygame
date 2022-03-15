@@ -40,7 +40,7 @@ static SDL_mutex *timermutex = NULL;
 static intptr_t pg_timer_id = 0;
 
 static PyObject *
-pg_time_autoquit(PyObject *self)
+pg_time_autoquit(PyObject *self, PyObject *_null)
 {
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
@@ -65,7 +65,7 @@ pg_time_autoquit(PyObject *self)
 }
 
 static PyObject *
-pg_time_autoinit(PyObject *self)
+pg_time_autoinit(PyObject *self, PyObject *_null)
 {
     /* allocate a mutex for timer data holding struct*/
     if (!timermutex) {
@@ -223,7 +223,7 @@ accurate_delay(int ticks)
 }
 
 static PyObject *
-time_get_ticks(PyObject *self)
+time_get_ticks(PyObject *self, PyObject *_null)
 {
     if (!SDL_WasInit(SDL_INIT_TIMER))
         return PyLong_FromLong(0);
@@ -426,21 +426,21 @@ clock_tick_busy_loop(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-clock_get_fps(PyObject *self, PyObject *args)
+clock_get_fps(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyFloat_FromDouble(_clock->fps);
 }
 
 static PyObject *
-clock_get_time(PyObject *self, PyObject *args)
+clock_get_time(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyLong_FromLong(_clock->timepassed);
 }
 
 static PyObject *
-clock_get_rawtime(PyObject *self, PyObject *args)
+clock_get_rawtime(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyLong_FromLong(_clock->rawpassed);

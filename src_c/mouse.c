@@ -198,7 +198,7 @@ mouse_set_visible(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mouse_get_visible(PyObject *self, PyObject *args)
+mouse_get_visible(PyObject *self, PyObject *_null)
 {
     int result;
 
@@ -442,7 +442,7 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
 
 // mouse.get_cursor goes through a python layer first, see cursors.py
 static PyObject *
-mouse_get_cursor(PyObject *self)
+mouse_get_cursor(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 

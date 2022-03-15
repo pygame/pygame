@@ -50,7 +50,7 @@ key_set_repeat(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_repeat(PyObject *self, PyObject *args)
+key_get_repeat(PyObject *self, PyObject *_null)
 {
     int delay = 0, interval = 0;
 
@@ -144,7 +144,7 @@ static PyTypeObject pgScancodeWrapper_Type = {
 };
 
 static PyObject *
-key_get_pressed(PyObject *self, PyObject *args)
+key_get_pressed(PyObject *self, PyObject *_null)
 {
     int num_keys;
     const Uint8 *key_state;
@@ -750,7 +750,7 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-key_get_mods(PyObject *self, PyObject *args)
+key_get_mods(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 
@@ -772,7 +772,7 @@ key_set_mods(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_focused(PyObject *self, PyObject *args)
+key_get_focused(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 
@@ -780,7 +780,7 @@ key_get_focused(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_start_text_input(PyObject *self, PyObject *args)
+key_start_text_input(PyObject *self, PyObject *_null)
 {
     /* https://wiki.libsdl.org/SDL_StartTextInput */
     SDL_StartTextInput();
@@ -788,7 +788,7 @@ key_start_text_input(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_stop_text_input(PyObject *self, PyObject *args)
+key_stop_text_input(PyObject *self, PyObject *_null)
 {
     /* https://wiki.libsdl.org/SDL_StopTextInput */
     SDL_StopTextInput();

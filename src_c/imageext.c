@@ -743,7 +743,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *arg)
+image_get_sdl_image_version(PyObject *self, PyObject *_null)
 {
     return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
                          SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
