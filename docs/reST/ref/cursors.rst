@@ -138,6 +138,8 @@ The following strings can be converted into cursor bitmaps with
    | :sg:`Cursor(size, hotspot, xormasks, andmasks) -> Cursor`
    | :sg:`Cursor(hotspot, surface) -> Cursor`
    | :sg:`Cursor(constant) -> Cursor`
+   | :sg:`Cursor(Cursor) -> Cursor`
+   | :sg:`Cursor() -> Cursor`
 
    In pygame 2, there are 3 types of cursors you can create to give your
    game that little bit of extra polish. There's **bitmap** type cursors,
@@ -149,7 +151,11 @@ The following strings can be converted into cursor bitmaps with
    **Creating a system cursor**
 
    Choose a constant from this list, pass it into ``pygame.cursors.Cursor(constant)``, 
-   and you're good to go.
+   and you're good to go. Be advised that not all systems support every system
+   cursor, and you may get a substitution instead. For example, on MacOS,
+   WAIT/WAITARROW should show up as an arrow, and SIZENWSE/SIZENESW/SIZEALL
+   should show up as a closed hand. And on Wayland, every SIZE cursor should 
+   show up as a hand.
 
    ::
 
@@ -173,6 +179,13 @@ The following strings can be converted into cursor bitmaps with
                                        north, south, east, and west
       pygame.SYSTEM_CURSOR_NO          slashed circle or crossbones
       pygame.SYSTEM_CURSOR_HAND        hand
+
+   **Creating a cursor without passing arguments**
+   
+   In addition to the cursor constants available and described above,
+   you can also call ``pygame.cursors.Cursor()``, and your cursor is ready (doing that is the same as
+   calling ``pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW)``.
+   Doing one of those calls actually creates a system cursor using the default native image.
 
    **Creating a color cursor**
 
@@ -199,6 +212,14 @@ The following strings can be converted into cursor bitmaps with
 
    Width and height must be a multiple of 8, and the mask arrays must be the 
    correct size for the given width and height. Otherwise an exception is raised.
+   
+   .. method:: copy
+      | :sl:`copy the current cursor`
+      | :sg:`copy() -> Cursor`
+      
+      Returns a new Cursor object with the same data and hotspot as the original.
+   .. ## pygame.cursors.Cursor.copy ##
+   
 
    .. attribute:: type
    

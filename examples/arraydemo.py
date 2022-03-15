@@ -29,7 +29,7 @@ def surfdemo_show(array_img, name):
     surfarray.blit_array(screen, array_img)
     pg.display.flip()
     pg.display.set_caption(name)
-    while 1:
+    while True:
         e = pg.event.wait()
         if e.type == pg.MOUSEBUTTONDOWN:
             break
@@ -51,8 +51,7 @@ def surfdemo_show(array_img, name):
 
 
 def main():
-    """show various surfarray effects
-    """
+    """show various surfarray effects"""
     import numpy as N
     from numpy import int32, uint8, uint
 

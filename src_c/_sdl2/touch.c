@@ -33,7 +33,7 @@ static PyObject *
 pg_touch_get_device(PyObject *self, PyObject *index)
 {
     SDL_TouchID touchid;
-    if (!INT_CHECK(index)) {
+    if (!PyLong_Check(index)) {
         return RAISE(PyExc_TypeError,
                      "index must be an integer "
                      "specifying a device to get the ID for");
@@ -51,7 +51,7 @@ static PyObject *
 pg_touch_num_fingers(PyObject *self, PyObject *device_id)
 {
     int fingercount;
-    if (!INT_CHECK(device_id)) {
+    if (!PyLong_Check(device_id)) {
         return RAISE(PyExc_TypeError,
                      "device_id must be an integer "
                      "specifying a touch device");
@@ -129,7 +129,6 @@ static PyMethodDef _touch_methods[] = {
 MODINIT_DEFINE(touch)
 {
     PyObject *module;
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "touch",
                                          DOC_PYGAMESDL2TOUCH,
@@ -139,21 +138,15 @@ MODINIT_DEFINE(touch)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "touch", _touch_methods,
-                            DOC_PYGAMESDL2TOUCH);
-#endif
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

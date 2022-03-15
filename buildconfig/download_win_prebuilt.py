@@ -77,50 +77,53 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
                 os.mkdir(zip_dir)
                 zip_ref.extractall(zip_dir)
 
-def get_urls(x86=True, x64=True, sdl2=True):
+def get_urls(x86=True, x64=True):
     url_sha1 = []
-    if sdl2:
-        url_sha1.extend([
-            [
-            'https://www.libsdl.org/release/SDL2-devel-2.0.14-VC.zip',
-            '48d5dcd4a445410301f5575219cffb6de654edb8',
-            ],
-            [
-            'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
-            '137f86474691f4e12e76e07d58d5920c8d844d5b',
-            ],
-            [
-            'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip',
-            '1436df41ebc47ac36e02ec9bda5699e80ff9bd27',
-            ],
-            [
-            'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
-            '9097148f4529cf19f805ccd007618dec280f0ecc',
-            ],
-            [
-            'https://www.ijg.org/files/jpegsr9d.zip',
-            'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
-            ],
-        ])
+    url_sha1.extend([
+        [
+        'https://www.libsdl.org/release/SDL2-devel-2.0.20-VC.zip',
+        '4824400cc7ee56cc05061734fa04be081241b67c',
+        ],
+        [
+        'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
+        '137f86474691f4e12e76e07d58d5920c8d844d5b',
+        ],
+        [
+        'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip',
+        '1436df41ebc47ac36e02ec9bda5699e80ff9bd27',
+        ],
+        [
+        'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
+        '9097148f4529cf19f805ccd007618dec280f0ecc',
+        ],
+        [
+        # 'https://www.ijg.org/files/jpegsr9d.zip',
+        # 'https://www.pygame.org/ftp/jpegsr9d.zip',
+        'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/jpegsr9d.zip',
+        'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
+        ],
+    ])
     if x86:
         url_sha1.append([
-         'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
+         # 'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x86-pygame-1.9.2-20150922.zip',
          'dbce1d5ea27b3da17273e047826d172e1c34b478'
         ])
     if x64:
         url_sha1.append([
-         'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
+         # 'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x64-pygame-1.9.2-20150922.zip',
          '3a5af3427b3aa13a0aaf5c4cb08daaed341613ed'
         ])
     return url_sha1
 
-def download_prebuilts(temp_dir, x86=True, x64=True, sdl2=True):
+def download_prebuilts(temp_dir, x86=True, x64=True):
     """ For downloading prebuilt dependencies.
     """
     if not os.path.exists(temp_dir):
         print("Making dir :%s:" % temp_dir)
         os.makedirs(temp_dir)
-    for url, checksum in get_urls(x86=x86, x64=x64, sdl2=sdl2):
+    for url, checksum in get_urls(x86=x86, x64=x64):
         download_sha1_unzip(url, checksum, temp_dir, 1)
 
 def create_ignore_target_fnc(x64=False, x86=False):
@@ -169,7 +172,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
         else:
             shutil.copy2(s, d)
 
-def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=True):
+def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
     """ puts the downloaded prebuilt files into the right place.
 
     Leaves the files in temp_dir. copies to move_to_dir
@@ -201,8 +204,6 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
     if x64:
         prebuilt_dirs.append('prebuilt-x64')
 
-    if not sdl2:
-        return
 
     for prebuilt_dir in prebuilt_dirs:
         path = os.path.join(move_to_dir, prebuilt_dir)
@@ -261,21 +262,21 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.14-VC/SDL2-2.0.14'
+                'SDL2-devel-2.0.20-VC/SDL2-2.0.20'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.14'
+                'SDL2-2.0.20'
             )
         )
 
-def update(x86=True, x64=True, sdl2=True):
+def update(x86=True, x64=True):
     move_to_dir = "."
-    download_prebuilts(download_dir, x86=x86, x64=x64, sdl2=sdl2)
-    place_downloaded_prebuilts(download_dir, move_to_dir, x86=x86, x64=x64, sdl2=sdl2)
+    download_prebuilts(download_dir, x86=x86, x64=x64)
+    place_downloaded_prebuilts(download_dir, move_to_dir, x86=x86, x64=x64)
 
-def ask(x86=True, x64=True, sdl2=True):
+def ask(x86=True, x64=True):
     move_to_dir = "."
     if x64:
         dest_str = "\"%s/prebuilt-x64\"" % move_to_dir
@@ -289,13 +290,13 @@ def ask(x86=True, x64=True, sdl2=True):
     download_prebuilt = True
 
     if download_prebuilt:
-        update(x86=x86, x64=x64, sdl2=sdl2)
+        update(x86=x86, x64=x64)
     return download_prebuilt
 
-def cached(x86=True, x64=True, sdl2=True):
+def cached(x86=True, x64=True):
     if not os.path.isdir(download_dir):
         return False
-    for url, check in get_urls(x86=x86, x64=x64, sdl2=sdl2):
+    for url, check in get_urls(x86=x86, x64=x64):
         filename = os.path.split(url)[-1]
         save_to = os.path.join(download_dir, filename)
         if not os.path.exists(save_to):

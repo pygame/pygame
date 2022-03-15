@@ -1,14 +1,12 @@
-import sys
 import re
 import weakref
 import gc
 import ctypes
 import unittest
 
-
 import pygame
 from pygame.bufferproxy import BufferProxy
-from pygame.compat import as_bytes
+
 
 try:
     BufferError
@@ -171,7 +169,7 @@ class BufferProxyTest(unittest.TestCase):
         def after_callback(parent):
             return r[1]
 
-        class Obj(object):
+        class Obj:
             pass
 
         p = Obj()
@@ -337,7 +335,7 @@ class BufferProxyTest(unittest.TestCase):
     def OLDBUF_test_oldbuf_arg(self):
         from pygame.bufferproxy import get_segcount, get_read_buffer, get_write_buffer
 
-        content = as_bytes("\x01\x00\x00\x02") * 12
+        content = b"\x01\x00\x00\x02" * 12
         memory = ctypes.create_string_buffer(content)
         memaddr = ctypes.addressof(memory)
 
@@ -415,7 +413,7 @@ class BufferProxyTest(unittest.TestCase):
 
 
 class BufferProxyLegacyTest(unittest.TestCase):
-    content = as_bytes("\x01\x00\x00\x02") * 12
+    content = b"\x01\x00\x00\x02" * 12
     buffer = ctypes.create_string_buffer(content)
     data = (ctypes.addressof(buffer), True)
 

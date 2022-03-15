@@ -53,6 +53,7 @@ class PyArrayInterface(Structure):
 
 
 PAI_Ptr = POINTER(PyArrayInterface)
+
 try:
     PyCObject_AsVoidPtr = pythonapi.PyCObject_AsVoidPtr
 except AttributeError:
@@ -60,20 +61,19 @@ except AttributeError:
     def PyCObject_AsVoidPtr(o):
         raise TypeError("Not available")
 
-
 else:
     PyCObject_AsVoidPtr.restype = c_void_p
     PyCObject_AsVoidPtr.argtypes = [py_object]
     PyCObject_GetDesc = pythonapi.PyCObject_GetDesc
     PyCObject_GetDesc.restype = c_void_p
     PyCObject_GetDesc.argtypes = [py_object]
+
 try:
     PyCapsule_IsValid = pythonapi.PyCapsule_IsValid
 except AttributeError:
 
     def PyCapsule_IsValid(capsule, name):
         return 0
-
 
 else:
     PyCapsule_IsValid.restype = c_int
@@ -85,24 +85,14 @@ else:
     PyCapsule_GetContext.restype = c_void_p
     PyCapsule_GetContext.argtypes = [py_object]
 
-if sys.version_info >= (3,):  # Python3
-    PyCapsule_Destructor = CFUNCTYPE(None, py_object)
-    PyCapsule_New = pythonapi.PyCapsule_New
-    PyCapsule_New.restype = py_object
-    PyCapsule_New.argtypes = [c_void_p, c_char_p, POINTER(PyCapsule_Destructor)]
-
-    def capsule_new(p):
-        return PyCapsule_New(addressof(p), None, None)
+PyCapsule_Destructor = CFUNCTYPE(None, py_object)
+PyCapsule_New = pythonapi.PyCapsule_New
+PyCapsule_New.restype = py_object
+PyCapsule_New.argtypes = [c_void_p, c_char_p, POINTER(PyCapsule_Destructor)]
 
 
-else:
-    PyCObject_Destructor = CFUNCTYPE(None, c_void_p)
-    PyCObject_FromVoidPtr = pythonapi.PyCObject_FromVoidPtr
-    PyCObject_FromVoidPtr.restype = py_object
-    PyCObject_FromVoidPtr.argtypes = [c_void_p, POINTER(PyCObject_Destructor)]
-
-    def capsule_new(p):
-        return PyCObject_FromVoidPtr(addressof(p), None)
+def capsule_new(p):
+    return PyCapsule_New(addressof(p), None, None)
 
 
 PAI_CONTIGUOUS = 0x01
@@ -113,7 +103,7 @@ PAI_WRITEABLE = 0x400
 PAI_ARR_HAS_DESCR = 0x800
 
 
-class ArrayInterface(object):
+class ArrayInterface:
     def __init__(self, arr):
         try:
             self._cobj = arr.__array_struct__
@@ -186,7 +176,7 @@ def format_strides(nd, strides):
     return ", ".join([str(strides[i]) for i in range(nd)])
 
 
-class Exporter(object):
+class Exporter:
     def __init__(
         self, shape, typekind=None, itemsize=None, strides=None, descr=None, flags=None
     ):

@@ -39,9 +39,6 @@ eventlist.py
    Watch the events fly by.  Click the mouse, and see the mouse
    event come up.  Press a keyboard key, and see the key up event.
 
-fastevents.py
-   Posting events from other threads? Check this out.
-
 font_viewer.py
    Display all available fonts in a scrolling window.
 
@@ -54,6 +51,9 @@ freetype_misc.py
 
 glcube.py
    Using PyOpenGL and Pygame, this creates a spinning 3D multicolored cube.
+
+go_over_there.py
+   Demonstrates Vector.move_towards.
 
 headless_no_windows_needed.py
    For using pygame in scripts.

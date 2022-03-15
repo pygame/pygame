@@ -1,0 +1,32 @@
+name: cppcheck Static Analysis
+
+# Run cppcheck on src_c changes to main branch, or any PR to main.
+on:
+  push:
+    branches: main
+    paths:
+      - 'src_c/**'
+
+  pull_request:
+    branches: main
+    paths:
+      - 'src_c/**'
+
+# TODO: Any more static checkers can be added here
+jobs:
+  run-cppcheck:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get upgrade
+          sudo apt install cppcheck
+
+      - name: Run Static Checker
+        # skip cppcheck on SDL_gfx and scrap for now
+        run: cppcheck src_c --force --enable=performance,portability,warning \
+          --suppress=*:src_c/SDL_gfx/* --suppress=*:src_c/scrap*

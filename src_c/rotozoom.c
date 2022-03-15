@@ -68,10 +68,10 @@ zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int smooth)
     /*
      * Allocate memory for row increments
      */
-    if ((sax = (int *)malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
+    if ((sax = (int *)malloc((dst->w + 1) * sizeof(int))) == NULL) {
         return (-1);
     }
-    if ((say = (int *)malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
+    if ((say = (int *)malloc((dst->h + 1) * sizeof(int))) == NULL) {
         free(sax);
         return (-1);
     }
@@ -606,11 +606,7 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
         /*
          * Turn on source-alpha support
          */
-#if IS_SDLv1
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-#else  /* IS_SDLv2 */
         SDL_SetSurfaceAlphaMod(rz_dst, SDL_ALPHA_OPAQUE);
-#endif /* IS_SDLv2 */
         /*
          * Unlock source surface
          */
@@ -657,11 +653,7 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
         /*
          * Turn on source-alpha support
          */
-#if IS_SDLv1
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-#else  /* IS_SDLv2 */
         SDL_SetSurfaceAlphaMod(rz_dst, SDL_ALPHA_OPAQUE);
-#endif /* IS_SDLv2 */
         /*
          * Unlock source surface
          */

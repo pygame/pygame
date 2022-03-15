@@ -32,16 +32,18 @@
 #endif
 
 #include <stdint.h>
-typedef uint8_t Uint8;    /* SDL convention */
-typedef uint16_t Uint16;  /* SDL convention */
+typedef uint8_t Uint8;   /* SDL convention */
+typedef uint16_t Uint16; /* SDL convention */
 #include <stdlib.h>
 #include <memory.h>
 #include "scale.h"
 
-/* These functions implement an area-averaging shrinking filter in the X-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * X-dimension.
  */
 void
-filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -51,7 +53,10 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
     long long One64 = 0x4000400040004000ULL;
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
-    asm __volatile__(" /* MMX code for X-shrink area average filter */ "
+
+    // clang-format off
+    asm __volatile__(
+        " /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == xrecipmmx */
         " punpcklwd     %%mm7,      %%mm7;           "
@@ -66,10 +71,12 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " movd           (%0),      %%mm2;           " /* mm2 = srcpix */
         " add              $4,         %0;           "
         " punpcklbw     %%mm0,      %%mm2;           "
-        " paddw         %%mm2,      %%mm1;           " /* accumulator += srcpix */
+        " paddw         %%mm2,      %%mm1;           " /* accumulator += srcpix
+                                                        */
         " subl        $0x4000,      %%ecx;           "
         " jmp              4f;                       "
-        "3:                                          " /* prepare to output a pixel */
+        "3:                                          " /* prepare to output a
+                                                          pixel */
         " movd          %%ecx,      %%mm2;           "
         " movq             %2,      %%mm3;           " /* mm3 = 2^14  */
         " punpcklwd     %%mm2,      %%mm2;           "
@@ -79,7 +86,8 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " punpcklbw     %%mm0,      %%mm4;           "
         " psubw         %%mm2,      %%mm3;           " /* mm3 = xfrac */
         " psllw            $2,      %%mm4;           "
-        " movq          %%mm4,      %%mm5;           " /* mm2 = (srcpix * xcounter >> 16) */
+        " movq          %%mm4,      %%mm5;           " /* mm2 = (srcpix *
+                                                          xcounter >> 16) */
         " psraw           $15,      %%mm5;           "
         " pand          %%mm2,      %%mm5;           "
         " movq          %%mm2,      %%mm6;           "
@@ -88,7 +96,8 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " pmulhw        %%mm4,      %%mm2;           "
         " paddw         %%mm5,      %%mm2;           "
         " paddw         %%mm6,      %%mm2;           "
-        " movq          %%mm4,      %%mm5;           " /* mm3 = (srcpix * xfrac) >> 16) */
+        " movq          %%mm4,      %%mm5;           " /* mm3 = (srcpix *
+                                                          xfrac) >> 16) */
         " psraw           $15,      %%mm5;           "
         " pand          %%mm3,      %%mm5;           "
         " movq          %%mm3,      %%mm6;           "
@@ -98,7 +107,8 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " paddw         %%mm5,      %%mm3;           "
         " paddw         %%mm6,      %%mm3;           "
         " paddw         %%mm1,      %%mm2;           "
-        " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix * xfrac) >> 16 */
+        " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix
+                                                          * xfrac) >> 16 */
         " movq          %%mm7,      %%mm5;           "
         " psraw           $15,      %%mm5;           "
         " pand          %%mm2,      %%mm5;           "
@@ -113,7 +123,8 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " add              %5,      %%ecx;           "
         " add              $4,         %1;           "
         " subl        $0x4000,      %%ecx;           "
-        "4:                                          " /* tail of inner X-loop */
+        "4:                                          " /* tail of inner X-loop
+                                                        */
         " decl          %%edx;                       "
         " jne              2b;                       "
         " add              %7,         %0;           " /* srcpix += srcdiff */
@@ -121,15 +132,17 @@ filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " decl             %3;                       "
         " jne              1b;                       "
         " emms;                                      "
-        : "+r"(srcpix), "+r"(dstpix)  /* outputs */
-        : "m"(One64),   "m"(height), "m"(srcwidth),
-          "m"(xspace),  "m"(xrecip), "m"(srcdiff64), "m"(dstdiff64)     /* inputs */
-        : "%ecx","%edx"               /* clobbered */
-        );
+        : "+r"(srcpix), "+r"(dstpix) /* outputs */
+        : "m"(One64), "m"(height), "m"(srcwidth), "m"(xspace), "m"(xrecip),
+          "m"(srcdiff64), "m"(dstdiff64) /* inputs */
+        : "%ecx", "%edx"                 /* clobbered */
+    );
+    // clang-format on
 }
 
 void
-filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -139,7 +152,10 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
     long long One64 = 0x4000400040004000ULL;
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
-    asm __volatile__(" /* MMX code for X-shrink area average filter */ "
+
+    // clang-format off
+    asm __volatile__(
+        " /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == xrecipmmx */
         " movq             %2,      %%mm6;           " /* mm6 = 2^14  */
@@ -154,10 +170,12 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " movd           (%0),      %%mm2;           " /* mm2 = srcpix */
         " add              $4,         %0;           "
         " punpcklbw     %%mm0,      %%mm2;           "
-        " paddw         %%mm2,      %%mm1;           " /* accumulator += srcpix */
+        " paddw         %%mm2,      %%mm1;           " /* accumulator += srcpix
+                                                        */
         " subl        $0x4000,      %%ecx;           "
         " jmp              4f;                       "
-        "3:                                          " /* prepare to output a pixel */
+        "3:                                          " /* prepare to output a
+                                                          pixel */
         " movd          %%ecx,      %%mm2;           "
         " movq          %%mm6,      %%mm3;           " /* mm3 = 2^14  */
         " pshufw    $0, %%mm2,      %%mm2;           "
@@ -166,17 +184,21 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " punpcklbw     %%mm0,      %%mm4;           "
         " psubw         %%mm2,      %%mm3;           " /* mm3 = xfrac */
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm2;           " /* mm2 = (srcpix * xcounter >> 16) */
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * xfrac) >> 16 */
+        " pmulhuw       %%mm4,      %%mm2;           " /* mm2 = (srcpix *
+                                                          xcounter >> 16) */
+        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix *
+                                                          xfrac) >> 16 */
         " paddw         %%mm1,      %%mm2;           "
-        " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix * xfrac) >> 16 */
+        " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix
+                                                          * xfrac) >> 16 */
         " pmulhuw       %%mm7,      %%mm2;           "
         " packuswb      %%mm0,      %%mm2;           "
         " movd          %%mm2,       (%1);           "
         " add              %5,      %%ecx;           "
         " add              $4,         %1;           "
         " subl        $0x4000,      %%ecx;           "
-        "4:                                          " /* tail of inner X-loop */
+        "4:                                          " /* tail of inner X-loop
+                                                        */
         " decl          %%edx;                       "
         " jne              2b;                       "
         " add              %7,         %0;           " /* srcpix += srcdiff */
@@ -184,17 +206,20 @@ filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         " decl             %3;                       "
         " jne              1b;                       "
         " emms;                                      "
-        : "+r"(srcpix), "+r"(dstpix)  /* outputs */
-        : "m"(One64),   "m"(height), "m"(srcwidth),
-          "m"(xspace),  "m"(xrecip), "m"(srcdiff64), "m"(dstdiff64)     /* inputs */
-        : "%ecx","%edx"               /* clobbered */
-        );
+        : "+r"(srcpix), "+r"(dstpix) /* outputs */
+        : "m"(One64), "m"(height), "m"(srcwidth), "m"(xspace), "m"(xrecip),
+          "m"(srcdiff64), "m"(dstdiff64) /* inputs */
+        : "%ecx", "%edx"                 /* clobbered */
+    );
+    // clang-format on
 }
 
-/* These functions implement an area-averaging shrinking filter in the Y-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * Y-dimension.
  */
 void
-filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     long long srcdiff64, dstdiff64;
@@ -205,12 +230,16 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     long long One64 = 0x4000400040004000ULL;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *)malloc(dstpitch * 2);
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
-    asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
+
+    // clang-format off
+    asm __volatile__(
+        " /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == yrecipmmx */
@@ -233,7 +262,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " jne              2b;                       "
         " subl        $0x4000,      %%ecx;           "
         " jmp              6f;                       "
-        "3:                                          " /* prepare to output a line */
+        "3:                                          " /* prepare to output a
+                                                          line */
         " movd          %%ecx,      %%mm1;           "
         " movl             %4,      %%edx;           " /* edx = width */
         " movq             %9,      %%mm6;           " /* mm6 = 2^14  */
@@ -247,7 +277,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " movq        (%%rax),      %%mm5;           " /* mm5 = accumulate */
         " movq          %%mm6,      %%mm3;           "
         " psllw            $2,      %%mm4;           "
-        " movq          %%mm4,      %%mm0;           " /* mm3 = (srcpix * yfrac) >> 16) */
+        " movq          %%mm4,      %%mm0;           " /* mm3 = (srcpix *
+                                                          yfrac) >> 16) */
         " psraw           $15,      %%mm0;           "
         " pand          %%mm3,      %%mm0;           "
         " movq          %%mm3,      %%mm2;           "
@@ -256,7 +287,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " pmulhw        %%mm4,      %%mm3;           "
         " paddw         %%mm0,      %%mm3;           "
         " paddw         %%mm2,      %%mm3;           "
-        " movq          %%mm1,      %%mm0;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " movq          %%mm1,      %%mm0;           " /* mm4 = (srcpix *
+                                                          ycounter >> 16) */
         " psraw           $15,      %%mm0;           "
         " pand          %%mm4,      %%mm0;           "
         " movq          %%mm4,      %%mm2;           "
@@ -286,23 +318,26 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " add              %8,         %1;           " /* dstpix += dstdiff */
         " addl             %5,      %%ecx;           "
         " subl        $0x4000,      %%ecx;           "
-        "6:                                          " /* tail of outer Y-loop */
+        "6:                                          " /* tail of outer Y-loop
+                                                        */
         " add              %7,         %0;           " /* srcpix += srcdiff */
         " decl             %3;                       "
         " jne              1b;                       "
         " emms;                                      "
-        : "+r"(srcpix), "+r"(dstpix)    /* outputs */
-        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),
-          "m"(yrecip),  "m"(srcdiff64), "m"(dstdiff64), "m"(One64)  /* input */
-        : "%ecx","%edx","%rax"          /* clobbered */
-        );
+        : "+r"(srcpix), "+r"(dstpix) /* outputs */
+        : "m"(templine), "m"(srcheight), "m"(width), "m"(yspace), "m"(yrecip),
+          "m"(srcdiff64), "m"(dstdiff64), "m"(One64) /* input */
+        : "%ecx", "%edx", "%rax"                     /* clobbered */
+    );
+    // clang-format on
 
     /* free the temporary memory */
     free(templine);
 }
 
 void
-filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     long long srcdiff64, dstdiff64;
@@ -313,12 +348,16 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     long long One64 = 0x4000400040004000ULL;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *)malloc(dstpitch * 2);
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
-    asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
+
+    // clang-format off
+    asm __volatile__(
+        " /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == yrecipmmx */
@@ -340,7 +379,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " jne              2b;                       "
         " subl        $0x4000,      %%ecx;           "
         " jmp              6f;                       "
-        "3:                                          " /* prepare to output a line */
+        "3:                                          " /* prepare to output a
+                                                          line */
         " movd          %%ecx,      %%mm1;           "
         " movl             %4,      %%edx;           " /* edx = width */
         " movq             %9,      %%mm6;           " /* mm6 = 2^14  */
@@ -353,8 +393,10 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " movq        (%%rax),      %%mm5;           " /* mm5 = accumulate */
         " movq          %%mm6,      %%mm3;           "
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * yfrac) >> 16 */
-        " pmulhuw       %%mm1,      %%mm4;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix *
+                                                          yfrac) >> 16 */
+        " pmulhuw       %%mm1,      %%mm4;           " /* mm4 = (srcpix *
+                                                          ycounter >> 16) */
         " movq          %%mm3,    (%%rax);           "
         " paddw         %%mm5,      %%mm4;           "
         " add              $8,      %%rax;           "
@@ -367,16 +409,18 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " add              %8,         %1;           " /* dstpix += dstdiff */
         " addl             %5,      %%ecx;           "
         " subl        $0x4000,      %%ecx;           "
-        "6:                                          " /* tail of outer Y-loop */
+        "6:                                          " /* tail of outer Y-loop
+                                                        */
         " add              %7,         %0;           " /* srcpix += srcdiff */
         " decl             %3;                       "
         " jne              1b;                       "
         " emms;                                      "
-        : "+r"(srcpix), "+r"(dstpix)    /* outputs */
-        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),
-          "m"(yrecip),  "m"(srcdiff64), "m"(dstdiff64), "m"(One64)  /* input */
-        : "%ecx","%edx","%rax"          /* clobbered */
-        );
+        : "+r"(srcpix), "+r"(dstpix) /* outputs */
+        : "m"(templine), "m"(srcheight), "m"(width), "m"(yspace), "m"(yrecip),
+          "m"(srcdiff64), "m"(dstdiff64), "m"(One64) /* input */
+        : "%ecx", "%edx", "%rax"                     /* clobbered */
+    );
+    // clang-format on
 
     /* free the temporary memory */
     free(templine);
@@ -385,7 +429,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
 /* These functions implement a bilinear filter in the X-dimension.
  */
 void
-filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
@@ -393,65 +438,69 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
-    if (xmult0 == 0 || xmult1 == 0)
-    {
+    if (xidx0 == 0)
+        return;
+    xmult0 = (int *)malloc(dstwidth * factorwidth);
+    xmult1 = (int *)malloc(dstwidth * factorwidth);
+    if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0) free(xmult0);
-        if (xmult1) free(xmult1);
+        if (xmult0)
+            free(xmult0);
+        if (xmult1)
+            free(xmult1);
         return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
-    for (x = 0; x < dstwidth; x++)
-    {
+    for (x = 0; x < dstwidth; x++) {
         int xm1 = 0x100 * ((x * (srcwidth - 1)) % dstwidth) / dstwidth;
         int xm0 = 0x100 - xm1;
         xidx0[x] = x * (srcwidth - 1) / dstwidth;
-        xmult1[x*2]   = xm1 | (xm1 << 16);
-        xmult1[x*2+1] = xm1 | (xm1 << 16);
-        xmult0[x*2]   = xm0 | (xm0 << 16);
-        xmult0[x*2+1] = xm0 | (xm0 << 16);
+        xmult1[x * 2] = xm1 | (xm1 << 16);
+        xmult1[x * 2 + 1] = xm1 | (xm1 << 16);
+        xmult0[x * 2] = xm0 | (xm0 << 16);
+        xmult0[x * 2 + 1] = xm0 | (xm0 << 16);
     }
 
     /* Do the scaling in raster order so we don't trash the cache */
-    for (y = 0; y < height; y++)
-    {
+    for (y = 0; y < height; y++) {
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
         int *xm1 = xmult1;
         int *x0 = xidx0;
-        asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
-             " movl             %5,      %%ecx;           "
-             " pxor          %%mm0,      %%mm0;           "
-             "1:                                          "
-             " movslq         (%3),      %%rax;           " /* get xidx0[x] */
-             " add              $4,         %3;           "
-             " movq           (%0),      %%mm1;           " /* load mult0 */
-             " add              $8,         %0;           "
-             " movq           (%1),      %%mm2;           " /* load mult1 */
-             " add              $8,         %1;           "
-             " movd   (%4,%%rax,4),      %%mm4;           "
-             " movd  4(%4,%%rax,4),      %%mm5;           "
-             " punpcklbw     %%mm0,      %%mm4;           "
-             " punpcklbw     %%mm0,      %%mm5;           "
-             " pmullw        %%mm1,      %%mm4;           "
-             " pmullw        %%mm2,      %%mm5;           "
-             " paddw         %%mm4,      %%mm5;           "
-             " psrlw            $8,      %%mm5;           "
-             " packuswb      %%mm0,      %%mm5;           "
-             " movd          %%mm5,       (%2);           "
-             " add              $4,         %2;           "
-             " decl          %%ecx;                       "
-             " jne              1b;                       "
-             " emms;                                      "
-             : "+r"(xm0),   "+r"(xm1), "+r"(dstrow), "+r"(x0) /* outputs */
-             : "r"(srcrow0),"m"(dstwidth)  /* input */
-             : "%ecx","%rax"                /* clobbered */
-             );
+
+        // clang-format off
+        asm __volatile__(
+            " /* MMX code for inner loop of X bilinear filter */ "
+            " movl             %5,      %%ecx;           "
+            " pxor          %%mm0,      %%mm0;           "
+            "1:                                          "
+            " movslq         (%3),      %%rax;           " /* get xidx0[x] */
+            " add              $4,         %3;           "
+            " movq           (%0),      %%mm1;           " /* load mult0 */
+            " add              $8,         %0;           "
+            " movq           (%1),      %%mm2;           " /* load mult1 */
+            " add              $8,         %1;           "
+            " movd   (%4,%%rax,4),      %%mm4;           "
+            " movd  4(%4,%%rax,4),      %%mm5;           "
+            " punpcklbw     %%mm0,      %%mm4;           "
+            " punpcklbw     %%mm0,      %%mm5;           "
+            " pmullw        %%mm1,      %%mm4;           "
+            " pmullw        %%mm2,      %%mm5;           "
+            " paddw         %%mm4,      %%mm5;           "
+            " psrlw            $8,      %%mm5;           "
+            " packuswb      %%mm0,      %%mm5;           "
+            " movd          %%mm5,       (%2);           "
+            " add              $4,         %2;           "
+            " decl          %%ecx;                       "
+            " jne              1b;                       "
+            " emms;                                      "
+            : "+r"(xm0), "+r"(xm1), "+r"(dstrow), "+r"(x0) /* outputs */
+            : "r"(srcrow0), "m"(dstwidth)                  /* input */
+            : "%ecx", "%rax"                               /* clobbered */
+        );
+        // clang-format on
     }
 
     /* free memory */
@@ -461,7 +510,8 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 }
 
 void
-filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
@@ -469,65 +519,69 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
-    if (xmult0 == 0 || xmult1 == 0)
-    {
+    if (xidx0 == 0)
+        return;
+    xmult0 = (int *)malloc(dstwidth * factorwidth);
+    xmult1 = (int *)malloc(dstwidth * factorwidth);
+    if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0) free(xmult0);
-        if (xmult1) free(xmult1);
+        if (xmult0)
+            free(xmult0);
+        if (xmult1)
+            free(xmult1);
         return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
-    for (x = 0; x < dstwidth; x++)
-    {
+    for (x = 0; x < dstwidth; x++) {
         int xm1 = 0x100 * ((x * (srcwidth - 1)) % dstwidth) / dstwidth;
         int xm0 = 0x100 - xm1;
         xidx0[x] = x * (srcwidth - 1) / dstwidth;
-        xmult1[x*2]   = xm1 | (xm1 << 16);
-        xmult1[x*2+1] = xm1 | (xm1 << 16);
-        xmult0[x*2]   = xm0 | (xm0 << 16);
-        xmult0[x*2+1] = xm0 | (xm0 << 16);
+        xmult1[x * 2] = xm1 | (xm1 << 16);
+        xmult1[x * 2 + 1] = xm1 | (xm1 << 16);
+        xmult0[x * 2] = xm0 | (xm0 << 16);
+        xmult0[x * 2 + 1] = xm0 | (xm0 << 16);
     }
 
     /* Do the scaling in raster order so we don't trash the cache */
-    for (y = 0; y < height; y++)
-    {
+    for (y = 0; y < height; y++) {
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
         int *xm1 = xmult1;
         int *x0 = xidx0;
-        asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
-             " movl             %5,      %%ecx;           "
-             " pxor          %%mm0,      %%mm0;           "
-             "1:                                          "
-             " movslq         (%3),      %%rax;           " /* get xidx0[x] */
-             " add              $4,         %3;           "
-             " movq           (%0),      %%mm1;           " /* load mult0 */
-             " add              $8,         %0;           "
-             " movq           (%1),      %%mm2;           " /* load mult1 */
-             " add              $8,         %1;           "
-             " movd   (%4,%%rax,4),      %%mm4;           "
-             " movd  4(%4,%%rax,4),      %%mm5;           "
-             " punpcklbw     %%mm0,      %%mm4;           "
-             " punpcklbw     %%mm0,      %%mm5;           "
-             " pmullw        %%mm1,      %%mm4;           "
-             " pmullw        %%mm2,      %%mm5;           "
-             " paddw         %%mm4,      %%mm5;           "
-             " psrlw            $8,      %%mm5;           "
-             " packuswb      %%mm0,      %%mm5;           "
-             " movd          %%mm5,       (%2);           "
-             " add              $4,         %2;           "
-             " decl          %%ecx;                       "
-             " jne              1b;                       "
-             " emms;                                      "
-             : "+r"(xm0),   "+r"(xm1), "+r"(dstrow), "+r"(x0) /* outputs */
-             : "r"(srcrow0),"m"(dstwidth)  /* input */
-             : "%ecx","%rax"                /* clobbered */
-             );
+
+        // clang-format off
+        asm __volatile__(
+            " /* MMX code for inner loop of X bilinear filter */ "
+            " movl             %5,      %%ecx;           "
+            " pxor          %%mm0,      %%mm0;           "
+            "1:                                          "
+            " movslq         (%3),      %%rax;           " /* get xidx0[x] */
+            " add              $4,         %3;           "
+            " movq           (%0),      %%mm1;           " /* load mult0 */
+            " add              $8,         %0;           "
+            " movq           (%1),      %%mm2;           " /* load mult1 */
+            " add              $8,         %1;           "
+            " movd   (%4,%%rax,4),      %%mm4;           "
+            " movd  4(%4,%%rax,4),      %%mm5;           "
+            " punpcklbw     %%mm0,      %%mm4;           "
+            " punpcklbw     %%mm0,      %%mm5;           "
+            " pmullw        %%mm1,      %%mm4;           "
+            " pmullw        %%mm2,      %%mm5;           "
+            " paddw         %%mm4,      %%mm5;           "
+            " psrlw            $8,      %%mm5;           "
+            " packuswb      %%mm0,      %%mm5;           "
+            " movd          %%mm5,       (%2);           "
+            " add              $4,         %2;           "
+            " decl          %%ecx;                       "
+            " jne              1b;                       "
+            " emms;                                      "
+            : "+r"(xm0), "+r"(xm1), "+r"(dstrow), "+r"(x0) /* outputs */
+            : "r"(srcrow0), "m"(dstwidth)                  /* input */
+            : "%ecx", "%rax"                               /* clobbered */
+        );
+        // clang-format on
     }
 
     /* free memory */
@@ -539,92 +593,99 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 /* These functions implement a bilinear filter in the Y-dimension
  */
 void
-filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     int y;
 
-    for (y = 0; y < dstheight; y++)
-    {
+    for (y = 0; y < dstheight; y++) {
         int yidx0 = y * (srcheight - 1) / dstheight;
         Uint8 *srcrow0 = srcpix + yidx0 * srcpitch;
         Uint8 *srcrow1 = srcrow0 + srcpitch;
         int ymult1 = 0x0100 * ((y * (srcheight - 1)) % dstheight) / dstheight;
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
-        asm __volatile__( " /* MMX code for inner loop of Y bilinear filter */ "
-             " movl          %5,      %%ecx;                      "
-             " movd          %3,      %%mm1;                      "
-             " movd          %4,      %%mm2;                      "
-             " pxor       %%mm0,      %%mm0;                      "
-             " punpcklwd  %%mm1,      %%mm1;                      "
-             " punpckldq  %%mm1,      %%mm1;                      "
-             " punpcklwd  %%mm2,      %%mm2;                      "
-             " punpckldq  %%mm2,      %%mm2;                      "
-             "1:                                                  "
-             " movd        (%0),      %%mm4;                      "
-             " add           $4,         %0;                      "
-             " movd        (%1),      %%mm5;                      "
-             " add           $4,         %1;                      "
-             " punpcklbw  %%mm0,      %%mm4;                      "
-             " punpcklbw  %%mm0,      %%mm5;                      "
-             " pmullw     %%mm1,      %%mm4;                      "
-             " pmullw     %%mm2,      %%mm5;                      "
-             " paddw      %%mm4,      %%mm5;                      "
-             " psrlw         $8,      %%mm5;                      "
-             " packuswb   %%mm0,      %%mm5;                      "
-             " movd       %%mm5,       (%2);                      "
-             " add           $4,         %2;                      "
-             " decl       %%ecx;                                  "
-             " jne           1b;                                  "
-             " emms;                                              "
-             : "+r"(srcrow0), "+r"(srcrow1), "+r"(dstrow)   /* outputs */
-             : "m"(ymult0),   "m"(ymult1),   "m"(width)    /* input */
-             : "%ecx"         /* clobbered */
-             );
+
+        // clang-format off
+        asm __volatile__(
+            " /* MMX code for inner loop of Y bilinear filter */ "
+            " movl          %5,      %%ecx;                      "
+            " movd          %3,      %%mm1;                      "
+            " movd          %4,      %%mm2;                      "
+            " pxor       %%mm0,      %%mm0;                      "
+            " punpcklwd  %%mm1,      %%mm1;                      "
+            " punpckldq  %%mm1,      %%mm1;                      "
+            " punpcklwd  %%mm2,      %%mm2;                      "
+            " punpckldq  %%mm2,      %%mm2;                      "
+            "1:                                                  "
+            " movd        (%0),      %%mm4;                      "
+            " add           $4,         %0;                      "
+            " movd        (%1),      %%mm5;                      "
+            " add           $4,         %1;                      "
+            " punpcklbw  %%mm0,      %%mm4;                      "
+            " punpcklbw  %%mm0,      %%mm5;                      "
+            " pmullw     %%mm1,      %%mm4;                      "
+            " pmullw     %%mm2,      %%mm5;                      "
+            " paddw      %%mm4,      %%mm5;                      "
+            " psrlw         $8,      %%mm5;                      "
+            " packuswb   %%mm0,      %%mm5;                      "
+            " movd       %%mm5,       (%2);                      "
+            " add           $4,         %2;                      "
+            " decl       %%ecx;                                  "
+            " jne           1b;                                  "
+            " emms;                                              "
+            : "+r"(srcrow0), "+r"(srcrow1), "+r"(dstrow) /* outputs */
+            : "m"(ymult0), "m"(ymult1), "m"(width)       /* input */
+            : "%ecx"                                     /* clobbered */
+        );
+        // clang-format on
     }
 }
 
 void
-filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight)
 {
     int y;
 
-    for (y = 0; y < dstheight; y++)
-    {
+    for (y = 0; y < dstheight; y++) {
         int yidx0 = y * (srcheight - 1) / dstheight;
         Uint8 *srcrow0 = srcpix + yidx0 * srcpitch;
         Uint8 *srcrow1 = srcrow0 + srcpitch;
         int ymult1 = 0x0100 * ((y * (srcheight - 1)) % dstheight) / dstheight;
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
-        asm __volatile__( " /* MMX code for inner loop of Y bilinear filter */ "
-             " movl          %5,      %%ecx;                      "
-             " movd          %3,      %%mm1;                      "
-             " movd          %4,      %%mm2;                      "
-             " pxor       %%mm0,      %%mm0;                      "
-             " pshufw      $0, %%mm1, %%mm1;                      "
-             " pshufw      $0, %%mm2, %%mm2;                      "
-             "1:                                                  "
-             " movd        (%0),      %%mm4;                      "
-             " add           $4,         %0;                      "
-             " movd        (%1),      %%mm5;                      "
-             " add           $4,         %1;                      "
-             " punpcklbw  %%mm0,      %%mm4;                      "
-             " punpcklbw  %%mm0,      %%mm5;                      "
-             " pmullw     %%mm1,      %%mm4;                      "
-             " pmullw     %%mm2,      %%mm5;                      "
-             " paddw      %%mm4,      %%mm5;                      "
-             " psrlw         $8,      %%mm5;                      "
-             " packuswb   %%mm0,      %%mm5;                      "
-             " movd       %%mm5,       (%2);                      "
-             " add           $4,         %2;                      "
-             " decl       %%ecx;                                  "
-             " jne           1b;                                  "
-             " emms;                                              "
-             : "+r"(srcrow0), "+r"(srcrow1), "+r"(dstrow)   /* outputs */
-             : "m"(ymult0),   "m"(ymult1),   "m"(width)    /* input */
-             : "%ecx"         /* clobbered */
-             );
+
+        // clang-format off
+        asm __volatile__(
+            " /* MMX code for inner loop of Y bilinear filter */ "
+            " movl          %5,      %%ecx;                      "
+            " movd          %3,      %%mm1;                      "
+            " movd          %4,      %%mm2;                      "
+            " pxor       %%mm0,      %%mm0;                      "
+            " pshufw      $0, %%mm1, %%mm1;                      "
+            " pshufw      $0, %%mm2, %%mm2;                      "
+            "1:                                                  "
+            " movd        (%0),      %%mm4;                      "
+            " add           $4,         %0;                      "
+            " movd        (%1),      %%mm5;                      "
+            " add           $4,         %1;                      "
+            " punpcklbw  %%mm0,      %%mm4;                      "
+            " punpcklbw  %%mm0,      %%mm5;                      "
+            " pmullw     %%mm1,      %%mm4;                      "
+            " pmullw     %%mm2,      %%mm5;                      "
+            " paddw      %%mm4,      %%mm5;                      "
+            " psrlw         $8,      %%mm5;                      "
+            " packuswb   %%mm0,      %%mm5;                      "
+            " movd       %%mm5,       (%2);                      "
+            " add           $4,         %2;                      "
+            " decl       %%ecx;                                  "
+            " jne           1b;                                  "
+            " emms;                                              "
+            : "+r"(srcrow0), "+r"(srcrow1), "+r"(dstrow) /* outputs */
+            : "m"(ymult0), "m"(ymult1), "m"(width)       /* input */
+            : "%ecx"                                     /* clobbered */
+        );
+        // clang-format on
     }
 }
-

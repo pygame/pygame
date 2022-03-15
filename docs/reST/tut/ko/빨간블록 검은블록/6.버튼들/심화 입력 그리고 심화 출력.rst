@@ -30,7 +30,7 @@ KEYDOWN가 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    ball = pygame.image.load("AdvancedInputOutput1.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -62,7 +62,7 @@ KEYDOWN가 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    ball = pygame.image.load("AdvancedInputOutput2.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -96,7 +96,7 @@ KEYDOWN가 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    ball = pygame.image.load("AdvancedInputOutput3.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -128,7 +128,7 @@ KEYDOWN가 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    ball = pygame.image.load("AdvancedInputOutput4.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 
@@ -160,7 +160,7 @@ KEYDOWN가 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    ball = pygame.image.load("AdvancedInputOutput5.gif")
    ballrect = ball.get_rect()
 
-   while 1:
+   while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
 

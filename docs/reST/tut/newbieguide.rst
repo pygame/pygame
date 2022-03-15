@@ -23,7 +23,7 @@ platforms (Windows, Unix, Mac, BeOS and others).
 
 Pygame may be easy to learn, but the world of graphics programming can be
 pretty confusing to the newcomer.  I wrote this to try to distill the practical
-knowledge I've gained over the past year or so of working with pygame, and it's
+knowledge I've gained over the past year or so of working with pygame, and its
 predecessor, PySDL.  I've tried to rank these suggestions in order of
 importance, but how relevant any particular hint is will depend on your own
 background and the details of your project.
@@ -155,7 +155,7 @@ for a moving sprite, I:
  * Blit a piece of the background over the sprite's current location, erasing it.
  * Append the sprite's current location rectangle to a list called dirty_rects.
  * Move the sprite.
- * Draw the sprite at it's new location.
+ * Draw the sprite at its new location.
  * Append the sprite's new location to my dirty_rects list.
  * Call ``display.update(dirty_rects)``
 
@@ -184,6 +184,8 @@ There is NO rule six.
 Hardware surfaces are more trouble than they're worth.
 ------------------------------------------------------
 
+**Especially in pygame 2, because HWSURFACE now does nothing**
+
 If you've been looking at the various flags you can use with
 ``pygame.display.set_mode()``, you may have thought like this: `Hey,
 HWSURFACE! Well, I want that -- who doesn't like hardware acceleration. Ooo...
@@ -203,7 +205,7 @@ Unfortunately, hardware rendering comes with a long list of drawbacks:
 
  * It might be slower anyway. Many drivers are not accelerated for the types of drawing that we do, and since everything has to be blitted across the video bus (unless you can cram your source surface into video memory as well), it might end up being slower than software access anyway.
 
-Hardware rendering has it's place. It works pretty reliably under Windows, so
+Hardware rendering has its place. It works pretty reliably under Windows, so
 if you're not interested in cross-platform performance, it may provide you with
 a substantial speed increase.  However, it comes at a cost -- increased
 headaches and complexity.  It's best to stick with good old reliable
@@ -309,7 +311,7 @@ want to know whether the ``t`` and ``f`` keys are down at the same time, just
 check::
 
     if (key.get_pressed[K_t] and key.get_pressed[K_f]):
-        print "Yup!"
+        print("Yup!")
 
 In the queue system, however, each keypress arrives in the queue as a
 completely separate event, so you'd need to remember that the ``t`` key was
@@ -325,7 +327,7 @@ still be sitting in the event queue, however, waiting to be retrieved and
 processed.
 
 The lesson is: choose the system that meets your requirements.  If you don't
-have much going on in your loop -- say you're just sitting in a ``while 1``
+have much going on in your loop -- say you're just sitting in a ``while True``
 loop, waiting for input, use ``get_pressed()`` or another state function; the
 latency will be lower.  On the other hand, if every keypress is crucial, but
 latency isn't as important -- say your user is typing something in an editbox,

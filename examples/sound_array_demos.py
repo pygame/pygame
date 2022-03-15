@@ -26,8 +26,7 @@ pg.mixer.init()
 
 
 def make_echo(sound, samples_per_second, mydebug=True):
-    """ returns a sound which is echoed of the last one.
-    """
+    """returns a sound which is echoed of the last one."""
 
     echo_length = 3.5
 
@@ -80,8 +79,8 @@ def make_echo(sound, samples_per_second, mydebug=True):
 
 
 def slow_down_sound(sound, rate):
-    """  returns a sound which is a slowed down version of the original.
-           rate - at which the sound should be slowed down.  eg. 0.5 would be half speed.
+    """returns a sound which is a slowed down version of the original.
+    rate - at which the sound should be slowed down.  eg. 0.5 would be half speed.
     """
 
     raise NotImplementedError()
@@ -103,9 +102,9 @@ def slow_down_sound(sound, rate):
 
 
 def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
-    """  returns a sound which begins at the start_pos.
-         start_pos - in seconds from the begining.
-         samples_per_second -
+    """returns a sound which begins at the start_pos.
+    start_pos - in seconds from the begining.
+    samples_per_second -
     """
 
     # see if we want to reuse the sound data or not.
@@ -132,8 +131,7 @@ def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
 
 
 def main():
-    """play various sndarray effects
-    """
+    """play various sndarray effects"""
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
     print("mixer.get_init %s" % (pg.mixer.get_init(),))

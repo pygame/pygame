@@ -1,0 +1,6 @@
+# This is an "allowlist" used by mypy stubtest. The modules/classes/functions
+# listed here are not checked by the mypy stubtest program
+
+# This is not a real typestub file, it is used only in the typestubs to export
+# a few utility typestub definitions
+pygame._common

@@ -40,7 +40,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 extern int
-SDL_RegisterApp(char *, Uint32, void *);
+SDL_RegisterApp(const char *, Uint32, void *);
 #endif
 
 #if defined(macintosh)
@@ -79,11 +79,9 @@ static PyObject *pgExc_BufferError = NULL;
 static PyObject *pg_quit_functions = NULL;
 static int pg_is_init = 0;
 static int pg_sdl_was_init = 0;
-#if IS_SDLv2
 SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
-static char * pg_env_blend_alpha_SDL2 = NULL;
-#endif /* IS_SDLv2 */
+static char *pg_env_blend_alpha_SDL2 = NULL;
 
 static void
 pg_install_parachute(void);
@@ -148,10 +146,8 @@ static int
 _pg_as_arrayinter_flags(Py_buffer *);
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *);
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *);
-#endif
 static PyObject *
 _pg_shape_as_tuple(PyArrayInterface *);
 static PyObject *
@@ -166,7 +162,6 @@ static void
 _pg_release_buffer_array(Py_buffer *);
 static void
 _pg_release_buffer_generic(Py_buffer *);
-#if IS_SDLv2
 static SDL_Window *
 pg_GetDefaultWindow(void);
 static void
@@ -177,29 +172,10 @@ static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
-#endif /* IS_SDLv2 */
 
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
-#if IS_SDLv1
-    SDL_version compiled;
-    const SDL_version *linked;
-
-    SDL_VERSION(&compiled);
-    linked = SDL_Linked_Version();
-
-    /*only check the major and minor version numbers.
-      we will relax any differences in 'patch' version.*/
-
-    if (compiled.major != linked->major || compiled.minor != linked->minor) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
-                     compiled.major, compiled.minor, compiled.patch,
-                     linked->major, linked->minor, linked->patch);
-        return 0;
-    }
-#else  /* IS_SDLv2 */
     SDL_version compiled;
     SDL_version linked;
 
@@ -232,7 +208,6 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked.major, linked.minor, linked.patch);
         return 0;
     }
-#endif /* IS_SDLv2 */
 
     return 1;
 }
@@ -349,17 +324,10 @@ pg_init(PyObject *self)
     /* Put all the module names we want to init in this array */
     const char *modnames[] = {
         IMPPREFIX "display", /* Display first, this also inits event,time */
-        IMPPREFIX "joystick",
-        IMPPREFIX "font",
-        IMPPREFIX "freetype",
+        IMPPREFIX "joystick", IMPPREFIX "font", IMPPREFIX "freetype",
         IMPPREFIX "mixer",
-#if IS_SDLv2
         /* IMPPREFIX "_sdl2.controller", Is this required? Comment for now*/
-#else
-        IMPPREFIX "cdrom",
-#endif
-        NULL
-    };
+        NULL};
 
     if (!pg_CheckSDLVersions()) {
         return NULL;
@@ -373,9 +341,7 @@ pg_init(PyObject *self)
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
 
-#if IS_SDLv2
     pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
-#endif /* IS_SDLv2 */
 
     /* initialize all pygame modules */
     for (i = 0; modnames[i]; i++) {
@@ -409,17 +375,10 @@ pg_atexit_quit(void)
 static PyObject *
 pg_get_sdl_version(PyObject *self)
 {
-#if IS_SDLv1
-    const SDL_version *v;
-
-    v = SDL_Linked_Version();
-    return Py_BuildValue("iii", v->major, v->minor, v->patch);
-#else  /* IS_SDLv2 */
     SDL_version v;
 
     SDL_GetVersion(&v);
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
@@ -431,29 +390,25 @@ pg_get_sdl_byteorder(PyObject *self)
 static void
 _pg_quit(void)
 {
-    int num, i;
+    Py_ssize_t num, i;
     PyObject *quit, *privatefuncs, *temp;
 
     /* Put all the module names we want to quit in this array */
     const char *modnames[] = {
-#if IS_SDLv2
         /* IMPPREFIX "_sdl2.controller", Is this required?, comment for now */
-#else
-        IMPPREFIX "cdrom"
-#endif
         IMPPREFIX "mixer",
         IMPPREFIX "freetype",
         IMPPREFIX "font",
         IMPPREFIX "joystick",
         IMPPREFIX "display", /* Display last, this also quits event,time */
-        NULL
-    };
+        NULL};
 
     if (pg_quit_functions) {
         privatefuncs = pg_quit_functions;
         pg_quit_functions = NULL;
 
-        pg_uninstall_parachute(); /* Is this done here, or can it be done below? */
+        pg_uninstall_parachute(); /* Is this done here, or can it be done
+                                     below? */
         num = PyList_Size(privatefuncs);
 
         /*quit funcs in reverse order*/
@@ -490,7 +445,11 @@ _pg_quit(void)
 
     pg_is_init = 0;
 
+    /* Release the GIL here, because the timer thread cleanups should happen
+     * without deadlocking. */
+    Py_BEGIN_ALLOW_THREADS;
     pg_atexit_quit();
+    Py_END_ALLOW_THREADS;
 }
 
 static PyObject *
@@ -514,12 +473,13 @@ pg_IntFromObj(PyObject *obj, int *val)
 
     if (PyFloat_Check(obj)) {
         /* Python3.8 complains with deprecation warnings if we pass
-         * floats to PyInt_AsLong.
+         * floats to PyLong_AsLong.
          */
         double dv = PyFloat_AsDouble(obj);
         tmp_val = (int)dv;
-    } else {
-        tmp_val = PyInt_AsLong(obj);
+    }
+    else {
+        tmp_val = PyLong_AsLong(obj);
     }
 
     if (tmp_val == -1 && PyErr_Occurred()) {
@@ -536,10 +496,12 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_IntFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_IntFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -579,10 +541,12 @@ pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_FloatFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_FloatFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -609,10 +573,15 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
         PyObject *longobj;
 
         if (!(longobj = PyNumber_Long(obj))) {
+            PyErr_Clear();
             return 0;
         }
         *val = (Uint32)PyLong_AsUnsignedLong(longobj);
         Py_DECREF(longobj);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
         return 1;
     }
     return 0;
@@ -624,10 +593,12 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
-    if (item) {
-        result = pg_UintFromObj(item, val);
-        Py_DECREF(item);
+    if (!item) {
+        PyErr_Clear();
+        return 0;
     }
+    result = pg_UintFromObj(item, val);
+    Py_DECREF(item);
     return result;
 }
 
@@ -674,35 +645,25 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self)
 {
-#if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
-    /* SDL 1's encoding is ambiguous */
-    PyObject *obj;
-    if ((obj = PyUnicode_DecodeUTF8(SDL_GetError(),
-                                   strlen(SDL_GetError()), "strict")))
-        return obj;
-    PyErr_Clear();
-    return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
-#else /* IS_SDLv2 || !PY3 */
-    return Text_FromUTF8(SDL_GetError());
-#endif /* IS_SDLv2 || !PY3 */
+    return PyUnicode_FromString(SDL_GetError());
 }
 
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-#if PY2 || defined(PYPY_VERSION)
+#if defined(PYPY_VERSION)
     if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring))
         return NULL;
 
     SDL_SetError("%s", errstring);
     PyMem_Free(errstring);
-#else /* PY3 */
+#else
     if (!PyArg_ParseTuple(args, "s", &errstring)) {
         return NULL;
     }
     SDL_SetError("%s", errstring);
-#endif /* PY3 */
+#endif
     Py_RETURN_NONE;
 }
 
@@ -722,16 +683,10 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
         return -1;
     }
 
-#if PG_HAVE_COBJECT
-    if (PyCObject_Check(cobj)) {
-        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
-    }
-#endif
-#if PG_HAVE_CAPSULE
     if (PyCapsule_IsValid(cobj, NULL)) {
         inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
     }
-#endif
+
     if (inter == NULL || inter->two != 2 /* conditional or */) {
         Py_DECREF(cobj);
         PyErr_SetString(PyExc_ValueError, "invalid array interface");
@@ -790,11 +745,7 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     if (!cinter_p) {
         return 0;
     }
-#if PY3
     capsule = PyCapsule_New(cinter_p, 0, _pg_capsule_PyMem_Free);
-#else
-    capsule = PyCObject_FromVoidPtr(cinter_p, PyMem_Free);
-#endif
     if (!capsule) {
         PyMem_Free(cinter_p);
         return 0;
@@ -820,7 +771,7 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     cinter_p->inter.two = 2;
     cinter_p->inter.nd = ndim;
     cinter_p->inter.typekind = _pg_as_arrayinter_typekind(view_p);
-    cinter_p->inter.itemsize = view_p->itemsize;
+    cinter_p->inter.itemsize = (int)view_p->itemsize;
     cinter_p->inter.flags = _pg_as_arrayinter_flags(view_p);
     if (view_p->shape) {
         cinter_p->inter.shape = cinter_p->imem;
@@ -839,13 +790,11 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     return cinter_p;
 }
 
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *capsule)
 {
     PyMem_Free(PyCapsule_GetPointer(capsule, 0));
 }
-#endif
 
 static int
 _pg_as_arrayinter_flags(Py_buffer *view_p)
@@ -868,9 +817,9 @@ _pg_as_arrayinter_flags(Py_buffer *view_p)
 static PyObject *
 pg_view_get_typestr_obj(Py_buffer *view)
 {
-    return Text_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
-                           _pg_as_arrayinter_typekind(view),
-                           (int)view->itemsize);
+    return PyUnicode_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
+                                _pg_as_arrayinter_typekind(view),
+                                (int)view->itemsize);
 }
 
 static PyObject *
@@ -884,7 +833,7 @@ pg_view_get_shape_obj(Py_buffer *view)
         return 0;
     }
     for (i = 0; i < view->ndim; ++i) {
-        lengthobj = PyInt_FromLong((long)view->shape[i]);
+        lengthobj = PyLong_FromLong((long)view->shape[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -905,7 +854,7 @@ pg_view_get_strides_obj(Py_buffer *view)
         return 0;
     }
     for (i = 0; i < view->ndim; ++i) {
-        lengthobj = PyInt_FromLong((long)view->strides[i]);
+        lengthobj = PyLong_FromLong((long)view->strides[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -1005,7 +954,7 @@ _pg_shape_as_tuple(PyArrayInterface *inter_p)
         return 0;
     }
     for (i = 0; i < inter_p->nd; ++i) {
-        lengthobj = PyInt_FromLong((long)inter_p->shape[i]);
+        lengthobj = PyLong_FromLong((long)inter_p->shape[i]);
         if (!lengthobj) {
             Py_DECREF(shapeobj);
             return 0;
@@ -1018,7 +967,7 @@ _pg_shape_as_tuple(PyArrayInterface *inter_p)
 static PyObject *
 _pg_typekind_as_str(PyArrayInterface *inter_p)
 {
-    return Text_FromFormat(
+    return PyUnicode_FromFormat(
         "%c%c%i",
         inter_p->itemsize > 1
             ? ((inter_p->flags & PAI_NOTSWAPPED) ? PAI_MY_ENDIAN
@@ -1038,7 +987,7 @@ _pg_strides_as_tuple(PyArrayInterface *inter_p)
         return 0;
     }
     for (i = 0; i < inter_p->nd; ++i) {
-        lengthobj = PyInt_FromLong((long)inter_p->strides[i]);
+        lengthobj = PyLong_FromLong((long)inter_p->strides[i]);
         if (!lengthobj) {
             Py_DECREF(stridesobj);
             return 0;
@@ -1238,10 +1187,20 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     if (view->format) {
         switch (view->format[0]) {
             case '<':
-                return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
             case '>':
             case '!':
-                return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
         }
     }
     return 0;
@@ -1262,7 +1221,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     if (!PyDict_Check(inter)) {
         PyErr_Format(PyExc_ValueError,
                      "expected '__array_interface__' to return a dict: got %s",
-                     Py_TYPE(dict)->tp_name);
+                     Py_TYPE(inter)->tp_name);
         Py_DECREF(inter);
         return -1;
     }
@@ -1561,19 +1520,15 @@ _pg_typestr_check(PyObject *op)
         return -1;
     }
     if (PyUnicode_Check(op)) {
-#if PY2
-        Py_ssize_t len = PyUnicode_GET_SIZE(op);
-#else
         Py_ssize_t len = PyUnicode_GET_LENGTH(op);
-#endif
         if (len != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
             return -1;
         }
     }
-    else if (Bytes_Check(op)) {
-        if (Bytes_GET_SIZE(op) != 3) {
+    else if (PyBytes_Check(op)) {
+        if (PyBytes_GET_SIZE(op) != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
             return -1;
@@ -1605,7 +1560,7 @@ _pg_data_check(PyObject *op)
         return -1;
     }
     item = PyTuple_GET_ITEM(op, 0);
-    if (!INT_CHECK(item)) {
+    if (!PyLong_Check(item)) {
         PyErr_SetString(PyExc_ValueError,
                         "expected an int for item 0 of 'data'");
         return -1;
@@ -1637,7 +1592,7 @@ _pg_is_int_tuple(PyObject *op)
     n = PyTuple_GET_SIZE(op);
     for (i = 0; i != n; ++i) {
         ip = PyTuple_GET_ITEM(op, i);
-        if (!INT_CHECK(ip)) {
+        if (!PyLong_Check(ip)) {
             return 0;
         }
     }
@@ -1660,7 +1615,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
                         "'shape' and 'strides' are not the same length");
         return -1;
     }
-    view_p->ndim = ndim;
+    view_p->ndim = (int)ndim;
     view_p->buf = PyLong_AsVoidPtr(PyTuple_GET_ITEM(data, 0));
     if (!view_p->buf && PyErr_Occurred()) {
         return -1;
@@ -1766,7 +1721,7 @@ _pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t *arr)
     Py_ssize_t n = PyTuple_GET_SIZE(tp);
 
     for (i = 0; i != n; ++i) {
-        arr[i] = PyInt_AsSsize_t(PyTuple_GET_ITEM(tp, i));
+        arr[i] = PyLong_AsSsize_t(PyTuple_GET_ITEM(tp, i));
         if (arr[i] == -1 && PyErr_Occurred()) {
             return -1;
         }
@@ -1791,7 +1746,7 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     else {
         Py_INCREF(sp);
     }
-    typestr = Bytes_AsString(sp);
+    typestr = PyBytes_AsString(sp);
     switch (typestr[0]) {
         case PAI_MY_ENDIAN:
         case '|':
@@ -1949,7 +1904,6 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-#if IS_SDLv2
 /*Default window(display)*/
 static SDL_Window *
 pg_GetDefaultWindow(void)
@@ -1994,7 +1948,6 @@ pg_EnvShouldBlendAlphaSDL2(void)
 {
     return pg_env_blend_alpha_SDL2;
 }
-#endif /* IS_SDLv2 */
 
 /*error signal handlers(replacing SDL parachute)*/
 static void
@@ -2112,20 +2065,12 @@ pg_uninstall_parachute(void)
 
 /* bind functions to python */
 
-static PyObject *
-pg_do_segfault(PyObject *self, PyObject *args)
-{
-    // force crash
-    *((int *)1) = 45;
-    memcpy((char *)2, (char *)3, 10);
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
     {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
-    {"register_quit", (PyCFunction)pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
+    {"register_quit", (PyCFunction)pg_register_quit, METH_O,
+     DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
     {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
@@ -2135,20 +2080,15 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
-
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
 {
-    static int is_loaded = 0;
-    PyObject *module, *dict, *apiobj;
-    PyObject *atexit_register = NULL;
+    PyObject *module, *apiobj, *atexit;
+    PyObject *atexit_register;
     PyObject *pgExc_SDLError;
-    int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "base",
                                          "",
@@ -2158,65 +2098,42 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
-    if (!is_loaded) {
-        /* import need modules. Do this first so if there is an error
-           the module is not loaded.
-        */
-        PyObject *atexit = PyImport_ImportModule("atexit");
+    /* import need modules. Do this first so if there is an error
+        the module is not loaded.
+    */
+    atexit = PyImport_ImportModule("atexit");
+    if (!atexit) {
+        return NULL;
+    }
 
-        if (!atexit) {
-            MODINIT_ERROR;
-        }
-        atexit_register = PyObject_GetAttrString(atexit, "register");
-        Py_DECREF(atexit);
-        if (!atexit_register) {
-            MODINIT_ERROR;
-        }
+    atexit_register = PyObject_GetAttrString(atexit, "register");
+    Py_DECREF(atexit);
+    if (!atexit_register) {
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "base", _base_methods, DOC_PYGAME);
-#endif
-    if (module == NULL) {
-        MODINIT_ERROR;
+    if (!module) {
+        goto error;
     }
-    dict = PyModule_GetDict(module);
 
     /* create the exceptions */
     pgExc_SDLError =
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    ecode = PyDict_SetItemString(dict, "error", pgExc_SDLError);
-    Py_DECREF(pgExc_SDLError);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, "error", pgExc_SDLError)) {
+        Py_XDECREF(pgExc_SDLError);
+        goto error;
     }
 
     pgExc_BufferError =
         PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
-
-    if (pgExc_SDLError == NULL) {
-        Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    ecode = PyDict_SetItemString(dict, "BufferError", pgExc_BufferError);
-    if (ecode) {
-        Py_DECREF(pgExc_BufferError);
-        Py_XDECREF(atexit_register);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    /* Because we need a reference to BufferError in the base module */
+    Py_XINCREF(pgExc_BufferError);
+    if (PyModule_AddObject(module, "BufferError", pgExc_BufferError)) {
+        Py_XDECREF(pgExc_BufferError);
+        goto error;
     }
 
     /* export the c api */
@@ -2239,83 +2156,60 @@ MODINIT_DEFINE(base)
     c_api[16] = pgBuffer_Release;
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
-#if IS_SDLv1
-#define FILLED_SLOTS 19
-#else /* IS_SDLv2 */
     c_api[19] = pg_GetDefaultWindow;
     c_api[20] = pg_SetDefaultWindow;
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
 #define FILLED_SLOTS 24
-#endif /* IS_SDLv2 */
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
 #endif
 
     apiobj = encapsulate_api(c_api, "base");
-    if (apiobj == NULL) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        goto error;
     }
 
     if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
-        Py_XDECREF(atexit_register);
-        Py_DECREF(pgExc_BufferError);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        goto error;
     }
 
-    if (!is_loaded) {
-        /*some intialization*/
-        PyObject *quit = PyObject_GetAttrString(module, "quit");
-        PyObject *rval;
+    /*some intialization*/
+    PyObject *quit = PyObject_GetAttrString(module, "quit");
+    PyObject *rval;
 
-        if (quit == NULL) { /* assertion */
-            Py_DECREF(atexit_register);
-            Py_DECREF(pgExc_BufferError);
-            DECREF_MOD(module);
-            MODINIT_ERROR;
-        }
-        rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
-        Py_DECREF(atexit_register);
-        Py_DECREF(quit);
-        if (rval == NULL) {
-            DECREF_MOD(module);
-            Py_DECREF(pgExc_BufferError);
-            MODINIT_ERROR;
-        }
-        Py_DECREF(rval);
-        Py_AtExit(pg_atexit_quit);
+    if (!quit) { /* assertion */
+        goto error;
+    }
+    rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
+    Py_DECREF(atexit_register);
+    Py_DECREF(quit);
+    atexit_register = NULL;
+    if (!rval) {
+        goto error;
+    }
+    Py_DECREF(rval);
+    Py_AtExit(pg_atexit_quit);
 #ifdef HAVE_SIGNAL_H
-        pg_install_parachute();
+    pg_install_parachute();
 #endif
 
 #ifdef MS_WIN32
-        SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+    SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
-#if defined(macintosh)
-#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-        SDL_InitQuickDraw(&pg_qd);
-#endif
-#endif
-    }
 
     if (!pg_CheckSDLVersions()) {
-        MODINIT_ERROR;
+        goto error;
     }
 
-    is_loaded = 1;
-    MODINIT_RETURN(module);
+    return module;
+
+error:
+    Py_XDECREF(pgExc_BufferError);
+    Py_XDECREF(atexit_register);
+    Py_XDECREF(module);
+    return NULL;
 }

@@ -1,7 +1,7 @@
-# cython: language_level=2
+# cython: language_level=3str
 #
 
-from sdl2 cimport *
+from .sdl2 cimport *
 
 cdef extern from "SDL.h" nogil:
     ctypedef struct SDL_Window
@@ -138,6 +138,35 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_GetRenderDriverInfo
     int SDL_GetRenderDriverInfo(int               index,
                                 SDL_RendererInfo* info)
+
+    # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+    # https://wiki.libsdl.org/SDL_BlendFactor
+    # https://wiki.libsdl.org/SDL_BlendOperation
+    SDL_BlendMode SDL_ComposeCustomBlendMode(SDL_BlendFactor    srcColorFactor,
+                                             SDL_BlendFactor    dstColorFactor,
+                                             SDL_BlendOperation colorOperation,
+                                             SDL_BlendFactor    srcAlphaFactor,
+                                             SDL_BlendFactor    dstAlphaFactor,
+                                             SDL_BlendOperation alphaOperation)
+ 
+    ctypedef enum SDL_BlendOperation:
+        SDL_BLENDOPERATION_ADD = 0x00000001,
+        SDL_BLENDOPERATION_SUBTRACT = 0x00000002,
+        SDL_BLENDOPERATION_REV_SUBTRACT = 0x00000003,
+        SDL_BLENDOPERATION_MINIMUM = 0x00000004,
+        SDL_BLENDOPERATION_MAXIMUM = 0x00000005
+
+    ctypedef enum SDL_BlendFactor:
+        SDL_BLENDFACTOR_ZERO = 0x00000001,
+        SDL_BLENDFACTOR_ONE = 0x00000002,
+        SDL_BLENDFACTOR_SRC_COLOR = 0x00000003,
+        SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR = 0x00000004,
+        SDL_BLENDFACTOR_SRC_ALPHA = 0x00000005,
+        SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA = 0x00000006,
+        SDL_BLENDFACTOR_DST_COLOR = 0x00000007,
+        SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR = 0x00000008,
+        SDL_BLENDFACTOR_DST_ALPHA = 0x00000009,
+        SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA = 0x0000000A
 
     # WINDOW
     # https://wiki.libsdl.org/SDL_CreateWindow
@@ -399,17 +428,17 @@ cdef class Texture:
     cdef readonly int height
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
-                       bint flipX=*, bint flipY=*)
+                       bint flip_x=*, bint flip_y=*)
     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
-                    bint flipX=*, bint flipY=*)
+                    bint flip_x=*, bint flip_y=*)
 
 cdef class Image:
     cdef Color _color
     cdef public float angle
     cdef SDL_Point _origin
     cdef SDL_Point* _originptr
-    cdef public bint flipX
-    cdef public bint flipY
+    cdef public bint flip_x
+    cdef public bint flip_y
     cdef public float alpha
     cdef public SDL_BlendMode blend_mode
 

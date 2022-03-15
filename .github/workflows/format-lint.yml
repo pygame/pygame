@@ -1,0 +1,52 @@
+name: python3 setup.py lint
+
+# Run lint CI on changes to main branch, or any PR to main. Do not run CI on
+# any other branch. Also, skip any non-source changes from running on lint CI
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/format-lint.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/format-lint.yml'
+
+jobs:
+  format-lint-code-check:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Install deps
+        run: python3 -m pip install pylint black clang-format sphinx
+
+      - name: Check code Formatting and Linting
+        run: python3 setup.py lint
+
+      - name: Check docs changes are checked in
+        run: |
+          python3 setup.py docs
+          if [[ `git status --porcelain` ]]; then
+            echo "Generating docs caused changes. Please check them in."
+            echo "You may need to run: python3 setup.py docs --fullgeneration"
+            # Run git status again, so people can see what changed.
+            git status --porcelain
+            exit 1
+          fi

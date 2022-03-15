@@ -24,4 +24,3 @@
 #include "camera.h"
 
 #endif
-

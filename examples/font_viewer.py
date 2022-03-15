@@ -4,7 +4,8 @@ Scroll through your system fonts from a list of surfaces or one huge buffer.
 
 This example exhibits:
 * iterate over available fonts using font.get_fonts and font.SysFont()
-* scroll using virtual mouse input
+* click and drag using mouse input
+* scrolling with the scroll wheel
 * save a surface to disk
 * work with a very large surface
 * simple mouse and keyboard scroll speed acceleration
@@ -15,8 +16,7 @@ Alternatively, you may pass a path to the command line. The TTF files found
 in that directory will be used instead.
 
 Mouse Controls:
-* Click in the window to toggle scrolling. The cursor will vanish and pygame
-  will enter virtual mouse mode until you click again.
+* Use the mouse wheel or click and drag to scroll
 
 Keyboard Controls:
 * Press up or down to scroll
@@ -38,6 +38,7 @@ class FontViewer:
     """
 
     KEY_SCROLL_SPEED = 10
+    MOUSE_SCROLL_SPEED = 50
 
     def __init__(self, **dparams):
         pg.init()
@@ -99,8 +100,8 @@ class FontViewer:
         # display instructions at the top of the display
         font = pg.font.SysFont(pg.font.get_default_font(), font_size)
         lines = (
-            "Click in this window to enter scroll mode",
-            "The mouse will be grabbed and hidden until you click again",
+            "Use the scroll wheel or click and drag",
+            "to scroll up and down",
             "Foreign fonts might render incorrectly",
             "Here are your {} fonts".format(len(fonts)),
             "",
@@ -118,7 +119,6 @@ class FontViewer:
             except IOError:
                 continue
             line = text.replace("&N", name)
-            print(name, line, surf.get_height())
             try:
                 surf = font.render(line, 1, color, self.back_color)
             except pg.error as e:
@@ -148,10 +148,13 @@ class FontViewer:
             # draw visible surfaces
             display.fill(self.back_color)
             for surface, top in self.font_surfaces:
-                if top >= self.y_offset:
+                bottom = top + surface.get_height()
+                if (
+                    bottom >= self.y_offset
+                    and top <= self.y_offset + display.get_height()
+                ):
                     x = center - surface.get_width() // 2
                     display.blit(surface, (x, top - self.y_offset))
-
             # get input and update the screen
             if not self.handle_events():
                 break
@@ -241,11 +244,16 @@ class FontViewer:
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_ESCAPE:
                     return False
+            elif e.type == pg.MOUSEWHEEL:
+                self.y_offset += e.y * self.MOUSE_SCROLL_SPEED * -1
             elif e.type == pg.MOUSEBUTTONDOWN:
-                # enter or exit virtual mouse mode for scrolling
-                self.grabbed = not self.grabbed
-                pg.event.set_grab(self.grabbed)
-                pg.mouse.set_visible(not self.grabbed)
+                # enter dragging mode on mouse down
+                self.grabbed = True
+                pg.event.set_grab(True)
+            elif e.type == pg.MOUSEBUTTONUP:
+                # exit drag mode on mouse up
+                self.grabbed = False
+                pg.event.set_grab(False)
 
         # allow simple accelerated scrolling with the keyboard
         keys = pg.key.get_pressed()
@@ -261,8 +269,9 @@ class FontViewer:
         # set the y_offset for scrolling and keep it between 0 and max_y
         y = pg.mouse.get_rel()[1]
         if y and self.grabbed:
-            self.y_offset += (y / 2) ** 2 * (y / abs(y))
-            self.y_offset = min((max(self.y_offset, 0), self.max_y))
+            self.y_offset -= y
+
+        self.y_offset = min((max(self.y_offset, 0), self.max_y))
         return True
 
 

@@ -45,17 +45,19 @@ typedef struct cachenode_ {
     FT_UInt32 hash;
 } CacheNode;
 
-static FT_UInt32 get_hash(const NodeKey *);
-static CacheNode *allocate_node(FontCache *,
-                                const FontRenderMode *,
-                                GlyphIndex_t, void *);
-static void free_node(FontCache *, CacheNode *);
-static void set_node_key(NodeKey *, GlyphIndex_t, const FontRenderMode *);
-static int equal_node_keys(const NodeKey *, const NodeKey *);
+static FT_UInt32
+get_hash(const NodeKey *);
+static CacheNode *
+allocate_node(FontCache *, const FontRenderMode *, GlyphIndex_t, void *);
+static void
+free_node(FontCache *, CacheNode *);
+static void
+set_node_key(NodeKey *, GlyphIndex_t, const FontRenderMode *);
+static int
+equal_node_keys(const NodeKey *, const NodeKey *);
 
-const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
-                               FT_RFLAG_HINTED |
-                               FT_RFLAG_AUTOHINT);
+const int render_flags_mask =
+    (FT_RFLAG_ANTIALIAS | FT_RFLAG_HINTED | FT_RFLAG_AUTOHINT);
 
 static void
 set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
@@ -63,7 +65,8 @@ set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
     KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
-    unsigned short rot = (unsigned short)(((unsigned int)(mode->rotation_angle))>>16);
+    unsigned short rot =
+        (unsigned short)(((unsigned int)(mode->rotation_angle)) >> 16);
 
     memset(key, 0, sizeof(*key));
     fields->id = id;
@@ -140,14 +143,14 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
     cache_size = cache_size | (cache_size >> 2);
     cache_size = cache_size | (cache_size >> 4);
     cache_size = cache_size | (cache_size >> 8);
-    cache_size = cache_size | (cache_size >>16);
+    cache_size = cache_size | (cache_size >> 16);
 
     cache_size = cache_size + 1;
 
     cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FontGlyph *));
     if (!cache->nodes)
         return -1;
-    for (i=0; i < cache_size; ++i)
+    for (i = 0; i < cache_size; ++i)
         cache->nodes[i] = 0;
     cache->depths = _PGFT_malloc((size_t)cache_size);
     if (!cache->depths) {
@@ -301,8 +304,8 @@ free_node(FontCache *cache, CacheNode *node)
 }
 
 static CacheNode *
-allocate_node(FontCache *cache, const FontRenderMode *render,
-              GlyphIndex_t id, void *internal)
+allocate_node(FontCache *cache, const FontRenderMode *render, GlyphIndex_t id,
+              void *internal)
 {
     CacheNode *node = _PGFT_malloc(sizeof(CacheNode));
     FT_UInt32 bucket;

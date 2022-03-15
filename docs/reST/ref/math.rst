@@ -195,6 +195,36 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.distance_squared_to ##
 
+   .. method:: move_towards
+
+      | :sl:`returns a vector moved toward the target by a given distance.`
+      | :sg:`move_towards(Vector2, float) -> Vector2`
+
+      Returns a Vector which is moved towards the given Vector by a given
+      distance and does not overshoot past its target Vector.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector2.move_towards ##
+
+   .. method:: move_towards_ip
+
+      | :sl:`moves the vector toward its target at a given distance.`
+      | :sg:`move_towards_ip(Vector2, float) -> None`
+
+      Moves itself toward the given Vector at a given distance and does not
+      overshoot past its target Vector.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector2.move_towards_ip ##
+
    .. method:: lerp
 
       | :sl:`returns a linear interpolation to the given vector.`
@@ -272,14 +302,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector by a given angle in radians in place.`
       | :sg:`rotate_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector2.rotate_rad_ip ##
+
+   .. method:: rotate_rad_ip
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise by the given angle in radians. The
       length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector2.rotate_ip_rad ##
+      .. ## Vector2.rotate_rad_ip ##
 
    .. method:: angle_to
 
@@ -321,6 +363,19 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector2.project ##
+
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector2`
+
+      Returns a new Vector2 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector2.copy ##
+
 
    .. method:: update
 
@@ -491,6 +546,36 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector3.distance_squared_to ##
 
+   .. method:: move_towards
+
+      | :sl:`returns a vector moved toward the target by a given distance.`
+      | :sg:`move_towards(Vector3, float) -> Vector3`
+
+      Returns a Vector which is moved towards the given Vector by a given
+      distance and does not overshoot past its target Vector.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector3.move_towards ##
+
+   .. method:: move_towards_ip
+
+      | :sl:`moves the vector toward its target at a given distance.`
+      | :sg:`move_towards_ip(Vector3, float) -> None`
+
+      Moves itself toward the given Vector at a given distance and does not
+      overshoot past its target Vector.
+      The first parameter determines the target Vector, while the second
+      parameter determines the delta distance. If the distance is in the
+      negatives, then it will move away from the target Vector.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector3.move_towards_ip ##
+
    .. method:: lerp
 
       | :sl:`returns a linear interpolation to the given vector.`
@@ -568,14 +653,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector by a given angle in radians in place.`
       | :sg:`rotate_ip_rad(angle, Vector3) -> None`
 
+      DEPRECATED: Use rotate_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_ip_rad ##
+
+   .. method:: rotate_rad_ip
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_rad_ip(angle, Vector3) -> None`
+
       Rotates the vector counterclockwise around the given axis by the given
       angle in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_ip_rad ##
+      .. ## Vector3.rotate_rad_ip ##
 
    .. method:: rotate_x
 
@@ -620,14 +717,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
       | :sg:`rotate_x_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_x_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_x_ip_rad ##
+
+   .. method:: rotate_x_rad_ip
+
+      | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
+      | :sg:`rotate_x_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the x-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_x_ip_rad ##
+      .. ## Vector3.rotate_x_rad_ip ##
 
    .. method:: rotate_y
 
@@ -672,14 +781,26 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
       | :sg:`rotate_y_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_y_rad_ip() instead.
+
+      .. versionadded:: 2.0.0
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_y_ip_rad ##
+
+   .. method:: rotate_y_rad_ip
+
+      | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
+      | :sg:`rotate_y_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the y-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. versionadded:: 2.0.0
+      .. versionadded:: 2.1.1
 
-      .. ## Vector3.rotate_y_ip_rad ##
+      .. ## Vector3.rotate_y_rad_ip ##
 
    .. method:: rotate_z
 
@@ -724,12 +845,25 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
       | :sg:`rotate_z_ip_rad(angle) -> None`
 
+      DEPRECATED: Use rotate_z_rad_ip() instead.
+      
+      .. deprecated:: 2.1.1
+
+      .. ## Vector3.rotate_z_ip_rad ##
+
+   .. method:: rotate_z_rad_ip
+
+      | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
+      | :sg:`rotate_z_rad_ip(angle) -> None`
+
       Rotates the vector counterclockwise around the z-axis by the given angle
       in radians. The length of the vector is not changed.
       (Note that due to pygame's inverted y coordinate system, the rotation
       will look clockwise if displayed).
 
-      .. ## Vector3.rotate_z_ip_rad ##
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.rotate_z_rad_ip ##
 
    .. method:: angle_to
 
@@ -771,6 +905,17 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.0.2
 
       .. ## Vector3.project ##
+   
+   .. method :: copy
+
+      | :sl:`Returns a copy of itself.`
+      | :sg:`copy() -> Vector3`
+
+      Returns a new Vector3 having the same dimensions.
+
+      .. versionadded:: 2.1.1
+
+      .. ## Vector3.copy ##
 
    .. method:: update
 
@@ -791,33 +936,5 @@ Multiple coordinates can be set using slices or swizzling
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
-
-
-.. function:: enable_swizzling
-
-   | :sl:`globally enables swizzling for vectors.`
-   | :sg:`enable_swizzling() -> None`
-
-   DEPRECATED: Not needed anymore. Will be removed in a later version.
-
-   Enables swizzling for all vectors until ``disable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   Lets you get or set multiple coordinates as one attribute, eg
-   ``vec.xyz = 1, 2, 3``.
-
-   .. ## pygame.math.enable_swizzling ##
-
-.. function:: disable_swizzling
-
-   | :sl:`globally disables swizzling for vectors.`
-   | :sg:`disable_swizzling() -> None`
-
-   DEPRECATED: Not needed anymore. Will be removed in a later version.
-
-   Disables swizzling for all vectors until ``enable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   .. ## pygame.math.disable_swizzling ##
 
 .. ## pygame.math ##

@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e -x
 
-cd /pulseaudio_build/
+cd $(dirname `readlink -f "$0"`)
 PULSEFILE="pulseaudio-14.0"
 
-curl -sL https://www.freedesktop.org/software/pulseaudio/releases/${PULSEFILE}.tar.xz > ${PULSEFILE}.tar.xz
+curl -sL --retry 10 https://www.freedesktop.org/software/pulseaudio/releases/${PULSEFILE}.tar.xz > ${PULSEFILE}.tar.xz
 sha512sum -c pulseaudio.sha512
 unxz ${PULSEFILE}.tar.xz
 tar xf ${PULSEFILE}.tar
 
 cd ${PULSEFILE}
-./configure --disable-manpages --disable-gsettings
+./configure $ARCHS_CONFIG_FLAG --disable-manpages --disable-gsettings
 make
 make install

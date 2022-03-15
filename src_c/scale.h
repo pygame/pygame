@@ -29,42 +29,75 @@
 #if !defined(SCALE_HEADER)
 #define SCALE_HEADER
 
-#if (defined(__GNUC__) && ((defined(__x86_64__) && !defined(_NO_MMX_FOR_X86_64)) || defined(__i386__))) || (defined(MS_WIN32) && !(defined(_M_X64) && defined(_NO_MMX_FOR_X86_64)))
+#if (defined(__GNUC__) &&                                      \
+     ((defined(__x86_64__) && !defined(_NO_MMX_FOR_X86_64)) || \
+      defined(__i386__))) ||                                   \
+    (defined(MS_WIN32) && !(defined(_M_X64) && defined(_NO_MMX_FOR_X86_64)))
 #define SCALE_MMX_SUPPORT
 
-/* These functions implement an area-averaging shrinking filter in the X-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * X-dimension.
  */
-void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth);
 
-void filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth);
 
-/* These functions implement an area-averaging shrinking filter in the Y-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * Y-dimension.
  */
-void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight);
 
-void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight);
 
 /* These functions implement a bilinear filter in the X-dimension.
  */
-void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth);
 
-void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+                    int dstpitch, int srcwidth, int dstwidth);
 
 /* These functions implement a bilinear filter in the Y-dimension.
  */
-void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight);
 
-void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+                    int dstpitch, int srcheight, int dstheight);
 
 #if defined(_M_X64)
 
-void filter_shrink_Y_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_shrink_Y_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine,
+                        int width, int srcpitch, int dstpitch, int srcheight,
+                        int dstheight);
 
-void filter_shrink_Y_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+void
+filter_shrink_Y_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine,
+                        int width, int srcpitch, int dstpitch, int srcheight,
+                        int dstheight);
 
-void filter_expand_X_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0, int *xmult1, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_expand_X_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0,
+                        int *xmult1, int height, int srcpitch, int dstpitch,
+                        int srcwidth, int dstwidth);
 
-void filter_expand_X_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0, int *xmult1, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+void
+filter_expand_X_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0,
+                        int *xmult1, int height, int srcpitch, int dstpitch,
+                        int srcwidth, int dstwidth);
 
 #endif /* #if defined(_M_X64) */
 

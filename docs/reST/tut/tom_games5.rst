@@ -32,7 +32,7 @@ it is blitted the bat to the screen, and the functions that will define what thi
 
       def __init__(self, side):
           pygame.sprite.Sprite.__init__(self)
-          self.image, self.rect = load_png('bat.png')
+          self.image, self.rect = load_png("bat.png")
           screen = pygame.display.get_surface()
           self.area = screen.get_rect()
           self.side = side

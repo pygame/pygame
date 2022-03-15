@@ -128,7 +128,7 @@ def change_music_postion(amount):
     This only works with OGG and MP3 files.
     music.get_pos() returns how many milliseconds the song has played, not
     the current postion in the file. We must track the starting postion
-    ourselves. music.set_pos() will set the position in seconds. 
+    ourselves. music.set_pos() will set the position in seconds.
     """
     global starting_pos
 
@@ -169,7 +169,7 @@ def main():
 
     pg.scrap.init()
     pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8") 
+    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8")
     # store the current text from the clipboard TODO remove decode
 
     # add the command line arguments to the  music_file_list

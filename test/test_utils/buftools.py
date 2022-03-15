@@ -80,7 +80,7 @@ def _prop_get(fn):
 class Exporter(pygame.newbuffer.BufferMixin):
     """An object that exports a multi-dimension new buffer interface
 
-       The only array operation this type supports is to export a buffer.
+    The only array operation this type supports is to export a buffer.
     """
 
     prefixes = {
@@ -261,11 +261,11 @@ class Exporter(pygame.newbuffer.BufferMixin):
         return False
 
 
-class Importer(object):
+class Importer:
     """An object that imports a new buffer interface
 
-       The fields of the Py_buffer C struct are exposed by identically
-       named Importer read-only properties.
+    The fields of the Py_buffer C struct are exposed by identically
+    named Importer read-only properties.
     """
 
     def __init__(self, obj, flags):

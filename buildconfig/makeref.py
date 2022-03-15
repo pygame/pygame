@@ -12,6 +12,10 @@ c_header_dir = os.path.join('src_c', 'doc')
 
 
 def run():
+    full_generation_flag = False
+    for argument in sys.argv[1:]:
+        if argument == 'full_generation':
+            full_generation_flag = True
     try:
         subprocess_args = [sys.executable, '-m', 'sphinx',
                            '-b', 'html',
@@ -19,10 +23,12 @@ def run():
                            '-D', 'headers_dest=%s' % (c_header_dir,),
                            '-D', 'headers_mkdirs=0',
                            rst_source_dir,
-                           rst_build_dir]
-        print("executing sphinx in subprocess with args:", subprocess_args)
+                           rst_build_dir, ]
+        if full_generation_flag:
+            subprocess_args.append('-E')
+        print("Executing sphinx in subprocess with args:", subprocess_args)
         return subprocess.run(subprocess_args).returncode
-    except:
+    except Exception:
         print('---')
         print('Have you installed sphinx?')
         print('---')

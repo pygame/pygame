@@ -302,7 +302,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: line
 
    | :sl:`draw a straight line`
-   | :sg:`line(surface, color, start_pos, end_pos, width) -> Rect`
+   | :sg:`line(surface, color, start_pos, end_pos) -> Rect`
    | :sg:`line(surface, color, start_pos, end_pos, width=1) -> Rect`
 
    Draws a straight line on the given surface. There are no endcaps. For thick
@@ -410,7 +410,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    The line has a thickness of one pixel and the endpoints have a height and
    width of one pixel each.
 
-   The way a line and it's endpoints are drawn:
+   The way a line and its endpoints are drawn:
       If both endpoints are equal, only a single pixel is drawn (after
       rounding floats to nearest integer).
 
@@ -425,7 +425,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             Otherwise:
 
                Calculate the position of the nearest point with a whole number
-               for it's x-coordinate, when extending the line past the
+               for its x-coordinate, when extending the line past the
                endpoint.
 
                Find which pixels would be covered and how much by that point.
@@ -551,7 +551,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. ## pygame.draw ##
 
 .. figure:: code_examples/draw_module_example.png
-   :scale: 50 %
    :alt: draw module example
 
    Example code for draw module.

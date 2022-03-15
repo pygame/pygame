@@ -1,13 +1,7 @@
-import sys
+import pathlib
 import unittest
 
 from pygame import encode_string, encode_file_path
-from pygame.compat import bytes_, as_bytes, as_unicode
-
-PY2 = sys.version_info[0] == 2
-
-if not PY2:
-    import pathlib
 
 
 class RWopsEncodeStringTest(unittest.TestCase):
@@ -19,19 +13,19 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertIsNone(encoded_string)
 
     def test_returns_bytes(self):
-        u = as_unicode(r"Hello")
+        u = "Hello"
         encoded_string = encode_string(u)
 
-        self.assertIsInstance(encoded_string, bytes_)
+        self.assertIsInstance(encoded_string, bytes)
 
     def test_obj_bytes(self):
-        b = as_bytes("encyclop\xE6dia")
+        b = b"encyclop\xE6dia"
         encoded_string = encode_string(b, "ascii", "strict")
 
         self.assertIs(encoded_string, b)
 
     def test_encode_unicode(self):
-        u = as_unicode(r"\u00DEe Olde Komp\u00FCter Shoppe")
+        u = "\u00DEe Olde Komp\u00FCter Shoppe"
         b = u.encode("utf-8")
         self.assertEqual(encode_string(u, "utf-8"), b)
 
@@ -39,33 +33,26 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertRaises(SyntaxError, encode_string)
 
     def test_errors(self):
-        s = r"abc\u0109defg\u011Dh\u0125ij\u0135klmnoprs\u015Dtu\u016Dvz"
-        u = as_unicode(s)
+        u = "abc\u0109defg\u011Dh\u0125ij\u0135klmnoprs\u015Dtu\u016Dvz"
         b = u.encode("ascii", "ignore")
         self.assertEqual(encode_string(u, "ascii", "ignore"), b)
 
     def test_encoding_error(self):
-        u = as_unicode(r"a\x80b")
+        u = "a\x80b"
         encoded_string = encode_string(u, "ascii", "strict")
 
         self.assertIsNone(encoded_string)
 
     def test_check_defaults(self):
-        u = as_unicode(r"a\u01F7b")
+        u = "a\u01F7b"
         b = u.encode("unicode_escape", "backslashreplace")
         encoded_string = encode_string(u)
 
         self.assertEqual(encoded_string, b)
 
     def test_etype(self):
-        u = as_unicode(r"a\x80b")
-        self.assertRaises(
-            SyntaxError,
-            encode_string,
-            u,
-            "ascii",
-            "strict",
-            SyntaxError)
+        u = "a\x80b"
+        self.assertRaises(SyntaxError, encode_string, u, "ascii", "strict", SyntaxError)
 
     def test_etype__invalid(self):
         """Ensures invalid etypes are properly handled."""
@@ -74,7 +61,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
             self.assertRaises(TypeError, encode_string, "test", etype=etype)
 
     def test_string_with_null_bytes(self):
-        b = as_bytes("a\x00b\x00c")
+        b = b"a\x00b\x00c"
         encoded_string = encode_string(b, etype=SyntaxError)
         encoded_decode_string = encode_string(b.decode(), "ascii", "strict")
 
@@ -90,7 +77,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
     else:
 
         def test_refcount(self):
-            bpath = as_bytes(" This is a string that is not cached.")[1:]
+            bpath = b" This is a string that is not cached."[1:]
             upath = bpath.decode("ascii")
             before = getrefcount(bpath)
             bpath = encode_string(bpath)
@@ -99,17 +86,11 @@ class RWopsEncodeStringTest(unittest.TestCase):
             self.assertEqual(getrefcount(bpath), before)
 
     def test_smp(self):
-        utf_8 = as_bytes("a\xF0\x93\x82\xA7b")
-        u = as_unicode(r"a\U000130A7b")
+        utf_8 = b"a\xF0\x93\x82\xA7b"
+        u = "a\U000130A7b"
         b = encode_string(u, "utf-8", "strict", AssertionError)
         self.assertEqual(b, utf_8)
-        #  For Python 3.1, surrogate pair handling depends on whether the
-        #  interpreter was built with UCS-2 or USC-4 unicode strings.
-        ##u = as_unicode(r"a\uD80C\uDCA7b")
-        ##b = encode_string(u, 'utf-8', 'strict', AssertionError)
-        ##self.assertEqual(b, utf_8)
 
-    @unittest.skipIf(PY2, "pathlib module is not in python 2")
     def test_pathlib_obj(self):
         """Test loading string representation of pathlib object"""
         """
@@ -129,22 +110,22 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
     # Most tests can be skipped since RWopsEncodeFilePath wraps
     # RWopsEncodeString
     def test_encoding(self):
-        u = as_unicode(r"Hello")
+        u = "Hello"
         encoded_file_path = encode_file_path(u)
 
-        self.assertIsInstance(encoded_file_path, bytes_)
+        self.assertIsInstance(encoded_file_path, bytes)
 
     def test_error_fowarding(self):
         self.assertRaises(SyntaxError, encode_file_path)
 
     def test_path_with_null_bytes(self):
-        b = as_bytes("a\x00b\x00c")
+        b = b"a\x00b\x00c"
         encoded_file_path = encode_file_path(b)
 
         self.assertIsNone(encoded_file_path)
 
     def test_etype(self):
-        b = as_bytes("a\x00b\x00c")
+        b = b"a\x00b\x00c"
         self.assertRaises(TypeError, encode_file_path, b, TypeError)
 
     def test_etype__invalid(self):

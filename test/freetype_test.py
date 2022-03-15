@@ -4,16 +4,11 @@ if os.environ.get("SDL_VIDEODRIVER") == "dummy":
     __tags__ = ("ignore", "subprocess_ignore")
 
 import unittest
-import sys
 import ctypes
 import weakref
 import gc
+import pathlib
 import platform
-
-try:
-    import pathlib
-except ImportError:
-    pathlib = None
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -29,7 +24,6 @@ try:
     import pygame.freetype as ft
 except ImportError:
     ft = None
-from pygame.compat import as_unicode, bytes_, unichr_, unicode_
 
 
 FONTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "fonts")
@@ -113,7 +107,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_freetype_Font_init(self):
 
-        self.assertRaises(IOError, ft.Font, os.path.join(FONTDIR, "nonexistant.ttf"))
+        self.assertRaises(
+            FileNotFoundError, ft.Font, os.path.join(FONTDIR, "nonexistent.ttf")
+        )
 
         f = self._TEST_FONTS["sans"]
         self.assertIsInstance(f, ft.Font)
@@ -135,7 +131,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = ft.Font(None, size=24)
         self.assertTrue(f.height > 0)
-        self.assertRaises(IOError, f.__init__, os.path.join(FONTDIR, "nonexistant.ttf"))
+        self.assertRaises(
+            FileNotFoundError, f.__init__, os.path.join(FONTDIR, "nonexistent.ttf")
+        )
 
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, size=24, ucs4=True)
@@ -229,7 +227,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertIsInstance(rect, pygame.Rect)
 
         buf, size = ft_font.render_raw(TEST_TEXT)
-        self.assertIsInstance(buf, bytes_)
+        self.assertIsInstance(buf, bytes)
         self.assertIsInstance(size, tuple)
 
         rect = ft_font.render_raw_to(surface.get_view("2"), TEST_TEXT)
@@ -518,12 +516,12 @@ class FreeTypeFontTest(unittest.TestCase):
         # Rect size should change if UTF surrogate pairs are treated as
         # one code point or two.
         ufont = self._TEST_FONTS["mono"]
-        rect_utf32 = ufont.get_rect(as_unicode(r"\U00013079"), size=24)
-        rect_utf16 = ufont.get_rect(as_unicode(r"\uD80C\uDC79"), size=24)
+        rect_utf32 = ufont.get_rect("\U00013079", size=24)
+        rect_utf16 = ufont.get_rect("\uD80C\uDC79", size=24)
         self.assertEqual(rect_utf16, rect_utf32)
         ufont.ucs4 = True
         try:
-            rect_utf16 = ufont.get_rect(as_unicode(r"\uD80C\uDC79"), size=24)
+            rect_utf16 = ufont.get_rect("\uD80C\uDC79", size=24)
         finally:
             ufont.ucs4 = False
         self.assertNotEqual(rect_utf16, rect_utf32)
@@ -790,33 +788,29 @@ class FreeTypeFontTest(unittest.TestCase):
         ucs4 = font2.ucs4
         try:
             font2.ucs4 = False
-            rend1 = font2.render(as_unicode(r"\uD80C\uDC79"), color, size=24)
-            rend2 = font2.render(as_unicode(r"\U00013079"), color, size=24)
+            rend1 = font2.render("\uD80C\uDC79", color, size=24)
+            rend2 = font2.render("\U00013079", color, size=24)
             self.assertEqual(rend1[1], rend2[1])
             font2.ucs4 = True
-            rend1 = font2.render(as_unicode(r"\uD80C\uDC79"), color, size=24)
+            rend1 = font2.render("\uD80C\uDC79", color, size=24)
             self.assertNotEqual(rend1[1], rend2[1])
         finally:
             font2.ucs4 = ucs4
 
         # malformed surrogate pairs
+        self.assertRaises(UnicodeEncodeError, font.render, "\uD80C", color, size=24)
+        self.assertRaises(UnicodeEncodeError, font.render, "\uDCA7", color, size=24)
         self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uD80C"), color, size=24
+            UnicodeEncodeError, font.render, "\uD7FF\uDCA7", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uDCA7"), color, size=24
+            UnicodeEncodeError, font.render, "\uDC00\uDCA7", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uD7FF\uDCA7"), color, size=24
+            UnicodeEncodeError, font.render, "\uD80C\uDBFF", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uDC00\uDCA7"), color, size=24
-        )
-        self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uD80C\uDBFF"), color, size=24
-        )
-        self.assertRaises(
-            UnicodeEncodeError, font.render, as_unicode(r"\uD80C\uE000"), color, size=24
+            UnicodeEncodeError, font.render, "\uD80C\uE000", color, size=24
         )
 
         # raises exception when uninitalized
@@ -835,12 +829,12 @@ class FreeTypeFontTest(unittest.TestCase):
         font.ucs4 = False
         A_rendered, r = font.render("A", bgcolor=pygame.Color("white"), size=8)
         u13079_rendered, r = font.render(
-            as_unicode(r"\U00013079"), bgcolor=pygame.Color("white"), size=8
+            "\U00013079", bgcolor=pygame.Color("white"), size=8
         )
 
-        ## before comparing the surfaces, make sure they are the same
-        ## pixel format. Use 32-bit SRCALPHA to avoid row padding and
-        ## undefined bytes (the alpha byte will be set to 255.)
+        # before comparing the surfaces, make sure they are the same
+        # pixel format. Use 32-bit SRCALPHA to avoid row padding and
+        # undefined bytes (the alpha byte will be set to 255.)
         bitmap = pygame.Surface(A.get_size(), pygame.SRCALPHA, 32)
         bitmap.blit(A, (0, 0))
         rendering = pygame.Surface(A_rendered.get_size(), pygame.SRCALPHA, 32)
@@ -998,7 +992,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(len(rend), 2)
 
         r, s = rend
-        self.assertIsInstance(r, bytes_)
+        self.assertIsInstance(r, bytes)
         self.assertIsInstance(s, tuple)
         self.assertTrue(len(s), 2)
 
@@ -1018,7 +1012,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # bug with non-printable characters: this would cause a crash
         # because the text length was not adjusted for skipped characters.
-        text = unicode_("").join([unichr_(i) for i in range(31, 64)])
+        text = "".join([chr(i) for i in range(31, 64)])
         rend = font.render_raw(text, size=10)
 
     def test_freetype_Font_render_raw_to(self):
@@ -1264,7 +1258,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, f, "bgcolor", None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.tests.test_utils import buftools
 
@@ -1383,11 +1377,11 @@ class FreeTypeFontTest(unittest.TestCase):
         glen = len(glyphs)
         other_glyphs = "123"
         oglen = len(other_glyphs)
-        uempty = unicode_("")
-        ##        many_glyphs = (uempty.join([unichr_(i) for i in range(32,127)] +
-        ##                                   [unichr_(i) for i in range(161,172)] +
-        ##                                   [unichr_(i) for i in range(174,239)]))
-        many_glyphs = uempty.join([unichr_(i) for i in range(32, 127)])
+        uempty = str("")
+        ##        many_glyphs = (uempty.join([chr(i) for i in range(32,127)] +
+        ##                                   [chr(i) for i in range(161,172)] +
+        ##                                   [chr(i) for i in range(174,239)]))
+        many_glyphs = uempty.join([chr(i) for i in range(32, 127)])
         mglen = len(many_glyphs)
 
         count = 0
@@ -1493,29 +1487,14 @@ class FreeTypeFontTest(unittest.TestCase):
         # of None.
         font = self._TEST_FONTS["sans"]
 
-        img, size1 = font.render(unichr_(1), (0, 0, 0), size=24)
+        img, size1 = font.render(chr(1), (0, 0, 0), size=24)
         img, size0 = font.render("", (0, 0, 0), size=24)
         self.assertTrue(size1.width > size0.width)
 
-        metrics = font.get_metrics(unichr_(1) + unichr_(48), size=24)
+        metrics = font.get_metrics(chr(1) + chr(48), size=24)
         self.assertEqual(len(metrics), 2)
         self.assertIsNone(metrics[0])
         self.assertIsInstance(metrics[1], tuple)
-
-    @unittest.skipIf(
-        pygame.get_sdl_version()[0] == 2, "SDL2 surfaces are only limited by memory"
-    )
-    def test_issue_144(self):
-        """Issue #144: unable to render text"""
-
-        # The bug came in two parts. The first was a convertion bug from
-        # FT_Fixed to integer in for an Intel x86_64 Pygame build. The second
-        # was to have the raised exception disappear before Font.render
-        # returned to Python level.
-        #
-        font = ft.Font(None, size=64)
-        s = "M" * 100000  # Way too long for an SDL surface
-        self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
 
     def test_issue_242(self):
         """Issue #242: get_rect() uses 0 as default style"""
@@ -1652,7 +1631,7 @@ class FreeTypeFontTest(unittest.TestCase):
             o = font.get_metrics("AB")
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):
-                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
+                self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
             o = font.get_sizes()
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):
@@ -1733,7 +1712,6 @@ class FreeTypeFontTest(unittest.TestCase):
         font_name_2 = ft.SysFont(names, size).name
         self.assertEqual(font_name_2, font_name)
 
-    @unittest.skipIf(pathlib is None, "no pathlib")
     def test_pathlib(self):
         f = ft.Font(pathlib.Path(self._fixed_path), 20)
 

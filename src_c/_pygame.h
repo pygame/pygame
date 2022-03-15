@@ -34,28 +34,14 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-/* Ensure PyPy-specific code is not in use when running on GraalPython (PR #2580) */
+/* Ensure PyPy-specific code is not in use when running on GraalPython (PR
+ * #2580) */
 #if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
 #undef PYPY_VERSION
 #endif
 
 #include <SDL.h>
 
-/* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
-/* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
-#if !(SDL_VERSION_ATLEAST(2, 0, 0))
-#define IS_SDLv2 0
-#define IS_SDLv1 1
-#else
-#define IS_SDLv2 1
-#define IS_SDLv1 0
-#endif
-
-/*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
-#error pygame 2 requires SDL 2
-#endif*/
-
-#if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,
@@ -98,7 +84,8 @@ typedef enum {
 
     PGE_MIDIIN,
     PGE_MIDIOUT,
-    PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses */
+    PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses
+                    */
 
     /* DO NOT CHANGE THE ORDER OF EVENTS HERE */
     PGE_WINDOWSHOWN,
@@ -117,6 +104,8 @@ typedef enum {
     PGE_WINDOWCLOSE,
     PGE_WINDOWTAKEFOCUS,
     PGE_WINDOWHITTEST,
+    PGE_WINDOWICCPROFCHANGED,
+    PGE_WINDOWDISPLAYCHANGED,
 
     /* Here we define PGPOST_* events, events that act as a one-to-one
      * proxy for SDL events (and some extra events too!), the proxy is used
@@ -133,8 +122,15 @@ typedef enum {
      * Proxy events are for internal use only */
     PGPOST_EVENTBEGIN, /* mark start of proxy-events */
     PGPOST_ACTIVEEVENT = PGPOST_EVENTBEGIN,
+    PGPOST_APP_TERMINATING,
+    PGPOST_APP_LOWMEMORY,
+    PGPOST_APP_WILLENTERBACKGROUND,
+    PGPOST_APP_DIDENTERBACKGROUND,
+    PGPOST_APP_WILLENTERFOREGROUND,
+    PGPOST_APP_DIDENTERFOREGROUND,
     PGPOST_AUDIODEVICEADDED,
     PGPOST_AUDIODEVICEREMOVED,
+    PGPOST_CLIPBOARDUPDATE,
     PGPOST_CONTROLLERAXISMOTION,
     PGPOST_CONTROLLERBUTTONDOWN,
     PGPOST_CONTROLLERBUTTONUP,
@@ -144,6 +140,7 @@ typedef enum {
     PGPOST_CONTROLLERTOUCHPADDOWN,
     PGPOST_CONTROLLERTOUCHPADMOTION,
     PGPOST_CONTROLLERTOUCHPADUP,
+    PGPOST_CONTROLLERSENSORUPDATE,
     PGPOST_DOLLARGESTURE,
     PGPOST_DOLLARRECORD,
     PGPOST_DROPFILE,
@@ -154,6 +151,7 @@ typedef enum {
     PGPOST_FINGERDOWN,
     PGPOST_FINGERUP,
     PGPOST_KEYDOWN,
+    PGPOST_KEYMAPCHANGED,
     PGPOST_KEYUP,
     PGPOST_JOYAXISMOTION,
     PGPOST_JOYBALLMOTION,
@@ -162,6 +160,7 @@ typedef enum {
     PGPOST_JOYBUTTONUP,
     PGPOST_JOYDEVICEADDED,
     PGPOST_JOYDEVICEREMOVED,
+    PGPOST_LOCALECHANGED,
     PGPOST_MIDIIN,
     PGPOST_MIDIOUT,
     PGPOST_MOUSEMOTION,
@@ -171,6 +170,8 @@ typedef enum {
     PGPOST_MULTIGESTURE,
     PGPOST_NOEVENT,
     PGPOST_QUIT,
+    PGPOST_RENDER_TARGETS_RESET,
+    PGPOST_RENDER_DEVICE_RESET,
     PGPOST_SYSWMEVENT,
     PGPOST_TEXTEDITING,
     PGPOST_TEXTINPUT,
@@ -192,10 +193,13 @@ typedef enum {
     PGPOST_WINDOWCLOSE,
     PGPOST_WINDOWTAKEFOCUS,
     PGPOST_WINDOWHITTEST,
+    PGPOST_WINDOWICCPROFCHANGED,
+    PGPOST_WINDOWDISPLAYCHANGED,
 
     PGE_USEREVENT, /* this event must stay in this position only */
 
-    PG_NUMEVENTS = SDL_LASTEVENT /* Not an event. Indicates end of user events. */
+    PG_NUMEVENTS =
+        SDL_LASTEVENT /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
 typedef enum {
@@ -231,39 +235,28 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
-#else /* IS_SDLv2 */
-
-/* To maintain SDL 1.2 build support. */
-#define PGE_USEREVENT SDL_USEREVENT
-#define PG_NUMEVENTS SDL_NUMEVENTS
-#define PGPOST_EVENTBEGIN 0
-/* These midi events were originally defined in midi.py.
- * Note: They are outside the SDL_USEREVENT/SDL_NUMEVENTS event range for
- * SDL 1.2. */
-#define PGE_MIDIIN PGE_USEREVENT + 10
-#define PGE_MIDIOUT PGE_USEREVENT + 11
-#endif /* IS_SDLv1 */
-
-//TODO Implement check below in a way that does not break CI
+// TODO Implement check below in a way that does not break CI
 /* New buffer protocol (PEP 3118) implemented on all supported Py versions.
 #if !defined(Py_TPFLAGS_HAVE_NEWBUFFER)
-#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a supported Python version.
-#endif */
+#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a
+supported Python version. #endif */
 
-#define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
-#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)           \
-    do {                                                    \
-       if (!value) {                                        \
-           if (name) {                                      \
-               PyErr_Format(PyExc_AttributeError,           \
-                            "Cannot delete attribute %s",   \
-                            name);                          \
-           } else {                                         \
-               PyErr_SetString(PyExc_AttributeError,        \
-                               "Cannot delete attribute");  \
-           }                                                \
-           return -1;                                       \
-       }                                                    \
+#define RAISE(x, y) (PyErr_SetString((x), (y)), NULL)
+#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)                            \
+    do {                                                                     \
+        if (!value) {                                                        \
+            PyErr_Format(PyExc_AttributeError, "Cannot delete attribute %s", \
+                         name);                                              \
+            return -1;                                                       \
+        }                                                                    \
+    } while (0)
+
+#define DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value)                           \
+    do {                                                                      \
+        if (!value) {                                                         \
+            PyErr_SetString(PyExc_AttributeError, "Cannot delete attribute"); \
+            return -1;                                                        \
+        }                                                                     \
     } while (0)
 
 /*
@@ -274,10 +267,6 @@ typedef enum {
     if (!SDL_WasInit(SDL_INIT_VIDEO)) \
     return RAISE(pgExc_SDLError, "video system not initialized")
 
-#define CDROM_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_CDROM)) \
-    return RAISE(pgExc_SDLError, "cdrom system not initialized")
-
 #define JOYSTICK_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
     return RAISE(pgExc_SDLError, "joystick system not initialized")
@@ -286,9 +275,8 @@ typedef enum {
 #ifdef WITH_THREAD
 #define PG_CHECK_THREADS() (1)
 #else /* ~WITH_THREAD */
-#define PG_CHECK_THREADS()                        \
-    (RAISE(PyExc_NotImplementedError,             \
-          "Python built without thread support"))
+#define PG_CHECK_THREADS() \
+    (RAISE(PyExc_NotImplementedError, "Python built without thread support"))
 #endif /* ~WITH_THREAD */
 
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
@@ -323,8 +311,7 @@ struct pgSubSurface_Data {
  * color module internals
  */
 struct pgColorObject {
-    PyObject_HEAD
-    Uint8 data[4];
+    PyObject_HEAD Uint8 data[4];
     Uint8 len;
 };
 
@@ -332,8 +319,6 @@ struct pgColorObject {
  * include public API
  */
 #include "include/_pygame.h"
-
-#include "pgimport.h"
 
 /* Slot counts.
  * Remember to keep these constants up to date.
@@ -344,18 +329,11 @@ struct pgColorObject {
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 #define PYGAMEAPI_SURFACE_NUMSLOTS 4
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2
-#define PYGAMEAPI_CDROM_NUMSLOTS 2
-
-#if PG_API_VERSION == 1
-#define PYGAMEAPI_BASE_NUMSLOTS 19
-#define PYGAMEAPI_EVENT_NUMSLOTS 4
-#else /* PG_API_VERSION == 2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 24
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
-#endif /* PG_API_VERSION == 2 */
 
 #endif /* _PYGAME_INTERNAL_H */

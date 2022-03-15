@@ -33,6 +33,12 @@ def print_(*args, **kwds):
     msysio.print_(*args, **kwds)
 
 
+def is_msys2():
+    """Return true if this in an MSYS2 build"""
+    return ('MSYSTEM' in os.environ and
+            re.match(r'MSYS|MINGW.*|CLANG.*|UCRT.*', os.environ['MSYSTEM']))
+
+
 def is_msys_mingw():
     """Return true if this in an MinGW/MSYS build
 
@@ -91,15 +97,11 @@ def prepdep(dep, basepath):
     else:
         dep.line = dep.name+' =' + ''.join(incs) + ''.join(lids) + ' ' + dep.cflags + libs
 
-def writesetupfile(deps, basepath, additional_lines, sdl2=False):
+def writesetupfile(deps, basepath, additional_lines):
     """create a modified copy of Setup.SDLx.in"""
-    if sdl2:
-        sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
+    sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
                                           'Setup.SDL2.in')
-    else:
-        sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
-                                          'Setup.SDL1.in')
-
+    
     with open(sdl_setup_filename, 'r') as origsetup, \
             open(os.path.join(BASE_PATH, 'Setup'), 'w') as newsetup:
         line = ''
@@ -157,18 +159,15 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
 
 def main(auto=False):
     additional_platform_setup = []
-    sdl1 = "-sdl1" in sys.argv
-    sdl2 = not sdl1
     conan = "-conan" in sys.argv
 
     if '-sdl2' in sys.argv:
         sys.argv.remove('-sdl2')
     if '-sdl1' in sys.argv:
-        sys.argv.remove('-sdl1')
+        raise SystemExit("""Building PyGame with SDL1.2 is no longer supported.
+Only SDL2 is supported now.""")
 
     kwds = {}
-    if sdl2:
-        kwds['sdl2'] = True
     if conan:
         print_('Using CONAN configuration...\n')
         try:
@@ -176,21 +175,20 @@ def main(auto=False):
         except ImportError:
             import buildconfig.config_conan as CFG
 
-    elif (sys.platform == 'win32' and
-        # Note that msys builds supported for 2.6 and greater. Use prebuilt.
-        (sys.version_info >= (2, 6) or not is_msys_mingw())):
-        print_('Using WINDOWS configuration...\n')
-        try:
-            import config_win as CFG
-        except ImportError:
-            import buildconfig.config_win as CFG
-
     elif sys.platform == 'win32':
-        print_('Using WINDOWS mingw/msys configuration...\n')
-        try:
-            import config_msys as CFG
-        except ImportError:
-            import buildconfig.config_msys as CFG
+        if sys.version_info >= (3, 8) and is_msys2():
+            print_('Using WINDOWS MSYS2 configuration...\n')
+            try:
+                import config_msys2 as CFG
+            except ImportError:
+                import buildconfig.config_msys2 as CFG
+        else:
+            print_('Using WINDOWS configuration...\n')
+            try:
+                import config_win as CFG
+            except ImportError:
+                import buildconfig.config_win as CFG
+
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         try:
@@ -206,11 +204,17 @@ def main(auto=False):
 
 
     if sys.platform == 'win32':
-        pass
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
+        ).readlines()
     elif sys.platform == 'darwin':
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
+        ).readlines()
     else:
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r"
+        ).readlines()
 
 
     if os.path.isfile('Setup'):

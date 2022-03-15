@@ -38,7 +38,7 @@ class BaseModuleTest(unittest.TestCase):
         """Ensure the SDL version is valid"""
         self.assertEqual(len(pygame.get_sdl_version()), 3)
 
-    class ExporterBase(object):
+    class ExporterBase:
         def __init__(self, shape, typechar, itemsize):
             import ctypes
 
@@ -212,7 +212,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
-    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -585,14 +585,8 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(pygame.get_error(), "")
 
     def test_unicode_error(self):
-        if sys.version_info.major > 2:
-            pygame.set_error(u"你好")
-            self.assertEqual(u"你好", pygame.get_error())
-        else:
-            # no unicode objects for now
-            pygame.set_error(u"你好")
-            encstr = u"你好".encode("utf8")
-            self.assertEqual(encstr, pygame.get_error())
+        pygame.set_error("你好")
+        self.assertEqual("你好", pygame.get_error())
 
     def test_init(self):
         """Ensures init() works properly."""
@@ -627,14 +621,6 @@ class BaseModuleTest(unittest.TestCase):
         pygame.quit()
 
         self.assertFalse(pygame.get_init())
-
-    def todo_test_segfault(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.base.segfault:
-
-        # crash
-
-        self.fail()
 
 
 if __name__ == "__main__":

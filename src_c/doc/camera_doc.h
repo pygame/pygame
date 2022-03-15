@@ -1,5 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMECAMERA "pygame module for camera use"
+#define DOC_PYGAMECAMERAINIT "init(backend = None) -> None\nModule init"
+#define DOC_PYGAMECAMERAGETBACKENDS "get_backends() -> [str]\nGet the backends supported on this system"
 #define DOC_PYGAMECAMERACOLORSPACE "colorspace(Surface, format, DestSurface = None) -> Surface\nSurface colorspace conversion"
 #define DOC_PYGAMECAMERALISTCAMERAS "list_cameras() -> [cameras]\nreturns a list of available cameras"
 #define DOC_PYGAMECAMERACAMERA "Camera(device, (width, height), format) -> Camera\nload a camera"
@@ -10,7 +12,7 @@
 #define DOC_CAMERAGETSIZE "get_size() -> (width, height)\nreturns the dimensions of the images being recorded"
 #define DOC_CAMERAQUERYIMAGE "query_image() -> bool\nchecks if a frame is ready"
 #define DOC_CAMERAGETIMAGE "get_image(Surface = None) -> Surface\ncaptures an image as a Surface"
-#define DOC_CAMERAGETRAW "get_raw() -> string\nreturns an unmodified image as a string"
+#define DOC_CAMERAGETRAW "get_raw() -> bytes\nreturns an unmodified image as bytes"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -19,6 +21,14 @@
 
 pygame.camera
 pygame module for camera use
+
+pygame.camera.init
+ init(backend = None) -> None
+Module init
+
+pygame.camera.get_backends
+ get_backends() -> [str]
+Get the backends supported on this system
 
 pygame.camera.colorspace
  colorspace(Surface, format, DestSurface = None) -> Surface
@@ -61,7 +71,7 @@ pygame.camera.Camera.get_image
 captures an image as a Surface
 
 pygame.camera.Camera.get_raw
- get_raw() -> string
-returns an unmodified image as a string
+ get_raw() -> bytes
+returns an unmodified image as bytes
 
 */

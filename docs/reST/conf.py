@@ -41,16 +41,16 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pygame'
-copyright = u'2000-2021, pygame developers'
+copyright = u'2000-2022, pygame developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '2.0.2'
+version = '2.1.3'
 # The full version, including alpha/beta/rc tags.
-release = '2.0.2.dev1'
+release = '2.1.3.dev5'
 
 # Format strings for the version directives
 versionadded_format = 'New in pygame %s'

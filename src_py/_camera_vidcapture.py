@@ -7,6 +7,7 @@ Binary windows wheels:
 """
 import pygame
 
+
 def list_cameras():
     """Always only lists one camera.
 
@@ -15,14 +16,15 @@ def list_cameras():
     return [0]
 
     # this just cycles through all the cameras trying to open them
-    #cameras = []
-    #for x in range(256):
+    # cameras = []
+    # for x in range(256):
     #    try:
     #        c = Camera(x)
     #    except:
     #        break
     #    cameras.append(x)
-    #return cameras
+    # return cameras
+
 
 def init():
     global vidcap
@@ -32,23 +34,24 @@ def init():
         from VideoCapture import vidcap as vc
     vidcap = vc
 
+
 def quit():
     global vidcap
     vidcap = None
 
 
 class Camera:
-
+    # pylint: disable=unused-argument
     def __init__(self, device=0, size=(640, 480), mode="RGB", show_video_window=0):
         """device:  VideoCapture enumerates the available video capture devices
-                    on your system.  If you have more than one device, specify
-                    the desired one here.  The device number starts from 0.
+                 on your system.  If you have more than one device, specify
+                 the desired one here.  The device number starts from 0.
 
-           show_video_window: 0 ... do not display a video window (the default)
-                              1 ... display a video window
+        show_video_window: 0 ... do not display a video window (the default)
+                           1 ... display a video window
 
-                            Mainly used for debugging, since the video window
-                            can not be closed or moved around.
+                         Mainly used for debugging, since the video window
+                         can not be closed or moved around.
         """
         self.dev = vidcap.new_Dev(device, show_video_window)
         width, height = size
@@ -71,30 +74,24 @@ class Camera:
         self.dev.displaycapturepinproperties()
 
     def set_resolution(self, width, height):
-        """Sets the capture resolution. (without dialog)
-        """
+        """Sets the capture resolution. (without dialog)"""
         self.dev.setresolution(width, height)
 
     def get_buffer(self):
-        """Returns a string containing the raw pixel data.
-        """
+        """Returns a string containing the raw pixel data."""
         return self.dev.getbuffer()
 
     def start(self):
-        """ Not implemented.
-        """
+        """Not implemented."""
 
     def set_controls(self, **kwargs):
-        """ Not implemented.
-        """
+        """Not implemented."""
 
     def stop(self):
-        """ Not implemented.
-        """
+        """Not implemented."""
 
     def get_image(self, dest_surf=None):
-        """
-        """
+        """ """
         return self.get_surface(dest_surf)
 
     def get_surface(self, dest_surf=None):
@@ -110,6 +107,7 @@ class Camera:
         else:
             dest_surf = surf
         return dest_surf
+
 
 if __name__ == "__main__":
     import pygame.examples.camera

@@ -24,12 +24,8 @@ class CursorsModuleTest(unittest.TestCase):
         # data. Both these arguments are used when setting a cursor with
         # pygame.mouse.set_cursor().
 
-        #Various types of input strings
-        test_cursor1 = (
-            "X.X.XXXX",
-            "XXXXXX..",
-            "  XXXX  "
-        )
+        # Various types of input strings
+        test_cursor1 = ("X.X.XXXX", "XXXXXX..", "  XXXX  ")
 
         test_cursor2 = (
             "X.X.XXXX",
@@ -39,15 +35,10 @@ class CursorsModuleTest(unittest.TestCase):
             "XXXXXX..",
             "XXXXXX",
             "XXXXXX..",
-            "XXXXXX.."
+            "XXXXXX..",
         )
-        test_cursor3 = (
-            ".XX.",
-            "  ",
-            "..  ",
-            "X.. X"
-        )
-        
+        test_cursor3 = (".XX.", "  ", "..  ", "X.. X")
+
         # Test such that total number of strings is not divisible by 8
         with self.assertRaises(ValueError):
             pygame.cursors.compile(test_cursor1)
@@ -60,19 +51,159 @@ class CursorsModuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             pygame.cursors.compile(test_cursor3)
 
-        #Test that checks whether the byte data from compile funtion is equal to actual byte data
-        actual_byte_data = (192, 0, 0, 224, 0, 0, 240, 0, 0, 216, 0, 0, 
-            204, 0, 0, 198, 0, 0, 195, 0, 0, 193, 128, 0, 192, 192, 0, 192, 96, 0, 192, 48, 0, 
-            192, 56, 0, 192, 248, 0, 220, 192, 0, 246, 96, 0, 198, 96, 0, 6, 96, 0, 3, 48, 0, 
-            3, 48, 0, 1, 224, 0, 1, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), (192, 0, 0, 224, 0, 0, 
-            240, 0, 0, 248, 0, 0, 252, 0, 0, 254, 0, 0, 255, 0, 0, 255, 128, 0, 255, 192, 0, 255, 
-            224, 0, 255, 240, 0, 255, 248, 0, 255, 248, 0, 255, 192, 0, 247, 224, 0, 199, 224, 
-            0, 7, 224, 0, 3, 240, 0, 3, 240, 0, 1, 224, 0, 1, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        # Test that checks whether the byte data from compile funtion is equal to actual byte data
+        actual_byte_data = (
+            192,
+            0,
+            0,
+            224,
+            0,
+            0,
+            240,
+            0,
+            0,
+            216,
+            0,
+            0,
+            204,
+            0,
+            0,
+            198,
+            0,
+            0,
+            195,
+            0,
+            0,
+            193,
+            128,
+            0,
+            192,
+            192,
+            0,
+            192,
+            96,
+            0,
+            192,
+            48,
+            0,
+            192,
+            56,
+            0,
+            192,
+            248,
+            0,
+            220,
+            192,
+            0,
+            246,
+            96,
+            0,
+            198,
+            96,
+            0,
+            6,
+            96,
+            0,
+            3,
+            48,
+            0,
+            3,
+            48,
+            0,
+            1,
+            224,
+            0,
+            1,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ), (
+            192,
+            0,
+            0,
+            224,
+            0,
+            0,
+            240,
+            0,
+            0,
+            248,
+            0,
+            0,
+            252,
+            0,
+            0,
+            254,
+            0,
+            0,
+            255,
+            0,
+            0,
+            255,
+            128,
+            0,
+            255,
+            192,
+            0,
+            255,
+            224,
+            0,
+            255,
+            240,
+            0,
+            255,
+            248,
+            0,
+            255,
+            248,
+            0,
+            255,
+            192,
+            0,
+            247,
+            224,
+            0,
+            199,
+            224,
+            0,
+            7,
+            224,
+            0,
+            3,
+            240,
+            0,
+            3,
+            240,
+            0,
+            1,
+            224,
+            0,
+            1,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        )
 
         cursor = pygame.cursors.compile(pygame.cursors.thickarrow_strings)
-        self.assertEqual(cursor,actual_byte_data)
+        self.assertEqual(cursor, actual_byte_data)
 
-        #Test such that cursor byte data obtained from compile function is valid in pygame.mouse.set_cursor()
+        # Test such that cursor byte data obtained from compile function is valid in pygame.mouse.set_cursor()
         pygame.display.init()
         try:
             pygame.mouse.set_cursor((24, 24), (0, 0), *cursor)
@@ -82,8 +213,7 @@ class CursorsModuleTest(unittest.TestCase):
         finally:
             pygame.display.quit()
 
-
-################################################################################
+    ################################################################################
 
     def test_load_xbm(self):
         # __doc__ (as of 2008-06-25) for pygame.cursors.load_xbm:
@@ -104,6 +234,13 @@ class CursorsModuleTest(unittest.TestCase):
         with open(cursorfile) as cursor_f, open(maskfile) as mask_f:
             cursor = pygame.cursors.load_xbm(cursor_f, mask_f)
 
+        # Can it load using pathlib.Path?
+        import pathlib
+
+        cursor = pygame.cursors.load_xbm(
+            pathlib.Path(cursorfile), pathlib.Path(maskfile)
+        )
+
         # Is it in a format that mouse.set_cursor won't blow up on?
         pygame.display.init()
         try:
@@ -113,7 +250,6 @@ class CursorsModuleTest(unittest.TestCase):
                 unittest.skip("skipping test as set_cursor() is not supported")
         finally:
             pygame.display.quit()
-
 
     def test_Cursor(self):
         """Ensure that the cursor object parses information properly"""
@@ -134,17 +270,18 @@ class CursorsModuleTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             pygame.cursors.Cursor((2,))
 
-        c3 = pygame.cursors.Cursor((0,0), pygame.Surface((20,20)))
+        c3 = pygame.cursors.Cursor((0, 0), pygame.Surface((20, 20)))
 
-        self.assertEqual(c3.data[0], (0,0))
+        self.assertEqual(c3.data[0], (0, 0))
         self.assertEqual(c3.data[1].get_size(), (20, 20))
         self.assertEqual(c3.type, "color")
 
         xormask, andmask = pygame.cursors.compile(pygame.cursors.thickarrow_strings)
         c4 = pygame.cursors.Cursor((24, 24), (0, 0), xormask, andmask)
 
-        self.assertEqual(c4.data, ((24,24), (0,0), xormask, andmask))
+        self.assertEqual(c4.data, ((24, 24), (0, 0), xormask, andmask))
         self.assertEqual(c4.type, "bitmap")
+
 
 ################################################################################
 

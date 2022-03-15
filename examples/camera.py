@@ -15,7 +15,7 @@ import pygame as pg
 import pygame.camera
 
 
-class VideoCapturePlayer(object):
+class VideoCapturePlayer:
 
     size = (640, 480)
 
@@ -24,7 +24,7 @@ class VideoCapturePlayer(object):
         super(VideoCapturePlayer, self).__init__(**argd)
 
         # create a display surface. standard pygame stuff
-        self.display = pg.display.set_mode(self.size, 0)
+        self.display = pg.display.set_mode(self.size)
         self.init_cams(0)
 
     def init_cams(self, which_cam_idx):
@@ -91,7 +91,7 @@ class VideoCapturePlayer(object):
 
             self.get_and_flip()
             self.clock.tick()
-            print(self.clock.get_fps())
+            pygame.display.set_caption(f"CAMERA! ({self.clock.get_fps():.2f} FPS)")
 
 
 def main():

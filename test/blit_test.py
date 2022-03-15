@@ -6,8 +6,7 @@ from pygame.locals import *
 
 class BlitTest(unittest.TestCase):
     def test_SRCALPHA(self):
-        """ SRCALPHA tests.
-        """
+        """SRCALPHA tests."""
         # blend(s, 0, d) = d
         s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((255, 255, 255, 0))
@@ -34,8 +33,7 @@ class BlitTest(unittest.TestCase):
         # blend(s, sA, d) <= 255
 
     def test_BLEND(self):
-        """ BLEND_ tests.
-        """
+        """BLEND_ tests."""
 
         # test that it doesn't overflow, and that it is saturated.
         s = pygame.Surface((1, 1), SRCALPHA, 32)

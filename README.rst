@@ -1,12 +1,10 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
-  :width: 200
-  :height: 70
+.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.svg
   :alt: pygame
+  :target: https://www.pygame.org/
 
 
-|TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
-|PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
-|LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
+|AppVeyorBuild| |PyPiVersion| |PyPiLicense|
+|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -127,10 +125,10 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 2.7 or PyPy >= 6.0.0 (and pypy3)
-* SDL >= 1.2.15
-* SDL_mixer >= 1.2.13
-* SDL_image >= 1.2.12
+* CPython >= 3.6 or PyPy3
+* SDL >= 2.0.0
+* SDL_mixer >= 2.0.0
+* SDL_image >= 2.0.0
 * SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
@@ -153,14 +151,8 @@ The programs in the ``examples`` subdirectory are in the public domain.
 See docs/licenses for licenses of dependencies.
 
 
-.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
-   :target: https://travis-ci.org/pygame/pygame
-
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
    :target: https://ci.appveyor.com/project/pygame/pygame
-
-.. |LaunchpadBuild| image:: https://www.pygame.org/images/launchpad_build.svg?svg=true
-   :target: https://code.launchpad.net/~pygame/+recipe/pygame-daily
 
 .. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
@@ -168,11 +160,10 @@ See docs/licenses for licenses of dependencies.
 .. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
 
-.. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.0.svg
-   :target: https://github.com/pygame/pygame/compare/2.0.0...main
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
+   :target: https://github.com/pygame/pygame/compare/2.1.2...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
@@ -182,9 +173,6 @@ See docs/licenses for licenses of dependencies.
 
 .. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
-
-.. |Coverity| image:: https://scan.coverity.com/projects/12288/badge.svg?v=2
-   :target: https://scan.coverity.com/projects/pygame
 
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org

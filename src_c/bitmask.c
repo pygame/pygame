@@ -39,7 +39,8 @@
 static INLINE unsigned int
 bitcount(BITMASK_W n)
 {
-    if (BITMASK_W_LEN == (32)) {
+    const int bitmask_len = BITMASK_W_LEN;
+    if (bitmask_len == 32) {
 #ifdef GILLIES
         /* (C) Donald W. Gillies, 1992.  All rights reserved.  You may reuse
            this bitcount() function anywhere you please as long as you retain
@@ -61,13 +62,19 @@ bitcount(BITMASK_W n)
         return n & 0xff;
 #endif
     }
-    else if (BITMASK_W_LEN == (64)) {
+    else if (bitmask_len == 64) {
         n = ((n >> 1) & 0x5555555555555555) + (n & 0x5555555555555555);
         n = ((n >> 2) & 0x3333333333333333) + (n & 0x3333333333333333);
         n = ((n >> 4) + n) & 0x0f0f0f0f0f0f0f0f;
         n += n >> 8;
         n += n >> 16;
+#ifdef _WIN32
+        /* Use explicit typecast to silence MSVC warning about large bitshift,
+         * even though this part code does not run on windows */
+        n += (long long)n >> 32;
+#else
         n += n >> 32;
+#endif
         return n & 0xff;
     }
     else {
@@ -756,7 +763,6 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
     }
 
     if (xoffset >= 0) {
-
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * (xoffset / BITMASK_W_LEN) + yoffset;
             a_end = a_entry + MIN(b->h, a->h - yoffset);
