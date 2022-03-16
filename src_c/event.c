@@ -2202,9 +2202,9 @@ pg_event_custom_type(PyObject *self)
 }
 
 static PyMethodDef _event_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)pgEvent_AutoInit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
-    {"__PYGAMEquit__", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
+    {"_internal_mod_quit", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union, overload
+from typing import Any, Dict, Optional, Tuple, Union, final, overload
 
 import numpy
 
@@ -56,6 +56,10 @@ class Sound:
         maxtime: int = 0,
         fade_ms: int = 0,
     ) -> Channel: ...
+    # possibly going to be deprecated/removed soon, in which case these
+    # typestubs must be removed too
+    __array_interface__: Dict[str, Any]
+    __array_struct__: Any
     def stop(self) -> None: ...
     def fadeout(self, time: int) -> None: ...
     def set_volume(self, value: float) -> None: ...
@@ -64,6 +68,7 @@ class Sound:
     def get_length(self) -> float: ...
     def get_raw(self) -> bytes: ...
 
+@final
 class Channel:
     def __init__(self, id: int) -> None: ...
     def play(

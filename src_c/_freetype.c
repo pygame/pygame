@@ -484,7 +484,7 @@ free_string(PGFT_String *p)
  * FREETYPE MODULE METHODS TABLE
  */
 static PyMethodDef _ft_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)_ft_autoinit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)_ft_autoinit, METH_NOARGS,
      "auto initialize function for _freetype"},
     {"init", (PyCFunction)_ft_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEINIT},

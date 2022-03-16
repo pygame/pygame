@@ -244,9 +244,9 @@ pg_mod_autoinit(const char *modname)
     if (!module)
         return 0;
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEinit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_init");
 
-    /* If we could not load __PYGAMEinit__, load init function */
+    /* If we could not load _internal_mod_init, load init function */
     if (!funcobj) {
         PyErr_Clear();
         funcobj = PyObject_GetAttrString(module, "init");
@@ -277,9 +277,9 @@ pg_mod_autoquit(const char *modname)
         return;
     }
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEquit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
 
-    /* If we could not load __PYGAMEquit__, load quit function */
+    /* If we could not load _internal_mod_quit, load quit function */
     if (!funcobj)
         funcobj = PyObject_GetAttrString(module, "quit");
 

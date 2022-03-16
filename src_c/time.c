@@ -546,9 +546,9 @@ static PyTypeObject PyClock_Type = {
 };
 
 static PyMethodDef _time_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)pg_time_autoinit, METH_NOARGS,
      "auto initialize function for time"},
-    {"__PYGAMEquit__", (PyCFunction)pg_time_autoquit, METH_NOARGS,
+    {"_internal_mod_quit", (PyCFunction)pg_time_autoquit, METH_NOARGS,
      "auto quit function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
