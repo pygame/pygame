@@ -877,28 +877,28 @@ dict_from_event(SDL_Event *event)
             switch (event->window.event) {
                 case SDL_WINDOWEVENT_ENTER:
                     gain = 1;
-                    state = (long)SDL_APPFOCUSMOUSE;
+                    state = SDL_APPMOUSEFOCUS;
                     break;
                 case SDL_WINDOWEVENT_LEAVE:
                     gain = 0;
-                    state = (long)SDL_APPFOCUSMOUSE;
+                    state = SDL_APPMOUSEFOCUS;
                     break;
                 case SDL_WINDOWEVENT_FOCUS_GAINED:
                     gain = 1;
-                    state = (long)SDL_APPINPUTFOCUS;
+                    state = SDL_APPINPUTFOCUS;
                     break;
                 case SDL_WINDOWEVENT_FOCUS_LOST:
                     gain = 0;
-                    state = (long)SDL_APPINPUTFOCUS;
+                    state = SDL_APPINPUTFOCUS;
                     break;
                 case SDL_WINDOWEVENT_MINIMIZED:
                     gain = 0;
-                    state = (long)SDL_APPACTIVE;
+                    state = SDL_APPACTIVE;
                     break;
                 default:
                     assert(event->window.event == SDL_WINDOWEVENT_RESTORED);
                     gain = 1;
-                    state = (long)SDL_APPACTIVE;
+                    state = SDL_APPACTIVE;
             }
             _pg_insobj(dict, "gain", PyLong_FromLong(gain));
             _pg_insobj(dict, "state", PyLong_FromLong(state));
