@@ -332,6 +332,14 @@ try:
 except (ImportError, IOError):
     pass
 
+# this internal module needs to be included for dependency
+# finders, but can't be deleted, as some tests need it
+try:
+    import pygame.pkgdata
+
+except (ImportError, IOError):
+    pass
+
 
 def packager_imports():
     """some additional imports that py2app/py2exe will want to see"""
