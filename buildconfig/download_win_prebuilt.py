@@ -22,10 +22,7 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
     except ImportError:
         use_requests = False
 
-    try:
-        import urllib.request as urllib
-    except ImportError:
-        import urllib2 as urllib
+    import urllib.request as urllib
     import hashlib
     import zipfile
 
@@ -89,8 +86,8 @@ def get_urls(x86=True, x64=True):
         '137f86474691f4e12e76e07d58d5920c8d844d5b',
         ],
         [
-        'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip',
-        '1436df41ebc47ac36e02ec9bda5699e80ff9bd27',
+        'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.18-VC.zip',
+        'a421d47e9336ab722eac4ba107fab7f7b080eb4e',
         ],
         [
         'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
@@ -105,15 +102,13 @@ def get_urls(x86=True, x64=True):
     ])
     if x86:
         url_sha1.append([
-         # 'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
-         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x86-pygame-1.9.2-20150922.zip',
-         'dbce1d5ea27b3da17273e047826d172e1c34b478'
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev4/prebuilt-x86-pygame-2.1.4-20220319.zip',
+         'bff2e50d65ec35274d33203e9fcaf5d53b31a696'
         ])
     if x64:
         url_sha1.append([
-         # 'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
-         'https://github.com/pygame/pygame/releases/download/2.1.3.dev2/prebuilt-x64-pygame-1.9.2-20150922.zip',
-         '3a5af3427b3aa13a0aaf5c4cb08daaed341613ed'
+         'https://github.com/pygame/pygame/releases/download/2.1.3.dev4/prebuilt-x64-pygame-2.1.4-20220319.zip',
+         '16b46596744ce9ef80e7e40fa72ddbafef1cf586'
         ])
     return url_sha1
 
@@ -179,12 +174,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
     """
     prebuilt_x64 = os.path.join(
         temp_dir,
-        'prebuilt-x64-pygame-1.9.2-20150922',
+        'prebuilt-x64-pygame-2.1.4-20220319',
         'prebuilt-x64'
     )
     prebuilt_x86 = os.path.join(
         temp_dir,
-        'prebuilt-x86-pygame-1.9.2-20150922',
+        'prebuilt-x86-pygame-2.1.4-20220319',
         'prebuilt-x86'
     )
 
@@ -251,12 +246,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_ttf-devel-2.0.15-VC/SDL2_ttf-2.0.15'
+                'SDL2_ttf-devel-2.0.18-VC/SDL2_ttf-2.0.18'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_ttf-2.0.15'
+                'SDL2_ttf-2.0.18'
             )
         )
         copy(
