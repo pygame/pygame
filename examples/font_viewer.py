@@ -88,6 +88,7 @@ class FontViewer:
         """
         font_size = dparams.get("size", 0) or self.font_size
         color = dparams.get("color", (255, 255, 255))
+        instruction_color = dparams.get("color", (255, 255, 0))
         self.back_color = dparams.get("back_color", (0, 0, 0))
 
         fonts, path = self.get_font_list()
@@ -107,7 +108,7 @@ class FontViewer:
             "",
         )
         for line in lines:
-            surf = font.render(line, 1, color, self.back_color)
+            surf = font.render(line, 1, instruction_color, self.back_color)
             font_surfaces.append((surf, total_height))
             total_height += surf.get_height()
             max_width = max(max_width, surf.get_width())
