@@ -198,13 +198,13 @@ def main(image_file=None):
                     direction = None
             
             # given a scroll event, preform that action. This enables concurrent presses and multidirectional scrolling.
-            if(scroll_up):
+            if scroll_up:
                 scroll_view(screen, image, DIR_UP, view_rect)
-            if(scroll_down):
+            if scroll_down:
                 scroll_view(screen, image, DIR_DOWN, view_rect)
-            if(scroll_left):
+            if scroll_left:
                 scroll_view(screen, image, DIR_LEFT, view_rect)
-            if(scroll_right):
+            if scroll_right:
                 scroll_view(screen, image, DIR_RIGHT, view_rect)
 
             if direction:
