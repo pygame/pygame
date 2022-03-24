@@ -1157,6 +1157,27 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
 
+    def test_subclassing_v2(self):
+        """Check if Vector2 is subclassable"""
+        v = Vector2(4, 2)
+
+        class TestVector(Vector2):
+            def supermariobrosiscool(self):
+                return 722
+
+        other = TestVector(4, 1)
+
+        self.assertEqual(other.supermariobrosiscool(), 722)
+        self.assertNotEqual(type(v), type(other))
+        self.assertNotEqual(type(v), type(other.copy()))
+        self.assertEqual(type(other), type(other.reflect(v)))
+        self.assertEqual(type(other), type(other.lerp(v, 1)))
+        self.assertEqual(type(other), type(other.slerp(v, 1)))
+        self.assertEqual(type(other), type(other.rotate(5)))
+        self.assertEqual(type(other), type(other.rotate_rad(5)))
+        self.assertEqual(type(other), type(other.project(v)))
+        self.assertEqual(type(other), type(other.move_towards(v, 5)))
+
 
 class Vector3TypeTest(unittest.TestCase):
     def setUp(self):
@@ -2453,6 +2474,27 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(expected_v2.x, v2.x)
         self.assertAlmostEqual(expected_v2.y, v2.y)
         self.assertAlmostEqual(expected_v2.z, v2.z)
+
+    def test_subclassing_v3(self):
+        """Check if Vector3 is subclassable"""
+        v = Vector3(4, 2, 0)
+
+        class TestVector(Vector3):
+            def supermariobrosiscool(self):
+                return 722
+
+        other = TestVector(4, 1, 0)
+
+        self.assertEqual(other.supermariobrosiscool(), 722)
+        self.assertNotEqual(type(v), type(other))
+        self.assertNotEqual(type(v), type(other.copy()))
+        self.assertEqual(type(other), type(other.reflect(v)))
+        self.assertEqual(type(other), type(other.lerp(v, 1)))
+        self.assertEqual(type(other), type(other.slerp(v, 1)))
+        self.assertEqual(type(other), type(other.rotate(5, v)))
+        self.assertEqual(type(other), type(other.rotate_rad(5, v)))
+        self.assertEqual(type(other), type(other.project(v)))
+        self.assertEqual(type(other), type(other.move_towards(v, 5)))
 
 
 if __name__ == "__main__":
