@@ -556,25 +556,18 @@ static PyObject *
 _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim)
 {
     pgVector *vec;
-    Py_ssize_t i;
 
-    switch (dim) {
-        case 2:
-            vec = (pgVector *)pgVector2_Type.tp_new(type, NULL, NULL);
-            break;
-        case 3:
-            vec = (pgVector *)pgVector3_Type.tp_new(type, NULL, NULL);
-            break;
-        default:
-            PyErr_SetString(PyExc_SystemError,
-                            "Wrong internal call to pgVector_NEW.\n");
-            return NULL;
-    }
+    vec = (pgVector *)(type->tp_new(type, NULL, NULL));
 
     if (vec) {
         vec->dim = dim;
-        vec->coords = PyMem_New(double, dim);
         vec->epsilon = VECTOR_EPSILON;
+        vec->coords = PyMem_New(double, dim);
+
+        if (vec->coords == NULL) {
+            Py_DECREF(vec);
+            return PyErr_NoMemory();
+        }
     }
     return (PyObject *)vec;
 }
@@ -769,9 +762,7 @@ vector_inplace_floor_div(pgVector *o1, PyObject *o2)
 static PyObject *
 vector_neg(pgVector *self)
 {
-    pgVector *ret;
-
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
+    pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
     if (ret != NULL) {
         Py_ssize_t i;
@@ -786,9 +777,7 @@ vector_neg(pgVector *self)
 static PyObject *
 vector_pos(pgVector *self)
 {
-    pgVector *ret;
-
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
+    pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
     if (ret != NULL) {
         memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
@@ -811,10 +800,12 @@ vector_nonzero(pgVector *self)
 static PyObject *
 vector_copy(pgVector *self, PyObject *_null)
 {
-    pgVector *ret;
     Py_ssize_t i;
+    pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
+    if (!ret) {
+        return NULL;
+    }
 
     for (i = 0; i < self->dim; i++) {
         ret->coords[i] = self->coords[i];
@@ -1279,9 +1270,7 @@ vector_length_squared(pgVector *self, PyObject *_null)
 static PyObject *
 vector_normalize(pgVector *self, PyObject *_null)
 {
-    pgVector *ret;
-
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
+    pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
     if (ret == NULL) {
         return NULL;
     }
@@ -1596,9 +1585,7 @@ _vector_reflect_helper(double *dst_coords, const double *src_coords,
 static PyObject *
 vector_reflect(pgVector *self, PyObject *normal)
 {
-    pgVector *ret;
-
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
+    pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
     if (ret == NULL) {
         return NULL;
