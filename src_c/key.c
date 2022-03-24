@@ -89,7 +89,8 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 }
 
 static PyMappingMethods pg_scancodewrapper_mapping = {
-    NULL, (binaryfunc)pg_scancodewrapper_subscript, NULL};
+    .mp_subscript = (binaryfunc)pg_scancodewrapper_subscript,
+};
 
 static PyObject *
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
@@ -102,45 +103,11 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-        _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
-    0,                                     /* basic size */
-    0,                                     /* itemsize */
-    0,                                     /* dealloc */
-    0,                                     /* print */
-    NULL,                                  /* getattr */
-    NULL,                                  /* setattr */
-    NULL,                                  /* compare */
-    (reprfunc)pg_scancodewrapper_repr,     /* repr */
-    NULL,                                  /* as_number */
-    NULL,                                  /* as_sequence */
-    &pg_scancodewrapper_mapping,           /* as_mapping */
-    (hashfunc)NULL,                        /* hash */
-    (ternaryfunc)NULL,                     /* call */
-    (reprfunc)NULL,                        /* str */
-    0,                                     /* tp_getattro */
-    0L,
-    0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS |
-        Py_TPFLAGS_BASETYPE, /* tp_flags */
-    NULL,                    /* Documentation string */
-    0,                       /* tp_traverse */
-    0,                       /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    0,                       /* tp_methods */
-    0,                       /* tp_members */
-    0,                       /* tp_getset */
-    0,                       /* tp_base */
-    0,                       /* tp_dict */
-    0,                       /* tp_descr_get */
-    0,                       /* tp_descr_set */
-    0,                       /* tp_dictoffset */
-    0,                       /* tp_init */
-    0,                       /* tp_alloc */
-    0                        /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
+    .tp_repr = (reprfunc)pg_scancodewrapper_repr,
+    .tp_as_mapping = &pg_scancodewrapper_mapping,
+    .tp_flags =
+        Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
 };
 
 static PyObject *

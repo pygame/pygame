@@ -368,21 +368,11 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "VidInfo", /*name*/
-    sizeof(pgVidInfoObject),                  /*basic size*/
-    0,                                        /*itemsize*/
-    pg_vidinfo_dealloc,                       /*dealloc*/
-    0,                                        /*print*/
-    pg_vidinfo_getattr,                       /*getattr*/
-    NULL,                                     /*setattr*/
-    NULL,                                     /*compare*/
-    pg_vidinfo_str,                           /*repr*/
-    NULL,                                     /*as_number*/
-    NULL,                                     /*as_sequence*/
-    NULL,                                     /*as_mapping*/
-    (hashfunc)NULL,                           /*hash*/
-    (ternaryfunc)NULL,                        /*call*/
-    (reprfunc)NULL,                           /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    .tp_basicsize = sizeof(pgVidInfoObject),
+    .tp_dealloc = pg_vidinfo_dealloc,
+    .tp_getattr = pg_vidinfo_getattr,
+    .tp_repr = pg_vidinfo_str,
 };
 
 static PyObject *

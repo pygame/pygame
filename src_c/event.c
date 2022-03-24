@@ -1323,24 +1323,7 @@ _pg_event_nonzero(pgEventObject *self)
 }
 
 static PyNumberMethods pg_event_as_number = {
-    (binaryfunc)NULL,           /*Add*/
-    (binaryfunc)NULL,           /*subtract*/
-    (binaryfunc)NULL,           /*multiply*/
-    (binaryfunc)NULL,           /*remainder*/
-    (binaryfunc)NULL,           /*divmod*/
-    (ternaryfunc)NULL,          /*power*/
-    (unaryfunc)NULL,            /*negative*/
-    (unaryfunc)NULL,            /*pos*/
-    (unaryfunc)NULL,            /*abs*/
-    (inquiry)_pg_event_nonzero, /*nonzero*/
-    (unaryfunc)NULL,            /*invert*/
-    (binaryfunc)NULL,           /*lshift*/
-    (binaryfunc)NULL,           /*rshift*/
-    (binaryfunc)NULL,           /*and*/
-    (binaryfunc)NULL,           /*xor*/
-    (binaryfunc)NULL,           /*or*/
-    (unaryfunc)NULL,            /*int*/
-    (unaryfunc)NULL,            /*float*/
+    .nb_bool = (inquiry)_pg_event_nonzero,
 };
 
 static PyTypeObject pgEvent_Type;
@@ -1451,48 +1434,24 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgEvent_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Event", /*name*/
-    sizeof(pgEventObject),                  /*basic size*/
-    0,                                      /*itemsize*/
-    pg_event_dealloc,                       /*dealloc*/
-    0,                                      /*print*/
-    0,                                      /*getattr*/
-    0,                                      /*setattr*/
-    0,                                      /*compare*/
-    pg_event_str,                           /*repr*/
-    &pg_event_as_number,                    /*as_number*/
-    0,                                      /*as_sequence*/
-    0,                                      /*as_mapping*/
-    (hashfunc)NULL,                         /*hash*/
-    (ternaryfunc)NULL,                      /*call*/
-    (reprfunc)NULL,                         /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    .tp_basicsize = sizeof(pgEventObject),
+    .tp_dealloc = pg_event_dealloc,
+    .tp_repr = pg_event_str,
+    .tp_as_number = &pg_event_as_number,
 #ifdef PYPY_VERSION
-    pg_EventGetAttr, /* tp_getattro */
-    pg_EventSetAttr, /* tp_setattro */
+    .tp_getattro = pg_EventGetAttr,
+    .tp_setattro = pg_EventSetAttr,
 #else
-    PyObject_GenericGetAttr, /* tp_getattro */
-    PyObject_GenericSetAttr, /* tp_setattro */
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_setattro = PyObject_GenericSetAttr,
 #endif
-    0, /* tp_as_buffer */
-    0,
-    DOC_PYGAMEEVENTEVENT,          /* Documentation string */
-    0,                             /* tp_traverse */
-    0,                             /* tp_clear */
-    pg_event_richcompare,          /* tp_richcompare */
-    0,                             /* tp_weaklistoffset */
-    0,                             /* tp_iter */
-    0,                             /* tp_iternext */
-    0,                             /* tp_methods */
-    pg_event_members,              /* tp_members */
-    0,                             /* tp_getset */
-    0,                             /* tp_base */
-    0,                             /* tp_dict */
-    0,                             /* tp_descr_get */
-    0,                             /* tp_descr_set */
-    offsetof(pgEventObject, dict), /* tp_dictoffset */
-    (initproc)pg_event_init,       /* tp_init */
-    0,                             /* tp_alloc */
-    PyType_GenericNew,             /* tp_new */
+    .tp_doc = DOC_PYGAMEEVENTEVENT,
+    .tp_richcompare = pg_event_richcompare,
+    .tp_members = pg_event_members,
+    .tp_dictoffset = offsetof(pgEventObject, dict),
+    .tp_init = (initproc)pg_event_init,
+    .tp_new = PyType_GenericNew,
 };
 
 static PyObject *

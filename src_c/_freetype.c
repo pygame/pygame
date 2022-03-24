@@ -603,52 +603,16 @@ static PyGetSetDef _ftfont_getsets[] = {
 #define FULL_TYPE_NAME MODULE_NAME "." FONT_TYPE_NAME
 
 PyTypeObject pgFont_Type = {
-    PyVarObject_HEAD_INIT(0, 0) FULL_TYPE_NAME, /* tp_name */
-    sizeof(pgFontObject),                       /* tp_basicsize */
-    0,                                          /* tp_itemsize */
-    (destructor)_ftfont_dealloc,                /* tp_dealloc */
-    0,                                          /* tp_print */
-    0,                                          /* tp_getattr */
-    0,                                          /* tp_setattr */
-    0,                                          /* tp_compare */
-    (reprfunc)_ftfont_repr,                     /* tp_repr */
-    0,                                          /* tp_as_number */
-    0,                                          /* tp_as_sequence */
-    0,                                          /* tp_as_mapping */
-    0,                                          /* tp_hash */
-    0,                                          /* tp_call */
-    0,                                          /* tp_str */
-    0,                                          /* tp_getattro */
-    0,                                          /* tp_setattro */
-    0,                                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    DOC_PYGAMEFREETYPEFONT,                     /* docstring */
-    0,                                          /* tp_traverse */
-    0,                                          /* tp_clear */
-    0,                                          /* tp_richcompare */
-    0,                                          /* tp_weaklistoffset */
-    0,                                          /* tp_iter */
-    0,                                          /* tp_iternext */
-    _ftfont_methods,                            /* tp_methods */
-    0,                                          /* tp_members */
-    _ftfont_getsets,                            /* tp_getset */
-    0,                                          /* tp_base */
-    0,                                          /* tp_dict */
-    0,                                          /* tp_descr_get */
-    0,                                          /* tp_descr_set */
-    0,                                          /* tp_dictoffset */
-    (initproc)_ftfont_init,                     /* tp_init */
-    0,                                          /* tp_alloc */
-    (newfunc)_ftfont_new,                       /* tp_new */
-    0,                                          /* tp_free */
-    0,                                          /* tp_is_gc */
-    0,                                          /* tp_bases */
-    0,                                          /* tp_mro */
-    0,                                          /* tp_cache */
-    0,                                          /* tp_subclasses */
-    0,                                          /* tp_weaklist */
-    0,                                          /* tp_del */
-    0                                           /* tp_version_tag */
+    PyVarObject_HEAD_INIT(0, 0).tp_name = FULL_TYPE_NAME,
+    .tp_basicsize = sizeof(pgFontObject),
+    .tp_dealloc = (destructor)_ftfont_dealloc,
+    .tp_repr = (reprfunc)_ftfont_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEFREETYPEFONT,
+    .tp_methods = _ftfont_methods,
+    .tp_getset = _ftfont_getsets,
+    .tp_init = (initproc)_ftfont_init,
+    .tp_new = (newfunc)_ftfont_new,
 };
 
 #undef FULL_TYPE_NAME
