@@ -63,6 +63,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          | if ``width > 0``, used for line thickness
          | if ``width < 0``, nothing will be drawn
          |
+      
+      .. versionchanged:: 2.1.1 Drawing rects with width now draws the width correctly inside the rect's area, rather than using an internal call to draw.lines(), which had half the width spill outside the rect area.
 
    :param int border_radius: (optional) used for drawing rectangle with rounded corners.
       The supported range is [0, min(height, width) / 2], with 0 representing a rectangle
