@@ -451,7 +451,7 @@ add_datafiles(data_files, 'pygame/examples',
 add_datafiles(data_files, 'pygame/docs/generated',
               ['docs/generated',
                   ['*.html',             # Navigation and help pages
-                   '*.gif',              # pygame logos
+                   '*.txt',              # License text
                    '*.js',               # For doc search
                    'LGPL.txt',           # pygame license
                    ['ref',               # pygame reference
