@@ -150,7 +150,7 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
 /* list_cameras() - lists cameras available on the computer */
 PyObject *
-list_cameras(PyObject *self, PyObject *arg)
+list_cameras(PyObject *self, PyObject *_null)
 {
 #if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
     PyObject *ret_list;
@@ -207,7 +207,7 @@ error:
 
 /* start() - opens, inits, and starts capturing on the camera */
 PyObject *
-camera_start(pgCameraObject *self, PyObject *args)
+camera_start(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
@@ -240,7 +240,7 @@ camera_start(pgCameraObject *self, PyObject *args)
 
 /* stop() - stops capturing, uninits, and closes the camera */
 PyObject *
-camera_stop(pgCameraObject *self, PyObject *args)
+camera_stop(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     if (v4l2_stop_capturing(self) == 0)
@@ -261,7 +261,7 @@ camera_stop(pgCameraObject *self, PyObject *args)
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
 PyObject *
-camera_get_controls(pgCameraObject *self, PyObject *args)
+camera_get_controls(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     int value;
@@ -338,7 +338,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 
 /* get_size() - returns the dimensions of the images being recorded */
 PyObject *
-camera_get_size(pgCameraObject *self, PyObject *args)
+camera_get_size(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
     return Py_BuildValue("(ii)", self->width, self->height);
@@ -348,7 +348,7 @@ camera_get_size(pgCameraObject *self, PyObject *args)
 
 /* query_image() - checks if a frame is ready */
 PyObject *
-camera_query_image(pgCameraObject *self, PyObject *args)
+camera_query_image(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
@@ -451,7 +451,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 
 /* get_raw() - returns an unmodified image as a string from the buffer */
 PyObject *
-camera_get_raw(pgCameraObject *self, PyObject *args)
+camera_get_raw(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);

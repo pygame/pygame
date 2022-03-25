@@ -301,7 +301,7 @@ pg_mod_autoquit(const char *modname)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *_null)
 {
     int i = 0, success = 0, fail = 0;
 
@@ -357,7 +357,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self)
+pg_get_sdl_version(PyObject *self, PyObject *_null)
 {
     SDL_version v;
 
@@ -366,7 +366,7 @@ pg_get_sdl_version(PyObject *self)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self)
+pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
@@ -437,14 +437,14 @@ _pg_quit(void)
 }
 
 static PyObject *
-pg_quit(PyObject *self)
+pg_quit(PyObject *self, PyObject *_null)
 {
     _pg_quit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
-pg_get_init(PyObject *self, PyObject *args)
+pg_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -627,7 +627,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self)
+pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }

@@ -567,7 +567,7 @@ pg_GetKeyRepeat(int *delay, int *interval)
 }
 
 static PyObject *
-pgEvent_AutoQuit(PyObject *self)
+pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
     if (_pg_event_is_init) {
         if (_pg_repeat_timer) {
@@ -585,7 +585,7 @@ pgEvent_AutoQuit(PyObject *self)
 }
 
 static PyObject *
-pgEvent_AutoInit(PyObject *self)
+pgEvent_AutoInit(PyObject *self, PyObject *_null)
 {
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
@@ -1499,7 +1499,7 @@ set_grab(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-get_grab(PyObject *self)
+get_grab(PyObject *self, PyObject *_null)
 {
     SDL_Window *win;
     SDL_bool mode = SDL_FALSE;
@@ -1554,7 +1554,7 @@ _pg_event_wait(SDL_Event *event, int timeout)
 }
 
 static PyObject *
-pg_event_pump(PyObject *self)
+pg_event_pump(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
     _pg_event_pump(1);
@@ -1562,7 +1562,7 @@ pg_event_pump(PyObject *self)
 }
 
 static PyObject *
-pg_event_poll(PyObject *self)
+pg_event_poll(PyObject *self, PyObject *_null)
 {
     SDL_Event event;
     VIDEO_INIT_CHECK();
@@ -2117,7 +2117,7 @@ pg_event_get_blocked(PyObject *self, PyObject *obj)
 }
 
 static PyObject *
-pg_event_custom_type(PyObject *self)
+pg_event_custom_type(PyObject *self, PyObject *_null)
 {
     if (_custom_event < PG_NUMEVENTS)
         return PyLong_FromLong(_custom_event++);

@@ -24,7 +24,7 @@
 
 
 static PyObject *
-pg_touch_num_devices(PyObject *self, PyObject *args)
+pg_touch_num_devices(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_GetNumTouchDevices());
 }

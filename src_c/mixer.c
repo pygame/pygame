@@ -497,14 +497,14 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
 }
 
 static PyObject *
-pgMixer_AutoInit(PyObject *self)
+pgMixer_AutoInit(PyObject *self, PyObject *_null)
 {
     /* Return init with defaults */
     return _init(0, 0, 0, 0, NULL, -1);
 }
 
 static PyObject *
-quit(PyObject *self)
+quit(PyObject *self, PyObject *_null)
 {
     int i;
     if (SDL_WasInit(SDL_INIT_AUDIO)) {
@@ -567,7 +567,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-get_init(PyObject *self)
+get_init(PyObject *self, PyObject *_null)
 {
     int freq, channels, realform;
     Uint16 format;
@@ -663,7 +663,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-snd_get_num_channels(PyObject *self, PyObject *args)
+snd_get_num_channels(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
@@ -687,7 +687,7 @@ snd_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_stop(PyObject *self, PyObject *args)
+snd_stop(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
@@ -713,7 +713,7 @@ snd_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_volume(PyObject *self, PyObject *args)
+snd_get_volume(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int volume;
@@ -724,7 +724,7 @@ snd_get_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_length(PyObject *self, PyObject *args)
+snd_get_length(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int freq, channels, mixerbytes, numsamples;
@@ -745,7 +745,7 @@ snd_get_length(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_raw(PyObject *self, PyObject *args)
+snd_get_raw(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
@@ -1060,7 +1060,7 @@ chan_queue(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_busy(PyObject *self)
+chan_get_busy(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1085,7 +1085,7 @@ chan_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_stop(PyObject *self)
+chan_stop(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1097,7 +1097,7 @@ chan_stop(PyObject *self)
 }
 
 static PyObject *
-chan_pause(PyObject *self)
+chan_pause(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1107,7 +1107,7 @@ chan_pause(PyObject *self)
 }
 
 static PyObject *
-chan_unpause(PyObject *self)
+chan_unpause(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1176,7 +1176,7 @@ chan_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_volume(PyObject *self)
+chan_get_volume(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     int volume;
@@ -1189,7 +1189,7 @@ chan_get_volume(PyObject *self)
 }
 
 static PyObject *
-chan_get_sound(PyObject *self)
+chan_get_sound(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     PyObject *sound;
@@ -1203,7 +1203,7 @@ chan_get_sound(PyObject *self)
 }
 
 static PyObject *
-chan_get_queue(PyObject *self)
+chan_get_queue(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     PyObject *sound;
@@ -1230,7 +1230,7 @@ chan_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_endevent(PyObject *self)
+chan_get_endevent(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
 
@@ -1308,7 +1308,7 @@ static PyTypeObject pgChannel_Type = {
 /*mixer module methods*/
 
 static PyObject *
-get_num_channels(PyObject *self)
+get_num_channels(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
     return PyLong_FromLong(Mix_GroupCount(-1));
@@ -1360,7 +1360,7 @@ set_reserved(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_busy(PyObject *self)
+get_busy(PyObject *self, PyObject *_null)
 {
     if (!SDL_WasInit(SDL_INIT_AUDIO))
         return PyBool_FromLong(0);
@@ -1405,7 +1405,7 @@ mixer_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mixer_stop(PyObject *self)
+mixer_stop(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -1416,7 +1416,7 @@ mixer_stop(PyObject *self)
 }
 
 static PyObject *
-mixer_pause(PyObject *self)
+mixer_pause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -1425,7 +1425,7 @@ mixer_pause(PyObject *self)
 }
 
 static PyObject *
-mixer_unpause(PyObject *self)
+mixer_unpause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 

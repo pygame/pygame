@@ -74,7 +74,7 @@ abs_diff_uint32(Uint32 a, Uint32 b)
 
 /* Copies the given mask. */
 static PyObject *
-mask_copy(PyObject *self, PyObject *args)
+mask_copy(PyObject *self, PyObject *_null)
 {
     bitmask_t *new_bitmask = bitmask_copy(pgMask_AsBitmap(self));
 
@@ -90,10 +90,10 @@ mask_copy(PyObject *self, PyObject *args)
  * subclasses that override the __copy__() method to also override the copy()
  * method automatically. */
 static PyObject *
-mask_call_copy(PyObject *self, PyObject *args)
+mask_call_copy(PyObject *self, PyObject *_null)
 {
     return PyObject_CallMethodObjArgs(self, PyUnicode_FromString("__copy__"),
-                                      args);
+                                      NULL);
 }
 
 static PyObject *
@@ -293,7 +293,7 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-mask_fill(PyObject *self, PyObject *args)
+mask_fill(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -303,7 +303,7 @@ mask_fill(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_clear(PyObject *self, PyObject *args)
+mask_clear(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -313,7 +313,7 @@ mask_clear(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_invert(PyObject *self, PyObject *args)
+mask_invert(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -404,7 +404,7 @@ mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-mask_count(PyObject *self, PyObject *args)
+mask_count(PyObject *self, PyObject *_null)
 {
     bitmask_t *m = pgMask_AsBitmap(self);
 
@@ -412,7 +412,7 @@ mask_count(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_centroid(PyObject *self, PyObject *args)
+mask_centroid(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y;
@@ -444,7 +444,7 @@ mask_centroid(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_angle(PyObject *self, PyObject *args)
+mask_angle(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y;
@@ -1469,7 +1469,7 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
 }
 
 static PyObject *
-mask_get_bounding_rects(PyObject *self, PyObject *args)
+mask_get_bounding_rects(PyObject *self, PyObject *_null)
 {
     SDL_Rect *regions;
     SDL_Rect *aregion;
