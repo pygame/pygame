@@ -700,11 +700,9 @@ _color_dealloc(pgColorObject *color)
 static PyObject *
 _color_repr(pgColorObject *color)
 {
-    /* Max. would be(255, 255, 255, 255) */
-    char buf[21];
-    PyOS_snprintf(buf, sizeof(buf), "(%d, %d, %d, %d)", color->data[0],
-                  color->data[1], color->data[2], color->data[3]);
-    return PyUnicode_FromString(buf);
+    return PyUnicode_FromFormat("(%d, %d, %d, %d)", color->data[0],
+                                color->data[1], color->data[2],
+                                color->data[3]);
 }
 
 /**

@@ -160,41 +160,46 @@ list_cameras(PyObject *self, PyObject *arg)
 #else
     WCHAR **devices;
 #endif
-    int num_devices, i;
+    int j, i = 0, num_devices = 0;
 
-    num_devices = 0;
-    ret_list = NULL;
-    ret_list = PyList_New(0);
-    if (!ret_list)
-        return NULL;
-
+    /* TODO for future PRs: errors in these functions are being ignored as
+     * of now, and an empty list is being returned by this function */
 #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
 #elif defined(PYGAME_WINDOWS_CAMERA)
     devices = windows_list_cameras(&num_devices);
 #endif
+
+    ret_list = PyList_New(num_devices);
+    if (!ret_list) {
+        goto error;
+    }
+
     for (i = 0; i < num_devices; i++) {
 #if defined(PYGAME_WINDOWS_CAMERA)
         string = PyUnicode_FromWideChar(devices[i], -1);
 #else
         string = PyUnicode_FromString(devices[i]);
 #endif
-        if (0 != PyList_Append(ret_list, string)) {
-            /* Append failed; clean up and return */
-            Py_DECREF(ret_list);
-            Py_DECREF(string);
-            for (; i < num_devices; i++) {
-                free(devices[i]);
-            }
-            free(devices);
-            return NULL; /* Exception already set. */
+        if (!string) {
+            goto error;
         }
-        Py_DECREF(string);
+        /* steals reference to 'string' */
+        PyList_SET_ITEM(ret_list, i, string);
         free(devices[i]);
     }
     free(devices);
 
     return ret_list;
+error:
+    /* free the remaining devices */
+    for (j = i; j < num_devices; j++) {
+        free(devices[j]);
+    }
+    free(devices);
+    Py_XDECREF(ret_list);
+    return NULL;
+
 #else
     Py_RETURN_NONE;
 #endif

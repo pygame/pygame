@@ -468,10 +468,14 @@ clock_dealloc(PyObject *self)
 PyObject *
 clock_str(PyObject *self)
 {
-    char str[1024];
+    char str[64];
     PyClockObject *_clock = (PyClockObject *)self;
 
-    sprintf(str, "<Clock(fps=%.2f)>", (float)_clock->fps);
+    int ret = PyOS_snprintf(str, 64, "<Clock(fps=%.2f)>", _clock->fps);
+    if (ret < 0 || ret >= 64) {
+        return RAISE(PyExc_RuntimeError,
+                     "Internal PyOS_snprintf call failed!");
+    }
 
     return PyUnicode_FromString(str);
 }
