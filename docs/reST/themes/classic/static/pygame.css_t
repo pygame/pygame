@@ -85,21 +85,20 @@ div.header {
     line-height: 1.2em;
 }
 
-div.header table {
+div.header > div {
     border: {{ theme_headerborder }};
     border-collapse: collapse;
     background-color: {{ theme_headerbgcolor }};
 }
 
-div.header td {
-    border-right: {{ theme_headerborder }};
-}
-
 div.header .logo {
     background-color: {{ theme_logobgcolor }};
-    text-align: center;
-    vertical-align: middle;
     padding: 0.3em;
+    border-right: 3px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 div.header .logo img {
@@ -112,6 +111,7 @@ div.header .pagelinks {
     padding: 0.3em;
     text-align: center;
     vertical-align: middle;
+    flex-grow: 1;
 }
 
 div.header p.top {
@@ -134,6 +134,22 @@ div.header .pagelinks a:hover {
 
 div.document {
     background-color: {{ theme_bgcolor }};
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: row;
+}
+
+@media only screen and (max-width: 680px) {
+  .flex-container {
+    flex-direction: column;
+  }
+
+  div.header .logo {
+      border-right: none;
+      border-bottom: 3px solid black;
+  }
 }
 
 /* on wide screens center text, and max width for readable area.  */
