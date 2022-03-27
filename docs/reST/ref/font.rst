@@ -79,6 +79,15 @@ solves no longer exists, it will likely be removed in the future.
 
    .. ## pygame.font.get_default_font ##
 
+.. function:: get_ttf_version
+
+   | :sl:`get SDL_ttf's version`
+   | :sg:`get_ttf_version() -> tuple(int, int, int)`
+
+   Returns a tuple of integers that identify SDL_ttf's version
+
+   .. ## pygame.font.get_ttf_font ##
+
 .. function:: get_fonts
 
    | :sl:`get all available fonts`
