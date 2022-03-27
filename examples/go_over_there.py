@@ -25,23 +25,28 @@ clock = pg.time.Clock()
 target_position = None
 balls = []
 
+
 class Ball:
     def __init__(self, position, speed):
         self.position = position
         self.speed = speed
 
+
 def reset():
     global balls
     global target_position
-    
+
     target_position = None
     balls = []
     for x in range(MAX_BALLS):
-        pos = pg.Vector2(random.randint(0, SCREEN_SIZE.x), random.randint(0, SCREEN_SIZE.y))
+        pos = pg.Vector2(
+            random.randint(0, SCREEN_SIZE.x), random.randint(0, SCREEN_SIZE.y)
+        )
         speed = random.uniform(MIN_SPEED, MAX_SPEED)
 
         b = Ball(pos, speed)
         balls.append(b)
+
 
 reset()
 delta_time = 0
@@ -62,7 +67,7 @@ while running:
                 reset()
 
     screen.fill((31, 143, 65))
-    
+
     for o in balls:
         if target_position is not None:
             o.position.move_towards_ip(target_position, o.speed * delta_time)
@@ -70,6 +75,8 @@ while running:
 
     pg.display.flip()
     delta_time = clock.tick(60)
-    pg.display.set_caption(f"fps: {round(clock.get_fps(), 2)}, ball count: {len(balls)}")
+    pg.display.set_caption(
+        f"fps: {round(clock.get_fps(), 2)}, ball count: {len(balls)}"
+    )
 
 pg.quit()
