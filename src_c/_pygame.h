@@ -104,6 +104,8 @@ typedef enum {
     PGE_WINDOWCLOSE,
     PGE_WINDOWTAKEFOCUS,
     PGE_WINDOWHITTEST,
+    PGE_WINDOWICCPROFCHANGED,
+    PGE_WINDOWDISPLAYCHANGED,
 
     /* Here we define PGPOST_* events, events that act as a one-to-one
      * proxy for SDL events (and some extra events too!), the proxy is used
@@ -120,8 +122,15 @@ typedef enum {
      * Proxy events are for internal use only */
     PGPOST_EVENTBEGIN, /* mark start of proxy-events */
     PGPOST_ACTIVEEVENT = PGPOST_EVENTBEGIN,
+    PGPOST_APP_TERMINATING,
+    PGPOST_APP_LOWMEMORY,
+    PGPOST_APP_WILLENTERBACKGROUND,
+    PGPOST_APP_DIDENTERBACKGROUND,
+    PGPOST_APP_WILLENTERFOREGROUND,
+    PGPOST_APP_DIDENTERFOREGROUND,
     PGPOST_AUDIODEVICEADDED,
     PGPOST_AUDIODEVICEREMOVED,
+    PGPOST_CLIPBOARDUPDATE,
     PGPOST_CONTROLLERAXISMOTION,
     PGPOST_CONTROLLERBUTTONDOWN,
     PGPOST_CONTROLLERBUTTONUP,
@@ -131,6 +140,7 @@ typedef enum {
     PGPOST_CONTROLLERTOUCHPADDOWN,
     PGPOST_CONTROLLERTOUCHPADMOTION,
     PGPOST_CONTROLLERTOUCHPADUP,
+    PGPOST_CONTROLLERSENSORUPDATE,
     PGPOST_DOLLARGESTURE,
     PGPOST_DOLLARRECORD,
     PGPOST_DROPFILE,
@@ -141,6 +151,7 @@ typedef enum {
     PGPOST_FINGERDOWN,
     PGPOST_FINGERUP,
     PGPOST_KEYDOWN,
+    PGPOST_KEYMAPCHANGED,
     PGPOST_KEYUP,
     PGPOST_JOYAXISMOTION,
     PGPOST_JOYBALLMOTION,
@@ -149,6 +160,7 @@ typedef enum {
     PGPOST_JOYBUTTONUP,
     PGPOST_JOYDEVICEADDED,
     PGPOST_JOYDEVICEREMOVED,
+    PGPOST_LOCALECHANGED,
     PGPOST_MIDIIN,
     PGPOST_MIDIOUT,
     PGPOST_MOUSEMOTION,
@@ -158,6 +170,8 @@ typedef enum {
     PGPOST_MULTIGESTURE,
     PGPOST_NOEVENT,
     PGPOST_QUIT,
+    PGPOST_RENDER_TARGETS_RESET,
+    PGPOST_RENDER_DEVICE_RESET,
     PGPOST_SYSWMEVENT,
     PGPOST_TEXTEDITING,
     PGPOST_TEXTINPUT,
@@ -179,6 +193,8 @@ typedef enum {
     PGPOST_WINDOWCLOSE,
     PGPOST_WINDOWTAKEFOCUS,
     PGPOST_WINDOWHITTEST,
+    PGPOST_WINDOWICCPROFCHANGED,
+    PGPOST_WINDOWDISPLAYCHANGED,
 
     PGE_USEREVENT, /* this event must stay in this position only */
 
@@ -186,11 +202,11 @@ typedef enum {
         SDL_LASTEVENT /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
-typedef enum {
-    SDL_APPFOCUSMOUSE,
-    SDL_APPINPUTFOCUS,
-    SDL_APPACTIVE
-} PygameAppCode;
+/* SDL1 ACTIVEEVENT state attribute can take the following values */
+/* These constant values are directly picked from SDL1 source */
+#define SDL_APPMOUSEFOCUS 0x01
+#define SDL_APPINPUTFOCUS 0x02
+#define SDL_APPACTIVE 0x04
 
 /* Surface flags: based on SDL 1.2 flags */
 typedef enum {
@@ -250,10 +266,6 @@ supported Python version. #endif */
 #define VIDEO_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_VIDEO)) \
     return RAISE(pgExc_SDLError, "video system not initialized")
-
-#define CDROM_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_CDROM)) \
-    return RAISE(pgExc_SDLError, "cdrom system not initialized")
 
 #define JOYSTICK_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
@@ -321,7 +333,6 @@ struct pgColorObject {
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2
-#define PYGAMEAPI_CDROM_NUMSLOTS 2
 #define PYGAMEAPI_BASE_NUMSLOTS 24
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
 

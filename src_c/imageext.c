@@ -170,11 +170,12 @@ png_flush_fn(png_structp png_ptr)
 }
 
 static int
-write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
-          int colortype, int bitdepth)
+write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
+          SDL_Palette *palette, int w, int h, int colortype, int bitdepth)
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
+    png_colorp color_ptr = NULL;
     SDL_RWops *rwops;
     char *doing;
 
@@ -206,6 +207,22 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
     png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
+
+    if (palette) {
+        doing = "set pallete";
+        const int ncolors = palette->ncolors;
+        int i;
+        if (!(color_ptr =
+                  (png_colorp)SDL_malloc(sizeof(png_colorp) * ncolors)))
+            goto fail;
+        for (i = 0; i < ncolors; i++) {
+            color_ptr[i].red = palette->colors[i].r;
+            color_ptr[i].green = palette->colors[i].g;
+            color_ptr[i].blue = palette->colors[i].b;
+        }
+        png_set_PLTE(png_ptr, info_ptr, color_ptr, ncolors);
+        SDL_free(color_ptr);
+    }
 
     /* doing = "write info"; */
     png_write_info(png_ptr, info_ptr);
@@ -249,7 +266,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     SDL_Rect ss_rect;
     int r, i;
     int alpha = 0;
-
+    SDL_Palette *palette;
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
     int has_colorkey = 0;
@@ -259,6 +276,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     ss_size = 0;
     ss_surface = NULL;
 
+    palette = surface->format->palette;
     ss_w = surface->w;
     ss_h = surface->h;
 
@@ -323,12 +341,16 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
     }
 
-    if (alpha) {
-        r = write_png(file, rw, ss_rows, surface->w, surface->h,
+    if (palette) {
+        r = write_png(file, rw, ss_rows, palette, surface->w, surface->h,
+                      PNG_COLOR_TYPE_PALETTE, 8);
+    }
+    else if (alpha) {
+        r = write_png(file, rw, ss_rows, NULL, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB_ALPHA, 8);
     }
     else {
-        r = write_png(file, rw, ss_rows, surface->w, surface->h,
+        r = write_png(file, rw, ss_rows, NULL, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB, 8);
     }
 
@@ -583,7 +605,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
     r = write_jpeg(file, ss_rows, surface->w, surface->h, JPEG_QUALITY);
 
     free(ss_rows);
-
     if (free_ss_surface) {
         SDL_FreeSurface(ss_surface);
         ss_surface = NULL;
@@ -722,7 +743,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *arg)
+image_get_sdl_image_version(PyObject *self, PyObject *_null)
 {
     return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
                          SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);

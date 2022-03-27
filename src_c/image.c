@@ -227,7 +227,7 @@ image_save(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_extended(PyObject *self)
+image_get_extended(PyObject *self, PyObject *_null)
 {
     if (extverobj == NULL)
         Py_RETURN_FALSE;

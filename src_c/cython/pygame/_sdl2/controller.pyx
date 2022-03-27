@@ -13,7 +13,7 @@ cdef extern from "SDL.h" nogil:
 
 import_pygame_joystick()
 
-def GAMECONTROLLER_INIT_CHECK():
+def _gamecontroller_init_check():
     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         raise error("gamecontroller system not initialized")
 
@@ -38,7 +38,7 @@ cdef void _controller_autoquit():
 
 # not automatically initialize controller at this moment.
 
-def __PYGAMEinit__(**kwargs):
+def _internal_mod_init(**kwargs):
     _controller_autoinit()
 
 def init():
@@ -53,11 +53,11 @@ def quit():
         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
 
 def set_eventstate(state):
-    GAMECONTROLLER_INIT_CHECK()
+    _gamecontroller_init_check()
     SDL_GameControllerEventState(int(state))
 
 def get_eventstate():
-    GAMECONTROLLER_INIT_CHECK()
+    _gamecontroller_init_check()
     return SDL_GameControllerEventState(-1) == 1
 
 def get_count():
@@ -72,7 +72,7 @@ def update():
     """ Will automatically called by the event loop,
         not necessary to call this function.
     """
-    GAMECONTROLLER_INIT_CHECK()
+    _gamecontroller_init_check()
     SDL_GameControllerUpdate()
 
 def is_controller(index):
@@ -82,14 +82,14 @@ def is_controller(index):
 
     :return: 1 if supported, 0 if unsupported or invalid index.
     """
-    GAMECONTROLLER_INIT_CHECK()
+    _gamecontroller_init_check()
     return SDL_IsGameController(index) == 1
 
 def name_forindex(index):
     """ Returns the name of controller,
         or NULL if there's no name or the index is invalid.
     """
-    GAMECONTROLLER_INIT_CHECK()
+    _gamecontroller_init_check()
     max_controllers = SDL_NumJoysticks()
     if max_controllers < 0:
         raise error()
@@ -107,7 +107,7 @@ cdef class Controller:
 
         :param int index: Index of the joystick.
         """
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         if not SDL_IsGameController(index):
             raise error('Index is invalid or not a supported joystick.')
 
@@ -162,39 +162,39 @@ cdef class Controller:
     @property
     def name(self):
         # https://wiki.libsdl.org/SDL_GameControllerName
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         return SDL_GameControllerName(self._controller).decode('utf-8')
 
     def attached(self):
         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         return SDL_GameControllerGetAttached(self._controller)
 
     def as_joystick(self):
         # create a pygame.joystick.Joystick() object by using index.
         JOYSTICK_INIT_CHECK()
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         joy = pgJoystick_New(self._index)
         return joy
 
     def get_axis(self, SDL_GameControllerAxis axis):
         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         return SDL_GameControllerGetAxis(self._controller, axis)
 
     def get_button(self, SDL_GameControllerButton button):
         # https://wiki.libsdl.org/SDL_GameControllerGetButton
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         return SDL_GameControllerGetButton(self._controller, button) == 1
 
     def get_mapping(self):
         #https://wiki.libsdl.org/SDL_GameControllerMapping
         # TODO: mapping should be a readable dict instead of a string.
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         raw_mapping = SDL_GameControllerMapping(self._controller)
         mapping = raw_mapping.decode('utf-8')
@@ -217,7 +217,7 @@ cdef class Controller:
     def set_mapping(self, mapping):
         # https://wiki.libsdl.org/SDL_GameControllerAddMapping
         # TODO: mapping should be a readable dict instead of a string.
-        GAMECONTROLLER_INIT_CHECK()
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         cdef SDL_Joystick *joy
         cdef SDL_JoystickGUID guid
@@ -245,6 +245,7 @@ cdef class Controller:
         duration (in ms). Returns True if the effect was played successfully,
         False otherwise.
         """
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         if not SDL_VERSION_ATLEAST(2, 0, 9):
             return False
@@ -260,6 +261,7 @@ cdef class Controller:
         """
         Stop any rumble effect playing on the controller.
         """
+        _gamecontroller_init_check()
         self._CLOSEDCHECK()
         if SDL_VERSION_ATLEAST(2, 0, 9):
             SDL_GameControllerRumble(self._controller, 0, 0, 1)
