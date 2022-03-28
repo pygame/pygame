@@ -805,7 +805,7 @@ class LintFormatCommand(Command):
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
 
         # Other files have too many issues for now. setup.py, buildconfig, etc
-        python_directories = ["src_py", "test"]
+        python_directories = ["src_py", "test", "examples"]
         if self.lint:
             commands = {
                 "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
