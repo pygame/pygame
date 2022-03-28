@@ -81,7 +81,7 @@ solves no longer exists, it will likely be removed in the future.
 
 .. function:: get_ttf_version
 
-   | :sl:`get SDL_ttf's version`
+   | :sl:`gets SDL_ttf version`
    | :sg:`get_ttf_version() -> tuple(int, int, int)`
 
    Returns a tuple of integers that identify SDL_ttf's version
