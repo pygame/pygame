@@ -82,12 +82,14 @@ compiler_options = {
 
 
 def spawn(self, cmd, **kwargs):
-    should_use_avx2 = True
-    # try to be thorough in detecting that we are not on any ARM platform as there is no AVX on
-    # ARM architecture. Detect mac cross compiling by checking for arm NEON & SIMD flags.
-    if ('-enable-arm-neon' in sys.argv or '-enable-arm-simd' in sys.argv or
-            'ARM' in platform.uname().version or platform.machine() == 'aarch64' or 'arm' in platform.machine()):
-        should_use_avx2 = False
+    should_use_avx2 = False
+    # try to be thorough in detecting that we are on a platform that potentially supports AVX2
+    machine_name = platform.machine()
+    if ((machine_name.startswith("x86") or
+        machine_name.startswith("i686") or
+        machine_name.lower() == "amd64") and
+            os.environ.get("MAC_ARCH") != "arm64"):
+        should_use_avx2 = True
 
     if should_use_avx2:
         extra_options = compiler_options.get(self.compiler_type)
