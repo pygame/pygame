@@ -798,7 +798,7 @@ get_ttf_version(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"linked", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
-                                    &linkedobj)) {
+                                     &linkedobj)) {
         return NULL; /* Exception already set. */
     }
 
@@ -809,21 +809,18 @@ get_ttf_version(PyObject *self, PyObject *args, PyObject *kwargs)
             return RAISE(PyExc_TypeError, "linked argument must be a boolean");
         }
     }
-    
-    if (linked) 
-        {
-            const SDL_version *v = TTF_Linked_Version();
-            return Py_BuildValue("iii", v->major, v->minor, v->patch);
-        }
-        else {
-            /* compiled version */
-            SDL_version v;
-            TTF_VERSION(&v);
-            return Py_BuildValue("iii", v.major, v.minor, v.patch);
-        }
-    
-}
 
+    if (linked) {
+        const SDL_version *v = TTF_Linked_Version();
+        return Py_BuildValue("iii", v->major, v->minor, v->patch);
+    }
+    else {
+        /* compiled version */
+        SDL_version v;
+        TTF_VERSION(&v);
+        return Py_BuildValue("iii", v.major, v.minor, v.patch);
+    }
+}
 
 static PyMethodDef _font_methods[] = {
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
@@ -831,10 +828,10 @@ static PyMethodDef _font_methods[] = {
     {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
-    {"get_ttf_version", (PyCFunction) get_ttf_version, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEFONTGETINIT},
-    
-    {NULL, NULL, 0, NULL}};
+    {"get_ttf_version", (PyCFunction)get_ttf_version,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEFONTGETINIT},
 
+    {NULL, NULL, 0, NULL}};
 
 static PyObject *
 PyFont_New(TTF_Font *font)

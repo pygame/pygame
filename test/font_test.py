@@ -35,7 +35,7 @@ class FontModuleTest(unittest.TestCase):
 
     def tearDown(self):
         pygame_font.quit()
-    
+
     def test_get_ttf_version(self):
         pygame_font.get_ttf_version()
 
