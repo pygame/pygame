@@ -41,6 +41,7 @@ class Rect:
     w: int
     h: int
     __hash__: None  # type: ignore
+    __safe_for_unpickling__: Literal[True]
     @overload
     def __init__(
         self, left: float, top: float, width: float, height: float
@@ -58,7 +59,8 @@ class Rect:
     def __setitem__(self, key: int, value: int) -> None: ...
     @overload
     def __setitem__(self, key: slice, value: Union[int, Rect]) -> None: ...
-    def copy(self) -> Rect: ...
+    def __copy__(self) -> Rect: ...
+    copy = __copy__
     @overload
     def move(self, x: float, y: float) -> Rect: ...
     @overload

@@ -38,7 +38,7 @@ cdef void _controller_autoquit():
 
 # not automatically initialize controller at this moment.
 
-def __PYGAMEinit__(**kwargs):
+def _internal_mod_init(**kwargs):
     _controller_autoinit()
 
 def init():

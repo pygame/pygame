@@ -338,6 +338,11 @@ span.pre {
     font-family: monospace;
 }
 
+code.download span.pre {
+    font-family: inherit;
+    font-weight: normal;
+}
+
 table.docutils td.toc {
     border-style: none;
 }
@@ -668,6 +673,12 @@ pre.commentContent {
     margin-left:0;
     border: 0;
     white-space: pre-wrap;
+}
+
+/* -- logos page ---------------------------------------------------------------- */
+
+.fullwidth .line-block {
+    text-align: center;
 }
 
 /* -- responsive design --------------------------------------------------------- */

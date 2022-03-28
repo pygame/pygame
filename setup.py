@@ -412,11 +412,6 @@ data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
-# add files in distribution directory
-# pygame_data_files.append('LGPL')
-# pygame_data_files.append('readme.html')
-# pygame_data_files.append('install.html')
-
 # add *.pyi files into distribution directory
 stub_dir = os.path.join('buildconfig', 'stubs', 'pygame')
 pygame_data_files.append(os.path.join(stub_dir, 'py.typed'))
@@ -456,8 +451,9 @@ add_datafiles(data_files, 'pygame/examples',
 add_datafiles(data_files, 'pygame/docs/generated',
               ['docs/generated',
                   ['*.html',             # Navigation and help pages
-                   '*.gif',              # pygame logos
+                   '*.txt',              # License text
                    '*.js',               # For doc search
+                   'LGPL.txt',           # pygame license
                    ['ref',               # pygame reference
                        ['*.html',        # Reference pages
                         '*.js',          # Comments script
@@ -473,7 +469,9 @@ add_datafiles(data_files, 'pygame/docs/generated',
                         ['*.css',
                          '*.png',
                          '*.ico',
-                         '*.js']],
+                         '*.js',
+                         '*.zip',
+                         '*.svg']],
                    ['_images',            # Sphinx added reST ".. image::" refs
                         ['*.jpg',
                          '*.png',
@@ -807,7 +805,7 @@ class LintFormatCommand(Command):
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
 
         # Other files have too many issues for now. setup.py, buildconfig, etc
-        python_directories = ["src_py", "test"]
+        python_directories = ["src_py", "test", "examples"]
         if self.lint:
             commands = {
                 "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,

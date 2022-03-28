@@ -202,11 +202,11 @@ typedef enum {
         SDL_LASTEVENT /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
-typedef enum {
-    SDL_APPFOCUSMOUSE,
-    SDL_APPINPUTFOCUS,
-    SDL_APPACTIVE
-} PygameAppCode;
+/* SDL1 ACTIVEEVENT state attribute can take the following values */
+/* These constant values are directly picked from SDL1 source */
+#define SDL_APPMOUSEFOCUS 0x01
+#define SDL_APPINPUTFOCUS 0x02
+#define SDL_APPACTIVE 0x04
 
 /* Surface flags: based on SDL 1.2 flags */
 typedef enum {

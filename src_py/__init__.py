@@ -1,4 +1,3 @@
-# coding: ascii
 # pygame - Python Game Library
 # Copyright (C) 2000-2001  Pete Shinners
 #
@@ -329,6 +328,14 @@ try:
     import pygame.imageext
 
     del pygame.imageext
+except (ImportError, IOError):
+    pass
+
+# this internal module needs to be included for dependency
+# finders, but can't be deleted, as some tests need it
+try:
+    import pygame.pkgdata
+
 except (ImportError, IOError):
     pass
 
