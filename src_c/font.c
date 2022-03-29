@@ -828,7 +828,7 @@ static PyMethodDef _font_methods[] = {
     {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
-    {"get_ttf_version", (PyCFunction)get_ttf_version,
+    {"get_sdl_ttf_version", (PyCFunction)get_ttf_version,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEFONTGETINIT},
 
     {NULL, NULL, 0, NULL}};

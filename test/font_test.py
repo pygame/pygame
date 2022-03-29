@@ -36,8 +36,8 @@ class FontModuleTest(unittest.TestCase):
     def tearDown(self):
         pygame_font.quit()
 
-    def test_get_ttf_version(self):
-        pygame_font.get_ttf_version()
+    def test_get_sdl_ttf_version(self):
+        pygame_font.get_sdl_ttf_version()
 
     def test_SysFont(self):
         # Can only check that a font object is returned.

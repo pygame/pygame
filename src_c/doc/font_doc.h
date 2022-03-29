@@ -4,7 +4,7 @@
 #define DOC_PYGAMEFONTQUIT "quit() -> None\nuninitialize the font module"
 #define DOC_PYGAMEFONTGETINIT "get_init() -> bool\ntrue if the font module is initialized"
 #define DOC_PYGAMEFONTGETDEFAULTFONT "get_default_font() -> string\nget the filename of the default font"
-#define DOC_PYGAMEFONTGETTTFVERSION "get_ttf_version() -> tuple(int, int, int)\ngets SDL_ttf version"
+#define DOC_PYGAMEFONTGETSDLTTFVERSION "get_sdl_ttf_version() -> Tuple[int, int, int]\ngets SDL_ttf version"
 #define DOC_PYGAMEFONTGETFONTS "get_fonts() -> list of strings\nget all available fonts"
 #define DOC_PYGAMEFONTMATCHFONT "match_font(name, bold=False, italic=False) -> path\nfind a specific font on the system"
 #define DOC_PYGAMEFONTSYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
@@ -50,8 +50,8 @@ pygame.font.get_default_font
  get_default_font() -> string
 get the filename of the default font
 
-pygame.font.get_ttf_version
- get_ttf_version() -> tuple(int, int, int)
+pygame.font.get_sdl_ttf_version
+ get_sdl_ttf_version() -> Tuple[int, int, int]
 gets SDL_ttf version
 
 pygame.font.get_fonts
