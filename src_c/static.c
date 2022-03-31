@@ -20,19 +20,27 @@
 #undef import_pygame_rwobject
 #undef import_pygame_event
 
-void import_pygame_base(void) {
+void
+import_pygame_base(void) {
 }
-void import_pygame_rect(void) {
+
+void
+import_pygame_rect(void) {
 }
-void import_pygame_surface(void) {
+void
+import_pygame_surface(void) {
 }
-void import_pygame_color(void) {
+void
+import_pygame_color(void) {
 }
-void import_pygame_bufferproxy(void) {
+void
+import_pygame_bufferproxy(void) {
 }
-void import_pygame_rwobject(void) {
+void
+import_pygame_rwobject(void) {
 }
-void import_pygame_event(void) {
+void
+import_pygame_event(void) {
 }
 
 #include "base.c"
@@ -131,7 +139,10 @@ void import_pygame_event(void) {
 
 #include "music.c"
 
-void import_pygame_joystick(void) {}
+void
+import_pygame_joystick(void) {
+}
+
 #include "_sdl2/controller.c"
 
 #include "alphablit.c"
