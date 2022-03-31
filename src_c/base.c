@@ -2098,7 +2098,7 @@ static PyMethodDef _base_methods[] = {
 #if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
 // in case of wasm+dynamic loading it could be a trampoline in the globals
 // generated at runtime.
-// when building static make global accessible symbol.
+// when building static make global accessible symbol directly.
 static PyObject *pgExc_SDLError;
 #endif
 

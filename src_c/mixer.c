@@ -1831,7 +1831,7 @@ LOAD_BUFFER:
 static PyMethodDef _mixer_methods[] = {
     {"_internal_mod_init", (PyCFunction)pgMixer_AutoInit, METH_NOARGS,
      "auto initialize for mixer"},
-    {"init", (PyCFunction)init, METH_VARARGS | METH_KEYWORDS,
+    {"init", (PyCFunction)pg_mixer_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
     {"quit", (PyCFunction)mixer_quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT},
     {"get_init", (PyCFunction)pg_mixer_get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT},
