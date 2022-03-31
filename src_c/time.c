@@ -539,8 +539,13 @@ PYGAME_EXPORT
 void
 initpygame_time(void)
 #else
-MODINIT_DEFINE(time)
-#endif
+#if defined(BUILD_STATIC)
+// avoid PyInit_time conflict with static builtin
+MODINIT_DEFINE(pg_time)
+#else
+ MODINIT_DEFINE(time)
+#endif //BUILD_STATIC
+#endif //__SYMBIAN32__
 {
     PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,

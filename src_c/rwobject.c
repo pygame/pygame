@@ -691,8 +691,8 @@ _rwops_from_pystr(PyObject *obj)
     }
 
     encoded = PyBytes_AS_STRING(oencoded);
-
     rw = SDL_RWFromFile(encoded, "rb");
+    Py_DECREF(oencoded);
     if (rw) {
         /* adding the extension to the hidden data for RWops from files */
         /* this is necessary to support loading functions that rely on
@@ -709,11 +709,9 @@ _rwops_from_pystr(PyObject *obj)
             strcpy(extension, ext);
         }
         rw->hidden.unknown.data1 = (void *)extension;
-        Py_DECREF(oencoded);
         return rw;
     }
 
-    Py_DECREF(oencoded);
     /* Clear SDL error and set our own error message for filenotfound errors
      * TODO: Check SDL error here and forward any non filenotfound related
      * errors correctly here */
@@ -804,14 +802,14 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     return pg_EncodeFilePath(obj, eclass);
 }
 
-static PyMethodDef _pg_module_methods[] = {
+static PyMethodDef _pg_rwobject_methods[] = {
     {"encode_string", (PyCFunction)pg_encode_string,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING},
     {"encode_file_path", (PyCFunction)pg_encode_file_path,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH},
     {NULL, NULL, 0, NULL}};
 
-/*DOC*/ static char _pg_module_doc[] =
+/*DOC*/ static char _pg_rwobject_doc[] =
     /*DOC*/ "SDL_RWops support";
 
 MODINIT_DEFINE(rwobject)
@@ -821,9 +819,9 @@ MODINIT_DEFINE(rwobject)
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "rwobject",
-                                         _pg_module_doc,
+                                         _pg_rwobject_doc,
                                          -1,
-                                         _pg_module_methods,
+                                         _pg_rwobject_methods,
                                          NULL,
                                          NULL,
                                          NULL,

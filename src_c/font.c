@@ -60,11 +60,16 @@ static PyObject *
 PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
-static int font_initialized = 0;
 static unsigned int current_ttf_generation = 0;
-static const char font_defaultname[] = "freesansbold.ttf";
+#if defined(BUILD_STATIC)
+static int font_initialized = 1;
+#else
+static int font_initialized = 0;
 static const char pkgdatamodule_name[] = "pygame.pkgdata";
 static const char resourcefunc_name[] = "getResource";
+#endif
+static const char font_defaultname[] = "freesansbold.ttf";
+
 
 /*
  */
@@ -168,7 +173,7 @@ fontmodule_quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-get_init(PyObject *self, PyObject *_null)
+pg_font_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(font_initialized);
 }
@@ -791,7 +796,7 @@ get_default_font(PyObject *self, PyObject *_null)
 static PyMethodDef _font_methods[] = {
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
     {"quit", (PyCFunction)fontmodule_quit, METH_NOARGS, DOC_PYGAMEFONTQUIT},
-    {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
+    {"get_init", (PyCFunction)pg_font_get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
     {NULL, NULL, 0, NULL}};

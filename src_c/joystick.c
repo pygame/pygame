@@ -28,7 +28,9 @@
 #include "doc/joystick_doc.h"
 
 static pgJoystickObject *joylist_head = NULL;
+#ifndef BUILD_STATIC
 static PyObject *joy_instance_map = NULL;
+#endif //BUILD_STATIC joy_instance_map already defined in src_c/event.c:57
 static PyTypeObject pgJoystick_Type;
 static PyObject *
 pgJoystick_New(int);
