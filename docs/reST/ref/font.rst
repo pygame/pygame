@@ -86,7 +86,7 @@ solves no longer exists, it will likely be removed in the future.
 
    Returns a tuple of integers that identify SDL_ttf's version
 
-   .. versionadded:: 2.1.3 Returns a tuple of integers presenting SDL_ttf version.
+   .. versionadded:: 2.1.3
 
    .. ## pygame.font.get_sdl_ttf_version ##
 
