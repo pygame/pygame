@@ -550,7 +550,7 @@ mixer_quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-init(PyObject *self, PyObject *args, PyObject *keywds)
+pg_mixer_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     int freq = 0, size = 0, channels = 0, chunk = 0, allowedchanges = -1;
     char *devicename = NULL;
@@ -567,7 +567,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-get_init(PyObject *self, PyObject *_null)
+pg_mixer_get_init(PyObject *self, PyObject *_null)
 {
     int freq, channels, realform;
     Uint16 format;
@@ -1834,7 +1834,7 @@ static PyMethodDef _mixer_methods[] = {
     {"init", (PyCFunction)init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
     {"quit", (PyCFunction)mixer_quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT},
-    {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT},
+    {"get_init", (PyCFunction)pg_mixer_get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT},
     {"pre_init", (PyCFunction)pre_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERPREINIT},
     {"get_num_channels", (PyCFunction)get_num_channels, METH_NOARGS,
