@@ -20,7 +20,7 @@ pg_context_get_pref_path(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    PyObject *ret = Py_BuildValue("s", path);
+    PyObject *ret = PyUnicode_FromString(path);
     SDL_free(path);
 
     return ret;
