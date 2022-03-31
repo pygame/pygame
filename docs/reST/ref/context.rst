@@ -14,6 +14,8 @@ This is a new module, so we are marking it experimental for now.
 We probably won't have to change API, but we're keeping the possibility
 open just in case something obvious comes up.
 
+.. versionadded:: 2.1.3
+
 .. function:: get_pref_path
 
    | :sl:`get a writeable folder for your app`
@@ -47,4 +49,4 @@ open just in case something obvious comes up.
         And on Linux it would resemble
         /home/bob/.local/share/My Program Name/
 
-  
+   .. versionadded:: 2.1.3
