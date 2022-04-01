@@ -236,7 +236,7 @@ image_get_extended(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self)
+image_get_sdl_image_version(PyObject *self, PyObject *_null)
 {
     if (extverobj == NULL)
         Py_RETURN_NONE;
