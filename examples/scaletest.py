@@ -33,7 +33,7 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
         return
 
     # start fullscreen mode
-    screen = pg.display.set_mode((1024, 768), pg.FULLSCREEN)
+    screen = pg.display.set_mode((1024, 768), pg.FULLSCREEN | pg.SCALED)
     if convert_alpha:
         background = background.convert_alpha()
 

@@ -54,7 +54,7 @@ if "-flip" in sys.argv:
     flags ^= pg.DOUBLEBUF
 
 if "-fullscreen" in sys.argv:
-    flags ^= pg.FULLSCREEN
+    flags ^= pg.FULLSCREEN | pg.SCALED
 
 if "-sw" in sys.argv:
     flags ^= pg.SWSURFACE
