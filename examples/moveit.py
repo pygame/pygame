@@ -36,6 +36,7 @@ def load_image(name):
 # here's the full code
 def main():
     pg.init()
+    clock = pg.time.Clock()
     screen = pg.display.set_mode((640, 480))
 
     player = load_image("player1.gif")
@@ -65,6 +66,7 @@ def main():
             screen.blit(o.image, o.pos)
 
         pg.display.update()
+        clock.tick(60)
 
 
 if __name__ == "__main__":
