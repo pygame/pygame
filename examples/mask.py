@@ -138,7 +138,9 @@ def main(*args):
     images = []
     masks = []
     for impath in args:
-        images.append(pg.image.load(impath).convert_alpha())
+        im = pg.image.load(impath).convert_alpha()
+        im.set_colorkey('red') # remove red background
+        images.append(im)
         masks.append(maskFromSurface(images[-1]))
 
     numtimes = 10
