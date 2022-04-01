@@ -1834,7 +1834,8 @@ static PyMethodDef _mixer_methods[] = {
     {"init", (PyCFunction)pg_mixer_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
     {"quit", (PyCFunction)mixer_quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT},
-    {"get_init", (PyCFunction)pg_mixer_get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT},
+    {"get_init", (PyCFunction)pg_mixer_get_init, METH_NOARGS,
+     DOC_PYGAMEMIXERGETINIT},
     {"pre_init", (PyCFunction)pre_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERPREINIT},
     {"get_num_channels", (PyCFunction)get_num_channels, METH_NOARGS,
@@ -1890,7 +1891,7 @@ pgChannel_New(int channelnum)
 }
 
 #if BUILD_STATIC
-//avoid conflict with PyInit_mixer in _sdl2/mixer.c
+// avoid conflict with PyInit_mixer in _sdl2/mixer.c
 MODINIT_DEFINE(pg_mixer)
 #else
 MODINIT_DEFINE(mixer)

@@ -8,7 +8,6 @@
 #define pgSurface_New(surface) pgSurface_New2((surface), 1)
 #define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
 
-
 #include "pygame.h"
 #include "Python.h"
 
@@ -21,34 +20,38 @@
 #undef import_pygame_event
 
 void
-import_pygame_base(void) {
+import_pygame_base(void)
+{
 }
 
 void
-import_pygame_rect(void) {
+import_pygame_rect(void)
+{
 }
 void
-import_pygame_surface(void) {
+import_pygame_surface(void)
+{
 }
 void
-import_pygame_color(void) {
+import_pygame_color(void)
+{
 }
 void
-import_pygame_bufferproxy(void) {
+import_pygame_bufferproxy(void)
+{
 }
 void
-import_pygame_rwobject(void) {
+import_pygame_rwobject(void)
+{
 }
 void
-import_pygame_event(void) {
+import_pygame_event(void)
+{
 }
 
 #include "base.c"
 
-
-
 #include "rect.c"
-
 
 #undef pgSurface_Lock
 #undef pgSurface_Unlock
@@ -61,7 +64,6 @@ import_pygame_event(void) {
 
 #include "surflock.c"
 
-
 #undef pgColor_New
 #undef pgColor_NewLength
 #undef pg_RGBAFromColorObj
@@ -70,11 +72,9 @@ import_pygame_event(void) {
 
 #include "color.c"
 
-
 #undef pgBufproxy_New
 
 #include "bufferproxy.c"
-
 
 #undef pgSurface_Blit
 #undef pgSurface_New
@@ -83,12 +83,10 @@ import_pygame_event(void) {
 
 #include "surface.c"
 
-
 #undef pgVidInfo_Type
 #undef pgVidInfo_New
 
 #include "display.c"
-
 
 #include "draw.c"
 
@@ -102,12 +100,10 @@ import_pygame_event(void) {
 
 #include "rwobject.c"
 
-
 #define pgSurface_New(surface) pgSurface_New2((surface), 1)
 #include "image.c"
 
 #include "imageext.c"
-
 
 #undef pg_EnableKeyRepeat
 #undef pg_GetKeyRepeat
@@ -140,7 +136,8 @@ import_pygame_event(void) {
 #include "music.c"
 
 void
-import_pygame_joystick(void) {
+import_pygame_joystick(void)
+{
 }
 
 #include "_sdl2/controller.c"

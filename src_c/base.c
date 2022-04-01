@@ -2080,7 +2080,8 @@ pg_uninstall_parachute(void)
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS,
+     DOC_PYGAMEGETINIT},
     {"register_quit", (PyCFunction)pg_register_quit, METH_O,
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
@@ -2093,7 +2094,6 @@ static PyMethodDef _base_methods[] = {
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
     {NULL, NULL, 0, NULL}};
-
 
 #if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
 // in case of wasm+dynamic loading it could be a trampoline in the globals

@@ -70,7 +70,6 @@ static const char resourcefunc_name[] = "getResource";
 #endif
 static const char font_defaultname[] = "freesansbold.ttf";
 
-
 /*
  */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
@@ -796,7 +795,8 @@ get_default_font(PyObject *self, PyObject *_null)
 static PyMethodDef _font_methods[] = {
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
     {"quit", (PyCFunction)fontmodule_quit, METH_NOARGS, DOC_PYGAMEFONTQUIT},
-    {"get_init", (PyCFunction)pg_font_get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
+    {"get_init", (PyCFunction)pg_font_get_init, METH_NOARGS,
+     DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
     {NULL, NULL, 0, NULL}};
