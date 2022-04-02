@@ -16,8 +16,6 @@
 #undef WITH_THREAD
 #endif
 
-
-
 #if defined(BUILD_STATIC)
 #undef import_pygame_base
 #undef import_pygame_rect
@@ -67,40 +65,67 @@ import_pygame_joystick(void)
 {
 }
 
-PyMODINIT_FUNC PyInit_base(void);
-PyMODINIT_FUNC PyInit_color(void);
-PyMODINIT_FUNC PyInit_constants(void);
-PyMODINIT_FUNC PyInit_version(void);
-PyMODINIT_FUNC PyInit_rect(void);
-PyMODINIT_FUNC PyInit_surflock(void);
-PyMODINIT_FUNC PyInit_rwobject(void);
-PyMODINIT_FUNC PyInit_bufferproxy(void);
+PyMODINIT_FUNC
+PyInit_base(void);
+PyMODINIT_FUNC
+PyInit_color(void);
+PyMODINIT_FUNC
+PyInit_constants(void);
+PyMODINIT_FUNC
+PyInit_version(void);
+PyMODINIT_FUNC
+PyInit_rect(void);
+PyMODINIT_FUNC
+PyInit_surflock(void);
+PyMODINIT_FUNC
+PyInit_rwobject(void);
+PyMODINIT_FUNC
+PyInit_bufferproxy(void);
 
-PyMODINIT_FUNC PyInit_surface(void);
-PyMODINIT_FUNC PyInit_display(void);
-PyMODINIT_FUNC PyInit__freetype(void);
-PyMODINIT_FUNC PyInit_font(void);
+PyMODINIT_FUNC
+PyInit_surface(void);
+PyMODINIT_FUNC
+PyInit_display(void);
+PyMODINIT_FUNC
+PyInit__freetype(void);
+PyMODINIT_FUNC
+PyInit_font(void);
 
-PyMODINIT_FUNC PyInit_draw(void);
-PyMODINIT_FUNC PyInit_mouse(void);
-PyMODINIT_FUNC PyInit_key(void);
-PyMODINIT_FUNC PyInit_event(void);
-PyMODINIT_FUNC PyInit_joystick(void);
-PyMODINIT_FUNC PyInit_image(void);
-PyMODINIT_FUNC PyInit_imageext(void);
+PyMODINIT_FUNC
+PyInit_draw(void);
+PyMODINIT_FUNC
+PyInit_mouse(void);
+PyMODINIT_FUNC
+PyInit_key(void);
+PyMODINIT_FUNC
+PyInit_event(void);
+PyMODINIT_FUNC
+PyInit_joystick(void);
+PyMODINIT_FUNC
+PyInit_image(void);
+PyMODINIT_FUNC
+PyInit_imageext(void);
 
-PyMODINIT_FUNC PyInit_mixer_music(void);
-PyMODINIT_FUNC PyInit_pg_mixer(void);
+PyMODINIT_FUNC
+PyInit_mixer_music(void);
+PyMODINIT_FUNC
+PyInit_pg_mixer(void);
 
-PyMODINIT_FUNC PyInit_pg_math(void);
-PyMODINIT_FUNC PyInit_pg_time(void);
+PyMODINIT_FUNC
+PyInit_pg_math(void);
+PyMODINIT_FUNC
+PyInit_pg_time(void);
 
+PyMODINIT_FUNC
+PyInit_sdl2(void);
+PyMODINIT_FUNC
+PyInit_mixer(void);
+PyMODINIT_FUNC
+PyInit_controller(void);
 
-PyMODINIT_FUNC PyInit_sdl2(void);
-PyMODINIT_FUNC PyInit_mixer(void);
-PyMODINIT_FUNC PyInit_controller(void);
-
-void PyGame_static_init() {
+void
+PyGame_static_init()
+{
     PyImport_AppendInittab("pygame_base", PyInit_base);
     PyImport_AppendInittab("pygame_color", PyInit_color);
     PyImport_AppendInittab("pygame_constants", PyInit_constants);
@@ -128,8 +153,7 @@ void PyGame_static_init() {
     PyImport_AppendInittab("pygame__sdl2_controller", PyInit_controller);
 }
 
-#endif // defined(BUILD_STATIC)
-
+#endif  // defined(BUILD_STATIC)
 
 #include "base.c"
 
