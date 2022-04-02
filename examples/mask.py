@@ -138,9 +138,7 @@ def main(*args):
     images = []
     masks = []
     for impath in args:
-        im = pg.image.load(impath).convert_alpha()
-        im.set_colorkey('red') # remove red background
-        images.append(im)
+        images.append(pg.image.load(impath).convert_alpha())
         masks.append(maskFromSurface(images[-1]))
 
     numtimes = 10
@@ -206,7 +204,7 @@ if __name__ == "__main__":
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        imagename = os.path.join(main_dir, "data", "chimp.png")
+        imagename = os.path.join(main_dir, "data", "alien1.png")
         main(imagename)
 
     else:
