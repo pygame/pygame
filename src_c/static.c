@@ -1,4 +1,5 @@
 #define NO_PYGAME_C_API
+
 #define PYGAMEAPI_RECT_INTERNAL
 #define PYGAMEAPI_EVENT_INTERNAL
 #define PYGAMEAPI_JOYSTICK_INTERNAL
@@ -11,6 +12,13 @@
 #include "pygame.h"
 #include "Python.h"
 
+#if defined(__EMSCRIPTEN__)
+#undef WITH_THREAD
+#endif
+
+
+
+#if defined(BUILD_STATIC)
 #undef import_pygame_base
 #undef import_pygame_rect
 #undef import_pygame_surface
@@ -28,26 +36,100 @@ void
 import_pygame_rect(void)
 {
 }
+
 void
 import_pygame_surface(void)
 {
 }
+
 void
 import_pygame_color(void)
 {
 }
+
 void
 import_pygame_bufferproxy(void)
 {
 }
+
 void
 import_pygame_rwobject(void)
 {
 }
+
 void
 import_pygame_event(void)
 {
 }
+
+void
+import_pygame_joystick(void)
+{
+}
+
+PyMODINIT_FUNC PyInit_base(void);
+PyMODINIT_FUNC PyInit_color(void);
+PyMODINIT_FUNC PyInit_constants(void);
+PyMODINIT_FUNC PyInit_version(void);
+PyMODINIT_FUNC PyInit_rect(void);
+PyMODINIT_FUNC PyInit_surflock(void);
+PyMODINIT_FUNC PyInit_rwobject(void);
+PyMODINIT_FUNC PyInit_bufferproxy(void);
+
+PyMODINIT_FUNC PyInit_surface(void);
+PyMODINIT_FUNC PyInit_display(void);
+PyMODINIT_FUNC PyInit__freetype(void);
+PyMODINIT_FUNC PyInit_font(void);
+
+PyMODINIT_FUNC PyInit_draw(void);
+PyMODINIT_FUNC PyInit_mouse(void);
+PyMODINIT_FUNC PyInit_key(void);
+PyMODINIT_FUNC PyInit_event(void);
+PyMODINIT_FUNC PyInit_joystick(void);
+PyMODINIT_FUNC PyInit_image(void);
+PyMODINIT_FUNC PyInit_imageext(void);
+
+PyMODINIT_FUNC PyInit_mixer_music(void);
+PyMODINIT_FUNC PyInit_pg_mixer(void);
+
+PyMODINIT_FUNC PyInit_pg_math(void);
+PyMODINIT_FUNC PyInit_pg_time(void);
+
+
+PyMODINIT_FUNC PyInit_sdl2(void);
+PyMODINIT_FUNC PyInit_mixer(void);
+PyMODINIT_FUNC PyInit_controller(void);
+
+void PyGame_static_init() {
+    PyImport_AppendInittab("pygame_base", PyInit_base);
+    PyImport_AppendInittab("pygame_color", PyInit_color);
+    PyImport_AppendInittab("pygame_constants", PyInit_constants);
+    PyImport_AppendInittab("pygame_rect", PyInit_rect);
+    PyImport_AppendInittab("pygame_surflock", PyInit_surflock);
+    PyImport_AppendInittab("pygame_rwobject", PyInit_rwobject);
+    PyImport_AppendInittab("pygame_bufferproxy", PyInit_bufferproxy);
+    PyImport_AppendInittab("pygame_math", PyInit_pg_math);
+    PyImport_AppendInittab("pygame_surface", PyInit_surface);
+    PyImport_AppendInittab("pygame_display", PyInit_display);
+    PyImport_AppendInittab("pygame__freetype", PyInit__freetype);
+    PyImport_AppendInittab("pygame_font", PyInit_font);
+    PyImport_AppendInittab("pygame_draw", PyInit_draw);
+    PyImport_AppendInittab("pygame_image", PyInit_image);
+    PyImport_AppendInittab("pygame_imageext", PyInit_imageext);
+    PyImport_AppendInittab("pygame_mixer_music", PyInit_mixer_music);
+    PyImport_AppendInittab("pygame_mixer", PyInit_pg_mixer);
+    PyImport_AppendInittab("pygame_mouse", PyInit_mouse);
+    PyImport_AppendInittab("pygame_key", PyInit_key);
+    PyImport_AppendInittab("pygame_event", PyInit_event);
+    PyImport_AppendInittab("pygame_joystick", PyInit_joystick);
+    PyImport_AppendInittab("pygame_time", PyInit_pg_time);
+    PyImport_AppendInittab("pygame__sdl2_sdl2", PyInit_sdl2);
+    PyImport_AppendInittab("pygame__sdl2_sdl2_mixer", PyInit_mixer);
+    PyImport_AppendInittab("pygame__sdl2_controller", PyInit_controller);
+}
+
+#endif // defined(BUILD_STATIC)
+
 
 #include "base.c"
 
@@ -134,11 +216,6 @@ import_pygame_event(void)
 #include "mixer.c"
 
 #include "music.c"
-
-void
-import_pygame_joystick(void)
-{
-}
 
 #include "_sdl2/controller.c"
 
