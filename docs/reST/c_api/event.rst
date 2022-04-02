@@ -9,7 +9,7 @@
 src_c/event.c
 =============
 
-The extsion module :py:mod:`pygame.event`.
+The extension module :py:mod:`pygame.event`.
 
 Header file: src_c/include/pygame.h
 

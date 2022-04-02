@@ -11,9 +11,11 @@ from typing import (
     SupportsInt,
     Tuple,
     Union,
+    final,
     overload,
 )
 
+@final
 class Event:
     type: int
     dict: Dict[str, Any]

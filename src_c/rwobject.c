@@ -691,7 +691,6 @@ _rwops_from_pystr(PyObject *obj)
     }
 
     encoded = PyBytes_AS_STRING(oencoded);
-    Py_DECREF(oencoded);
 
     rw = SDL_RWFromFile(encoded, "rb");
     if (rw) {
@@ -710,9 +709,11 @@ _rwops_from_pystr(PyObject *obj)
             strcpy(extension, ext);
         }
         rw->hidden.unknown.data1 = (void *)extension;
+        Py_DECREF(oencoded);
         return rw;
     }
 
+    Py_DECREF(oencoded);
     /* Clear SDL error and set our own error message for filenotfound errors
      * TODO: Check SDL error here and forward any non filenotfound related
      * errors correctly here */

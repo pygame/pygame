@@ -1581,7 +1581,7 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-surf_get_smoothscale_backend(PyObject *self, PyObject *args)
+surf_get_smoothscale_backend(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(GETSTATE(self)->filter_type);
 }

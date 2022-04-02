@@ -129,7 +129,7 @@ _scrap_init(PyObject *self, PyObject *args)
  * Note: All platforms supported here.
  */
 static PyObject *
-_scrap_get_init(PyObject *self, PyObject *args)
+_scrap_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pygame_scrap_initialized());
 }
@@ -139,7 +139,7 @@ _scrap_get_init(PyObject *self, PyObject *args)
  * Gets the currently available types from the active clipboard.
  */
 static PyObject *
-_scrap_get_types(PyObject *self, PyObject *args)
+_scrap_get_types(PyObject *self, PyObject *_null)
 {
     int i = 0;
     char **types;
@@ -321,7 +321,7 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
  * Checks whether the pygame window has lost the clipboard.
  */
 static PyObject *
-_scrap_lost_scrap(PyObject *self, PyObject *args)
+_scrap_lost_scrap(PyObject *self, PyObject *_null)
 {
     PYGAME_SCRAP_INIT_CHECK();
 
