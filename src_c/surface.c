@@ -377,43 +377,17 @@ static struct PyMethodDef surface_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgSurface_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Surface", /* name */
-    sizeof(pgSurfaceObject),                         /* basic size */
-    0,                                               /* itemsize */
-    surface_dealloc,                                 /* dealloc */
-    0,                                               /* print */
-    NULL,                                            /* getattr */
-    NULL,                                            /* setattr */
-    NULL,                                            /* compare */
-    surface_str,                                     /* repr */
-    NULL,                                            /* as_number */
-    NULL,                                            /* as_sequence */
-    NULL,                                            /* as_mapping */
-    (hashfunc)NULL,                                  /* hash */
-    (ternaryfunc)NULL,                               /* call */
-    (reprfunc)NULL,                                  /* str */
-    0,
-    0L,
-    0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMESURFACE,                        /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    offsetof(pgSurfaceObject, weakreflist),   /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    surface_methods,                          /* tp_methods */
-    0,                                        /* tp_members */
-    surface_getsets,                          /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    (initproc)surface_init,                   /* tp_init */
-    0,                                        /* tp_alloc */
-    surface_new,                              /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Surface",
+    .tp_basicsize = sizeof(pgSurfaceObject),
+    .tp_dealloc = surface_dealloc,
+    .tp_repr = surface_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMESURFACE,
+    .tp_weaklistoffset = offsetof(pgSurfaceObject, weakreflist),
+    .tp_methods = surface_methods,
+    .tp_getset = surface_getsets,
+    .tp_init = (initproc)surface_init,
+    .tp_new = surface_new,
 };
 
 #define pgSurface_Check(x) \
@@ -993,7 +967,7 @@ surf_unmap_rgb(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_lock(PyObject *self, PyObject *args)
+surf_lock(PyObject *self, PyObject *_null)
 {
     if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
@@ -1001,14 +975,14 @@ surf_lock(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_unlock(PyObject *self, PyObject *args)
+surf_unlock(PyObject *self, PyObject *_null)
 {
     pgSurface_Unlock((pgSurfaceObject *)self);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-surf_mustlock(PyObject *self, PyObject *args)
+surf_mustlock(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
@@ -1016,7 +990,7 @@ surf_mustlock(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_locked(PyObject *self, PyObject *args)
+surf_get_locked(PyObject *self, PyObject *_null)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
 
@@ -1026,7 +1000,7 @@ surf_get_locked(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_locks(PyObject *self, PyObject *args)
+surf_get_locks(PyObject *self, PyObject *_null)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
     Py_ssize_t len, i = 0;
@@ -1048,7 +1022,7 @@ surf_get_locks(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_palette(PyObject *self, PyObject *args)
+surf_get_palette(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = NULL;
@@ -1296,7 +1270,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_colorkey(pgSurfaceObject *self, PyObject *args)
+surf_get_colorkey(pgSurfaceObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     Uint32 mapped_color;
@@ -1397,7 +1371,7 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_alpha(pgSurfaceObject *self, PyObject *args)
+surf_get_alpha(pgSurfaceObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
@@ -1419,7 +1393,7 @@ surf_get_alpha(pgSurfaceObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_blendmode(PyObject *self, PyObject *args)
+surf_get_blendmode(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
@@ -1430,7 +1404,7 @@ surf_get_blendmode(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_copy(pgSurfaceObject *self, PyObject *args)
+surf_copy(pgSurfaceObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *final;
@@ -1750,7 +1724,7 @@ surf_set_clip(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_clip(PyObject *self, PyObject *args)
+surf_get_clip(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2235,7 +2209,7 @@ _PgSurface_SrcAlpha(SDL_Surface *surf)
 }
 
 static PyObject *
-surf_get_flags(PyObject *self, PyObject *args)
+surf_get_flags(PyObject *self, PyObject *_null)
 {
     Uint32 sdl_flags = 0;
     Uint32 window_flags = 0;
@@ -2284,7 +2258,7 @@ surf_get_flags(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_pitch(PyObject *self, PyObject *args)
+surf_get_pitch(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2294,7 +2268,7 @@ surf_get_pitch(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_size(PyObject *self, PyObject *args)
+surf_get_size(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2304,7 +2278,7 @@ surf_get_size(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_width(PyObject *self, PyObject *args)
+surf_get_width(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2314,7 +2288,7 @@ surf_get_width(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_height(PyObject *self, PyObject *args)
+surf_get_height(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2353,7 +2327,7 @@ surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-surf_get_bitsize(PyObject *self, PyObject *args)
+surf_get_bitsize(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     if (!surf)
@@ -2363,7 +2337,7 @@ surf_get_bitsize(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_bytesize(PyObject *self, PyObject *args)
+surf_get_bytesize(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     if (!surf)
@@ -2372,7 +2346,7 @@ surf_get_bytesize(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_masks(PyObject *self, PyObject *args)
+surf_get_masks(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2398,7 +2372,7 @@ surf_set_masks(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_shifts(PyObject *self, PyObject *args)
+surf_get_shifts(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2423,7 +2397,7 @@ surf_set_shifts(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_losses(PyObject *self, PyObject *args)
+surf_get_losses(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
@@ -2547,7 +2521,7 @@ surf_subsurface(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_offset(PyObject *self, PyObject *args)
+surf_get_offset(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
@@ -2562,7 +2536,7 @@ surf_get_offset(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_abs_offset(PyObject *self, PyObject *args)
+surf_get_abs_offset(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
@@ -2591,7 +2565,7 @@ surf_get_abs_offset(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_parent(PyObject *self, PyObject *args)
+surf_get_parent(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
@@ -2608,7 +2582,7 @@ surf_get_parent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_abs_parent(PyObject *self, PyObject *args)
+surf_get_abs_parent(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
@@ -2983,7 +2957,7 @@ surf_get_view(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_get_buffer(PyObject *self, PyObject *args)
+surf_get_buffer(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surface = pgSurface_AsSurface(self);
     PyObject *proxy_obj;

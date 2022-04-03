@@ -37,7 +37,7 @@ _joy_map_insert(pgJoystickObject *jstick);
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
 
 static PyObject *
-init(PyObject *self)
+init(PyObject *self, PyObject *_null)
 {
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
         if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
@@ -48,7 +48,7 @@ init(PyObject *self)
 }
 
 static PyObject *
-quit(PyObject *self)
+quit(PyObject *self, PyObject *_null)
 {
     /* Walk joystick objects to deallocate the stick objects. */
     pgJoystickObject *cur = joylist_head;
@@ -68,7 +68,7 @@ quit(PyObject *self)
 }
 
 static PyObject *
-get_init(PyObject *self)
+get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(SDL_WasInit(SDL_INIT_JOYSTICK) != 0);
 }
@@ -110,14 +110,14 @@ Joystick(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_count(PyObject *self, PyObject *args)
+get_count(PyObject *self, PyObject *_null)
 {
     JOYSTICK_INIT_CHECK();
     return PyLong_FromLong(SDL_NumJoysticks());
 }
 
 static PyObject *
-joy_init(PyObject *self, PyObject *args)
+joy_init(PyObject *self, PyObject *_null)
 {
     pgJoystickObject *jstick = (pgJoystickObject *)self;
 
@@ -162,7 +162,7 @@ _joy_map_insert(pgJoystickObject *jstick)
 }
 
 static PyObject *
-joy_quit(PyObject *self, PyObject *args)
+joy_quit(PyObject *self, PyObject *_null)
 {
     pgJoystickObject *joy = (pgJoystickObject *)self;
 
@@ -175,21 +175,21 @@ joy_quit(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_init(PyObject *self, PyObject *args)
+joy_get_init(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     return PyBool_FromLong(joy != NULL);
 }
 
 static PyObject *
-joy_get_id(PyObject *self, PyObject *args)
+joy_get_id(PyObject *self, PyObject *_null)
 {
     int joy_id = pgJoystick_AsID(self);
     return PyLong_FromLong(joy_id);
 }
 
 static PyObject *
-joy_get_instance_id(PyObject *self, PyObject *args)
+joy_get_instance_id(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -202,7 +202,7 @@ joy_get_instance_id(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_guid(PyObject *self, PyObject *args)
+joy_get_guid(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     SDL_JoystickGUID guid;
@@ -243,7 +243,7 @@ _pg_powerlevel_string(SDL_JoystickPowerLevel level)
 }
 
 static PyObject *
-joy_get_power_level(PyObject *self, PyObject *args)
+joy_get_power_level(PyObject *self, PyObject *_null)
 {
     SDL_JoystickPowerLevel level;
     const char *leveltext;
@@ -313,7 +313,7 @@ joy_rumble(pgJoystickObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-joy_stop_rumble(pgJoystickObject *self)
+joy_stop_rumble(pgJoystickObject *self, PyObject *_null)
 {
 #if SDL_VERSION_ATLEAST(2, 0, 9)
     SDL_Joystick *joy = self->joy;
@@ -323,14 +323,14 @@ joy_stop_rumble(pgJoystickObject *self)
 }
 
 static PyObject *
-joy_get_name(PyObject *self, PyObject *args)
+joy_get_name(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     return PyUnicode_FromString(SDL_JoystickName(joy));
 }
 
 static PyObject *
-joy_get_numaxes(PyObject *self, PyObject *args)
+joy_get_numaxes(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     JOYSTICK_INIT_CHECK();
@@ -368,7 +368,7 @@ joy_get_axis(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numbuttons(PyObject *self, PyObject *args)
+joy_get_numbuttons(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -406,7 +406,7 @@ joy_get_button(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numballs(PyObject *self, PyObject *args)
+joy_get_numballs(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -446,7 +446,7 @@ joy_get_ball(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numhats(PyObject *self, PyObject *args)
+joy_get_numhats(PyObject *self, PyObject *_null)
 {
     Uint32 value;
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
@@ -533,43 +533,11 @@ static PyMethodDef joy_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgJoystick_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Joystick", /* name */
-    sizeof(pgJoystickObject),                  /* basic size */
-    0,                                         /* itemsize */
-    joy_dealloc,                               /* dealloc */
-    0,                                         /* print */
-    0,                                         /* getattr */
-    0,                                         /* setattr */
-    0,                                         /* compare */
-    0,                                         /* repr */
-    0,                                         /* as_number */
-    0,                                         /* as_sequence */
-    0,                                         /* as_mapping */
-    0,                                         /* hash */
-    0,                                         /* call */
-    0,                                         /* str */
-    0,                                         /* tp_getattro */
-    0,                                         /* tp_setattro */
-    0,                                         /* tp_as_buffer */
-    0,                                         /* flags */
-    DOC_PYGAMEJOYSTICKJOYSTICK,                /* Documentation string */
-    0,                                         /* tp_traverse */
-    0,                                         /* tp_clear */
-    0,                                         /* tp_richcompare */
-    0,                                         /* tp_weaklistoffset */
-    0,                                         /* tp_iter */
-    0,                                         /* tp_iternext */
-    joy_methods,                               /* tp_methods */
-    0,                                         /* tp_members */
-    0,                                         /* tp_getset */
-    0,                                         /* tp_base */
-    0,                                         /* tp_dict */
-    0,                                         /* tp_descr_get */
-    0,                                         /* tp_descr_set */
-    0,                                         /* tp_dictoffset */
-    0,                                         /* tp_init */
-    0,                                         /* tp_alloc */
-    0,                                         /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Joystick",
+    .tp_basicsize = sizeof(pgJoystickObject),
+    .tp_dealloc = joy_dealloc,
+    .tp_doc = DOC_PYGAMEJOYSTICKJOYSTICK,
+    .tp_methods = joy_methods,
 };
 
 static PyObject *

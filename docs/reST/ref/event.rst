@@ -87,6 +87,10 @@ specific attributes.
 
 .. versionchanged:: 2.0.1 The ``unicode`` attribute was added to ``KEYUP`` event.
 
+Note that ``ACTIVEEVENT``, ``VIDEORESIZE`` and ``VIDEOEXPOSE`` are considered
+as "legacy" events, the use of pygame2 ``WINDOWEVENT`` API is recommended over
+the use of this older API.
+
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
 

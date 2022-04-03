@@ -177,7 +177,7 @@ display_resource_end:
 
 /* init routines */
 static PyObject *
-pg_display_quit(PyObject *self)
+pg_display_quit(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_STATE;
     _display_state_cleanup(state);
@@ -221,7 +221,7 @@ _pg_mac_display_init(void)
 }
 
 static PyObject *
-pg_display_init(PyObject *self)
+pg_display_init(PyObject *self, PyObject *_null)
 {
     const char *drivername;
     /* Compatibility:
@@ -249,13 +249,13 @@ pg_display_init(PyObject *self)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *_null)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
     return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) &&
@@ -330,7 +330,6 @@ pg_vidinfo_getattr(PyObject *self, char *name)
 PyObject *
 pg_vidinfo_str(PyObject *self)
 {
-    char str[1024];
     int current_w = -1;
     int current_h = -1;
     pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
@@ -345,44 +344,33 @@ pg_vidinfo_str(PyObject *self)
         current_h = info->current_h;
     }
 
-    sprintf(str,
-            "<VideoInfo(hw = %u, wm = %u,video_mem = %u\n"
-            "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
-            "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
-            "         bitsize  = %u, bytesize = %u,\n"
-            "         masks =  (%u, %u, %u, %u),\n"
-            "         shifts = (%u, %u, %u, %u),\n"
-            "         losses =  (%u, %u, %u, %u),\n"
-            "         current_w = %d, current_h = %d\n"
-            "         pixel_format = %s)\n"
-            ">\n",
-            info->hw_available, info->wm_available, info->video_mem,
-            info->blit_hw, info->blit_hw_CC, info->blit_hw_A, info->blit_sw,
-            info->blit_sw_CC, info->blit_sw_A, info->vfmt->BitsPerPixel,
-            info->vfmt->BytesPerPixel, info->vfmt->Rmask, info->vfmt->Gmask,
-            info->vfmt->Bmask, info->vfmt->Amask, info->vfmt->Rshift,
-            info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
-            info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-            info->vfmt->Aloss, current_w, current_h, pixel_format_name);
-    return PyUnicode_FromString(str);
+    return PyUnicode_FromFormat(
+        "<VideoInfo(hw = %u, wm = %u,video_mem = %u\n"
+        "         blit_hw = %u, blit_hw_CC = %u, blit_hw_A = %u,\n"
+        "         blit_sw = %u, blit_sw_CC = %u, blit_sw_A = %u,\n"
+        "         bitsize  = %u, bytesize = %u,\n"
+        "         masks =  (0x%08x, 0x%08x, 0x%08x, 0x%08x),\n"
+        "         shifts = (%u, %u, %u, %u),\n"
+        "         losses =  (%u, %u, %u, %u),\n"
+        "         current_w = %d, current_h = %d\n"
+        "         pixel_format = %s)\n"
+        ">",
+        info->hw_available, info->wm_available, info->video_mem, info->blit_hw,
+        info->blit_hw_CC, info->blit_hw_A, info->blit_sw, info->blit_sw_CC,
+        info->blit_sw_A, info->vfmt->BitsPerPixel, info->vfmt->BytesPerPixel,
+        info->vfmt->Rmask, info->vfmt->Gmask, info->vfmt->Bmask,
+        info->vfmt->Amask, info->vfmt->Rshift, info->vfmt->Gshift,
+        info->vfmt->Bshift, info->vfmt->Ashift, info->vfmt->Rloss,
+        info->vfmt->Gloss, info->vfmt->Bloss, info->vfmt->Aloss, current_w,
+        current_h, pixel_format_name);
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "VidInfo", /*name*/
-    sizeof(pgVidInfoObject),                  /*basic size*/
-    0,                                        /*itemsize*/
-    pg_vidinfo_dealloc,                       /*dealloc*/
-    0,                                        /*print*/
-    pg_vidinfo_getattr,                       /*getattr*/
-    NULL,                                     /*setattr*/
-    NULL,                                     /*compare*/
-    pg_vidinfo_str,                           /*repr*/
-    NULL,                                     /*as_number*/
-    NULL,                                     /*as_sequence*/
-    NULL,                                     /*as_mapping*/
-    (hashfunc)NULL,                           /*hash*/
-    (ternaryfunc)NULL,                        /*call*/
-    (reprfunc)NULL,                           /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    .tp_basicsize = sizeof(pgVidInfoObject),
+    .tp_dealloc = pg_vidinfo_dealloc,
+    .tp_getattr = pg_vidinfo_getattr,
+    .tp_repr = pg_vidinfo_str,
 };
 
 static PyObject *
@@ -449,7 +437,7 @@ pg_GetVideoInfo(pg_VideoInfo *info)
 }
 
 static PyObject *
-pgInfo(PyObject *self)
+pgInfo(PyObject *self, PyObject *_null)
 {
     pg_VideoInfo info;
     VIDEO_INIT_CHECK();
@@ -457,7 +445,7 @@ pgInfo(PyObject *self)
 }
 
 static PyObject *
-pg_get_wm_info(PyObject *self)
+pg_get_wm_info(PyObject *self, PyObject *_null)
 {
     PyObject *dict;
     PyObject *tmp;
@@ -586,7 +574,7 @@ pg_get_wm_info(PyObject *self)
 
 /* display functions */
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *_null)
 {
     const char *name = NULL;
     VIDEO_INIT_CHECK();
@@ -597,7 +585,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -886,7 +874,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /* note SDL works special like this too */
-        if (!pg_display_init(NULL))
+        if (!pg_display_init(NULL, NULL))
             return NULL;
     }
 
@@ -1384,7 +1372,7 @@ _pg_get_default_display_masks(int bpp, Uint32 *Rmask, Uint32 *Gmask,
 }
 
 static PyObject *
-pg_window_size(PyObject *self)
+pg_window_size(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int w, h;
@@ -1576,7 +1564,7 @@ pg_flip_internal(_DisplayState *state)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *_null)
 {
     if (pg_flip_internal(DISPLAY_MOD_STATE(self)) < 0) {
         return NULL;
@@ -1585,7 +1573,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays(PyObject *self)
+pg_num_displays(PyObject *self, PyObject *_null)
 {
     int ret = SDL_GetNumVideoDisplays();
     if (ret < 0)
@@ -1624,7 +1612,7 @@ pg_update(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, "Display mode not set");
 
     if (pg_renderer != NULL) {
-        return pg_flip(self);
+        return pg_flip(self, NULL);
     }
     SDL_GetWindowSize(win, &wide, &high);
 
@@ -1633,7 +1621,7 @@ pg_update(PyObject *self, PyObject *arg)
 
     /*determine type of argument we got*/
     if (PyTuple_Size(arg) == 0) {
-        return pg_flip(self);
+        return pg_flip(self, NULL);
     }
 
     if (PyTuple_GET_ITEM(arg, 0) == Py_None) {
@@ -1941,7 +1929,7 @@ pg_set_caption(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *_null)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1967,7 +1955,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
         return NULL;
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        if (!pg_display_init(NULL))
+        if (!pg_display_init(NULL, NULL))
             return NULL;
     }
     Py_INCREF(surface);
@@ -1979,7 +1967,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     VIDEO_INIT_CHECK();
@@ -2048,7 +2036,7 @@ pg_get_desktop_screen_sizes(PyObject *self)
 }
 
 static PyObject *
-pg_is_fullscreen(PyObject *self)
+pg_is_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int flags;
@@ -2066,7 +2054,7 @@ pg_is_fullscreen(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self, PyObject *args)
+pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result, flags;

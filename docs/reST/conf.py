@@ -50,7 +50,7 @@ copyright = u'2000-2022, pygame developers'
 # The short X.Y version.
 version = '2.1.3'
 # The full version, including alpha/beta/rc tags.
-release = '2.1.3.dev3'
+release = '2.1.3.dev5'
 
 # Format strings for the version directives
 versionadded_format = 'New in pygame %s'
@@ -132,6 +132,9 @@ html_favicon = '_static/pygame.ico'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Add any extra files that should be included in the build.
+html_extra_path = ['../LGPL.txt']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
