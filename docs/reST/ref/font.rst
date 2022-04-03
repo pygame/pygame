@@ -84,7 +84,9 @@ solves no longer exists, it will likely be removed in the future.
    | :sl:`gets SDL_ttf version`
    | :sg:`get_sdl_ttf_version() -> Tuple[int, int, int]`
 
-   Returns a tuple of integers that identify SDL_ttf's version
+   Returns a tuple of integers that identify SDL_ttf's version.
+   SDL_ttf is the underlying font rendering library, written in C,
+   on which pygame's font module depends.
 
    .. versionadded:: 2.1.3
 
