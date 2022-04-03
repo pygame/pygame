@@ -92,9 +92,3 @@ RUN ["bash", "/portmidi_build/build-portmidi.sh"]
 ENV base_image=$BASE_IMAGE
 RUN echo "$base_image"
 RUN echo "$BASE_IMAGE"
-
-ADD pypy /pypy_build/
-ARG BASE_IMAGE2=manylinux1_x86_64
-RUN if [ "$BASE_IMAGE2" = "manylinux2010_x86_64" ] ; then bash /pypy_build/getpypy64.sh ; else echo "no pypy on manylinux1" ; fi
-RUN if [ "$BASE_IMAGE2" = "manylinux2014_x86_64" ] ; then bash /pypy_build/getpypy64.sh ; else echo "no pypy on manylinux1" ; fi
-
