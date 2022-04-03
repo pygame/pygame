@@ -375,6 +375,34 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.1.1
 
       .. ## Vector2.copy ##
+   
+
+   .. method :: clamp_magnitude
+
+      | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
+      | :sg:`clamp_magnitude(max_length) -> Vector2`
+      | :sg:`clamp_magnitude(max_length, min_length) -> Vector2`
+
+      Returns a new copy of a vector with the magnitude clamped between max_length and min_length. If
+      a min_length value is not assigned, then it will automatically be set to 0.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector2.clamp_magnitude ##
+   
+
+   .. method :: clamp_magnitude_ip
+
+      | :sl:`Clamps the vector's magnitude between max_length and min_length`
+      | :sg:`clamp_magnitude_ip(max_length) -> None`
+      | :sg:`clamp_magnitude_ip(max_length, min_length) -> None`
+
+      Clamps the vector's magnitude between max_length and min_length. If a min_length value is not assigned,
+      then it will automatically be set to 0.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector2.clamp_magnitude_ip ##
 
 
    .. method:: update
@@ -916,6 +944,34 @@ Multiple coordinates can be set using slices or swizzling
       .. versionadded:: 2.1.1
 
       .. ## Vector3.copy ##
+
+
+   .. method :: clamp_magnitude
+
+      | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
+      | :sg:`clamp_magnitude(max_length) -> Vector3`
+      | :sg:`clamp_magnitude(max_length, min_length) -> Vector3`
+
+      Returns a new copy of a vector with the magnitude clamped between max_length and min_length. If
+      a min_length value is not assigned, then it will automatically be set to 0.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector3.clamp_magnitude ##
+   
+
+   .. method :: clamp_magnitude_ip
+
+      | :sl:`Clamps the vector's magnitude between max_length and min_length`
+      | :sg:`clamp_magnitude_ip(max_length) -> None`
+      | :sg:`clamp_magnitude_ip(max_length, min_length) -> None`
+
+      Clamps the vector's magnitude between max_length and min_length. If a min_length value is not assigned,
+      then it will automatically be set to 0.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Vector3.clamp_magnitude_ip ##
 
    .. method:: update
 
