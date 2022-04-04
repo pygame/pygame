@@ -41,38 +41,30 @@ AUDIO_ALLOW_FORMAT_CHANGE = _SDL_AUDIO_ALLOW_FORMAT_CHANGE
 AUDIO_ALLOW_CHANNELS_CHANGE = _SDL_AUDIO_ALLOW_CHANNELS_CHANGE
 AUDIO_ALLOW_ANY_CHANGE = _SDL_AUDIO_ALLOW_ANY_CHANGE
 
-
 # https://wiki.libsdl.org/SDL_GetNumAudioDevices
-def get_num_audio_devices(iscapture):
-    """ return the number of audio devices for playback or capture.
-
-    :param int iscapture: if 0 return devices available for playback of audio.
-                          If 1 return devices available for capture of audio.
-    :return: the number of devices available.
-    :rtype: int
-    """
-    devcount = SDL_GetNumAudioDevices(iscapture);
-    if devcount == -1:
-        raise error('Audio system not initialised')
-    return devcount
-
 # https://wiki.libsdl.org/SDL_GetAudioDeviceName
-def get_audio_device_name(index, iscapture):
-    """ A unique devicename is available for each available audio device.
+def get_audio_device_names(iscapture = False):
+    """ Returns a list of unique devicenames for each avaialable audio device.
 
-    :param int index: index of the devices from 0 to get_num_audio_devices(iscapture)
-    :param int iscapture: if 0 return devices available for playback of audio.
-                          If 1 return devices available for capture of audio.
+    :param bool iscapture: If False return devices available for playback.
+                           If True return devices available for capture.
 
-    :return: the devicename.
-    :rtype: bytes
+    :return: list of devicenames.
+    :rtype: List[string]
     """
-    cdef const char * name
-    name = SDL_GetAudioDeviceName(index, iscapture)
-    if not name:
-        raise error()
-    return name
 
+    cdef int count = SDL_GetNumAudioDevices(iscapture)
+    if count == -1:
+        raise error('Audio system not initialised')
+    
+    names = []
+    for i in range(count):
+        name = SDL_GetAudioDeviceName(i, iscapture)
+        if not name:
+            raise error()
+        names.append(name.decode('utf8'))
+
+    return names
 
 import traceback
 cdef void recording_cb(void* userdata, Uint8* stream, int len) nogil:
@@ -111,7 +103,7 @@ cdef class AudioDevice:
                  callback):
         """ An AudioDevice is for sound playback and capture of 'sound cards'.
 
-        :param bytes devicename: One of the device names from get_audio_device_name.
+        :param string devicename: One of the device names from get_audio_device_names.
                                  If None is passed in, it uses the default audio device.
         :param int frequency: Number of samples per second. 44100, 22050, ...
         :param int audioformat: AUDIO_F32SYS, AUDIO_F32SYS, AUDIO_U16SYS, AUDIO_S16SYS, ...
@@ -136,6 +128,8 @@ cdef class AudioDevice:
         memset(&self.desired, 0, sizeof(SDL_AudioSpec))
         self._iscapture = iscapture
         self._callback = callback
+        if not isinstance(devicename, str):
+            raise TypeError("devicename must be a string")
         self._devicename = devicename
 
         self.desired.freq = frequency;
@@ -146,7 +140,7 @@ cdef class AudioDevice:
         self.desired.userdata = <void*>self
 
         self._deviceid = SDL_OpenAudioDevice(
-            devicename,
+            self._devicename.encode("utf-8"),
             self._iscapture,
             &self.desired,
             &self.obtained,

@@ -9,6 +9,7 @@ Mouse events are scaled for you, so your game doesn't need to do it.
 Passing SCALED to pygame.display.set_mode means the resolution depends
 on desktop size and the graphics are scaled.
 """
+
 import pygame as pg
 
 pg.init()
@@ -17,7 +18,7 @@ RES = (160, 120)
 FPS = 30
 clock = pg.time.Clock()
 
-print ("desktops", pg.display.get_desktop_sizes())
+print("desktops", pg.display.get_desktop_sizes())
 screen = pg.display.set_mode(RES, pg.SCALED | pg.RESIZABLE)
 
 # MAIN LOOP
@@ -29,8 +30,13 @@ j = 0
 
 r_name, r_flags = pg.display._get_renderer_info()
 print("renderer:", r_name, "flags:", bin(r_flags))
-for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "render to texture")]:
-    if (flag & r_flags):
+for flag, name in [
+    (1, "software"),
+    (2, "accelerated"),
+    (4, "VSync"),
+    (8, "render to texture"),
+]:
+    if flag & r_flags:
         print(name)
 
 while not done:
@@ -58,3 +64,4 @@ while not done:
 
     pg.display.flip()
     clock.tick(FPS)
+pg.quit()

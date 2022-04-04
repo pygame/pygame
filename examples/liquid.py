@@ -45,7 +45,7 @@ def main():
     xblocks = range(0, 640, 20)
     yblocks = range(0, 480, 20)
     stopevents = pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN
-    while 1:
+    while True:
         for e in pg.event.get():
             if e.type in stopevents:
                 return
@@ -63,6 +63,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pg.quit()
 
 
 """BTW, here is the code from the BlitzBasic example this was derived

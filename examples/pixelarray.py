@@ -15,7 +15,7 @@ To see different effects - press a key or click a mouse.
 """
 import os
 import pygame as pg
-from pygame.compat import xrange_
+
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
@@ -26,9 +26,10 @@ def show(image):
     screen.fill((255, 255, 255))
     screen.blit(image, (0, 0))
     pg.display.flip()
-    while 1:
+    while True:
         event = pg.event.wait()
         if event.type == pg.QUIT:
+            pg.quit()
             raise SystemExit
         if event.type in [pg.MOUSEBUTTONDOWN, pg.KEYDOWN]:
             break
@@ -46,7 +47,7 @@ def main():
     ar = pg.PixelArray(surface)
 
     # Do some easy gradient effect.
-    for y in xrange_(255):
+    for y in range(255):
         r, g, b = y, y, y
         ar[:, y] = (r, g, b)
     del ar
@@ -89,7 +90,7 @@ def main():
     del ar
     show(surface)
 
-    # Flip the image around both axes, restoring it's original layout.
+    # Flip the image around both axes, restoring its original layout.
     ar = pg.PixelArray(surface)
     ar[:] = ar[::-1, ::-1]
     del ar
@@ -138,3 +139,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pg.quit()

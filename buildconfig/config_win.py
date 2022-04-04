@@ -29,7 +29,7 @@ def as_machine_type(size):
 def get_machine_type():
     return as_machine_type(get_ptr_size())
 
-class Dependency(object):
+class Dependency:
     huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
@@ -171,7 +171,7 @@ class Dependency(object):
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
             self.found = True
 
-class DependencyPython(object):
+class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
         self.lib_dir = ''
@@ -252,7 +252,7 @@ class DependencyDLL(Dependency):
                         return True
         return False
 
-class DependencyDummy(object):
+class DependencyDummy:
     def __init__(self, name):
         self.name = name
         self.inc_dir = None
@@ -264,7 +264,7 @@ class DependencyDummy(object):
     def configure(self):
         pass
 
-class DependencyWin(object):
+class DependencyWin:
     def __init__(self, name, cflags):
         self.name = name
         self.inc_dir = None
@@ -276,7 +276,7 @@ class DependencyWin(object):
     def configure(self):
         pass
 
-class DependencyGroup(object):
+class DependencyGroup:
     def __init__(self):
         self.dependencies =[]
         self.dlls = []
@@ -373,57 +373,29 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
 
-def setup(sdl2):
+def setup():
     DEPS = DependencyGroup()
 
-    if not sdl2:
-        DEPS.add('SDL', 'SDL', ['SDL-[1-9].*'], r'(lib){0,1}SDL\.dll$', required=1,
-                 find_header=r'SDL\.h')
-        DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z'],
-                 find_header=r'SDL_ttf\.h')
-        DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
-                 ['SDL', 'jpeg', 'png', 'tiff'], 0, find_header=r'SDL_image\.h'),
-        DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
-                 ['SDL', 'vorbisfile'], find_header=r'SDL_mixer\.h')
-        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'])
-        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg[-0-9]*\.dll$')
-        DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
-        #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-        DEPS.add_dummy('PORTTIME')
-        DEPS.add('FREETYPE', 'freetype', ['freetype-[1-9].*'], r'(lib){0,1}freetype[-0-9]*\.dll$',
-                 find_header=r'ft2build\.h', find_lib=r'(lib)?freetype[-0-9]*\.lib')
-        DEPS.configure()
-        DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
-        DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
-        DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
-                     ['ogg'])
-        DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
-                     link_lib='vorbis', libs=['vorbis'])
-        DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
-        for d in get_definitions():
-            DEPS.add_win(d.name, d.value)
-        DEPS.configure()
-    else:
-        DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
-        DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
-        #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-        DEPS.add_dummy('PORTTIME')
-        DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
-                 ['SDL', 'vorbisfile'])
-        DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-                 find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
-        DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
-                 find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
-        DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
-                 ['SDL', 'jpeg', 'png', 'tiff'], 0)
-        DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
-        DEPS.add('FREETYPE', 'freetype', ['freetype-[1-9].*'], r'(lib){0,1}freetype[-0-9]*\.dll$',
-                 find_header=r'ft2build\.h', find_lib=r'(lib)?freetype[-0-9]*\.lib')
-        DEPS.configure()
-        _add_sdl2_dll_deps(DEPS)
-        for d in get_definitions():
-            DEPS.add_win(d.name, d.value)
-        DEPS.configure()
+    DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
+    DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
+    #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+    DEPS.add_dummy('PORTTIME')
+    DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
+             ['SDL', 'vorbisfile'])
+    DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
+             find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
+    DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
+             find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
+    DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
+             ['SDL', 'jpeg', 'png', 'tiff'], 0)
+    DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
+    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
+             find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
+    DEPS.configure()
+    _add_sdl2_dll_deps(DEPS)
+    for d in get_definitions():
+        DEPS.add_win(d.name, d.value)
+    DEPS.configure()
 
     return list(DEPS)
 
@@ -439,7 +411,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS = DependencyGroup()
 
     DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
-    fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
+    fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL'])
     imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                         ['SDL', 'jpeg', 'png', 'tiff'], 0)
     mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
@@ -449,15 +421,8 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.add_dummy('PORTTIME')
     DEPS.configure()
 
-    # force use of the correct freetype DLL
-    ftDep = DEPS.add('FREETYPE', 'freetype', ['SDL2_ttf-[2-9].*', 'freetype-[1-9].*'], r'(lib)?freetype[-0-9]*\.dll$',
-                     find_header=r'ft2build\.h', find_lib=r'libfreetype[-0-9]*\.lib')
-    ftDep.path = fontDep.path
-    ftDep.inc_dir = [
-        os.path.join(prebuilt_dir, 'include').replace('\\', '/')
-    ]
-    ftDep.inc_dir.append('%s/freetype2' % ftDep.inc_dir[0])
-    ftDep.found = True
+    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
+                     find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
 
     png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
                    find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
@@ -485,8 +450,6 @@ def setup_prebuilt_sdl2(prebuilt_dir):
         'mpg123': mixerDep.path,
         'opus': mixerDep.path,
         'opusfile': mixerDep.path,
-
-        'freetype': fontDep.path,
     }
     _add_sdl2_dll_deps(DEPS)
     for dll in DEPS.dlls:
@@ -499,40 +462,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.configure()
     return list(DEPS)
 
-def setup_prebuilt_sdl1(prebuilt_dir):
-    with open('Setup', 'w') as setup_:
-        try:
-            try:
-                setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
-            except IOError:
-                raise IOError("%s missing required Setup_Win.in" % prebuilt_dir)
-
-            # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
-            # block with prebuilt\Setup_Win.in .
-            with open(os.path.join('buildconfig', 'Setup.SDL1.in')) as setup_in:
-                try:
-                    do_copy = True
-                    for line in setup_in:
-                        if line.startswith('#--StartConfig'):
-                            do_copy = False
-                            setup_.write(setup_win_in.read())
-                            try:
-                                with open(os.path.join('buildconfig', 'Setup_Win_Common.in')) as setup_win_common_in:
-                                    setup_.write(setup_win_common_in.read())
-                            except OSError:
-                                pass
-                        elif line.startswith('#--EndConfig'):
-                            do_copy = True
-                        elif do_copy:
-                            setup_.write(line)
-                except OSError:
-                    pass
-        except OSError:
-            pass
-
-    print("Wrote to \"Setup\".")
-
-def main(sdl2=False):
+def main():
     machine_type = get_machine_type()
     prebuilt_dir = 'prebuilt-%s' % machine_type
     use_prebuilt = '-prebuilt' in sys.argv
@@ -549,7 +479,6 @@ def main(sdl2=False):
     download_kwargs = {
         'x86': False,
         'x64': False,
-        'sdl2': sdl2,
     }
     download_kwargs[machine_type] = True
 
@@ -570,16 +499,13 @@ def main(sdl2=False):
                 use_prebuilt = True
 
         if use_prebuilt:
-            if sdl2:
-                return setup_prebuilt_sdl2(prebuilt_dir)
-            setup_prebuilt_sdl1(prebuilt_dir)
-            raise SystemExit()
+            return setup_prebuilt_sdl2(prebuilt_dir)
     else:
-        print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
-    return setup(sdl2)
+        print("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
+    return setup()
 
 if __name__ == '__main__':
-    print ("""This is the configuration subscript for Windows.
+    print("""This is the configuration subscript for Windows.
 Please run "config.py" for full configuration.""")
 
     import sys

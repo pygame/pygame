@@ -22,6 +22,7 @@ from pygame.transform import scale
 
 main_dir = os.path.dirname(os.path.abspath(__file__))
 
+# game constants
 DIR_UP = 1
 DIR_DOWN = 2
 DIR_LEFT = 3
@@ -44,7 +45,7 @@ def draw_arrow(surf, color, posn, direction):
 
 
 def add_arrow_button(screen, regions, posn, direction):
-    draw_arrow(screen, pg.Color("black"), posn, direction)
+    draw_arrow(screen, "black", posn, direction)
     draw_arrow(regions, (direction, 0, 0), posn, direction)
 
 

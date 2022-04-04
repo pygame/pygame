@@ -18,13 +18,12 @@ except NameError:
     pass
 
 import pygame
-from pygame.compat import xrange_
 
-PY3 = sys.version_info >= (3, 0, 0)
+
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
-class TestMixin(object):
+class TestMixin:
     def assert_surfaces_equal(self, s1, s2, msg=None):
         """Checks if two surfaces are equal in size and color."""
         w, h = s1.get_size()
@@ -52,6 +51,7 @@ class TestMixin(object):
         surface.unlock()
 
 
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayTypeTest(unittest.TestCase, TestMixin):
     def test_compare(self):
         # __doc__ (as of 2008-06-25) for pygame.pixelarray.PixelArray.compare:
@@ -230,16 +230,14 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             pixelarray_result.close()
 
     def test_close(self):
-        """ does not crash when it is deleted.
-        """
+        """does not crash when it is deleted."""
         s = pygame.Surface((10, 10))
         a = pygame.PixelArray(s)
         a.close()
         del a
 
     def test_close_raises(self):
-        """ when you try to do an operation after it is closed.
-        """
+        """when you try to do an operation after it is closed."""
         s = pygame.Surface((10, 10))
         a = pygame.PixelArray(s)
         a.close()
@@ -266,8 +264,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         self.assertRaises(ValueError, do_operation4)
 
     def test_context_manager(self):
-        """ closes properly.
-        """
+        """closes properly."""
         s = pygame.Surface((10, 10))
         with pygame.PixelArray(s) as a:
             a[:]
@@ -341,6 +338,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar2.__getitem__(1), val)
             self.assertEqual(ar2.__getitem__(2), val)
 
+    @unittest.skipIf(IS_PYPY, "pypy malloc abort")
     def test_get_pixel(self):
         w = 10
         h = 20
@@ -373,7 +371,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             ar = pygame.PixelArray(sf)
 
             ar_y = ar.__getitem__(1)
-            for y in xrange_(h):
+            for y in range(h):
                 ar2 = ar_y.__getitem__(y)
                 self.assertEqual(
                     ar2,
@@ -392,7 +390,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
                 )
 
             sf.set_at((1, 1), bg_color)
-            for x in xrange_(w):
+            for x in range(w):
                 ar2 = ar.__getitem__(x).__getitem__(1)
                 self.assertEqual(
                     ar2,
@@ -678,16 +676,38 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
 
             # Test simple slicing
             self.assertEqual(len(ar[:, :]), 6)
-            self.assertEqual(len(ar[:,]), 6)
+            self.assertEqual(
+                len(
+                    ar[
+                        :,
+                    ]
+                ),
+                6,
+            )
             self.assertEqual(len(ar[1, :]), 8)
             self.assertEqual(len(ar[:, 2]), 6)
             # Empty slices
-            self.assertEqual(ar[4:4,], None)
+            self.assertEqual(
+                ar[
+                    4:4,
+                ],
+                None,
+            )
             self.assertEqual(ar[4:4, ...], None)
             self.assertEqual(ar[4:4, 2:2], None)
             self.assertEqual(ar[4:4, 1:4], None)
-            self.assertEqual(ar[4:4:2,], None)
-            self.assertEqual(ar[4:4:-2,], None)
+            self.assertEqual(
+                ar[
+                    4:4:2,
+                ],
+                None,
+            )
+            self.assertEqual(
+                ar[
+                    4:4:-2,
+                ],
+                None,
+            )
             self.assertEqual(ar[4:4:1, ...], None)
             self.assertEqual(ar[4:4:-1, ...], None)
             self.assertEqual(ar[4:4:1, 2:2], None)
@@ -816,7 +836,9 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar[0, 0], 0)
             self.assertEqual(ar[1, 0], 0)
             self.assertEqual(ar[-1, -1], 0)
-            ar[...,] = (0, 0, 255)
+            ar[
+                ...,
+            ] = (0, 0, 255)
             self.assertEqual(ar[0, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[1, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[-1, -1], sf.map_rgb((0, 0, 255)))
@@ -1279,6 +1301,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         self.assertEqual(repr(ar), type(ar).__name__ + "([\n  [42, 42, 42]]\n)")
 
 
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
     @unittest.skipIf(IS_PYPY, "skipping for PyPy (why?)")
     def test_basic(self):
@@ -1410,6 +1433,7 @@ class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
 
 
 @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+@unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayNewBufferTest(unittest.TestCase, TestMixin):
 
     if pygame.HAVE_NEWBUF:

@@ -22,6 +22,8 @@ cdef extern from "SDL.h" nogil:
     int SDL_SetWindowOpacity(SDL_Window *window, float opacity)
     int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window)
     int SDL_SetWindowInputFocus(SDL_Window *window)
+    int SDL_SetRelativeMouseMode(SDL_bool enabled)
+    SDL_bool SDL_GetRelativeMouseMode()
     SDL_Renderer* SDL_GetRenderer(SDL_Window* window)
     SDL_Window* SDL_GetWindowFromID(Uint32 id)
     SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format)
@@ -301,6 +303,25 @@ cdef class Window:
         # https://wiki.libsdl.org/SDL_SetWindowGrab
         SDL_SetWindowGrab(self._win, 1 if grabbed else 0)
 
+    @property
+    def relative_mouse(self):
+        """ Window's relative mouse motion state (``True`` or ``False``).
+
+        Set it to ``True`` to enable, ``False`` to disable.
+        If mouse.set_visible(True) is set the input will be grabbed,
+        and the mouse will enter endless relative motion mode.
+
+        :rtype: bool
+        """
+        return SDL_GetRelativeMouseMode()
+
+
+    @relative_mouse.setter
+    def relative_mouse(self, bint enable):
+        # https://wiki.libsdl.org/SDL_SetRelativeMouseMode
+        #SDL_SetWindowGrab(self._win, 1 if enable else 0)
+        SDL_SetRelativeMouseMode(1 if enable else 0)
+
     def set_windowed(self):
         """ Enable windowed mode
 
@@ -531,7 +552,7 @@ cdef Uint32 format_from_depth(int depth):
 
 cdef class Texture:
     def __cinit__(self):
-        cdef Uint8[3] defaultColor = [255, 255, 255]
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._color = pgColor_NewLength(defaultColor, 3)
 
     def __init__(self,
@@ -688,11 +709,11 @@ cdef class Texture:
         return rect
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,
-                       bint flipX=False, bint flipY=False):
+                       bint flip_x=False, bint flip_y=False):
         cdef int flip = SDL_FLIP_NONE
-        if flipX:
+        if flip_x:
             flip |= SDL_FLIP_HORIZONTAL
-        if flipY:
+        if flip_y:
             flip |= SDL_FLIP_VERTICAL
 
         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
@@ -701,7 +722,7 @@ cdef class Texture:
             raise error()
 
     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
-                    bint flipX=False, bint flipY=False):
+                    bint flip_x=False, bint flip_y=False):
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
@@ -710,8 +731,8 @@ cdef class Texture:
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
                        If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
-        :param bool flipX: flip horizontally.
-        :param bool flipY: flip vertically.
+        :param bool flip_x: flip horizontally.
+        :param bool flip_y: flip vertically.
         """
         cdef SDL_Rect src, dst
         cdef SDL_Rect *csrcrect = NULL
@@ -744,7 +765,7 @@ cdef class Texture:
             originptr = NULL
 
         self.draw_internal(csrcrect, cdstrect, angle, originptr,
-                           flipX, flipY)
+                           flip_x, flip_y)
 
     def update(self, surface, area=None):
         # https://wiki.libsdl.org/SDL_UpdateTexture
@@ -779,13 +800,14 @@ cdef class Image:
 
     def __cinit__(self):
         self.angle = 0
-        self.origin[0] = 0
-        self.origin[1] = 0
-        self.flipX = False
-        self.flipY = False
+        self._origin.x = 0
+        self._origin.y = 0
+        self._originptr = NULL
+        self.flip_x = False
+        self.flip_y = False
 
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
-        self.color = pgColor_NewLength(defaultColor, 3)
+        self._color = pgColor_NewLength(defaultColor, 3)
         self.alpha = 255
 
     def __init__(self, textureOrImage, srcrect=None):
@@ -798,6 +820,7 @@ cdef class Image:
         else:
             self.texture = textureOrImage
             self.srcrect = textureOrImage.get_rect()
+        self.blend_mode = textureOrImage.blend_mode
 
         if srcrect is not None:
             rectptr = pgRect_FromObject(srcrect, &temp)
@@ -817,8 +840,29 @@ cdef class Image:
             temp.y += self.srcrect.y
             self.srcrect = pgRect_New(&temp)
 
-        self.origin[0] = self.srcrect.w / 2
-        self.origin[1] = self.srcrect.h / 2
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color[:3] = new_color[:3]
+
+    @property
+    def origin(self):
+        if self._originptr == NULL:
+            return None
+        else:
+            return (self._origin.x, self._origin.y)
+
+    @origin.setter
+    def origin(self, new_origin):
+        if new_origin:
+            self._origin.x = <int>new_origin[0]
+            self._origin.y = <int>new_origin[1]
+            self._originptr = &self._origin
+        else:
+            self._originptr = NULL
 
     def get_rect(self):
         return pgRect_New(&self.srcrect.r)
@@ -834,7 +878,6 @@ cdef class Image:
         cdef SDL_Rect dst
         cdef SDL_Rect *csrcrect = NULL
         cdef SDL_Rect *cdstrect = NULL
-        cdef SDL_Point origin
         cdef SDL_Rect *rectptr
 
         if srcrect is None:
@@ -868,14 +911,12 @@ cdef class Image:
                 else:
                     raise TypeError('dstrect must be a position, rect, or None')
 
-        self.texture.color = self.color
+        self.texture.color = self._color
         self.texture.alpha = self.alpha
-
-        origin.x = <int>self.origin[0]
-        origin.y = <int>self.origin[1]
+        self.texture.blend_mode = self.blend_mode
 
         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
-                                   &origin, self.flipX, self.flipY)
+                                   self._originptr, self.flip_x, self.flip_y)
 
 
 cdef class Renderer:
@@ -939,6 +980,23 @@ cdef class Renderer:
             return
         if self._renderer:
             SDL_DestroyRenderer(self._renderer)
+
+    @property
+    def draw_blend_mode(self):
+        # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
+        cdef SDL_BlendMode blendMode
+        res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
+        if res < 0:
+            raise error()
+
+        return blendMode
+
+    @draw_blend_mode.setter
+    def draw_blend_mode(self, blendMode):
+        # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
+        res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
+        if res < 0:
+            raise error()
 
     @property
     def draw_color(self):
@@ -1191,3 +1249,22 @@ cdef class Renderer:
                                 format, surf.pixels, surf.pitch) < 0:
             raise error()
         return surface
+
+    @staticmethod
+    def compose_custom_blend_mode(color_mode, alpha_mode):
+        """ Use this function to compose a custom blend mode.. 
+
+        :param color_mode: A tuple (srcColorFactor, dstColorFactor, colorOperation)
+        :param alpha_mode: A tuple (srcAlphaFactor, dstAlphaFactor, alphaOperation)
+        :return: A blend mode to be used with Renderer.draw_blend_mode and Texure.blend_mode
+        """
+        # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+        res = SDL_ComposeCustomBlendMode(color_mode[0],
+                                         color_mode[1],
+                                         color_mode[2],
+                                         alpha_mode[0],
+                                         alpha_mode[1],
+                                         alpha_mode[2])
+        if res < 0:
+            raise error()
+        return res

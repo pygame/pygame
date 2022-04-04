@@ -13,8 +13,11 @@ Pygame Front Page
 
    ref/*
    tut/*
+   tut/en/**/*
+   tut/ko/**/*
    c_api
    filepaths
+   logos
 
 Documents
 ---------
@@ -28,6 +31,10 @@ Documents
 
 `File Path Function Arguments`_
   How pygame handles file system paths.
+
+`Pygame Logos`_
+   The logos of Pygame in different resolutions.
+
 
 `LGPL License`_
   This is the license pygame is distributed under.
@@ -80,6 +87,9 @@ Tutorials
 :doc:`Display Modes <tut/DisplayModes>`
   Getting a display surface for the screen.
 
+:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/overview>`
+  빨간블록 검은블록
+
 Reference
 ---------
 
@@ -88,9 +98,6 @@ Reference
 
 :doc:`ref/bufferproxy`
   An array protocol view of surface pixels
-
-:doc:`ref/cdrom`
-  How to access and control the CD audio devices.
 
 :doc:`ref/color`
   Color representation.
@@ -140,9 +147,6 @@ Reference
 :doc:`ref/music`
   Play streaming music tracks.
 
-:doc:`ref/overlay`
-  Access advanced video overlays.
-
 :doc:`ref/pygame`
   Top level functions to manage pygame.
 
@@ -189,3 +193,5 @@ Reference
 .. _File Path Function Arguments: filepaths.html
 
 .. _LGPL License: LGPL.txt
+
+.. _Pygame Logos: logos.html

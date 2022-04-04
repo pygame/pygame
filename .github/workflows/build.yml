@@ -1,0 +1,196 @@
+name: Build
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build.yml'
+
+jobs:
+  deps:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # make arm64 deps and x86_64 deps
+        include:
+          - { name: "MacOS 11.0 arm64 deps", os: macos-11, macarch: arm64 }
+          - { name: "MacOS 10.9 x86_64 deps", os: macos-10.15 , macarch: x86_64 }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test for Mac Deps cache hit
+        id: macdep-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
+          # The hash of all files in buildconfig manylinux-build and macdependencies is 
+          # the key to the cache. If anything changes here, the deps are built again
+          key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
+
+      # build mac deps on cache miss
+      - name: Build Mac Deps
+        if: steps.macdep-cache.outputs.cache-hit != 'true'
+        run: |
+          export MAC_ARCH="${{ matrix.macarch }}"
+          brew install coreutils
+          cd buildconfig/macdependencies
+          bash ./build_mac_deps.sh
+
+      # Uncomment when you want to manually verify the deps by downloading them
+      # - name: Upload Mac deps
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: pygame-mac-deps-${{ matrix.macarch }}
+      #     path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
+
+  build:
+    name: ${{ matrix.name }}
+    needs: deps
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        # windows is covered by appveyor for now
+        # os: [windows-latest, macos-10.15]
+
+        # Split job into 5 matrix builds, because GH actions provides 5 concurrent
+        # builds on macOS
+        include:
+          - { 
+            name: "MacOS x86_64 (cp36-cp37)",
+            os: macos-10.15,
+            macarch: x86_64,
+            pyversions: cp36-* cp37-*
+          }
+
+          - { 
+            name: "MacOS x86_64 (cp37-cp38)",
+            os: macos-10.15,
+            macarch: x86_64,
+            pyversions: cp37-* cp38-*
+          }
+
+          - { 
+            name: "MacOS x86_64 (cp39-cp310)",
+            os: macos-10.15,
+            macarch: x86_64,
+            pyversions: cp39-* cp310-*
+          }
+
+          - { 
+            name: "MacOS x86_64 (pp37)",
+            os: macos-10.15,
+            macarch: x86_64,
+            pyversions: pp37-*
+          }
+
+          - { 
+            name: "MacOS arm64 (cp38-cp39-cp310)",
+            os: macos-11,
+            macarch: arm64,
+            pyversions: cp38-* cp39-* cp310-*
+          }
+
+        # seperate into matrix for concurrency. 
+        # pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
+
+        # exclude py2 builds on windows, because they don't work due to the
+        # fact that py2 builds use old compiler. There is a workaround for this
+        # but is not implemented here because Appveyor can already handle py2
+        # on windows
+        # exclude:
+        #   - os: windows-latest
+        #     pyver: 'cp27'
+        #   - os: windows-latest
+        #     pyver: 'pp27'
+
+    env:
+      SDL_VIDEODRIVER: "dummy"
+      SDL_AUDIODRIVER: "disk"
+
+      CIBW_BUILD: ${{ matrix.pyversions }}
+
+      # Setup MacOS dependencies
+      CIBW_BEFORE_ALL_MACOS: |
+        export MAC_ARCH="${{ matrix.macarch }}"
+        cd buildconfig/macdependencies
+        bash ./install_mac_deps.sh
+
+      CIBW_BEFORE_BUILD: |
+        pip install requests numpy Sphinx
+        python setup.py docs
+      CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+
+      # Increase pip debugging output
+      CIBW_BUILD_VERBOSITY: 2
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ~/Library/Caches/pip  # This cache path is only right on mac
+          key: pip-cache-${{ matrix.name }}
+
+      - name: Fetch Mac deps
+        id: macdep-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
+          key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
+
+      - name: Build and test wheels
+        uses: pypa/cibuildwheel@v2.2.2
+        env:
+          # Build arm64 and x86_64 wheels too on an Intel runner.
+          # Note that the arm64 wheels cannot be tested on CI in this configuration
+          CIBW_ARCHS_MACOS: "${{ matrix.macarch }}"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pygame-wheels
+          path: ./wheelhouse/*.whl
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release'
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: ./wheelhouse/*.whl
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release'
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload ./wheelhouse/*.whl

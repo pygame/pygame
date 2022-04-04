@@ -46,8 +46,7 @@
  * selections as well. For Win32 and MacOS environments the default
  * clipboard is used, no matter what value is passed.
  */
-typedef enum
-{
+typedef enum {
     SCRAP_CLIPBOARD,
     SCRAP_SELECTION /* only supported in X11 environments. */
 } ScrapClipType;
@@ -55,10 +54,10 @@ typedef enum
 /**
  * Macro for initialization checks.
  */
-#define PYGAME_SCRAP_INIT_CHECK() \
-    if(!pygame_scrap_initialized()) \
-        return (PyErr_SetString (pgExc_SDLError, \
-                                 "scrap system not initialized."), NULL)
+#define PYGAME_SCRAP_INIT_CHECK()                                             \
+    if (!pygame_scrap_initialized())                                          \
+    return (PyErr_SetString(pgExc_SDLError, "scrap system not initialized."), \
+            NULL)
 
 /**
  * \brief Checks, whether the pygame scrap module was initialized.
@@ -66,7 +65,7 @@ typedef enum
  * \return 1 if the modules was initialized, 0 otherwise.
  */
 extern int
-pygame_scrap_initialized (void);
+pygame_scrap_initialized(void);
 
 /**
  * \brief Initializes the pygame scrap module internals. Call this before any
@@ -75,7 +74,7 @@ pygame_scrap_initialized (void);
  * \return 1 on successful initialization, 0 otherwise.
  */
 extern int
-pygame_scrap_init (void);
+pygame_scrap_init(void);
 
 /**
  * \brief Checks, whether the pygame window lost the clipboard focus or not.
@@ -83,7 +82,7 @@ pygame_scrap_init (void);
  * \return 1 if the window lost the focus, 0 otherwise.
  */
 extern int
-pygame_scrap_lost (void);
+pygame_scrap_lost(void);
 
 /**
  * \brief Places content of a specific type into the clipboard.
@@ -109,7 +108,7 @@ pygame_scrap_lost (void);
  *         0 otherwise.
  */
 extern int
-pygame_scrap_put (char *type, int srclen, char *src);
+pygame_scrap_put(char *type, Py_ssize_t srclen, char *src);
 
 /**
  * \brief Gets the current content from the clipboard.
@@ -123,8 +122,8 @@ pygame_scrap_put (char *type, int srclen, char *src);
  * \return The content or NULL in case of an error or if no content of the
  *         specified type was available.
  */
-extern char*
-pygame_scrap_get (char *type, unsigned long *count);
+extern char *
+pygame_scrap_get(char *type, size_t *count);
 
 /**
  * \brief Gets the currently available content types from the clipboard.
@@ -132,8 +131,8 @@ pygame_scrap_get (char *type, unsigned long *count);
  * \return The different available content types or NULL in case of an
  *         error or if no content type is available.
  */
-extern char**
-pygame_scrap_get_types (void);
+extern char **
+pygame_scrap_get_types(void);
 
 /**
  * \brief Checks whether content for the specified scrap type is currently
@@ -143,6 +142,6 @@ pygame_scrap_get_types (void);
  * \return 1, if there is content and 0 otherwise.
  */
 extern int
-pygame_scrap_contains (char *type);
+pygame_scrap_contains(char *type);
 
 #endif /* SCRAP_H */

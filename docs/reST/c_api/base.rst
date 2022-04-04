@@ -18,23 +18,21 @@ C header: src_c/include/pygame.h
 
    This is :py:exc:`pygame.error`, the exception type used to raise SDL errors.
 
-.. c:function:: int pgVideo_AutoInit()
+.. c:function:: int pg_mod_autoinit(const char* modname)
 
-   Initialize the SDL video subsystem.
-   Return ``1`` on success, ``0`` for an SDL error,
-   ``-1`` if a Python exception is raised.
-   It is safe to call this function more than once.
+   Inits a pygame module, which has the name ``modname``
+   Return ``1`` on success, ``0`` on error, with python
+   error set.
 
-.. c:function:: void pgVideo_AutoQuit()
+.. c:function:: void pg_mod_autoquit(const char* modname)
 
-   Close the SDL video subsysytem.
-   It is safe to call this function more than once.
+   Quits a pygame module, which has the name ``modname``
 
 .. c:function:: void pg_RegisterQuit(void (*f)(void))
 
    Register function *f* as a callback on Pygame termination.
    Multiple functions can be registered.
-   Functions are called in the order they were registered.
+   Functions are called in the reverse order they were registered.
 
 .. c:function:: int pg_IntFromObj(PyObject *obj, int *val)
 
@@ -46,13 +44,15 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to C int and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, ``0`` on failure.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_TwoIntsFromObj(PyObject *obj, int *val1, int *v2)
 
    Convert the two number like objects in length 2 sequence *obj*
    to C int and place in arguments *val1* and *val2* respectively.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, ``0`` on failure.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_FloatFromObj(PyObject *obj, float *val)
 
@@ -65,13 +65,15 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to C float and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 
    Convert the two number like objects in length 2 sequence *obj*
    to C float and place in arguments *val1* and *val2* respectively.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_UintFromObj(PyObject *obj, Uint32 *val)
 
@@ -84,7 +86,8 @@ C header: src_c/include/pygame.h
 
    Convert number like object at position *i* in sequence *obj*
    to unsigned 32 bit integer and place in argument *val*.
-   Return ``1`` on success, else raise a Python exception and return ``0``.
+   Return ``1`` on success, else ``0``.
+   No Python exceptions are raised.
 
 .. c:function:: int pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 
@@ -110,7 +113,7 @@ C header: src_c/include/pygame.h
 
       A buffer release callback.
 
-.. c:var:: PyObject \*pgExc_BufferError
+.. c:var:: PyObject *pgExc_BufferError
 
    Python exception type raised for any pg_buffer related errors.
 

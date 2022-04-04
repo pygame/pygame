@@ -4,10 +4,10 @@ import os
 import sys
 import platform
 import unittest
+import time
 
 from pygame.tests.test_utils import example_path
 import pygame
-from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
@@ -26,9 +26,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         if pygame.mixer.get_init() is None:
             pygame.mixer.init()
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer not loading mp3 on travisci"
-    )
     def test_load_mp3(self):
         "|tags:music|"
         self.music_load("mp3")
@@ -47,8 +44,8 @@ class MixerMusicModuleTest(unittest.TestCase):
         path = os.path.join(data_fname, "house_lo.%s" % format)
         if os.sep == "\\":
             path = path.replace("\\", "\\\\")
-        umusfn = as_unicode(path)
-        bmusfn = filesystem_encode(umusfn)
+        umusfn = str(path)
+        bmusfn = umusfn.encode()
 
         pygame.mixer.music.load(umusfn)
         pygame.mixer.music.load(bmusfn)
@@ -61,18 +58,41 @@ class MixerMusicModuleTest(unittest.TestCase):
             path = os.path.join(data_fname, "house_lo.%s" % f)
             if os.sep == "\\":
                 path = path.replace("\\", "\\\\")
-            bmusfn = filesystem_encode(path)
+            bmusfn = path.encode()
 
             with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.load(musf)
+
+    def test_object_namehint(self):
+        """test loading & queuing music from file-like objects with namehint argument."""
+        formats = ["wav", "ogg"]
+        data_fname = example_path("data")
+        for f in formats:
+            path = os.path.join(data_fname, "house_lo.%s" % f)
+            if os.sep == "\\":
+                path = path.replace("\\", "\\\\")
+            bmusfn = path.encode()
+
+            # these two "with open" blocks need to be separate, which is kinda weird
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, namehint=f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, namehint=f)
 
     def test_load_unicode(self):
         """test non-ASCII unicode path"""
         import shutil
 
-        ep = unicode_(example_path("data"))
-        temp_file = os.path.join(ep, u"你好.wav")
-        org_file = os.path.join(ep, u"house_lo.wav")
+        ep = example_path("data")
+        temp_file = os.path.join(ep, "你好.wav")
+        org_file = os.path.join(ep, "house_lo.wav")
         try:
             with open(temp_file, "w") as f:
                 pass
@@ -90,8 +110,8 @@ class MixerMusicModuleTest(unittest.TestCase):
         import shutil
         import tempfile
 
-        ep = unicode_(example_path("data"))
-        org_file = os.path.join(ep, u"house_lo.wav")
+        ep = example_path("data")
+        org_file = os.path.join(ep, "house_lo.wav")
         tmpfd, tmppath = tempfile.mkstemp(".wav")
         os.close(tmpfd)
         shutil.copy(org_file, tmppath)
@@ -101,9 +121,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer issue with mp3 files on Travis CI"
-    )
     def test_queue_mp3(self):
         """Ensures queue() accepts mp3 files.
 
@@ -136,6 +153,15 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.queue(ogg_file)
         pygame.mixer.music.queue(wav_file)
 
+    def test_queue__arguments(self):
+        """Ensures queue() can be called with proper arguments."""
+        wav_file = example_path(os.path.join("data", "house_lo.wav"))
+
+        pygame.mixer.music.queue(wav_file, loops=2)
+        pygame.mixer.music.queue(wav_file, namehint="")
+        pygame.mixer.music.queue(wav_file, "")
+        pygame.mixer.music.queue(wav_file, "", 2)
+
     def test_queue__no_file(self):
         """Ensures queue() correctly handles missing the file argument."""
         with self.assertRaises(TypeError):
@@ -152,6 +178,26 @@ class MixerMusicModuleTest(unittest.TestCase):
         """Ensures queue() correctly handles invalid filenames."""
         with self.assertRaises(pygame.error):
             pygame.mixer.music.queue("")
+
+    def test_music_pause__unpause(self):
+        """Ensure music has the correct position immediately after unpausing
+
+        |tags:music|
+        """
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+
+        # Wait 0.05s, then pause
+        time.sleep(0.05)
+        pygame.mixer.music.pause()
+        # Wait 0.05s, get position, unpause, then get position again
+        time.sleep(0.05)
+        before_unpause = pygame.mixer.music.get_pos()
+        pygame.mixer.music.unpause()
+        after_unpause = pygame.mixer.music.get_pos()
+
+        self.assertEqual(before_unpause, after_unpause)
 
     def todo_test_stop(self):
 
@@ -192,8 +238,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    @unittest.skipIf(os.environ.get("SDL_AUDIODRIVER")  == 'disk',
-                     'disk audio driver "playback" writing to disk is slow')
+    @unittest.skipIf(
+        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        'disk audio driver "playback" writing to disk is slow',
+    )
     def test_play__start_time(self):
 
         pygame.display.init()
@@ -288,7 +336,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_busy(self):
+    def test_get_busy(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_busy:
 
@@ -296,7 +344,12 @@ class MixerMusicModuleTest(unittest.TestCase):
         # music is idle this returns False.
         #
 
-        self.fail()
+        self.music_load("ogg")
+        self.assertFalse(pygame.mixer.music.get_busy())
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+        pygame.mixer.music.pause()
+        self.assertFalse(pygame.mixer.music.get_busy())
 
     def todo_test_get_endevent(self):
 

@@ -7,6 +7,7 @@
 #     python setup.py install
 
 import io
+import platform
 
 with io.open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
@@ -15,13 +16,51 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev15",
+    "version":          "2.1.3.dev5",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": LONG_DESCRIPTION,
+    "long_description_content_type": "text/x-rst",
+    "project_urls": {
+        "Documentation": "https://pygame.org/docs",
+        "Bug Tracker": "https://github.com/pygame/pygame/issues",
+        "Source": "https://github.com/pygame/pygame",
+        "Twitter": "https://twitter.com/pygame_org",
+    },
+    "classifiers": [
+        "Development Status :: 6 - Mature",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Programming Language :: Assembly",
+        "Programming Language :: C",
+        "Programming Language :: Cython",
+        "Programming Language :: Objective C",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Games/Entertainment",
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: MIDI",
+        "Topic :: Multimedia :: Sound/Audio :: Players",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
+        "Topic :: Multimedia :: Graphics :: Capture :: Screen Capture",
+        "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+        "Topic :: Multimedia :: Graphics :: Viewers",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+    ],
+    "python_requires": '>=3.6',
 }
 
 import re
@@ -32,12 +71,19 @@ import os
 import distutils
 from setuptools import setup
 
+
+# A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
+# This is due to the fact that distutils uses command line args to 
+# export PyInit_* functions on windows, but those functions are already exported
+# and that is why compiler gives warnings
+from distutils.command.build_ext import build_ext
+build_ext.get_export_symbols = lambda self, ext: []
+
 IS_PYPY = '__pypy__' in sys.builtin_module_names
 
 def compilation_help():
     """ On failure point people to a web page for help.
     """
-    import platform
     the_system = platform.system()
     if the_system == 'Linux':
         if hasattr(platform, 'linux_distribution'):
@@ -50,9 +96,14 @@ def compilation_help():
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
         'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
-        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
         'Windows': 'https://www.pygame.org/wiki/CompileWindows',
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+        'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
+        # TODO There is nothing in the following pages yet
+        'Suse': 'https://www.pygame.org/wiki/CompileSuse',
+        'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
+        'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
@@ -70,14 +121,11 @@ def compilation_help():
 
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
     compilation_help()
-    raise SystemExit("Pygame requires Python version 2.7 or above.")
-if sys.version_info >= (3, 0) and sys.version_info < (3, 4):
-    compilation_help()
-    raise SystemExit("Pygame requires Python3 version 3.5 or above.")
+    raise SystemExit("Pygame requires Python3 version 3.6 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
-    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython 2.7 or CPython 3.5+")
+    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython >= 3.6")
 
 def consume_arg(name):
     if name in sys.argv:
@@ -85,41 +133,13 @@ def consume_arg(name):
         return True
     return False
 
-#get us to the correct directory
+# get us to the correct directory
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
-#os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
-#                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
-#                       "-Wmissing-prototypes -Wmissing-declarations " + \
-#                       "-Wnested-externs -Wshadow -Wredundant-decls"
-if consume_arg("-warnings"):
-    os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
-                       "-Wimplicit-function-declaration " + \
-                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
-                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
-                       "-Wuninitialized -Wparentheses " +\
-                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
-                       "-Wconversion -Wstrict-prototypes " + \
-                       "-Wmissing-prototypes -Wmissing-declarations " + \
-                       "-Wnested-externs -Wshadow -Wredundant-decls"
-
-if consume_arg('-pygame-ci'):
-    cflags = os.environ.get('CFLAGS', '')
-    if cflags:
-        cflags += ' '
-    cflags += '-Werror=nested-externs -Werror=switch -Werror=implicit ' + \
-              '-Werror=implicit-function-declaration -Werror=return-type ' + \
-              '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
-              '-Werror=format-security -Werror=uninitialized ' + \
-              '-Werror=trigraphs -Werror=parentheses -Werror=unused-value ' + \
-              '-Werror=cast-align -Werror=int-conversion ' + \
-              '-Werror=incompatible-pointer-types'
-    os.environ['CFLAGS'] = cflags
 
 STRIPPED=False
 
 # STRIPPED builds don't have developer resources like docs or tests
-
 if "PYGAME_ANDROID" in os.environ:
     # test cases and docs are useless inside an APK
     STRIPPED=True
@@ -207,8 +227,8 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
-
-AUTO_CONFIG = False
+no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
+AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
 if consume_arg('-auto'):
     AUTO_CONFIG = True
 
@@ -261,7 +281,7 @@ else:
         #'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
     })
 
-#headers to install
+# headers to install
 headers = glob.glob(os.path.join('src_c', '*.h'))
 headers.remove(os.path.join('src_c', 'scale.h'))
 headers.append(os.path.join('src_c', 'include'))
@@ -294,7 +314,7 @@ distutils.command.install_headers.install_headers.run = run_install_headers
 if consume_arg("-noheaders"):
     headers = []
 
-#sanity check for any arguments
+# sanity check for any arguments
 if len(sys.argv) == 1 and sys.stdout.isatty():
     if sys.version_info[0] >= 3:
         reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
@@ -304,8 +324,8 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
         sys.argv.append('install')
 
 
-#make sure there is a Setup file
-if AUTO_CONFIG or not os.path.isfile('Setup'):
+# make sure there is a Setup file
+if AUTO_CONFIG:
     print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
     try:
@@ -320,26 +340,57 @@ if AUTO_CONFIG or not os.path.isfile('Setup'):
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
-    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL1.in'))[stat.ST_MTIME]
+    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL2.in'))[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
+        print ('\n\nWARNING, "buildconfig/Setup.SDL2.in" newer than "Setup",'
                'you might need to modify "Setup".')
 except OSError:
     pass
 
-# get compile info for all extensions
-try:
-    extensions = read_setup_file('Setup')
-except:
-    print ("""Error with the "Setup" file,
-perhaps make a clean copy from "Setup.in".""")
-    compilation_help()
-    raise
+if no_compilation:
+    extensions = []
+else:
+    # get compile info for all extensions
+    try:
+        extensions = read_setup_file('Setup')
+    except:
+        print ("""Error with the "Setup" file,
+    perhaps make a clean copy from "Setup.in".""")
+        compilation_help()
+        raise
 
-# Only define the ARM_NEON defines if they have been enabled at build time.
-if enable_arm_neon:
-    for e in extensions:
+
+for e in extensions:
+    # Only define the ARM_NEON defines if they have been enabled at build time.
+    if enable_arm_neon:
         e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
+
+    e.extra_compile_args.extend(
+        # some warnings are skipped here
+        ("/W3", "/wd4142", "/wd4996")
+        if sys.platform == "win32"
+        else ("-Wall", "-Wno-error=unknown-pragmas")
+    )
+
+    if "surface" in e.name and sys.platform == "darwin":
+        # skip -Werror on alphablit because sse2neon is used on arm mac
+        continue
+
+    if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
+        # TODO: fix freetype issues here
+        e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
+
+    if "mask" in e.name and sys.platform == "win32":
+        # skip analyze warnings that pop up a lot in mask for now. TODO fix
+        e.extra_compile_args.extend(("/wd6385", "/wd6386"))
+
+    if (
+        "CI" in os.environ
+        and not e.name.startswith("_sdl2")
+        and e.name not in ("pypm", "_sprite", "gfxdraw")
+    ):
+        # Do -Werror only on CI, and exclude -Werror on Cython C files and gfxdraw
+        e.extra_compile_args.append("/WX" if sys.platform == "win32" else "-Werror")
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
@@ -356,39 +407,34 @@ for e in extensions:
 if not have_font and have_freetype:
     shutil.copyfile(os.path.join('src_py', 'ftfont.py'), alternate_font)
 
-#extra files to install
+# extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
-#add files in distribution directory
-# pygame_data_files.append('LGPL')
-# pygame_data_files.append('readme.html')
-# pygame_data_files.append('install.html')
-
-add_stubs = True
 # add *.pyi files into distribution directory
-if add_stubs:
-    pygame_data_files.append(os.path.join('buildconfig', 'pygame-stubs', 'py.typed'))
-    type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
-    for type_file in type_files:
-        pygame_data_files.append(type_file)
-    _sdl2 = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '_sdl2', '*.pyi'))
-    if _sdl2:
-        _sdl2_data_files = []
-        data_files.append(('pygame/_sdl2', _sdl2_data_files))
-        for type_file in _sdl2:
-            _sdl2_data_files.append(type_file)
+stub_dir = os.path.join('buildconfig', 'stubs', 'pygame')
+pygame_data_files.append(os.path.join(stub_dir, 'py.typed'))
+type_files = glob.glob(os.path.join(stub_dir, '*.pyi'))
+for type_file in type_files:
+    pygame_data_files.append(type_file)
+
+_sdl2 = glob.glob(os.path.join(stub_dir, '_sdl2', '*.pyi'))
+if _sdl2:
+    _sdl2_data_files = []
+    data_files.append(('pygame/_sdl2', _sdl2_data_files))
+    for type_file in _sdl2:
+        _sdl2_data_files.append(type_file)
 
 
-#add non .py files in lib directory
+# add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
 # We don't need to deploy tests, example code, or docs inside a game
 
-#tests/fixtures
+# tests/fixtures
 add_datafiles(data_files, 'pygame/tests',
               ['test',
                   [['fixtures',
@@ -397,16 +443,17 @@ add_datafiles(data_files, 'pygame/tests',
                        ['fonts',
                           ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
 
-#examples
+# examples
 add_datafiles(data_files, 'pygame/examples',
               ['examples', ['README.rst', ['data', ['*']]]])
 
-#docs
-add_datafiles(data_files, 'pygame/docs',
-              ['docs',
+# docs
+add_datafiles(data_files, 'pygame/docs/generated',
+              ['docs/generated',
                   ['*.html',             # Navigation and help pages
-                   '*.gif',              # pygame logos
+                   '*.txt',              # License text
                    '*.js',               # For doc search
+                   'LGPL.txt',           # pygame license
                    ['ref',               # pygame reference
                        ['*.html',        # Reference pages
                         '*.js',          # Comments script
@@ -422,7 +469,9 @@ add_datafiles(data_files, 'pygame/docs',
                         ['*.css',
                          '*.png',
                          '*.ico',
-                         '*.js']],
+                         '*.js',
+                         '*.zip',
+                         '*.svg']],
                    ['_images',            # Sphinx added reST ".. image::" refs
                         ['*.jpg',
                          '*.png',
@@ -432,7 +481,7 @@ add_datafiles(data_files, 'pygame/docs',
                          ['ref',
                             ['*.txt']]]]]])
 
-#generate the version module
+# generate the version module
 def parse_version(ver):
     return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
 
@@ -480,7 +529,7 @@ def write_version_module(pygame_version, revision):
 
 write_version_module(METADATA['version'], revision)
 
-#required. This will be filled if doing a Windows build.
+# required. This will be filled if doing a Windows build.
 cmdclass = {}
 
 def add_command(name):
@@ -490,12 +539,12 @@ def add_command(name):
         return command
     return decorator
 
-#try to find DLLs and copy them too  (only on windows)
-if sys.platform == 'win32':
+# try to find DLLs and copy them too  (only on windows)
+if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
     from distutils.command.build_ext import build_ext
 
-    #add dependency DLLs to the project
+    # add dependency DLLs to the project
     lib_dependencies = {}
     for e in extensions:
         if e.name.startswith('COPYLIB_'):
@@ -551,12 +600,24 @@ if sys.platform == 'win32':
         # excluding system headers from analyze out put was only added after MSCV_VER 1913
         if msc_ver >= 1913:
             os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
-            for e in extensions:
-                e.extra_compile_args += ['/analyze', '/experimental:external',
-                                         '/external:W0', '/external:env:CAExcludePath' ]
-        else:
-            for e in extensions:
-                e.extra_compile_args += ['/analyze']
+
+        for e in extensions:
+            e.extra_compile_args.extend(
+                (
+                    "/analyze",
+                    "/wd28251",
+                    "/wd28301",
+                )
+            )
+
+            if msc_ver >= 1913:
+                e.extra_compile_args.extend(
+                    (
+                        "/experimental:external",
+                        "/external:W0",
+                        "/external:env:CAExcludePath",
+                    )
+                )
 
     def has_flag(compiler, flagname):
         """
@@ -590,44 +651,46 @@ if sys.platform == 'win32':
     def flag_filter(compiler, *flags):
         return [flag for flag in flags if has_flag(compiler, flag)]
 
-    @add_command('build_ext')
-    class WinBuildExt(build_ext):
-        """This build_ext sets necessary environment variables for MinGW"""
+    # Only on win32, not MSYS2
+    if 'MSYSTEM' not in os.environ:
+        @add_command('build_ext')
+        class WinBuildExt(build_ext):
+            """This build_ext sets necessary environment variables for MinGW"""
 
-        # __sdl_lib_dir is possible location of msvcrt replacement import
-        # libraries, if they exist. Pygame module base only links to SDL so
-        # should have the SDL library directory as its only -L option.
-        for e in extensions:
-            if e.name == 'base':
-                __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
-                break
+            # __sdl_lib_dir is possible location of msvcrt replacement import
+            # libraries, if they exist. Pygame module base only links to SDL so
+            # should have the SDL library directory as its only -L option.
+            for e in extensions:
+                if e.name == 'base':
+                    __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
+                    break
 
-        def build_extensions(self):
-            # Add supported optimisations flags to reduce code size with MSVC
-            opts = flag_filter(self.compiler, "/GF", "/Gy")
-            for extension in extensions:
-                extension.extra_compile_args += opts
+            def build_extensions(self):
+                # Add supported optimisations flags to reduce code size with MSVC
+                opts = flag_filter(self.compiler, "/GF", "/Gy")
+                for extension in extensions:
+                    extension.extra_compile_args += opts
 
-            build_ext.build_extensions(self)
+                build_ext.build_extensions(self)
 
-    # Add the precompiled smooth scale MMX functions to transform.
-    def replace_scale_mmx():
-        for e in extensions:
-            if e.name == 'transform':
-                if '64 bit' in sys.version:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
-                else:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
-                for i in range(len(e.sources)):
-                    if e.sources[i].endswith('scale_mmx.c'):
-                        del e.sources[i]
-                        return
-    replace_scale_mmx()
+        # Add the precompiled smooth scale MMX functions to transform.
+        def replace_scale_mmx():
+            for e in extensions:
+                if e.name == 'transform':
+                    if '64 bit' in sys.version:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
+                    else:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
+                    for i in range(len(e.sources)):
+                        if e.sources[i].endswith('scale_mmx.c'):
+                            del e.sources[i]
+                            return
+        replace_scale_mmx()
 
 
-#clean up the list of extensions
+# clean up the list of extensions
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
@@ -635,9 +698,9 @@ for e in extensions[:]:
         e.name = 'pygame.' + e.name #prepend package name on modules
 
 
-#data installer with improved intelligence over distutils
-#data files are copied into the project directory instead
-#of willy-nilly
+# data installer with improved intelligence over distutils
+# data files are copied into the project directory instead
+# of willy-nilly
 @add_command('install_data')
 class smart_install_data(install_data):
     def run(self):
@@ -712,46 +775,113 @@ class TestCommand(Command):
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
 
+class LintFormatCommand(Command):
+    """ Used for formatting or linting. See Lint and Format Sub classes.
+    """
+    user_options = []
+    lint = False
+    format = False
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Check the existence and launch linters."""
+        import subprocess
+        import sys
+        import warnings
+
+        def check_linter_exists(linter):
+            if shutil.which(linter) is None:
+                msg = "Please install '%s' in your environment. (hint: 'python3 -m pip install %s')"
+                warnings.warn(msg % (linter, linter))
+                sys.exit(1)
+
+        c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
+        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
+        c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+
+        # Other files have too many issues for now. setup.py, buildconfig, etc
+        python_directories = ["src_py", "test", "examples"]
+        if self.lint:
+            commands = {
+                "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
+                "black": ["--check", "--diff"] + python_directories,
+                # Test directory has too much pylint warning for now
+                "pylint": ["src_py"],
+            }
+        else:
+            commands = {
+                "clang-format": ["-i"] + c_files,
+                "black": python_directories,
+            }
+
+        formatters = ["black", "clang-format"]
+        for linter, option in commands.items():
+            print(" ".join([linter] + option))
+            check_linter_exists(linter)
+            result = subprocess.run([linter] + option)
+            if result.returncode:
+                msg = f"'{linter}' failed."
+                msg += " Please run: python setup.py format" if linter in formatters else ""
+                msg += f" Do you have the latest version of {linter}?"
+                raise SystemExit(msg)
+
+
+@add_command("lint")
+class LintCommand(LintFormatCommand):
+    lint = True
+
+
+@add_command("format")
+class FormatCommand(LintFormatCommand):
+    format = True
+
 
 @add_command('docs')
 class DocsCommand(Command):
     """ For building the pygame documentation with `python setup.py docs`.
-
     This generates html, and documentation .h header files.
     """
-    user_options = [ ]
+    user_options = [
+        (
+            'fullgeneration',
+            'f',
+            'Full generation. Do not use a saved environment, always read all files.'
+        )
+    ]
+    boolean_options = ['fullgeneration']
 
     def initialize_options(self):
         self._dir = os.getcwd()
+        self.fullgeneration = None
 
     def finalize_options(self):
         pass
 
     def run(self):
         '''
-        runs the tests with default options.
+        runs Sphinx to build the docs.
         '''
-        docs_help = (
-            "Building docs requires Python version 3.6 or above, and sphinx."
-        )
-        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-            raise SystemExit(docs_help)
-
         import subprocess
-        try:
-            return subprocess.call([
-                sys.executable, os.path.join('buildconfig', 'makeref.py')]
-            )
-        except:
-            print(docs_help)
-            raise
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if self.fullgeneration:
+            command_line.append('full_generation')
+        if subprocess.call(command_line) != 0:
+            raise SystemExit("Failed to build documentation")
+
 
 # Prune empty file lists.
-date_files = [(path, files) for path, files in data_files if files]
+data_files = [(path, files) for path, files in data_files if files]
 
-
-#finally,
-#call distutils with all needed info
+# finally,
+# call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
        "packages":    ['pygame',
@@ -786,6 +916,14 @@ PACKAGEDATA = {
        "zip_safe":  False,
 }
 if STRIPPED:
+    pygame_data_files = []
+    data_files = [('pygame', ["src_py/freesansbold.ttf",
+                              "src_py/pygame.ico",
+                              "src_py/pygame_icon.icns",
+                              "src_py/pygame_icon.bmp",
+                              "src_py/pygame_icon_mac.bmp"])]
+
+
     PACKAGEDATA = {
     "cmdclass":    cmdclass,
     "packages":    ['pygame',
@@ -796,6 +934,7 @@ if STRIPPED:
                     'pygame.threads': 'src_py/threads'},
     "ext_modules": extensions,
     "zip_safe":  False,
+    "data_files": data_files
 }
 
 PACKAGEDATA.update(METADATA)

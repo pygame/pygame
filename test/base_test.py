@@ -14,42 +14,18 @@ except NameError:
 import pygame
 
 
-init_called = quit_called = 0
-
-
-def __PYGAMEinit__():  # called automatically by pygame.init()
-    global init_called
-    init_called = init_called + 1
-    pygame.register_quit(pygame_quit)
-
-    # Returning False indicates that the initialization has failed. It is
-    # purposely done here to test that failing modules are reported.
-    return False
-
-
-def pygame_quit():
-    global quit_called
-    quit_called = quit_called + 1
-
-
-quit_hook_ran = 0
+quit_count = 0
 
 
 def quit_hook():
-    global quit_hook_ran
-    quit_hook_ran = 1
+    global quit_count
+    quit_count += 1
 
 
 class BaseModuleTest(unittest.TestCase):
     def tearDown(self):
         # Clean up after each test method.
         pygame.quit()
-
-    def testAutoInit(self):
-        pygame.init()
-        pygame.quit()
-        self.assertEqual(init_called, 1)
-        self.assertEqual(quit_called, 1)
 
     def test_get_sdl_byteorder(self):
         """Ensure the SDL byte order is valid"""
@@ -62,7 +38,7 @@ class BaseModuleTest(unittest.TestCase):
         """Ensure the SDL version is valid"""
         self.assertEqual(len(pygame.get_sdl_version()), 3)
 
-    class ExporterBase(object):
+    class ExporterBase:
         def __init__(self, shape, typechar, itemsize):
             import ctypes
 
@@ -236,6 +212,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -306,6 +283,7 @@ class BaseModuleTest(unittest.TestCase):
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "fails on pypy")
     def test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -570,13 +548,13 @@ class BaseModuleTest(unittest.TestCase):
 
     def test_register_quit(self):
         """Ensure that a registered function is called on quit()"""
-        self.assertFalse(quit_hook_ran)
+        self.assertEqual(quit_count, 0)
 
         pygame.init()
         pygame.register_quit(quit_hook)
         pygame.quit()
 
-        self.assertTrue(quit_hook_ran)
+        self.assertEqual(quit_count, 1)
 
     def test_get_error(self):
 
@@ -607,26 +585,19 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(pygame.get_error(), "")
 
     def test_unicode_error(self):
-        if sys.version_info.major > 2:
-            pygame.set_error(u"你好")
-            self.assertEqual(u"你好", pygame.get_error())
-        else:
-            # no unicode objects for now
-            pygame.set_error(u"你好")
-            encstr = u"你好".encode("utf8")
-            self.assertEqual(encstr, pygame.get_error())
+        pygame.set_error("你好")
+        self.assertEqual("你好", pygame.get_error())
 
     def test_init(self):
         """Ensures init() works properly."""
         # Make sure nothing initialized.
         self.not_init_assertions()
 
-        # The exact number of modules can change, but it should never be < 0.
-        expected_min_passes = 0
+        # display and joystick must init, at minimum
+        expected_min_passes = 2
 
-        # The __PYGAMEinit__ function in this module returns False, so this
-        # should give a fail count of 1. All other modules should pass.
-        expected_fails = 1
+        # All modules should pass.
+        expected_fails = 0
 
         passes, fails = pygame.init()
 
@@ -650,14 +621,6 @@ class BaseModuleTest(unittest.TestCase):
         pygame.quit()
 
         self.assertFalse(pygame.get_init())
-
-    def todo_test_segfault(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.base.segfault:
-
-        # crash
-
-        self.fail()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEEVENT "pygame module for interacting with events and queues"
 #define DOC_PYGAMEEVENTPUMP "pump() -> None\ninternally process pygame event handlers"
-#define DOC_PYGAMEEVENTGET "get(eventtype=None) -> Eventlist\nget(eventtype=None, pump=True) -> Eventlist\nget events from the queue"
-#define DOC_PYGAMEEVENTPOLL "poll() -> EventType instance\nget a single event from the queue"
-#define DOC_PYGAMEEVENTWAIT "wait() -> EventType instance\nwait(timeout) -> EventType instance\nwait for a single event from the queue"
+#define DOC_PYGAMEEVENTGET "get(eventtype=None) -> Eventlist\nget(eventtype=None, pump=True) -> Eventlist\nget(eventtype=None, pump=True, exclude=None) -> Eventlist\nget events from the queue"
+#define DOC_PYGAMEEVENTPOLL "poll() -> Event instance\nget a single event from the queue"
+#define DOC_PYGAMEEVENTWAIT "wait() -> Event instance\nwait(timeout) -> Event instance\nwait for a single event from the queue"
 #define DOC_PYGAMEEVENTPEEK "peek(eventtype=None) -> bool\npeek(eventtype=None, pump=True) -> bool\ntest if event types are waiting on the queue"
 #define DOC_PYGAMEEVENTCLEAR "clear(eventtype=None) -> None\nclear(eventtype=None, pump=True) -> None\nremove all events from the queue"
 #define DOC_PYGAMEEVENTEVENTNAME "event_name(type) -> string\nget the string name from an event id"
@@ -12,12 +12,11 @@
 #define DOC_PYGAMEEVENTGETBLOCKED "get_blocked(type) -> bool\nget_blocked(typelist) -> bool\ntest if a type of event is blocked from the queue"
 #define DOC_PYGAMEEVENTSETGRAB "set_grab(bool) -> None\ncontrol the sharing of input devices with other applications"
 #define DOC_PYGAMEEVENTGETGRAB "get_grab() -> bool\ntest if the program is sharing input devices"
-#define DOC_PYGAMEEVENTPOST "post(Event) -> None\nplace a new event on the queue"
+#define DOC_PYGAMEEVENTPOST "post(Event) -> bool\nplace a new event on the queue"
 #define DOC_PYGAMEEVENTCUSTOMTYPE "custom_type() -> int\nmake custom user event type"
-#define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> EventType instance\nEvent(type, **attributes) -> EventType instance\ncreate a new event object"
-#define DOC_PYGAMEEVENTEVENTTYPE "pygame object for representing events"
-#define DOC_EVENTTYPETYPE "type -> int\nevent type identifier."
-#define DOC_EVENTTYPEDICT "__dict__ -> dict\nevent attribute dictionary"
+#define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> Event\nEvent(type, **attributes) -> Event\npygame object for representing events"
+#define DOC_EVENTTYPE "type -> int\nevent type identifier."
+#define DOC_EVENTDICT "__dict__ -> dict\nevent attribute dictionary"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -34,15 +33,16 @@ internally process pygame event handlers
 pygame.event.get
  get(eventtype=None) -> Eventlist
  get(eventtype=None, pump=True) -> Eventlist
+ get(eventtype=None, pump=True, exclude=None) -> Eventlist
 get events from the queue
 
 pygame.event.poll
- poll() -> EventType instance
+ poll() -> Event instance
 get a single event from the queue
 
 pygame.event.wait
- wait() -> EventType instance
- wait(timeout) -> EventType instance
+ wait() -> Event instance
+ wait(timeout) -> Event instance
 wait for a single event from the queue
 
 pygame.event.peek
@@ -85,7 +85,7 @@ pygame.event.get_grab
 test if the program is sharing input devices
 
 pygame.event.post
- post(Event) -> None
+ post(Event) -> bool
 place a new event on the queue
 
 pygame.event.custom_type
@@ -93,18 +93,15 @@ pygame.event.custom_type
 make custom user event type
 
 pygame.event.Event
- Event(type, dict) -> EventType instance
- Event(type, **attributes) -> EventType instance
-create a new event object
-
-pygame.event.EventType
+ Event(type, dict) -> Event
+ Event(type, **attributes) -> Event
 pygame object for representing events
 
-pygame.event.EventType.type
+pygame.event.Event.type
  type -> int
 event type identifier.
 
-pygame.event.EventType.__dict__
+pygame.event.Event.__dict__
  __dict__ -> dict
 event attribute dictionary
 

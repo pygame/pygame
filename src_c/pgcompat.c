@@ -1,6 +1,5 @@
 #include <SDL.h>
 
-#if defined(SDL_VERSION_ATLEAST)
 #if !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.
 
@@ -43,5 +42,4 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
     return NULL;
 }
 
-#endif
-#endif
+#endif /*if !(SDL_VERSION_ATLEAST(2, 0, 5))*/

@@ -1,17 +1,19 @@
-pygame
-======
+.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/reST/_static/pygame_logo.svg
+  :alt: pygame
+  :target: https://www.pygame.org/
 
-|TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
-|PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
-|LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
 
-pygame_ is a Free and Open Source cross-platform library
-for the development of multimedia applications like video games on Python.
+|AppVeyorBuild| |PyPiVersion| |PyPiLicense|
+|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |BlackFormatBadge|
+
+pygame_ is a free and open-source cross-platform library
+for the development of multimedia applications like video games using Python.
 It uses the `Simple DirectMedia Layer library`_ and several other
-popular libraries to abstract most common functions and makes writing
-these program a more intuitive task.
+popular libraries to abstract the most common functions, making writing
+these programs a more intuitive task.
 
 `We need your help`_ to make pygame the best it can be!
+New contributors are welcome.
 
 
 Installation
@@ -21,20 +23,6 @@ Installation
 
    pip install pygame
 
-You should definitely begin by installing a binary package for your
-system.  The binary packages usually come with or give the
-information needed for dependencies.  Choose an appropriate
-installer for your system and version of Python from the pygame
-`downloads page`_.
-
-Installing from source is fairly automated.  The most work will
-involve compiling and installing all the pygame dependencies.  Once
-that is done, run the ``setup.py`` script which will attempt to
-auto-configure, build, and install pygame.
-
-Much more information about installing and compiling is available
-on the `Getting Started wiki page`_.
-
 
 Help
 ----
@@ -42,16 +30,31 @@ Help
 If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
-entire library.  Browse the documentation from the documentation
-index: docs/index.html.
+entire library. Browse the documentation on the `docs page`_.
 
-On the pygame website, there is also an online copy of this
-documentation.  You should know that the online documentation stays
-up to date with the development version of pygame in hg.  This may
-be a bit newer than the version of pygame you are using.
+The online documentation stays up to date with the development version
+of pygame on github.  This may be a bit newer than the version of pygame
+you are using. To upgrade to the latest full release, run 
+``pip install pygame --upgrade`` in your terminal.
 
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
+
+
+Building From Source
+--------------------
+
+If you want to use features that are currently in development,
+or you want to contribute to pygame, you will need to build pygame
+locally from its source code, rather than pip installing it.
+
+Installing from source is fairly automated. The most work will
+involve compiling and installing all the pygame dependencies.  Once
+that is done, run the ``setup.py`` script which will attempt to
+auto-configure, build, and install pygame.
+
+Much more information about installing and compiling is available
+on the `Compilation wiki page`_.
 
 
 Credits
@@ -114,7 +117,7 @@ Dependencies
 
 Pygame is obviously strongly dependent on SDL and Python.  It also
 links to and embeds several other smaller libraries.  The font
-module relies on SDL_tff, which is dependent on freetype.  The mixer
+module relies on SDL_ttf, which is dependent on freetype.  The mixer
 (and mixer.music) modules depend on SDL_mixer.  The image module
 depends on SDL_image, which also can use libjpeg and libpng.  The
 transform module has an embedded version of SDL_rotozoom for its
@@ -122,19 +125,13 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 2.7 or PyPy >= 6.0.0 (and pypy3)
-* SDL >= 1.2.15
-* SDL_mixer >= 1.2.13
-* SDL_image >= 1.2.12
-* SDL_tff >= 2.0.11
+* CPython >= 3.6 or PyPy3
+* SDL >= 2.0.0
+* SDL_mixer >= 2.0.0
+* SDL_image >= 2.0.0
+* SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
-
-
-Contribute
-----------
-
-Please see https://www.pygame.org/contribute.html
 
 
 License
@@ -151,15 +148,11 @@ back to the pygame project).  Closed source and commercial games are fine.
 
 The programs in the ``examples`` subdirectory are in the public domain.
 
+See docs/licenses for licenses of dependencies.
 
-.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
-   :target: https://travis-ci.org/pygame/pygame
 
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
    :target: https://ci.appveyor.com/project/pygame/pygame
-
-.. |LaunchpadBuild| image:: https://www.pygame.org/images/launchpad_build.svg?svg=true
-   :target: https://code.launchpad.net/~pygame/+recipe/pygame-daily
 
 .. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
@@ -167,11 +160,10 @@ The programs in the ``examples`` subdirectory are in the public domain.
 .. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
    :target: https://pypi.python.org/pypi/pygame
 
-.. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/1.9.6.svg
-   :target: https://github.com/pygame/pygame/compare/1.9.6...master
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
+   :target: https://github.com/pygame/pygame/compare/2.1.2...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
@@ -182,12 +174,12 @@ The programs in the ``examples`` subdirectory are in the public domain.
 .. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
 
-.. |Coverity| image:: https://scan.coverity.com/projects/12288/badge.svg?v=2
-   :target: https://scan.coverity.com/projects/pygame
+.. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org
 .. _We need your help: https://www.pygame.org/contribute.html
-.. _downloads page: https://www.pygame.org/download.shtml
-.. _Getting Started wiki page: https://www.pygame.org/wiki/Compilation
+.. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
+.. _docs page: https://www.pygame.org/docs/
 .. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html

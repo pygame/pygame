@@ -30,12 +30,25 @@
 static pgJoystickObject *joylist_head = NULL;
 static PyObject *joy_instance_map = NULL;
 static PyTypeObject pgJoystick_Type;
-static PyObject *pgJoystick_New(int);
-static int _joy_map_insert(pgJoystickObject *jstick);
+static PyObject *
+pgJoystick_New(int);
+static int
+_joy_map_insert(pgJoystickObject *jstick);
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
 
-static void
-joy_autoquit(void)
+static PyObject *
+init(PyObject *self, PyObject *_null)
+{
+    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
+        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        SDL_JoystickEventState(SDL_ENABLE);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+quit(PyObject *self, PyObject *_null)
 {
     /* Walk joystick objects to deallocate the stick objects. */
     pgJoystickObject *cur = joylist_head;
@@ -51,46 +64,11 @@ joy_autoquit(void)
         SDL_JoystickEventState(SDL_ENABLE);
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
-
-}
-
-static PyObject *
-joy_autoinit(PyObject *self)
-{
-    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-            return PyInt_FromLong(0);
-        }
-        SDL_JoystickEventState(SDL_ENABLE);
-        pg_RegisterQuit(joy_autoquit);
-    }
-    return PyInt_FromLong(1);
-}
-
-static PyObject *
-quit(PyObject *self)
-{
-    joy_autoquit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
-init(PyObject *self)
-{
-    PyObject *result;
-    int istrue;
-
-    result = joy_autoinit(self);
-    istrue = PyObject_IsTrue(result);
-    Py_DECREF(result);
-    if (!istrue) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    }
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-get_init(PyObject *self)
+get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(SDL_WasInit(SDL_INIT_JOYSTICK) != 0);
 }
@@ -99,7 +77,7 @@ get_init(PyObject *self)
 static void
 joy_dealloc(PyObject *self)
 {
-    pgJoystickObject *jstick = (pgJoystickObject *) self;
+    pgJoystickObject *jstick = (pgJoystickObject *)self;
 
     if (jstick->joy) {
         SDL_JoystickClose(jstick->joy);
@@ -107,14 +85,15 @@ joy_dealloc(PyObject *self)
 
     if (jstick->prev) {
         jstick->prev->next = jstick->next;
-    } else {
+    }
+    else {
         joylist_head = jstick->next;
     }
     if (jstick->next) {
         jstick->next->prev = jstick->prev;
     }
 
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyObject *
@@ -131,17 +110,16 @@ Joystick(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_count(PyObject *self, PyObject *args)
+get_count(PyObject *self, PyObject *_null)
 {
     JOYSTICK_INIT_CHECK();
-    return PyInt_FromLong(SDL_NumJoysticks());
+    return PyLong_FromLong(SDL_NumJoysticks());
 }
 
-
 static PyObject *
-joy_init(PyObject *self, PyObject *args)
+joy_init(PyObject *self, PyObject *_null)
 {
-    pgJoystickObject *jstick = (pgJoystickObject *) self;
+    pgJoystickObject *jstick = (pgJoystickObject *)self;
 
     if (!jstick->joy) {
         jstick->joy = SDL_JoystickOpen(jstick->id);
@@ -158,8 +136,8 @@ joy_init(PyObject *self, PyObject *args)
 }
 
 static int
-_joy_map_insert(pgJoystickObject *jstick) {
-#if IS_SDLv2
+_joy_map_insert(pgJoystickObject *jstick)
+{
     SDL_JoystickID instance_id;
     PyObject *k, *v;
 
@@ -172,22 +150,21 @@ _joy_map_insert(pgJoystickObject *jstick) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
-    k = PyInt_FromLong(instance_id);
-    v = PyInt_FromLong(jstick->id);
+    k = PyLong_FromLong(instance_id);
+    v = PyLong_FromLong(jstick->id);
     if (k && v) {
         PyDict_SetItem(joy_instance_map, k, v);
     }
     Py_XDECREF(k);
     Py_XDECREF(v);
-#endif
 
     return 0;
 }
 
 static PyObject *
-joy_quit(PyObject *self, PyObject *args)
+joy_quit(PyObject *self, PyObject *_null)
 {
-    pgJoystickObject *joy = (pgJoystickObject *) self;
+    pgJoystickObject *joy = (pgJoystickObject *)self;
 
     JOYSTICK_INIT_CHECK();
     if (joy->joy) {
@@ -198,23 +175,21 @@ joy_quit(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_init(PyObject *self, PyObject *args)
+joy_get_init(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     return PyBool_FromLong(joy != NULL);
 }
 
 static PyObject *
-joy_get_id(PyObject *self, PyObject *args)
+joy_get_id(PyObject *self, PyObject *_null)
 {
     int joy_id = pgJoystick_AsID(self);
-    return PyInt_FromLong(joy_id);
+    return PyLong_FromLong(joy_id);
 }
 
-#if IS_SDLv2
-
 static PyObject *
-joy_get_instance_id(PyObject *self, PyObject *args)
+joy_get_instance_id(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -223,12 +198,11 @@ joy_get_instance_id(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickInstanceID(joy));
+    return PyLong_FromLong(SDL_JoystickInstanceID(joy));
 }
 
-
 static PyObject *
-joy_get_guid(PyObject *self, PyObject *args)
+joy_get_guid(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     SDL_JoystickGUID guid;
@@ -237,17 +211,19 @@ joy_get_guid(PyObject *self, PyObject *args)
     JOYSTICK_INIT_CHECK();
     if (joy) {
         guid = SDL_JoystickGetGUID(joy);
-    } else {
+    }
+    else {
         guid = SDL_JoystickGetDeviceGUID(pgJoystick_AsID(self));
     }
 
     SDL_JoystickGetGUIDString(guid, strguid, 33);
 
-    return Text_FromUTF8(strguid);
+    return PyUnicode_FromString(strguid);
 }
 
-
-const char *_pg_powerlevel_string(SDL_JoystickPowerLevel level) {
+const char *
+_pg_powerlevel_string(SDL_JoystickPowerLevel level)
+{
     switch (level) {
         case SDL_JOYSTICK_POWER_EMPTY:
             return "empty";
@@ -266,9 +242,8 @@ const char *_pg_powerlevel_string(SDL_JoystickPowerLevel level) {
     }
 }
 
-
 static PyObject *
-joy_get_power_level(PyObject *self, PyObject *args)
+joy_get_power_level(PyObject *self, PyObject *_null)
 {
     SDL_JoystickPowerLevel level;
     const char *leveltext;
@@ -282,27 +257,80 @@ joy_get_power_level(PyObject *self, PyObject *args)
     level = SDL_JoystickCurrentPowerLevel(joy);
     leveltext = _pg_powerlevel_string(level);
 
-    return Text_FromUTF8(leveltext);
+    return PyUnicode_FromString(leveltext);
 }
 
-#endif
-
-
 static PyObject *
-joy_get_name(PyObject *self, PyObject *args)
+joy_rumble(pgJoystickObject *self, PyObject *args, PyObject *kwargs)
 {
-#if IS_SDLv1
-    int joy_id = pgJoystick_AsID(self);
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+
+    SDL_Joystick *joy = self->joy;
+    double lowf, highf;
+    uint32_t low, high, duration;
+
+    char *keywords[] = {
+        "low_frequency",
+        "high_frequency",
+        "duration",
+        NULL,
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ddI", keywords, &lowf,
+                                     &highf, &duration)) {
+        return NULL;
+    }
+
     JOYSTICK_INIT_CHECK();
-    return Text_FromLocale(SDL_JoystickName(joy_id));
-#else  /* IS_SDLv2 */
-    SDL_Joystick *joy = pgJoystick_AsSDL(self);
-    return Text_FromUTF8(SDL_JoystickName(joy));
-#endif /* IS_SDLv2 */
+    if (!joy) {
+        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    }
+
+    if (lowf < 0) {
+        lowf = 0.0;
+    }
+    else if (lowf > 1.0) {
+        lowf = 1.0;
+    }
+
+    if (highf < 0) {
+        highf = 0.f;
+    }
+    else if (highf > 1.0) {
+        highf = 1.0;
+    }
+    low = (Uint32)(lowf * 0xFFFF);
+    high = (Uint32)(highf * 0xFFFF);
+
+    if (SDL_JoystickRumble(joy, low, high, duration) == -1) {
+        Py_RETURN_FALSE;
+    }
+    Py_RETURN_TRUE;
+
+#else
+    Py_RETURN_FALSE;
+#endif
 }
 
 static PyObject *
-joy_get_numaxes(PyObject *self, PyObject *args)
+joy_stop_rumble(pgJoystickObject *self, PyObject *_null)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+    SDL_Joystick *joy = self->joy;
+    SDL_JoystickRumble(joy, 0, 0, 1);
+#endif
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+joy_get_name(PyObject *self, PyObject *_null)
+{
+    SDL_Joystick *joy = pgJoystick_AsSDL(self);
+    return PyUnicode_FromString(SDL_JoystickName(joy));
+}
+
+static PyObject *
+joy_get_numaxes(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     JOYSTICK_INIT_CHECK();
@@ -310,7 +338,7 @@ joy_get_numaxes(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumAxes(joy));
+    return PyLong_FromLong(SDL_JoystickNumAxes(joy));
 }
 
 static PyObject *
@@ -340,7 +368,7 @@ joy_get_axis(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numbuttons(PyObject *self, PyObject *args)
+joy_get_numbuttons(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -349,7 +377,7 @@ joy_get_numbuttons(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumButtons(joy));
+    return PyLong_FromLong(SDL_JoystickNumButtons(joy));
 }
 
 static PyObject *
@@ -374,11 +402,11 @@ joy_get_button(PyObject *self, PyObject *args)
 #ifdef DEBUG
     /*printf("SDL_JoystickGetButton value:%d:\n", value);*/
 #endif
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
-joy_get_numballs(PyObject *self, PyObject *args)
+joy_get_numballs(PyObject *self, PyObject *_null)
 {
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
 
@@ -387,7 +415,7 @@ joy_get_numballs(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong(SDL_JoystickNumBalls(joy));
+    return PyLong_FromLong(SDL_JoystickNumBalls(joy));
 }
 
 static PyObject *
@@ -418,7 +446,7 @@ joy_get_ball(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numhats(PyObject *self, PyObject *args)
+joy_get_numhats(PyObject *self, PyObject *_null)
 {
     Uint32 value;
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
@@ -432,7 +460,7 @@ joy_get_numhats(PyObject *self, PyObject *args)
 #ifdef DEBUG
     /*printf("SDL_JoystickNumHats value:%d:\n", value);*/
 #endif
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 static PyObject *
@@ -481,66 +509,35 @@ static PyMethodDef joy_methods[] = {
     {"get_init", joy_get_init, METH_NOARGS, DOC_JOYSTICKGETINIT},
 
     {"get_id", joy_get_id, METH_NOARGS, DOC_JOYSTICKGETID},
-#if IS_SDLv2
-    {"get_instance_id", joy_get_instance_id, METH_NOARGS, DOC_JOYSTICKGETINSTANCEID},
+    {"get_instance_id", joy_get_instance_id, METH_NOARGS,
+     DOC_JOYSTICKGETINSTANCEID},
     {"get_guid", joy_get_guid, METH_NOARGS, DOC_JOYSTICKGETGUID},
-    {"get_power_level", joy_get_power_level, METH_NOARGS, DOC_JOYSTICKGETPOWERLEVEL},
-#endif
+    {"get_power_level", joy_get_power_level, METH_NOARGS,
+     DOC_JOYSTICKGETPOWERLEVEL},
+    {"rumble", (PyCFunction)joy_rumble, METH_VARARGS | METH_KEYWORDS,
+     DOC_JOYSTICKRUMBLE},
+    {"stop_rumble", (PyCFunction)joy_stop_rumble, METH_NOARGS,
+     DOC_JOYSTICKSTOPRUMBLE},
     {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
-    {"get_numaxes", joy_get_numaxes, METH_NOARGS,
-     DOC_JOYSTICKGETNUMAXES},
+    {"get_numaxes", joy_get_numaxes, METH_NOARGS, DOC_JOYSTICKGETNUMAXES},
     {"get_axis", joy_get_axis, METH_VARARGS, DOC_JOYSTICKGETAXIS},
     {"get_numbuttons", joy_get_numbuttons, METH_NOARGS,
      DOC_JOYSTICKGETNUMBUTTONS},
     {"get_button", joy_get_button, METH_VARARGS, DOC_JOYSTICKGETBUTTON},
-    {"get_numballs", joy_get_numballs, METH_NOARGS,
-     DOC_JOYSTICKGETNUMBALLS},
+    {"get_numballs", joy_get_numballs, METH_NOARGS, DOC_JOYSTICKGETNUMBALLS},
     {"get_ball", joy_get_ball, METH_VARARGS, DOC_JOYSTICKGETBALL},
-    {"get_numhats", joy_get_numhats, METH_NOARGS,
-     DOC_JOYSTICKGETNUMHATS},
+    {"get_numhats", joy_get_numhats, METH_NOARGS, DOC_JOYSTICKGETNUMHATS},
     {"get_hat", joy_get_hat, METH_VARARGS, DOC_JOYSTICKGETHAT},
 
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgJoystick_Type = {
-    TYPE_HEAD(NULL, 0) "Joystick", /* name */
-    sizeof(pgJoystickObject),      /* basic size */
-    0,                             /* itemsize */
-    joy_dealloc,                   /* dealloc */
-    0,                             /* print */
-    0,                             /* getattr */
-    0,                             /* setattr */
-    0,                             /* compare */
-    0,                             /* repr */
-    0,                             /* as_number */
-    0,                             /* as_sequence */
-    0,                             /* as_mapping */
-    0,                             /* hash */
-    0,                             /* call */
-    0,                             /* str */
-    0,                             /* tp_getattro */
-    0,                             /* tp_setattro */
-    0,                             /* tp_as_buffer */
-    0,                             /* flags */
-    DOC_PYGAMEJOYSTICKJOYSTICK,    /* Documentation string */
-    0,                             /* tp_traverse */
-    0,                             /* tp_clear */
-    0,                             /* tp_richcompare */
-    0,                             /* tp_weaklistoffset */
-    0,                             /* tp_iter */
-    0,                             /* tp_iternext */
-    joy_methods,                   /* tp_methods */
-    0,                             /* tp_members */
-    0,                             /* tp_getset */
-    0,                             /* tp_base */
-    0,                             /* tp_dict */
-    0,                             /* tp_descr_get */
-    0,                             /* tp_descr_set */
-    0,                             /* tp_dictoffset */
-    0,                             /* tp_init */
-    0,                             /* tp_alloc */
-    0,                             /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Joystick",
+    .tp_basicsize = sizeof(pgJoystickObject),
+    .tp_dealloc = joy_dealloc,
+    .tp_doc = DOC_PYGAMEJOYSTICKJOYSTICK,
+    .tp_methods = joy_methods,
 };
 
 static PyObject *
@@ -560,18 +557,19 @@ pgJoystick_New(int id)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    /* Search existing joystick objects to see if we already have this stick. */
+    /* Search existing joystick objects to see if we already have this stick.
+     */
     cur = joylist_head;
     while (cur) {
         if (cur->joy == joy) {
             Py_INCREF(cur);
-            return (PyObject *) cur;
+            return (PyObject *)cur;
         }
         cur = cur->next;
     }
 
     /* Construct the Python object */
-    jstick = PyObject_NEW(pgJoystickObject, &pgJoystick_Type);
+    jstick = PyObject_New(pgJoystickObject, &pgJoystick_Type);
     if (!jstick) {
         return NULL;
     }
@@ -593,8 +591,6 @@ pgJoystick_New(int id)
 }
 
 static PyMethodDef _joystick_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)joy_autoinit, METH_NOARGS,
-     "auto initialize function for joystick"},
     {"init", (PyCFunction)init, METH_NOARGS, DOC_PYGAMEJOYSTICKINIT},
     {"quit", (PyCFunction)quit, METH_NOARGS, DOC_PYGAMEJOYSTICKQUIT},
     {"get_init", (PyCFunction)get_init, METH_NOARGS,
@@ -606,11 +602,9 @@ static PyMethodDef _joystick_methods[] = {
 
 MODINIT_DEFINE(joystick)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_JOYSTICK_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "joystick",
                                          DOC_PYGAMEJOYSTICK,
@@ -620,59 +614,53 @@ MODINIT_DEFINE(joystick)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgJoystick_Type) == -1) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* Grab the instance -> device id mapping */
     module = PyImport_ImportModule("pygame.event");
     if (!module) {
-        MODINIT_ERROR;
+        return NULL;
     }
     joy_instance_map = PyObject_GetAttrString(module, "_joy_instance_map");
     Py_DECREF(module);
+    if (!joy_instance_map) {
+        return NULL;
+    }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3("joystick", _joystick_methods, DOC_PYGAMEJOYSTICK);
-#endif
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
-    dict = PyModule_GetDict(module);
 
-    if (PyDict_SetItemString(dict, "JoystickType",
-                             (PyObject *)&pgJoystick_Type) == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    Py_INCREF(&pgJoystick_Type);
+    if (PyModule_AddObject(module, "JoystickType",
+                           (PyObject *)&pgJoystick_Type)) {
+        Py_DECREF(&pgJoystick_Type);
+        Py_DECREF(module);
+        return NULL;
     }
 
     /* export the c api */
     c_api[0] = &pgJoystick_Type;
     c_api[1] = pgJoystick_New;
     apiobj = encapsulate_api(c_api, "joystick");
-    if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        Py_DECREF(module);
+        return NULL;
     }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode == -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    MODINIT_RETURN(module);
+    return module;
 }

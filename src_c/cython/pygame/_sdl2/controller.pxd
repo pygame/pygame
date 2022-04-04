@@ -1,13 +1,13 @@
-# cython: language_level=2
+# cython: language_level=3str
 #
 
-from sdl2 cimport *
+from .sdl2 cimport *
 
 #https://wiki.libsdl.org/CategoryGameController
 
 cdef extern from "SDL.h" nogil:
     ctypedef enum SDL_GameControllerAxis:
-        SDL_CONTROLLER_AXIS_INVALID = -1,    
+        SDL_CONTROLLER_AXIS_INVALID = -1,
         SDL_CONTROLLER_AXIS_LEFTX,
         SDL_CONTROLLER_AXIS_LEFTY,
         SDL_CONTROLLER_AXIS_RIGHTX,
@@ -15,7 +15,7 @@ cdef extern from "SDL.h" nogil:
         SDL_CONTROLLER_AXIS_TRIGGERLEFT,
         SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
         SDL_CONTROLLER_AXIS_MAX
-    
+
     ctypedef enum SDL_GameControllerButton:
         SDL_CONTROLLER_BUTTON_INVALID = -1,
         SDL_CONTROLLER_BUTTON_A,
@@ -34,7 +34,7 @@ cdef extern from "SDL.h" nogil:
         SDL_CONTROLLER_BUTTON_DPAD_LEFT,
         SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
         SDL_CONTROLLER_BUTTON_MAX
- 
+
 
     ctypedef struct SDL_GameController
     ctypedef enum SDL_GameControllerBindType:
@@ -46,17 +46,17 @@ cdef extern from "SDL.h" nogil:
     ctypedef struct _hat:
         int hat
         int hat_mask
-        
+
     cdef union _value:
         int button
         int axis
 
         _hat hat
-            
+
     ctypedef struct SDL_GameControllerButtonBind:
         _value value
         SDL_GameControllerBindType bindType
-        
+
     ctypedef struct SDL_Joystick
     ctypedef Sint32 SDL_JoystickID
     ctypedef struct SDL_JoystickGUID:
@@ -68,7 +68,7 @@ cdef extern from "SDL.h" nogil:
 
     Uint8 SDL_GameControllerGetButton(SDL_GameController*      gamecontroller,
                                       SDL_GameControllerButton button)
-                                      
+
     void SDL_GameControllerClose(SDL_GameController* gamecontroller)
     void SDL_GameControllerUpdate()
     void SDL_JoystickGetGUIDString(SDL_JoystickGUID guid,
@@ -94,6 +94,9 @@ cdef extern from "SDL.h" nogil:
 
     SDL_bool SDL_IsGameController(int joystick_index)
     SDL_JoystickGUID SDL_JoystickGetGUID(SDL_Joystick* joystick)
+    int SDL_GameControllerRumble(SDL_GameController *gamecontroller,
+                                 Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
+                                 Uint32 duration_ms)
 
 cdef bint _controller_autoinit()
 cdef void _controller_autoquit()

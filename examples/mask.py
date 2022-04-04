@@ -133,9 +133,8 @@ def main(*args):
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
     print("Press any key to quit")
+    pg.init()
     screen = pg.display.set_mode((640, 480))
-    if any("fist.bmp" in x for x in args):
-        pg.display.set_caption("Punch Nazis")
     images = []
     masks = []
     for impath in args:
@@ -172,7 +171,7 @@ def main(*args):
         s.setVelocity((random.uniform(-5, 5), random.uniform(-5, 5)))
         sprites.append(s)
     pg.time.set_timer(pg.USEREVENT, 33)
-    while 1:
+    while True:
         event = pg.event.wait()
         if event.type == pg.QUIT:
             return
@@ -180,9 +179,9 @@ def main(*args):
 
             # Do both mechanics and screen update
             screen.fill((240, 220, 100))
-            for i in range(len(sprites)):
+            for i, sprite in enumerate(sprites):
                 for j in range(i + 1, len(sprites)):
-                    sprites[i].collide(sprites[j])
+                    sprite.collide(sprites[j])
             for s in sprites:
                 s.update(1)
                 if s.pos[0] < -s.surface.get_width() - 3:
@@ -205,7 +204,9 @@ if __name__ == "__main__":
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        imagename = os.path.join(main_dir, "data", "fist.bmp")
+        imagename = os.path.join(main_dir, "data", "alien1.png")
         main(imagename)
+
     else:
         main(*sys.argv[1:])
+    pg.quit()

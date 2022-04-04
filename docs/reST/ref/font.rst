@@ -8,29 +8,31 @@
 
 | :sl:`pygame module for loading and rendering fonts`
 
-The font module allows for rendering TrueType fonts into a new Surface object.
-It accepts any UCS-2 character ('\u0001' to '\uFFFF'). This module is optional
-and requires SDL_ttf as a dependency. You should test that :mod:`pygame.font`
-is available and initialized before attempting to use the module.
+The font module allows for rendering TrueType fonts into Surface objects.
+This module is built on top of the SDL_ttf library, which comes with all
+normal pygame installations.
 
-Most of the work done with fonts are done by using the actual Font objects. The
-module by itself only has routines to initialize the module and create Font
-objects with ``pygame.font.Font()``.
+Most of the work done with fonts are done by using the actual Font objects.
+The module by itself only has routines to support the creation of Font objects
+with :func:`pygame.font.Font`.
 
-You can load fonts from the system by using the ``pygame.font.SysFont()``
-function. There are a few other functions to help lookup the system fonts.
+You can load fonts from the system by using the :func:`pygame.font.SysFont`
+function. There are a few other functions to help look up the system fonts.
 
-Pygame comes with a builtin default font. This can always be accessed by
-passing None as the font name.
+Pygame comes with a builtin default font, freesansbold. This can always be
+accessed by passing ``None`` as the font name.
 
-To use the :mod:`pygame.freetype` based ``pygame.ftfont`` as
-:mod:`pygame.font` define the environment variable PYGAME_FREETYPE before the
-first import of :mod:`pygame`. Module ``pygame.ftfont`` is a :mod:`pygame.font`
-compatible module that passes all but one of the font module unit tests:
-it does not have the UCS-2 limitation of the SDL_ttf based font module, so
-fails to raise an exception for a code point greater than '\uFFFF'. If
-:mod:`pygame.freetype` is unavailable then the SDL_ttf font module will be
-loaded instead.
+Before pygame 2.0.3, pygame.font accepts any UCS-2 / UTF-16 character
+('\\u0001' to '\\uFFFF'). After 2.0.3, pygame.font built with SDL_ttf
+2.0.15 accepts any valid UCS-4 / UTF-32 character 
+(like emojis, if the font has them) ('\\U00000001' to '\\U0010FFFF')).
+More about this in :func:`Font.render`.
+
+Before pygame 2.0.3, this character space restriction can be avoided by
+using the  :mod:`pygame.freetype` based ``pygame.ftfont`` to emulate the Font
+module. This can be used by defining the environment variable PYGAME_FREETYPE
+before the first import of :mod:`pygame`. Since the problem ``pygame.ftfont``
+solves no longer exists, it will likely be removed in the future.
 
 .. function:: init
 
@@ -97,8 +99,12 @@ loaded instead.
    Returns the full path to a font file on the system. If bold or italic are
    set to true, this will attempt to find the correct family of font.
 
-   The font name can actually be a comma separated list of font names to try.
+   The font name can also be an iterable of font names, a string of
+   comma-separated font names, or a bytes of comma-separated font names, in
+   which case the set of names will be searched in order.
    If none of the given names are found, None is returned.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
    Example:
 
@@ -116,9 +122,16 @@ loaded instead.
    | :sg:`SysFont(name, size, bold=False, italic=False) -> Font`
 
    Return a new Font object that is loaded from the system fonts. The font will
-   match the requested bold and italic flags. If a suitable system font is not
-   found this will fall back on loading the default pygame font. The font name
-   can be a comma separated list of font names to look for.
+   match the requested bold and italic flags. Pygame uses a small set of common
+   font aliases. If the specific font you ask for is not available, a reasonable
+   alternative may be used. If a suitable system font is not found this will
+   fall back on loading the default pygame font.
+
+   The font name can also be an iterable of font names, a string of
+   comma-separated font names, or a bytes of comma-separated font names, in
+   which case the set of names will be searched in order.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
    .. ## pygame.font.SysFont ##
 
@@ -126,18 +139,18 @@ loaded instead.
 
    | :sl:`create a new Font object from a file`
    | :sg:`Font(filename, size) -> Font`
+   | :sg:`Font(pathlib.Path, size) -> Font`
    | :sg:`Font(object, size) -> Font`
 
    Load a new font from a given filename or a python file object. The size is
-   the height of the font in pixels. If the filename is None the pygame default
-   font will be loaded. If a font cannot be loaded from the arguments given an
-   exception will be raised. Once the font is created the size cannot be
-   changed.
+   the height of the font in pixels. If the filename is ``None`` the pygame
+   default font will be loaded. If a font cannot be loaded from the arguments
+   given an exception will be raised. Once the font is created the size cannot
+   be changed.
 
    Font objects are mainly used to render text into new Surface objects. The
    render can emulate bold or italic features, but it is better to load from a
-   font with actual italic or bold glyphs. The rendered text can be regular
-   strings or unicode.
+   font with actual italic or bold glyphs.
 
    .. attribute:: bold
 
@@ -194,23 +207,25 @@ loaded instead.
       | :sl:`draw text on a new Surface`
       | :sg:`render(text, antialias, color, background=None) -> Surface`
 
-      This creates a new Surface with the specified text rendered on it. pygame
-      provides no way to directly draw text on an existing Surface: instead you
-      must use ``Font.render()`` to create an image (Surface) of the text, then
-      blit this image onto another Surface.
+      This creates a new Surface with the specified text rendered on it. 
+      :mod:`pygame.font` provides no way to directly draw text on an existing
+      Surface: instead you must use :func:`Font.render` to create an image
+      (Surface) of the text, then blit this image onto another Surface.
 
       The text can only be a single line: newline characters are not rendered.
       Null characters ('\x00') raise a TypeError. Both Unicode and char (byte)
-      strings are accepted. For Unicode strings only UCS-2 characters ('\u0001'
-      to '\uFFFF') are recognized. Anything greater raises a UnicodeError. For
-      char strings a ``LATIN1`` encoding is assumed. The antialias argument is
-      a boolean: if true the characters will have smooth edges. The color
-      argument is the color of the text [e.g.: (0,0,255) for blue]. The
-      optional background argument is a color to use for the text background.
-      If no background is passed the area outside the text will be transparent.
+      strings are accepted. For Unicode strings only UCS-2 characters
+      ('\\u0001' to '\\uFFFF') were previously supported and any greater
+      unicode codepoint would raise a UnicodeError. Now, characters in the
+      UCS-4 range are supported. For char strings a ``LATIN1`` encoding is
+      assumed. The antialias argument is a boolean: if True the characters
+      will have smooth edges. The color argument is the color of the text
+      [e.g.: (0,0,255) for blue]. The optional background argument is a color
+      to use for the text background. If no background is passed the area
+      outside the text will be transparent.
 
       The Surface returned will be of the dimensions required to hold the text.
-      (the same as those returned by Font.size()). If an empty string is passed
+      (the same as those returned by :func:`Font.size`). If an empty string is passed
       for the text, a blank surface will be returned that is zero pixel wide and
       the height of the font.
 
@@ -229,10 +244,15 @@ loaded instead.
       colorkey rather than (much less efficient) alpha values.
 
       If you render '\\n' an unknown char will be rendered. Usually a
-      rectangle. Instead you need to handle new lines yourself.
+      rectangle. Instead you need to handle newlines yourself.
 
       Font rendering is not thread safe: only a single thread can render text
       at any time.
+
+      .. versionchanged:: 2.0.3 Rendering UCS4 unicode works and does not
+        raise an exception. Use `if hasattr(pygame.font, "UCS4"):` to see if
+        pygame supports rendering UCS4 unicode including more languages and
+        emoji.
 
       .. ## Font.render ##
 
@@ -243,7 +263,7 @@ loaded instead.
 
       Returns the dimensions needed to render the text. This can be used to
       help determine the positioning needed for text before it is rendered. It
-      can also be used for wordwrapping and other layout effects.
+      can also be used for word wrapping and other layout effects.
 
       Be aware that most fonts use kerning which adjusts the widths for
       specific letter pairs. For example, the width for "ae" will not always

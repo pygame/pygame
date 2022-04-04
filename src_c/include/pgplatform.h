@@ -5,7 +5,7 @@
 #if defined(HAVE_SNPRINTF) /* defined in python.h (pyerrors.h) and SDL.h \
                               (SDL_config.h) */
 #undef HAVE_SNPRINTF       /* remove GCC redefine warning */
-#endif /* HAVE_SNPRINTF */
+#endif                     /* HAVE_SNPRINTF */
 
 #ifndef PG_INLINE
 #if defined(__clang__)
@@ -52,25 +52,33 @@
 
 /* SDL needs WIN32 */
 #if !defined(WIN32) &&                                           \
-    (defined(MS_WIN32) || defined(_WIN32) ||                     \
-     defined(__WIN32) || defined(__WIN32__) || defined(_WINDOWS))
+    (defined(MS_WIN32) || defined(_WIN32) || defined(__WIN32) || \
+     defined(__WIN32__) || defined(_WINDOWS))
 #define WIN32
 #endif
 
+/* Commenting out SSE4_2 stuff because it does not do runtime detection.
 #ifndef PG_TARGET_SSE4_2
-#if defined(__clang__) || defined(__GNUC__)
-#define PG_FUNCTION_TARGET_SSE4_2 __attribute__((target("sse4.2")))
-/* No else; we define the fallback later */
+#if defined(__clang__) || (defined(__GNUC__) && ((__GNUC__ == 4 &&
+__GNUC_MINOR__ >= 9) || __GNUC__ >= 5 ))
+//The old gcc 4.8 on centos used by manylinux1 does not seem to get sse4.2
+intrinsics #define PG_FUNCTION_TARGET_SSE4_2 __attribute__((target("sse4.2")))
+// No else; we define the fallback later
 #endif
-#endif /* ~PG_TARGET_SSE4_2 */
+#endif
+*/
+/* ~PG_TARGET_SSE4_2 */
 
+/*
 #ifdef PG_FUNCTION_TARGET_SSE4_2
 #if !defined(__SSE4_2__) && !defined(PG_COMPILE_SSE4_2)
 #if defined(__x86_64__) || defined(__i386__)
 #define PG_COMPILE_SSE4_2 1
 #endif
 #endif
-#endif /* ~PG_TARGET_SSE4_2 */
+#endif
+*/
+/* ~PG_TARGET_SSE4_2 */
 
 /* Fallback definition of target attribute */
 #ifndef PG_FUNCTION_TARGET_SSE4_2

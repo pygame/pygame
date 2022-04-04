@@ -23,12 +23,11 @@
 #include "bitmask.h"
 
 typedef struct {
-  PyObject_HEAD
-  bitmask_t *mask;
-  void *bufdata;
+    PyObject_HEAD bitmask_t *mask;
+    void *bufdata;
 } pgMaskObject;
 
-#define pgMask_AsBitmap(x) (((pgMaskObject*)x)->mask)
+#define pgMask_AsBitmap(x) (((pgMaskObject *)x)->mask)
 
 #ifndef PYGAMEAPI_MASK_INTERNAL
 
@@ -36,8 +35,7 @@ typedef struct {
 
 PYGAMEAPI_DEFINE_SLOTS(mask);
 
-#define pgMask_Type     (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(mask, 0))
+#define pgMask_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mask, 0))
 #define pgMask_Check(x) ((x)->ob_type == &pgMask_Type)
 
 #define import_pygame_mask() _IMPORT_PYGAME_MODULE(mask)

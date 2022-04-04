@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 #define DOC_PYGAMEMIXERINIT "init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None\ninitialize the mixer module"
-#define DOC_PYGAMEMIXERPREINIT "pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None) -> None\npreset the mixer init arguments"
+#define DOC_PYGAMEMIXERPREINIT "pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None\npreset the mixer init arguments"
 #define DOC_PYGAMEMIXERQUIT "quit() -> None\nuninitialize the mixer"
 #define DOC_PYGAMEMIXERGETINIT "get_init() -> (frequency, format, channels)\ntest if the mixer is initialized"
 #define DOC_PYGAMEMIXERSTOP "stop() -> None\nstop playback of all sound channels"
@@ -10,11 +10,11 @@
 #define DOC_PYGAMEMIXERFADEOUT "fadeout(time) -> None\nfade out the volume on all sounds before stopping"
 #define DOC_PYGAMEMIXERSETNUMCHANNELS "set_num_channels(count) -> None\nset the total number of playback channels"
 #define DOC_PYGAMEMIXERGETNUMCHANNELS "get_num_channels() -> count\nget the total number of playback channels"
-#define DOC_PYGAMEMIXERSETRESERVED "set_reserved(count) -> None\nreserve channels from being automatically used"
+#define DOC_PYGAMEMIXERSETRESERVED "set_reserved(count) -> count\nreserve channels from being automatically used"
 #define DOC_PYGAMEMIXERFINDCHANNEL "find_channel(force=False) -> Channel\nfind an unused channel"
 #define DOC_PYGAMEMIXERGETBUSY "get_busy() -> bool\ntest if any sound is being mixed"
 #define DOC_PYGAMEMIXERGETSDLMIXERVERSION "get_sdl_mixer_version() -> (major, minor, patch)\nget_sdl_mixer_version(linked=True) -> (major, minor, patch)\nget the mixer's SDL version"
-#define DOC_PYGAMEMIXERSOUND "Sound(filename) -> Sound\nSound(file=filename) -> Sound\nSound(buffer) -> Sound\nSound(buffer=buffer) -> Sound\nSound(object) -> Sound\nSound(file=object) -> Sound\nSound(array=object) -> Sound\nCreate a new Sound object from a file or buffer object"
+#define DOC_PYGAMEMIXERSOUND "Sound(filename) -> Sound\nSound(file=filename) -> Sound\nSound(file=pathlib_path) -> Sound\nSound(buffer) -> Sound\nSound(buffer=buffer) -> Sound\nSound(object) -> Sound\nSound(file=object) -> Sound\nSound(array=object) -> Sound\nCreate a new Sound object from a file or buffer object"
 #define DOC_SOUNDPLAY "play(loops=0, maxtime=0, fade_ms=0) -> Channel\nbegin sound playback"
 #define DOC_SOUNDSTOP "stop() -> None\nstop sound playback"
 #define DOC_SOUNDFADEOUT "fadeout(time) -> None\nstop sound playback after fading out"
@@ -51,7 +51,7 @@ pygame.mixer.init
 initialize the mixer module
 
 pygame.mixer.pre_init
- pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None) -> None
+ pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None
 preset the mixer init arguments
 
 pygame.mixer.quit
@@ -87,7 +87,7 @@ pygame.mixer.get_num_channels
 get the total number of playback channels
 
 pygame.mixer.set_reserved
- set_reserved(count) -> None
+ set_reserved(count) -> count
 reserve channels from being automatically used
 
 pygame.mixer.find_channel
@@ -106,6 +106,7 @@ get the mixer's SDL version
 pygame.mixer.Sound
  Sound(filename) -> Sound
  Sound(file=filename) -> Sound
+ Sound(file=pathlib_path) -> Sound
  Sound(buffer) -> Sound
  Sound(buffer=buffer) -> Sound
  Sound(object) -> Sound

@@ -8,23 +8,11 @@
 /prebuilt-x??
 /prebuilt_downloads
 
+# macOS generated files
+.DS_Store
+
 # Sphinx generated files: makeref.py
-/docs/\.buildinfo
-/docs/objects.inv
-/docs/c_api/
-/docs/doctrees/
-/docs/_sources/
-/docs/_static/
-/docs/_images/
-/docs/c_api.html
-/docs/genindex.html
-/docs/py-modindex.html
-/docs/search.html
-/docs/searchindex.js
-/docs/tut/
-/docs/filepaths.html
-/docs/index.html
-/docs/ref/*.html
+/docs/generated
 
 # Emacs temporary files
 *~
@@ -53,3 +41,4 @@ dist
 .vagrant
 *.egg-info/
 *.so
+__pycache__

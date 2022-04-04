@@ -8,7 +8,6 @@ FPS = 30
 clock = pg.time.Clock()
 
 screen = pg.display.set_mode(RES, pg.RESIZABLE)
-#pg.event._set_gen_videoresize(False)
 pg.display._set_autoresize(False)
 
 # MAIN LOOP
@@ -24,10 +23,10 @@ while not done:
             done = True
         if event.type == pg.QUIT:
             done = True
-        #if event.type==pg.WINDOWEVENT and event.event==6:
+        # if event.type==pg.WINDOWRESIZED:
         #    screen=pg.display.get_surface()
-        if event.type==pg.VIDEORESIZE:
-            screen=pg.display.get_surface()
+        if event.type == pg.VIDEORESIZE:
+            screen = pg.display.get_surface()
     i += 1
     i = i % screen.get_width()
     j += i % 2
@@ -42,3 +41,4 @@ while not done:
 
     pg.display.flip()
     clock.tick(FPS)
+pg.quit()

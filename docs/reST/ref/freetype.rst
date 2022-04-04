@@ -85,7 +85,7 @@ loaded. This module must be imported explicitly to be used. ::
 .. function:: init
 
    | :sl:`Initialize the underlying FreeType library.`
-   | :sg:`init(cache_size=64, resolution=72)`
+   | :sg:`init(cache_size=64, resolution=72) -> None`
 
    This function initializes the underlying FreeType library and must be
    called before trying to use any of the functionality of the ``freetype``
@@ -104,7 +104,7 @@ loaded. This module must be imported explicitly to be used. ::
 .. function:: quit
 
    | :sl:`Shut down the underlying FreeType library.`
-   | :sg:`quit()`
+   | :sg:`quit() -> None`
 
    This function closes the ``freetype`` module. After calling this
    function, you should not invoke any class, method or function related to the
@@ -158,9 +158,16 @@ loaded. This module must be imported explicitly to be used. ::
    | :sg:`SysFont(name, size, bold=False, italic=False) -> Font`
 
    Return a new Font object that is loaded from the system fonts. The font will
-   match the requested *bold* and *italic* flags. If a suitable system font
-   is not found, a default, Pygame, is returned instead. The font *name*
-   can be a comma separated list of font names to search for.
+   match the requested *bold* and *italic* flags. Pygame uses a small set of
+   common font aliases. If the specific font you ask for is not available, a
+   reasonable alternative may be used. If a suitable system font is not found
+   this will fall back on loading the default pygame font.
+
+   The font *name* can also be an iterable of font names, a string of
+   comma-separated font names, or a bytes of comma-separated font names, in
+   which case the set of names will be searched in order.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
 .. function:: get_default_font
 
@@ -175,6 +182,7 @@ loaded. This module must be imported explicitly to be used. ::
 
    | :sl:`Create a new Font instance from a supported font file.`
    | :sg:`Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font`
+   | :sg:`Font(pathlib.Path) -> Font`
 
    Argument *file* can be either a string representing the font's filename, a
    file-like object containing the font, or None; if None, a default,
@@ -286,7 +294,7 @@ loaded. This module must be imported explicitly to be used. ::
           (min_x, max_x, min_y, max_y, horizontal_advance_x, horizontal_advance_y)
 
       The bounding box min_x, max_x, min_y, and max_y values are returned as
-      grid-fitted pixel coordinates of type int. The advance values are 
+      grid-fitted pixel coordinates of type int. The advance values are
       float values.
 
       The calculations are done using the font's default size in points.
@@ -609,7 +617,7 @@ loaded. This module must be imported explicitly to be used. ::
       | :sg:`fixed_sizes -> int`
 
       Read only. Returns the number of point sizes for which the font contains
-      bitmap character images. If zero then the font is not a bitmap font. 
+      bitmap character images. If zero then the font is not a bitmap font.
       A scalable font may contain pre-rendered point sizes as strikes.
 
    .. attribute:: scalable

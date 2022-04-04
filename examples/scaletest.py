@@ -87,6 +87,7 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
                 cursize[0] = 1
         if bRight:
             cursize[0] += 2
+    pg.quit()
 
 
 def SpeedTest(image):

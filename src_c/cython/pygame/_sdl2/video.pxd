@@ -1,7 +1,7 @@
-# cython: language_level=2
+# cython: language_level=3str
 #
 
-from sdl2 cimport *
+from .sdl2 cimport *
 
 cdef extern from "SDL.h" nogil:
     ctypedef struct SDL_Window
@@ -36,6 +36,12 @@ cdef extern from "SDL.h" nogil:
         SDL_FLIP_NONE,
         SDL_FLIP_HORIZONTAL,
         SDL_FLIP_VERTICAL
+    ctypedef enum SDL_BlendMode:
+        SDL_BLENDMODE_NONE = 0x00000000,
+        SDL_BLENDMODE_BLEND = 0x00000001,
+        SDL_BLENDMODE_ADD = 0x00000002,
+        SDL_BLENDMODE_MOD = 0x00000004,
+        SDL_BLENDMODE_INVALID = 0x7FFFFFFF
 
     # https://wiki.libsdl.org/SDL_MessageBoxData
     # https://wiki.libsdl.org/SDL_ShowMessageBox
@@ -69,6 +75,8 @@ cdef extern from "SDL.h" nogil:
     cdef Uint32 _SDL_RENDERER_TARGETTEXTURE "SDL_RENDERER_TARGETTEXTURE"
 
     # https://wiki.libsdl.org/SDL_SetRenderDrawColor
+    # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
+    # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
     # https://wiki.libsdl.org/SDL_CreateRenderer
     # https://wiki.libsdl.org/SDL_DestroyRenderer
     # https://wiki.libsdl.org/SDL_RenderClear
@@ -80,6 +88,10 @@ cdef extern from "SDL.h" nogil:
                                Uint8         g,
                                Uint8         b,
                                Uint8         a)
+    int SDL_GetRenderDrawBlendMode(SDL_Renderer*   renderer,
+                                   SDL_BlendMode* blendMode)
+    int SDL_SetRenderDrawBlendMode(SDL_Renderer*  renderer,
+                                   SDL_BlendMode blendMode)
     SDL_Renderer* SDL_CreateRenderer(SDL_Window* window,
                                      int         index,
                                      Uint32      flags)
@@ -126,6 +138,35 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_GetRenderDriverInfo
     int SDL_GetRenderDriverInfo(int               index,
                                 SDL_RendererInfo* info)
+
+    # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
+    # https://wiki.libsdl.org/SDL_BlendFactor
+    # https://wiki.libsdl.org/SDL_BlendOperation
+    SDL_BlendMode SDL_ComposeCustomBlendMode(SDL_BlendFactor    srcColorFactor,
+                                             SDL_BlendFactor    dstColorFactor,
+                                             SDL_BlendOperation colorOperation,
+                                             SDL_BlendFactor    srcAlphaFactor,
+                                             SDL_BlendFactor    dstAlphaFactor,
+                                             SDL_BlendOperation alphaOperation)
+ 
+    ctypedef enum SDL_BlendOperation:
+        SDL_BLENDOPERATION_ADD = 0x00000001,
+        SDL_BLENDOPERATION_SUBTRACT = 0x00000002,
+        SDL_BLENDOPERATION_REV_SUBTRACT = 0x00000003,
+        SDL_BLENDOPERATION_MINIMUM = 0x00000004,
+        SDL_BLENDOPERATION_MAXIMUM = 0x00000005
+
+    ctypedef enum SDL_BlendFactor:
+        SDL_BLENDFACTOR_ZERO = 0x00000001,
+        SDL_BLENDFACTOR_ONE = 0x00000002,
+        SDL_BLENDFACTOR_SRC_COLOR = 0x00000003,
+        SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR = 0x00000004,
+        SDL_BLENDFACTOR_SRC_ALPHA = 0x00000005,
+        SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA = 0x00000006,
+        SDL_BLENDFACTOR_DST_COLOR = 0x00000007,
+        SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR = 0x00000008,
+        SDL_BLENDFACTOR_DST_ALPHA = 0x00000009,
+        SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA = 0x0000000A
 
     # WINDOW
     # https://wiki.libsdl.org/SDL_CreateWindow
@@ -277,12 +318,6 @@ cdef extern from "SDL.h" nogil:
                                Uint8*       alpha)
     int SDL_SetTextureAlphaMod(SDL_Texture* texture,
                                Uint8        alpha)
-    ctypedef enum SDL_BlendMode:
-        SDL_BLENDMODE_NONE = 0x00000000,
-        SDL_BLENDMODE_BLEND = 0x00000001,
-        SDL_BLENDMODE_ADD = 0x00000002,
-        SDL_BLENDMODE_MOD = 0x00000004,
-        SDL_BLENDMODE_INVALID = 0x7FFFFFFF
 
     int SDL_GetTextureBlendMode(SDL_Texture*   texture,
                                 SDL_BlendMode* blendMode)
@@ -393,17 +428,19 @@ cdef class Texture:
     cdef readonly int height
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
-                       bint flipX=*, bint flipY=*)
+                       bint flip_x=*, bint flip_y=*)
     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
-                    bint flipX=*, bint flipY=*)
+                    bint flip_x=*, bint flip_y=*)
 
 cdef class Image:
+    cdef Color _color
     cdef public float angle
-    cdef public float origin[2]
-    cdef public bint flipX
-    cdef public bint flipY
-    cdef public Color color
+    cdef SDL_Point _origin
+    cdef SDL_Point* _originptr
+    cdef public bint flip_x
+    cdef public bint flip_y
     cdef public float alpha
+    cdef public SDL_BlendMode blend_mode
 
     cdef public Texture texture
     cdef public Rect srcrect

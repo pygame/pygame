@@ -2,11 +2,11 @@
 libpng/1.6.37
 zlib/1.2.11
 freetype/2.10.1
-sdl2/2.0.12@pygame/testing
+sdl2/2.0.14@pygame/testing
 sdl2_image/2.0.5@bincrafters/stable
 sdl2_mixer/2.0.4@bincrafters/stable
 sdl2_ttf/2.0.15@bincrafters/stable
-
+portmidi/217@demo/testing
 
 [generators]
 json

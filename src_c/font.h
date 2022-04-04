@@ -4,9 +4,9 @@
 #include <SDL_ttf.h>
 
 /* test font initialization */
-#define FONT_INIT_CHECK() \
-    if(!(*(int*)PyFONT_C_API[2])) \
-        return RAISE(pgExc_SDLError, "font system not initialized")
+#define FONT_INIT_CHECK()           \
+    if (!(*(int *)PyFONT_C_API[2])) \
+    return RAISE(pgExc_SDLError, "font system not initialized")
 
 #include "include/pygame_font.h"
 

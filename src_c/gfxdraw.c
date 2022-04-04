@@ -128,9 +128,9 @@ Sint16FromObj(PyObject *item, Sint16 *val)
         PyObject *intobj;
         long tmp;
 
-        if (!(intobj = PyNumber_Int(item)))
+        if (!(intobj = PyNumber_Long(item)))
             return 0;
-        tmp = PyInt_AsLong(intobj);
+        tmp = PyLong_AsLong(intobj);
         Py_DECREF(intobj);
         if (tmp == -1 && PyErr_Occurred())
             return 0;
@@ -245,13 +245,14 @@ static PyObject *
 _gfx_rectanglecolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
     ASSERT_VIDEO_INIT(NULL);
 
     if (!PyArg_ParseTuple(args, "OOO:rectangle", &surface, &rect, &color)) {
+        /* Exception already set */
         return NULL;
     }
 
@@ -261,6 +262,7 @@ _gfx_rectanglecolor(PyObject *self, PyObject *args)
     }
     sdlrect = pgRect_FromObject(rect, &temprect);
     if (sdlrect == NULL) {
+        PyErr_SetString(PyExc_TypeError, "invalid rect style argument");
         return NULL;
     }
 
@@ -286,13 +288,14 @@ static PyObject *
 _gfx_boxcolor(PyObject *self, PyObject *args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect temprect, *sdlrect;
+    SDL_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
     ASSERT_VIDEO_INIT(NULL);
 
     if (!PyArg_ParseTuple(args, "OOO:box", &surface, &rect, &color)) {
+        /* Exception already set */
         return NULL;
     }
 
@@ -302,6 +305,7 @@ _gfx_boxcolor(PyObject *self, PyObject *args)
     }
     sdlrect = pgRect_FromObject(rect, &temprect);
     if (sdlrect == NULL) {
+        PyErr_SetString(PyExc_TypeError, "invalid rect style argument");
         return NULL;
     }
     if (!pg_RGBAFromObj(color, rgba)) {
@@ -1039,7 +1043,8 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
     }
 
     if (steps < 2) {
-        PyErr_SetString(PyExc_ValueError, "steps parameter must be greater than 1");
+        PyErr_SetString(PyExc_ValueError,
+                        "steps parameter must be greater than 1");
         return NULL;
     }
 
@@ -1090,9 +1095,6 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
 
 MODINIT_DEFINE(gfxdraw)
 {
-    PyObject *module;
-
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          MODPREFIX "gfxdraw",
                                          DOC_PYGAMEGFXDRAW,
@@ -1102,38 +1104,26 @@ MODINIT_DEFINE(gfxdraw)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* import needed APIs; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
-#if PY3
-    module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "gfxdraw", _gfxdraw_methods,
-                            DOC_PYGAMEGFXDRAW);
-#endif
-
-    if (module == NULL) {
-        MODINIT_ERROR;
-    }
-
-    MODINIT_RETURN(module);
+    return PyModule_Create(&_module);
 }

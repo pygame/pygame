@@ -2,8 +2,8 @@
 #define DOC_PYGAMEFREETYPE "Enhanced pygame module for loading and rendering computer fonts"
 #define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nget_error() -> None\nReturn the latest FreeType error"
 #define DOC_PYGAMEFREETYPEGETVERSION "get_version() -> (int, int, int)\nReturn the FreeType version"
-#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72)\nInitialize the underlying FreeType library."
-#define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType library."
+#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72) -> None\nInitialize the underlying FreeType library."
+#define DOC_PYGAMEFREETYPEQUIT "quit() -> None\nShut down the underlying FreeType library."
 #define DOC_PYGAMEFREETYPEGETINIT "get_init() -> bool\nReturns True if the FreeType module is currently initialized."
 #define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nDEPRECATED: Use get_init() instead."
 #define DOC_PYGAMEFREETYPEGETCACHESIZE "get_cache_size() -> long\nReturn the glyph case size"
@@ -11,7 +11,7 @@
 #define DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION "set_default_resolution([resolution])\nSet the default pixel size in dots per inch for the module"
 #define DOC_PYGAMEFREETYPESYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
 #define DOC_PYGAMEFREETYPEGETDEFAULTFONT "get_default_font() -> string\nGet the filename of the default font"
-#define DOC_PYGAMEFREETYPEFONT "Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font\nCreate a new Font instance from a supported font file."
+#define DOC_PYGAMEFREETYPEFONT "Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font\nFont(pathlib.Path) -> Font\nCreate a new Font instance from a supported font file."
 #define DOC_FONTNAME "name -> string\nProper font name."
 #define DOC_FONTPATH "path -> unicode\nFont file path"
 #define DOC_FONTSIZE "size -> float\nsize -> (float, float)\nThe default point size used in rendering"
@@ -69,11 +69,11 @@ pygame.freetype.get_version
 Return the FreeType version
 
 pygame.freetype.init
- init(cache_size=64, resolution=72)
+ init(cache_size=64, resolution=72) -> None
 Initialize the underlying FreeType library.
 
 pygame.freetype.quit
- quit()
+ quit() -> None
 Shut down the underlying FreeType library.
 
 pygame.freetype.get_init
@@ -106,6 +106,7 @@ Get the filename of the default font
 
 pygame.freetype.Font
  Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font
+ Font(pathlib.Path) -> Font
 Create a new Font instance from a supported font file.
 
 pygame.freetype.Font.name

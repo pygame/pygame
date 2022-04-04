@@ -167,8 +167,7 @@ _cleanup_array(pgPixelArrayObject *array)
         Py_DECREF(array->parent);
     }
     else {
-        pgSurface_UnlockBy(array->surface,
-                           (PyObject *)array);
+        pgSurface_UnlockBy(array->surface, (PyObject *)array);
     }
     Py_DECREF(array->surface);
     Py_XDECREF(array->dict);
@@ -202,7 +201,6 @@ static PyMethodDef _pxarray_methods[] = {
      DOC_PIXELARRAYTRANSPOSE},
     {NULL, NULL, 0, NULL}};
 
-#if PY3
 static void
 Text_ConcatAndDel(PyObject **string, PyObject *newpart)
 {
@@ -218,9 +216,6 @@ Text_ConcatAndDel(PyObject **string, PyObject *newpart)
     }
     *string = result;
 }
-#else
-#define Text_ConcatAndDel PyString_ConcatAndDel
-#endif
 
 /**
  * Getters and setters for the pgPixelArrayObject.
@@ -245,96 +240,46 @@ static PyGetSetDef _pxarray_getsets[] = {
  * of their behaviour (see lists numpy array).
  */
 static PySequenceMethods _pxarray_sequence = {
-    (lenfunc)_pxarray_length,           /*sq_length*/
-    0,                                  /*sq_concat*/
-    0,                                  /*sq_repeat*/
-    (ssizeargfunc)_pxarray_item,        /*sq_item*/
-    0,                                  /*reserved*/
-    (ssizeobjargproc)_pxarray_ass_item, /*sq_ass_item*/
-    0,                                  /*reserved*/
-    (objobjproc)_pxarray_contains,      /*sq_contains*/
-    0,                                  /*sq_inplace_concat*/
-    0                                   /*sq_inplace_repeat*/
+    .sq_length = (lenfunc)_pxarray_length,
+    .sq_item = (ssizeargfunc)_pxarray_item,
+    .sq_ass_item = (ssizeobjargproc)_pxarray_ass_item,
+    .sq_contains = (objobjproc)_pxarray_contains,
 };
 
 /**
  * Mapping interface support for the pgPixelArrayObject.
  */
 static PyMappingMethods _pxarray_mapping = {
-    (lenfunc)_pxarray_length,              /*mp_length*/
-    (binaryfunc)_pxarray_subscript,        /*mp_subscript*/
-    (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
+    .mp_length = (lenfunc)_pxarray_length,
+    .mp_subscript = (binaryfunc)_pxarray_subscript,
+    .mp_ass_subscript = (objobjargproc)_pxarray_ass_subscript,
 };
 
-static PyBufferProcs _pxarray_bufferprocs = {
-#if HAVE_OLD_BUFPROTO
-    0,
-    0,
-    0,
-    0,
-#endif
-    (getbufferproc)_pxarray_getbuffer,
-    0};
+static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,
+                                             0};
 
 #define PXARRAY_BUFFERPROCS &_pxarray_bufferprocs
 
-#if PY2
-#define PXARRAY_TPFLAGS                                              \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
-     Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
 #define PXARRAY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
-#endif
 
 static PyTypeObject pgPixelArray_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.PixelArray", /* tp_name */
-    sizeof(pgPixelArrayObject),             /* tp_basicsize */
-    0,                                      /* tp_itemsize */
-    (destructor)_pxarray_dealloc,           /* tp_dealloc */
-    0,                                      /* tp_print */
-    0,                                      /* tp_getattr */
-    0,                                      /* tp_setattr */
-    0,                                      /* tp_compare */
-    (reprfunc)_pxarray_repr,                /* tp_repr */
-    0,                                      /* tp_as_number */
-    &_pxarray_sequence,                     /* tp_as_sequence */
-    &_pxarray_mapping,                      /* tp_as_mapping */
-    0,                                      /* tp_hash */
-    0,                                      /* tp_call */
-    0,                                      /* tp_str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    PXARRAY_BUFFERPROCS,                    /* tp_as_buffer */
-    PXARRAY_TPFLAGS,
-    DOC_PYGAMEPIXELARRAY,                   /* tp_doc */
-    (traverseproc)_pxarray_traverse,        /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    offsetof(pgPixelArrayObject, weakrefs), /* tp_weaklistoffset */
-    PySeqIter_New,                          /* tp_iter */
-    0,                                      /* tp_iternext */
-    _pxarray_methods,                       /* tp_methods */
-    0,                                      /* tp_members */
-    _pxarray_getsets,                       /* tp_getset */
-    0,                                      /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    offsetof(pgPixelArrayObject, dict),     /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    _pxarray_new,                           /* tp_new */
-#ifndef __SYMBIAN32__
-    0, /* tp_free */
-    0, /* tp_is_gc */
-    0, /* tp_bases */
-    0, /* tp_mro */
-    0, /* tp_cache */
-    0, /* tp_subclasses */
-    0, /* tp_weaklist */
-    0  /* tp_del */
-#endif
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.PixelArray",
+    .tp_basicsize = sizeof(pgPixelArrayObject),
+    .tp_dealloc = (destructor)_pxarray_dealloc,
+    .tp_repr = (reprfunc)_pxarray_repr,
+    .tp_as_sequence = &_pxarray_sequence,
+    .tp_as_mapping = &_pxarray_mapping,
+    .tp_as_buffer = PXARRAY_BUFFERPROCS,
+    .tp_flags = PXARRAY_TPFLAGS,
+    .tp_doc = DOC_PYGAMEPIXELARRAY,
+    .tp_traverse = (traverseproc)_pxarray_traverse,
+    .tp_weaklistoffset = offsetof(pgPixelArrayObject, weakrefs),
+    .tp_iter = PySeqIter_New,
+    .tp_methods = _pxarray_methods,
+    .tp_getset = _pxarray_getsets,
+    .tp_dictoffset = offsetof(pgPixelArrayObject, dict),
+    .tp_new = _pxarray_new,
 };
 
 static pgPixelArrayObject *
@@ -489,7 +434,7 @@ _pxarray_get_itemsize(pgPixelArrayObject *self, void *closure)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self->surface);
 
-    return PyInt_FromLong((long)surf->format->BytesPerPixel);
+    return PyLong_FromLong((long)surf->format->BytesPerPixel);
 }
 
 /**
@@ -522,7 +467,7 @@ _pxarray_get_strides(pgPixelArrayObject *self, void *closure)
 static PyObject *
 _pxarray_get_ndim(pgPixelArrayObject *self, void *closure)
 {
-    return PyInt_FromLong(self->shape[1] ? 2L : 1L);
+    return PyLong_FromLong(self->shape[1] ? 2L : 1L);
 }
 
 /**
@@ -707,14 +652,14 @@ _pxarray_repr(pgPixelArrayObject *array)
     surf = pgSurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
-    string = Text_FromUTF8("PixelArray(");
+    string = PyUnicode_FromString("PixelArray(");
     if (!string) {
         return 0;
     }
 
     pixelrow = pixels;
     if (ndim == 2) {
-        Text_ConcatAndDel(&string, Text_FromUTF8("["));
+        Text_ConcatAndDel(&string, PyUnicode_FromString("["));
         if (!string) {
             return 0;
         }
@@ -723,21 +668,21 @@ _pxarray_repr(pgPixelArrayObject *array)
     switch (bpp) {
         case 1:
             for (y = 0; y < dim1; ++y) {
-                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                Text_ConcatAndDel(&string, PyUnicode_FromString("\n  ["));
                 if (!string) {
                     return 0;
                 }
                 pixel_p = pixelrow;
                 for (x = 0; x < dim0 - 1; ++x) {
-                    Text_ConcatAndDel(
-                        &string, Text_FromFormat("%ld, ", (long)*pixel_p));
+                    Text_ConcatAndDel(&string, PyUnicode_FromFormat(
+                                                   "%ld, ", (long)*pixel_p));
                     if (!string) {
                         return 0;
                     }
                     pixel_p += stride0;
                 }
-                Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld]", (long)*pixel_p));
+                Text_ConcatAndDel(
+                    &string, PyUnicode_FromFormat("%ld]", (long)*pixel_p));
                 if (!string) {
                     return 0;
                 }
@@ -746,15 +691,15 @@ _pxarray_repr(pgPixelArrayObject *array)
             break;
         case 2:
             for (y = 0; y < dim1; ++y) {
-                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                Text_ConcatAndDel(&string, PyUnicode_FromString("\n  ["));
                 if (!string) {
                     return 0;
                 }
                 pixel_p = pixelrow;
                 for (x = 0; x < dim0 - 1; ++x) {
-                    Text_ConcatAndDel(
-                        &string,
-                        Text_FromFormat("%ld, ", (long)*(Uint16 *)pixel_p));
+                    Text_ConcatAndDel(&string,
+                                      PyUnicode_FromFormat(
+                                          "%ld, ", (long)*(Uint16 *)pixel_p));
                     if (!string) {
                         return 0;
                     }
@@ -762,7 +707,7 @@ _pxarray_repr(pgPixelArrayObject *array)
                 }
                 Text_ConcatAndDel(
                     &string,
-                    Text_FromFormat("%ld]", (long)*(Uint16 *)pixel_p));
+                    PyUnicode_FromFormat("%ld]", (long)*(Uint16 *)pixel_p));
                 if (string == NULL) {
                     return NULL;
                 }
@@ -771,7 +716,7 @@ _pxarray_repr(pgPixelArrayObject *array)
             break;
         case 3:
             for (y = 0; y < dim1; ++y) {
-                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                Text_ConcatAndDel(&string, PyUnicode_FromString("\n  ["));
                 pixel_p = pixelrow;
                 for (x = 0; x < dim0 - 1; ++x) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -781,8 +726,8 @@ _pxarray_repr(pgPixelArrayObject *array)
                     pixel =
                         (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
 #endif
-                    Text_ConcatAndDel(&string,
-                                      Text_FromFormat("%ld, ", (long)pixel));
+                    Text_ConcatAndDel(
+                        &string, PyUnicode_FromFormat("%ld, ", (long)pixel));
                     if (!string) {
                         return 0;
                     }
@@ -794,7 +739,7 @@ _pxarray_repr(pgPixelArrayObject *array)
                 pixel = (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
 #endif
                 Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld]", (long)pixel));
+                                  PyUnicode_FromFormat("%ld]", (long)pixel));
                 if (!string) {
                     return 0;
                 }
@@ -803,15 +748,15 @@ _pxarray_repr(pgPixelArrayObject *array)
             break;
         default: /* case 4: */
             for (y = 0; y < dim1; ++y) {
-                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                Text_ConcatAndDel(&string, PyUnicode_FromString("\n  ["));
                 if (!string) {
                     return 0;
                 }
                 pixel_p = pixelrow;
                 for (x = 0; x < dim0 - 1; ++x) {
-                    Text_ConcatAndDel(
-                        &string,
-                        Text_FromFormat("%ld, ", (long)*(Uint32 *)pixel_p));
+                    Text_ConcatAndDel(&string,
+                                      PyUnicode_FromFormat(
+                                          "%ld, ", (long)*(Uint32 *)pixel_p));
                     if (!string) {
                         return 0;
                     }
@@ -819,7 +764,7 @@ _pxarray_repr(pgPixelArrayObject *array)
                 }
                 Text_ConcatAndDel(
                     &string,
-                    Text_FromFormat("%ld]", (long)*(Uint32 *)pixel_p));
+                    PyUnicode_FromFormat("%ld]", (long)*(Uint32 *)pixel_p));
                 if (string == NULL) {
                     return NULL;
                 }
@@ -829,10 +774,10 @@ _pxarray_repr(pgPixelArrayObject *array)
     }
 
     if (ndim == 2) {
-        Text_ConcatAndDel(&string, Text_FromUTF8("]\n)"));
+        Text_ConcatAndDel(&string, PyUnicode_FromString("]\n)"));
     }
     else {
-        Text_ConcatAndDel(&string, Text_FromUTF8("\n)"));
+        Text_ConcatAndDel(&string, PyUnicode_FromString("\n)"));
     }
     return string;
 }
@@ -1382,6 +1327,7 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     }
     if (index >= dim0) {
         PyErr_SetString(PyExc_IndexError, "array index out of range");
+        return -1;
     }
     pixels += index * stride0;
 
@@ -1589,9 +1535,9 @@ _get_subslice(PyObject *op, Py_ssize_t length, Py_ssize_t *start,
             return -1;
         }
     }
-    else if (PyInt_Check(op)) {
+    else if (PyLong_Check(op)) {
         /* Plain index: array[x, */
-        *start = PyInt_AsLong(op);
+        *start = PyLong_AsLong(op);
         if (*start < 0) {
             *start += length;
         }
@@ -1722,7 +1668,7 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
         return _pxarray_subscript_internal(array, start, stop, step, 0, dim1,
                                            1);
     }
-    else if (PyIndex_Check(op) || INT_CHECK(op)) {
+    else if (PyIndex_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
         PyObject *val = PyNumber_Index(op);
         if (!val) {
@@ -1884,7 +1830,7 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject *op,
         Py_DECREF(tmparray);
         return retval;
     }
-    else if (PyIndex_Check(op) || INT_CHECK(op)) {
+    else if (PyIndex_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
         PyObject *val = PyNumber_Index(op);
         if (!val) {
@@ -1931,7 +1877,8 @@ pgPixelArray_New(PyObject *surfobj)
     }
 
     return (PyObject *)_pxarray_new_internal(
-        &pgPixelArray_Type, (pgSurfaceObject *)surfobj, 0, pixels, dim0, dim1, stride0, stride1);
+        &pgPixelArray_Type, (pgSurfaceObject *)surfobj, 0, pixels, dim0, dim1,
+        stride0, stride1);
 }
 
 MODINIT_DEFINE(pixelarray)
@@ -1940,7 +1887,6 @@ MODINIT_DEFINE(pixelarray)
     PyObject *apiobj;
     static void *c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "pixelarray",
                                          NULL,
@@ -1950,58 +1896,49 @@ MODINIT_DEFINE(pixelarray)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgPixelArray_Type)) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "pixelarray", 0, 0);
-#endif
     if (!module) {
-        MODINIT_ERROR;
+        return NULL;
     }
     Py_INCREF(&pgPixelArray_Type);
     if (PyModule_AddObject(module, "PixelArray",
                            (PyObject *)&pgPixelArray_Type)) {
         Py_DECREF((PyObject *)&pgPixelArray_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_DECREF(module);
+        return NULL;
     }
     pgPixelArray_Type.tp_getattro = PyObject_GenericGetAttr;
 
     c_api[0] = &pgPixelArray_Type;
     c_api[1] = pgPixelArray_New;
     apiobj = encapsulate_api(c_api, "pixelarray");
-    if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_DECREF(apiobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+        Py_XDECREF(apiobj);
+        Py_DECREF(module);
+        return NULL;
     }
-    MODINIT_RETURN(module);
+    return module;
 }

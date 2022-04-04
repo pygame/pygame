@@ -1,0 +1,88 @@
+name: ManyLinux
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/manylinux.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/manylinux.yml'
+
+jobs:
+  build-manylinux:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        arch: ['x64', 'x86', 'aarch64']
+        tag: ['manylinux1', 'manylinux2010', 'manylinux2014']
+
+        exclude:
+          # aarch64 only with manylinux2014 for now
+          - arch: 'aarch64'
+            tag: 'manylinux1'
+          - arch: 'aarch64'
+            tag: 'manylinux2010'
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    # setup QEMU only on aarch64 matrix
+    - name: Set up QEMU
+      if: ${{ matrix.arch == 'aarch64' }}
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+      
+    - name: Build manylinux wheels
+      run: |
+        cd buildconfig/manylinux-build
+        make pull-${{ matrix.tag }}-${{ matrix.arch }} wheels-${{ matrix.tag }}-${{ matrix.arch }}
+        cd ../..
+        mkdir -p dist/
+        cp buildconfig/manylinux-build/wheelhouse/*.whl dist/
+
+    # We upload the generated files under github actions assets
+    - name: Upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        name: pygame-manylinux-wheels
+        path: dist/*.whl
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release'
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: dist/*.whl
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release'
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload dist/*.whl

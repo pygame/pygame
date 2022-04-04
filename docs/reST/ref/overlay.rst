@@ -5,6 +5,10 @@
 
 .. currentmodule:: pygame
 
+.. warning::
+	This module is non functional in pygame 2.0 and above, unless you have manually compiled pygame with SDL1.
+	This module will not be supported in the future.
+
 .. class:: Overlay
 
    | :sl:`pygame object for video overlay graphics`

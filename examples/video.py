@@ -89,8 +89,7 @@ while running:
             if (
                 event.type == pg.KEYDOWN
                 and event.key == pg.K_ESCAPE
-                or event.type == pg.WINDOWEVENT
-                and event.event == pg.WINDOWEVENT_CLOSE
+                or event.type == pg.WINDOWCLOSE
             ):
                 win2.destroy()
         elif event.type == pg.KEYDOWN:
@@ -159,3 +158,5 @@ while running:
 
     clock.tick(60)
     win.title = str("FPS: {}".format(clock.get_fps()))
+
+pg.quit()

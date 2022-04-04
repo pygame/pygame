@@ -20,36 +20,55 @@ are animating a bouncing spring which expands and contracts. If you applied the
 size changes incrementally to the previous images, you would lose detail.
 Instead, always begin with the original image and scale to the desired size.)
 
+.. versionchanged:: 2.0.2 transform functions now support keyword arguments.
+
 .. function:: flip
 
    | :sl:`flip vertically and horizontally`
-   | :sg:`flip(Surface, xbool, ybool) -> Surface`
+   | :sg:`flip(surface, flip_x, flip_y) -> Surface`
 
-   This can flip a Surface either vertically, horizontally, or both. Flipping a
-   Surface is non-destructive and returns a new Surface with the same
-   dimensions.
+   This can flip a Surface either vertically, horizontally, or both.
+   The arguments ``flip_x`` and ``flip_y`` are booleans that control whether
+   to flip each axis. Flipping a Surface is non-destructive and returns a new
+   Surface with the same dimensions.
 
    .. ## pygame.transform.flip ##
 
 .. function:: scale
 
    | :sl:`resize to new resolution`
-   | :sg:`scale(Surface, (width, height), DestSurface = None) -> Surface`
+   | :sg:`scale(surface, size, dest_surface=None) -> Surface`
 
-   Resizes the Surface to a new resolution. This is a fast scale operation that
-   does not sample the results.
+   Resizes the Surface to a new size, given as (width, height). 
+   This is a fast scale operation that does not sample the results.
 
    An optional destination surface can be used, rather than have it create a
    new one. This is quicker if you want to repeatedly scale something. However
-   the destination must be the same size as the (width, height) passed in. Also
+   the destination must be the same size as the size (width, height) passed in. Also
    the destination surface must be the same format.
 
    .. ## pygame.transform.scale ##
 
+.. function:: scale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`scale_by(surface, factor, dest_surface=None) -> Surface`
+
+   Same as :func:`scale()`, but scales by some factor, rather than taking
+   the new size explicitly. For example, :code:`transform.scale_by(surf, 3)`
+   will triple the size of the surface in both dimensions. Optionally, the
+   scale factor can be a sequence of two numbers, controlling x and y scaling
+   separately. For example, :code:`transform.scale_by(surf, (2, 1))` doubles
+   the image width but keeps the height the same.
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.transform.scale_by ##
+
 .. function:: rotate
 
    | :sl:`rotate an image`
-   | :sg:`rotate(Surface, angle) -> Surface`
+   | :sg:`rotate(surface, angle) -> Surface`
 
    Unfiltered counterclockwise rotation. The angle argument represents degrees
    and can be any floating point value. Negative angle amounts will rotate
@@ -65,7 +84,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: rotozoom
 
    | :sl:`filtered scale and rotation`
-   | :sg:`rotozoom(Surface, angle, scale) -> Surface`
+   | :sg:`rotozoom(surface, angle, scale) -> Surface`
 
    This is a combined scale and rotation transform. The resulting Surface will
    be a filtered 32-bit Surface. The scale argument is a floating point value
@@ -78,7 +97,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: scale2x
 
    | :sl:`specialized image doubler`
-   | :sg:`scale2x(Surface, DestSurface = None) -> Surface`
+   | :sg:`scale2x(surface, dest_surface=None) -> Surface`
 
    This will return a new image that is double the size of the original. It
    uses the AdvanceMAME Scale2X algorithm which does a 'jaggie-less' scale of
@@ -98,7 +117,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: smoothscale
 
    | :sl:`scale a surface to an arbitrary size smoothly`
-   | :sg:`smoothscale(Surface, (width, height), DestSurface = None) -> Surface`
+   | :sg:`smoothscale(surface, size, dest_surface=None) -> Surface`
 
    Uses one of two different algorithms for scaling each dimension of the input
    surface as required. For shrinkage, the output pixels are area averages of
@@ -113,10 +132,27 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.smoothscale ##
 
+.. function:: smoothscale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`smoothscale_by(surface, factor, dest_surface=None) -> Surface`
+
+   Same as :func:`smoothscale()`, but scales by some factor, rather than
+   taking the new size explicitly. For example,
+   :code:`transform.smoothscale_by(surf, 3)` will triple the size of the
+   surface in both dimensions. Optionally, the scale factor can be a sequence
+   of two numbers, controlling x and y scaling separately. For example,
+   :code:`transform.smoothscale_by(surf, (2, 1))` doubles the image width but
+   keeps the height the same.
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.transform.smoothscale_by ##
+
 .. function:: get_smoothscale_backend
 
    | :sl:`return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'`
-   | :sg:`get_smoothscale_backend() -> String`
+   | :sg:`get_smoothscale_backend() -> string`
 
    Shows whether or not smoothscale is using ``MMX`` or ``SSE`` acceleration.
    If no acceleration is available then "GENERIC" is returned. For a x86
@@ -129,7 +165,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: set_smoothscale_backend
 
    | :sl:`set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'`
-   | :sg:`set_smoothscale_backend(type) -> None`
+   | :sg:`set_smoothscale_backend(backend) -> None`
 
    Sets smoothscale acceleration. Takes a string argument. A value of 'GENERIC'
    turns off acceleration. 'MMX' uses ``MMX`` instructions only. 'SSE' allows
@@ -145,7 +181,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: chop
 
    | :sl:`gets a copy of an image with an interior area removed`
-   | :sg:`chop(Surface, rect) -> Surface`
+   | :sg:`chop(surface, rect) -> Surface`
 
    Extracts a portion of an image. All vertical and horizontal pixels
    surrounding the given rectangle area are removed. The corner areas (diagonal
@@ -160,7 +196,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: laplacian
 
    | :sl:`find edges in a surface`
-   | :sg:`laplacian(Surface, DestSurface = None) -> Surface`
+   | :sg:`laplacian(surface, dest_surface=None) -> Surface`
 
    Finds the edges in a surface using the laplacian algorithm.
 
@@ -171,7 +207,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: average_surfaces
 
    | :sl:`find the average surface from many surfaces.`
-   | :sg:`average_surfaces(Surfaces, DestSurface = None, palette_colors = 1) -> Surface`
+   | :sg:`average_surfaces(surfaces, dest_surface=None, palette_colors=1) -> Surface`
 
    Takes a sequence of surfaces and returns a surface with average colors from
    each of the surfaces.
@@ -191,17 +227,20 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: average_color
 
    | :sl:`finds the average color of a surface`
-   | :sg:`average_color(Surface, Rect = None) -> Color`
+   | :sg:`average_color(surface, rect=None, consider_alpha=False) -> Color`
 
    Finds the average color of a Surface or a region of a surface specified by a
-   Rect, and returns it as a Color.
+   Rect, and returns it as a Color. If consider_alpha is set to True, then alpha is
+   taken into account (removing the black artifacts).
+
+   .. versionadded:: 2.1.2 ``consider_alpha`` argument
 
    .. ## pygame.transform.average_color ##
 
 .. function:: threshold
 
    | :sl:`finds which, and how many pixels in a surface are within a threshold of a 'search_color' or a 'search_surf'.`
-   | :sg:`threshold(dest_surf, surf, search_color, threshold=(0,0,0,0), set_color=(0,0,0,0), set_behavior=1, search_surf=None, inverse_set=False) -> num_threshold_pixels`
+   | :sg:`threshold(dest_surface, surface, search_color, threshold=(0,0,0,0), set_color=(0,0,0,0), set_behavior=1, search_surf=None, inverse_set=False) -> num_threshold_pixels`
 
    This versatile function can be used for find colors in a 'surf' close to a 'search_color'
    or close to colors in a separate 'search_surf'.

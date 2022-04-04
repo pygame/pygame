@@ -20,24 +20,20 @@
 */
 
 /* Handle clipboard text and data in arbitrary formats */
-#include "pgcompat.h"
-
 #include <limits.h>
 #include <stdio.h>
-
-#include "pgcompat.h"
 
 #include "SDL.h"
 
 #include "SDL_syswm.h"
 
-#include "scrap.h"
-
 #include "pygame.h"
+
+#include "pgcompat.h"
 
 #include "doc/scrap_doc.h"
 
-
+#include "scrap.h"
 
 /**
  * Indicates, whether pygame.scrap was initialized or not.
@@ -66,7 +62,7 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
-#if IS_SDLv2
+#if !defined(__WIN32__)
 #define SDL2_SCRAP
 #include "scrap_sdl2.c"
 
@@ -79,12 +75,7 @@ _scrap_set_mode(PyObject *self, PyObject *args);
 #elif defined(__WIN32__)
 #define WIN_SCRAP
 #include "scrap_win.c"
-/*
-#elif defined(__QNXNTO__)
-    #define QNX_SCRAP
-static uint32_t _cliptype = 0;
-    #include "scrap_qnx.c"
-*/
+
 #elif defined(__APPLE__)
 #define MAC_SCRAP
 #include "scrap_mac.c"
@@ -121,11 +112,10 @@ _scrap_init(PyObject *self, PyObject *args)
 
     /* In case we've got not video surface, we won't initialize
      * anything.
+     * Here is old SDL1 code for future reference
+     * if (!SDL_GetVideoSurface())
+     *     return RAISE(pgExc_SDLError, "No display mode is set");
      */
-#if IS_SDLv1
-    if (!SDL_GetVideoSurface())
-        return RAISE(pgExc_SDLError, "No display mode is set");
-#endif
     if (!pygame_scrap_init())
         return RAISE(pgExc_SDLError, SDL_GetError());
 
@@ -139,7 +129,7 @@ _scrap_init(PyObject *self, PyObject *args)
  * Note: All platforms supported here.
  */
 static PyObject *
-_scrap_get_init(PyObject *self, PyObject *args)
+_scrap_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pygame_scrap_initialized());
 }
@@ -149,7 +139,7 @@ _scrap_get_init(PyObject *self, PyObject *args)
  * Gets the currently available types from the active clipboard.
  */
 static PyObject *
-_scrap_get_types(PyObject *self, PyObject *args)
+_scrap_get_types(PyObject *self, PyObject *_null)
 {
     int i = 0;
     char **types;
@@ -218,7 +208,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     char *scrap = NULL;
     PyObject *retval;
     char *scrap_type;
-    unsigned long count;
+    size_t count;
 
     PYGAME_SCRAP_INIT_CHECK();
 
@@ -242,7 +232,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
                 break;
         }
 
-#if PY3
         key = PyUnicode_FromString(scrap_type);
         if (NULL == key) {
             return PyErr_Format(PyExc_ValueError,
@@ -262,12 +251,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
 
             Py_RETURN_NONE;
         }
-#else  /* !PY3 */
-        val = PyDict_GetItemString(scrap_dict, scrap_type);
-        if (NULL == val) {
-            Py_RETURN_NONE;
-        }
-#endif /* !PY3 */
 
         Py_INCREF(val);
         return val;
@@ -279,7 +262,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     if (!scrap)
         Py_RETURN_NONE;
 
-    retval = Bytes_FromStringAndSize(scrap, count);
+    retval = PyBytes_FromStringAndSize(scrap, count);
 #if defined(PYGAME_SCRAP_FREE_STRING)
     free(scrap);
 #endif
@@ -295,15 +278,11 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_put_scrap(PyObject *self, PyObject *args)
 {
-    int scraplen;
+    Py_ssize_t scraplen;
     char *scrap = NULL;
     char *scrap_type;
     PyObject *tmp;
-#if PY3
     static const char argfmt[] = "sy#";
-#else
-    static char argfmt[] = "st#";
-#endif
 
     PYGAME_SCRAP_INIT_CHECK();
 
@@ -319,14 +298,14 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
     /* Add or replace the set value. */
     switch (_currentmode) {
         case SCRAP_SELECTION: {
-            tmp = Bytes_FromStringAndSize(scrap, scraplen);
+            tmp = PyBytes_FromStringAndSize(scrap, scraplen);
             PyDict_SetItemString(_selectiondata, scrap_type, tmp);
             Py_DECREF(tmp);
             break;
         }
         case SCRAP_CLIPBOARD:
         default: {
-            tmp = Bytes_FromStringAndSize(scrap, scraplen);
+            tmp = PyBytes_FromStringAndSize(scrap, scraplen);
             PyDict_SetItemString(_clipdata, scrap_type, tmp);
             Py_DECREF(tmp);
             break;
@@ -342,7 +321,7 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
  * Checks whether the pygame window has lost the clipboard.
  */
 static PyObject *
-_scrap_lost_scrap(PyObject *self, PyObject *args)
+_scrap_lost_scrap(PyObject *self, PyObject *_null)
 {
     PYGAME_SCRAP_INIT_CHECK();
 
@@ -399,7 +378,6 @@ static PyMethodDef scrap_builtins[] = {
 
 MODINIT_DEFINE(scrap)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "scrap",
                                          "",
@@ -409,20 +387,15 @@ MODINIT_DEFINE(scrap)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "scrap", scrap_builtins, NULL);
-#endif
 }

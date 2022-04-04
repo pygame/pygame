@@ -33,45 +33,59 @@
 
 #include "structmember.h"
 
-#if IS_SDLv2
-/*only register one block of user events.*/
-static int have_registered_events = 0;
-
-#define JOYEVENT_INSTANCE_ID "instance_id"
-#define JOYEVENT_DEVICE_INDEX "device_index"
-#else /* IS_SDLv1 */
-#define JOYEVENT_INSTANCE_ID "joy"
-#define JOYEVENT_DEVICE_INDEX "joy"
-#endif /* IS_SDLv2 */
-
 // The system message code is only tested on windows, so only
 //   include it there for now.
 #include <SDL_syswm.h>
 
-/*this user event object is for safely passing
- *objects through the event queue.
- */
+#define JOYEVENT_INSTANCE_ID "instance_id"
+#define JOYEVENT_DEVICE_INDEX "device_index"
 
-#define USEROBJECT_CHECK1 (Sint32)0xDEADBEEF
-#define USEROBJECT_CHECK2 (Sint32)0xFEEDF00D
+/* Define custom functions for peep events, for SDL1/2 compat */
+#define PG_PEEP_EVENT(a, b, c, d) SDL_PeepEvents(a, b, c, d, d)
+#define PG_PEEP_EVENT_ALL(x, y, z) \
+    SDL_PeepEvents(x, y, z, SDL_FIRSTEVENT, SDL_LASTEVENT)
 
-typedef struct UserEventObject {
-    struct UserEventObject *next;
-    PyObject *object;
-} UserEventObject;
+/* These are used for checks. The checks are kinda redundant because we
+ * have proxy events anyways, but this is needed for SDL1 */
+#define USEROBJ_CHECK (Sint32)0xFEEDF00D
 
-static UserEventObject *user_event_objects = NULL;
+#define MAX_UINT32 0xFFFFFFFF
+
+#define PG_GET_LIST_LEN 128
 
 // Map joystick instance IDs to device ids for partial backwards compatibility
 static PyObject *joy_instance_map = NULL;
 
-#if IS_SDLv2
+/* _custom_event stores the next custom user event type that will be
+ * returned by pygame.event.custom_type() */
+#define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
+
+static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
+static int _pg_event_is_init = 0;
+
+/* Length of our unicode string in bytes. We need 1 to 3 bytes to store
+ * our unicode data, so we use a length of 4, to include the NULL byte
+ * at the end as well */
+#define UNICODE_LEN 4
+
+/* This defines the maximum values of key-press and unicode values we
+ * can store at a time, it is used for determining the unicode attribute
+ * for KEYUP events. Now that its set to 15, it means that a user can
+ * simultaneously hold 15 keys (who would do that?) and on release, all
+ * KEYUP events will have unicode attribute. Why 15? You can set any
+ * arbitrary number you like ;) */
+#define MAX_SCAN_UNICODE 15
+
+static struct ScanAndUnicode {
+    SDL_Scancode key;
+    char unicode[UNICODE_LEN];
+} scanunicode[MAX_SCAN_UNICODE] = {{0}};
+
 static int pg_key_repeat_delay = 0;
 static int pg_key_repeat_interval = 0;
 
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
-static SDL_bool  _pg_event_generate_videoresize = SDL_TRUE;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -80,227 +94,456 @@ _pg_repeat_callback(Uint32 interval, void *param)
     _pg_repeat_event.key.state = SDL_PRESSED;
     _pg_repeat_event.key.repeat = 1;
     SDL_PushEvent(&_pg_repeat_event);
-
     return pg_key_repeat_interval;
 }
 
-#endif /* IS_SLDv2 */
-/* _custom_event stores the next custom user event type that will be returned
- * by pygame.event.custom_type(). It was supposed to start at PGE_USEREVENT
- * but because of a clash with libraries that just use pygame.USEREVENT
- * directly to be backward compatible with pygame 1.9.x, it was changed to
- * start at one higher.*/
-#define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
-static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
-
-static int _pg_event_is_init = 0;
-
-static void
-_pg_event_cleanup(void)
+/* This function attempts to determine the unicode attribute from
+ * the keydown/keyup event. This is used as a last-resort, incase we
+ * could not determine the unicode from TEXTINPUT feild. Why?
+ * Because this function is really basic and cannot determine the
+ * fancy unicode characters, just the basic ones
+ *
+ * One more advantage of this function is that it can return unicode
+ * for some keys which TEXTINPUT does not provide (which unicode
+ * attribute of SDL1 provided) */
+static char
+_pg_unicode_from_event(SDL_Event *event)
 {
-#if IS_SDLv2
-    if (_pg_repeat_timer) {
-        SDL_RemoveTimer(_pg_repeat_timer);
-        _pg_repeat_timer = 0;
+    int capsheld = event->key.keysym.mod & KMOD_CAPS;
+    int shiftheld = event->key.keysym.mod & KMOD_SHIFT;
+
+    int capitalize = (capsheld && !shiftheld) || (shiftheld && !capsheld);
+    SDL_Keycode key = event->key.keysym.sym;
+
+    if (event->key.keysym.mod & KMOD_CTRL) {
+        /* Contol Key held, send control-key related unicode. */
+        if (key >= SDLK_a && key <= SDLK_z)
+            return key - SDLK_a + 1;
+        else {
+            switch (key) {
+                case SDLK_2:
+                case SDLK_AT:
+                    return '\0';
+                case SDLK_3:
+                case SDLK_LEFTBRACKET:
+                    return '\x1b';
+                case SDLK_4:
+                case SDLK_BACKSLASH:
+                    return '\x1c';
+                case SDLK_5:
+                case SDLK_RIGHTBRACKET:
+                    return '\x1d';
+                case SDLK_6:
+                case SDLK_CARET:
+                    return '\x1e';
+                case SDLK_7:
+                case SDLK_UNDERSCORE:
+                    return '\x1f';
+                case SDLK_8:
+                    return '\x7f';
+            }
+        }
     }
-#endif /* IS_SLDv2 */
-    /* The main reason for _custom_event to be reset here is so we can have a
-     * unit test that checks if pygame.event.custom_type() stops returning new
-     * types when they are finished, without that test preventing further
-     * tests from getting a custom event type.*/
-    _custom_event = _PGE_CUSTOM_EVENT_INIT;
-    _pg_event_is_init = 0;
+    if (key < 128) {
+        if (capitalize && key >= SDLK_a && key <= SDLK_z)
+            return key + 'A' - 'a';
+        return key;
+    }
+
+    switch (key) {
+        case SDLK_KP_PERIOD:
+            return '.';
+        case SDLK_KP_DIVIDE:
+            return '/';
+        case SDLK_KP_MULTIPLY:
+            return '*';
+        case SDLK_KP_MINUS:
+            return '-';
+        case SDLK_KP_PLUS:
+            return '+';
+        case SDLK_KP_ENTER:
+            return '\r';
+        case SDLK_KP_EQUALS:
+            return '=';
+    }
+    return '\0';
+}
+
+/* Strip a utf-8 encoded string to contain only first character. Also
+ * ensure that character can be represented within 3 bytes, because SDL1
+ * did not support unicode characters that took up 4 bytes. Incase this
+ * bit of code is not clear, here is a python equivalent
+def _pg_strip_utf8(string):
+    if chr(string[0]) <= 0xFFFF:
+        return string[0]
+    else:
+        return ""
+*/
+static void
+_pg_strip_utf8(char *str, char *ret)
+{
+    Uint8 firstbyte = (Uint8)*str;
+
+    /* Zero unicode buffer */
+    memset(ret, 0, UNICODE_LEN);
+
+    /* 1111 0000 is 0xF0 */
+    if (firstbyte >= 0xF0) {
+        /* Too large UTF8 string, do nothing */
+        return;
+    }
+
+    /* 1110 0000 is 0xE0 */
+    if (firstbyte >= 0xE0) {
+        /* Copy first 3 bytes */
+        memcpy(ret, str, 3);
+    }
+    /* 1100 0000 is 0xC0 */
+    else if (firstbyte >= 0xC0) {
+        /* Copy first 2 bytes */
+        memcpy(ret, str, 2);
+    }
+    /* 1000 0000 is 0x80 */
+    else if (firstbyte < 0x80) {
+        /* Copy first byte */
+        memcpy(ret, str, 1);
+    }
+}
+
+static int
+_pg_put_event_unicode(SDL_Event *event, char *uni)
+{
+    int i;
+    for (i = 0; i < MAX_SCAN_UNICODE; i++) {
+        if (!scanunicode[i].key) {
+            scanunicode[i].key = event->key.keysym.scancode;
+            _pg_strip_utf8(uni, scanunicode[i].unicode);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static PyObject *
-pgEvent_AutoInit(PyObject *self, PyObject *args)
+_pg_get_event_unicode(SDL_Event *event)
 {
-    if (!_pg_event_is_init) {
-#if IS_SDLv2
-        pg_key_repeat_delay = 0;
-        pg_key_repeat_interval = 0;
-#endif /* IS_SLDv2 */
-        pg_RegisterQuit(_pg_event_cleanup);
-        _pg_event_is_init = 1;
+    char c;
+    int i;
+    for (i = 0; i < MAX_SCAN_UNICODE; i++) {
+        if (scanunicode[i].key == event->key.keysym.scancode) {
+            if (event->type == SDL_KEYUP) {
+                /* mark the position as free real estate for other
+                 * events to occupy. */
+                scanunicode[i].key = 0;
+            }
+            return PyUnicode_FromString(scanunicode[i].unicode);
+        }
     }
-
-    return PyInt_FromLong(_pg_event_is_init);
+    /* fallback to function that determines unicode from the event.
+     * We try to get the unicode attribute, and store it in memory*/
+    c = _pg_unicode_from_event(event);
+    if (_pg_put_event_unicode(event, &c))
+        return _pg_get_event_unicode(event);
+    return PyUnicode_FromString("");
 }
 
-#if IS_SDLv2
-static char _pg_last_unicode_char[32] = { 0 };
+#define _PG_HANDLE_PROXIFY(name) \
+    case SDL_##name:             \
+    case PGPOST_##name:          \
+        return proxify ? PGPOST_##name : SDL_##name
+
+#define _PG_HANDLE_PROXIFY_PGE(name) \
+    case PGE_##name:                 \
+    case PGPOST_##name:              \
+        return proxify ? PGPOST_##name : PGE_##name
+
+/* The next three functions are used for proxying SDL events to and from
+ * PGPOST_* events.
+ *
+ * Some SDL1 events (SDL_ACTIVEEVENT, SDL_VIDEORESIZE and SDL_VIDEOEXPOSE)
+ * are redefined with SDL2, they HAVE to be proxied.
+ *
+ * SDL_USEREVENT is not proxied, because with SDL2, pygame assignes a
+ * different event in place of SDL_USEREVENT, and users use PGE_USEREVENT
+ *
+ * Each WINDOW_* event must be defined twice, once as an event, and also
+ * again, as a proxy event. WINDOW_* events MUST be proxied.
+ */
+
+static Uint32
+_pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
+{
+    switch (type) {
+        _PG_HANDLE_PROXIFY(ACTIVEEVENT);
+        _PG_HANDLE_PROXIFY(APP_TERMINATING);
+        _PG_HANDLE_PROXIFY(APP_LOWMEMORY);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
+        _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
+        _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
+        _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
+        _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
+        _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
+        _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERBUTTONUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEADDED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMOVED);
+        _PG_HANDLE_PROXIFY(CONTROLLERDEVICEREMAPPED);
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADDOWN);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADMOTION);
+        _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADUP);
+        _PG_HANDLE_PROXIFY(CONTROLLERSENSORUPDATE);
+#endif
+        _PG_HANDLE_PROXIFY(DOLLARGESTURE);
+        _PG_HANDLE_PROXIFY(DOLLARRECORD);
+        _PG_HANDLE_PROXIFY(DROPFILE);
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+        _PG_HANDLE_PROXIFY(DROPTEXT);
+        _PG_HANDLE_PROXIFY(DROPBEGIN);
+        _PG_HANDLE_PROXIFY(DROPCOMPLETE);
+#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
+        _PG_HANDLE_PROXIFY(FINGERMOTION);
+        _PG_HANDLE_PROXIFY(FINGERDOWN);
+        _PG_HANDLE_PROXIFY(FINGERUP);
+        _PG_HANDLE_PROXIFY(KEYDOWN);
+        _PG_HANDLE_PROXIFY(KEYUP);
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
+#endif
+        _PG_HANDLE_PROXIFY(JOYAXISMOTION);
+        _PG_HANDLE_PROXIFY(JOYBALLMOTION);
+        _PG_HANDLE_PROXIFY(JOYHATMOTION);
+        _PG_HANDLE_PROXIFY(JOYBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(JOYBUTTONUP);
+        _PG_HANDLE_PROXIFY(JOYDEVICEADDED);
+        _PG_HANDLE_PROXIFY(JOYDEVICEREMOVED);
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        _PG_HANDLE_PROXIFY(LOCALECHANGED);
+#endif
+        _PG_HANDLE_PROXIFY(MOUSEMOTION);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONDOWN);
+        _PG_HANDLE_PROXIFY(MOUSEBUTTONUP);
+        _PG_HANDLE_PROXIFY(MOUSEWHEEL);
+        _PG_HANDLE_PROXIFY(MULTIGESTURE);
+        _PG_HANDLE_PROXIFY(NOEVENT);
+        _PG_HANDLE_PROXIFY(QUIT);
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
+#endif
+        _PG_HANDLE_PROXIFY(SYSWMEVENT);
+        _PG_HANDLE_PROXIFY(TEXTEDITING);
+        _PG_HANDLE_PROXIFY(TEXTINPUT);
+        _PG_HANDLE_PROXIFY(VIDEORESIZE);
+        _PG_HANDLE_PROXIFY(VIDEOEXPOSE);
+        _PG_HANDLE_PROXIFY_PGE(MIDIIN);
+        _PG_HANDLE_PROXIFY_PGE(MIDIOUT);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSHOWN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHIDDEN);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWEXPOSED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMOVED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWSIZECHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMINIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWMAXIMIZED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWRESTORED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWENTER);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWLEAVE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSGAINED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWFOCUSLOST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWCLOSE);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWTAKEFOCUS);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWHITTEST);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWICCPROFCHANGED);
+        _PG_HANDLE_PROXIFY_PGE(WINDOWDISPLAYCHANGED);
+        default:
+            return type;
+    }
+}
+
+static Uint32
+_pg_pgevent_proxify(Uint32 type)
+{
+    return _pg_pgevent_proxify_helper(type, 1);
+}
+
+static Uint32
+_pg_pgevent_deproxify(Uint32 type)
+{
+    return _pg_pgevent_proxify_helper(type, 0);
+}
+
 static SDL_Event *_pg_last_keydown_event = NULL;
 
+static int
+_pg_translate_windowevent(void *_, SDL_Event *event)
+{
+    if (event->type == SDL_WINDOWEVENT) {
+        event->type = PGE_WINDOWSHOWN + event->window.event - 1;
+        return SDL_EventState(_pg_pgevent_proxify(event->type), SDL_QUERY);
+    }
+    return 1;
+}
+
 static int SDLCALL
-_pg_remove_pending_PGS_VIDEORESIZE(void * userdata, SDL_Event *event)
+_pg_remove_pending_VIDEORESIZE(void *userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
     if (event->type == SDL_VIDEORESIZE &&
         event->window.windowID == new_event->window.windowID) {
-        /* We're about to post a new size event, drop the old one */
+        /* We're about to post a new size event, drop the old ones */
         return 0;
     }
     return 1;
 }
 
 static int SDLCALL
-_pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
+_pg_remove_pending_VIDEOEXPOSE(void *userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
     if (event->type == SDL_VIDEOEXPOSE &&
         event->window.windowID == new_event->window.windowID) {
-        /* We're about to post a new videoexpose event, drop the old one */
+        /* We're about to post a new videoexpose event, drop the old ones */
         return 0;
     }
     return 1;
 }
 
-/*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
+/* SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation,
+ * this can alter events in-place */
 static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
 {
-    /* This event filter alters events inplace.
-     */
-    Uint32 type = event->type;
+    SDL_Event newdownevent, newupevent, newevent = *event;
+    int x, y, i;
 
-    if (type == SDL_WINDOWEVENT) {
+    if (event->type == SDL_WINDOWEVENT) {
+        /* DON'T filter SDL_WINDOWEVENTs here. If we delete events, they
+         * won't be available to low-level SDL2 either.*/
         switch (event->window.event) {
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-                return 1;
             case SDL_WINDOWEVENT_RESIZED:
-                if(_pg_event_generate_videoresize) {
-                    /* keep resized event around for SDL_RendererEventWatch
-                       (SDL2-internal) and pygame-internal event watch in
-                       display.c */
-                    SDL_Event newevent = *event;
-                    newevent.type = SDL_VIDEORESIZE;
+                SDL_FilterEvents(_pg_remove_pending_VIDEORESIZE, &newevent);
 
-                    /* all previous resize events are superseded.
-                       SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
-                       so we only need to filter our own custom event before
-                       we push the new one*/
-                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEORESIZE, &newevent);
-                    SDL_PushEvent(&newevent);
-                    return 1;
-                }
-                else {
-                    return 1;
-                }
+                newevent.type = SDL_VIDEORESIZE;
+                SDL_PushEvent(&newevent);
+                break;
             case SDL_WINDOWEVENT_EXPOSED:
-                {
-                    SDL_Event newevent = *event;
-                    newevent.type = SDL_VIDEOEXPOSE;
-                    
-                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEOEXPOSE, &newevent);
-                    SDL_PushEvent(&newevent);
-                    return 1;
-                }
+                SDL_FilterEvents(_pg_remove_pending_VIDEOEXPOSE, &newevent);
+
+                newevent.type = SDL_VIDEOEXPOSE;
+                SDL_PushEvent(&newevent);
+                break;
             case SDL_WINDOWEVENT_ENTER:
             case SDL_WINDOWEVENT_LEAVE:
             case SDL_WINDOWEVENT_FOCUS_GAINED:
             case SDL_WINDOWEVENT_FOCUS_LOST:
             case SDL_WINDOWEVENT_MINIMIZED:
             case SDL_WINDOWEVENT_RESTORED:
-                {
-                    SDL_Event newevent = *event;
-                    newevent.type = SDL_ACTIVEEVENT;
-                    
-                    SDL_PushEvent(&newevent);
-                    return 1;
-                }
-            case SDL_WINDOWEVENT_CLOSE:
-                break;
-            default:
-                /* DON'T ignore other SDL_WINDOWEVENTs for now.
-                   If we delete events here, they won't be available to
-                   low-level SDL2 either. For the python side, it's better
-                   to omit events in pygame.event.get(). */
-                return 1;
+                newevent.type = SDL_ACTIVEEVENT;
+                SDL_PushEvent(&newevent);
         }
     }
-#pragma PG_WARN(Add event blocking here.)
 
-    else if (type == SDL_KEYDOWN) {
-
-        if (event->key.repeat) {
+    else if (event->type == SDL_KEYDOWN) {
+        if (event->key.repeat)
             return 0;
-        }
-        else if (pg_key_repeat_delay > 0) {
-            if (_pg_repeat_timer) {
+
+        if (pg_key_repeat_delay > 0) {
+            if (_pg_repeat_timer)
                 SDL_RemoveTimer(_pg_repeat_timer);
-            }
+
             memcpy(&_pg_repeat_event, event, sizeof(SDL_Event));
-            _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
-                                            NULL);
+            _pg_repeat_timer =
+                SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback, NULL);
         }
-        _pg_last_unicode_char[0] = 0;
+
         /* store the keydown event for later in the SDL_TEXTINPUT */
-        _pg_last_keydown_event = event;
+        if (!_pg_last_keydown_event)
+            _pg_last_keydown_event = PyMem_New(SDL_Event, 1);
+        memcpy(_pg_last_keydown_event, event, sizeof(SDL_Event));
     }
-    else if (type == SDL_TEXTINPUT) {
-        if (_pg_last_keydown_event != NULL) {
-            strncpy(_pg_last_unicode_char, event->text.text,
-                    sizeof(_pg_last_unicode_char) -1);
+
+    else if (event->type == SDL_TEXTINPUT) {
+        if (_pg_last_keydown_event) {
+            _pg_put_event_unicode(_pg_last_keydown_event, event->text.text);
+            PyMem_Free(_pg_last_keydown_event);
             _pg_last_keydown_event = NULL;
         }
     }
-    else if (type == SDL_KEYUP) {
-        if (_pg_repeat_timer &&
-            _pg_repeat_event.key.keysym.scancode == event->key.keysym.scancode) {
+
+    else if (event->type == PGE_KEYREPEAT) {
+        event->type = SDL_KEYDOWN;
+    }
+
+    else if (event->type == SDL_KEYUP) {
+        if (_pg_repeat_timer && _pg_repeat_event.key.keysym.scancode ==
+                                    event->key.keysym.scancode) {
             SDL_RemoveTimer(_pg_repeat_timer);
             _pg_repeat_timer = 0;
         }
     }
-    else if (type == PGE_KEYREPEAT) {
-        event->type = SDL_KEYDOWN;
-    }
-    else if (type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP) {
-        if (event->button.button & PGM_BUTTON_KEEP) {
-            event->button.button ^= PGM_BUTTON_KEEP;
-        }
-        else if (event->button.button >= PGM_BUTTON_WHEELUP) {
-            event->button.button += (PGM_BUTTON_X1 - PGM_BUTTON_WHEELUP);
-        }
-    }
-    else if (type == SDL_MOUSEWHEEL) {
-        SDL_Event newevent;
-        int x, y;
 
-        if (event->wheel.x == 0 && event->wheel.y == 0) {
-            //#691 We are not moving wheel!
-            return 1;
-        }
-        // Generate a MouseButtonDown event for compatibility.
-        // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        newevent.type = SDL_MOUSEBUTTONDOWN;
+    else if (event->type == SDL_MOUSEBUTTONDOWN ||
+             event->type == SDL_MOUSEBUTTONUP) {
+        if (event->button.button & PGM_BUTTON_KEEP)
+            event->button.button ^= PGM_BUTTON_KEEP;
+        else if (event->button.button >= PGM_BUTTON_WHEELUP)
+            event->button.button += (PGM_BUTTON_X1 - PGM_BUTTON_WHEELUP);
+    }
+
+    else if (event->type == SDL_MOUSEWHEEL) {
+        //#691 We are not moving wheel!
+        if (!event->wheel.y && !event->wheel.x)
+            return 0;
 
         SDL_GetMouseState(&x, &y);
-        newevent.button.x = x;
-        newevent.button.y = y;
+        /* Generate a MouseButtonDown event and MouseButtonUp for
+         * compatibility. https://wiki.libsdl.org/SDL_MouseWheelEvent
+         */
+        newdownevent.type = SDL_MOUSEBUTTONDOWN;
+        newdownevent.button.x = x;
+        newdownevent.button.y = y;
+        newdownevent.button.state = SDL_PRESSED;
+        newdownevent.button.clicks = 1;
+        newdownevent.button.which = event->button.which;
 
-        newevent.button.state = SDL_PRESSED;
-        newevent.button.clicks = 1;
+        newupevent.type = SDL_MOUSEBUTTONUP;
+        newupevent.button.x = x;
+        newupevent.button.y = y;
+        newupevent.button.state = SDL_RELEASED;
+        newupevent.button.clicks = 1;
+        newupevent.button.which = event->button.which;
 
-        if (event->wheel.y != 0) {
-            newevent.button.button = (event->wheel.y > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        if (event->wheel.y > 0) {
+            newdownevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
+            newupevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
         }
-        else if (event->wheel.x != 0) {
-            newevent.button.button = (event->wheel.x > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        else {
+            newdownevent.button.button =
+                PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
+            newupevent.button.button = PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
         }
-        newevent.button.button |= PGM_BUTTON_KEEP;
 
-        /* this doesn't work! This is called by SDL, not Python:*/
-        /*
-          if (SDL_PushEvent(&newevent) < 0)
+        /* Use a for loop to simulate multiple events, because SDL 1
+         * works that way */
+        for (i = 0; i < abs(event->wheel.y); i++) {
+            SDL_PushEvent(&newdownevent);
+            SDL_PushEvent(&newupevent);
+        }
+        /* this doesn't work! This is called by SDL, not Python:
+          if (SDL_PushEvent(&newdownevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
-        SDL_PushEvent(&newevent);
     }
-    return 1;
+    return SDL_EventState(_pg_pgevent_proxify(event->type), SDL_QUERY);
 }
 
 static int
@@ -322,87 +565,51 @@ pg_GetKeyRepeat(int *delay, int *interval)
     *delay = pg_key_repeat_delay;
     *interval = pg_key_repeat_interval;
 }
-#endif /* IS_SDLv2 */
 
-/*must pass dictionary as this object*/
-static UserEventObject *
-_pg_user_event_addobject(PyObject *obj)
-{
-    UserEventObject *userobj = PyMem_New(UserEventObject, 1);
-    if (!userobj)
-        return NULL;
-
-    Py_INCREF(obj);
-    userobj->next = user_event_objects;
-    userobj->object = obj;
-    user_event_objects = userobj;
-
-    return userobj;
-}
-
-/*note, we doublecheck to make sure the pointer is in our list,
- *not just some random pointer. this will keep us safe(r).
- */
 static PyObject *
-_pg_user_pg_event_getobject(UserEventObject *userobj)
+pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
-    PyObject *obj = NULL;
-    if (!user_event_objects) /*fail in most common case*/
-        return NULL;
-    if (user_event_objects == userobj) {
-        obj = userobj->object;
-        user_event_objects = userobj->next;
-    }
-    else {
-        UserEventObject *hunt = user_event_objects;
-        while (hunt && hunt->next != userobj)
-            hunt = hunt->next;
-        if (hunt) {
-            hunt->next = userobj->next;
-            obj = userobj->object;
+    if (_pg_event_is_init) {
+        if (_pg_repeat_timer) {
+            SDL_RemoveTimer(_pg_repeat_timer);
+            _pg_repeat_timer = 0;
         }
+        /* The main reason for _custom_event to be reset here is so we
+         * can have a unit test that checks if pygame.event.custom_type()
+         * stops returning new types when they are finished, without that
+         * test preventing further tests from getting a custom event type.*/
+        _custom_event = _PGE_CUSTOM_EVENT_INIT;
     }
-    if (obj)
-        PyMem_Del(userobj);
-    return obj;
+    _pg_event_is_init = 0;
+    Py_RETURN_NONE;
 }
 
-static void
-_pg_user_event_cleanup(void)
+static PyObject *
+pgEvent_AutoInit(PyObject *self, PyObject *_null)
 {
-    if (user_event_objects) {
-        UserEventObject *hunt, *kill;
-        hunt = user_event_objects;
-        while (hunt) {
-            kill = hunt;
-            hunt = hunt->next;
-            Py_DECREF(kill->object);
-            PyMem_Del(kill);
-        }
-        user_event_objects = NULL;
+    if (!_pg_event_is_init) {
+        pg_key_repeat_delay = 0;
+        pg_key_repeat_interval = 0;
+        SDL_SetEventFilter(pg_event_filter, NULL);
     }
+    _pg_event_is_init = 1;
+    Py_RETURN_NONE;
 }
 
+/* This function can fill an SDL event from pygame event */
 static int
 pgEvent_FillUserEvent(pgEventObject *e, SDL_Event *event)
 {
-    UserEventObject *userobj = _pg_user_event_addobject(e->dict);
-    if (!userobj)
-        return -1;
+    Py_INCREF(e->dict);
 
-    event->type = e->type;
-    event->user.code = USEROBJECT_CHECK1;
-    event->user.data1 = (void *)USEROBJECT_CHECK2;
-    event->user.data2 = userobj;
+    memset(event, 0, sizeof(SDL_Event));
+    event->type = _pg_pgevent_proxify(e->type);
+    event->user.code = USEROBJ_CHECK;
+    event->user.data1 = (void *)e->dict;
+    event->user.data2 = NULL;
+
     return 0;
 }
-
-static PyTypeObject pgEvent_Type;
-static PyObject *
-pgEvent_New(SDL_Event *);
-static PyObject *
-pgEvent_New2(int, PyObject *);
-#define pgEvent_Check(x) ((x)->ob_type == &pgEvent_Type)
 
 static char *
 _pg_name_from_eventtype(int type)
@@ -410,16 +617,32 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case SDL_AUDIODEVICEADDED:
-            return "AudioDeviceAdded";
-        case SDL_AUDIODEVICEREMOVED:
-            return "AudioDeviceRemoved";
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
+        case SDL_APP_TERMINATING:
+            return "AppTerminating";
+        case SDL_APP_LOWMEMORY:
+            return "AppLowMemory";
+        case SDL_APP_WILLENTERBACKGROUND:
+            return "AppWillEnterBackground";
+        case SDL_APP_DIDENTERBACKGROUND:
+            return "AppDidEnterBackground";
+        case SDL_APP_WILLENTERFOREGROUND:
+            return "AppWillEnterForeground";
+        case SDL_APP_DIDENTERFOREGROUND:
+            return "AppDidEnterForeground";
+        case SDL_CLIPBOARDUPDATE:
+            return "ClipboardUpdate";
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_KEYMAPCHANGED:
+            return "KeyMapChanged";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_LOCALECHANGED:
+            return "LocaleChanged";
+#endif
         case SDL_MOUSEMOTION:
             return "MouseMotion";
         case SDL_MOUSEBUTTONDOWN:
@@ -450,9 +673,6 @@ _pg_name_from_eventtype(int type)
             return "MidiOut";
         case SDL_NOEVENT:
             return "NoEvent";
-#if IS_SDLv2
-        case SDL_WINDOWEVENT:
-            return "WindowEvent";
         case SDL_FINGERMOTION:
             return "FingerMotion";
         case SDL_FINGERDOWN:
@@ -493,8 +713,66 @@ _pg_name_from_eventtype(int type)
             return "JoyDeviceAdded";
         case SDL_JOYDEVICEREMOVED:
             return "JoyDeviceRemoved";
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_CONTROLLERTOUCHPADDOWN:
+            return "ControllerTouchpadDown";
+        case SDL_CONTROLLERTOUCHPADMOTION:
+            return "ControllerTouchpadMotion";
+        case SDL_CONTROLLERTOUCHPADUP:
+            return "ControllerTouchpadUp";
+        case SDL_CONTROLLERSENSORUPDATE:
+            return "ControllerSensorUpdate";
+#endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
+        case SDL_AUDIODEVICEADDED:
+            return "AudioDeviceAdded";
+        case SDL_AUDIODEVICEREMOVED:
+            return "AudioDeviceRemoved";
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+        case SDL_RENDER_TARGETS_RESET:
+            return "RenderTargetsReset";
 #endif
-
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_RENDER_DEVICE_RESET:
+            return "RenderDeviceReset";
+#endif
+        case PGE_WINDOWSHOWN:
+            return "WindowShown";
+        case PGE_WINDOWHIDDEN:
+            return "WindowHidden";
+        case PGE_WINDOWEXPOSED:
+            return "WindowExposed";
+        case PGE_WINDOWMOVED:
+            return "WindowMoved";
+        case PGE_WINDOWRESIZED:
+            return "WindowResized";
+        case PGE_WINDOWSIZECHANGED:
+            return "WindowSizeChanged";
+        case PGE_WINDOWMINIMIZED:
+            return "WindowMinimized";
+        case PGE_WINDOWMAXIMIZED:
+            return "WindowMaximized";
+        case PGE_WINDOWRESTORED:
+            return "WindowRestored";
+        case PGE_WINDOWENTER:
+            return "WindowEnter";
+        case PGE_WINDOWLEAVE:
+            return "WindowLeave";
+        case PGE_WINDOWFOCUSGAINED:
+            return "WindowFocusGained";
+        case PGE_WINDOWFOCUSLOST:
+            return "WindowFocusLost";
+        case PGE_WINDOWCLOSE:
+            return "WindowClose";
+        case PGE_WINDOWTAKEFOCUS:
+            return "WindowTakeFocus";
+        case PGE_WINDOWHITTEST:
+            return "WindowHitTest";
+        case PGE_WINDOWICCPROFCHANGED:
+            return "WindowICCProfChanged";
+        case PGE_WINDOWDISPLAYCHANGED:
+            return "WindowDisplayChanged";
     }
     if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
         return "UserEvent";
@@ -512,27 +790,27 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     }
 }
 
-
-#if IS_SDLv2
 static PyObject *
-get_joy_guid(int device_index) {
+get_joy_guid(int device_index)
+{
     char strguid[33];
     SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(device_index);
 
     SDL_JoystickGetGUIDString(guid, strguid, 33);
-    return Text_FromUTF8(strguid);
+    return PyUnicode_FromString(strguid);
 }
-#endif
 
-/** Try to insert the instance ID for a new device into the joystick mapping. */
+/** Try to insert the instance ID for a new device into the joystick mapping.
+ */
 void
-_joy_map_add(int device_index) {
+_joy_map_add(int device_index)
+{
 #if SDL_VERSION_ATLEAST(2, 0, 6)
-    int instance_id = (int) SDL_JoystickGetDeviceInstanceID(device_index);
+    int instance_id = (int)SDL_JoystickGetDeviceInstanceID(device_index);
     PyObject *k, *v;
     if (instance_id != -1) {
-        k = PyInt_FromLong(instance_id);
-        v = PyInt_FromLong(device_index);
+        k = PyLong_FromLong(instance_id);
+        v = PyLong_FromLong(device_index);
         if (k != NULL && v != NULL) {
             PyDict_SetItem(joy_instance_map, k, v);
         }
@@ -544,8 +822,9 @@ _joy_map_add(int device_index) {
 
 /** Look up a device ID for an instance ID. */
 PyObject *
-_joy_map_instance(int instance_id) {
-    PyObject *v, *k = PyInt_FromLong(instance_id);
+_joy_map_instance(int instance_id)
+{
+    PyObject *v, *k = PyLong_FromLong(instance_id);
     if (!k) {
         Py_RETURN_NONE;
     }
@@ -560,8 +839,9 @@ _joy_map_instance(int instance_id) {
 
 /** Discard a joystick from the joystick instance -> device mapping. */
 void
-_joy_map_discard(int instance_id) {
-    PyObject *k = PyInt_FromLong(instance_id);
+_joy_map_discard(int instance_id)
+{
+    PyObject *k = PyLong_FromLong(instance_id);
 
     if (k) {
         PyDict_DelItem(joy_instance_map, k);
@@ -569,155 +849,68 @@ _joy_map_discard(int instance_id) {
     }
 }
 
-#if IS_SDLv1
-
-#if defined(Py_USING_UNICODE)
-
-static PyObject *
-_pg_our_unichr(long uni)
-{
-    static PyObject *bltin_unichr = NULL;
-
-    if (bltin_unichr == NULL) {
-        PyObject *bltins;
-
-        bltins = PyImport_ImportModule(BUILTINS_MODULE);
-        bltin_unichr = PyObject_GetAttrString(bltins, BUILTINS_UNICHR);
-        Py_DECREF(bltins);
-    }
-    return PyEval_CallFunction(bltin_unichr, "(l)", uni);
-}
-
-static PyObject *
-_pg_our_empty_ustr(void)
-{
-    static PyObject *empty_ustr = NULL;
-
-    if (empty_ustr == NULL) {
-        PyObject *bltins;
-        PyObject *bltin_unicode;
-
-        bltins = PyImport_ImportModule(BUILTINS_MODULE);
-        bltin_unicode = PyObject_GetAttrString(bltins, BUILTINS_UNICODE);
-        empty_ustr = PyEval_CallFunction(bltin_unicode, "(s)", "");
-        Py_DECREF(bltin_unicode);
-        Py_DECREF(bltins);
-    }
-
-    Py_INCREF(empty_ustr);
-
-    return empty_ustr;
-}
-
-#else
-
-static PyObject *
-_pg_our_unichr(long uni)
-{
-    return PyInt_FromLong(uni);
-}
-
-static PyObject *
-_pg_our_empty_ustr(void)
-{
-    return PyInt_FromLong(0);
-}
-
-#endif /* Py_USING_UNICODE */
-
-#endif /* IS_SDLv1 */
-
 static PyObject *
 dict_from_event(SDL_Event *event)
 {
     PyObject *dict = NULL, *tuple, *obj;
     int hx, hy;
-#if IS_SDLv2
     long gain;
     long state;
-#endif /* IS_SDLv2 */
 
-    /*check if it is an event the user posted*/
-    if (event->user.code == USEROBJECT_CHECK1 &&
-        event->user.data1 == (void *)USEROBJECT_CHECK2) {
-        dict = _pg_user_pg_event_getobject((UserEventObject *)event->user.data2);
-        if (dict)
-            return dict;
-    }
+    /* check if a proxy event or userevent was posted */
+    if (event->type >= PGPOST_EVENTBEGIN && event->user.code == USEROBJ_CHECK)
+        return (PyObject *)event->user.data1;
 
-    if (!(dict = PyDict_New()))
+    dict = PyDict_New();
+    if (!dict)
         return NULL;
+
     switch (event->type) {
-#if IS_SDLv1
-        case SDL_ACTIVEEVENT:
-            _pg_insobj(dict, "gain", PyInt_FromLong(event->active.gain));
-            _pg_insobj(dict, "state", PyInt_FromLong(event->active.state));
-            break;
-        case SDL_KEYDOWN:
-            if (event->key.keysym.unicode)
-                _pg_insobj(dict, "unicode", _pg_our_unichr(event->key.keysym.unicode));
-            else
-                _pg_insobj(dict, "unicode", _pg_our_empty_ustr());
-        case SDL_KEYUP:
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
-            _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "scancode",
-                   PyInt_FromLong(event->key.keysym.scancode));
-            break;
-#else  /* IS_SDLv2 */
-        case SDL_WINDOWEVENT:
-            _pg_insobj(dict, "event", PyInt_FromLong(event->window.event));
-            switch (event->window.event) {
-                case SDL_WINDOWEVENT_CLOSE:
-                    break;
-            }
+        case SDL_VIDEORESIZE:
+            obj = Py_BuildValue("(ii)", event->window.data1,
+                                event->window.data2);
+            _pg_insobj(dict, "size", obj);
+            _pg_insobj(dict, "w", PyLong_FromLong(event->window.data1));
+            _pg_insobj(dict, "h", PyLong_FromLong(event->window.data2));
             break;
         case SDL_ACTIVEEVENT:
             switch (event->window.event) {
                 case SDL_WINDOWEVENT_ENTER:
                     gain = 1;
-                    state = (long)SDL_APPFOCUSMOUSE;
+                    state = SDL_APPMOUSEFOCUS;
                     break;
                 case SDL_WINDOWEVENT_LEAVE:
                     gain = 0;
-                    state = (long)SDL_APPFOCUSMOUSE;
+                    state = SDL_APPMOUSEFOCUS;
                     break;
                 case SDL_WINDOWEVENT_FOCUS_GAINED:
                     gain = 1;
-                    state = (long)SDL_APPINPUTFOCUS;
+                    state = SDL_APPINPUTFOCUS;
                     break;
                 case SDL_WINDOWEVENT_FOCUS_LOST:
                     gain = 0;
-                    state = (long)SDL_APPINPUTFOCUS;
+                    state = SDL_APPINPUTFOCUS;
                     break;
                 case SDL_WINDOWEVENT_MINIMIZED:
                     gain = 0;
-                    state = (long)SDL_APPACTIVE;
+                    state = SDL_APPACTIVE;
                     break;
                 default:
                     assert(event->window.event == SDL_WINDOWEVENT_RESTORED);
                     gain = 1;
-                    state = (long)SDL_APPACTIVE;
+                    state = SDL_APPACTIVE;
             }
-            _pg_insobj(dict, "gain", PyInt_FromLong(gain));
-            _pg_insobj(dict, "state", PyInt_FromLong(state));
-            break;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case SDL_AUDIODEVICEADDED:
-        case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));
-            _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
+            _pg_insobj(dict, "gain", PyLong_FromLong(gain));
+            _pg_insobj(dict, "state", PyLong_FromLong(state));
             break;
         case SDL_KEYDOWN:
-            _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
-            /* fall through */
         case SDL_KEYUP:
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
-            _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
+            _pg_insobj(dict, "unicode", _pg_get_event_unicode(event));
+            _pg_insobj(dict, "key", PyLong_FromLong(event->key.keysym.sym));
+            _pg_insobj(dict, "mod", PyLong_FromLong(event->key.keysym.mod));
+            _pg_insobj(dict, "scancode",
+                       PyLong_FromLong(event->key.keysym.scancode));
             break;
-#endif /* IS_SDLv2 */
         case SDL_MOUSEMOTION:
             obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
             _pg_insobj(dict, "pos", obj);
@@ -726,41 +919,50 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rel", obj);
             if ((tuple = PyTuple_New(3))) {
                 PyTuple_SET_ITEM(tuple, 0,
-                                 PyInt_FromLong((event->motion.state &
-                                                 SDL_BUTTON(1)) != 0));
+                                 PyLong_FromLong((event->motion.state &
+                                                  SDL_BUTTON(1)) != 0));
                 PyTuple_SET_ITEM(tuple, 1,
-                                 PyInt_FromLong((event->motion.state &
-                                                 SDL_BUTTON(2)) != 0));
+                                 PyLong_FromLong((event->motion.state &
+                                                  SDL_BUTTON(2)) != 0));
                 PyTuple_SET_ITEM(tuple, 2,
-                                 PyInt_FromLong((event->motion.state &
-                                                 SDL_BUTTON(3)) != 0));
+                                 PyLong_FromLong((event->motion.state &
+                                                  SDL_BUTTON(3)) != 0));
                 _pg_insobj(dict, "buttons", tuple);
             }
+            _pg_insobj(
+                dict, "touch",
+                PyBool_FromLong((event->motion.which == SDL_TOUCH_MOUSEID)));
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
+            _pg_insobj(dict, "button", PyLong_FromLong(event->button.button));
+            _pg_insobj(
+                dict, "touch",
+                PyBool_FromLong((event->button.which == SDL_TOUCH_MOUSEID)));
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jaxis.which));
-            _pg_insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->jaxis.which));
+            _pg_insobj(dict, "axis", PyLong_FromLong(event->jaxis.axis));
             _pg_insobj(dict, "value",
-                   PyFloat_FromDouble(event->jaxis.value / 32767.0));
+                       PyFloat_FromDouble(event->jaxis.value / 32767.0));
             break;
         case SDL_JOYBALLMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
-            _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->jball.which));
+            _pg_insobj(dict, "ball", PyLong_FromLong(event->jball.ball));
             obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jhat.which));
-            _pg_insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->jhat.which));
+            _pg_insobj(dict, "hat", PyLong_FromLong(event->jhat.hat));
             hx = hy = 0;
             if (event->jhat.value & SDL_HAT_UP)
                 hy = 1;
@@ -775,61 +977,114 @@ dict_from_event(SDL_Event *event)
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
-            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jbutton.which));
-            _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->jbutton.which));
+            _pg_insobj(dict, "button", PyLong_FromLong(event->jbutton.button));
             break;
-#if IS_SDLv2
+        case PGE_WINDOWDISPLAYCHANGED:
+            _pg_insobj(dict, "display_index",
+                       PyLong_FromLong(event->window.data1));
+        case PGE_WINDOWMOVED:
+        case PGE_WINDOWRESIZED:
+        case PGE_WINDOWSIZECHANGED:
+            /*other PGE_WINDOW* events do not have attributes */
+            _pg_insobj(dict, "x", PyLong_FromLong(event->window.data1));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->window.data2));
+            break;
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
+        case SDL_AUDIODEVICEADDED:
+        case SDL_AUDIODEVICEREMOVED:
+            _pg_insobj(
+                dict, "which",
+                PyLong_FromLong(
+                    event->adevice
+                        .which));  // The audio device index for the ADDED
+                                   // event (valid until next
+                                   // SDL_GetNumAudioDevices() call),
+                                   // SDL_AudioDeviceID for the REMOVED event
+            _pg_insobj(dict, "iscapture",
+                       PyLong_FromLong(event->adevice.iscapture));
+            break;
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP:
             /* https://wiki.libsdl.org/SDL_TouchFingerEvent */
-            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->tfinger.touchId));
-            _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->tfinger.fingerId));
+            _pg_insobj(dict, "touch_id",
+                       PyLong_FromLongLong(event->tfinger.touchId));
+            _pg_insobj(dict, "finger_id",
+                       PyLong_FromLongLong(event->tfinger.fingerId));
             _pg_insobj(dict, "x", PyFloat_FromDouble(event->tfinger.x));
             _pg_insobj(dict, "y", PyFloat_FromDouble(event->tfinger.y));
             _pg_insobj(dict, "dx", PyFloat_FromDouble(event->tfinger.dx));
             _pg_insobj(dict, "dy", PyFloat_FromDouble(event->tfinger.dy));
-            _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->tfinger.dy));
+            _pg_insobj(dict, "pressure",
+                       PyFloat_FromDouble(event->tfinger.dy));
             break;
         case SDL_MULTIGESTURE:
             /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
-            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->mgesture.touchId));
+            _pg_insobj(dict, "touch_id",
+                       PyLong_FromLongLong(event->mgesture.touchId));
             _pg_insobj(dict, "x", PyFloat_FromDouble(event->mgesture.x));
             _pg_insobj(dict, "y", PyFloat_FromDouble(event->mgesture.y));
-            _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
-            _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
-            _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            _pg_insobj(dict, "rotated",
+                       PyFloat_FromDouble(event->mgesture.dTheta));
+            _pg_insobj(dict, "pinched",
+                       PyFloat_FromDouble(event->mgesture.dDist));
+            _pg_insobj(dict, "num_fingers",
+                       PyLong_FromLong(event->mgesture.numFingers));
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
 #ifndef NO_SDL_MOUSEWHEEL_FLIPPED
-            _pg_insobj(dict, "flipped", PyBool_FromLong(event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED));
+            _pg_insobj(dict, "flipped",
+                       PyBool_FromLong(event->wheel.direction ==
+                                       SDL_MOUSEWHEEL_FLIPPED));
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
-            _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
-            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
+            _pg_insobj(dict, "x", PyLong_FromLong(event->wheel.x));
+            _pg_insobj(dict, "y", PyLong_FromLong(event->wheel.y));
+
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.preciseX));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.preciseY));
+
+#else /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
+            /* fallback to regular x and y when SDL version used does not
+             * support precise fields */
+            _pg_insobj(dict, "precise_x",
+                       PyFloat_FromDouble((double)event->wheel.x));
+            _pg_insobj(dict, "precise_y",
+                       PyFloat_FromDouble((double)event->wheel.y));
+
+#endif /* ~SDL_VERSION_ATLEAST(2, 0, 18) */
+            _pg_insobj(
+                dict, "touch",
+                PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
+
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
-            _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->text.text));
             break;
         case SDL_TEXTEDITING:
             /* https://wiki.libsdl.org/SDL_TextEditingEvent */
-            _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->edit.text));
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
         /*  https://wiki.libsdl.org/SDL_DropEvent */
         case SDL_DROPFILE:
-            _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+            _pg_insobj(dict, "file", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
 
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
-            _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+            _pg_insobj(dict, "text", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
         case SDL_DROPBEGIN:
@@ -839,134 +1094,126 @@ dict_from_event(SDL_Event *event)
 
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->caxis.which));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->caxis.which));
             _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
             _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->cbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
-            _pg_insobj(dict, "device_index", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "device_index",
+                       PyLong_FromLong(event->cdevice.which));
             _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
         case SDL_JOYDEVICEADDED:
             _joy_map_add(event->jdevice.which);
-            _pg_insobj(dict, "device_index", PyLong_FromLong(event->jdevice.which));
+            _pg_insobj(dict, "device_index",
+                       PyLong_FromLong(event->jdevice.which));
             _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
             /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->cdevice.which));
             break;
         case SDL_JOYDEVICEREMOVED:
             _joy_map_discard(event->jdevice.which);
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jdevice.which));
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->jdevice.which));
             break;
-#endif
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_CONTROLLERTOUCHPADDOWN:
+        case SDL_CONTROLLERTOUCHPADMOTION:
+        case SDL_CONTROLLERTOUCHPADUP:
+            _pg_insobj(dict, "instance_id",
+                       PyLong_FromLong(event->ctouchpad.which));
+            _pg_insobj(dict, "touch_id",
+                       PyLong_FromLongLong(event->ctouchpad.touchpad));
+            _pg_insobj(dict, "finger_id",
+                       PyLong_FromLongLong(event->ctouchpad.finger));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->ctouchpad.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->ctouchpad.y));
+            _pg_insobj(dict, "pressure",
+                       PyFloat_FromDouble(event->ctouchpad.pressure));
+            break;
+#endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
 
-
-#if IS_SDLv1
-        case SDL_VIDEORESIZE:
-            obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
-            _pg_insobj(dict, "size", obj);
-            _pg_insobj(dict, "w", PyInt_FromLong(event->resize.w));
-            _pg_insobj(dict, "h", PyInt_FromLong(event->resize.h));
-            break;
-#else /* IS_SDLv2 */
-        case SDL_VIDEORESIZE:
-            obj = Py_BuildValue("(ii)", event->window.data1,
-                                event->window.data2);
-            _pg_insobj(dict, "size", obj);
-            _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
-            _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
-            break;
-#endif /* IS_SDLv2 */
 #ifdef WIN32
-#if IS_SDLv1
         case SDL_SYSWMEVENT:
             _pg_insobj(dict, "hwnd",
-                   PyInt_FromLong((long)(event->syswm.msg->hwnd)));
-            _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
-            _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->wParam));
-            _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->lParam));
+                       PyLong_FromLongLong(
+                           (long long)(event->syswm.msg->msg.win.hwnd)));
+            _pg_insobj(dict, "msg",
+                       PyLong_FromLong(event->syswm.msg->msg.win.msg));
+            _pg_insobj(dict, "wparam",
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.wParam));
+            _pg_insobj(dict, "lparam",
+                       PyLong_FromLongLong(event->syswm.msg->msg.win.lParam));
             break;
-#else /* IS_SDLv2 */
-        case SDL_SYSWMEVENT:
-            _pg_insobj(dict, "hwnd",
-                   PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
-            _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
-            _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->msg.win.wParam));
-            _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->msg.win.lParam));
-            break;
-#endif /* IS_SDLv2 */
 #endif /* WIN32 */
 
 #if (defined(unix) || defined(__unix__) || defined(_AIX) ||     \
      defined(__OpenBSD__)) &&                                   \
     (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) && \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
-#if IS_SDLv1
-        case SDL_SYSWMEVENT:
-            _pg_insobj(dict, "event",
-                   Bytes_FromStringAndSize(
-                       (char *)&(event->syswm.msg->event.xevent),
-                       sizeof(XEvent)));
-            break;
-#else  /* IS_SDLv2 */
         case SDL_SYSWMEVENT:
             if (event->syswm.msg->subsystem == SDL_SYSWM_X11) {
                 XEvent *xevent = (XEvent *)&event->syswm.msg->msg.x11.event;
-                obj = Bytes_FromStringAndSize((char *)xevent, sizeof(XEvent));
+                obj =
+                    PyBytes_FromStringAndSize((char *)xevent, sizeof(XEvent));
                 _pg_insobj(dict, "event", obj);
             }
             break;
-#endif /* IS_SDLv2 */
 #endif /* (defined(unix) || ... */
-            /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
-    } /* switch (event->type) */
-    if (event->type == PGE_USEREVENT && event->user.code == 0x1000) {
-        _pg_insobj(dict, "filename", Text_FromUTF8(event->user.data1));
-        free(event->user.data1);
-        event->user.data1 = NULL;
-    }
-    if (event->type >= PGE_USEREVENT && event->type < PG_NUMEVENTS)
-        _pg_insobj(dict, "code", PyInt_FromLong(event->user.code));
+    }  /* switch (event->type) */
+    /* Events that dont have any attributes are not handled in switch
+     * statement */
 
     switch (event->type) {
-#if IS_SDLv2
-        case SDL_WINDOWEVENT:
+        case PGE_WINDOWSHOWN:
+        case PGE_WINDOWHIDDEN:
+        case PGE_WINDOWEXPOSED:
+        case PGE_WINDOWMOVED:
+        case PGE_WINDOWRESIZED:
+        case PGE_WINDOWSIZECHANGED:
+        case PGE_WINDOWMINIMIZED:
+        case PGE_WINDOWMAXIMIZED:
+        case PGE_WINDOWRESTORED:
+        case PGE_WINDOWENTER:
+        case PGE_WINDOWLEAVE:
+        case PGE_WINDOWFOCUSGAINED:
+        case PGE_WINDOWFOCUSLOST:
+        case PGE_WINDOWCLOSE:
+        case PGE_WINDOWTAKEFOCUS:
+        case PGE_WINDOWHITTEST:
+        case PGE_WINDOWICCPROFCHANGED:
+        case PGE_WINDOWDISPLAYCHANGED:
         case SDL_TEXTEDITING:
         case SDL_TEXTINPUT:
         case SDL_MOUSEWHEEL:
-#endif /* IS_SDLv2 */
         case SDL_KEYDOWN:
         case SDL_KEYUP:
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        case SDL_USEREVENT:
-        {
-#if IS_SDLv2
+        case SDL_MOUSEBUTTONUP: {
             SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
             PyObject *pgWindow;
-            if (!window || !(pgWindow=SDL_GetWindowData(window, "pg_window"))) {
+            if (!window ||
+                !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
                 pgWindow = Py_None;
             }
             Py_INCREF(pgWindow);
             _pg_insobj(dict, "window", pgWindow);
-#else /* IS_SDLv1 */
-            Py_INCREF(Py_None);
-            _pg_insobj(dict, "window", Py_None);
-#endif /* IS_SDLv1 */
             break;
         }
     }
-
     return dict;
 }
 
@@ -977,7 +1224,7 @@ pg_event_dealloc(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
     Py_XDECREF(e->dict);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 #ifdef PYPY_VERSION
@@ -1031,47 +1278,8 @@ PyObject *
 pg_event_str(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
-    char *str;
-    PyObject *strobj;
-    PyObject *pyobj;
-    char *s;
-    size_t size;
-#if PY3
-    PyObject *encodedobj;
-#endif
-
-    strobj = PyObject_Str(e->dict);
-    if (strobj == NULL) {
-        return NULL;
-    }
-#if PY3
-    encodedobj = PyUnicode_AsUTF8String(strobj);
-    Py_DECREF(strobj);
-    strobj = encodedobj;
-    encodedobj = NULL;
-    if (strobj == NULL) {
-        return NULL;
-    }
-    s = PyBytes_AsString(strobj);
-#else
-    s = PyString_AsString(strobj);
-#endif
-    size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
-            sizeof(e->type) * 3 + 1);
-    str = (char *)PyMem_Malloc(size);
-    if (!str) {
-        Py_DECREF(strobj);
-        return PyErr_NoMemory();
-    }
-    sprintf(str, "<Event(%d-%s %s)>", e->type, _pg_name_from_eventtype(e->type),
-            s);
-
-    Py_DECREF(strobj);
-
-    pyobj = Text_FromUTF8(str);
-    PyMem_Free(str);
-
-    return (pyobj);
+    return PyUnicode_FromFormat("<Event(%d-%s %S)>", e->type,
+                                _pg_name_from_eventtype(e->type), e->dict);
 }
 
 static int
@@ -1081,35 +1289,11 @@ _pg_event_nonzero(pgEventObject *self)
 }
 
 static PyNumberMethods pg_event_as_number = {
-    (binaryfunc)NULL, /*Add*/
-    (binaryfunc)NULL, /*subtract*/
-    (binaryfunc)NULL, /*multiply*/
-#if !PY3
-    (binaryfunc)NULL, /*divide*/
-#endif
-    (binaryfunc)NULL,       /*remainder*/
-    (binaryfunc)NULL,       /*divmod*/
-    (ternaryfunc)NULL,      /*power*/
-    (unaryfunc)NULL,        /*negative*/
-    (unaryfunc)NULL,        /*pos*/
-    (unaryfunc)NULL,        /*abs*/
-    (inquiry)_pg_event_nonzero, /*nonzero*/
-    (unaryfunc)NULL,        /*invert*/
-    (binaryfunc)NULL,       /*lshift*/
-    (binaryfunc)NULL,       /*rshift*/
-    (binaryfunc)NULL,       /*and*/
-    (binaryfunc)NULL,       /*xor*/
-    (binaryfunc)NULL,       /*or*/
-#if !PY3
-    (coercion)NULL, /*coerce*/
-#endif
-    (unaryfunc)NULL, /*int*/
-#if !PY3
-    (unaryfunc)NULL, /*long*/
-#endif
-    (unaryfunc)NULL, /*float*/
+    .nb_bool = (inquiry)_pg_event_nonzero,
 };
 
+static PyTypeObject pgEvent_Type;
+#define pgEvent_Check(x) ((x)->ob_type == &pgEvent_Type)
 #define OFF(x) offsetof(pgEventObject, x)
 
 static PyMemberDef pg_event_members[] = {
@@ -1152,70 +1336,109 @@ Unimplemented:
     return Py_NotImplemented;
 }
 
+static int
+_pg_event_populate(pgEventObject *event, int type, PyObject *dict)
+{
+    event->type = _pg_pgevent_deproxify(type);
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        if (PyDict_GetItemString(dict, "type")) {
+            PyErr_SetString(PyExc_ValueError,
+                            "redundant type field in event dict");
+            return -1;
+        }
+        Py_INCREF(dict);
+    }
+    event->dict = dict;
+    return 0;
+}
+
+static int
+pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
+{
+    int type;
+    PyObject *dict = NULL;
+
+    if (!PyArg_ParseTuple(args, "i|O!", &type, &PyDict_Type, &dict)) {
+        return -1;
+    }
+
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
+            PyErr_NoMemory();
+            return -1;
+        }
+    }
+    else {
+        Py_INCREF(dict);
+    }
+
+    if (kwargs) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(kwargs, &pos, &key, &value)) {
+            if (PyDict_SetItem(dict, key, value) < 0) {
+                Py_DECREF(dict);
+                return -1;
+            }
+        }
+    }
+
+    if (_pg_event_populate(self, type, dict) == -1) {
+        return -1;
+    }
+
+    Py_DECREF(dict);
+    return 0;
+}
+
 static PyTypeObject pgEvent_Type = {
-    TYPE_HEAD(NULL, 0) "Event", /*name*/
-    sizeof(pgEventObject),      /*basic size*/
-    0,                          /*itemsize*/
-    pg_event_dealloc,              /*dealloc*/
-    0,                          /*print*/
-    0,                          /*getattr*/
-    0,                          /*setattr*/
-    0,                          /*compare*/
-    pg_event_str,                  /*repr*/
-    &pg_event_as_number,           /*as_number*/
-    0,                          /*as_sequence*/
-    0,                          /*as_mapping*/
-    (hashfunc)NULL,             /*hash*/
-    (ternaryfunc)NULL,          /*call*/
-    (reprfunc)NULL,             /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    .tp_basicsize = sizeof(pgEventObject),
+    .tp_dealloc = pg_event_dealloc,
+    .tp_repr = pg_event_str,
+    .tp_as_number = &pg_event_as_number,
 #ifdef PYPY_VERSION
-    pg_EventGetAttr, /* tp_getattro */
-    pg_EventSetAttr, /* tp_setattro */
+    .tp_getattro = pg_EventGetAttr,
+    .tp_setattro = pg_EventSetAttr,
 #else
-    PyObject_GenericGetAttr, /* tp_getattro */
-    PyObject_GenericSetAttr, /* tp_setattro */
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_setattro = PyObject_GenericSetAttr,
 #endif
-    0, /* tp_as_buffer */
-#if PY3
-    0,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_RICHCOMPARE,
-#endif
-    DOC_PYGAMEEVENTEVENT,          /* Documentation string */
-    0,                             /* tp_traverse */
-    0,                             /* tp_clear */
-    pg_event_richcompare,             /* tp_richcompare */
-    0,                             /* tp_weaklistoffset */
-    0,                             /* tp_iter */
-    0,                             /* tp_iternext */
-    0,                             /* tp_methods */
-    pg_event_members,                 /* tp_members */
-    0,                             /* tp_getset */
-    0,                             /* tp_base */
-    0,                             /* tp_dict */
-    0,                             /* tp_descr_get */
-    0,                             /* tp_descr_set */
-    offsetof(pgEventObject, dict), /* tp_dictoffset */
-    0,                             /* tp_init */
-    0,                             /* tp_alloc */
-    0,                             /* tp_new */
+    .tp_doc = DOC_PYGAMEEVENTEVENT,
+    .tp_richcompare = pg_event_richcompare,
+    .tp_members = pg_event_members,
+    .tp_dictoffset = offsetof(pgEventObject, dict),
+    .tp_init = (initproc)pg_event_init,
+    .tp_new = PyType_GenericNew,
 };
 
 static PyObject *
 pgEvent_New(SDL_Event *event)
 {
     pgEventObject *e;
-    e = PyObject_NEW(pgEventObject, &pgEvent_Type);
+    e = PyObject_New(pgEventObject, &pgEvent_Type);
     if (!e)
-        return NULL;
+        return PyErr_NoMemory();
 
     if (event) {
-        e->type = event->type;
+        e->type = _pg_pgevent_deproxify(event->type);
         e->dict = dict_from_event(event);
     }
     else {
         e->type = SDL_NOEVENT;
         e->dict = PyDict_New();
+    }
+    if (!e->dict) {
+        PyObject_Free(e);
+        return PyErr_NoMemory();
     }
     return (PyObject *)e;
 }
@@ -1224,378 +1447,249 @@ static PyObject *
 pgEvent_New2(int type, PyObject *dict)
 {
     pgEventObject *e;
-    e = PyObject_NEW(pgEventObject, &pgEvent_Type);
-    if (e) {
-        e->type = type;
-        if (!dict)
-            dict = PyDict_New();
-        else
-            Py_INCREF(dict);
-        e->dict = dict;
+    e = PyObject_New(pgEventObject, &pgEvent_Type);
+    if (!e)
+        return PyErr_NoMemory();
+
+    if (_pg_event_populate(e, type, dict) == -1) {
+        PyObject_Free(e);
+        return NULL;
     }
     return (PyObject *)e;
 }
 
 /* event module functions */
-static PyObject *
-pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
-{
-    PyObject *dict = NULL;
-    PyObject *event;
-    int type;
-    if (!PyArg_ParseTuple(arg, "i|O!", &type, &PyDict_Type, &dict))
-        return NULL;
-
-    if (!dict)
-        dict = PyDict_New();
-    else
-        Py_INCREF(dict);
-
-    if (keywords) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(keywords, &pos, &key, &value)) {
-            if (PyDict_SetItem(dict, key, value) < 0) {
-                Py_DECREF(dict);
-                return NULL; /* Exception already set. */
-            }
-        }
-    }
-
-    event = pgEvent_New2(type, dict);
-
-    Py_DECREF(dict);
-    return event;
-}
 
 static PyObject *
 event_name(PyObject *self, PyObject *arg)
 {
     int type;
-
     if (!PyArg_ParseTuple(arg, "i", &type))
         return NULL;
 
-    return Text_FromUTF8(_pg_name_from_eventtype(type));
+    return PyUnicode_FromString(_pg_name_from_eventtype(type));
 }
 
 static PyObject *
 set_grab(PyObject *self, PyObject *arg)
 {
     int doit;
-#if IS_SDLv2
     SDL_Window *win = NULL;
-#endif /* IS_SDLv2 */
-    if (!PyArg_ParseTuple(arg, "i", &doit))
+
+    if (!PyArg_ParseTuple(arg, "p", &doit))
         return NULL;
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    if (doit)
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-    else
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-#else  /* IS_SDLv2 */
     win = pg_GetDefaultWindow();
     if (win) {
         if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
             if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE)
                 SDL_SetRelativeMouseMode(1);
-            else SDL_SetRelativeMouseMode(0);
-            }
+            else
+                SDL_SetRelativeMouseMode(0);
+        }
         else {
             SDL_SetWindowGrab(win, SDL_FALSE);
             SDL_SetRelativeMouseMode(0);
-            }
+        }
     }
-#endif /* IS_SDLv2 */
 
     Py_RETURN_NONE;
 }
 
 static PyObject *
-get_grab(PyObject *self, PyObject *arg)
+get_grab(PyObject *self, PyObject *_null)
 {
-#if IS_SDLv1
-    int mode;
-#else  /* IS_SDLv2 */
     SDL_Window *win;
     SDL_bool mode = SDL_FALSE;
-#endif /* IS_SDLv2 */
 
     VIDEO_INIT_CHECK();
-#if IS_SDLv1
-    mode = SDL_WM_GrabInput(SDL_GRAB_QUERY);
-    return PyInt_FromLong(mode == SDL_GRAB_ON);
-#else  /* IS_SDLv2 */
     win = pg_GetDefaultWindow();
     if (win)
         mode = SDL_GetWindowGrab(win);
-    return PyInt_FromLong(mode);
-#endif /* IS_SDLv2 */
+    return PyBool_FromLong(mode);
+}
+
+static void
+_pg_event_pump(int dopump)
+{
+    if (dopump) {
+        SDL_PumpEvents();
+    }
+    /* We need to translate WINDOWEVENTS. But if we do that from the
+     * from event filter, internal SDL stuff that rely on WINDOWEVENT
+     * might break. So after every event pump, we translate events from
+     * here */
+    SDL_FilterEvents(_pg_translate_windowevent, NULL);
+}
+
+static int
+_pg_event_wait(SDL_Event *event, int timeout)
+{
+    /* Custom re-implementation of SDL_WaitEventTimeout, doing this has
+     * many advantages. This is copied from SDL source code, with a few
+     * minor modifications */
+    Uint32 finish = 0;
+
+    if (timeout > 0)
+        finish = SDL_GetTicks() + timeout;
+
+    while (1) {
+        _pg_event_pump(1); /* Use our custom pump here */
+        switch (PG_PEEP_EVENT_ALL(event, 1, SDL_GETEVENT)) {
+            case -1:
+                return 0; /* Because this never happens, SDL does it too*/
+            case 1:
+                return 1;
+
+            default:
+                if (timeout >= 0 && SDL_GetTicks() >= finish) {
+                    /* no events */
+                    return 0;
+                }
+                SDL_Delay(1);
+        }
+    }
 }
 
 static PyObject *
-pg_event_pump(PyObject *self, PyObject *args)
+pg_event_pump(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
-    SDL_PumpEvents();
+    _pg_event_pump(1);
     Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_event_poll(PyObject *self, PyObject *_null)
+{
+    SDL_Event event;
+    VIDEO_INIT_CHECK();
+
+    /* polling is just waiting for 0 timeout */
+    if (!_pg_event_wait(&event, 0))
+        return pgEvent_New(NULL);
+    return pgEvent_New(&event);
 }
 
 static PyObject *
 pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int status;
-    int timeout = 0;
-    static char *kwids[] = {
-        "timeout",
-        NULL
-    };
+    int status, timeout = 0;
+    static char *kwids[] = {"timeout", NULL};
 
     VIDEO_INIT_CHECK();
-    
-    if(!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &timeout)) {
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &timeout)) {
         return NULL;
     }
 
-    #if IS_SDLv1
-        if (timeout)
-            return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
-    #endif
+    if (!timeout)
+        timeout = -1;
 
     Py_BEGIN_ALLOW_THREADS;
-    #if IS_SDLv1
-        status = SDL_WaitEvent(&event);
-    #else /* IS_SDLv2 */
-        if (!timeout)
-            status = SDL_WaitEvent(&event);
-        else
-            status = SDL_WaitEventTimeout(&event, timeout);
-    #endif /* IS_SDLv2 */
+    status = _pg_event_wait(&event, timeout);
     Py_END_ALLOW_THREADS;
 
-    if (!status && !timeout) //status 0 means an error normally
-        return RAISE(pgExc_SDLError, SDL_GetError());
-
-    if (!status && timeout) //status 0 means WaitEventTimeout timed out
+    if (!status)
         return pgEvent_New(NULL);
-
     return pgEvent_New(&event);
 }
 
-static PyObject *
-pg_event_poll(PyObject *self, PyObject *args)
+static int
+_pg_eventtype_from_seq(PyObject *seq, int ind)
 {
-    SDL_Event event;
-
-    VIDEO_INIT_CHECK();
-
-    if (SDL_PollEvent(&event))
-        return pgEvent_New(&event);
-    return pgEvent_New(NULL);
-}
-
-#if IS_SDLv1
-static PyObject *
-pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    SDL_Event event;
-    int mask = 0;
-    int loop, num;
-    PyObject *type = NULL;
-    int dopump = 1;
-    int val;
-
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
-
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
-        return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
-
-    VIDEO_INIT_CHECK();
-
-    if (type == NULL || type == Py_None)
-        mask = SDL_ALLEVENTS;
-    else {
-        if (PySequence_Check(type)) {
-            num = PySequence_Size(type);
-            for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
-                    return RAISE(
-                        PyExc_TypeError,
+    int val = 0;
+    if (!pg_IntFromObjIndex(seq, ind, &val)) {
+        PyErr_SetString(PyExc_TypeError,
                         "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK(val);
-            }
-        }
-        else if (pg_IntFromObj(type, &val))
-            mask = SDL_EVENTMASK(val);
-        else
-            return RAISE(PyExc_TypeError,
-                         "get type must be numeric or a sequence");
+        return -1;
     }
-
-    if (dopump)
-        SDL_PumpEvents();
-
-    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
-    {
+    if (val < 0 || val >= PG_NUMEVENTS) {
+        PyErr_SetString(PyExc_ValueError, "event type out of range");
+        return -1;
     }
-
-    Py_RETURN_NONE;
+    return val;
 }
-#else /* IS_SDLv2 */
+
 static PyObject *
-pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
+_pg_eventtype_as_seq(PyObject *obj, Py_ssize_t *len)
 {
-    Py_ssize_t num;
-    int loop;
-    PyObject *type = NULL;
-    int dopump = 1;
-    int val;
+    *len = 1;
+    if (PySequence_Check(obj)) {
+        *len = PySequence_Size(obj);
+        /* The returned object gets decref'd later, so incref now */
+        Py_INCREF(obj);
+        return obj;
+    }
+    else if (PyLong_Check(obj))
+        return Py_BuildValue("(O)", obj);
+    else
+        return RAISE(PyExc_TypeError,
+                     "event type must be numeric or a sequence");
+}
 
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
-
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
-        return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
-
-    VIDEO_INIT_CHECK();
-
-    if (dopump)
-        SDL_PumpEvents();
-
-    if (type == NULL || type == Py_None) {
+static void
+_pg_flush_events(Uint32 type)
+{
+    if (type == MAX_UINT32)
         SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
-    } else {
-        if (PySequence_Check(type)) {
-            num = PySequence_Size(type);
-            for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
-                    return RAISE(
-                        PyExc_TypeError,
-                        "type sequence must contain valid event types");
-                SDL_FlushEvent(val);
-            }
-        }
-        else if (pg_IntFromObj(type, &val))
-            SDL_FlushEvent(val);
-        else
-            return RAISE(PyExc_TypeError,
-                         "get type must be numeric or a sequence");
+    else {
+        SDL_FlushEvent(type);
+        SDL_FlushEvent(_pg_pgevent_proxify(type));
     }
-
-    Py_RETURN_NONE;
 }
-#endif /* IS_SDLv2 */
 
-#if IS_SDLv1
 static PyObject *
-pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
+pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Event event;
-    int mask = 0;
-    int loop, num;
-    PyObject *type = NULL, *list, *e;
+    Py_ssize_t len;
+    int loop, type;
+    PyObject *seq, *obj = NULL;
     int dopump = 1;
-    int val;
 
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
+    static char *kwids[] = {"eventtype", "pump", NULL};
 
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids, &obj,
+                                     &dopump))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
+    _pg_event_pump(dopump);
 
-    if (type == NULL || type == Py_None)
-        mask = SDL_ALLEVENTS;
+    if (obj == NULL || obj == Py_None) {
+        _pg_flush_events(MAX_UINT32);
+    }
     else {
-        if (PySequence_Check(type)) {
-            num = PySequence_Size(type);
-            for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
-                    return RAISE(
-                        PyExc_TypeError,
-                        "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK(val);
-            }
-        }
-        else if (pg_IntFromObj(type, &val))
-            mask = SDL_EVENTMASK(val);
-        else
-            return RAISE(PyExc_TypeError,
-                         "eventtype must be numeric or a sequence");
-    }
-
-    list = PyList_New(0);
-    if (!list)
-        return NULL;
-
-    if (dopump)
-        SDL_PumpEvents();
-
-    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
-    {
-        e = pgEvent_New(&event);
-        if (!e) {
-            Py_DECREF(list);
+        seq = _pg_eventtype_as_seq(obj, &len);
+        if (!seq) /* error aldready set */
             return NULL;
-        }
 
-        if (0 != PyList_Append(list, e)) {
-            Py_DECREF(list);
-            Py_DECREF(e);
-            return NULL; /* Exception already set. */
+        for (loop = 0; loop < len; loop++) {
+            type = _pg_eventtype_from_seq(seq, loop);
+            if (type == -1) {
+                Py_DECREF(seq);
+                return NULL; /* PyErr aldready set */
+            }
+            _pg_flush_events(type);
         }
-        Py_DECREF(e);
+        Py_DECREF(seq);
     }
-    return list;
+    Py_RETURN_NONE;
 }
-#else /* IS_SDLv2 */
-static PG_INLINE int
+
+static int
 _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 {
+    /* The caller of this function must handle decref of list on error */
     PyObject *e = pgEvent_New(event);
-    if (!e) {
-        Py_DECREF(list);
-        return 0; /* Exception already set. */
-    }
-    if (0 != PyList_Append(list, e)) {
+    if (!e) /* Exception already set. */
+        return 0;
+
+    if (PyList_Append(list, e)) {
         Py_DECREF(e);
-        Py_DECREF(list);
         return 0; /* Exception already set. */
     }
     Py_DECREF(e);
@@ -1603,520 +1697,474 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
-pg_event_set_gen_videoresize(PyObject *self, PyObject *args)
+_pg_get_all_events_except(PyObject *obj)
 {
-    SDL_bool do_generate;
+    SDL_Event event;
+    Py_ssize_t len;
+    int loop, type, ret;
+    PyObject *seq, *list;
 
-#if PY3
-    if (!PyArg_ParseTuple(args, "p", &do_generate))
-        return NULL;
-#else
-    if (!PyArg_ParseTuple(args, "i", &do_generate))
-        return NULL;
-#endif
-    _pg_event_generate_videoresize=do_generate;
+    SDL_Event *filtered_events;
+    int filtered_index = 0;
+    int filtered_events_len = 16;
 
-    if(do_generate) {
-        Py_RETURN_TRUE;
+    SDL_Event eventbuf[PG_GET_LIST_LEN];
+
+    filtered_events = malloc(sizeof(SDL_Event) * filtered_events_len);
+    if (!filtered_events)
+        return PyErr_NoMemory();
+
+    list = PyList_New(0);
+    if (!list) {
+        free(filtered_events);
+        return PyErr_NoMemory();
     }
-    else {
-        Py_RETURN_FALSE;
+
+    seq = _pg_eventtype_as_seq(obj, &len);
+    if (!seq)
+        goto error;
+
+    for (loop = 0; loop < len; loop++) {
+        type = _pg_eventtype_from_seq(seq, loop);
+        if (type == -1)
+            goto error;
+
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT, type);
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (filtered_index == filtered_events_len) {
+                    SDL_Event *new_filtered_events =
+                        malloc(sizeof(SDL_Event) * filtered_events_len * 4);
+                    if (new_filtered_events == NULL) {
+                        goto error;
+                    }
+                    memcpy(new_filtered_events, filtered_events,
+                           sizeof(SDL_Event) * filtered_events_len);
+                    filtered_events_len *= 4;
+                    free(filtered_events);
+                    filtered_events = new_filtered_events;
+                }
+                filtered_events[filtered_index] = event;
+                filtered_index++;
+            }
+        } while (ret);
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT,
+                                _pg_pgevent_proxify(type));
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (filtered_index == filtered_events_len) {
+                    SDL_Event *new_filtered_events =
+                        malloc(sizeof(SDL_Event) * filtered_events_len * 4);
+                    if (new_filtered_events == NULL) {
+                        free(filtered_events);
+                        goto error;
+                    }
+                    memcpy(new_filtered_events, filtered_events,
+                           sizeof(SDL_Event) * filtered_events_len);
+                    filtered_events_len *= 4;
+                    free(filtered_events);
+                    filtered_events = new_filtered_events;
+                }
+                filtered_events[filtered_index] = event;
+                filtered_index++;
+            }
+        } while (ret);
     }
+
+    do {
+        len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
+        if (len == -1) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            goto error;
+        }
+
+        for (loop = 0; loop < len; loop++) {
+            if (!_pg_event_append_to_list(list, &eventbuf[loop]))
+                goto error;
+        }
+    } while (len == PG_GET_LIST_LEN);
+
+    PG_PEEP_EVENT_ALL(filtered_events, filtered_index, SDL_ADDEVENT);
+
+    free(filtered_events);
+    Py_DECREF(seq);
+    return list;
+
+error:
+    /* While doing a goto here, PyErr must be set */
+    free(filtered_events);
+    Py_DECREF(list);
+    Py_XDECREF(seq);
+    return NULL;
 }
 
+static PyObject *
+_pg_get_all_events(void)
+{
+    SDL_Event eventbuf[PG_GET_LIST_LEN];
+    PyObject *list;
+    int loop, len = PG_GET_LIST_LEN;
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    while (len == PG_GET_LIST_LEN) {
+        len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
+        if (len == -1) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            goto error;
+        }
+
+        for (loop = 0; loop < len; loop++) {
+            if (!_pg_event_append_to_list(list, &eventbuf[loop]))
+                goto error;
+        }
+    }
+    return list;
+
+error:
+    Py_DECREF(list);
+    return NULL;
+}
+
+static PyObject *
+_pg_get_seq_events(PyObject *obj)
+{
+    Py_ssize_t len;
+    SDL_Event event;
+    int loop, type, ret;
+    PyObject *seq, *list;
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    seq = _pg_eventtype_as_seq(obj, &len);
+    if (!seq)
+        goto error;
+
+    for (loop = 0; loop < len; loop++) {
+        type = _pg_eventtype_from_seq(seq, loop);
+        if (type == -1)
+            goto error;
+
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT, type);
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event))
+                    goto error;
+            }
+        } while (ret);
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT,
+                                _pg_pgevent_proxify(type));
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event))
+                    goto error;
+            }
+        } while (ret);
+    }
+    Py_DECREF(seq);
+    return list;
+
+error:
+    /* While doing a goto here, PyErr must be set */
+    Py_DECREF(list);
+    Py_XDECREF(seq);
+    return NULL;
+}
 
 static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Event event;
-    Py_ssize_t num;
-    int loop;
-    PyObject *type = NULL, *list;
+    PyObject *obj_evtype = NULL;
+    PyObject *obj_exclude = NULL;
     int dopump = 1;
-    int val, ret;
 
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
+    static char *kwids[] = {"eventtype", "pump", "exclude", NULL};
 
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OpO", kwids, &obj_evtype,
+                                     &dopump, &obj_exclude))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
 
-    list = PyList_New(0);
-    if (!list)
-        return NULL;
-    if (dopump)
-        SDL_PumpEvents();
+    _pg_event_pump(dopump);
 
-    if (type == NULL || type == Py_None) {
-        while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-                              SDL_FIRSTEVENT, SDL_LASTEVENT) == 1) {
-            if(!_pg_event_append_to_list(list, &event))
-                return NULL;
+    if (obj_evtype == NULL || obj_evtype == Py_None) {
+        if (obj_exclude != NULL && obj_exclude != Py_None) {
+            return _pg_get_all_events_except(obj_exclude);
         }
-        return list;
-    }
-
-    if (PySequence_Check(type)) {
-        num = PySequence_Size(type);
-        for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val)) {
-                Py_DECREF(list);
-                return RAISE(
-                    PyExc_TypeError,
-                    "type sequence must contain valid event types");
-            }
-
-            ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
-
-            if (ret < 0) {
-                Py_DECREF(list);
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            }
-            else if (ret > 0) {
-                if (!_pg_event_append_to_list(list, &event)) {
-                    return NULL;
-                }
-            }
-        }
-    }
-    else if (pg_IntFromObj(type, &val)) {
-        ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
-
-        if (ret < 0) {
-            Py_DECREF(list);
-            return RAISE(pgExc_SDLError, SDL_GetError());
-        }
-        else if (ret > 0) {
-            if (!_pg_event_append_to_list(list, &event)) {
-                return NULL;
-            }
-        }
+        return _pg_get_all_events();
     }
     else {
-        Py_DECREF(list);
-        return RAISE(PyExc_TypeError,
-                     "get type must be numeric or a sequence");
+        if (obj_exclude != NULL && obj_exclude != Py_None) {
+            return RAISE(
+                pgExc_SDLError,
+                "Invalid combination of excluded and included event type");
+        }
+        return _pg_get_seq_events(obj_evtype);
     }
-    return list;
 }
-#endif /* IS_SDLv2 */
 
-#if IS_SDLv1
 static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int result;
-    int mask = 0;
-    int loop, num, noargs = 0;
-    PyObject *type = NULL;
-    int val;
+    Py_ssize_t len;
+    int type, loop, res;
+    PyObject *seq, *obj = NULL;
     int dopump = 1;
 
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
+    static char *kwids[] = {"eventtype", "pump", NULL};
 
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids, &obj,
+                                     &dopump))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
 
-    if (!type || type == Py_None) {
-        mask = SDL_ALLEVENTS;
-        noargs = 1;
+    _pg_event_pump(dopump);
+
+    if (obj == NULL || obj == Py_None) {
+        res = PG_PEEP_EVENT_ALL(&event, 1, SDL_PEEKEVENT);
+        if (res < 0)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        return pgEvent_New(res ? &event : NULL);
     }
     else {
-        if (PySequence_Check(type)) {
-            num = PySequence_Size(type);
-            for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
-                    return RAISE(
-                        PyExc_TypeError,
-                        "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK(val);
+        seq = _pg_eventtype_as_seq(obj, &len);
+        if (!seq)
+            return NULL;
+
+        for (loop = 0; loop < len; loop++) {
+            type = _pg_eventtype_from_seq(seq, loop);
+            if (type == -1) {
+                Py_DECREF(seq);
+                return NULL;
+            }
+            res = PG_PEEP_EVENT(&event, 1, SDL_PEEKEVENT, type);
+            if (res) {
+                Py_DECREF(seq);
+
+                if (res < 0)
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                Py_RETURN_TRUE;
+            }
+            res = PG_PEEP_EVENT(&event, 1, SDL_PEEKEVENT,
+                                _pg_pgevent_proxify(type));
+            if (res) {
+                Py_DECREF(seq);
+
+                if (res < 0)
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                Py_RETURN_TRUE;
             }
         }
-        else if (pg_IntFromObj(type, &val))
-            mask = SDL_EVENTMASK(val);
-        else
-            return RAISE(PyExc_TypeError,
-                         "peek type must be numeric or a sequence");
+        Py_DECREF(seq);
+        Py_RETURN_FALSE; /* No event type match. */
     }
-
-    if (dopump)
-        SDL_PumpEvents();
-    result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, mask);
-    if (result < 0)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-
-    if (noargs)
-        return pgEvent_New(result ? &event : NULL);
-    return PyInt_FromLong(result == 1);
 }
-#else /* IS_SDLv2 */
+
+/* You might notice how we do event blocking stuff on proxy events and
+ * not the real SDL events. We do this because we want SDL events to pass
+ * through our event filter, to do emulation stuff correctly. Then the
+ * event is filtered after that */
+
 static PyObject *
-pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
+pg_event_post(PyObject *self, PyObject *obj)
 {
     SDL_Event event;
-    Py_ssize_t num;
-    int result;
-    int loop;
-    PyObject *type = NULL;
-    int val;
-    int dopump = 1;
-
-    static char *kwids[] = {
-        "eventtype",
-        "pump",
-        NULL
-    };
-
-#if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &type, &dopump))
-        return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &type, &dopump))
-        return NULL;
-#endif
-
-    VIDEO_INIT_CHECK();
-
-    if (dopump)
-        SDL_PumpEvents();
-
-    if (type == NULL || type == Py_None) {
-        result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
-        if (result < 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
-        return pgEvent_New(result ? &event : NULL);
-    }
-
-    if (PySequence_Check(type)) {
-        num = PySequence_Size(type);
-        for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
-                return RAISE(
-                    PyExc_TypeError,
-                    "type sequence must contain valid event types");
-            result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
-            if (result < 0) {
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            } else if (result == 1) {
-                return PyInt_FromLong(1);
-            }
-        }
-
-        return PyInt_FromLong(0); /* No event type match. */
-    }
-    else if (pg_IntFromObj(type, &val)) {
-        result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
-        if (result < 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
-        return PyInt_FromLong(result == 1);
-    }
-    return RAISE(PyExc_TypeError,
-                 "peek type must be numeric or a sequence");
-}
-#endif /* IS_SDLv2 */
-
-static PyObject *
-pg_event_post(PyObject *self, PyObject *args)
-{
     pgEventObject *e;
-    SDL_Event event;
-    int isblocked = 0;
-
-    if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
-        return NULL;
+    int ret;
 
     VIDEO_INIT_CHECK();
+    if (!pgEvent_Check(obj))
+        return RAISE(PyExc_TypeError, "argument must be an Event object");
 
-    /* see if the event is blocked before posting it. */
-    isblocked = SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE;
+    e = (pgEventObject *)obj;
+    if (SDL_EventState(_pg_pgevent_proxify(e->type), SDL_QUERY) == SDL_IGNORE)
+        Py_RETURN_FALSE;
 
-    if (isblocked) {
-        /* event is blocked, so we do not post it. */
-        Py_RETURN_NONE;
-    }
+    pgEvent_FillUserEvent(e, &event);
 
-    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
-        PyObject *event_key      = PyDict_GetItemString(e->dict, "key");
-        PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
-        PyObject *event_mod      = PyDict_GetItemString(e->dict, "mod");
-#if IS_SDLv1
-        PyObject *event_unicode  = PyDict_GetItemString(e->dict, "unicode");
-#else  /* IS_SDLv2 */
-        PyObject *event_window_ID= PyDict_GetItemString(e->dict, "window");
-#endif /* IS_SDLv2 */
-        event.type =  e->type;
-
-        if (event_key == NULL){
-            return RAISE(pgExc_SDLError, "key event posted without keycode");
-        }
-        if (!PyInt_Check(event_key)){
-            return RAISE(pgExc_SDLError, "posted event keycode must be int");
-        }
-        event.key.keysym.sym = PyLong_AsLong(event_key);
-
-        if (event_scancode != NULL){
-            if (!PyInt_Check(event_scancode)){
-                return RAISE(pgExc_SDLError, "posted event scancode must be int");
-            }
-            event.key.keysym.scancode = PyLong_AsLong(event_scancode);
-        }
-
-        if (event_mod != NULL && event_mod != Py_None){
-            if (!PyInt_Check(event_scancode)){
-                return RAISE(pgExc_SDLError, "posted event modifiers must be int");
-            }
-            if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
-                return RAISE(pgExc_SDLError, "mods must be 16-bit int");
-            }
-            event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
-        }
-
-#if IS_SDLv1
-        /*ignore unicode property*/
-#else  /* IS_SDLv2 */
-        if (event_window_ID != NULL && event_window_ID != Py_None){
-            if (!PyInt_Check(event_window_ID)){
-                return RAISE(pgExc_SDLError, "posted event window id must be int");
-            }
-            event.key.windowID = PyLong_AsLong(event_window_ID);
-        }
-#endif /* IS_SDLv2 */
-    }
-    else if (e->type >= PGE_USEREVENT && e->type < PG_NUMEVENTS) {
-        if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
-    }
+    ret = SDL_PushEvent(&event);
+    if (ret == 1)
+        Py_RETURN_TRUE;
     else {
-        /* HACK:
-           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
-           event queue. This needs to be decoded again. */
-         if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
+        Py_DECREF(e->dict);
+        if (ret == 0)
+            Py_RETURN_FALSE;
+        else
+            return RAISE(pgExc_SDLError, SDL_GetError());
     }
-#if IS_SDLv1
-    if (SDL_PushEvent(&event) == -1)
-#else  /* IS_SDLv2 */
-    if (SDL_PushEvent(&event) < 0)
-#endif /* IS_SDLv2 */
-        return RAISE(pgExc_SDLError, SDL_GetError());
-
-    Py_RETURN_NONE;
-}
-
-static int
-_pg_check_event_in_range(int evt)
-{
-// #if IS_SDLv1
-//     return evt >= 0 && evt < PG_NUMEVENTS;
-// #else /* IS_SDLv2 */
-//     return evt >= 0 && evt < PGE_EVENTEND; /* needed for extras */
-// #endif /* IS_S*DLv2 */
-    return evt >= 0 && evt < PG_NUMEVENTS;
 }
 
 static PyObject *
-pg_event_set_allowed(PyObject *self, PyObject *args)
+pg_event_set_allowed(PyObject *self, PyObject *obj)
 {
-    PyObject *type;
-    int val;
-
-    if (PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "set_allowed requires 1 argument");
-
+    Py_ssize_t len;
+    int loop, type;
+    PyObject *seq;
     VIDEO_INIT_CHECK();
 
-    type = PyTuple_GET_ITEM(args, 0);
-    if (PySequence_Check(type)) {
-        Py_ssize_t num = PySequence_Length(type);
-        int loop;
-
-        for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
-                return RAISE(PyExc_TypeError,
-                             "type sequence must contain valid event types");
-            if (!_pg_check_event_in_range(val))
-                return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            SDL_EventState(val, SDL_ENABLE);
-        }
-    }
-    else if (type == Py_None) {
-#if IS_SDLv2
+    if (obj == Py_None) {
         int i;
-        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        for (i = SDL_FIRSTEVENT; i < SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_ENABLE);
         }
-#else
-        SDL_EventState(0xFF, SDL_ENABLE);
-#endif /* IS_SDLv2 */
-    } else if (pg_IntFromObj(type, &val)) {
-        if (!_pg_check_event_in_range(val))
-            return RAISE(PyExc_ValueError, "Invalid event");
-        SDL_EventState(val, SDL_ENABLE);
     }
-    else
-        return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
+    else {
+        seq = _pg_eventtype_as_seq(obj, &len);
+        if (!seq)
+            return NULL;
 
+        for (loop = 0; loop < len; loop++) {
+            type = _pg_eventtype_from_seq(seq, loop);
+            if (type == -1) {
+                Py_DECREF(seq);
+                return NULL;
+            }
+            SDL_EventState(_pg_pgevent_proxify(type), SDL_ENABLE);
+        }
+        Py_DECREF(seq);
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
-pg_event_set_blocked(PyObject *self, PyObject *args)
+pg_event_set_blocked(PyObject *self, PyObject *obj)
 {
-    PyObject *type;
-    int val;
-
-    if (PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "set_blocked requires 1 argument");
-
+    Py_ssize_t len;
+    int loop, type;
+    PyObject *seq;
     VIDEO_INIT_CHECK();
 
-    type = PyTuple_GET_ITEM(args, 0);
-    if (PySequence_Check(type)) {
-        Py_ssize_t num = PySequence_Length(type);
-        int loop;
-
-        for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
-                return RAISE(PyExc_TypeError,
-                             "type sequence must contain valid event types");
-            if (!_pg_check_event_in_range(val))
-                return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            SDL_EventState(val, SDL_IGNORE);
-        }
-    }
-    else if (type == Py_None) {
-#if IS_SDLv2
+    if (obj == Py_None) {
         int i;
-        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        /* Start at PGPOST_EVENTBEGIN */
+        for (i = PGPOST_EVENTBEGIN; i < SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_IGNORE);
         }
-#else
-        SDL_EventState(0xFF, SDL_IGNORE);
-#endif /* IS_SDLv2 */
-    } else if (pg_IntFromObj(type, &val)) {
-        if (!_pg_check_event_in_range(val))
-            return RAISE(PyExc_ValueError, "Invalid event");
-        SDL_EventState(val, SDL_IGNORE);
     }
-    else
-        return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
+    else {
+        seq = _pg_eventtype_as_seq(obj, &len);
+        if (!seq)
+            return NULL;
 
+        for (loop = 0; loop < len; loop++) {
+            type = _pg_eventtype_from_seq(seq, loop);
+            if (type == -1) {
+                Py_DECREF(seq);
+                return NULL;
+            }
+            SDL_EventState(_pg_pgevent_proxify(type), SDL_IGNORE);
+        }
+        Py_DECREF(seq);
+    }
+    /* Never block SDL_WINDOWEVENT, we need them for translation */
+    SDL_EventState(SDL_WINDOWEVENT, SDL_ENABLE);
+    /* Never block PGE_KEYREPEAT too, its needed for pygame internal use */
+    SDL_EventState(PGE_KEYREPEAT, SDL_ENABLE);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-pg_event_get_blocked(PyObject *self, PyObject *args)
+pg_event_get_blocked(PyObject *self, PyObject *obj)
 {
-    Py_ssize_t num;
-    int loop;
-    PyObject *type;
-    int val;
-    int isblocked = 0;
-
-    if (PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "get_blocked requires 1 argument");
+    Py_ssize_t len;
+    int loop, type, isblocked = 0;
+    PyObject *seq;
 
     VIDEO_INIT_CHECK();
 
-    type = PyTuple_GET_ITEM(args, 0);
-    if (PySequence_Check(type)) {
-        num = PySequence_Length(type);
-        for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
-                return RAISE(PyExc_TypeError,
-                             "type sequence must contain valid event types");
-            if (!_pg_check_event_in_range(val))
-                return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            isblocked |= SDL_EventState(val, SDL_QUERY) == SDL_IGNORE;
+    seq = _pg_eventtype_as_seq(obj, &len);
+    if (!seq)
+        return NULL;
+
+    for (loop = 0; loop < len; loop++) {
+        type = _pg_eventtype_from_seq(seq, loop);
+        if (type == -1) {
+            Py_DECREF(seq);
+            return NULL;
+        }
+        if (SDL_EventState(_pg_pgevent_proxify(type), SDL_QUERY) ==
+            SDL_IGNORE) {
+            isblocked = 1;
+            break;
         }
     }
-    else if (pg_IntFromObj(type, &val)) {
-        if (!_pg_check_event_in_range(val))
-            return RAISE(PyExc_ValueError, "Invalid event");
-        isblocked = SDL_EventState(val, SDL_QUERY) == SDL_IGNORE;
-    }
-    else
-        return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
 
-    return PyInt_FromLong(isblocked);
+    Py_DECREF(seq);
+    return PyBool_FromLong(isblocked);
 }
 
-
 static PyObject *
-pg_event_custom_type(PyObject *self, PyObject *args)
+pg_event_custom_type(PyObject *self, PyObject *_null)
 {
-    if (_custom_event < PG_NUMEVENTS) {
-        return PyInt_FromLong(_custom_event++);
-    }
+    if (_custom_event < PG_NUMEVENTS)
+        return PyLong_FromLong(_custom_event++);
     else
-        return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
+        return RAISE(pgExc_SDLError,
+                     "pygame.event.custom_type made too many event types.");
 }
 
 static PyMethodDef _event_methods[] = {
-    {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
-#if IS_SDLv2
-    {"_set_gen_videoresize", pg_event_set_gen_videoresize, METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
-#endif /* IS_SDLv2 */
+    {"_internal_mod_quit", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
+     "auto quit for event module"},
 
-    {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
-    {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
-    {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
-    {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
-    {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
-    {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
-    {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},
-    {"post", pg_event_post, METH_VARARGS, DOC_PYGAMEEVENTPOST},
+    {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
+    {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTWAIT},
+    {"poll", (PyCFunction)pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
+    {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTCLEAR},
+    {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTGET},
+    {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTPEEK},
+    {"post", (PyCFunction)pg_event_post, METH_O, DOC_PYGAMEEVENTPOST},
 
-    {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
-    {"set_blocked", pg_event_set_blocked, METH_VARARGS, DOC_PYGAMEEVENTSETBLOCKED},
-    {"get_blocked", pg_event_get_blocked, METH_VARARGS, DOC_PYGAMEEVENTGETBLOCKED},
-    {"custom_type", pg_event_custom_type, METH_NOARGS, DOC_PYGAMEEVENTCUSTOMTYPE},
-
+    {"set_allowed", (PyCFunction)pg_event_set_allowed, METH_O,
+     DOC_PYGAMEEVENTSETALLOWED},
+    {"set_blocked", (PyCFunction)pg_event_set_blocked, METH_O,
+     DOC_PYGAMEEVENTSETBLOCKED},
+    {"get_blocked", (PyCFunction)pg_event_get_blocked, METH_O,
+     DOC_PYGAMEEVENTGETBLOCKED},
+    {"custom_type", (PyCFunction)pg_event_custom_type, METH_NOARGS,
+     DOC_PYGAMEEVENTCUSTOMTYPE},
 
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(event)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_EVENT_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "event",
                                          DOC_PYGAMEEVENT,
@@ -2126,99 +2174,64 @@ MODINIT_DEFINE(event)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgEvent_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "event", _event_methods, DOC_PYGAMEEVENT);
-#endif
-    dict = PyModule_GetDict(module);
-
-    if (NULL == (joy_instance_map = PyDict_New())) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (!module) {
+        return NULL;
     }
 
-    if (-1 == PyDict_SetItemString(dict, "_joy_instance_map", joy_instance_map)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    joy_instance_map = PyDict_New();
+    /* need to keep a reference for use in the module */
+    Py_XINCREF(joy_instance_map);
+    if (PyModule_AddObject(module, "_joy_instance_map", joy_instance_map)) {
+        Py_XDECREF(joy_instance_map);
+        Py_DECREF(module);
+        return NULL;
     }
 
-    if (PyDict_SetItemString(dict, "EventType", (PyObject *)&pgEvent_Type) ==
-        -1) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    Py_INCREF(&pgEvent_Type);
+    if (PyModule_AddObject(module, "EventType", (PyObject *)&pgEvent_Type)) {
+        Py_DECREF(&pgEvent_Type);
+        Py_DECREF(module);
+        return NULL;
     }
-
-#if IS_SDLv2
-    if (!have_registered_events) {
-        int numevents = PG_NUMEVENTS - SDL_USEREVENT;
-        Uint32 user_event = SDL_RegisterEvents(numevents);
-
-        if (user_event == (Uint32)-1) {
-            PyErr_SetString(pgExc_SDLError, "unable to register user events");
-            DECREF_MOD(module);
-            MODINIT_ERROR;
-        }
-        if (user_event != SDL_USEREVENT) {
-            PyErr_SetString(PyExc_ImportError,
-                            "Unable to create another module instance");
-            DECREF_MOD(module);
-            MODINIT_ERROR;
-        }
-
-        have_registered_events = 1;
+    Py_INCREF(&pgEvent_Type);
+    if (PyModule_AddObject(module, "Event", (PyObject *)&pgEvent_Type)) {
+        Py_DECREF(&pgEvent_Type);
+        Py_DECREF(module);
+        return NULL;
     }
-
-    SDL_SetEventFilter(pg_event_filter, NULL);
-#endif /* IS_SDLv2 */
 
     /* export the c api */
-#if IS_SDLv2
     assert(PYGAMEAPI_EVENT_NUMSLOTS == 6);
-#endif /* IS_SDLv2 */
     c_api[0] = &pgEvent_Type;
     c_api[1] = pgEvent_New;
     c_api[2] = pgEvent_New2;
     c_api[3] = pgEvent_FillUserEvent;
-#if IS_SDLv2
     c_api[4] = pg_EnableKeyRepeat;
     c_api[5] = pg_GetKeyRepeat;
-#endif /* IS_SDLv2 */
+
     apiobj = encapsulate_api(c_api, "event");
-    if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        Py_DECREF(module);
+        return NULL;
     }
 
-    /* Assume if there are events in the user events list
-     * there is also a registered cleanup callback for them.
-     */
-    if (user_event_objects == NULL) {
-        pg_RegisterQuit(_pg_user_event_cleanup);
-    }
-
-    MODINIT_RETURN(module);
+    SDL_RegisterEvents(PG_NUMEVENTS - SDL_USEREVENT);
+    return module;
 }

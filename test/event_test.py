@@ -4,13 +4,7 @@ import unittest
 import collections
 
 import pygame
-from pygame.compat import as_unicode
 
-
-PY3 = sys.version_info >= (3, 0, 0)
-SDL1 = pygame.get_sdl_version()[0] < 2
-
-################################################################################
 
 EVENT_TYPES = (
     #   pygame.NOEVENT,
@@ -34,13 +28,15 @@ EVENT_TYPES = (
 )
 
 EVENT_TEST_PARAMS = collections.defaultdict(dict)
-EVENT_TEST_PARAMS.update({
-    pygame.KEYDOWN:{'key': pygame.K_SPACE},
-    pygame.KEYUP:{'key': pygame.K_SPACE},
-    pygame.MOUSEMOTION:dict(),
-    pygame.MOUSEBUTTONDOWN:dict(button=1),
-    pygame.MOUSEBUTTONUP:dict(button=1),
-})
+EVENT_TEST_PARAMS.update(
+    {
+        pygame.KEYDOWN: {"key": pygame.K_SPACE},
+        pygame.KEYUP: {"key": pygame.K_SPACE},
+        pygame.MOUSEMOTION: dict(),
+        pygame.MOUSEBUTTONDOWN: dict(button=1),
+        pygame.MOUSEBUTTONUP: dict(button=1),
+    }
+)
 
 
 NAMES_AND_EVENTS = (
@@ -64,42 +60,36 @@ NAMES_AND_EVENTS = (
     ("MidiOut", pygame.MIDIOUT),
     ("UserEvent", pygame.USEREVENT),
     ("Unknown", 0xFFFF),
+    ("FingerMotion", pygame.FINGERMOTION),
+    ("FingerDown", pygame.FINGERDOWN),
+    ("FingerUp", pygame.FINGERUP),
+    ("MultiGesture", pygame.MULTIGESTURE),
+    ("MouseWheel", pygame.MOUSEWHEEL),
+    ("TextInput", pygame.TEXTINPUT),
+    ("TextEditing", pygame.TEXTEDITING),
+    ("ControllerAxisMotion", pygame.CONTROLLERAXISMOTION),
+    ("ControllerButtonDown", pygame.CONTROLLERBUTTONDOWN),
+    ("ControllerButtonUp", pygame.CONTROLLERBUTTONUP),
+    ("ControllerDeviceAdded", pygame.CONTROLLERDEVICEADDED),
+    ("ControllerDeviceRemoved", pygame.CONTROLLERDEVICEREMOVED),
+    ("ControllerDeviceMapped", pygame.CONTROLLERDEVICEREMAPPED),
+    ("DropFile", pygame.DROPFILE),
 )
 
-# Add in any SDL 2 specific events.
-if pygame.get_sdl_version()[0] >= 2:
+# Add in any SDL 2.0.4 specific events.
+if pygame.get_sdl_version() >= (2, 0, 4):
     NAMES_AND_EVENTS += (
-        ("FingerMotion", pygame.FINGERMOTION),
-        ("FingerDown", pygame.FINGERDOWN),
-        ("FingerUp", pygame.FINGERUP),
-        ("MultiGesture", pygame.MULTIGESTURE),
-        ("MouseWheel", pygame.MOUSEWHEEL),
-        ("TextInput", pygame.TEXTINPUT),
-        ("TextEditing", pygame.TEXTEDITING),
-        ("WindowEvent", pygame.WINDOWEVENT),
-        ("ControllerAxisMotion", pygame.CONTROLLERAXISMOTION),
-        ("ControllerButtonDown", pygame.CONTROLLERBUTTONDOWN),
-        ("ControllerButtonUp", pygame.CONTROLLERBUTTONUP),
-        ("ControllerDeviceAdded", pygame.CONTROLLERDEVICEADDED),
-        ("ControllerDeviceRemoved", pygame.CONTROLLERDEVICEREMOVED),
-        ("ControllerDeviceMapped", pygame.CONTROLLERDEVICEREMAPPED),
-        ("DropFile", pygame.DROPFILE),
+        ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
+        ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
     )
 
-    # Add in any SDL 2.0.4 specific events.
-    if pygame.get_sdl_version() >= (2, 0, 4):
-        NAMES_AND_EVENTS += (
-            ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
-            ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
-        )
-
-    # Add in any SDL 2.0.5 specific events.
-    if pygame.get_sdl_version() >= (2, 0, 5):
-        NAMES_AND_EVENTS += (
-            ("DropText", pygame.DROPTEXT),
-            ("DropBegin", pygame.DROPBEGIN),
-            ("DropComplete", pygame.DROPCOMPLETE),
-        )
+# Add in any SDL 2.0.5 specific events.
+if pygame.get_sdl_version() >= (2, 0, 5):
+    NAMES_AND_EVENTS += (
+        ("DropText", pygame.DROPTEXT),
+        ("DropBegin", pygame.DROPBEGIN),
+        ("DropComplete", pygame.DROPCOMPLETE),
+    )
 
 
 class EventTypeTest(unittest.TestCase):
@@ -123,10 +113,8 @@ class EventTypeTest(unittest.TestCase):
 
         self.assertEqual(e.new_attr, 15)
 
-        # For Python 2.x a TypeError is raised for a readonly member;
-        # for Python 3.x it is an AttributeError.
-        self.assertRaises((TypeError, AttributeError), setattr, e, "type", 0)
-        self.assertRaises((TypeError, AttributeError), setattr, e, "dict", None)
+        self.assertRaises(AttributeError, setattr, e, "type", 0)
+        self.assertRaises(AttributeError, setattr, e, "dict", None)
 
         # Ensure attributes are visible to dir(), part of the original
         # posted request.
@@ -141,7 +129,7 @@ class EventTypeTest(unittest.TestCase):
         # For Python 3.x str(event) to raises an UnicodeEncodeError when
         # an event attribute is a string with a non-ascii character.
         try:
-            str(pygame.event.Event(EVENT_TYPES[0], a=as_unicode(r"\xed")))
+            str(pygame.event.Event(EVENT_TYPES[0], a="\xed"))
         except UnicodeEncodeError:
             self.fail("Event object raised exception for non-ascii character")
         # Passed.
@@ -199,6 +187,7 @@ class EventModuleArgsTest(unittest.TestCase):
 class EventCustomTypeTest(unittest.TestCase):
     """Those tests are special in that they need the _custom_event counter to
     be reset before and/or after being run."""
+
     def setUp(self):
         pygame.quit()
         pygame.init()
@@ -233,8 +222,7 @@ class EventCustomTypeTest(unittest.TestCase):
             pygame.event.custom_type()
 
     def test_custom_type__reset(self):
-        """Ensure custom events get 'deregistered' by quit().
-        """
+        """Ensure custom events get 'deregistered' by quit()."""
         before = pygame.event.custom_type()
         self.assertEqual(before, pygame.event.custom_type() - 1)
         pygame.quit()
@@ -246,10 +234,8 @@ class EventCustomTypeTest(unittest.TestCase):
 class EventModuleTest(unittest.TestCase):
     def _assertCountEqual(self, *args, **kwargs):
         # Handle method name differences between Python versions.
-        if PY3:
-            self.assertCountEqual(*args, **kwargs)
-        else:
-            self.assertItemsEqual(*args, **kwargs)
+        # Is this still needed?
+        self.assertCountEqual(*args, **kwargs)
 
     def _assertExpectedEvents(self, expected, got):
         """Find events like expected events, raise on unexpected or missing,
@@ -257,20 +243,27 @@ class EventModuleTest(unittest.TestCase):
 
         # This does greedy matching, don't encode an NP-hard problem
         # into your input data, *please*
-        items_left=got[:]
+        items_left = got[:]
         for expected_element in expected:
             for item in items_left:
                 for key in expected_element.__dict__:
-                    if item.__dict__[key]!=expected_element.__dict__[key]:
+                    if item.__dict__[key] != expected_element.__dict__[key]:
                         break
                 else:
-                    #found item!
+                    # found item!
                     items_left.remove(item)
                     break
             else:
-                raise AssertionError("Expected "+str(expected_element)+" among remaining events "+str(items_left)+" out of "+str(got))
-        if len(items_left)>0:
-            raise AssertionError("Unexpected Events: "+str(items_left))
+                raise AssertionError(
+                    "Expected "
+                    + str(expected_element)
+                    + " among remaining events "
+                    + str(items_left)
+                    + " out of "
+                    + str(got)
+                )
+        if len(items_left) > 0:
+            raise AssertionError("Unexpected Events: " + str(items_left))
 
     def setUp(self):
         pygame.display.init()
@@ -281,10 +274,9 @@ class EventModuleTest(unittest.TestCase):
         pygame.display.quit()
 
     def test_event_numevents(self):
-        """Ensures NUMEVENTS does not exceed the maximum SDL number of events.
-        """
+        """Ensures NUMEVENTS does not exceed the maximum SDL number of events."""
         # Ref: https://www.libsdl.org/tmp/SDL/include/SDL_events.h
-        MAX_SDL_EVENTS = 0xFFFF + 1  # SDL_LASTEVENT = 0xFFFF
+        MAX_SDL_EVENTS = 0xFFFF  # SDL_LASTEVENT = 0xFFFF
 
         self.assertLessEqual(pygame.NUMEVENTS, MAX_SDL_EVENTS)
 
@@ -299,7 +291,9 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(pygame.event.get_blocked(event))
 
-        pygame.event.post(pygame.event.Event(event, **EVENT_TEST_PARAMS[EVENT_TYPES[0]]))
+        pygame.event.post(
+            pygame.event.Event(event, **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
+        )
         ret = pygame.event.get()
         should_be_blocked = [e for e in ret if e.type == event]
 
@@ -336,8 +330,10 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(e1.attr1, posted_event.attr1, race_condition_notification)
 
         # fuzzing event types
-        for i in range(1, 11):
-            pygame.event.post(pygame.event.Event(EVENT_TYPES[i], **EVENT_TEST_PARAMS[EVENT_TYPES[i]]))
+        for i in range(1, 13):
+            pygame.event.post(
+                pygame.event.Event(EVENT_TYPES[i], **EVENT_TEST_PARAMS[EVENT_TYPES[i]])
+            )
 
             self.assertEqual(
                 pygame.event.poll().type, EVENT_TYPES[i], race_condition_notification
@@ -345,14 +341,23 @@ class EventModuleTest(unittest.TestCase):
 
     def test_post_and_get_keydown(self):
         """Ensure keydown events can be posted to the queue."""
-        surf = pygame.display.set_mode((10, 10))
-        pygame.event.get()
-        e1 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
-        pygame.event.post(e1)
-        posted_event = pygame.event.poll()
-        self.assertEqual(e1.type, posted_event.type, race_condition_notification)
-        self.assertEqual(e1.type, pygame.KEYDOWN, race_condition_notification)
-        self.assertEqual(e1.key, posted_event.key, race_condition_notification)
+        activemodkeys = pygame.key.get_mods()
+
+        events = [
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_p),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_y, mod=activemodkeys),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_g, unicode="g"),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode=None),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_m, mod=None, window=None),
+            pygame.event.Event(
+                pygame.KEYDOWN, key=pygame.K_e, mod=activemodkeys, unicode="e"
+            ),
+        ]
+
+        for e in events:
+            pygame.event.post(e)
+            posted_event = pygame.event.poll()
+            self.assertEqual(e, posted_event, race_condition_notification)
 
     def test_post_large_user_event(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT, {"a": "a" * 1024}))
@@ -360,6 +365,18 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertEqual(e.type, pygame.USEREVENT)
         self.assertEqual(e.a, "a" * 1024)
+
+    def test_post_blocked(self):
+        """
+        Test blocked events are not posted. Also test whether post()
+        returns a boolean correctly
+        """
+        pygame.event.set_blocked(pygame.USEREVENT)
+        self.assertFalse(pygame.event.post(pygame.event.Event(pygame.USEREVENT)))
+        self.assertFalse(pygame.event.poll())
+        pygame.event.set_allowed(pygame.USEREVENT)
+        self.assertTrue(pygame.event.post(pygame.event.Event(pygame.USEREVENT)))
+        self.assertEqual(pygame.event.poll(), pygame.event.Event(pygame.USEREVENT))
 
     def test_get(self):
         """Ensure get() retrieves all the events on the queue."""
@@ -378,6 +395,36 @@ class EventModuleTest(unittest.TestCase):
         queue = pygame.event.get(pygame.USEREVENT)
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        TESTEVENTS = 10
+        for _ in range(TESTEVENTS):
+            pygame.event.post(ev)
+        q = pygame.event.get([pygame.USEREVENT])
+        self.assertEqual(len(q), TESTEVENTS)
+        for event in q:
+            self.assertEqual(event, ev)
+
+    def test_get_exclude_throw(self):
+        self.assertRaises(
+            pygame.error, pygame.event.get, pygame.KEYDOWN, False, pygame.KEYUP
+        )
+
+    def test_get_exclude(self):
+        pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN))
+
+        queue = pygame.event.get(exclude=pygame.KEYDOWN)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        pygame.event.post(pygame.event.Event(pygame.KEYUP))
+        pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+        queue = pygame.event.get(exclude=(pygame.KEYDOWN, pygame.KEYUP))
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        queue = pygame.event.get()
+        self.assertEqual(len(queue), 2)
 
     def test_get__empty_queue(self):
         """Ensure get() works correctly on an empty queue."""
@@ -418,14 +465,18 @@ class EventModuleTest(unittest.TestCase):
         # Test when an event type not in the list is in the queue.
         expected_events = []
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type]))
+        pygame.event.post(
+            pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type])
+        )
 
         retrieved_events = pygame.event.get(event_types)
 
         self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test when 1 event type in the list is in the queue.
-        expected_events = [pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]])]
+        expected_events = [
+            pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]])
+        ]
         pygame.event.clear()
         pygame.event.post(expected_events[0])
 
@@ -438,7 +489,9 @@ class EventModuleTest(unittest.TestCase):
         expected_events = []
 
         for etype in event_types:
-            expected_events.append(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
+            expected_events.append(
+                pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype])
+            )
             pygame.event.post(expected_events[-1])
 
         retrieved_events = pygame.event.get(event_types)
@@ -481,7 +534,9 @@ class EventModuleTest(unittest.TestCase):
             pygame.event.post(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
 
         for etype in expected_events:
-            expected_events.append(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
+            expected_events.append(
+                pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype])
+            )
             pygame.event.post(expected_events[-1])
 
         # Clear the cleared_events from the queue.
@@ -532,30 +587,24 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(wait_event.type, event.type)
 
         # Test case with timeout and no event in the queue.
-        if SDL1:
-            with self.assertRaises(TypeError):
-                pygame.event.wait(250)
-        else:
-            wait_event = pygame.event.wait(250)
-            self.assertEqual(wait_event.type, pygame.NOEVENT)
+        wait_event = pygame.event.wait(250)
+        self.assertEqual(wait_event.type, pygame.NOEVENT)
 
         # Test case with timeout and an event in the queue.
-        if SDL1:
-            with self.assertRaises(TypeError):
-                pygame.event.wait(250)
-        else:
-            event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
-            pygame.event.post(event)
-            wait_event = pygame.event.wait(250)
+        event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
+        pygame.event.post(event)
+        wait_event = pygame.event.wait(250)
 
-            self.assertEqual(wait_event.type, event.type)
+        self.assertEqual(wait_event.type, event.type)
 
     def test_peek(self):
         """Ensure queued events can be peeked at."""
         event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
 
         for event_type in event_types:
-            pygame.event.post(pygame.event.Event(event_type, **EVENT_TEST_PARAMS[event_type]))
+            pygame.event.post(
+                pygame.event.Event(event_type, **EVENT_TEST_PARAMS[event_type])
+            )
 
         # Ensure events can be checked individually.
         for event_type in event_types:
@@ -577,7 +626,9 @@ class EventModuleTest(unittest.TestCase):
 
         # Test when an event type not in the list is in the queue.
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type]))
+        pygame.event.post(
+            pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type])
+        )
 
         peeked = pygame.event.peek(event_types)
 
@@ -585,7 +636,9 @@ class EventModuleTest(unittest.TestCase):
 
         # Test when 1 event type in the list is in the queue.
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]]))
+        pygame.event.post(
+            pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]])
+        )
 
         peeked = pygame.event.peek(event_types)
 
@@ -631,8 +684,7 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(pygame.event.get_blocked(event))
 
     def test_set_allowed__event_sequence(self):
-        """Ensure a sequence of blocked event types can be unblocked/allowed.
-        """
+        """Ensure a sequence of blocked event types can be unblocked/allowed."""
         event_types = [
             pygame.KEYDOWN,
             pygame.KEYUP,
@@ -663,10 +715,12 @@ class EventModuleTest(unittest.TestCase):
         """Ensure pump() functions properly."""
         pygame.event.pump()
 
-    @unittest.skipIf(
-        os.environ.get("SDL_VIDEODRIVER") == "dummy",
-        'requires the SDL_VIDEODRIVER to be a non "dummy" value',
-    )
+    # @unittest.skipIf(
+    #     os.environ.get("SDL_VIDEODRIVER") == "dummy",
+    #     'requires the SDL_VIDEODRIVER to be a non "dummy" value',
+    # )
+    # Fails on SDL 2.0.18
+    @unittest.skip("flaky test, and broken on 2.0.18 windows")
     def test_set_grab__and_get_symmetric(self):
         """Ensure event grabbing can be enabled and disabled.
 
@@ -683,6 +737,7 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(pygame.event.get_grab())
 
     def test_event_equality(self):
+        """Ensure an events can be compared correctly."""
         a = pygame.event.Event(EVENT_TYPES[0], a=1)
         b = pygame.event.Event(EVENT_TYPES[0], a=1)
         c = pygame.event.Event(EVENT_TYPES[1], a=1)
@@ -744,32 +799,39 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(blocked)
 
-    def todo_test_get_grab(self):
+    # @unittest.skipIf(
+    #     os.environ.get("SDL_VIDEODRIVER") == "dummy",
+    #     'requires the SDL_VIDEODRIVER to be a non "dummy" value',
+    # )
+    # Fails on SDL 2.0.18
+    @unittest.skip("flaky test, and broken on 2.0.18 windows")
+    def test_get_grab(self):
+        """Ensure get_grab() works as expected"""
+        surf = pygame.display.set_mode((10, 10))
+        # Test 5 times
+        for i in range(5):
+            pygame.event.set_grab(i % 2)
+            self.assertEqual(pygame.event.get_grab(), i % 2)
 
-        # __doc__ (as of 2008-08-02) for pygame.event.get_grab:
+    def test_poll(self):
+        """Ensure poll() works as expected"""
+        pygame.event.clear()
+        ev = pygame.event.poll()
+        # poll() on empty queue should return NOEVENT
+        self.assertEqual(ev.type, pygame.NOEVENT)
 
-        # pygame.event.get_grab(): return bool
-        # test if the program is sharing input devices
-        #
-        # Returns true when the input events are grabbed for this application.
-        # Use pygame.event.set_grab() to control this state.
-        #
+        # test poll returns stuff in same order
+        e1 = pygame.event.Event(pygame.USEREVENT)
+        e2 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
+        e3 = pygame.event.Event(pygame.KEYUP, key=pygame.K_a)
+        pygame.event.post(e1)
+        pygame.event.post(e2)
+        pygame.event.post(e3)
 
-        self.fail()
-
-    def todo_test_poll(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.event.poll:
-
-        # pygame.event.poll(): return Event
-        # get a single event from the queue
-        #
-        # Returns a single event from the queue. If the event queue is empty
-        # an event of type pygame.NOEVENT will be returned immediately. The
-        # returned event is removed from the queue.
-        #
-
-        self.fail()
+        self.assertEqual(pygame.event.poll().type, e1.type)
+        self.assertEqual(pygame.event.poll().type, e2.type)
+        self.assertEqual(pygame.event.poll().type, e3.type)
+        self.assertEqual(pygame.event.poll().type, pygame.NOEVENT)
 
 
 ################################################################################

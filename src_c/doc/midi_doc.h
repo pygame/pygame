@@ -7,7 +7,7 @@
 #define DOC_INPUTCLOSE "close() -> None\ncloses a midi stream, flushing any pending buffers."
 #define DOC_INPUTPOLL "poll() -> bool\nreturns True if there's data, or False if not."
 #define DOC_INPUTREAD "read(num_events) -> midi_event_list\nreads num_events midi events from the buffer."
-#define DOC_PYGAMEMIDIOUTPUT "Output(device_id) -> None\nOutput(device_id, latency=0) -> None\nOutput(device_id, buffer_size=4096) -> None\nOutput(device_id, latency, buffer_size) -> None\nOutput is used to send midi to an output device"
+#define DOC_PYGAMEMIDIOUTPUT "Output(device_id) -> None\nOutput(device_id, latency=0) -> None\nOutput(device_id, buffer_size=256) -> None\nOutput(device_id, latency, buffer_size) -> None\nOutput is used to send midi to an output device"
 #define DOC_OUTPUTABORT "abort() -> None\nterminates outgoing messages immediately"
 #define DOC_OUTPUTCLOSE "close() -> None\ncloses a midi stream, flushing any pending buffers."
 #define DOC_OUTPUTNOTEOFF "note_off(note, velocity=None, channel=0) -> None\nturns a midi note off (note must be on)"
@@ -68,7 +68,7 @@ reads num_events midi events from the buffer.
 pygame.midi.Output
  Output(device_id) -> None
  Output(device_id, latency=0) -> None
- Output(device_id, buffer_size=4096) -> None
+ Output(device_id, buffer_size=256) -> None
  Output(device_id, latency, buffer_size) -> None
 Output is used to send midi to an output device
 

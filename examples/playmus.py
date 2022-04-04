@@ -23,7 +23,7 @@ import pygame as pg
 import pygame.freetype
 
 
-class Window(object):
+class Window:
     """The application's Pygame window
 
     A Window instance manages the creation of and drawing to a
@@ -46,7 +46,9 @@ class Window(object):
 
     def __init__(self, title):
         pg.display.set_caption(title)
-        self.screen.fill(pg.Color("white"))
+        self.text_color = (254, 231, 21, 255)
+        self.background_color = (16, 24, 32, 255)
+        self.screen.fill(self.background_color)
         pg.display.flip()
 
         pygame.freetype.init()
@@ -57,10 +59,11 @@ class Window(object):
         self.line_height = self.ascender - self.descender
 
         self.write_lines(
-            "'q', ESCAPE or close this window to quit\n"
-            "SPACE to play/pause\n"
-            "'r' to rewind\n"
-            "'f' to faid out over 5 seconds\n",
+            "\nPress 'q' or 'ESCAPE' or close this window to quit\n"
+            "Press 'SPACE' to play / pause\n"
+            "Press 'r' to rewind to the beginning (restart)\n"
+            "Press 'f' to fade music out over 5 seconds\n\n"
+            "Window will quit automatically when music ends\n",
             0,
         )
 
@@ -84,10 +87,11 @@ class Window(object):
         for i, text_line in enumerate(text.split("\n"), line):
             y = i * line_height + self.ascender
             # Clear the line first.
-            self.screen.fill(pg.Color("white"), (0, i * line_height, w, line_height))
-
+            self.screen.fill(
+                self.background_color, (0, i * line_height, w, line_height)
+            )
             # Write new text.
-            self.font.render_to(self.screen, (15, y), text_line, pg.Color("blue"))
+            self.font.render_to(self.screen, (15, y), text_line, self.text_color)
         pg.display.flip()
 
 
@@ -112,7 +116,7 @@ def main(file_path):
             pg.mixer.music.play()
             win.write_lines("Playing ...\n", -1)
 
-            while pg.mixer.music.get_busy():
+            while pg.mixer.music.get_busy() or paused:
                 e = pg.event.wait()
                 if e.type == pg.KEYDOWN:
                     key = e.key
@@ -126,22 +130,31 @@ def main(file_path):
                             paused = True
                             win.write_lines("Paused ...\n", -1)
                     elif key == pg.K_r:
-                        pg.mixer.music.rewind()
+                        if file_path[-3:].lower() in ("ogg", "mp3", "mod"):
+                            status = "Rewound."
+                            pg.mixer.music.rewind()
+                        else:
+                            status = "Restarted."
+                            pg.mixer.music.play()
                         if paused:
-                            win.write_lines("Rewound.", -1)
+                            pg.mixer.music.pause()
+                            win.write_lines(status, -1)
                     elif key == pg.K_f:
                         win.write_lines("Fading out ...\n", -1)
                         pg.mixer.music.fadeout(5000)
-                        # when finished get_busy() will return 0.
+                        # when finished get_busy() will return False.
                     elif key in [pg.K_q, pg.K_ESCAPE]:
+                        paused = False
                         pg.mixer.music.stop()
-                        # get_busy() will now return 0.
+                        # get_busy() will now return False.
                 elif e.type == pg.QUIT:
+                    paused = False
                     pg.mixer.music.stop()
-                    # get_busy() will now return 0.
+                    # get_busy() will now return False.
             pg.time.set_timer(pg.USEREVENT, 0)
         finally:
             pg.mixer.quit()
+    pg.quit()
 
 
 if __name__ == "__main__":

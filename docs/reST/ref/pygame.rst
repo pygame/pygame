@@ -289,3 +289,200 @@ check which version of pygame has been imported.
 .. ## pygame.version ##
 
 .. ## pygame ##
+
+.. _environment-variables:
+
+**Setting Environment Variables**
+
+Some aspects of pygame's behaviour can be controlled by setting environment variables, they cover a wide
+range of the library's functionality. Some of the variables are from pygame itself, while others come from
+the underlying C SDL library that pygame uses.
+
+In python, environment variables are usually set in code like this::
+
+     import os
+     os.environ['NAME_OF_ENVIRONMENT_VARIABLE'] = 'value_to_set'
+
+Or to preserve users ability to override the variable::
+
+     import os
+     os.environ['ENV_VAR'] = os.environ.get('ENV_VAR', 'value')
+
+If the variable is more useful for users of an app to set than the developer then they can set it like this:
+
+**Windows**::
+
+    set NAME_OF_ENVIRONMENT_VARIABLE=value_to_set
+    python my_application.py
+
+**Linux/Mac**::
+
+    ENV_VAR=value python my_application.py
+
+For some variables they need to be set before initialising pygame, some must be set before even importing pygame,
+and others can simply be set right before the area of code they control is run.
+
+Below is a list of environment variables, their settable values, and a brief description of what they do.
+
+|
+
+**Pygame Environment Variables**
+
+These variables are defined by pygame itself.
+
+|
+
+::
+
+ PYGAME_DISPLAY - Experimental (subject to change)
+ Set index of the display to use, "0" is the default.
+
+This sets the display where pygame will open its window
+or screen. The value set here will be used if set before
+calling :func:`pygame.display.set_mode()`, and as long as no
+'display' parameter is passed into :func:`pygame.display.set_mode()`.
+
+|
+
+::
+
+ PYGAME_FORCE_SCALE -
+ Set to "photo" or "default".
+
+This forces set_mode() to use the SCALED display mode and,
+if "photo" is set, makes the scaling use the slowest, but
+highest quality anisotropic scaling algorithm, if it is
+available. Must be set before calling :func:`pygame.display.set_mode()`.
+
+|
+
+::
+
+ PYGAME_BLEND_ALPHA_SDL2 - New in pygame 2.0.0
+ Set to "1" to enable the SDL2 blitter.
+
+This makes pygame use the SDL2 blitter for all alpha
+blending. The SDL2 blitter is sometimes faster than
+the default blitter but uses a different formula so
+the final colours may differ. Must be set before
+:func:`pygame.init()` is called.
+
+|
+
+::
+
+ PYGAME_HIDE_SUPPORT_PROMPT -
+ Set to "1" to hide the prompt.
+
+This stops the welcome message popping up in the
+console that tells you which version of python,
+pygame & SDL you are using. Must be set before
+importing pygame.
+
+|
+
+::
+
+ PYGAME_FREETYPE -
+ Set to "1" to enable.
+
+This switches the pygame.font module to a pure
+freetype implementation that bypasses SDL_ttf.
+See the font module for why you might want to
+do this. Must be set before importing pygame.
+
+|
+
+::
+
+ PYGAME_CAMERA -
+ Set to "opencv" or "vidcapture"
+
+Forces the library backend used in the camera
+module, overriding the platform defaults. Must
+be set before calling :func:`pygame.camera.init()`.
+
+In pygame 2.0.3, backends can be set programmatically instead, and the old
+OpenCV backend has been replaced with one on top of "opencv-python," rather
+than the old "highgui" OpenCV port. Also, there is a new native Windows
+backend available.
+
+|
+|
+
+**SDL Environment Variables**
+
+These variables are defined by SDL.
+
+For documentation on the environment variables available in
+pygame 1 try `here
+<https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlenvvars.html>`__.
+For Pygame 2, some selected environment variables are listed below.
+
+|
+
+::
+
+ SDL_VIDEO_CENTERED -
+ Set to "1" to enable centering the window.
+
+This will make the pygame window open in the centre of the display.
+Must be set before calling :func:`pygame.display.set_mode()`.
+
+|
+
+::
+
+ SDL_VIDEO_WINDOW_POS -
+ Set to "x,y" to position the top left corner of the window.
+
+This allows control over the placement of the pygame window within
+the display. Must be set before calling :func:`pygame.display.set_mode()`.
+
+|
+
+::
+
+ SDL_VIDEODRIVER -
+ Set to "drivername" to change the video driver used.
+
+On some platforms there are multiple video drivers available and
+this allows users to pick between them. More information is available
+`here <https://wiki.libsdl.org/FAQUsingSDL>`__. Must be set before
+calling :func:`pygame.init()` or :func:`pygame.display.init()`.
+
+|
+
+::
+
+ SDL_AUDIODRIVER -
+ Set to "drivername" to change the audio driver used.
+
+On some platforms there are multiple audio drivers available and
+this allows users to pick between them. More information is available
+`here <https://wiki.libsdl.org/FAQUsingSDL>`__. Must be set before
+calling :func:`pygame.init()` or :func:`pygame.mixer.init()`.
+
+|
+
+::
+
+ SDL_VIDEO_ALLOW_SCREENSAVER
+ Set to "1" to allow screensavers while pygame apps are running.
+
+By default pygame apps disable screensavers while
+they are running. Setting this environment variable allows users or
+developers to change that and make screensavers run again.
+
+|
+
+::
+
+ SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+ Set to "0" to re-enable the compositor.
+
+By default SDL tries to disable the X11 compositor for all pygame
+apps. This is usually a good thing as it's faster, however if you
+have an app which *doesn't* update every frame and are using linux
+you may want to disable this bypass. The bypass has reported problems
+on KDE linux. This variable is only used on x11/linux platforms.

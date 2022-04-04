@@ -71,19 +71,6 @@ pygame much earlier.
 
    .. ## pygame.examples.aliens.main ##
 
-.. function:: oldalien.main
-
-   | :sl:`play the original aliens example`
-   | :sg:`oldalien.main() -> None`
-
-   This more closely resembles a port of the ``SDL`` Aliens demo. The code is a
-   lot simpler, so it makes a better starting point for people looking at code
-   for the first times. These blitting routines are not as optimized as they
-   should/could be, but the code is easier to follow, and it plays quick
-   enough.
-
-   .. ## pygame.examples.oldalien.main ##
-
 .. function:: stars.main
 
    | :sl:`run a simple starfield example`
@@ -313,37 +300,16 @@ pygame much earlier.
 
    .. ## pygame.examples.headless_no_windows_needed.main ##
 
-.. function:: fastevents.main
+.. function:: joystick.main
 
-   | :sl:`stress test the fastevents module`
-   | :sg:`fastevents.main() -> None`
+   | :sl:`demonstrate joystick functionality`
+   | :sg:`joystick.main() -> None`
 
-   This is a stress test for the fastevents module.
+   A demo showing full joystick support.
 
-      * Fast events does not appear faster!
+   .. versionadded:: 2.0.2
 
-      * 
-
-   So far it looks like normal :mod:`pygame.event` is faster by up to two
-   times. So maybe fastevent isn't fast at all.
-
-   Tested on Windows XP SP2 Athlon, and FreeBSD.
-
-   However... on my Debian Duron 850 machine fastevents is faster.
-
-   .. ## pygame.examples.fastevents.main ##
-
-.. function:: overlay.main
-
-   | :sl:`play a .pgm video using overlays`
-   | :sg:`overlay.main(fname) -> None`
-
-   Play the .pgm video file given by a path fname.
-
-   If run as a program ``overlay.py`` takes the file name as a command line
-   argument.
-
-   .. ## pygame.examples.overlay.main ##
+   .. ## pygame.examples.joystick.main ##
 
 .. function:: blend_fill.main
 

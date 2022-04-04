@@ -34,29 +34,25 @@
 #include "scrap.h"
 
 #include <AvailabilityMacros.h>
-/* We support OSX 10.6 and below. */
+/* We dont support OSX 10.6 and below. */
 #if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
-	#define PYGAME_MAC_SCRAP_OLD 1
+    #define PYGAME_MAC_SCRAP_OLD 1
 #endif
 
-
-
-
-struct CPSProcessSerNum
-{
-	UInt32 lo;
-	UInt32 hi;
+struct CPSProcessSerNum {
+    UInt32 lo;
+    UInt32 hi;
 };
+
 typedef struct CPSProcessSerNum CPSProcessSerNum;
 
-extern OSErr CPSGetCurrentProcess( CPSProcessSerNum *psn);
-extern OSErr CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
-extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
-extern OSErr CPSSetProcessName ( CPSProcessSerNum *psn, const char *processname );
+extern OSErr CPSGetCurrentProcess(CPSProcessSerNum *psn);
+extern OSErr CPSEnableForegroundOperation(CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
+extern OSErr CPSSetFrontProcess(CPSProcessSerNum *psn);
+extern OSErr CPSSetProcessName(CPSProcessSerNum *psn, const char *processname);
 
-static bool HasInstalledApplication = 0;
-
-static NSString *getApplicationName(void)
+static NSString *
+getApplicationName(void)
 {
     const NSDictionary *dict;
     NSString *appName = 0;
@@ -72,59 +68,29 @@ static NSString *getApplicationName(void)
     return appName;
 }
 
-static PyObject*
-_WMEnable(PyObject* self)
+static PyObject *
+_WMEnable(PyObject *self)
 {
-	CPSProcessSerNum psn;
-    OSErr err;
+    CPSProcessSerNum psn;
     const char* nameString;
     NSString* nameNSString;
 
-    err = CPSGetCurrentProcess(&psn);
-    if (err == 0)
-    {
-    	nameNSString = getApplicationName();
-    	nameString = [nameNSString UTF8String];
-    	CPSSetProcessName(&psn, nameString);
+    if (!CPSGetCurrentProcess(&psn)) {
+        nameNSString = getApplicationName();
+        nameString = [nameNSString UTF8String];
+        CPSSetProcessName(&psn, nameString);
 
-        err = CPSEnableForegroundOperation(&psn,0x03,0x3C,0x2C,0x1103);
-        if (err == 0)
-        {
-        	err = CPSSetFrontProcess(&psn);
-        	if (err != 0)
-        	{
-            	return RAISE (pgExc_SDLError, "CPSSetFrontProcess failed");
-        	}
+        if (!CPSEnableForegroundOperation(&psn, 0x03, 0x3C, 0x2C, 0x1103)) {
+            if (CPSSetFrontProcess(&psn))
+                return RAISE(pgExc_SDLError, "CPSSetFrontProcess failed");
         }
         else
-        {
-        	return RAISE (pgExc_SDLError, "CPSEnableForegroundOperation failed");
-        }
+            return RAISE(pgExc_SDLError, "CPSEnableForegroundOperation failed");
     }
     else
-    {
-    	return RAISE (pgExc_SDLError, "CPSGetCurrentProcess failed");
-    }
+        return RAISE(pgExc_SDLError, "CPSGetCurrentProcess failed");
 
     Py_RETURN_TRUE;
-}
-
-static PyObject*
-_RunningFromBundleWithNSApplication(PyObject* self)
-{
-	if (HasInstalledApplication)
-	{
-		Py_RETURN_TRUE;
-	}
-	CFBundleRef MainBundle = CFBundleGetMainBundle();
-	if (MainBundle != NULL)
-	{
-		if (CFBundleGetDataPointerForName(MainBundle, CFSTR("NSApp")) != NULL)
-		{
-			Py_RETURN_TRUE;
-		}
-	}
-    Py_RETURN_FALSE;
 }
 
 //#############################################################################
@@ -150,7 +116,9 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 }
 @end
 
-static void setApplicationMenu(void)
+/* The below functions are unused for now, hence commented
+static void
+setApplicationMenu(void)
 {
     NSMenu *appleMenu;
     NSMenuItem *menuItem;
@@ -196,11 +164,11 @@ static void setApplicationMenu(void)
     [menuItem release];
 }
 
-static void setupWindowMenu(void)
+static void
+setupWindowMenu(void)
 {
-    NSMenu      *windowMenu;
-    NSMenuItem  *windowMenuItem;
-    NSMenuItem  *menuItem;
+    NSMenu *windowMenu;
+    NSMenuItem *windowMenuItem, *menuItem;
 
     windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
 
@@ -217,228 +185,183 @@ static void setupWindowMenu(void)
     [windowMenu release];
     [windowMenuItem release];
 }
+*/
 
-static PyObject*
-_InstallNSApplication(PyObject* self, PyObject* arg)
+static PyObject *
+_ScrapInit(PyObject *self)
 {
-    char* icon_data = NULL;
-    int data_len = 0;
-    NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
-
-    [PYGSDLApplication sharedApplication];
-
-    [NSApp setMainMenu:[[NSMenu alloc] init]];
-    setApplicationMenu();
-    setupWindowMenu();
-
-    [NSApp finishLaunching];
-    [NSApp updateWindows];
-    [NSApp activateIgnoringOtherApps:true];
-
-    HasInstalledApplication = 1;
-
-    _WMEnable(NULL);
-
-    if (PyArg_ParseTuple (arg, "|z#", &icon_data, &data_len))
-    {
-        NSData *image_data = [NSData dataWithBytes:icon_data length:data_len];
-        NSImage *icon_img = [[NSImage alloc] initWithData:image_data];
-        if (icon_img != NULL)
-        {
-            [NSApp setApplicationIconImage:icon_img];
-        }
-    } else {
-        [pool release];
-        return NULL;
-    }
-
-    [pool release];
-
-	Py_RETURN_TRUE;
+    Py_RETURN_TRUE;
 }
 
 static PyObject*
-_ScrapInit(PyObject* self) {
-	Py_RETURN_TRUE;
-}
-
-static PyObject*
-_ScrapGet(PyObject *self, PyObject *args) {
-	char *scrap_type;
+_ScrapGet(PyObject *self, PyObject *args)
+{
 #if defined (PYGAME_MAC_SCRAP_OLD)
     Py_RETURN_NONE;
 #else
-	if (!PyArg_ParseTuple (args, "s", &scrap_type)) {
-		return NULL;
-    }
+    char *scrap_type;
+    if (!PyArg_ParseTuple(args, "s", &scrap_type))
+        return NULL;
 
-	// anything else than text is not implemented
-	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT)) {
+    // anything else than text is not implemented
+    if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
         Py_RETURN_NONE;
-    }
 
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
     PyObject *ret = NULL;
 
-	if (info != nil) {
-		ret = PyUnicode_FromString([info UTF8String]);
-    }
-	[pool release];
-    if (!ret) {
+    if (info != nil)
+        ret = PyUnicode_FromString([info UTF8String]);
+
+    [pool release];
+    if (!ret)
         Py_RETURN_NONE;
-    }
-	return ret;
+    return ret;
 #endif
 }
 
-static PyObject*
-_ScrapGetTypes(PyObject *self) {
-#if defined (PYGAME_MAC_SCRAP_OLD)
+static PyObject *
+_ScrapGetTypes(PyObject *self)
+{
+#ifdef PYGAME_MAC_SCRAP_OLD
     Py_RETURN_NONE;
 #else
-	PyObject *l = PyList_New(0);
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	NSPasteboard *pb = [NSPasteboard generalPasteboard];
-	NSArray *types = [pb types];
-	for (NSString *type in types)
-		PyList_Append(l, PyUnicode_FromString([type UTF8String]));
-	[pool release];
-	return l;
-#endif
-}
-
-static PyObject*
-_ScrapPut(PyObject *self, PyObject *args) {
-	char *scrap_type;
-	char *data;
-
-#if defined (PYGAME_MAC_SCRAP_OLD)
-    Py_RETURN_NONE;
-#else
-
-	if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data)) {
+    PyObject *list = PyList_New(0);
+    if (!list)
         return NULL;
-    }
 
-	// anything else than text is not implemented
-	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT)) {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSArray *types = [pb types];
+
+    for (NSString *type in types) {
+        if (PyList_Append(list, PyUnicode_FromString([type UTF8String]))) {
+            Py_DECREF(list);
+            [pool release];
+            return NULL;
+        }
+    }
+    [pool release];
+    return list;
+#endif
+}
+
+static PyObject *
+_ScrapPut(PyObject *self, PyObject *args)
+{
+#ifndef PYGAME_MAC_SCRAP_OLD
+    char *scrap_type, *data;
+
+    if (!PyArg_ParseTuple(args, "ss", &scrap_type, &data))
+        return NULL;
+
+    // anything else than text is not implemented
+    if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
         Py_RETURN_NONE;
-    }
 
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	NSPasteboard *pb = [NSPasteboard generalPasteboard];
-	NSString *ndata = [NSString stringWithCString:(char *)data encoding:NSUTF8StringEncoding];
-	[pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
-	[pb setString:ndata forType: NSStringPboardType];
-	[pool release];
-    Py_RETURN_NONE;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSString *ndata = [NSString stringWithCString:(char *)data encoding:NSUTF8StringEncoding];
+    [pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
+    [pb setString:ndata forType: NSStringPboardType];
+    [pool release];
 #endif
+    Py_RETURN_NONE;
 }
 
 static PyObject*
-_ScrapSetMode(PyObject *self, PyObject *args) {
-#if defined (PYGAME_MAC_SCRAP_OLD)
-    Py_RETURN_NONE;
-#else
-	char *mode;
-	if (!PyArg_ParseTuple (args, "s", &mode)) {
+_ScrapSetMode(PyObject *self, PyObject *args)
+{
+#ifndef PYGAME_MAC_SCRAP_OLD
+    char *mode;
+    if (!PyArg_ParseTuple(args, "s", &mode))
         return NULL;
-    }
-
-    Py_RETURN_NONE;
+    /* ankith26:
+     * TODO - Someone who understands whats going on here, pls fill code
+     * here. Im just doing cleanup, I dont understand this stuff */
 #endif
+    Py_RETURN_NONE;
 }
 
 static PyObject*
-_ScrapContains(PyObject *self, PyObject *args) {
-#if defined (PYGAME_MAC_SCRAP_OLD)
+_ScrapContains(PyObject *self, PyObject *args)
+{
+#ifdef PYGAME_MAC_SCRAP_OLD
     Py_RETURN_NONE;
 #else
-	char *mode;
-	int found = 0;
-	if (!PyArg_ParseTuple (args, "s", &mode)) {
+    char *mode;
+    PyObject *ret = Py_False;
+    if (!PyArg_ParseTuple (args, "s", &mode))
         return NULL;
+
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSArray *types = [pb types];
+    for (NSString *type in types) {
+        if (strcmp([type UTF8String], mode) == 0)
+            ret = Py_True;
     }
+    [pool release];
 
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	NSPasteboard *pb = [NSPasteboard generalPasteboard];
-	NSArray *types = [pb types];
-	for (NSString *type in types)
-		if (strcmp([type UTF8String], mode) == 0)
-			found = 1;
-	[pool release];
-
-	return found ? Py_True : Py_False;
+    Py_INCREF(ret);
+    return ret;
 #endif
 }
 
-static PyObject*
-_ScrapLost(PyObject *self) {
-#if defined (PYGAME_MAC_SCRAP_OLD)
+static PyObject *
+_ScrapLost(PyObject *self)
+{
+#ifdef PYGAME_MAC_SCRAP_OLD
     Py_RETURN_NONE;
 #else
-	int found = 0;
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	NSArray *supportedTypes =
-		[NSArray arrayWithObjects: NSStringPboardType, nil];
-	NSString *bestType = [[NSPasteboard generalPasteboard]
-		availableTypeFromArray:supportedTypes];
-	found = bestType != nil;
-	[pool release];
+    PyObject *ret;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSArray *supportedTypes =
+            [NSArray arrayWithObjects: NSStringPboardType, nil];
+    NSString *bestType = [[NSPasteboard generalPasteboard]
+            availableTypeFromArray:supportedTypes];
+    ret = (bestType == nil) ? Py_True : Py_False;
+    [pool release];
 
-	return found ? Py_False : Py_True;
+    Py_INCREF(ret);
+    return ret;
 #endif
 }
 
 static PyMethodDef macosx_builtins[] =
 {
-    { "WMEnable", (PyCFunction) _WMEnable, METH_NOARGS, "Enables Foreground Operation when Window Manager is not available" },
-    { "RunningFromBundleWithNSApplication", (PyCFunction) _RunningFromBundleWithNSApplication, METH_NOARGS, "Returns true if we are running from an AppBundle with a variable named NSApp" },
-    { "InstallNSApplication", _InstallNSApplication, METH_VARARGS, "Creates an NSApplication with the right behaviors for SDL" },
-    { "ScrapInit", (PyCFunction) _ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
-    { "ScrapGet", (PyCFunction) _ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
-    { "ScrapPut", (PyCFunction) _ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
-    { "ScrapGetTypes", (PyCFunction) _ScrapGetTypes, METH_NOARGS, "Get scrap types for osx" },
-    { "ScrapSetMode", (PyCFunction) _ScrapSetMode, METH_VARARGS, "Set mode for osx scrap (not used)" },
-    { "ScrapContains", (PyCFunction) _ScrapContains, METH_VARARGS, "Check if a type is allowed on osx scrap (not used)" },
-    { "ScrapLost", (PyCFunction) _ScrapLost, METH_NOARGS, "Check if our type is lost from scrap for osx" },
-    { NULL, NULL, 0, NULL}
+    {"WMEnable", (PyCFunction)_WMEnable, METH_NOARGS, "Enables Foreground Operation when Window Manager is not available" },
+    {"ScrapInit", (PyCFunction)_ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
+    {"ScrapGet", (PyCFunction)_ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
+    {"ScrapPut", (PyCFunction)_ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
+    {"ScrapGetTypes", (PyCFunction)_ScrapGetTypes, METH_NOARGS, "Get scrap types for osx" },
+    {"ScrapSetMode", (PyCFunction)_ScrapSetMode, METH_VARARGS, "Set mode for osx scrap (not used)" },
+    {"ScrapContains", (PyCFunction)_ScrapContains, METH_VARARGS, "Check if a type is allowed on osx scrap (not used)" },
+    {"ScrapLost", (PyCFunction)_ScrapLost, METH_NOARGS, "Check if our type is lost from scrap for osx" },
+    {NULL, NULL, 0, NULL}
 };
-
-
 
 MODINIT_DEFINE (sdlmain_osx)
 {
-    PyObject *module;
-
     /* create the module */
-
-#if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         MODPREFIX "sdlmain_osx",
         NULL,
         -1,
         macosx_builtins,
-        NULL, NULL, NULL, NULL
+        NULL,
+        NULL,
+        NULL,
+        NULL
     };
-#endif
-
-
-#if PY3
-    module = PyModule_Create (&_module);
-#else
-    module = Py_InitModule3 (MODPREFIX "sdlmain_osx", macosx_builtins, NULL);
-#endif
-
 
     /*imported needed apis*/
-    import_pygame_base ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
+    import_pygame_base();
+    if (PyErr_Occurred()) {
+        return NULL;
     }
 
-
-    MODINIT_RETURN (module);
+    return PyModule_Create(&_module);
 }

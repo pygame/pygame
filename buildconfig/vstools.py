@@ -1,7 +1,6 @@
 # -*- coding:latin-1 -*-
 
 import re
-import sys
 from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 import subprocess
 import os
@@ -26,8 +25,6 @@ def find_symbols(dll):
             [dumpbin_path, '/nologo', '/exports', dll],
             universal_newlines=True,
         )
-        if sys.version_info.major < 3:
-            output = output.decode()
     except subprocess.CalledProcessError as e:
         raise DumpbinError(e.output)
 

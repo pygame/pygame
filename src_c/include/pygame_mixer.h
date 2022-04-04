@@ -31,19 +31,17 @@
 struct Mix_Chunk;
 
 typedef struct {
-  PyObject_HEAD
-  Mix_Chunk *chunk;
-  Uint8 *mem;
-  PyObject *weakreflist;
+    PyObject_HEAD Mix_Chunk *chunk;
+    Uint8 *mem;
+    PyObject *weakreflist;
 } pgSoundObject;
 
 typedef struct {
-  PyObject_HEAD
-  int chan;
+    PyObject_HEAD int chan;
 } pgChannelObject;
 
-#define pgSound_AsChunk(x) (((pgSoundObject*)x)->chunk)
-#define pgChannel_AsInt(x) (((pgChannelObject*)x)->chan)
+#define pgSound_AsChunk(x) (((pgSoundObject *)x)->chunk)
+#define pgChannel_AsInt(x) (((pgChannelObject *)x)->chan)
 
 #include "pgimport.h"
 
@@ -51,29 +49,20 @@ typedef struct {
 
 PYGAMEAPI_DEFINE_SLOTS(mixer);
 
-#define pgSound_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(mixer, 0))
+#define pgSound_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mixer, 0))
 
 #define pgSound_Check(x) ((x)->ob_type == &pgSound_Type)
 
-#define pgSound_New (*(PyObject*(*)(Mix_Chunk*)) \
-    PYGAMEAPI_GET_SLOT(mixer, 1))
+#define pgSound_New \
+    (*(PyObject * (*)(Mix_Chunk *)) PYGAMEAPI_GET_SLOT(mixer, 1))
 
-#define pgSound_Play (*(PyObject*(*)(PyObject*, PyObject*)) \
-    PYGAMEAPI_GET_SLOT(mixer, 2))
+#define pgSound_Play \
+    (*(PyObject * (*)(PyObject *, PyObject *)) PYGAMEAPI_GET_SLOT(mixer, 2))
 
-#define pgChannel_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(mixer, 3))
+#define pgChannel_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mixer, 3))
 #define pgChannel_Check(x) ((x)->ob_type == &pgChannel_Type)
 
-#define pgChannel_New (*(PyObject*(*)(int)) \
-    PYGAMEAPI_GET_SLOT(mixer, 4))
-
-#define pgMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*)) \
-    PYGAMEAPI_GET_SLOT(mixer, 5))
-
-#define pgMixer_AutoQuit (*(void(*)(void)) \
-    PYGAMEAPI_GET_SLOT(mixer, 6))
+#define pgChannel_New (*(PyObject * (*)(int)) PYGAMEAPI_GET_SLOT(mixer, 4))
 
 #define import_pygame_mixer() _IMPORT_PYGAME_MODULE(mixer)
 

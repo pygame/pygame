@@ -29,42 +29,64 @@ char **
 v4l2_list_cameras(int *num_devices)
 {
     char **devices;
-    char *device;
+    char *device = NULL;
     int num, i, fd;
 
-    num = *num_devices;
+    num = *num_devices = 0;
 
     devices = (char **)malloc(sizeof(char *) * 65);
-
-    device = (char *)malloc(sizeof(char) * 13);
-    strcpy(device, "/dev/video");
-    fd = open(device, O_RDONLY);
-    if (fd != -1) {
-        devices[num] = device;
-        num++;
-        device = (char *)malloc(sizeof(char) * 13);
+    if (!devices) {
+        return NULL;
     }
-    close(fd);
+
     /* v4l2 cameras can be /dev/video and /dev/video0 to /dev/video63 */
-    for (i = 0; i < 64; i++) {
-        sprintf(device, "/dev/video%d", i);
+    for (i = -1; i < 64; i++) {
+        device = (char *)malloc(sizeof(char) * 13);
+        if (!device) {
+            goto error;
+        }
+
+        if (i == -1) {
+            strcpy(device, "/dev/video");
+        }
+        else {
+            int ret = PyOS_snprintf(device, 13, "/dev/video%d", i);
+            if (ret < 0 || ret >= 13) {
+                goto error;
+            }
+        }
+
         fd = open(device, O_RDONLY);
-        if (fd != -1) {
+        if (fd == -1) {
+            free(device);
+        }
+        else {
+            /* 'device' is in array now, don't free it here */
             devices[num] = device;
             num++;
-            device = (char *)malloc(sizeof(char) * 13);
         }
-        close(fd);
+        device = NULL;
+
+        if (close(fd) == -1) {
+            /* Error while closing file */
+            goto error;
+        }
     }
 
-    if (num == *num_devices) {
-        free(device);
-    }
-    else {
-        *num_devices = num;
-    }
-
+    *num_devices = num;
     return devices;
+
+error:
+    /* During goto here, 'device' must be either NULL or free-able allocated
+     * memory */
+    free(device);
+
+    /* free individual 'device' already in devices array */
+    for (i = 0; i < num; i++) {
+        free(devices[i]);
+    }
+    free(devices);
+    return NULL;
 }
 
 /* A wrapper around a VIDIOC_S_FMT ioctl to check for format compatibility */
@@ -140,8 +162,8 @@ v4l2_read_raw(pgCameraObject *self)
 
     assert(buf.index < self->n_buffers);
 
-    raw = Bytes_FromStringAndSize(self->buffers[buf.index].start,
-                                  self->buffers[buf.index].length);
+    raw = PyBytes_FromStringAndSize(self->buffers[buf.index].start,
+                                    self->buffers[buf.index].length);
 
     if (-1 == v4l2_xioctl(self->fd, VIDIOC_QBUF, &buf)) {
         PyErr_Format(PyExc_SystemError, "ioctl(VIDIOC_QBUF) failure : %d, %s",
@@ -177,8 +199,8 @@ v4l2_xioctl(int fd, int request, void *arg)
    currently two step processes. */
 /* TODO: Write single step conversions where they may actually be useful */
 int
-v4l2_process_image(pgCameraObject *self, const void *image,
-                   unsigned int buffer_size, SDL_Surface *surf)
+v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
+                   SDL_Surface *surf)
 {
     if (!surf)
         return 0;
@@ -337,7 +359,7 @@ v4l2_process_image(pgCameraObject *self, const void *image,
 int
 v4l2_query_buffer(pgCameraObject *self)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < self->n_buffers; ++i) {
         struct v4l2_buffer buf;

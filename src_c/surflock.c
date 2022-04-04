@@ -170,51 +170,11 @@ pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 }
 
 static PyTypeObject pgLifetimeLock_Type = {
-    TYPE_HEAD(NULL, 0) "SurfLifeLock", /* name */
-    sizeof(pgLifetimeLockObject),      /* basic size */
-    0,                                 /* tp_itemsize */
-    _lifelock_dealloc,                 /* tp_dealloc*/
-    0,                                 /* tp_print */
-    NULL,                              /* tp_getattr */
-    NULL,                              /* tp_setattr */
-    NULL,                              /* tp_compare */
-    NULL,                              /* tp_repr */
-    NULL,                              /* tp_as_number */
-    NULL,                              /* tp_as_sequence */
-    NULL,                              /* tp_as_mapping */
-    NULL,                              /* tp_hash */
-    NULL,                              /* tp_call */
-    NULL,                              /* tp_str */
-    NULL,                              /* tp_getattro */
-    NULL,                              /* tp_setattro */
-    NULL,                              /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    NULL,                                     /* tp_doc */
-    NULL,                                     /* tp_traverse */
-    NULL,                                     /* tp_clear */
-    NULL,                                     /* tp_richcompare */
-    offsetof(pgLifetimeLockObject, weakrefs), /* tp_weaklistoffset */
-    NULL,                                     /* tp_iter */
-    NULL,                                     /* tp_iternext */
-    NULL,                                     /* tp_methods */
-    NULL,                                     /* tp_members */
-    NULL,                                     /* tp_getset */
-    NULL,                                     /* tp_base */
-    NULL,                                     /* tp_dict */
-    NULL,                                     /* tp_descr_get */
-    NULL,                                     /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    NULL,                                     /* tp_init */
-    NULL,                                     /* tp_alloc */
-    NULL,                                     /* tp_new */
-    NULL,                                     /* tp_free */
-    NULL,                                     /* tp_is_gc */
-    NULL,                                     /* tp_bases */
-    NULL,                                     /* tp_mro */
-    NULL,                                     /* tp_cache */
-    NULL,                                     /* tp_subclasses */
-    NULL,                                     /* tp_weaklist */
-    NULL                                      /* tp_del */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "SurfLifeLock",
+    .tp_basicsize = sizeof(pgLifetimeLockObject),
+    .tp_dealloc = _lifelock_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_weaklistoffset = offsetof(pgLifetimeLockObject, weakrefs),
 };
 
 /* lifetimelock object internals */
@@ -230,7 +190,7 @@ _lifelock_dealloc(PyObject *self)
     pgSurface_UnlockBy((pgSurfaceObject *)lifelock->surface,
                        lifelock->lockobj);
     Py_DECREF(lifelock->surface);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 static PyObject *
@@ -241,7 +201,7 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    life = PyObject_NEW(pgLifetimeLockObject, &pgLifetimeLock_Type);
+    life = PyObject_New(pgLifetimeLockObject, &pgLifetimeLock_Type);
     if (life != NULL) {
         life->surface = surfobj;
         life->lockobj = lockobj;
@@ -261,11 +221,9 @@ static PyMethodDef _surflock_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surflock)
 {
-    PyObject *module, *dict, *apiobj;
-    int ecode;
+    PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "surflock",
                                          _surflock_doc,
@@ -275,23 +233,16 @@ MODINIT_DEFINE(surflock)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     if (PyType_Ready(&pgLifetimeLock_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
     /* Create the module and add the functions */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "surflock", _surflock_methods, _surflock_doc);
-#endif
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
-    dict = PyModule_GetDict(module);
 
     /* export the c api */
     c_api[0] = &pgLifetimeLock_Type;
@@ -303,15 +254,10 @@ MODINIT_DEFINE(surflock)
     c_api[6] = pgSurface_UnlockBy;
     c_api[7] = pgSurface_LockLifetime;
     apiobj = encapsulate_api(c_api, "surflock");
-    if (apiobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_XDECREF(apiobj);
+        Py_DECREF(module);
+        return NULL;
     }
-    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF(apiobj);
-    if (ecode) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    MODINIT_RETURN(module);
+    return module;
 }

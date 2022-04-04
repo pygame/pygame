@@ -43,55 +43,37 @@ key_set_repeat(PyObject *self, PyObject *args)
     if (delay && !interval)
         interval = delay;
 
-#if IS_SDLv1
-    if (SDL_EnableKeyRepeat(delay, interval) == -1)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-#else  /* IS_SDLv2 */
     if (pg_EnableKeyRepeat(delay, interval) == -1)
         return NULL;
-#endif /* IS_SDLv2 */
 
     Py_RETURN_NONE;
 }
 
-#if SDL_VERSION_ATLEAST(1, 2, 10)
 static PyObject *
-key_get_repeat(PyObject *self, PyObject *args)
+key_get_repeat(PyObject *self, PyObject *_null)
 {
     int delay = 0, interval = 0;
 
     VIDEO_INIT_CHECK();
-#if IS_SDLv1
-    SDL_GetKeyRepeat(&delay, &interval);
-#else  /* IS_SDLv2 */
     pg_GetKeyRepeat(&delay, &interval);
-#endif /* IS_SDLv2 */
     return Py_BuildValue("(ii)", delay, interval);
 }
-#else  /* not SDL_VERSION_ATLEAST(1, 2, 10) */
-static PyObject *
-key_get_repeat(PyObject *self, PyObject *args)
-{
-    Py_RETURN_NONE;
-}
-#endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
 
-
-#if IS_SDLv2
 /*
-* pgScancodeWrapper is for key_get_pressed in SDL2.
-* It converts key symbol indices to scan codes, as suggested in
-*     https://github.com/pygame/pygame/issues/659
-* so that they work with SDL_GetKeyboardState().
-*/
+ * pgScancodeWrapper is for key_get_pressed in SDL2.
+ * It converts key symbol indices to scan codes, as suggested in
+ *     https://github.com/pygame/pygame/issues/659
+ * so that they work with SDL_GetKeyboardState().
+ */
 #define _PG_SCANCODEWRAPPER_TYPE_NAME "ScancodeWrapper"
-#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
+#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME \
+    "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
 
 typedef struct {
     PyTupleObject tuple;
 } pgScancodeWrapper;
 
-static PyObject*
+static PyObject *
 pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 {
     long index;
@@ -107,87 +89,39 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 }
 
 static PyMappingMethods pg_scancodewrapper_mapping = {
-    NULL,
-    (binaryfunc)pg_scancodewrapper_subscript,
-    NULL
+    .mp_subscript = (binaryfunc)pg_scancodewrapper_subscript,
 };
 
-static PyObject*
+static PyObject *
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
     PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
-#if PY3
-    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
-#else /* PY2 */
-    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%s",
-                                    PyString_AsString(baserepr));
-#endif /* PY2 */
+    PyObject *ret =
+        PyUnicode_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
     Py_DECREF(baserepr);
     return ret;
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    TYPE_HEAD(NULL, 0) _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
-    0,                                            /* basic size */
-    0,                                            /* itemsize */
-    0,                                            /* dealloc */
-    0,                                            /* print */
-    NULL,                                         /* getattr */
-    NULL,                                         /* setattr */
-    NULL,                                         /* compare */
-    (reprfunc)pg_scancodewrapper_repr,            /* repr */
-    NULL,                                         /* as_number */
-    NULL,                                         /* as_sequence */
-    &pg_scancodewrapper_mapping,                  /* as_mapping */
-    (hashfunc)NULL,                               /* hash */
-    (ternaryfunc)NULL,                            /* call */
-    (reprfunc)NULL,                               /* str */
-    0,                                            /* tp_getattro */
-    0L,
-    0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS |
-    Py_TPFLAGS_BASETYPE,                      /* tp_flags */
-    NULL,                                     /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    0,                                        /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
-    0,                                        /* tp_alloc */
-    0                                         /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
+    .tp_repr = (reprfunc)pg_scancodewrapper_repr,
+    .tp_as_mapping = &pg_scancodewrapper_mapping,
+    .tp_flags =
+        Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
 };
-#endif /* IS_SDLv2 */
 
 static PyObject *
-key_get_pressed(PyObject *self, PyObject *args)
+key_get_pressed(PyObject *self, PyObject *_null)
 {
     int num_keys;
-#if IS_SDLv1
-    Uint8 *key_state;
-#else
     const Uint8 *key_state;
     PyObject *ret_obj = NULL;
-#endif
     PyObject *key_tuple;
     int i;
 
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    key_state = SDL_GetKeyState(&num_keys);
-#else  /* IS_SDLv2 */
     key_state = SDL_GetKeyboardState(&num_keys);
-#endif /* IS_SDLv2 */
 
     if (!key_state || !num_keys)
         Py_RETURN_NONE;
@@ -197,7 +131,7 @@ key_get_pressed(PyObject *self, PyObject *args)
 
     for (i = 0; i < num_keys; i++) {
         PyObject *key_elem;
-        key_elem = PyInt_FromLong(key_state[i]);
+        key_elem = PyBool_FromLong(key_state[i]);
         if (!key_elem) {
             Py_DECREF(key_tuple);
             return NULL;
@@ -205,20 +139,18 @@ key_get_pressed(PyObject *self, PyObject *args)
         PyTuple_SET_ITEM(key_tuple, i, key_elem);
     }
 
-#if IS_SDLv1
-    return key_tuple;
-#else
     ret_obj = PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
                                            key_tuple, NULL);
     Py_DECREF(key_tuple);
     return ret_obj;
-#endif
 }
 
-#if IS_SDLv2
 /* keep our own table for backward compatibility */
 static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
-    NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "A",
     "B",
     "C",
@@ -345,11 +277,29 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Mute",
     "VolumeUp",
     "VolumeDown",
-    NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
     "Keypad ,",
     "Keypad = (AS400)",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "AltErase",
     "SysReq",
     "Cancel",
@@ -362,7 +312,17 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Clear / Again",
     "CrSel",
     "ExSel",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     "Keypad 00",
     "Keypad 000",
     "ThousandsSeparator",
@@ -409,7 +369,8 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Keypad Octal",
     "Keypad Decimal",
     "Keypad Hexadecimal",
-    NULL, NULL,
+    NULL,
+    NULL,
     "Left Ctrl",
     "Left Shift",
     "Left Alt",
@@ -418,8 +379,30 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "Right Shift",
     "Right Alt",
     "Right GUI",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     "ModeSwitch",
     "AudioNext",
@@ -588,7 +571,8 @@ _use_sdl1_key_names(void)
     /*SDL1_scancode_names[SDL_SCANCODE_LSUPER] = "left super";
     SDL1_scancode_names[SDL_SCANCODE_RSUPER] = "right super"; */ /* same as "meta" now? */
     SDL1_scancode_names[SDL_SCANCODE_MODE] = "alt gr";
-    SDL1_scancode_names[SDL_SCANCODE_APPLICATION] = "compose"; /*  Application / Compose / Context Menu (Windows) key */
+    SDL1_scancode_names[SDL_SCANCODE_APPLICATION] =
+        "compose"; /*  Application / Compose / Context Menu (Windows) key */
 
     SDL1_scancode_names[SDL_SCANCODE_HELP] = "help";
     SDL1_scancode_names[SDL_SCANCODE_PRINTSCREEN] = "print screen";
@@ -596,18 +580,21 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "break";
     SDL1_scancode_names[SDL_SCANCODE_MENU] = "menu";
     SDL1_scancode_names[SDL_SCANCODE_POWER] = "power";
-    /*SDL1_scancode_names[SDL_SCANCODE_EURO] = "euro"; */ /* changed to CurrencyUnit */
+    /*SDL1_scancode_names[SDL_SCANCODE_EURO] = "euro"; */ /* changed to
+                                                             CurrencyUnit */
     SDL1_scancode_names[SDL_SCANCODE_UNDO] = "undo";
 }
 
 static const char *
 _get_scancode_name(SDL_Scancode scancode)
 {
-    /* this only differs SDL_GetScancodeName() in that we use the (mostly) backward-compatible table above */
+    /* this only differs SDL_GetScancodeName() in that we use the (mostly)
+     * backward-compatible table above */
     const char *name;
-    if (((int)scancode) < ((int)SDL_SCANCODE_UNKNOWN) || scancode >= SDL_NUM_SCANCODES) {
-          SDL_InvalidParamError("scancode");
-          return "";
+    if (((int)scancode) < ((int)SDL_SCANCODE_UNKNOWN) ||
+        scancode >= SDL_NUM_SCANCODES) {
+        SDL_InvalidParamError("scancode");
+        return "";
     }
 
     name = SDL1_scancode_names[scancode];
@@ -621,39 +608,44 @@ _get_scancode_name(SDL_Scancode scancode)
 static char *
 SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 {
-    Uint8 *p = (Uint8 *) dst;
+    Uint8 *p = (Uint8 *)dst;
     if (ch <= 0x7F) {
-        *p = (Uint8) ch;
+        *p = (Uint8)ch;
         ++dst;
-    } else if (ch <= 0x7FF) {
-        p[0] = 0xC0 | (Uint8) ((ch >> 6) & 0x1F);
-        p[1] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x7FF) {
+        p[0] = 0xC0 | (Uint8)((ch >> 6) & 0x1F);
+        p[1] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 2;
-    } else if (ch <= 0xFFFF) {
-        p[0] = 0xE0 | (Uint8) ((ch >> 12) & 0x0F);
-        p[1] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[2] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0xFFFF) {
+        p[0] = 0xE0 | (Uint8)((ch >> 12) & 0x0F);
+        p[1] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[2] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 3;
-    } else if (ch <= 0x1FFFFF) {
-        p[0] = 0xF0 | (Uint8) ((ch >> 18) & 0x07);
-        p[1] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[3] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x1FFFFF) {
+        p[0] = 0xF0 | (Uint8)((ch >> 18) & 0x07);
+        p[1] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[3] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 4;
-    } else if (ch <= 0x3FFFFFF) {
-        p[0] = 0xF8 | (Uint8) ((ch >> 24) & 0x03);
-        p[1] = 0x80 | (Uint8) ((ch >> 18) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[3] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[4] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else if (ch <= 0x3FFFFFF) {
+        p[0] = 0xF8 | (Uint8)((ch >> 24) & 0x03);
+        p[1] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[3] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[4] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 5;
-    } else {
-        p[0] = 0xFC | (Uint8) ((ch >> 30) & 0x01);
-        p[1] = 0x80 | (Uint8) ((ch >> 24) & 0x3F);
-        p[2] = 0x80 | (Uint8) ((ch >> 18) & 0x3F);
-        p[3] = 0x80 | (Uint8) ((ch >> 12) & 0x3F);
-        p[4] = 0x80 | (Uint8) ((ch >> 6) & 0x3F);
-        p[5] = 0x80 | (Uint8) (ch & 0x3F);
+    }
+    else {
+        p[0] = 0xFC | (Uint8)((ch >> 30) & 0x01);
+        p[1] = 0x80 | (Uint8)((ch >> 24) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
+        p[3] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[4] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[5] = 0x80 | (Uint8)(ch & 0x3F);
         dst += 6;
     }
     return dst;
@@ -662,37 +654,34 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 static const char *
 _get_keycode_name(SDL_Keycode key)
 {
-#pragma PG_WARN(Add missing keycode names here? )
+#pragma PG_WARN(Add missing keycode names here ?)
 
     static char name[8];
     char *end;
 
     if (key & SDLK_SCANCODE_MASK) {
-        return
-            _get_scancode_name((SDL_Scancode) (key & ~SDLK_SCANCODE_MASK));
+        return _get_scancode_name((SDL_Scancode)(key & ~SDLK_SCANCODE_MASK));
     }
 
     switch (key) {
-    case SDLK_RETURN:
-        return _get_scancode_name(SDL_SCANCODE_RETURN);
-    case SDLK_ESCAPE:
-        return _get_scancode_name(SDL_SCANCODE_ESCAPE);
-    case SDLK_BACKSPACE:
-        return _get_scancode_name(SDL_SCANCODE_BACKSPACE);
-    case SDLK_TAB:
-        return _get_scancode_name(SDL_SCANCODE_TAB);
-    case SDLK_SPACE:
-        return _get_scancode_name(SDL_SCANCODE_SPACE);
-    case SDLK_DELETE:
-        return _get_scancode_name(SDL_SCANCODE_DELETE);
-    default:
-        end = SDL_UCS4ToUTF8((Uint32) key, name);
-        *end = '\0';
-        return name;
+        case SDLK_RETURN:
+            return _get_scancode_name(SDL_SCANCODE_RETURN);
+        case SDLK_ESCAPE:
+            return _get_scancode_name(SDL_SCANCODE_ESCAPE);
+        case SDLK_BACKSPACE:
+            return _get_scancode_name(SDL_SCANCODE_BACKSPACE);
+        case SDLK_TAB:
+            return _get_scancode_name(SDL_SCANCODE_TAB);
+        case SDLK_SPACE:
+            return _get_scancode_name(SDL_SCANCODE_SPACE);
+        case SDLK_DELETE:
+            return _get_scancode_name(SDL_SCANCODE_DELETE);
+        default:
+            end = SDL_UCS4ToUTF8((Uint32)key, name);
+            *end = '\0';
+            return name;
     }
 }
-
-#endif /* IS_SDLv2 */
 
 static PyObject *
 key_name(PyObject *self, PyObject *args)
@@ -702,53 +691,37 @@ key_name(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &key))
         return NULL;
 
-#if IS_SDLv2
-    return Text_FromUTF8(_get_keycode_name(key));
-#else
-    return Text_FromUTF8(SDL_GetKeyName(key));
-#endif
+    return PyUnicode_FromString(_get_keycode_name(key));
 }
 
 static PyObject *
 key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    const char * name;
-#if IS_SDLv2
+    const char *name;
     SDL_Keycode code;
-#endif
 
-    static char *kwids[] = {
-        "name",
-        NULL
-    };
+    static char *kwids[] = {"name", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
         return NULL;
 
-#if IS_SDLv1
-    PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
-    return 0;
-#else
     code = SDL_GetKeyFromName(name);
-    if (code != SDLK_UNKNOWN){
-        return PyInt_FromLong(code);
+    if (code != SDLK_UNKNOWN) {
+        return PyLong_FromLong(code);
     }
-    else{
+    else {
         // Raise an unknown key name error?
         PyErr_SetString(PyExc_ValueError, "unknown key name");
         return 0;
     }
-
-#endif
-
 }
 
 static PyObject *
-key_get_mods(PyObject *self, PyObject *args)
+key_get_mods(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 
-    return PyInt_FromLong(SDL_GetModState());
+    return PyLong_FromLong(SDL_GetModState());
 }
 
 static PyObject *
@@ -766,34 +739,26 @@ key_set_mods(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_focused(PyObject *self, PyObject *args)
+key_get_focused(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
-#else  /* IS_SDLv2 */
-    return PyInt_FromLong(SDL_GetKeyboardFocus() != NULL);
-#endif /* IS_SDLv2 */
+    return PyBool_FromLong(SDL_GetKeyboardFocus() != NULL);
 }
 
 static PyObject *
-key_start_text_input(PyObject *self, PyObject *args)
+key_start_text_input(PyObject *self, PyObject *_null)
 {
-#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StartTextInput */
     SDL_StartTextInput();
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
 static PyObject *
-key_stop_text_input(PyObject *self, PyObject *args)
+key_stop_text_input(PyObject *self, PyObject *_null)
 {
-#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StopTextInput */
     SDL_StopTextInput();
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -801,31 +766,49 @@ static PyObject *
 key_set_text_input_rect(PyObject *self, PyObject *obj)
 {
     /* https://wiki.libsdl.org/SDL_SetTextInputRect */
-#if IS_SDLv2
     SDL_Rect *rect, temp;
+    SDL_Window *sdlWindow = pg_GetDefaultWindow();
+    SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+
     if (obj == Py_None) {
         Py_RETURN_NONE;
     }
     rect = pgRect_FromObject(obj, &temp);
     if (!rect)
         return RAISE(PyExc_TypeError, "Invalid rect argument");
+
+    if (sdlRenderer != NULL) {
+        SDL_Rect vprect, rect2;
+        /* new rect so we do not overwrite the input rect */
+        float scalex, scaley;
+
+        SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+        SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+        rect2.x = (int)(rect->x * scalex + vprect.x);
+        rect2.y = (int)(rect->y * scaley + vprect.y);
+        rect2.w = (int)(rect->w * scalex);
+        rect2.h = (int)(rect->h * scaley);
+
+        SDL_SetTextInputRect(&rect2);
+        Py_RETURN_NONE;
+    }
+
     SDL_SetTextInputRect(rect);
-#endif /* IS_SDLv2 */
+
     Py_RETURN_NONE;
 }
 
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
-    {"get_pressed", key_get_pressed, METH_NOARGS,
-     DOC_PYGAMEKEYGETPRESSED},
+    {"get_pressed", key_get_pressed, METH_NOARGS, DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
     {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEKEYNAME},
     {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
-    {"get_focused", key_get_focused, METH_NOARGS,
-     DOC_PYGAMEKEYGETFOCUSED},
+    {"get_focused", key_get_focused, METH_NOARGS, DOC_PYGAMEKEYGETFOCUSED},
     {"start_text_input", key_start_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTARTTEXTINPUT},
     {"stop_text_input", key_stop_text_input, METH_NOARGS,
@@ -839,7 +822,6 @@ MODINIT_DEFINE(key)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "key",
                                          DOC_PYGAMEKEY,
@@ -849,52 +831,43 @@ MODINIT_DEFINE(key)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
-#if IS_SDLv2
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_event();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     /* type preparation */
     pgScancodeWrapper_Type.tp_base = &PyTuple_Type;
     if (PyType_Ready(&pgScancodeWrapper_Type) < 0) {
-        MODINIT_ERROR;
+        return NULL;
     }
-#endif /* IS_SDLv2 */
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "key", _key_methods, DOC_PYGAMEKEY);
-#endif
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
 
-#if IS_SDLv2
-    Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
+    Py_INCREF(&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
-                           (PyObject*)&pgScancodeWrapper_Type) == -1) {
-        Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+                           (PyObject *)&pgScancodeWrapper_Type)) {
+        Py_DECREF(&pgScancodeWrapper_Type);
+        Py_DECREF(module);
+        return NULL;
     }
 
     _use_sdl1_key_names();
-#endif /* IS_SDLv2 */
 
-    MODINIT_RETURN(module);
+    return module;
 }

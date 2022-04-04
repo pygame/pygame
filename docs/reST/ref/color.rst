@@ -28,8 +28,8 @@
 
    Color objects export the C level array interface. The interface exports a
    read-only one dimensional unsigned byte array of the same assigned length
-   as the color. For CPython 2.6 and later, the new buffer interface is also
-   exported, with the same characteristics as the array interface.
+   as the color. The new buffer interface is also exported, with the same
+   characteristics as the array interface.
 
    The floor division, ``//``, and modulus, ``%``, operators do not raise
    an exception for division by zero. Instead, if a color, or alpha, channel
@@ -38,6 +38,15 @@
        # These expressions are True
        Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
        Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
+
+   Use ``int(color)`` to return the immutable integer value of the color,
+   usable as a ``dict`` key. This integer value differs from the mapped
+   pixel values of :meth:`pygame.Surface.get_at_mapped`,
+   :meth:`pygame.Surface.map_rgb` and :meth:`pygame.Surface.unmap_rgb`.
+   It can be passed as a ``color_value`` argument to :class:`Color`
+   (useful with sets).
+
+   See :doc:`color_list` for samples of the available named colors.
 
    :param int r: red value in the range of 0 to 255 inclusive
    :param int g: green value in the range of 0 to 255 inclusive
@@ -49,9 +58,9 @@
       .. note::
          Supported ``color_value`` formats:
             | - **Color object:** clones the given :class:`Color` object
-            | - **color name str:** name of the color to use, e.g. ``'red'``
+            | - **Color name: str:** name of the color to use, e.g. ``'red'``
               (all the supported name strings can be found in the
-              `colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_)
+               :doc:`color_list`, with sample swatches)
             | - **HTML color format str:** ``'#rrggbbaa'`` or ``'#rrggbb'``,
               where rr, gg, bb, and aa are 2-digit hex numbers in the range
               of 0 to 0xFF inclusive, the aa (alpha) value defaults to 0xFF
@@ -224,4 +233,34 @@
 
       .. ## Color.lerp ##
 
+   .. method:: premul_alpha
+
+      | :sl:`returns a Color where the r,g,b components have been multiplied by the alpha.`
+      | :sg:`premul_alpha() -> Color`
+
+      Returns a new Color where each of the red, green and blue colour
+      channels have been multiplied by the alpha channel of the original
+      color. The alpha channel remains unchanged.
+
+      This is useful when working with the ``BLEND_PREMULTIPLIED`` blending mode
+      flag for :meth:`pygame.Surface.blit()`, which assumes that all surfaces using
+      it are using pre-multiplied alpha colors.
+
+      .. versionadded:: 2.0.0
+
+      .. ## Color.premul_alpha ##
+
+   .. method:: update
+
+      | :sl:`Sets the elements of the color`
+      | :sg:`update(r, g, b) -> None`
+      | :sg:`update(r, g, b, a=255) -> None`
+      | :sg:`update(color_value) -> None`
+
+      Sets the elements of the color. See parameters for :meth:`pygame.Color` for the
+      parameters of this function. If the alpha value was not set it will not change.
+
+      .. versionadded:: 2.0.1
+
+      .. ## Color.update ##
    .. ## pygame.Color ##

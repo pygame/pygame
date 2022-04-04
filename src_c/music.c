@@ -34,6 +34,7 @@
 
 static Mix_Music *current_music = NULL;
 static Mix_Music *queue_music = NULL;
+static int queue_music_loops = 0;
 static int endmusic_event = SDL_NOEVENT;
 static Uint64 music_pos = 0;
 static long music_pos_time = -1;
@@ -51,14 +52,28 @@ mixmusic_callback(void *udata, Uint8 *stream, int len)
 }
 
 static void
+_pg_push_music_event(int type)
+{
+    pgEventObject *e;
+    SDL_Event event;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
+    e = (pgEventObject *)pgEvent_New2(type, NULL);
+    if (e) {
+        pgEvent_FillUserEvent(e, &event);
+        if (SDL_PushEvent(&event) <= 0)
+            Py_DECREF(e->dict);
+        Py_DECREF(e);
+    }
+    PyGILState_Release(gstate);
+}
+
+static void
 endmusic_callback(void)
 {
-    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO)) {
-        SDL_Event e;
-        memset(&e, 0, sizeof(e));
-        e.type = endmusic_event;
-        SDL_PushEvent(&e);
-    }
+    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
+        _pg_push_music_event(endmusic_event);
+
     if (queue_music) {
         if (current_music)
             Mix_FreeMusic(current_music);
@@ -66,7 +81,8 @@ endmusic_callback(void)
         queue_music = NULL;
         Mix_HookMusicFinished(endmusic_callback);
         music_pos = 0;
-        Mix_PlayMusic(current_music, 0);
+        Mix_PlayMusic(current_music, queue_music_loops);
+        queue_music_loops = 0;
     }
     else {
         music_pos_time = -1;
@@ -80,7 +96,7 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 {
     int loops = 0;
     float startpos = 0.0;
-    int val, volume = 0, fade_ms=0;
+    int val, volume = 0, fade_ms = 0;
 
     static char *kwids[] = {"loops", "start", "fade_ms", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ifi", kwids, &loops,
@@ -91,7 +107,7 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
     if (!current_music)
         return RAISE(pgExc_SDLError, "music not loaded");
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     Mix_HookMusicFinished(endmusic_callback);
     Mix_SetPostMix(mixmusic_callback, NULL);
     Mix_QuerySpec(&music_frequency, &music_format, &music_channels);
@@ -101,24 +117,25 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
     volume = Mix_VolumeMusic(-1);
     val = Mix_FadeInMusicPos(current_music, loops, fade_ms, startpos);
     Mix_VolumeMusic(volume);
-    Py_END_ALLOW_THREADS
-        if (val == -1) return RAISE(pgExc_SDLError, SDL_GetError());
+    Py_END_ALLOW_THREADS;
+    if (val == -1)
+        return RAISE(pgExc_SDLError, SDL_GetError());
 
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_get_busy(PyObject *self, PyObject *args)
+music_get_busy(PyObject *self, PyObject *_null)
 {
     int playing;
 
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
-    playing = Mix_PlayingMusic();
-    Py_END_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
+    playing = (Mix_PlayingMusic() && !Mix_PausedMusic());
+    Py_END_ALLOW_THREADS;
 
-    return PyInt_FromLong(playing);
+    return PyBool_FromLong(playing);
 }
 
 static PyObject *
@@ -130,39 +147,41 @@ music_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     /* To prevent the queue_music from playing, free it before fading. */
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
 
     Mix_FadeOutMusic(_time);
 
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_stop(PyObject *self, PyObject *args)
+music_stop(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     /* To prevent the queue_music from playing, free it before stopping. */
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
 
     Mix_HaltMusic();
 
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_pause(PyObject *self, PyObject *args)
+music_pause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -171,22 +190,24 @@ music_pause(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_unpause(PyObject *self, PyObject *args)
+music_unpause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
     Mix_ResumeMusic();
+    /* need to set pos_time for the adjusted time spent paused*/
+    music_pos_time = SDL_GetTicks();
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_rewind(PyObject *self, PyObject *args)
+music_rewind(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     Mix_RewindMusic();
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
 
     Py_RETURN_NONE;
 }
@@ -201,15 +222,15 @@ music_set_volume(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     Mix_VolumeMusic((int)(volume * 128));
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
 
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_get_volume(PyObject *self, PyObject *args)
+music_get_volume(PyObject *self, PyObject *_null)
 {
     int volume;
     MIXER_INIT_CHECK();
@@ -230,9 +251,9 @@ music_set_pos(PyObject *self, PyObject *arg)
 
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     position_set = Mix_SetMusicPosition(pos);
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
 
     if (position_set == -1)
         return RAISE(pgExc_SDLError, "set_pos unsupported for this codec");
@@ -241,7 +262,7 @@ music_set_pos(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-music_get_pos(PyObject *self, PyObject *args)
+music_get_pos(PyObject *self, PyObject *_null)
 {
     long ticks;
 
@@ -256,7 +277,7 @@ music_get_pos(PyObject *self, PyObject *args)
     if (!Mix_PausedMusic())
         ticks += SDL_GetTicks() - music_pos_time;
 
-    return PyInt_FromLong((long)ticks);
+    return PyLong_FromLong((long)ticks);
 }
 
 static PyObject *
@@ -271,78 +292,163 @@ music_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_endevent(PyObject *self, PyObject *args)
+music_get_endevent(PyObject *self, PyObject *_null)
 {
-    return PyInt_FromLong(endmusic_event);
+    return PyLong_FromLong(endmusic_event);
 }
 
-static PyObject *
-music_load(PyObject *self, PyObject *args)
+Mix_MusicType
+_get_type_from_hint(char *namehint)
 {
-    PyObject *obj;
-    PyObject *oencoded;
-    Mix_Music *new_music = NULL;
-    const char *name;
+    Mix_MusicType type = MUS_NONE;
+    char *dot;
 
-    if (!PyArg_ParseTuple(args, "O", &obj)) {
-        return NULL;
+    // Adjusts namehint into a mere file extension component
+    if (namehint != NULL) {
+        dot = strrchr(namehint, '.');
+        if (dot != NULL) {
+            namehint = dot + 1;
+        }
     }
+    else {
+        return type;
+    }
+
+    /* Copied almost directly from SDL_mixer. Originally meant to check file
+     * extensions to get a hint of what music type it should be.
+     * https://github.com/libsdl-org/SDL_mixer/blob/master/src/music.c#L586-L631
+     */
+    if (SDL_strcasecmp(namehint, "WAV") == 0) {
+        type = MUS_WAV;
+    }
+    else if (SDL_strcasecmp(namehint, "MID") == 0 ||
+             SDL_strcasecmp(namehint, "MIDI") == 0 ||
+             SDL_strcasecmp(namehint, "KAR") == 0) {
+        type = MUS_MID;
+    }
+    else if (SDL_strcasecmp(namehint, "OGG") == 0) {
+        type = MUS_OGG;
+    }
+#ifdef MUS_OPUS
+    else if (SDL_strcasecmp(namehint, "OPUS") == 0) {
+        type = MUS_OPUS;
+    }
+#endif
+    else if (SDL_strcasecmp(namehint, "FLAC") == 0) {
+        type = MUS_FLAC;
+    }
+    else if (SDL_strcasecmp(namehint, "MPG") == 0 ||
+             SDL_strcasecmp(namehint, "MPEG") == 0 ||
+             SDL_strcasecmp(namehint, "MP3") == 0 ||
+             SDL_strcasecmp(namehint, "MAD") == 0) {
+        type = MUS_MP3;
+    }
+    else if (SDL_strcasecmp(namehint, "669") == 0 ||
+             SDL_strcasecmp(namehint, "AMF") == 0 ||
+             SDL_strcasecmp(namehint, "AMS") == 0 ||
+             SDL_strcasecmp(namehint, "DBM") == 0 ||
+             SDL_strcasecmp(namehint, "DSM") == 0 ||
+             SDL_strcasecmp(namehint, "FAR") == 0 ||
+             SDL_strcasecmp(namehint, "IT") == 0 ||
+             SDL_strcasecmp(namehint, "MED") == 0 ||
+             SDL_strcasecmp(namehint, "MDL") == 0 ||
+             SDL_strcasecmp(namehint, "MOD") == 0 ||
+             SDL_strcasecmp(namehint, "MOL") == 0 ||
+             SDL_strcasecmp(namehint, "MTM") == 0 ||
+             SDL_strcasecmp(namehint, "NST") == 0 ||
+             SDL_strcasecmp(namehint, "OKT") == 0 ||
+             SDL_strcasecmp(namehint, "PTM") == 0 ||
+             SDL_strcasecmp(namehint, "S3M") == 0 ||
+             SDL_strcasecmp(namehint, "STM") == 0 ||
+             SDL_strcasecmp(namehint, "ULT") == 0 ||
+             SDL_strcasecmp(namehint, "UMX") == 0 ||
+             SDL_strcasecmp(namehint, "WOW") == 0 ||
+             SDL_strcasecmp(namehint, "XM") == 0) {
+        type = MUS_MOD;
+    }
+    return type;
+}
+
+Mix_Music *
+_load_music(PyObject *obj, char *namehint)
+{
+    Mix_Music *new_music = NULL;
+    char *ext = NULL;
+    SDL_RWops *rw = NULL;
+    PyObject *_type = NULL;
+    PyObject *error = NULL;
+    PyObject *_traceback = NULL;
 
     MIXER_INIT_CHECK();
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        SDL_RWops *rw;
-
-        Py_DECREF(oencoded);
-        if (!PG_CHECK_THREADS())
-            return NULL;
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            return NULL;
-        }
-        Py_BEGIN_ALLOW_THREADS
-#if IS_SDLv1
-            new_music = Mix_LoadMUS_RW(rw);
-#else  /* IS_SDLv2 */
-            new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
-#endif /* IS_SDLv2 */
-        Py_END_ALLOW_THREADS
+    rw = pgRWops_FromObject(obj);
+    if (rw ==
+        NULL) { /* stop on NULL, error already set is what we SHOULD do */
+        PyErr_Fetch(&_type, &error, &_traceback);
+        PyErr_SetObject(pgExc_SDLError, error);
+        Py_XDECREF(_type);
+        Py_XDECREF(_traceback);
+        return NULL;
     }
-    else if (oencoded != NULL) {
-        name = Bytes_AS_STRING(oencoded);
-        Py_BEGIN_ALLOW_THREADS new_music = Mix_LoadMUS(name);
-        Py_END_ALLOW_THREADS Py_DECREF(oencoded);
+    if (namehint) {
+        ext = namehint;
     }
     else {
+        ext = pgRWops_GetFileExtension(rw);
+    }
+
+    Py_BEGIN_ALLOW_THREADS;
+    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(ext), SDL_TRUE);
+    Py_END_ALLOW_THREADS;
+
+    if (!new_music) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return NULL;
     }
 
-    if (new_music == NULL) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    }
+    return new_music;
+}
 
-    Py_BEGIN_ALLOW_THREADS if (current_music != NULL)
-    {
+static PyObject *
+music_load(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    Mix_Music *new_music = NULL;
+    PyObject *obj;
+    char *namehint = NULL;
+    static char *kwids[] = {"filename", "namehint", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|s", kwids, &obj,
+                                     &namehint))
+        return NULL;
+
+    MIXER_INIT_CHECK();
+
+    new_music = _load_music(obj, namehint);
+    if (new_music == NULL)  // meaning it has an error to return
+        return NULL;
+
+    Py_BEGIN_ALLOW_THREADS;
+    if (current_music != NULL) {
         Mix_FreeMusic(current_music);
         current_music = NULL;
     }
     if (queue_music != NULL) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
 
-        current_music = new_music;
+    current_music = new_music;
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_unload(PyObject *self, PyObject *noarg)
+music_unload(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     if (current_music) {
         Mix_FreeMusic(current_music);
         current_music = NULL;
@@ -350,68 +456,40 @@ music_unload(PyObject *self, PyObject *noarg)
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_queue(PyObject *self, PyObject *args)
+music_queue(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PyObject *obj;
-    PyObject *oencoded;
     Mix_Music *local_queue_music = NULL;
-    const char *name;
+    PyObject *obj;
+    int loops = 0;
+    char *namehint = NULL;
+    static char *kwids[] = {"filename", "namehint", "loops", NULL};
 
-    if (!PyArg_ParseTuple(args, "O", &obj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|si", kwids, &obj,
+                                     &namehint, &loops))
         return NULL;
-    }
 
     MIXER_INIT_CHECK();
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        SDL_RWops *rw;
+    queue_music_loops = loops;
 
-        Py_DECREF(oencoded);
-        if (!PG_CHECK_THREADS())
-            return NULL;
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            return NULL;
-        }
-
-        Py_BEGIN_ALLOW_THREADS
-#if IS_SDLv1
-        local_queue_music = Mix_LoadMUS_RW(rw);
-#else  /* IS_SDLv2 */
-        local_queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
-#endif /* IS_SDLv2 */
-        Py_END_ALLOW_THREADS
-    }
-    else if (oencoded != NULL) {
-        name = Bytes_AS_STRING(oencoded);
-
-        Py_BEGIN_ALLOW_THREADS
-        local_queue_music = Mix_LoadMUS(name);
-        Py_END_ALLOW_THREADS
-
-        Py_DECREF(oencoded);
-    }
-    else {
+    local_queue_music = _load_music(obj, namehint);
+    if (local_queue_music == NULL)  // meaning it has an error to return
         return NULL;
-    }
 
-    if (local_queue_music == NULL) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    }
-
-    Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS;
     /* Free any existing queued music. */
     if (queue_music != NULL) {
         Mix_FreeMusic(queue_music);
     }
-    Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS;
 
     queue_music = local_queue_music;
 
@@ -426,28 +504,24 @@ static PyMethodDef _music_methods[] = {
 
     {"play", (PyCFunction)music_play, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERMUSICPLAY},
-    {"get_busy", music_get_busy, METH_NOARGS,
-     DOC_PYGAMEMIXERMUSICGETBUSY},
+    {"get_busy", music_get_busy, METH_NOARGS, DOC_PYGAMEMIXERMUSICGETBUSY},
     {"fadeout", music_fadeout, METH_VARARGS, DOC_PYGAMEMIXERMUSICFADEOUT},
     {"stop", music_stop, METH_NOARGS, DOC_PYGAMEMIXERMUSICSTOP},
-    {"pause", music_pause, METH_NOARGS,
-     DOC_PYGAMEMIXERMUSICPAUSE},
-    {"unpause", music_unpause, METH_NOARGS,
-     DOC_PYGAMEMIXERMUSICUNPAUSE},
-    {"rewind", music_rewind, METH_NOARGS,
-     DOC_PYGAMEMIXERMUSICREWIND},
+    {"pause", music_pause, METH_NOARGS, DOC_PYGAMEMIXERMUSICPAUSE},
+    {"unpause", music_unpause, METH_NOARGS, DOC_PYGAMEMIXERMUSICUNPAUSE},
+    {"rewind", music_rewind, METH_NOARGS, DOC_PYGAMEMIXERMUSICREWIND},
     {"set_volume", music_set_volume, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETVOLUME},
     {"get_volume", music_get_volume, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETVOLUME},
-    {"set_pos", music_set_pos, METH_O,
-     DOC_PYGAMEMIXERMUSICSETPOS},
-    {"get_pos", music_get_pos, METH_NOARGS,
-     DOC_PYGAMEMIXERMUSICGETPOS},
+    {"set_pos", music_set_pos, METH_O, DOC_PYGAMEMIXERMUSICSETPOS},
+    {"get_pos", music_get_pos, METH_NOARGS, DOC_PYGAMEMIXERMUSICGETPOS},
 
-    {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
+    {"load", (PyCFunction)music_load, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEMIXERMUSICLOAD},
     {"unload", music_unload, METH_NOARGS, DOC_PYGAMEMIXERMUSICUNLOAD},
-    {"queue", music_queue, METH_VARARGS, DOC_PYGAMEMIXERMUSICQUEUE},
+    {"queue", (PyCFunction)music_queue, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEMIXERMUSICQUEUE},
 
     {NULL, NULL, 0, NULL}};
 
@@ -456,7 +530,6 @@ MODINIT_DEFINE(mixer_music)
     PyObject *module;
     PyObject *cobj;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mixer_music",
                                          DOC_PYGAMEMIXERMUSIC,
@@ -466,51 +539,41 @@ MODINIT_DEFINE(mixer_music)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
     }
     import_pygame_rwobject();
     if (PyErr_Occurred()) {
-        MODINIT_ERROR;
+        return NULL;
+    }
+    import_pygame_event();
+    if (PyErr_Occurred()) {
+        return NULL;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "mixer_music", _music_methods,
-                            DOC_PYGAMEMIXERMUSIC);
-#endif
     if (module == NULL) {
-        MODINIT_ERROR;
+        return NULL;
     }
     cobj = PyCapsule_New(&current_music, "pygame.music_mixer._MUSIC_POINTER",
                          NULL);
-    if (cobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj) < 0) {
-        Py_DECREF(cobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj)) {
+        Py_XDECREF(cobj);
+        Py_DECREF(module);
+        return NULL;
     }
     cobj =
         PyCapsule_New(&queue_music, "pygame.music_mixer._QUEUE_POINTER", NULL);
-    if (cobj == NULL) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
+    if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj)) {
+        Py_XDECREF(cobj);
+        Py_DECREF(module);
+        return NULL;
     }
-    if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj) < 0) {
-        Py_DECREF(cobj);
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-    MODINIT_RETURN(module);
+    return module;
 }
