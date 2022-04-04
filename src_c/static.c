@@ -99,29 +99,42 @@ PyMODINIT_FUNC
 PyInit_key(void);
 PyMODINIT_FUNC
 PyInit_event(void);
+
 PyMODINIT_FUNC
 PyInit_joystick(void);
-PyMODINIT_FUNC
-PyInit_image(void);
+
 PyMODINIT_FUNC
 PyInit_imageext(void);
 
 PyMODINIT_FUNC
+PyInit_image(void);
+
+PyMODINIT_FUNC
+PyInit_mask(void);
+
+PyMODINIT_FUNC
 PyInit_mixer_music(void);
+
 PyMODINIT_FUNC
 PyInit_pg_mixer(void);
 
 PyMODINIT_FUNC
 PyInit_pg_math(void);
+
 PyMODINIT_FUNC
 PyInit_pg_time(void);
 
 PyMODINIT_FUNC
 PyInit_sdl2(void);
+
 PyMODINIT_FUNC
 PyInit_mixer(void);
+
 PyMODINIT_FUNC
 PyInit_controller(void);
+
+PyMODINIT_FUNC
+PyInit_transform(void);
 
 void
 PyGame_static_init()
@@ -135,12 +148,14 @@ PyGame_static_init()
     PyImport_AppendInittab("pygame_bufferproxy", PyInit_bufferproxy);
     PyImport_AppendInittab("pygame_math", PyInit_pg_math);
     PyImport_AppendInittab("pygame_surface", PyInit_surface);
+    PyImport_AppendInittab("pygame_transform", PyInit_transform);
     PyImport_AppendInittab("pygame_display", PyInit_display);
     PyImport_AppendInittab("pygame__freetype", PyInit__freetype);
     PyImport_AppendInittab("pygame_font", PyInit_font);
     PyImport_AppendInittab("pygame_draw", PyInit_draw);
-    PyImport_AppendInittab("pygame_image", PyInit_image);
     PyImport_AppendInittab("pygame_imageext", PyInit_imageext);
+    PyImport_AppendInittab("pygame_image", PyInit_image);
+    PyImport_AppendInittab("pygame_mask", PyInit_mask);
     PyImport_AppendInittab("pygame_mixer_music", PyInit_mixer_music);
     PyImport_AppendInittab("pygame_mixer", PyInit_pg_mixer);
     PyImport_AppendInittab("pygame_mouse", PyInit_mouse);
@@ -210,6 +225,8 @@ PyGame_static_init()
 #include "image.c"
 
 #include "imageext.c"
+
+#include "mask.c"
 
 #undef pg_EnableKeyRepeat
 #undef pg_GetKeyRepeat

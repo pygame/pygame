@@ -37,7 +37,6 @@ static src_c/static.c $(SDL) $(FREETYPE) $(FONT) $(MIXER) $(IMAGE) $(PNG) $(JPEG
 rect src_c/void.c
 display src_c/void.c
 rwobject src_c/void.c
-image src_c/void.c
 event src_c/void.c
 mouse src_c/void.c
 key src_c/void.c
@@ -60,6 +59,10 @@ bufferproxy src_c/void.c
 
 imageext src_c/void.c
 
+image src_c/void.c
+
+mask src_c/bitmask.c
+
 _sprite src_c/_sprite.c $(SDL) $(DEBUG)
 
 #base src_c/base.c $(SDL) $(DEBUG)
@@ -67,7 +70,7 @@ base src_c/void.c
 
 constants src_c/constants.c $(SDL) $(DEBUG)
 transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
-mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
+
 
 pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
 math src_c/math.c $(SDL) $(DEBUG)
