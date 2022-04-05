@@ -403,11 +403,11 @@
 
    .. method:: collideobjects
 
-      | :sl:`test if an objects in a list intersects`
+      | :sl:`test if any object in a list intersects`
       | :sg:`collideobjects(rect_list) -> object`
       | :sg:`collideobjects(obj_list, key=func) -> object`
 
-      Test wheter the rectangle collides with any object in the sequence.
+      Test whether the rectangle collides with any object in the sequence.
       The object of the first collision found is returned. If no collisions are
       found then ``None`` is returned
 
