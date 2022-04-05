@@ -1,3 +1,4 @@
+import sys
 from typing import (
     Any,
     Generic,
@@ -11,6 +12,11 @@ from typing import (
     final,
     overload,
 )
+
+if sys.version_info >= (3, 9):
+    from collections.abc import Collection
+else:
+    from typing import Collection
 
 _VectorTypeVar = TypeVar("_VectorTypeVar", Vector2, Vector3)
 
@@ -108,7 +114,7 @@ class VectorIterator:
 _SupportsVector2 = Union[Sequence[float], Vector2]
 _SupportsVector3 = Union[Sequence[float], Vector3]
 
-class Vector2:
+class Vector2(Collection[float]):
     epsilon: float
     x: float
     y: float
@@ -157,6 +163,7 @@ class Vector2:
     def __copy__(self) -> Vector2: ...
     copy = __copy__
     def __safe_for_unpickling__(self) -> Literal[True]: ...
+    def __contains__(self, other: float) -> bool: ...  # type: ignore[override]
     def dot(self, other: _SupportsVector2) -> float: ...
     def cross(self, other: _SupportsVector2) -> Vector2: ...
     def magnitude(self) -> float: ...
@@ -196,7 +203,7 @@ class Vector2:
     @overload
     def update(self, x: float = 0, y: float = 0) -> None: ...
 
-class Vector3:
+class Vector3(Collection[float]):
     epsilon: float
     x: float
     y: float
@@ -281,6 +288,7 @@ class Vector3:
     def __copy__(self) -> Vector3: ...
     copy = __copy__
     def __safe_for_unpickling__(self) -> Literal[True]: ...
+    def __contains__(self, other: float) -> bool: ...  # type: ignore[override]
     def dot(self, other: _SupportsVector3) -> float: ...
     def cross(self, other: _SupportsVector3) -> Vector3: ...
     def magnitude(self) -> float: ...

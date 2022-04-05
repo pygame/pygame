@@ -260,6 +260,19 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
 
+    def test_contains(self):
+        c = Vector2(0, 1)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 not in c)
+        self.assertFalse(c.__contains__(2))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
+
     def testAdd(self):
         v3 = self.v1 + self.v2
         self.assertTrue(isinstance(v3, type(self.v1)))
@@ -1329,6 +1342,20 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(a), type(self.v1))
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
+
+    def test_contains(self):
+        c = Vector3(0, 1, 2)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 in c)
+        self.assertTrue(3 not in c)
+        self.assertFalse(c.__contains__(10))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
 
     def testAdd(self):
         v3 = self.v1 + self.v2
