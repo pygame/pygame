@@ -8,16 +8,15 @@
  #}
 {%- macro header() %}
   <div class="header">
-    <table>
-      <tr>
-	<td class="logo">
+	<div class="flex-container">
+	<div class="logo">
 	  <a href="{{ theme_home_uri }}">
 {%-         set logo_path = '_static/' + logo %}
 	    <img src="{{ pathto(logo_path, 1) }}"/>
 	  </a>
 	  <h5>pygame documentation</h5>
-	</td>
-	<td class="pagelinks">
+	</div>
+	<div class="pagelinks">
 	  <div class="top">
 	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
 	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
@@ -88,9 +87,8 @@ We render three sets of items based on how useful to most apps.
 
 
 {%-   endif  %}
-	</td>
-      </tr>
-    </table>
+</div>
+</div>
   </div>
 {%- endmacro %}
 
