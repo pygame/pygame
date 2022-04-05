@@ -2163,13 +2163,9 @@ class RectTypeTest(unittest.TestCase):
         ]
 
         # act / verify
-        print("rects")
         r.collideobjects(rects)
-        print("rects, key=None")
         r.collideobjects(rects, key=None)
-        print("objects, key=lambda")
         r.collideobjects(objects, key=lambda o: o.rect1)
-        print("assertRaises: objects")
         self.assertRaises(TypeError, r.collideobjects, objects)
 
     def test_collideobjects_without_key(self):
