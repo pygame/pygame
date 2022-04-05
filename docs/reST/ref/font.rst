@@ -82,7 +82,7 @@ solves no longer exists, it will likely be removed in the future.
 .. function:: get_sdl_ttf_version
 
    | :sl:`gets SDL_ttf version`
-   | :sg:`get_sdl_ttf_version() -> Tuple[int, int, int]`
+   | :sg:`get_sdl_ttf_version() -> (major, minor, patch)`
 
    Returns a tuple of integers that identify SDL_ttf's version.
    SDL_ttf is the underlying font rendering library, written in C,
