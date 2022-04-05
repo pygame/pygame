@@ -104,7 +104,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
 
 /* statics */
 static PyObject *
-pgSurface_New(SDL_Surface *info, int owner);
+pgSurface_New2(SDL_Surface *info, int owner);
 static PyObject *
 surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner);
 static PyObject *
@@ -394,7 +394,7 @@ static PyTypeObject pgSurface_Type = {
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
 static PyObject *
-pgSurface_New(SDL_Surface *s, int owner)
+pgSurface_New2(SDL_Surface *s, int owner)
 {
     return surf_subtype_new(&pgSurface_Type, s, owner);
 }
@@ -3801,7 +3801,7 @@ MODINIT_DEFINE(surface)
 
     /* export the c api */
     c_api[0] = &pgSurface_Type;
-    c_api[1] = pgSurface_New;
+    c_api[1] = pgSurface_New2;
     c_api[2] = pgSurface_Blit;
     c_api[3] = pgSurface_SetSurface;
     apiobj = encapsulate_api(c_api, "surface");
