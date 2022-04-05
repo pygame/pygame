@@ -86,7 +86,9 @@ solves no longer exists, it will likely be removed in the future.
 
    Returns a tuple of integers that identify SDL_ttf's version.
    SDL_ttf is the underlying font rendering library, written in C,
-   on which pygame's font module depends.
+   on which pygame's font module depends. If 'linked' is True (the default), 
+   the function returns the version of the linked TTF library. 
+   Otherwise this function returns the version of TTF pygame was compiled with
 
    .. versionadded:: 2.1.3
 
