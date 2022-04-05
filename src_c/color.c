@@ -81,6 +81,8 @@ _color_dealloc(pgColorObject *);
 static PyObject *
 _color_repr(pgColorObject *);
 static PyObject *
+_color_iter(pgColorObject *);
+static PyObject *
 _color_normalize(pgColorObject *, PyObject *);
 static PyObject *
 _color_correct_gamma(pgColorObject *, PyObject *);
@@ -157,6 +159,8 @@ _color_ass_item(pgColorObject *, Py_ssize_t, PyObject *);
 static PyObject *
 _color_slice(register pgColorObject *, register Py_ssize_t,
              register Py_ssize_t);
+static int
+_color_contains(pgColorObject *, PyObject *);
 
 /* Mapping protocol methods. */
 static PyObject *
@@ -239,6 +243,7 @@ static PySequenceMethods _color_as_sequence = {
     .sq_length = (lenfunc)_color_length,
     .sq_item = (ssizeargfunc)_color_item,
     .sq_ass_item = (ssizeobjargproc)_color_ass_item,
+    .sq_contains = (objobjproc)_color_contains,
 };
 
 static PyMappingMethods _color_as_mapping = {
@@ -264,6 +269,7 @@ static PyTypeObject pgColor_Type = {
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = DOC_PYGAMECOLOR,
     .tp_richcompare = _color_richcompare,
+    .tp_iter = (getiterfunc)_color_iter,
     .tp_methods = _color_methods,
     .tp_getset = _color_getsets,
     .tp_init = (initproc)_color_init,
@@ -703,6 +709,28 @@ _color_repr(pgColorObject *color)
     return PyUnicode_FromFormat("(%d, %d, %d, %d)", color->data[0],
                                 color->data[1], color->data[2],
                                 color->data[3]);
+}
+
+static PyObject *
+_color_iter(pgColorObject *self)
+{
+    Uint8 i;
+    PyObject *iter, *tup = PyTuple_New(self->len);
+    if (!tup) {
+        return NULL;
+    }
+    for (i = 0; i < self->len; i++) {
+        PyObject *val = PyLong_FromLong(self->data[i]);
+        if (!val) {
+            Py_DECREF(tup);
+            return NULL;
+        }
+
+        PyTuple_SET_ITEM(tup, i, val);
+    }
+    iter = PyTuple_Type.tp_iter(tup);
+    Py_DECREF(tup);
+    return iter;
 }
 
 /**
@@ -1830,6 +1858,30 @@ _color_slice(register pgColorObject *a, register Py_ssize_t ilow,
     else {
         return Py_BuildValue("()");
     }
+}
+
+static int
+_color_contains(pgColorObject *self, PyObject *arg)
+{
+    if (!PyLong_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "'in <pygame.Color>' requires integer object");
+        return -1;
+    }
+
+    long comp = PyLong_AsLong(arg);
+    if (comp == -1 && PyErr_Occurred()) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < self->len; i++) {
+        if (self->data[i] == comp) {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 static int

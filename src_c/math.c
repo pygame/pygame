@@ -171,6 +171,8 @@ static PyObject *
 vector_GetItem(pgVector *self, Py_ssize_t index);
 static int
 vector_SetItem(pgVector *self, Py_ssize_t index, PyObject *value);
+static int
+vector_contains(pgVector *self, PyObject *arg);
 static PyObject *
 vector_GetSlice(pgVector *self, Py_ssize_t ilow, Py_ssize_t ihigh);
 static int
@@ -932,6 +934,24 @@ vector_SetItem(pgVector *self, Py_ssize_t index, PyObject *value)
     return 0;
 }
 
+static int
+vector_contains(pgVector *self, PyObject *arg)
+{
+    double f = PyFloat_AsDouble(arg);
+    if (f == -1 && PyErr_Occurred()) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < self->dim; i++) {
+        if (self->coords[i] == f) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 static PyObject *
 vector_GetSlice(pgVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
 {
@@ -997,6 +1017,7 @@ static PySequenceMethods vector_as_sequence = {
     .sq_length = (lenfunc)vector_len,
     .sq_item = (ssizeargfunc)vector_GetItem,
     .sq_ass_item = (ssizeobjargproc)vector_SetItem,
+    .sq_contains = (objobjproc)vector_contains,
 };
 
 /***************************************************************************
