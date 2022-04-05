@@ -386,8 +386,9 @@ v4l2_query_buffer(pgCameraObject *self)
     return 0;
 }
 
+/* This function is safe to be called with GIL released */
 int
-v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf)
+v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf, int *errno_code)
 {
     struct v4l2_buffer buf;
 
@@ -397,8 +398,7 @@ v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf)
     buf.memory = V4L2_MEMORY_MMAP;
 
     if (-1 == v4l2_xioctl(self->fd, VIDIOC_DQBUF, &buf)) {
-        PyErr_Format(PyExc_SystemError, "ioctl(VIDIOC_DQBUF) failure : %d, %s",
-                     errno, strerror(errno));
+        *errno_code = errno;
         return 0;
     }
 
@@ -406,13 +406,11 @@ v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf)
 
     if (!v4l2_process_image(self, self->buffers[buf.index].start,
                             self->buffers[buf.index].length, surf)) {
-        PyErr_Format(PyExc_SystemError, "image processing error");
         return 0;
     }
 
     if (-1 == v4l2_xioctl(self->fd, VIDIOC_QBUF, &buf)) {
-        PyErr_Format(PyExc_SystemError, "ioctl(VIDIOC_QBUF) failure : %d, %s",
-                     errno, strerror(errno));
+        *errno_code = errno;
         return 0;
     }
     return 1;

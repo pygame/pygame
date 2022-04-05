@@ -1,6 +1,7 @@
 import math
 import platform
 import unittest
+from collections.abc import Collection, Sequence
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
@@ -47,6 +48,14 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((r.centerx, r.bottom), r.midbottom)
         self.assertEqual((r.left, r.centery), r.midleft)
         self.assertEqual((r.right, r.centery), r.midright)
+
+    def test_rect_iter(self):
+        rect = Rect(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        rect_iterator = rect.__iter__()
+        for i, val in enumerate(rect_iterator):
+            self.assertEqual(rect[i], val)
 
     def test_normalize(self):
         """Ensures normalize works when width and height are both negative."""
@@ -723,6 +732,9 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(Rect(4, 6, 0, 0) in r, "r contains Rect(4, 6, 0, 0)")
         self.assertTrue(2 in Rect(0, 0, 1, 2), "r does not contain 2")
         self.assertFalse(3 in Rect(0, 0, 1, 2), "r contains 3")
+
+        self.assertRaises(TypeError, lambda: "string" in Rect(0, 0, 1, 2))
+        self.assertRaises(TypeError, lambda: 4 + 3j in Rect(0, 0, 1, 2))
 
     def test_collidepoint(self):
         r = Rect(1, 2, 3, 4)
@@ -2517,6 +2529,11 @@ class RectTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
 
+    def test_collection_abc(self):
+        r = Rect(64, 70, 75, 30)
+        self.assertTrue(isinstance(r, Collection))
+        self.assertFalse(isinstance(r, Sequence))
+
 
 @unittest.skipIf(IS_PYPY, "fails on pypy")
 class SubclassTest(unittest.TestCase):
@@ -2580,6 +2597,11 @@ class SubclassTest(unittest.TestCase):
         mr2 = mr1.fit(Rect(30, 30, 15, 10))
         self.assertTrue(isinstance(mr2, self.MyRect))
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_collection_abc(self):
+        mr1 = self.MyRect(64, 70, 75, 30)
+        self.assertTrue(isinstance(mr1, Collection))
+        self.assertFalse(isinstance(mr1, Sequence))
 
 
 if __name__ == "__main__":

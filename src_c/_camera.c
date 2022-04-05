@@ -370,6 +370,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 #if defined(__unix__)
     SDL_Surface *surf = NULL;
     pgSurfaceObject *surfobj = NULL;
+    int ret, errno_code = 0;
 
     if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
         return NULL;
@@ -391,12 +392,18 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    if (!v4l2_read_frame(self, surf))
-        return NULL;
+    ret = v4l2_read_frame(self, surf, &errno_code);
     Py_END_ALLOW_THREADS;
-
-    if (!surf)
-        return NULL;
+    if (!ret) {
+        /* error occurred */
+        if (errno_code) {
+            PyErr_Format(PyExc_SystemError,
+                         "ioctl(VIDIOC_DQBUF) failure : %d, %s", errno_code,
+                         strerror(errno_code));
+            return NULL;
+        }
+        return RAISE(PyExc_SystemError, "image processing error");
+    }
 
     if (surfobj) {
         Py_INCREF(surfobj);
@@ -432,9 +439,6 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     }
 
     if (!windows_read_frame(self, surf))
-        return NULL;
-
-    if (!surf)
         return NULL;
 
     if (surfobj) {
