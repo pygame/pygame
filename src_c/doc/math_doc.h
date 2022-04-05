@@ -30,6 +30,8 @@
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2COPY "copy() -> Vector2\nReturns a copy of itself."
+#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector2\nclamp_magnitude(max_length, min_length) -> Vector2\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
+#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(max_length, min_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -76,6 +78,8 @@
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3PROJECT "project(Vector3) -> Vector3\nprojects a vector onto another."
 #define DOC_VECTOR3COPY "copy() -> Vector3\nReturns a copy of itself."
+#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector3\nclamp_magnitude(max_length, min_length) -> Vector3\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
+#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(max_length, min_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
 
 
@@ -210,6 +214,16 @@ projects a vector onto another.
 pygame.math.Vector2.copy
  copy() -> Vector2
 Returns a copy of itself.
+
+pygame.math.Vector2.clamp_magnitude
+ clamp_magnitude(max_length) -> Vector2
+ clamp_magnitude(max_length, min_length) -> Vector2
+Returns a copy of a vector with the magnitude clamped between max_length and min_length.
+
+pygame.math.Vector2.clamp_magnitude_ip
+ clamp_magnitude_ip(max_length) -> None
+ clamp_magnitude_ip(max_length, min_length) -> None
+Clamps the vector's magnitude between max_length and min_length
 
 pygame.math.Vector2.update
  update() -> None
@@ -404,6 +418,16 @@ projects a vector onto another.
 pygame.math.Vector3.copy
  copy() -> Vector3
 Returns a copy of itself.
+
+pygame.math.Vector3.clamp_magnitude
+ clamp_magnitude(max_length) -> Vector3
+ clamp_magnitude(max_length, min_length) -> Vector3
+Returns a copy of a vector with the magnitude clamped between max_length and min_length.
+
+pygame.math.Vector3.clamp_magnitude_ip
+ clamp_magnitude_ip(max_length) -> None
+ clamp_magnitude_ip(max_length, min_length) -> None
+Clamps the vector's magnitude between max_length and min_length
 
 pygame.math.Vector3.update
  update() -> None

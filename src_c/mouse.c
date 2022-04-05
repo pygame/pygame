@@ -63,7 +63,7 @@ mouse_set_pos(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mouse_get_pos(PyObject *self)
+mouse_get_pos(PyObject *self, PyObject *_null)
 {
     int x, y;
 
@@ -463,7 +463,7 @@ mouse_get_cursor(PyObject *self, PyObject *_null)
 
 static PyMethodDef _mouse_methods[] = {
     {"set_pos", mouse_set_pos, METH_VARARGS, DOC_PYGAMEMOUSESETPOS},
-    {"get_pos", (PyCFunction)mouse_get_pos, METH_VARARGS,
+    {"get_pos", (PyCFunction)mouse_get_pos, METH_NOARGS,
      DOC_PYGAMEMOUSEGETPOS},
     {"get_rel", (PyCFunction)mouse_get_rel, METH_VARARGS,
      DOC_PYGAMEMOUSEGETREL},

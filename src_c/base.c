@@ -192,6 +192,34 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked.major, linked.minor, linked.patch);
         return 0;
     }
+    else if (linked.major == 2 && linked.minor == 0 && linked.patch < 14 &&
+             compiled.patch >=
+                 14) {  // major and minor versions match, check edge case
+        /* SDL 2.0.14 replaces some macros with symbols, see
+         * https://github.com/libsdl-org/SDL/commit/316ff3847b4d9d87d9b0aab15321461db0e8ae0b
+         */
+        PyErr_Format(PyExc_RuntimeError,
+                     "Known SDL incompatibility detected! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
+    else if ((linked.major == compiled.major &&
+              linked.minor == compiled.minor &&
+              linked.patch < compiled.patch) ||
+             (linked.major == compiled.major &&
+              linked.minor < compiled.minor)) {
+        /* We do some ifdefs to support different SDL versions at compile time.
+           We use newer API only when available.
+           Downgrading via dynamic API probably breaks this.*/
+        PyErr_Format(PyExc_RuntimeError,
+                     "Dynamic linking causes SDL downgrade! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
 
     return 1;
 }
@@ -2184,6 +2212,11 @@ MODINIT_DEFINE(base)
 #ifdef MS_WIN32
     SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
+
+    if (!pg_CheckSDLVersions()) {
+        goto error;
+    }
+
     return module;
 
 error:
