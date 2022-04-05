@@ -79,6 +79,21 @@ solves no longer exists, it will likely be removed in the future.
 
    .. ## pygame.font.get_default_font ##
 
+.. function:: get_sdl_ttf_version
+
+   | :sl:`gets SDL_ttf version`
+   | :sg:`get_sdl_ttf_version(linked=True) -> (major, minor, patch)`
+
+   Returns a tuple of integers that identify SDL_ttf's version.
+   SDL_ttf is the underlying font rendering library, written in C,
+   on which pygame's font module depends. If 'linked' is True (the default), 
+   the function returns the version of the linked TTF library. 
+   Otherwise this function returns the version of TTF pygame was compiled with
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.font.get_sdl_ttf_version ##
+
 .. function:: get_fonts
 
    | :sl:`get all available fonts`

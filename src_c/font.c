@@ -69,6 +69,7 @@ static const char resourcefunc_name[] = "getResource";
 /*
  */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
+
 static int
 utf_8_needs_UCS_4(const char *str)
 {
@@ -788,12 +789,48 @@ get_default_font(PyObject *self, PyObject *_null)
     return PyUnicode_FromString(font_defaultname);
 }
 
+static PyObject *
+get_ttf_version(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *linkedobj = NULL;
+    int linked = 1; /* Default is linked version. */
+
+    static char *keywords[] = {"linked", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
+                                     &linkedobj)) {
+        return NULL; /* Exception already set. */
+    }
+
+    if (NULL != linkedobj) {
+        linked = PyObject_IsTrue(linkedobj);
+
+        if (-1 == linked) {
+            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
+        }
+    }
+
+    if (linked) {
+        const SDL_version *v = TTF_Linked_Version();
+        return Py_BuildValue("iii", v->major, v->minor, v->patch);
+    }
+    else {
+        /* compiled version */
+        SDL_version v;
+        TTF_VERSION(&v);
+        return Py_BuildValue("iii", v.major, v.minor, v.patch);
+    }
+}
+
 static PyMethodDef _font_methods[] = {
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
     {"quit", (PyCFunction)fontmodule_quit, METH_NOARGS, DOC_PYGAMEFONTQUIT},
     {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
+    {"get_sdl_ttf_version", (PyCFunction)get_ttf_version,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEFONTGETINIT},
+
     {NULL, NULL, 0, NULL}};
 
 static PyObject *
