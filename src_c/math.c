@@ -641,7 +641,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     }
     else if (op != (OP_MUL | OP_ARG_VECTOR) &&
              op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
-        ret = (pgVector *)pgVector_NEW(dim);
+        ret = (pgVector *)_vector_subtype_new(Py_TYPE(o1), dim);
         if (ret == NULL)
             return NULL;
     }
@@ -764,7 +764,7 @@ vector_neg(pgVector *self)
 {
     pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
-    if (ret != NULL) {
+    if (ret) {
         Py_ssize_t i;
 
         for (i = 0; i < self->dim; i++) {
@@ -779,7 +779,7 @@ vector_pos(pgVector *self)
 {
     pgVector *ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
 
-    if (ret != NULL) {
+    if (ret) {
         memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
     }
     return (PyObject *)ret;
@@ -819,7 +819,7 @@ vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t i;
     pgVector *ret;
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = (pgVector *)_vector_subtype_new(Py_TYPE(self), self->dim);
     if (ret == NULL)
         return NULL;
 
@@ -1802,7 +1802,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     }
 
     if (len == 2 || len == 3) {
-        res = (PyObject *)pgVector_NEW((int)len);
+        res = (PyObject *)_vector_subtype_new(Py_TYPE(self), (int)len);
     }
     else {
         /* More than 3, we return a tuple. */
@@ -3653,7 +3653,8 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
     else
         op |= OP_ARG_UNKNOWN;
 
-    ret = (pgVector *)pgVector_NEW(dim);
+    ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
+
     if (ret == NULL) {
         return NULL;
     }
@@ -3852,6 +3853,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
                             PyObject *mod)
 {
     Py_ssize_t i, dim;
+    pgVector *vec;
     double *tmp;
     PyObject *bases[VECTOR_MAX_SIZE] = {NULL};
     PyObject *expos[VECTOR_MAX_SIZE] = {NULL};
@@ -3917,7 +3919,8 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
         goto clean_up;
     }
 
-    ret = pgVector_NEW(dim);
+    vec = ((vector_elementwiseproxy *)baseObj)->vec;
+    ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
     if (ret == NULL)
         goto clean_up;
     /* there are many special cases so we let python do the work for us */
@@ -3950,8 +3953,9 @@ clean_up:
 static PyObject *
 vector_elementwiseproxy_abs(vector_elementwiseproxy *self)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->vec->dim);
-    if (ret != NULL) {
+    pgVector *ret =
+        (pgVector *)_vector_subtype_new(Py_TYPE(self->vec), self->vec->dim);
+    if (ret) {
         Py_ssize_t i;
 
         for (i = 0; i < self->vec->dim; i++) {
