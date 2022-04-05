@@ -159,6 +159,8 @@ _color_ass_item(pgColorObject *, Py_ssize_t, PyObject *);
 static PyObject *
 _color_slice(register pgColorObject *, register Py_ssize_t,
              register Py_ssize_t);
+static int
+_color_contains(pgColorObject *, PyObject *);
 
 /* Mapping protocol methods. */
 static PyObject *
@@ -241,6 +243,7 @@ static PySequenceMethods _color_as_sequence = {
     .sq_length = (lenfunc)_color_length,
     .sq_item = (ssizeargfunc)_color_item,
     .sq_ass_item = (ssizeobjargproc)_color_ass_item,
+    .sq_contains = (objobjproc)_color_contains,
 };
 
 static PyMappingMethods _color_as_mapping = {
@@ -1855,6 +1858,30 @@ _color_slice(register pgColorObject *a, register Py_ssize_t ilow,
     else {
         return Py_BuildValue("()");
     }
+}
+
+static int
+_color_contains(pgColorObject *self, PyObject *arg)
+{
+    if (!PyLong_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "'in <pygame.Color>' requires integer object");
+        return -1;
+    }
+
+    long comp = PyLong_AsLong(arg);
+    if (comp == -1 && PyErr_Occurred()) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < self->len; i++) {
+        if (self->data[i] == comp) {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 static int

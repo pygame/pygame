@@ -1095,6 +1095,19 @@ class ColorTypeTest(unittest.TestCase):
         for i, val in enumerate(color_iterator):
             self.assertEqual(c[i], val)
 
+    def test_color_contains(self):
+        c = pygame.Color(50, 60, 70)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(50))
+        self.assertTrue(60 in c)
+        self.assertTrue(70 in c)
+        self.assertFalse(100 in c)
+        self.assertFalse(c.__contains__(10))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3.14159 in c)
+
     def test_lerp(self):
         # setup
         Color = pygame.color.Color

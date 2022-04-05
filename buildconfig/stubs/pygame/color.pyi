@@ -1,10 +1,18 @@
+import sys
 from typing import Any, Dict, Iterator, Tuple, overload
 
 from ._common import ColorValue
 
+if sys.version_info >= (3, 9):
+    from collections.abc import Collection
+else:
+    from typing import Collection
+
 THECOLORS: Dict[str, Tuple[int, int, int, int]]
 
-class Color:
+# Color confirms to the Collection ABC, since it also confirms to
+# Sized, Iterable and Container ABCs
+class Color(Collection[int]):
     r: int
     g: int
     b: int
@@ -35,6 +43,7 @@ class Color:
     def __len__(self) -> int: ...
     def __index__(self) -> int: ...
     def __invert__(self) -> Color: ...
+    def __contains__(self, other: int) -> bool: ...  # type: ignore[override]
     def normalize(self) -> Tuple[float, float, float, float]: ...
     def correct_gamma(self, gamma: float) -> Color: ...
     def set_length(self, length: int) -> None: ...

@@ -1,11 +1,19 @@
+import sys
 from typing import Dict, Iterator, List, Sequence, Tuple, TypeVar, Union, overload
 
 from ._common import Coordinate, Literal, RectValue
 
+if sys.version_info >= (3, 9):
+    from collections.abc import Collection
+else:
+    from typing import Collection
+
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
-class Rect:
+# Rect confirms to the Collection ABC, since it also confirms to
+# Sized, Iterable and Container ABCs
+class Rect(Collection[int]):
     x: int
     y: int
     top: int
@@ -127,7 +135,7 @@ class Rect:
     @overload
     def fit(self, left: float, top: float, width: float, height: float) -> Rect: ...
     def normalize(self) -> None: ...
-    def __contains__(self, rect: Union[RectValue, int]) -> bool: ...
+    def __contains__(self, rect: Union[RectValue, int]) -> bool: ...  # type: ignore[override]
     @overload
     def contains(self, rect: RectValue) -> bool: ...
     @overload
