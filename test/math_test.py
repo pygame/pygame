@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import unittest
 import math
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 import pygame.math
 from pygame.math import Vector2, Vector3
@@ -1153,6 +1153,11 @@ class Vector2TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
+
+    def test_collection_abc(self):
+        v = Vector2(3, 4)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
 
 
 class Vector3TypeTest(unittest.TestCase):
@@ -2448,6 +2453,11 @@ class Vector3TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
+
+    def test_collection_abc(self):
+        v = Vector3(3, 4, 5)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
 
 
 if __name__ == "__main__":

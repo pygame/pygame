@@ -1,11 +1,10 @@
 import math
-import sys
-import unittest
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
-
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -2243,6 +2242,11 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r, [11, 12, 13, 14])
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
+    
+    def test_collection_abc(self):
+        r = Rect(64, 70, 75, 30)
+        self.assertTrue(isinstance(r, Collection))
+        self.assertFalse(isinstance(r, Sequence))
 
 
 @unittest.skipIf(IS_PYPY, "fails on pypy")
@@ -2307,6 +2311,11 @@ class SubclassTest(unittest.TestCase):
         mr2 = mr1.fit(Rect(30, 30, 15, 10))
         self.assertTrue(isinstance(mr2, self.MyRect))
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_collection_abc(self):
+        mr1 = self.MyRect(64, 70, 75, 30)
+        self.assertTrue(isinstance(mr1, Collection))
+        self.assertFalse(isinstance(mr1, Sequence))
 
 
 if __name__ == "__main__":

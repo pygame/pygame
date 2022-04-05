@@ -1,11 +1,11 @@
-import unittest
 import math
 import operator
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 import pygame
 from pygame.colordict import THECOLORS
-
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
@@ -1245,6 +1245,11 @@ class ColorTypeTest(unittest.TestCase):
         c.update(1, 2, 3, 4)
         self.assertEqual(len(c), 4)
 
+    def test_collection_abc(self):
+        c = pygame.Color(64, 70, 75, 255)
+        self.assertTrue(isinstance(c, Collection))
+        self.assertFalse(isinstance(c, Sequence))
+
 
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):
@@ -1315,6 +1320,11 @@ class SubclassTest(unittest.TestCase):
         mc2 = mc1.correct_gamma(0.03)
         self.assertTrue(isinstance(mc2, self.MyColor))
         self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
+
+    def test_collection_abc(self):
+        mc1 = self.MyColor(64, 70, 75, 255)
+        self.assertTrue(isinstance(mc1, Collection))
+        self.assertFalse(isinstance(mc1, Sequence))
 
 
 ################################################################################
