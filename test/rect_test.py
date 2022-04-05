@@ -2242,7 +2242,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r, [11, 12, 13, 14])
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
-    
+
     def test_collection_abc(self):
         r = Rect(64, 70, 75, 30)
         self.assertTrue(isinstance(r, Collection))

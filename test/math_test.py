@@ -2492,6 +2492,5 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(expected_v2.z, v2.z)
 
 
-
 if __name__ == "__main__":
     unittest.main()
