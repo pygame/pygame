@@ -1,11 +1,11 @@
-import unittest
 import math
 import operator
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 import pygame
 from pygame.colordict import THECOLORS
-
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
@@ -1087,6 +1087,27 @@ class ColorTypeTest(unittest.TestCase):
             self.assertEqual(imp.shape, (i,))
         self.assertRaises(BufferError, ColorImporter, c, buftools.PyBUF_WRITABLE)
 
+    def test_color_iter(self):
+        c = pygame.Color(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        color_iterator = c.__iter__()
+        for i, val in enumerate(color_iterator):
+            self.assertEqual(c[i], val)
+
+    def test_color_contains(self):
+        c = pygame.Color(50, 60, 70)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(50))
+        self.assertTrue(60 in c)
+        self.assertTrue(70 in c)
+        self.assertFalse(100 in c)
+        self.assertFalse(c.__contains__(10))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3.14159 in c)
+
     def test_lerp(self):
         # setup
         Color = pygame.color.Color
@@ -1224,6 +1245,11 @@ class ColorTypeTest(unittest.TestCase):
         c.update(1, 2, 3, 4)
         self.assertEqual(len(c), 4)
 
+    def test_collection_abc(self):
+        c = pygame.Color(64, 70, 75, 255)
+        self.assertTrue(isinstance(c, Collection))
+        self.assertFalse(isinstance(c, Sequence))
+
 
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):
@@ -1294,6 +1320,11 @@ class SubclassTest(unittest.TestCase):
         mc2 = mc1.correct_gamma(0.03)
         self.assertTrue(isinstance(mc2, self.MyColor))
         self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
+
+    def test_collection_abc(self):
+        mc1 = self.MyColor(64, 70, 75, 255)
+        self.assertTrue(isinstance(mc1, Collection))
+        self.assertFalse(isinstance(mc1, Sequence))
 
 
 ################################################################################

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import unittest
 import math
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 import pygame.math
 from pygame.math import Vector2, Vector3
@@ -93,6 +93,100 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v_copy0.x, v_copy1.x)
         self.assertEqual(v_copy0.y, v_copy1.y)
 
+    def test_move_towards_basic(self):
+        expected = Vector2(8.08, 2006.87)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 3)
+        change_ip.move_towards_ip(target, 3)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_towards_max_distance(self):
+        expected = Vector2(12.30, 2021)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 25)
+        change_ip.move_towards_ip(target, 25)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_nowhere(self):
+        expected = Vector2(7.22, 2004.0)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, 0)
+        change_ip.move_towards_ip(target, 0)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_away(self):
+        expected = Vector2(6.36, 2001.13)
+        origin = Vector2(7.22, 2004.0)
+        target = Vector2(12.30, 2021.0)
+        change_ip = Vector2(7.22, 2004.0)
+
+        change = origin.move_towards(target, -3)
+        change_ip.move_towards_ip(target, -3)
+
+        self.assertEqual(round(change.x, 2), expected.x)
+        self.assertEqual(round(change.y, 2), expected.y)
+        self.assertEqual(round(change_ip.x, 2), expected.x)
+        self.assertEqual(round(change_ip.y, 2), expected.y)
+
+    def test_move_towards_errors(self):
+        def overpopulate():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards(target, 3, 2)
+
+        def overpopulate_ip():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip(target, 3, 2)
+
+        def invalid_types1():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards(target, "novial")
+
+        def invalid_types_ip1():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip(target, "is")
+
+        def invalid_types2():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards("kinda", 3)
+
+        def invalid_types_ip2():
+            origin = Vector2(7.22, 2004.0)
+            target = Vector2(12.30, 2021.0)
+            origin.move_towards_ip("cool", 3)
+
+        self.assertRaises(TypeError, overpopulate)
+        self.assertRaises(TypeError, overpopulate_ip)
+        self.assertRaises(TypeError, invalid_types1)
+        self.assertRaises(TypeError, invalid_types_ip1)
+        self.assertRaises(TypeError, invalid_types2)
+        self.assertRaises(TypeError, invalid_types_ip2)
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]
@@ -170,6 +264,19 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(type(a), type(self.v1))
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
+
+    def test_contains(self):
+        c = Vector2(0, 1)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 not in c)
+        self.assertFalse(c.__contains__(2))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
 
     def testAdd(self):
         v3 = self.v1 + self.v2
@@ -1057,6 +1164,27 @@ class Vector2TypeTest(unittest.TestCase):
         # act / assert
         self.assertRaises(TypeError, v.project, other)
 
+    def test_collection_abc(self):
+        v = Vector2(3, 4)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
+
+    def test_clamp_mag_v2_max(self):
+        v1 = Vector2(7, 2)
+        v2 = v1.clamp_magnitude(5)
+        v1.clamp_magnitude_ip(5)
+        self.assertEqual(v1, v2)
+        expected_v2 = Vector2(4.807619738204116, 1.3736056394868903)
+        self.assertAlmostEqual(expected_v2.x, v2.x)
+        self.assertAlmostEqual(expected_v2.y, v2.y)
+
+    def test_clamp_mag_v2_min(self):
+        v1 = Vector2(1, 2)
+        v2 = v1.clamp_magnitude(5, 3)
+        expected_v2 = Vector2(1.3416407864998738, 2.6832815729997477)
+        self.assertAlmostEqual(expected_v2.x, v2.x)
+        self.assertAlmostEqual(expected_v2.y, v2.y)
+
 
 class Vector3TypeTest(unittest.TestCase):
     def setUp(self):
@@ -1245,6 +1373,20 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(a), type(self.v1))
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
+
+    def test_contains(self):
+        c = Vector3(0, 1, 2)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 in c)
+        self.assertTrue(3 not in c)
+        self.assertFalse(c.__contains__(10))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
 
     def testAdd(self):
         v3 = self.v1 + self.v2
@@ -2337,6 +2479,27 @@ class Vector3TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
+
+    def test_collection_abc(self):
+        v = Vector3(3, 4, 5)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
+
+    def test_clamp_mag_v3_max(self):
+        v1 = Vector3(7, 2, 2)
+        v2 = v1.clamp_magnitude(5)
+        expected_v2 = Vector3(4.635863249727653, 1.3245323570650438, 1.3245323570650438)
+        self.assertAlmostEqual(expected_v2.x, v2.x)
+        self.assertAlmostEqual(expected_v2.y, v2.y)
+        self.assertAlmostEqual(expected_v2.z, v2.z)
+
+    def test_clamp_mag_v3_min(self):
+        v1 = Vector3(3, 1, 2)
+        v2 = v1.clamp_magnitude(10, 5)
+        expected_v2 = Vector3(4.008918628686366, 1.3363062095621219, 2.6726124191242437)
+        self.assertAlmostEqual(expected_v2.x, v2.x)
+        self.assertAlmostEqual(expected_v2.y, v2.y)
+        self.assertAlmostEqual(expected_v2.z, v2.z)
 
 
 if __name__ == "__main__":

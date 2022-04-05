@@ -3,7 +3,7 @@
 .. highlight:: c
 
 ********************************************************
-  Class BufferProxy API exported by pgyame.bufferproxy
+  Class BufferProxy API exported by pygame.bufferproxy
 ********************************************************
 
 src_c/bufferproxy.c

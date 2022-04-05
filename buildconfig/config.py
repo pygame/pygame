@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# For MinGW build requires Python 2.4 or better and win32api.
 
 """Quick tool to help setup the needed paths and flags
 in your Setup file. This will call the appropriate sub-config

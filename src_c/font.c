@@ -145,7 +145,7 @@ font_resource(const char *filename)
 }
 
 static PyObject *
-fontmodule_init(PyObject *self)
+fontmodule_init(PyObject *self, PyObject *_null)
 {
     if (!font_initialized) {
         if (TTF_Init())
@@ -157,7 +157,7 @@ fontmodule_init(PyObject *self)
 }
 
 static PyObject *
-fontmodule_quit(PyObject *self)
+fontmodule_quit(PyObject *self, PyObject *_null)
 {
     if (font_initialized) {
         TTF_Quit();
@@ -168,35 +168,35 @@ fontmodule_quit(PyObject *self)
 }
 
 static PyObject *
-get_init(PyObject *self)
+get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(font_initialized);
 }
 
 /* font object methods */
 static PyObject *
-font_get_height(PyObject *self, PyObject *args)
+font_get_height(PyObject *self, PyObject *_null)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyLong_FromLong(TTF_FontHeight(font));
 }
 
 static PyObject *
-font_get_descent(PyObject *self, PyObject *args)
+font_get_descent(PyObject *self, PyObject *_null)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyLong_FromLong(TTF_FontDescent(font));
 }
 
 static PyObject *
-font_get_ascent(PyObject *self, PyObject *args)
+font_get_ascent(PyObject *self, PyObject *_null)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyLong_FromLong(TTF_FontAscent(font));
 }
 
 static PyObject *
-font_get_linesize(PyObject *self, PyObject *args)
+font_get_linesize(PyObject *self, PyObject *_null)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyLong_FromLong(TTF_FontLineSkip(font));
@@ -247,7 +247,7 @@ font_setter_bold(PyObject *self, PyObject *value, void *closure)
 
 /* Implements get_bold() */
 static PyObject *
-font_get_bold(PyObject *self, PyObject *args)
+font_get_bold(PyObject *self, PyObject *_null)
 {
     return _font_get_style_flag_as_py_bool(self, TTF_STYLE_BOLD);
 }
@@ -293,7 +293,7 @@ font_setter_italic(PyObject *self, PyObject *value, void *closure)
 
 /* Implements get_italic() */
 static PyObject *
-font_get_italic(PyObject *self, PyObject *args)
+font_get_italic(PyObject *self, PyObject *_null)
 {
     return _font_get_style_flag_as_py_bool(self, TTF_STYLE_ITALIC);
 }
@@ -340,7 +340,7 @@ font_setter_underline(PyObject *self, PyObject *value, void *closure)
 
 /* Implements get_underline() */
 static PyObject *
-font_get_underline(PyObject *self, PyObject *args)
+font_get_underline(PyObject *self, PyObject *_null)
 {
     return _font_get_style_flag_as_py_bool(self, TTF_STYLE_UNDERLINE);
 }
@@ -770,50 +770,20 @@ error:
 }
 
 static PyTypeObject PyFont_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.font.Font",
-    sizeof(PyFontObject),
-    0,
-    (destructor)font_dealloc,
-    0,
-    0, /*getattr*/
-    0,
-    0,
-    0,
-    0,
-    NULL,
-    0,
-    (hashfunc)NULL,
-    (ternaryfunc)NULL,
-    (reprfunc)NULL,
-    0L,
-    0L,
-    0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEFONTFONT,                       /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    offsetof(PyFontObject, weakreflist),      /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    font_methods,                             /* tp_methods */
-    0,                                        /* tp_members */
-    font_getsets,                             /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    (initproc)font_init,                      /* tp_init */
-    0,                                        /* tp_alloc */
-    0,                                        /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.font.Font",
+    .tp_basicsize = sizeof(PyFontObject),
+    .tp_dealloc = (destructor)font_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEFONTFONT,
+    .tp_weaklistoffset = offsetof(PyFontObject, weakreflist),
+    .tp_methods = font_methods,
+    .tp_getset = font_getsets,
+    .tp_init = (initproc)font_init,
 };
-
-//    PyType_GenericNew,                        /* tp_new */
 
 /*font module methods*/
 static PyObject *
-get_default_font(PyObject *self)
+get_default_font(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(font_defaultname);
 }

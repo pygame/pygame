@@ -1,11 +1,10 @@
 import math
-import sys
-import unittest
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
-
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -49,6 +48,14 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((r.centerx, r.bottom), r.midbottom)
         self.assertEqual((r.left, r.centery), r.midleft)
         self.assertEqual((r.right, r.centery), r.midright)
+
+    def test_rect_iter(self):
+        rect = Rect(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        rect_iterator = rect.__iter__()
+        for i, val in enumerate(rect_iterator):
+            self.assertEqual(rect[i], val)
 
     def test_normalize(self):
         """Ensures normalize works when width and height are both negative."""
@@ -725,6 +732,9 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(Rect(4, 6, 0, 0) in r, "r contains Rect(4, 6, 0, 0)")
         self.assertTrue(2 in Rect(0, 0, 1, 2), "r does not contain 2")
         self.assertFalse(3 in Rect(0, 0, 1, 2), "r contains 3")
+
+        self.assertRaises(TypeError, lambda: "string" in Rect(0, 0, 1, 2))
+        self.assertRaises(TypeError, lambda: 4 + 3j in Rect(0, 0, 1, 2))
 
     def test_collidepoint(self):
         r = Rect(1, 2, 3, 4)
@@ -2005,6 +2015,156 @@ class RectTypeTest(unittest.TestCase):
         f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
         self.assertFalse(r.collidelistall(f))
 
+    def test_collidelistall_returns_empty_list(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            Rect(112, 1, 10, 10),
+            Rect(50, 5, 10, 10),
+            Rect(15, 15, 1, 1),
+            Rect(-20, 2, 1, 1),
+        ]
+        self.assertEqual(r.collidelistall(l), [])
+
+    def test_collidelistall_list_of_tuples(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            (1, 1, 10, 10),
+            (5, 5, 10, 10),
+            (15, 15, 1, 1),
+            (2, 2, 1, 1),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [(50, 50, 1, 1), (20, 20, 5, 5)]
+        self.assertFalse(r.collidelistall(f))
+
+    def test_collidelistall_list_of_two_tuples(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            ((1, 1), (10, 10)),
+            ((5, 5), (10, 10)),
+            ((15, 15), (1, 1)),
+            ((2, 2), (1, 1)),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [((50, 50), (1, 1)), ((20, 20), (5, 5))]
+        self.assertFalse(r.collidelistall(f))
+
+    def test_collidelistall_list_of_lists(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            [1, 1, 10, 10],
+            [5, 5, 10, 10],
+            [15, 15, 1, 1],
+            [2, 2, 1, 1],
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [[50, 50, 1, 1], [20, 20, 5, 5]]
+        self.assertFalse(r.collidelistall(f))
+
+    class _ObjectWithRectAttribute:
+        def __init__(self, r):
+            self.rect = r
+
+    def test_collidelistall_list_of_object_with_rect_attribute(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            self._ObjectWithRectAttribute(Rect(1, 1, 10, 10)),
+            self._ObjectWithRectAttribute(Rect(5, 5, 10, 10)),
+            self._ObjectWithRectAttribute(Rect(15, 15, 1, 1)),
+            self._ObjectWithRectAttribute(Rect(2, 2, 1, 1)),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [
+            self._ObjectWithRectAttribute(Rect(50, 50, 1, 1)),
+            self._ObjectWithRectAttribute(Rect(20, 20, 5, 5)),
+        ]
+        self.assertFalse(r.collidelistall(f))
+
+    class _ObjectWithCallableRectAttribute:
+        def __init__(self, r):
+            self._rect = r
+
+        def rect(self):
+            return self._rect
+
+    def test_collidelistall_list_of_object_with_callable_rect_attribute(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            self._ObjectWithCallableRectAttribute(Rect(1, 1, 10, 10)),
+            self._ObjectWithCallableRectAttribute(Rect(5, 5, 10, 10)),
+            self._ObjectWithCallableRectAttribute(Rect(15, 15, 1, 1)),
+            self._ObjectWithCallableRectAttribute(Rect(2, 2, 1, 1)),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [
+            self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+            self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
+        ]
+        self.assertFalse(r.collidelistall(f))
+
+    def test_collidelistall_list_of_object_with_callable_rect_returning_object_with_rect_attribute(
+        self,
+    ):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            self._ObjectWithCallableRectAttribute(
+                self._ObjectWithRectAttribute(Rect(1, 1, 10, 10))
+            ),
+            self._ObjectWithCallableRectAttribute(
+                self._ObjectWithRectAttribute(Rect(5, 5, 10, 10))
+            ),
+            self._ObjectWithCallableRectAttribute(
+                self._ObjectWithRectAttribute(Rect(15, 15, 1, 1))
+            ),
+            self._ObjectWithCallableRectAttribute(
+                self._ObjectWithRectAttribute(Rect(2, 2, 1, 1))
+            ),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [
+            self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+            self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
+        ]
+        self.assertFalse(r.collidelistall(f))
+
+    class _ObjectWithRectProperty:
+        def __init__(self, r):
+            self._rect = r
+
+        @property
+        def rect(self):
+            return self._rect
+
+    def test_collidelistall_list_of_object_with_rect_property(self):
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            self._ObjectWithRectProperty(Rect(1, 1, 10, 10)),
+            self._ObjectWithRectProperty(Rect(5, 5, 10, 10)),
+            self._ObjectWithRectProperty(Rect(15, 15, 1, 1)),
+            self._ObjectWithRectProperty(Rect(2, 2, 1, 1)),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [
+            self._ObjectWithRectProperty(Rect(50, 50, 1, 1)),
+            self._ObjectWithRectProperty(Rect(20, 20, 5, 5)),
+        ]
+        self.assertFalse(r.collidelistall(f))
+
     def test_fit(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
@@ -2083,6 +2243,11 @@ class RectTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
 
+    def test_collection_abc(self):
+        r = Rect(64, 70, 75, 30)
+        self.assertTrue(isinstance(r, Collection))
+        self.assertFalse(isinstance(r, Sequence))
+
 
 @unittest.skipIf(IS_PYPY, "fails on pypy")
 class SubclassTest(unittest.TestCase):
@@ -2146,6 +2311,11 @@ class SubclassTest(unittest.TestCase):
         mr2 = mr1.fit(Rect(30, 30, 15, 10))
         self.assertTrue(isinstance(mr2, self.MyRect))
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_collection_abc(self):
+        mr1 = self.MyRect(64, 70, 75, 30)
+        self.assertTrue(isinstance(mr1, Collection))
+        self.assertFalse(isinstance(mr1, Sequence))
 
 
 if __name__ == "__main__":
