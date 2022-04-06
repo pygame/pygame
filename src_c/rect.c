@@ -28,13 +28,9 @@
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
-
 #include "doc/rect_doc.h"
-
 #include "structmember.h"
-
 #include "pgcompat.h"
-
 #include <limits.h>
 
 static PyTypeObject pgRect_Type;
@@ -44,7 +40,7 @@ static PyTypeObject pgFRect_Type;
 
 /* encase it is defined in the future by Python.h */
 #ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double)x))
+#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double) (round((x)*100000)/100000)))
 #endif
 
 static int
@@ -734,8 +730,11 @@ pg_rect_repr(pgRectObject *self)
 static PyObject *
 pg_frect_repr(pgFRectObject *self)
 {
-   return PyUnicode_FromFormat("<rect(%f, %f, %f, %f)>", self->r.x, self->r.y,
-                                self->r.w, self->r.h);
+   return PyUnicode_FromFormat("<rect(%S, %S, %S, %S)>", 
+   PyFloat_FromFloat(self->r.x), 
+   PyFloat_FromFloat(self->r.y), 
+   PyFloat_FromFloat(self->r.w),
+   PyFloat_FromFloat(self->r.h));
 }
 
 static PyObject *

@@ -33,14 +33,6 @@
 
 #include <limits.h>
 
-static PyTypeObject pgRect_Type;
-static PyTypeObject pgFRect_Type;
-
-/* encase it is defined in the future by Python.h */
-#ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double)x))
-#endif
-
 //#region RectExport
 #ifndef RectExport_init
 #  error RectExport_init needs to be defined
