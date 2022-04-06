@@ -424,12 +424,13 @@ class FontTypeTest(unittest.TestCase):
         self.assertFalse(f.get_underline())
 
     def test_set_strikethrough(self):
-        f = pygame_font.Font(None, 20)
-        self.assertFalse(f.get_strikethrough())
-        f.set_strikethrough(True)
-        self.assertTrue(f.get_strikethrough())
-        f.set_strikethrough(False)
-        self.assertFalse(f.get_strikethrough())
+        if pygame_font.__name__ != "pygame.ftfont":
+            f = pygame_font.Font(None, 20)
+            self.assertFalse(f.get_strikethrough())
+            f.set_strikethrough(True)
+            self.assertTrue(f.get_strikethrough())
+            f.set_strikethrough(False)
+            self.assertFalse(f.get_strikethrough())
 
     def test_bold_attr(self):
         f = pygame_font.Font(None, 20)
@@ -456,12 +457,13 @@ class FontTypeTest(unittest.TestCase):
         self.assertFalse(f.underline)
 
     def test_set_strikethrough_property(self):
-        f = pygame_font.Font(None, 20)
-        self.assertFalse(f.strikethrough)
-        f.strikethrough = True
-        self.assertTrue(f.strikethrough)
-        f.strikethrough = False
-        self.assertFalse(f.strikethrough)
+        if pygame_font.__name__ != "pygame.ftfont":
+            f = pygame_font.Font(None, 20)
+            self.assertFalse(f.strikethrough)
+            f.strikethrough = True
+            self.assertTrue(f.strikethrough)
+            f.strikethrough = False
+            self.assertFalse(f.strikethrough)
 
     def test_size(self):
         f = pygame_font.Font(None, 20)
@@ -613,14 +615,16 @@ class VisualTests(unittest.TestCase):
         f.set_bold(bold)
         f.set_italic(italic)
         f.set_underline(underline)
-        f.set_strikethrough(strikethrough)
+        if pygame_font.__name__ != "pygame.ftfont":
+            f.set_strikethrough(strikethrough)
         s = f.render(text, antialiase, (0, 0, 0))
         screen.blit(s, (offset, y))
         y += s.get_size()[1] + spacing
         f.set_bold(False)
         f.set_italic(False)
         f.set_underline(False)
-        f.set_strikethrough(False)
+        if pygame_font.__name__ != "pygame.ftfont":        
+            f.set_strikethrough(False)
         s = f.render("(some comparison text)", False, (0, 0, 0))
         screen.blit(s, (offset, y))
         pygame.display.flip()
@@ -648,7 +652,8 @@ class VisualTests(unittest.TestCase):
         self.assertTrue(self.query(underline=True))
 
     def test_strikethrough(self):
-        self.assertTrue(self.query(strikethrough=True))
+        if pygame_font.__name__ != "pygame.ftfont":
+            self.assertTrue(self.query(strikethrough=True))
 
     def test_antialiase(self):
         self.assertTrue(self.query(antialiase=True))
@@ -660,7 +665,8 @@ class VisualTests(unittest.TestCase):
         self.assertTrue(self.query(italic=True, underline=True))
 
     def test_bold_strikethrough(self):
-        self.assertTrue(self.query(bold=True, strikethrough=True))
+        if pygame_font.__name__ != "pygame.ftfont":
+            self.assertTrue(self.query(bold=True, strikethrough=True))
 
 
 if __name__ == "__main__":
