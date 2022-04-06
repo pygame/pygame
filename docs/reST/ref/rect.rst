@@ -68,6 +68,13 @@
    rect1.bottom=rect2.top), the two meet exactly on the screen but do not
    overlap, and ``rect1.colliderect(rect2)`` returns false.
 
+   The Rect object is also iterable:
+
+   ::
+
+      r = Rect(0, 1, 2, 3)
+      x, y, w, h = r
+
    .. versionadded:: 1.9.2
       The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
       will recognize this and return instances of the subclass.
@@ -347,6 +354,50 @@
       Returns a list of all the indices that contain rectangles that collide
       with the Rect. If no intersecting rectangles are found, an empty list is
       returned.
+
+      Not only Rects are valid arguments, but these are all valid calls:
+
+      .. code-block:: python
+          :linenos:
+    
+          Rect = pygame.Rect
+          r = Rect(0, 0, 10, 10)
+          
+          list_of_rects = [Rect(1, 1, 1, 1), Rect(2, 2, 2, 2)]
+          indices0 = r.collidelistall(list_of_rects)
+          
+          list_of_lists = [[1, 1, 1, 1], [2, 2, 2, 2]]
+          indices1 = r.collidelistall(list_of_lists)
+          
+          list_of_tuples = [(1, 1, 1, 1), (2, 2, 2, 2)]
+          indices2 = r.collidelistall(list_of_tuples)
+          
+          list_of_double_tuples = [((1, 1), (1, 1)), ((2, 2), (2, 2))]
+          indices3 = r.collidelistall(list_of_double_tuples)
+          
+          class ObjectWithRectAttribute(object):
+              def __init__(self, r):
+                  self.rect = r
+          
+          list_of_object_with_rect_attribute = [
+              ObjectWithRectAttribute(Rect(1, 1, 1, 1)),
+              ObjectWithRectAttribute(Rect(2, 2, 2, 2)),
+          ]
+          indices4 = r.collidelistall(list_of_object_with_rect_attribute)
+          
+          class ObjectWithCallableRectAttribute(object):
+              def __init__(self, r):
+                  self._rect = r
+          
+              def rect(self):
+                  return self._rect
+          
+          list_of_object_with_callable_rect = [
+              ObjectWithCallableRectAttribute(Rect(1, 1, 1, 1)),
+              ObjectWithCallableRectAttribute(Rect(2, 2, 2, 2)),
+          ]
+          indices5 = r.collidelistall(list_of_object_with_callable_rect)
+
 
       .. ## Rect.collidelistall ##
 

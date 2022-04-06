@@ -63,7 +63,7 @@ mouse_set_pos(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mouse_get_pos(PyObject *self)
+mouse_get_pos(PyObject *self, PyObject *_null)
 {
     int x, y;
 
@@ -198,7 +198,7 @@ mouse_set_visible(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mouse_get_visible(PyObject *self, PyObject *args)
+mouse_get_visible(PyObject *self, PyObject *_null)
 {
     int result;
 
@@ -248,8 +248,7 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject *xormask,
                    PyObject *andmask)
 {
     Uint8 *xordata = NULL, *anddata = NULL;
-    int xorsize, andsize, loop;
-    int val;
+    int xorsize, andsize, loop, val;
     SDL_Cursor *lastcursor, *cursor = NULL;
 
     if (!PySequence_Check(xormask) || !PySequence_Check(andmask))
@@ -258,12 +257,23 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject *xormask,
     if (w % 8)
         return RAISE(PyExc_ValueError, "Cursor width must be divisible by 8.");
 
-    xorsize = PySequence_Length(xormask);
-    andsize = PySequence_Length(andmask);
+    xorsize = (int)PySequence_Length(xormask);
+    if (xorsize < 0)
+        return NULL;
+
+    andsize = (int)PySequence_Length(andmask);
+    if (andsize < 0)
+        return NULL;
 
     if (xorsize != w * h / 8 || andsize != w * h / 8)
         return RAISE(PyExc_ValueError,
                      "bitmasks must be sized width*height/8");
+
+#ifdef _MSC_VER
+    /* Suppress false analyzer report */
+    __analysis_assume(xorsize >= 2);
+    __analysis_assume(andsize >= 2);
+#endif
 
     xordata = (Uint8 *)malloc(xorsize);
     anddata = (Uint8 *)malloc(andsize);
@@ -432,7 +442,7 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
 
 // mouse.get_cursor goes through a python layer first, see cursors.py
 static PyObject *
-mouse_get_cursor(PyObject *self)
+mouse_get_cursor(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
 
@@ -453,7 +463,7 @@ mouse_get_cursor(PyObject *self)
 
 static PyMethodDef _mouse_methods[] = {
     {"set_pos", mouse_set_pos, METH_VARARGS, DOC_PYGAMEMOUSESETPOS},
-    {"get_pos", (PyCFunction)mouse_get_pos, METH_VARARGS,
+    {"get_pos", (PyCFunction)mouse_get_pos, METH_NOARGS,
      DOC_PYGAMEMOUSEGETPOS},
     {"get_rel", (PyCFunction)mouse_get_rel, METH_VARARGS,
      DOC_PYGAMEMOUSEGETREL},

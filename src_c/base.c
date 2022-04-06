@@ -40,7 +40,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 extern int
-SDL_RegisterApp(char *, Uint32, void *);
+SDL_RegisterApp(const char *, Uint32, void *);
 #endif
 
 #if defined(macintosh)
@@ -192,6 +192,34 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked.major, linked.minor, linked.patch);
         return 0;
     }
+    else if (linked.major == 2 && linked.minor == 0 && linked.patch < 14 &&
+             compiled.patch >=
+                 14) {  // major and minor versions match, check edge case
+        /* SDL 2.0.14 replaces some macros with symbols, see
+         * https://github.com/libsdl-org/SDL/commit/316ff3847b4d9d87d9b0aab15321461db0e8ae0b
+         */
+        PyErr_Format(PyExc_RuntimeError,
+                     "Known SDL incompatibility detected! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
+    else if ((linked.major == compiled.major &&
+              linked.minor == compiled.minor &&
+              linked.patch < compiled.patch) ||
+             (linked.major == compiled.major &&
+              linked.minor < compiled.minor)) {
+        /* We do some ifdefs to support different SDL versions at compile time.
+           We use newer API only when available.
+           Downgrading via dynamic API probably breaks this.*/
+        PyErr_Format(PyExc_RuntimeError,
+                     "Dynamic linking causes SDL downgrade! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
 
     return 1;
 }
@@ -244,9 +272,9 @@ pg_mod_autoinit(const char *modname)
     if (!module)
         return 0;
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEinit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_init");
 
-    /* If we could not load __PYGAMEinit__, load init function */
+    /* If we could not load _internal_mod_init, load init function */
     if (!funcobj) {
         PyErr_Clear();
         funcobj = PyObject_GetAttrString(module, "init");
@@ -277,9 +305,9 @@ pg_mod_autoquit(const char *modname)
         return;
     }
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEquit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
 
-    /* If we could not load __PYGAMEquit__, load quit function */
+    /* If we could not load _internal_mod_quit, load quit function */
     if (!funcobj)
         funcobj = PyObject_GetAttrString(module, "quit");
 
@@ -301,7 +329,7 @@ pg_mod_autoquit(const char *modname)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *_null)
 {
     int i = 0, success = 0, fail = 0;
 
@@ -357,7 +385,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self)
+pg_get_sdl_version(PyObject *self, PyObject *_null)
 {
     SDL_version v;
 
@@ -366,7 +394,7 @@ pg_get_sdl_version(PyObject *self)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self)
+pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
@@ -374,7 +402,7 @@ pg_get_sdl_byteorder(PyObject *self)
 static void
 _pg_quit(void)
 {
-    int num, i;
+    Py_ssize_t num, i;
     PyObject *quit, *privatefuncs, *temp;
 
     /* Put all the module names we want to quit in this array */
@@ -437,14 +465,14 @@ _pg_quit(void)
 }
 
 static PyObject *
-pg_quit(PyObject *self)
+pg_quit(PyObject *self, PyObject *_null)
 {
     _pg_quit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
-pg_get_init(PyObject *self, PyObject *args)
+pg_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -627,7 +655,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self)
+pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }
@@ -755,7 +783,7 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     cinter_p->inter.two = 2;
     cinter_p->inter.nd = ndim;
     cinter_p->inter.typekind = _pg_as_arrayinter_typekind(view_p);
-    cinter_p->inter.itemsize = view_p->itemsize;
+    cinter_p->inter.itemsize = (int)view_p->itemsize;
     cinter_p->inter.flags = _pg_as_arrayinter_flags(view_p);
     if (view_p->shape) {
         cinter_p->inter.shape = cinter_p->imem;
@@ -1171,10 +1199,20 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     if (view->format) {
         switch (view->format[0]) {
             case '<':
-                return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
             case '>':
             case '!':
-                return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                /* Use macros to make static analyzer happy */
+                return 0;
+#else
+                return 1;
+#endif
         }
     }
     return 0;
@@ -1195,7 +1233,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     if (!PyDict_Check(inter)) {
         PyErr_Format(PyExc_ValueError,
                      "expected '__array_interface__' to return a dict: got %s",
-                     Py_TYPE(dict)->tp_name);
+                     Py_TYPE(inter)->tp_name);
         Py_DECREF(inter);
         return -1;
     }
@@ -1589,7 +1627,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
                         "'shape' and 'strides' are not the same length");
         return -1;
     }
-    view_p->ndim = ndim;
+    view_p->ndim = (int)ndim;
     view_p->buf = PyLong_AsVoidPtr(PyTuple_GET_ITEM(data, 0));
     if (!view_p->buf && PyErr_Occurred()) {
         return -1;
@@ -2039,15 +2077,6 @@ pg_uninstall_parachute(void)
 
 /* bind functions to python */
 
-static PyObject *
-pg_do_segfault(PyObject *self, PyObject *args)
-{
-    // force crash
-    *((int *)1) = 45;
-    memcpy((char *)2, (char *)3, 10);
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
@@ -2063,8 +2092,6 @@ static PyMethodDef _base_methods[] = {
 
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
-
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
@@ -2185,6 +2212,11 @@ MODINIT_DEFINE(base)
 #ifdef MS_WIN32
     SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
+
+    if (!pg_CheckSDLVersions()) {
+        goto error;
+    }
+
     return module;
 
 error:

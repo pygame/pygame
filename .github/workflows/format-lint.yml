@@ -1,32 +1,29 @@
 name: python3 setup.py lint
 
-# Run CI only when a release is created, on changes to main branch, or any PR
-# to main. Do not run CI on any other branch. Also, skip any non-source changes
-# from running on CI
+# Run lint CI on changes to main branch, or any PR to main. Do not run CI on
+# any other branch. Also, skip any non-source changes from running on lint CI
 on:
-  release:
-    types: [created]
   push:
     branches: main
     paths-ignore:
       - 'docs/**'
-      - 'examples/**'
       - '.gitignore'
-      - 'README.rst'
-      - '.github/workflows/build.yml'
-      - '.github/workflows/manylinux.yml'
-      - '.github/workflows/ubuntu-sdist.yml'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/format-lint.yml'
 
   pull_request:
     branches: main
     paths-ignore:
       - 'docs/**'
-      - 'examples/**'
       - '.gitignore'
-      - 'README.rst'
-      - '.github/workflows/build.yml'
-      - '.github/workflows/manylinux.yml'
-      - '.github/workflows/ubuntu-sdist.yml'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/format-lint.yml'
 
 jobs:
   format-lint-code-check:

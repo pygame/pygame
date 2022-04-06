@@ -9,24 +9,26 @@ on:
   push:
     branches: main
     paths-ignore:
-    - 'docs/**'
-    - 'examples/**'
-    - '.gitignore'
-    - 'README.rst'
-    - '.github/workflows/build.yml'
-    - '.github/workflows/ubuntu-sdist.yml'
-    - '.github/workflows/format-lint.yml'
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/manylinux.yml'
 
   pull_request:
     branches: main
     paths-ignore:
-    - 'docs/**'
-    - 'examples/**'
-    - '.gitignore'
-    - 'README.rst'
-    - '.github/workflows/build.yml'
-    - '.github/workflows/ubuntu-sdist.yml'
-    - '.github/workflows/format-lint.yml'
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/manylinux.yml'
 
 jobs:
   build-manylinux:

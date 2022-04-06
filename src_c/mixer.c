@@ -300,7 +300,7 @@ endsound_callback(int channel)
             PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
-                Mix_GroupChannel(channelnum, (intptr_t)sound);
+                Mix_GroupChannel(channelnum, (int)(intptr_t)sound);
         }
         else {
             PyGILState_STATE gstate = PyGILState_Ensure();
@@ -497,14 +497,14 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
 }
 
 static PyObject *
-pgMixer_AutoInit(PyObject *self)
+pgMixer_AutoInit(PyObject *self, PyObject *_null)
 {
     /* Return init with defaults */
     return _init(0, 0, 0, 0, NULL, -1);
 }
 
 static PyObject *
-quit(PyObject *self)
+quit(PyObject *self, PyObject *_null)
 {
     int i;
     if (SDL_WasInit(SDL_INIT_AUDIO)) {
@@ -567,7 +567,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-get_init(PyObject *self)
+get_init(PyObject *self, PyObject *_null)
 {
     int freq, channels, realform;
     Uint16 format;
@@ -656,18 +656,18 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     Mix_Volume(channelnum, 128);
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     return pgChannel_New(channelnum);
 }
 
 static PyObject *
-snd_get_num_channels(PyObject *self, PyObject *args)
+snd_get_num_channels(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
-    return PyLong_FromLong(Mix_GroupCount((intptr_t)chunk));
+    return PyLong_FromLong(Mix_GroupCount((int)(intptr_t)chunk));
 }
 
 static PyObject *
@@ -681,18 +681,18 @@ snd_fadeout(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS;
-    Mix_FadeOutGroup((intptr_t)chunk, _time);
+    Mix_FadeOutGroup((int)(intptr_t)chunk, _time);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
 static PyObject *
-snd_stop(PyObject *self, PyObject *args)
+snd_stop(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
     Py_BEGIN_ALLOW_THREADS;
-    Mix_HaltGroup((intptr_t)chunk);
+    Mix_HaltGroup((int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
@@ -713,7 +713,7 @@ snd_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_volume(PyObject *self, PyObject *args)
+snd_get_volume(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int volume;
@@ -724,7 +724,7 @@ snd_get_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_length(PyObject *self, PyObject *args)
+snd_get_length(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int freq, channels, mixerbytes, numsamples;
@@ -734,8 +734,7 @@ snd_get_length(PyObject *self, PyObject *args)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
-    else if (format == AUDIO_F32 || format == AUDIO_F32LSB ||
-             format == AUDIO_F32MSB) {
+    else if (format == AUDIO_F32LSB || format == AUDIO_F32MSB) {
         mixerbytes = 4;
     }
     else
@@ -746,7 +745,7 @@ snd_get_length(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_raw(PyObject *self, PyObject *args)
+snd_get_raw(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
@@ -980,43 +979,19 @@ sound_dealloc(pgSoundObject *self)
 }
 
 static PyTypeObject pgSound_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Sound", sizeof(pgSoundObject), 0,
-    (destructor)sound_dealloc, 0, 0, 0, /* setattr */
-    0,                                  /* compare */
-    0,                                  /* repr */
-    0,                                  /* as_number */
-    0,                                  /* as_sequence */
-    0,                                  /* as_mapping */
-    (hashfunc)NULL,                     /* hash */
-    (ternaryfunc)NULL,                  /* call */
-    (reprfunc)NULL,                     /* str */
-    0,                                  /* tp_getattro */
-    0,                                  /* tp_setattro */
-    sound_as_buffer,                    /* tp_as_buffer */
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-     Py_TPFLAGS_HAVE_NEWBUFFER), /* tp_flags */
-    DOC_PYGAMEMIXERSOUND,        /* Documentation string */
-    0,                           /* tp_traverse */
-    0,                           /* tp_clear */
-    0,                           /* tp_richcompare */
-    offsetof(pgSoundObject, weakreflist),
-    /* tp_weaklistoffset */
-    0,             /* tp_iter */
-    0,             /* tp_iternext */
-    sound_methods, /* tp_methods */
-    0,             /* tp_members */
-    sound_getset,  /* tp_getset */
-    0,             /* tp_base */
-    0,             /* tp_dict */
-    0,             /* tp_descr_get */
-    0,             /* tp_descr_set */
-    0,             /* tp_dictoffset */
-    sound_init,    /* tp_init */
-    0,             /* tp_alloc */
-    0,             /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Sound",
+    .tp_basicsize = sizeof(pgSoundObject),
+    .tp_dealloc = (destructor)sound_dealloc,
+    .tp_as_buffer = sound_as_buffer,
+    .tp_flags =
+        (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER),
+    .tp_doc = DOC_PYGAMEMIXERSOUND,
+    .tp_weaklistoffset = offsetof(pgSoundObject, weakreflist),
+    .tp_methods = sound_methods,
+    .tp_getset = sound_getset,
+    .tp_init = sound_init,
+    .tp_new = PyType_GenericNew,
 };
-
-// PyType_GenericNew,                    /* tp_new */
 
 /* channel object methods */
 static PyObject *
@@ -1043,7 +1018,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
     }
     if (channelnum != -1)
-        Mix_GroupChannel(channelnum, (intptr_t)chunk);
+        Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
     Py_END_ALLOW_THREADS;
 
     Py_XDECREF(channeldata[channelnum].sound);
@@ -1070,7 +1045,7 @@ chan_queue(PyObject *self, PyObject *args)
         Py_BEGIN_ALLOW_THREADS;
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
         if (channelnum != -1)
-            Mix_GroupChannel(channelnum, (intptr_t)chunk);
+            Mix_GroupChannel(channelnum, (int)(intptr_t)chunk);
         Py_END_ALLOW_THREADS;
 
         channeldata[channelnum].sound = sound;
@@ -1085,7 +1060,7 @@ chan_queue(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_busy(PyObject *self)
+chan_get_busy(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1110,7 +1085,7 @@ chan_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_stop(PyObject *self)
+chan_stop(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1122,7 +1097,7 @@ chan_stop(PyObject *self)
 }
 
 static PyObject *
-chan_pause(PyObject *self)
+chan_pause(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1132,7 +1107,7 @@ chan_pause(PyObject *self)
 }
 
 static PyObject *
-chan_unpause(PyObject *self)
+chan_unpause(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
@@ -1201,7 +1176,7 @@ chan_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_volume(PyObject *self)
+chan_get_volume(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     int volume;
@@ -1214,7 +1189,7 @@ chan_get_volume(PyObject *self)
 }
 
 static PyObject *
-chan_get_sound(PyObject *self)
+chan_get_sound(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     PyObject *sound;
@@ -1228,7 +1203,7 @@ chan_get_sound(PyObject *self)
 }
 
 static PyObject *
-chan_get_queue(PyObject *self)
+chan_get_queue(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
     PyObject *sound;
@@ -1255,7 +1230,7 @@ chan_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-chan_get_endevent(PyObject *self)
+chan_get_endevent(PyObject *self, PyObject *_null)
 {
     int channelnum = pgChannel_AsInt(self);
 
@@ -1291,53 +1266,49 @@ static PyMethodDef channel_methods[] = {
 static void
 channel_dealloc(PyObject *self)
 {
-    PyObject_DEL(self);
+    PyObject_Free(self);
+}
+
+static int
+_channel_init(pgChannelObject *self, int channelnum)
+{
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
+    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1)) {
+        PyErr_SetString(PyExc_IndexError, "invalid channel index");
+        return -1;
+    }
+    self->chan = channelnum;
+    return 0;
+}
+
+static int
+channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
+{
+    int channelnum;
+    if (!PyArg_ParseTuple(args, "i", &channelnum)) {
+        return -1;
+    }
+
+    return _channel_init(self, channelnum);
 }
 
 static PyTypeObject pgChannel_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Channel", /* name */
-    sizeof(pgChannelObject),                  /* basic size */
-    0,                                        /* itemsize */
-    channel_dealloc,                          /* dealloc */
-    0,                                        /* print */
-    0,                                        /* getattr */
-    0,                                        /* setattr */
-    0,                                        /* compare */
-    0,                                        /* repr */
-    0,                                        /* as_number */
-    0,                                        /* as_sequence */
-    0,                                        /* as_mapping */
-    (hashfunc)0,                              /* hash */
-    (ternaryfunc)0,                           /* call */
-    0,                                        /* str */
-    0,                                        /* tp_getattro */
-    0,                                        /* tp_setattro */
-    0,                                        /* tp_as_buffer */
-    0,                                        /* flags */
-    DOC_PYGAMEMIXERCHANNEL,                   /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    channel_methods,                          /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    0,                                        /* tp_init */
-    0,                                        /* tp_alloc */
-    0,                                        /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Channel",
+    .tp_basicsize = sizeof(pgChannelObject),
+    .tp_dealloc = channel_dealloc,
+    .tp_doc = DOC_PYGAMEMIXERCHANNEL,
+    .tp_methods = channel_methods,
+    .tp_init = (initproc)channel_init,
+    .tp_new = PyType_GenericNew,
 };
 
 /*mixer module methods*/
 
 static PyObject *
-get_num_channels(PyObject *self)
+get_num_channels(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
     return PyLong_FromLong(Mix_GroupCount(-1));
@@ -1389,23 +1360,12 @@ set_reserved(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_busy(PyObject *self)
+get_busy(PyObject *self, PyObject *_null)
 {
     if (!SDL_WasInit(SDL_INIT_AUDIO))
         return PyBool_FromLong(0);
 
     return PyBool_FromLong(Mix_Playing(-1));
-}
-
-static PyObject *
-Channel(PyObject *self, PyObject *args)
-{
-    int chan;
-    if (!PyArg_ParseTuple(args, "i", &chan))
-        return NULL;
-
-    MIXER_INIT_CHECK();
-    return pgChannel_New(chan);
 }
 
 static PyObject *
@@ -1445,7 +1405,7 @@ mixer_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mixer_stop(PyObject *self)
+mixer_stop(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -1456,7 +1416,7 @@ mixer_stop(PyObject *self)
 }
 
 static PyObject *
-mixer_pause(PyObject *self)
+mixer_pause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -1465,7 +1425,7 @@ mixer_pause(PyObject *self)
 }
 
 static PyObject *
-mixer_unpause(PyObject *self)
+mixer_unpause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -1869,7 +1829,7 @@ LOAD_BUFFER:
 }
 
 static PyMethodDef _mixer_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)pgMixer_AutoInit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)pgMixer_AutoInit, METH_NOARGS,
      "auto initialize for mixer"},
     {"init", (PyCFunction)init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
@@ -1884,7 +1844,6 @@ static PyMethodDef _mixer_methods[] = {
     {"set_reserved", set_reserved, METH_VARARGS, DOC_PYGAMEMIXERSETRESERVED},
 
     {"get_busy", (PyCFunction)get_busy, METH_NOARGS, DOC_PYGAMEMIXERGETBUSY},
-    {"Channel", Channel, METH_VARARGS, DOC_PYGAMEMIXERCHANNEL},
     {"find_channel", (PyCFunction)mixer_find_channel,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERFINDCHANNEL},
     {"fadeout", mixer_fadeout, METH_VARARGS, DOC_PYGAMEMIXERFADEOUT},
@@ -1919,16 +1878,14 @@ pgSound_New(Mix_Chunk *chunk)
 static PyObject *
 pgChannel_New(int channelnum)
 {
-    pgChannelObject *chanobj;
-
-    if (channelnum < 0 || channelnum >= Mix_GroupCount(-1))
-        return RAISE(PyExc_IndexError, "invalid channel index");
-
-    chanobj = PyObject_NEW(pgChannelObject, &pgChannel_Type);
-    if (!chanobj)
+    pgChannelObject *chanobj = PyObject_New(pgChannelObject, &pgChannel_Type);
+    if (!chanobj) {
         return NULL;
-
-    chanobj->chan = channelnum;
+    }
+    if (_channel_init(chanobj, channelnum)) {
+        Py_DECREF(chanobj);
+        return NULL;
+    }
     return (PyObject *)chanobj;
 }
 
@@ -1974,7 +1931,6 @@ MODINIT_DEFINE(mixer)
     }
 
     /* create the module */
-    pgSound_Type.tp_new = &PyType_GenericNew;
     module = PyModule_Create(&_module);
     if (module == NULL) {
         return NULL;
@@ -1999,7 +1955,12 @@ MODINIT_DEFINE(mixer)
         Py_DECREF(module);
         return NULL;
     }
-
+    Py_INCREF(&pgChannel_Type);
+    if (PyModule_AddObject(module, "Channel", (PyObject *)&pgChannel_Type)) {
+        Py_DECREF(&pgChannel_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
     /* export the c api */
     c_api[0] = &pgSound_Type;
     c_api[1] = pgSound_New;

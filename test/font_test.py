@@ -13,8 +13,6 @@ from pygame import font as pygame_font  # So font can be replaced with ftfont
 
 FONTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "fonts")
 
-UCS_4 = sys.maxunicode > 0xFFFF
-
 
 def equal_images(s1, s2):
     size = s1.get_size()
@@ -38,6 +36,22 @@ class FontModuleTest(unittest.TestCase):
 
     def tearDown(self):
         pygame_font.quit()
+
+    def test_get_sdl_ttf_version(self):
+        def test_ver_tuple(ver):
+            self.assertIsInstance(ver, tuple)
+            self.assertEqual(len(ver), 3)
+            for i in ver:
+                self.assertIsInstance(i, int)
+
+        if pygame_font.__name__ != "pygame.ftfont":
+            compiled = pygame_font.get_sdl_ttf_version()
+            linked = pygame_font.get_sdl_ttf_version(linked=True)
+
+            test_ver_tuple(compiled)
+            test_ver_tuple(linked)
+
+            self.assertTrue(linked >= compiled)
 
     def test_SysFont(self):
         # Can only check that a font object is returned.
@@ -320,12 +334,11 @@ class FontTypeTest(unittest.TestCase):
             self.assertNotEqual(bm[0], um[0])
             self.assertNotEqual(bm[1], um[0])
 
-        if UCS_4:
-            u = u"\U00013000"
-            bm = f.metrics(u)
+        u = "\U00013000"
+        bm = f.metrics(u)
 
-            self.assertEqual(len(bm), 1)
-            self.assertIsNone(bm[0])
+        self.assertEqual(len(bm), 1)
+        self.assertIsNone(bm[0])
 
         return  # unfinished
         # The documentation is useless here. How large a list?
@@ -393,7 +406,7 @@ class FontTypeTest(unittest.TestCase):
         f = pygame_font.Font(None, 20)
         # If the font module is SDL_ttf < 2.0.15 based, then it only supports UCS-2
         # it will raise an exception for an out-of-range UCS-4 code point.
-        if UCS_4 and hasattr(pygame_font, "UCS_4"):
+        if hasattr(pygame_font, "UCS4"):
             ucs_2 = "\uFFEE"
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = "\U00010000"
@@ -491,7 +504,7 @@ class FontTypeTest(unittest.TestCase):
 
         pygame_font.init()
         self.assertRaises(
-            FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20
+            FileNotFoundError, pygame_font.Font, "some-fictional-font.ttf", 20
         )
 
     def test_load_from_file(self):
@@ -526,7 +539,7 @@ class FontTypeTest(unittest.TestCase):
 
         fdir = str(FONTDIR)
         temp = os.path.join(fdir, path)
-        pgfont = os.path.join(fdir, u"test_sans.ttf")
+        pgfont = os.path.join(fdir, "test_sans.ttf")
         shutil.copy(pgfont, temp)
         try:
             with open(temp, "rb") as f:
@@ -540,10 +553,10 @@ class FontTypeTest(unittest.TestCase):
 
     def test_load_from_file_unicode_0(self):
         """ASCII string as a unicode object"""
-        self._load_unicode(u"temp_file.ttf")
+        self._load_unicode("temp_file.ttf")
 
     def test_load_from_file_unicode_1(self):
-        self._load_unicode(u"你好.ttf")
+        self._load_unicode("你好.ttf")
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(

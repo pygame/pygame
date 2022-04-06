@@ -335,6 +335,12 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
         surf_offset.y += offset.y;
     }
 
+    if (!surface->format->BytesPerPixel) {
+        // This should never happen, error to make static analyzer happy
+        PyErr_SetString(pgExc_SDLError, "Got surface of invalid format");
+        return -1;
+    }
+
     /*
      * Setup target surface struct
      */
@@ -408,10 +414,9 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
     unsigned width;
     unsigned height;
     FT_Vector offset;
-    FT_Pos underline_top;
-    FT_Fixed underline_size;
+    FT_Pos underline_top = 0;
+    FT_Fixed underline_size = 0;
     FontColor mono_fgcolor = {0, 0, 0, 1};
-    FontColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
     font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
@@ -513,7 +518,6 @@ _PGFT_Render_NewSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
             SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
         }
         fgcolor = &mono_fgcolor;
-        bgcolor = &mono_bgcolor;
         font_surf.render_gray = __render_glyph_GRAY_as_MONO1;
         font_surf.render_mono = __render_glyph_MONO_as_GRAY1;
         font_surf.fill = __fill_glyph_GRAY1;
@@ -650,12 +654,9 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
         return -1;
     }
     if (_validate_view_format(view_p->format)) {
-        static const char fmt[] = "Unsupported array item format '%.*s'";
-        char msg[100 + sizeof(fmt)];
-
-        sprintf(msg, fmt, (int)(sizeof(msg) - sizeof(fmt)), view_p->format);
+        PyErr_Format(PyExc_ValueError, "Unsupported array item format '%s'",
+                     view_p->format);
         pgBuffer_Release(&pg_view);
-        PyErr_SetString(PyExc_ValueError, msg);
         return -1;
     }
 

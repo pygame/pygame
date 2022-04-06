@@ -200,12 +200,12 @@ v4l2_read_raw(pgCameraObject *self);
 int
 v4l2_xioctl(int fd, int request, void *arg);
 int
-v4l2_process_image(pgCameraObject *self, const void *image,
-                   unsigned int buffer_size, SDL_Surface *surf);
+v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
+                   SDL_Surface *surf);
 int
 v4l2_query_buffer(pgCameraObject *self);
 int
-v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf);
+v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf, int *errno_code);
 int
 v4l2_stop_capturing(pgCameraObject *self);
 int

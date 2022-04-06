@@ -74,7 +74,7 @@ abs_diff_uint32(Uint32 a, Uint32 b)
 
 /* Copies the given mask. */
 static PyObject *
-mask_copy(PyObject *self, PyObject *args)
+mask_copy(PyObject *self, PyObject *_null)
 {
     bitmask_t *new_bitmask = bitmask_copy(pgMask_AsBitmap(self));
 
@@ -83,17 +83,17 @@ mask_copy(PyObject *self, PyObject *args)
     }
 
     return (PyObject *)create_mask_using_bitmask_and_type(new_bitmask,
-                                                          self->ob_type);
+                                                          Py_TYPE(self));
 }
 
 /* Redirects mask.copy() to mask.__copy__(). This is done to allow
  * subclasses that override the __copy__() method to also override the copy()
  * method automatically. */
 static PyObject *
-mask_call_copy(PyObject *self, PyObject *args)
+mask_call_copy(PyObject *self, PyObject *_null)
 {
     return PyObject_CallMethodObjArgs(self, PyUnicode_FromString("__copy__"),
-                                      args);
+                                      NULL);
 }
 
 static PyObject *
@@ -266,8 +266,8 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int x, y;
     bitmask_t *bitmask = pgMask_AsBitmap(self);
-    PyObject *maskobj = NULL;
-    pgMaskObject *output_maskobj = NULL;
+    PyObject *maskobj;
+    pgMaskObject *output_maskobj;
     PyObject *offset = NULL;
     static char *keywords[] = {"other", "offset", NULL};
 
@@ -293,7 +293,7 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-mask_fill(PyObject *self, PyObject *args)
+mask_fill(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -303,7 +303,7 @@ mask_fill(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_clear(PyObject *self, PyObject *args)
+mask_clear(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -313,7 +313,7 @@ mask_clear(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_invert(PyObject *self, PyObject *args)
+mask_invert(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
 
@@ -404,7 +404,7 @@ mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-mask_count(PyObject *self, PyObject *args)
+mask_count(PyObject *self, PyObject *_null)
 {
     bitmask_t *m = pgMask_AsBitmap(self);
 
@@ -412,7 +412,7 @@ mask_count(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_centroid(PyObject *self, PyObject *args)
+mask_centroid(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y;
@@ -444,7 +444,7 @@ mask_centroid(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_angle(PyObject *self, PyObject *args)
+mask_angle(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y;
@@ -493,7 +493,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
     int b[] = {0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1};
     static char *keywords[] = {"every", NULL};
 
-    n = firstx = firsty = secx = x = 0;
+    firstx = firsty = secx = x = 0;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &every)) {
         return NULL;
@@ -651,7 +651,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
 {
-    PyObject *bobj = NULL;
+    PyObject *bobj;
     PyObject *oobj = Py_None;
     bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
@@ -830,7 +830,7 @@ static PyObject *
 mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Surface *surf = NULL;
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
     int threshold = 127; /* default value */
@@ -1054,7 +1054,7 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 static PyObject *
 mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
     pgMaskObject *maskobj = NULL;
     SDL_Surface *surf = NULL, *surf2 = NULL;
@@ -1371,20 +1371,22 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
         return 0;
     }
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
 
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);
@@ -1467,7 +1469,7 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
 }
 
 static PyObject *
-mask_get_bounding_rects(PyObject *self, PyObject *args)
+mask_get_bounding_rects(PyObject *self, PyObject *_null)
 {
     SDL_Rect *regions;
     SDL_Rect *aregion;
@@ -1565,20 +1567,22 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
     }
 
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
 
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);
@@ -1758,19 +1762,21 @@ largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
     }
 
     /* a temporary image to assign labels to each bit of the mask */
-    image = (unsigned int *)malloc(sizeof(int) * w * h);
+    image = (unsigned int *)malloc(sizeof(unsigned int) * w * h);
     if (!image) {
         return -2;
     }
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
-    ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    ufind = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                   (h / 2 + 1));
     if (!ufind) {
         free(image);
         return -2;
     }
     /* an array to track the number of pixels associated with each label */
-    largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
+    largest = (unsigned int *)malloc(sizeof(unsigned int) * (w / 2 + 1) *
+                                     (h / 2 + 1));
     if (!largest) {
         free(image);
         free(ufind);
@@ -2227,7 +2233,7 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (NULL != destobj) {
-        int tempx, tempy;
+        int tempx = 0, tempy = 0;
 
         /* Destination coordinates can be extracted from:
          * - lists/tuples with 2 items
@@ -2544,43 +2550,16 @@ static PyBufferProcs pgMask_BufferProcs = {
     (getbufferproc)pgMask_GetBuffer, (releasebufferproc)pgMask_ReleaseBuffer};
 
 static PyTypeObject pgMask_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.mask.Mask", /* tp_name */
-    sizeof(pgMaskObject),                              /* tp_basicsize */
-    0,                                                 /* tp_itemsize */
-    mask_dealloc,                                      /* tp_dealloc */
-    0,                                                 /* tp_print */
-    0,                                                 /* tp_getattr */
-    0,                                                 /* tp_setattr */
-    0,                   /* tp_as_async (formerly tp_compare/tp_reserved) */
-    (reprfunc)mask_repr, /* tp_repr */
-    0,                   /* tp_as_number */
-    NULL,                /* tp_as_sequence */
-    0,                   /* tp_as_mapping */
-    (hashfunc)NULL,      /* tp_hash */
-    (ternaryfunc)NULL,   /* tp_call */
-    (reprfunc)NULL,      /* tp_str */
-    0L,                  /* tp_getattro */
-    0L,                  /* tp_setattro */
-    &pgMask_BufferProcs, /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEMASKMASK,                       /* Documentation string */
-    0,                                        /* tp_traverse */
-    0,                                        /* tp_clear */
-    0,                                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
-    0,                                        /* tp_iternext */
-    mask_methods,                             /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    mask_init,                                /* tp_init */
-    0,                                        /* tp_alloc */
-    mask_new,                                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mask.Mask",
+    .tp_basicsize = sizeof(pgMaskObject),
+    .tp_dealloc = mask_dealloc,
+    .tp_repr = (reprfunc)mask_repr,
+    .tp_as_buffer = &pgMask_BufferProcs,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMEMASKMASK,
+    .tp_methods = mask_methods,
+    .tp_init = mask_init,
+    .tp_new = mask_new,
 };
 
 /*mask module methods*/

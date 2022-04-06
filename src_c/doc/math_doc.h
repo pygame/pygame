@@ -15,6 +15,8 @@
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
+#define DOC_VECTOR2MOVETOWARDS "move_towards(Vector2, float) -> Vector2\nreturns a vector moved toward the target by a given distance."
+#define DOC_VECTOR2MOVETOWARDSIP "move_towards_ip(Vector2, float) -> None\nmoves the vector toward its target at a given distance."
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
@@ -28,6 +30,8 @@
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2COPY "copy() -> Vector2\nReturns a copy of itself."
+#define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector2\nclamp_magnitude(max_length, min_length) -> Vector2\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
+#define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(max_length, min_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -44,6 +48,8 @@
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
+#define DOC_VECTOR3MOVETOWARDS "move_towards(Vector3, float) -> Vector3\nreturns a vector moved toward the target by a given distance."
+#define DOC_VECTOR3MOVETOWARDSIP "move_towards_ip(Vector3, float) -> None\nmoves the vector toward its target at a given distance."
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
@@ -72,6 +78,8 @@
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3PROJECT "project(Vector3) -> Vector3\nprojects a vector onto another."
 #define DOC_VECTOR3COPY "copy() -> Vector3\nReturns a copy of itself."
+#define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector3\nclamp_magnitude(max_length, min_length) -> Vector3\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
+#define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(max_length, min_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
 
 
@@ -147,6 +155,14 @@ pygame.math.Vector2.distance_squared_to
  distance_squared_to(Vector2) -> float
 calculates the squared Euclidean distance to a given vector.
 
+pygame.math.Vector2.move_towards
+ move_towards(Vector2, float) -> Vector2
+returns a vector moved toward the target by a given distance.
+
+pygame.math.Vector2.move_towards_ip
+ move_towards_ip(Vector2, float) -> None
+moves the vector toward its target at a given distance.
+
 pygame.math.Vector2.lerp
  lerp(Vector2, float) -> Vector2
 returns a linear interpolation to the given vector.
@@ -198,6 +214,16 @@ projects a vector onto another.
 pygame.math.Vector2.copy
  copy() -> Vector2
 Returns a copy of itself.
+
+pygame.math.Vector2.clamp_magnitude
+ clamp_magnitude(max_length) -> Vector2
+ clamp_magnitude(max_length, min_length) -> Vector2
+Returns a copy of a vector with the magnitude clamped between max_length and min_length.
+
+pygame.math.Vector2.clamp_magnitude_ip
+ clamp_magnitude_ip(max_length) -> None
+ clamp_magnitude_ip(max_length, min_length) -> None
+Clamps the vector's magnitude between max_length and min_length
 
 pygame.math.Vector2.update
  update() -> None
@@ -272,6 +298,14 @@ calculates the Euclidean distance to a given vector.
 pygame.math.Vector3.distance_squared_to
  distance_squared_to(Vector3) -> float
 calculates the squared Euclidean distance to a given vector.
+
+pygame.math.Vector3.move_towards
+ move_towards(Vector3, float) -> Vector3
+returns a vector moved toward the target by a given distance.
+
+pygame.math.Vector3.move_towards_ip
+ move_towards_ip(Vector3, float) -> None
+moves the vector toward its target at a given distance.
 
 pygame.math.Vector3.lerp
  lerp(Vector3, float) -> Vector3
@@ -384,6 +418,16 @@ projects a vector onto another.
 pygame.math.Vector3.copy
  copy() -> Vector3
 Returns a copy of itself.
+
+pygame.math.Vector3.clamp_magnitude
+ clamp_magnitude(max_length) -> Vector3
+ clamp_magnitude(max_length, min_length) -> Vector3
+Returns a copy of a vector with the magnitude clamped between max_length and min_length.
+
+pygame.math.Vector3.clamp_magnitude_ip
+ clamp_magnitude_ip(max_length) -> None
+ clamp_magnitude_ip(max_length, min_length) -> None
+Clamps the vector's magnitude between max_length and min_length
 
 pygame.math.Vector3.update
  update() -> None

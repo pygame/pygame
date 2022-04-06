@@ -245,7 +245,7 @@ _proxy_zombie_get_buffer(PyObject *obj, Py_buffer *view_p, int flags)
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *obj = 0;
+    PyObject *obj;
     getbufferproc get_buffer = (getbufferproc)pgObject_GetBuffer;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
@@ -525,44 +525,21 @@ static PyBufferProcs proxy_bufferprocs = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject pgBufproxy_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) PROXY_TYPE_FULLNAME, /* tp_name */
-    sizeof(pgBufproxyObject),                           /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
-    (destructor)proxy_dealloc,                          /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
-    0,                                                  /* tp_compare */
-    (reprfunc)proxy_repr,                               /* tp_repr */
-    0,                                                  /* tp_as_number */
-    0,                                                  /* tp_as_sequence */
-    0,                                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    0,                                                  /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    PROXY_BUFFERPROCS,                                  /* tp_as_buffer */
-    PROXY_TPFLAGS,                                      /* tp_flags */
-    DOC_PYGAMEBUFFERPROXY,
-    (traverseproc)proxy_traverse,         /* tp_traverse */
-    0,                                    /* tp_clear */
-    0,                                    /* tp_richcompare */
-    offsetof(pgBufproxyObject, weakrefs), /* tp_weaklistoffset */
-    0,                                    /* tp_iter */
-    0,                                    /* tp_iternext */
-    proxy_methods,                        /* tp_methods */
-    0,                                    /* tp_members */
-    proxy_getsets,                        /* tp_getset */
-    0,                                    /* tp_base */
-    0,                                    /* tp_dict */
-    0,                                    /* tp_descr_get */
-    0,                                    /* tp_descr_set */
-    offsetof(pgBufproxyObject, dict),     /* tp_dictoffset */
-    0,                                    /* tp_init */
-    PyType_GenericAlloc,                  /* tp_alloc */
-    proxy_new,                            /* tp_new */
-    PyObject_GC_Del,                      /* tp_free */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = PROXY_TYPE_FULLNAME,
+    .tp_basicsize = sizeof(pgBufproxyObject),
+    .tp_dealloc = (destructor)proxy_dealloc,
+    .tp_repr = (reprfunc)proxy_repr,
+    .tp_as_buffer = PROXY_BUFFERPROCS,
+    .tp_flags = PROXY_TPFLAGS,
+    .tp_doc = DOC_PYGAMEBUFFERPROXY,
+    .tp_traverse = (traverseproc)proxy_traverse,
+    .tp_weaklistoffset = offsetof(pgBufproxyObject, weakrefs),
+    .tp_methods = proxy_methods,
+    .tp_getset = proxy_getsets,
+    .tp_dictoffset = offsetof(pgBufproxyObject, dict),
+    .tp_alloc = PyType_GenericAlloc,
+    .tp_new = proxy_new,
+    .tp_free = PyObject_GC_Del,
 };
 
 /**** Module methods ***/

@@ -200,7 +200,7 @@ pg_rect_dealloc(pgRectObject *self)
     }
 
 #ifdef PYPY_VERSION
-    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
+    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX - 1) {
         pg_rect_freelist_num++;
         pg_rect_freelist[pg_rect_freelist_num] = self;
     }
@@ -358,7 +358,7 @@ _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
 }
 
 static PyObject *
-pg_rect_normalize(pgRectObject *self, PyObject *args)
+pg_rect_normalize(pgRectObject *self, PyObject *_null)
 {
     pgRect_Normalize(&pgRect_AsRect(self));
 
@@ -368,7 +368,7 @@ pg_rect_normalize(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -381,7 +381,7 @@ pg_rect_move(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_move_ip(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -395,7 +395,7 @@ pg_rect_move_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -409,7 +409,7 @@ pg_rect_inflate(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
@@ -574,7 +574,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 {
-    int x, y;
+    int x = 0, y = 0;
     int inside;
 
     if (!pg_TwoIntsFromObj(args, &x, &y)) {
@@ -1086,7 +1086,7 @@ pg_rect_clamp_ip(pgRectObject *self, PyObject *args)
 
 /* for pickling */
 static PyObject *
-pg_rect_reduce(pgRectObject *self, PyObject *args)
+pg_rect_reduce(pgRectObject *self, PyObject *_null)
 {
     return Py_BuildValue("(O(iiii))", Py_TYPE(self), (int)self->r.x,
                          (int)self->r.y, (int)self->r.w, (int)self->r.h);
@@ -1094,7 +1094,7 @@ pg_rect_reduce(pgRectObject *self, PyObject *args)
 
 /* for copy module */
 static PyObject *
-pg_rect_copy(pgRectObject *self, PyObject *args)
+pg_rect_copy(pgRectObject *self, PyObject *_null)
 {
     return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x, self->r.y,
                                  self->r.w, self->r.h);
@@ -1167,7 +1167,7 @@ pg_rect_item(pgRectObject *self, Py_ssize_t i)
 static int
 pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 {
-    int val;
+    int val = 0;
     int *data = (int *)&self->r;
 
     if (i < 0 || i > 3) {
@@ -1188,14 +1188,10 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 }
 
 static PySequenceMethods pg_rect_as_sequence = {
-    pg_rect_length,                    /*length*/
-    NULL,                              /*concat*/
-    NULL,                              /*repeat*/
-    (ssizeargfunc)pg_rect_item,        /*item*/
-    NULL,                              /*slice*/
-    (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
-    NULL,                              /*ass_slice*/
-    (objobjproc)pg_rect_contains_seq,  /*contains*/
+    .sq_length = pg_rect_length,
+    .sq_item = (ssizeargfunc)pg_rect_item,
+    .sq_ass_item = (ssizeobjargproc)pg_rect_ass_item,
+    .sq_contains = (objobjproc)pg_rect_contains_seq,
 };
 
 static PyObject *
@@ -1264,7 +1260,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         return pg_rect_ass_item(self, i, value);
     }
     else if (op == Py_Ellipsis) {
-        int val;
+        int val = 0;
 
         if (pg_IntFromObj(value, &val)) {
             self->r.x = val;
@@ -1314,7 +1310,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         Py_ssize_t stop;
         Py_ssize_t step;
         Py_ssize_t slicelen;
-        int val;
+        int val = 0;
         Py_ssize_t i;
 
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
@@ -1362,9 +1358,9 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 }
 
 static PyMappingMethods pg_rect_as_mapping = {
-    (lenfunc)pg_rect_length,             /*mp_length*/
-    (binaryfunc)pg_rect_subscript,       /*mp_subscript*/
-    (objobjargproc)pg_rect_ass_subscript /*mp_ass_subscript*/
+    .mp_length = (lenfunc)pg_rect_length,
+    .mp_subscript = (binaryfunc)pg_rect_subscript,
+    .mp_ass_subscript = (objobjargproc)pg_rect_ass_subscript,
 };
 
 /* numeric functions */
@@ -1375,34 +1371,14 @@ pg_rect_bool(pgRectObject *self)
 }
 
 static PyNumberMethods pg_rect_as_number = {
-    (binaryfunc)NULL,      /*add*/
-    (binaryfunc)NULL,      /*subtract*/
-    (binaryfunc)NULL,      /*multiply*/
-    (binaryfunc)NULL,      /*remainder*/
-    (binaryfunc)NULL,      /*divmod*/
-    (ternaryfunc)NULL,     /*power*/
-    (unaryfunc)NULL,       /*negative*/
-    (unaryfunc)NULL,       /*pos*/
-    (unaryfunc)NULL,       /*abs*/
-    (inquiry)pg_rect_bool, /*nonzero / bool*/
-    (unaryfunc)NULL,       /*invert*/
-    (binaryfunc)NULL,      /*lshift*/
-    (binaryfunc)NULL,      /*rshift*/
-    (binaryfunc)NULL,      /*and*/
-    (binaryfunc)NULL,      /*xor*/
-    (binaryfunc)NULL,      /*or*/
-    (unaryfunc)NULL,       /*int*/
-    (unaryfunc)NULL,       /*float*/
+    .nb_bool = (inquiry)pg_rect_bool,
 };
 
 static PyObject *
 pg_rect_repr(pgRectObject *self)
 {
-    char string[256];
-
-    sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w,
-            self->r.h);
-    return PyUnicode_FromString(string);
+    return PyUnicode_FromFormat("<rect(%d, %d, %d, %d)>", self->r.x, self->r.y,
+                                self->r.w, self->r.h);
 }
 
 static PyObject *
@@ -1462,6 +1438,29 @@ pg_rect_richcompare(PyObject *o1, PyObject *o2, int opid)
 Unimplemented:
     Py_INCREF(Py_NotImplemented);
     return Py_NotImplemented;
+}
+
+static PyObject *
+pg_rect_iterator(pgRectObject *self)
+{
+    Py_ssize_t i;
+    int *data = (int *)&self->r;
+    PyObject *iter, *tup = PyTuple_New(4);
+    if (!tup) {
+        return NULL;
+    }
+    for (i = 0; i < 4; i++) {
+        PyObject *val = PyLong_FromLong(data[i]);
+        if (!val) {
+            Py_DECREF(tup);
+            return NULL;
+        }
+
+        PyTuple_SET_ITEM(tup, i, val);
+    }
+    iter = PyTuple_Type.tp_iter(tup);
+    Py_DECREF(tup);
+    return iter;
 }
 
 /*width*/
@@ -1994,43 +1993,23 @@ static PyGetSetDef pg_rect_getsets[] = {
 };
 
 static PyTypeObject pgRect_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.Rect", /*name*/
-    sizeof(pgRectObject),                         /*basicsize*/
-    0,                                            /*itemsize*/
-    /* methods */
-    (destructor)pg_rect_dealloc, /*dealloc*/
-    (printfunc)NULL,             /*print*/
-    NULL,                        /*getattr*/
-    NULL,                        /*setattr*/
-    NULL,                        /*compare/reserved*/
-    (reprfunc)pg_rect_repr,      /*repr*/
-    &pg_rect_as_number,          /*as_number*/
-    &pg_rect_as_sequence,        /*as_sequence*/
-    &pg_rect_as_mapping,         /*as_mapping*/
-    (hashfunc)NULL,              /*hash*/
-    (ternaryfunc)NULL,           /*call*/
-    (reprfunc)pg_rect_str,       /*str*/
-
-    /* Space for future expansion */
-    0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMERECT,                      /* Documentation string */
-    NULL,                                /* tp_traverse */
-    NULL,                                /* tp_clear */
-    (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
-    offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
-    NULL,                                /* tp_iter */
-    NULL,                                /* tp_iternext */
-    pg_rect_methods,                     /* tp_methods */
-    NULL,                                /* tp_members */
-    pg_rect_getsets,                     /* tp_getset */
-    NULL,                                /* tp_base */
-    NULL,                                /* tp_dict */
-    NULL,                                /* tp_descr_get */
-    NULL,                                /* tp_descr_set */
-    0,                                   /* tp_dictoffset */
-    (initproc)pg_rect_init,              /* tp_init */
-    NULL,                                /* tp_alloc */
-    pg_rect_new,                         /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Rect",
+    .tp_basicsize = sizeof(pgRectObject),
+    .tp_dealloc = (destructor)pg_rect_dealloc,
+    .tp_repr = (reprfunc)pg_rect_repr,
+    .tp_as_number = &pg_rect_as_number,
+    .tp_as_sequence = &pg_rect_as_sequence,
+    .tp_as_mapping = &pg_rect_as_mapping,
+    .tp_str = (reprfunc)pg_rect_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMERECT,
+    .tp_richcompare = (richcmpfunc)pg_rect_richcompare,
+    .tp_weaklistoffset = offsetof(pgRectObject, weakreflist),
+    .tp_iter = (getiterfunc)pg_rect_iterator,
+    .tp_methods = pg_rect_methods,
+    .tp_getset = pg_rect_getsets,
+    .tp_init = (initproc)pg_rect_init,
+    .tp_new = pg_rect_new,
 };
 
 static int

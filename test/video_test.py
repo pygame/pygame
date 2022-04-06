@@ -9,7 +9,7 @@ class VideoModuleTest(unittest.TestCase):
     default_caption = "pygame window"
 
     @unittest.skipIf(
-        not (sys.maxsize > 2 ** 32),
+        not (sys.maxsize > 2**32),
         "32 bit SDL 2.0.16 has an issue.",
     )
     def test_renderer_set_viewport(self):

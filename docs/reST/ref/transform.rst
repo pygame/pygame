@@ -49,6 +49,22 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.scale ##
 
+.. function:: scale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`scale_by(surface, factor, dest_surface=None) -> Surface`
+
+   Same as :func:`scale()`, but scales by some factor, rather than taking
+   the new size explicitly. For example, :code:`transform.scale_by(surf, 3)`
+   will triple the size of the surface in both dimensions. Optionally, the
+   scale factor can be a sequence of two numbers, controlling x and y scaling
+   separately. For example, :code:`transform.scale_by(surf, (2, 1))` doubles
+   the image width but keeps the height the same.
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.transform.scale_by ##
+
 .. function:: rotate
 
    | :sl:`rotate an image`
@@ -115,6 +131,23 @@ Instead, always begin with the original image and scale to the desired size.)
    .. versionadded:: 1.8
 
    .. ## pygame.transform.smoothscale ##
+
+.. function:: smoothscale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`smoothscale_by(surface, factor, dest_surface=None) -> Surface`
+
+   Same as :func:`smoothscale()`, but scales by some factor, rather than
+   taking the new size explicitly. For example,
+   :code:`transform.smoothscale_by(surf, 3)` will triple the size of the
+   surface in both dimensions. Optionally, the scale factor can be a sequence
+   of two numbers, controlling x and y scaling separately. For example,
+   :code:`transform.smoothscale_by(surf, (2, 1))` doubles the image width but
+   keeps the height the same.
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.transform.smoothscale_by ##
 
 .. function:: get_smoothscale_backend
 
@@ -194,10 +227,13 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: average_color
 
    | :sl:`finds the average color of a surface`
-   | :sg:`average_color(surface, rect=None) -> Color`
+   | :sg:`average_color(surface, rect=None, consider_alpha=False) -> Color`
 
    Finds the average color of a Surface or a region of a surface specified by a
-   Rect, and returns it as a Color.
+   Rect, and returns it as a Color. If consider_alpha is set to True, then alpha is
+   taken into account (removing the black artifacts).
+
+   .. versionadded:: 2.1.2 ``consider_alpha`` argument
 
    .. ## pygame.transform.average_color ##
 
