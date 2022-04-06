@@ -38,11 +38,6 @@ static PyTypeObject pgFRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
 #define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
 
-/* encase it is defined in the future by Python.h */
-#ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double) (round((x)*100000)/100000)))
-#endif
-
 static int
 four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4);
 static int
@@ -52,6 +47,7 @@ _PG_IntersectFRectAndLine_ComputeOutCode(const SDL_FRect *rect, float x, float y
 static SDL_bool
 PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float *Y2);
 
+//#region RectDefinitions
 #define RectExport_init pg_rect_init
 #define RectExport_subtypeNew4 _pg_rect_subtype_new4
 #define RectExport_new pg_rect_new
@@ -129,6 +125,15 @@ PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float
 #define RectExport_setcenter pg_rect_setcenter
 #define RectExport_getsize pg_rect_getsize
 #define RectExport_setsize pg_rect_setsize
+//#region freelist
+#ifdef PYPY_VERSION
+#define RectOptional_FREELIST
+#define RectOptional_FreelistlimitNumberName PG_RECT_FREELIST_MAX
+#define RectOptional_FreelistlimitNumber 49152
+#define RectOptional_FreelistFreelistName pg_rect_freelist
+#define RectOptional_Freelist_Num pg_rect_freelist_num
+#endif
+//#endregion freelist
 #define RectImport_primitiveType int
 #define RectImport_RectCheck pgRect_Check
 #define RectImport_innerRectStruct SDL_Rect
@@ -145,7 +150,9 @@ PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float
 #define RectImport_PythonNumberAsPrimitiveType PyLong_AsLong
 #define RectImport_PrimitiveTypeAsPythonNumber PyLong_FromLong
 #include "rect_impl.h"
+//#endregion RectDefinitions
 
+//#region FRectDefinitions
 #define RectExport_init pg_frect_init
 #define RectExport_subtypeNew4 _pg_frect_subtype_new4
 #define RectExport_new pg_frect_new
@@ -223,6 +230,15 @@ PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float
 #define RectExport_setcenter pg_frect_setcenter
 #define RectExport_getsize pg_frect_getsize
 #define RectExport_setsize pg_frect_setsize
+//#region freelist
+#ifdef PYPY_VERSION
+#define RectOptional_FREELIST
+#define RectOptional_FreelistlimitNumberName PG_FRECT_FREELIST_MAX
+#define RectOptional_FreelistlimitNumber 49152
+#define RectOptional_FreelistFreelistName pg_frect_freelist
+#define RectOptional_Freelist_Num pg_frect_freelist_num
+#endif
+//#endregion freelist
 #define RectImport_primitiveType float
 #define RectImport_RectCheck pgFRect_Check
 #define RectImport_innerRectStruct SDL_FRect
@@ -239,16 +255,7 @@ PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float
 #define RectImport_PythonNumberAsPrimitiveType PyFloat_AsDouble
 #define RectImport_PrimitiveTypeAsPythonNumber PyFloat_FromFloat
 #include "rect_impl.h"
-
-/* We store some rect objects which have been allocated already.
-   Mostly to work around an old pypy cpyext performance issue.
-*/
-#ifdef PYPY_VERSION
-#define PG_RECT_NUM 49152
-const int PG_RECT_FREELIST_MAX = PG_RECT_NUM;
-static pgRectObject *pg_rect_freelist[PG_RECT_NUM];
-int pg_rect_freelist_num = -1;
-#endif
+//#endregion FRectDefinitions
 
 /* Helper method to extract 4 ints from an object.
  *

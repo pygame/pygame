@@ -323,6 +323,26 @@ RectImport_TypeObject:           pgRect_Type/pgFRect_Type
 #endif
 //#endregion
 
+//#region RectOptional
+#ifdef RectOptional_FREELIST
+#ifndef PYPY_VERSION
+#  error freelist is currently only supported for PyPy 
+#endif 
+#ifndef RectOptional_FreelistlimitNumberName
+#  error RectOptional_FreelistlimitNumberName needs to be defined as RectOptional_FREELIST is defined
+#endif
+#ifndef RectOptional_FreelistlimitNumber
+#  error RectOptional_FreelistlimitNumber needs to be defined as RectOptional_FREELIST is defined
+#endif
+#ifndef RectOptional_FreelistFreelistName
+#  error RectOptional_FreelistFreelistName needs to be defined as RectOptional_FREELIST is defined
+#endif
+#ifndef RectOptional_Freelist_Num
+#  error RectOptional_Freelist_Num needs to be defined as RectOptional_FREELIST is defined
+#endif
+#endif // RectOptional_FREELIST
+//#endregion RectOptional
+
 #define PrimitiveType RectImport_primitiveType
 #define RectObject RectImport_RectObject
 #define TypeObject RectImport_TypeObject
@@ -514,8 +534,12 @@ RectExport_getsize(RectObject *self, void *closure);
 static int
 RectExport_setsize(RectObject *self, PyObject *value, void *closure);
 
+#ifdef RectOptional_FREELIST
+const int RectOptional_FreelistlimitNumberName = RectOptional_FreelistlimitNumber;
+static RectObject *RectOptional_FreelistFreelistName[RectOptional_FreelistlimitNumber];
+int RectOptional_Freelist_Num = -1;
+#endif
 
-#ifndef RECT_IMPLEMENTATION
 static InnerRect* 
 RectExport_RectFromObject(PyObject *obj, InnerRect *temp)
 {
@@ -637,24 +661,23 @@ RectExport_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     RectObject *self;
 
-// #ifdef PYPY_VERSION
-//     if (pg_rect_freelist_num > -1) {
-//         self = pg_rect_freelist[pg_rect_freelist_num];
-//         Py_INCREF(self);
-//         /* This is so that pypy garbage collector thinks it is a new obj
-//            TODO: May be a hack. Is a hack.
-//            See https://github.com/pygame/pygame/issues/430
-//         */
-//         ((PyObject *)(self))->ob_pypy_link = 0;
-//         pg_rect_freelist_num--;
-//     }
-//     else {
-//         self = (RectObject *)type->tp_alloc(type, 0);
-//     }
-// #else
-//     self = (RectObject *)type->tp_alloc(type, 0);
-// #endif
+#ifdef RectOptional_FREELIST
+    if (RectOptional_Freelist_Num > -1) {
+        self = RectOptional_FreelistFreelistName[RectOptional_Freelist_Num];
+        Py_INCREF(self);
+        /* This is so that pypy garbage collector thinks it is a new obj
+           TODO: May be a hack. Is a hack.
+           See https://github.com/pygame/pygame/issues/430
+        */
+        ((PyObject *)(self))->ob_pypy_link = 0;
+        RectOptional_Freelist_Num--;
+    }
+    else {
+        self = (RectObject *)type->tp_alloc(type, 0);
+    }
+#else
     self = (RectObject *)type->tp_alloc(type, 0);
+#endif
 
     if (self != NULL) {
         self->r.x = (PrimitiveType) 0;
@@ -673,18 +696,17 @@ RectExport_dealloc(RectObject *self)
         PyObject_ClearWeakRefs((PyObject *)self);
     }
     
-// #ifdef PYPY_VERSION
-//     if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
-//         pg_rect_freelist_num++;
-//         pg_rect_freelist[pg_rect_freelist_num] = self;
-//     }
-//     else {
-//         Py_TYPE(self)->tp_free((PyObject *)self);
-//     }
-// #else
-//     Py_TYPE(self)->tp_free((PyObject *)self);
-// #endif
+#ifdef RectOptional_FREELIST
+    if (RectOptional_Freelist_Num < RectOptional_FreelistlimitNumberName) {
+        RectOptional_Freelist_Num++;
+        RectOptional_FreelistFreelistName[RectOptional_Freelist_Num] = self;
+    }
+    else {
+        Py_TYPE(self)->tp_free((PyObject *)self);
+    }
+#else
     Py_TYPE(self)->tp_free((PyObject *)self);
+#endif
     return;
 }
 
@@ -2222,8 +2244,6 @@ RectExport_setsize(RectObject *self, PyObject *value, void *closure)
     return 0;
 }
 
-#endif // RECT_IMPLEMENTATION
-
 #undef RectExport_init
 #undef RectExport_subtypeNew4
 #undef RectExport_new
@@ -2338,3 +2358,10 @@ RectExport_setsize(RectObject *self, PyObject *value, void *closure)
 #undef PythonNumberAsPrimitiveType
 #undef PythonNumberFromPrimitiveType
 #undef PrimitiveTypeAsPythonNumber
+#ifdef RectOptional_FREELIST
+#undef RectOptional_FREELIST
+#undef RectOptional_FreelistlimitNumberName
+#undef RectOptional_FreelistlimitNumber
+#undef RectOptional_FreelistFreelistName
+#undef RectOptional_Freelist_Num
+#endif
