@@ -365,7 +365,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector2.project ##
 
    
-   .. method :: copy
+   .. method:: copy
 
       | :sl:`Returns a copy of itself.`
       | :sg:`copy() -> Vector2`
@@ -377,7 +377,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector2.copy ##
    
 
-   .. method :: clamp_magnitude
+   .. method:: clamp_magnitude
 
       | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
       | :sg:`clamp_magnitude(max_length) -> Vector2`
@@ -391,7 +391,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector2.clamp_magnitude ##
    
 
-   .. method :: clamp_magnitude_ip
+   .. method:: clamp_magnitude_ip
 
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
@@ -934,7 +934,7 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector3.project ##
    
-   .. method :: copy
+   .. method:: copy
 
       | :sl:`Returns a copy of itself.`
       | :sg:`copy() -> Vector3`
@@ -946,7 +946,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector3.copy ##
 
 
-   .. method :: clamp_magnitude
+   .. method:: clamp_magnitude
 
       | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
       | :sg:`clamp_magnitude(max_length) -> Vector3`
@@ -960,7 +960,7 @@ Multiple coordinates can be set using slices or swizzling
       .. ## Vector3.clamp_magnitude ##
    
 
-   .. method :: clamp_magnitude_ip
+   .. method:: clamp_magnitude_ip
 
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
