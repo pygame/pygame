@@ -18,6 +18,7 @@ from distutils.sysconfig import get_python_inc
 def get_ptr_size():
     return 64 if sys.maxsize > 2**32 else 32
 
+
 def as_machine_type(size):
     """Return pointer bit size as a Windows machine type"""
     if size == 32:
@@ -26,15 +27,20 @@ def as_machine_type(size):
         return "x64"
     raise BuildError("Unknown pointer size {}".format(size))
 
+
 def get_machine_type():
     return as_machine_type(get_ptr_size())
 
+
 class Dependency:
-    huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
-    inc_hunt = ['include']
-    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
+    huntpaths = ["..", "..\\..", "..\\*", "..\\..\\*"]
+    inc_hunt = ["include"]
+    lib_hunt = ["VisualC\\SDL\\Release", "VisualC\\Release", "Release", "lib"]
     check_hunt_roots = True
-    def __init__(self, name, wildcards, libs=None, required=0, find_header='', find_lib=''):
+
+    def __init__(
+        self, name, wildcards, libs=None, required=0, find_header="", find_lib=""
+    ):
         if libs is None:
             libs = []
         self.name = name
@@ -51,20 +57,22 @@ class Dependency:
             self.find_lib = find_lib
         self.libs = libs
         self.found = False
-        self.cflags = ''
+        self.cflags = ""
         self.prune_info = []
         self.fallback_inc = None
         self.fallback_lib = None
 
     def hunt(self):
-        parent = os.path.abspath('..')
+        parent = os.path.abspath("..")
         for p in self.huntpaths:
             for w in self.wildcards:
                 found = glob(os.path.join(p, w))
-                found.sort() or found.reverse()  #reverse sort
+                found.sort() or found.reverse()  # reverse sort
                 for f in found:
-                    if f[:5] == '..'+os.sep+'..' and \
-                        os.path.abspath(f)[:len(parent)] == parent:
+                    if (
+                        f[:5] == ".." + os.sep + ".."
+                        and os.path.abspath(f)[: len(parent)] == parent
+                    ):
                         continue
                     if os.path.isdir(f):
                         self.paths.append(f)
@@ -78,24 +86,24 @@ class Dependency:
                 self.libs[0] = os.path.splitext(self.fallback_lib[2])[0]
             if self.inc_dir and self.lib_dir:
                 if print_result:
-                    print ("Path for %s found." % self.name)
+                    print("Path for %s found." % self.name)
                 return True
             if print_result:
-                print ("Path for %s not found." % self.name)
+                print("Path for %s not found." % self.name)
                 for info in self.prune_info:
                     print(info)
                 if self.required:
-                    print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                    print('Too bad that is a requirement! Hand-fix the "Setup"')
             return False
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print("Path for %s: %s" % (self.name, self.path))
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print("Path for %s: %s" % (self.name, self.path))
         return True
 
     def matchfile(self, path, match):
@@ -124,23 +132,29 @@ class Dependency:
             else:
                 lib_file = None
             if os.path.isdir(hh):
-                return hh.replace('\\', '/'), header_file, lib_file
+                return hh.replace("\\", "/"), header_file, lib_file
 
     def prunepaths(self):
         lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
-        header_match = re.compile(self.find_header, re.I).match if self.find_header else None
+        header_match = (
+            re.compile(self.find_header, re.I).match if self.find_header else None
+        )
         prune = []
         for path in self.paths:
-            inc_info = self.findhunt(path, Dependency.inc_hunt, header_match=header_match)
+            inc_info = self.findhunt(
+                path, Dependency.inc_hunt, header_match=header_match
+            )
             lib_info = self.findhunt(path, Dependency.lib_hunt, lib_match=lib_match)
             if not inc_info or not lib_info:
                 if inc_info:
-                    self.prune_info.append('...Found include dir but no library dir in %s.' % (
-                          path))
+                    self.prune_info.append(
+                        "...Found include dir but no library dir in %s." % (path)
+                    )
                     self.fallback_inc = inc_info
                 if lib_info:
-                    self.prune_info.append('...Found library dir but no include dir in %s.' % (
-                          path))
+                    self.prune_info.append(
+                        "...Found library dir but no include dir in %s." % (path)
+                    )
                     self.fallback_lib = lib_info
                 prune.append(path)
             else:
@@ -157,9 +171,15 @@ class Dependency:
         self.choosepath()
         if self.path:
             lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
-            header_match = re.compile(self.find_header, re.I).match if self.find_header else None
-            inc_info = self.findhunt(self.path, Dependency.inc_hunt, header_match=header_match)
-            lib_info = self.findhunt(self.path, Dependency.lib_hunt, lib_match=lib_match)
+            header_match = (
+                re.compile(self.find_header, re.I).match if self.find_header else None
+            )
+            inc_info = self.findhunt(
+                self.path, Dependency.inc_hunt, header_match=header_match
+            )
+            lib_info = self.findhunt(
+                self.path, Dependency.lib_hunt, lib_match=lib_match
+            )
             if inc_info:
                 self.inc_dir = inc_info[0]
             if lib_info:
@@ -171,15 +191,16 @@ class Dependency:
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
             self.found = True
 
+
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
-        self.lib_dir = ''
-        self.inc_dir = ''
+        self.lib_dir = ""
+        self.inc_dir = ""
         self.libs = []
-        self.cflags = ''
+        self.cflags = ""
         self.found = False
-        self.ver = '0'
+        self.ver = "0"
         self.module = module
         self.header = header
 
@@ -197,18 +218,19 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print ("%-8.8s: found %s" % (self.name, self.ver))
+            print("%-8.8s: found %s" % (self.name, self.ver))
         else:
-            print ("%-8.8s: not found" % self.name)
+            print("%-8.8s: not found" % self.name)
+
 
 class DependencyDLL(Dependency):
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
         if lib is None:
             lib = link.libs[0]
-        Dependency.__init__(self, 'COPYLIB_' + lib, wildcards, libs)
+        Dependency.__init__(self, "COPYLIB_" + lib, wildcards, libs)
         self.lib_name = lib
         self.test = re.compile(dll_regex, re.I).match
-        self.lib_dir = '_'
+        self.lib_dir = "_"
         self.link = link
 
     def configure(self):
@@ -223,13 +245,13 @@ class DependencyDLL(Dependency):
         elif self.check_hunt_roots:
             self.check_roots()
 
-        if self.lib_dir != '_':
-            print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+        if self.lib_dir != "_":
+            print("DLL for %s: %s" % (self.lib_name, self.lib_dir))
             self.found = True
         else:
-            print ("No DLL for %s: not found!" % (self.lib_name))
+            print("No DLL for %s: not found!" % (self.lib_name))
             if self.required:
-                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                print('Too bad that is a requirement! Hand-fix the "Setup"')
 
     def check_roots(self):
         for p in self.huntpaths:
@@ -248,9 +270,10 @@ class DependencyDLL(Dependency):
                 for e in entries:
                     if self.test(e) and os.path.isfile(os.path.join(path, e)):
                         # Found
-                        self.lib_dir = os.path.join(path, e).replace('\\', '/')
+                        self.lib_dir = os.path.join(path, e).replace("\\", "/")
                         return True
         return False
+
 
 class DependencyDummy:
     def __init__(self, name):
@@ -259,10 +282,11 @@ class DependencyDummy:
         self.lib_dir = None
         self.libs = []
         self.found = True
-        self.cflags = ''
+        self.cflags = ""
 
     def configure(self):
         pass
+
 
 class DependencyWin:
     def __init__(self, name, cflags):
@@ -276,12 +300,23 @@ class DependencyWin:
     def configure(self):
         pass
 
+
 class DependencyGroup:
     def __init__(self):
-        self.dependencies =[]
+        self.dependencies = []
         self.dlls = []
 
-    def add(self, name, lib, wildcards, dll_regex, libs=None, required=0, find_header='', find_lib=''):
+    def add(
+        self,
+        name,
+        lib,
+        wildcards,
+        dll_regex,
+        libs=None,
+        required=0,
+        find_header="",
+        find_lib="",
+    ):
         if libs is None:
             libs = []
         if dll_regex:
@@ -291,7 +326,9 @@ class DependencyGroup:
             self.dlls.append(dll)
             dep.dll = dll
         else:
-            dep = Dependency(name, wildcards, [lib] + libs, required, find_header, find_lib)
+            dep = Dependency(
+                name, wildcards, [lib] + libs, required, find_header, find_lib
+            )
             self.dependencies.append(dep)
         return dep
 
@@ -301,7 +338,7 @@ class DependencyGroup:
     def add_dll(self, dll_regex, lib=None, wildcards=None, libs=None, link_lib=None):
         link = None
         if link_lib is not None:
-            name = 'COPYLIB_' + link_lib
+            name = "COPYLIB_" + link_lib
             for d in self.dlls:
                 if d.name == name:
                     link = d
@@ -322,11 +359,11 @@ class DependencyGroup:
 
     def configure(self):
         for d in self.dependencies:
-            if not getattr(d, '_configured', False):
+            if not getattr(d, "_configured", False):
                 d.configure()
                 d._configured = True
         for d in self.dlls:
-            if not getattr(d, '_configured', False):
+            if not getattr(d, "_configured", False):
                 d.configure()
                 d._configured = True
 
@@ -337,13 +374,14 @@ class DependencyGroup:
                     except ImportError:
                         from buildconfig import vstools
                     from os.path import splitext
+
                     nonext_name = splitext(d.lib_dir)[0]
-                    def_file = '%s.def' % nonext_name
+                    def_file = "%s.def" % nonext_name
                     basename = os.path.basename(nonext_name)
-                    print('Building lib from %s: %s.lib...' % (
-                        os.path.basename(d.lib_dir),
-                        basename
-                    ))
+                    print(
+                        "Building lib from %s: %s.lib..."
+                        % (os.path.basename(d.lib_dir), basename)
+                    )
                     vstools.dump_def(d.lib_dir, def_file=def_file)
                     vstools.lib_from_def(def_file)
                     d.link.lib_dir = os.path.dirname(d.lib_dir)
@@ -356,41 +394,90 @@ class DependencyGroup:
         for d in self.dlls:
             yield d
 
+
 def _add_sdl2_dll_deps(DEPS):
     # MIXER
-    DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
-                 ['ogg'])
-    DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
-                 link_lib='vorbis', libs=['vorbis'])
-    DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
-    DEPS.add_dll(r'(lib)?FLAC[-0-9]*\.dll$', 'flac', ['*FLAC-[0-9]*'])
-    DEPS.add_dll(r'(lib)?modplug[-0-9]*\.dll$', 'modplug', ['*modplug-[0-9]*'])
-    DEPS.add_dll(r'(lib)?mpg123[-0-9]*\.dll$', 'mpg123', ['*mpg123-[0-9]*'])
-    DEPS.add_dll(r'(lib)?opus[-0-9]*\.dll$', 'opus', ['*opus-[0-9]*'])
-    DEPS.add_dll(r'(lib)?opusfile[-0-9]*\.dll$', 'opusfile', ['*opusfile-[0-9]*'])
+    DEPS.add_dll(
+        r"(libvorbis-0|vorbis)\.dll$", "vorbis", ["libvorbis-[1-9].*"], ["ogg"]
+    )
+    DEPS.add_dll(
+        r"(libvorbisfile-3|vorbisfile)\.dll$",
+        "vorbisfile",
+        link_lib="vorbis",
+        libs=["vorbis"],
+    )
+    DEPS.add_dll(r"(libogg-0|ogg)\.dll$", "ogg", ["libogg-[1-9].*"])
+    DEPS.add_dll(r"(lib)?FLAC[-0-9]*\.dll$", "flac", ["*FLAC-[0-9]*"])
+    DEPS.add_dll(r"(lib)?modplug[-0-9]*\.dll$", "modplug", ["*modplug-[0-9]*"])
+    DEPS.add_dll(r"(lib)?mpg123[-0-9]*\.dll$", "mpg123", ["*mpg123-[0-9]*"])
+    DEPS.add_dll(r"(lib)?opus[-0-9]*\.dll$", "opus", ["*opus-[0-9]*"])
+    DEPS.add_dll(r"(lib)?opusfile[-0-9]*\.dll$", "opusfile", ["*opusfile-[0-9]*"])
     # IMAGE
-    DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
-    DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
-    DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
+    DEPS.add_dll(r"(lib){0,1}tiff[-0-9]*\.dll$", "tiff", ["tiff-[0-9]*"], ["jpeg", "z"])
+    DEPS.add_dll(r"(z|zlib1)\.dll$", "z", ["zlib-[1-9].*"])
+    DEPS.add_dll(r"(lib)?webp[-0-9]*\.dll$", "webp", ["*webp-[0-9]*"])
+
 
 def setup():
     DEPS = DependencyGroup()
 
-    DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
-    DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
-    #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-    DEPS.add_dummy('PORTTIME')
-    DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
-             ['SDL', 'vorbisfile'])
-    DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-             find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
-    DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
-             find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
-    DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
-             ['SDL', 'jpeg', 'png', 'tiff'], 0)
-    DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
-    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
-             find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
+    DEPS.add("SDL", "SDL2", ["SDL2-[1-9].*"], r"(lib){0,1}SDL2\.dll$", required=1)
+    DEPS.add(
+        "PORTMIDI",
+        "portmidi",
+        ["portmidi"],
+        r"portmidi\.dll$",
+        find_header=r"portmidi\.h",
+    )
+    # DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+    DEPS.add_dummy("PORTTIME")
+    DEPS.add(
+        "MIXER",
+        "SDL2_mixer",
+        ["SDL2_mixer-[1-9].*"],
+        r"(lib){0,1}SDL2_mixer\.dll$",
+        ["SDL", "vorbisfile"],
+    )
+    DEPS.add(
+        "PNG",
+        "png",
+        ["SDL2_image-[2-9].*", "libpng-[1-9].*"],
+        r"(png|libpng)[-0-9]*\.dll$",
+        ["z"],
+        find_header=r"png\.h",
+        find_lib=r"(lib)?png1[-0-9]*\.lib",
+    )
+    DEPS.add(
+        "JPEG",
+        "jpeg",
+        ["SDL2_image-[2-9].*", "jpeg-9*"],
+        r"(lib){0,1}jpeg-9\.dll$",
+        find_header=r"jpeglib\.h",
+        find_lib=r"(lib)?jpeg-9\.lib",
+    )
+    DEPS.add(
+        "IMAGE",
+        "SDL2_image",
+        ["SDL2_image-[1-9].*"],
+        r"(lib){0,1}SDL2_image\.dll$",
+        ["SDL", "jpeg", "png", "tiff"],
+        0,
+    )
+    DEPS.add(
+        "FONT",
+        "SDL2_ttf",
+        ["SDL2_ttf-[2-9].*"],
+        r"(lib){0,1}SDL2_ttf\.dll$",
+        ["SDL", "z", "freetype"],
+    )
+    DEPS.add(
+        "FREETYPE",
+        "freetype",
+        ["freetype"],
+        r"freetype[-0-9]*\.dll$",
+        find_header=r"ft2build\.h",
+        find_lib=r"freetype[-0-9]*\.lib",
+    )
     DEPS.configure()
     _add_sdl2_dll_deps(DEPS)
     for d in get_definitions():
@@ -399,57 +486,97 @@ def setup():
 
     return list(DEPS)
 
+
 def setup_prebuilt_sdl2(prebuilt_dir):
     Dependency.huntpaths[:] = [prebuilt_dir]
-    Dependency.lib_hunt.extend([
-        '',
-        'lib',
-        os.path.join('lib', get_machine_type()),
-    ])
-    Dependency.inc_hunt.append('')
+    Dependency.lib_hunt.extend(
+        [
+            "",
+            "lib",
+            os.path.join("lib", get_machine_type()),
+        ]
+    )
+    Dependency.inc_hunt.append("")
 
     DEPS = DependencyGroup()
 
-    DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
-    fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL'])
-    imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
-                        ['SDL', 'jpeg', 'png', 'tiff'], 0)
-    mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
-                        ['SDL', 'vorbisfile'])
-    DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
-    #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-    DEPS.add_dummy('PORTTIME')
+    DEPS.add("SDL", "SDL2", ["SDL2-[1-9].*"], r"(lib){0,1}SDL2\.dll$", required=1)
+    fontDep = DEPS.add(
+        "FONT", "SDL2_ttf", ["SDL2_ttf-[2-9].*"], r"(lib){0,1}SDL2_ttf\.dll$", ["SDL"]
+    )
+    imageDep = DEPS.add(
+        "IMAGE",
+        "SDL2_image",
+        ["SDL2_image-[1-9].*"],
+        r"(lib){0,1}SDL2_image\.dll$",
+        ["SDL", "jpeg", "png", "tiff"],
+        0,
+    )
+    mixerDep = DEPS.add(
+        "MIXER",
+        "SDL2_mixer",
+        ["SDL2_mixer-[1-9].*"],
+        r"(lib){0,1}SDL2_mixer\.dll$",
+        ["SDL", "vorbisfile"],
+    )
+    DEPS.add(
+        "PORTMIDI",
+        "portmidi",
+        ["portmidi"],
+        r"portmidi\.dll$",
+        find_header=r"portmidi\.h",
+    )
+    # DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+    DEPS.add_dummy("PORTTIME")
     DEPS.configure()
 
-    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
-                     find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
+    DEPS.add(
+        "FREETYPE",
+        "freetype",
+        ["freetype"],
+        r"freetype[-0-9]*\.dll$",
+        find_header=r"ft2build\.h",
+        find_lib=r"freetype[-0-9]*\.lib",
+    )
 
-    png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-                   find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
+    png = DEPS.add(
+        "PNG",
+        "png",
+        ["SDL2_image-[2-9].*", "libpng-[1-9].*"],
+        r"(png|libpng)[-0-9]*\.dll$",
+        ["z"],
+        find_header=r"png\.h",
+        find_lib=r"(lib)?png1[-0-9]*\.lib",
+    )
     png.path = imageDep.path
-    png.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
+    png.inc_dir = [os.path.join(prebuilt_dir, "include").replace("\\", "/")]
     png.found = True
-    jpeg = DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
-                   find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
+    jpeg = DEPS.add(
+        "JPEG",
+        "jpeg",
+        ["SDL2_image-[2-9].*", "jpeg-9*"],
+        r"(lib){0,1}jpeg-9\.dll$",
+        find_header=r"jpeglib\.h",
+        find_lib=r"(lib)?jpeg-9\.lib",
+    )
     jpeg.path = imageDep.path
-    jpeg.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
+    jpeg.inc_dir = [os.path.join(prebuilt_dir, "include").replace("\\", "/")]
     jpeg.found = True
 
     dllPaths = {
-        'png': imageDep.path,
-        'jpeg': imageDep.path,
-        'tiff': imageDep.path,
-        'z': imageDep.path,
-        'webp': imageDep.path,
-
-        'vorbis': mixerDep.path,
-        'vorbisfile': mixerDep.path,
-        'ogg': mixerDep.path,
-        'flac': mixerDep.path,
-        'modplug': mixerDep.path,
-        'mpg123': mixerDep.path,
-        'opus': mixerDep.path,
-        'opusfile': mixerDep.path,
+        "png": imageDep.path,
+        "jpeg": imageDep.path,
+        "tiff": imageDep.path,
+        "z": imageDep.path,
+        "webp": imageDep.path,
+        "vorbis": mixerDep.path,
+        "vorbisfile": mixerDep.path,
+        "ogg": mixerDep.path,
+        "flac": mixerDep.path,
+        "modplug": mixerDep.path,
+        "mpg123": mixerDep.path,
+        "opus": mixerDep.path,
+        "opusfile": mixerDep.path,
     }
     _add_sdl2_dll_deps(DEPS)
     for dll in DEPS.dlls:
@@ -462,14 +589,15 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.configure()
     return list(DEPS)
 
+
 def main(auto_config=False):
     machine_type = get_machine_type()
-    prebuilt_dir = 'prebuilt-%s' % machine_type
-    use_prebuilt = '-prebuilt' in sys.argv
+    prebuilt_dir = "prebuilt-%s" % machine_type
+    use_prebuilt = "-prebuilt" in sys.argv
 
-    auto_download = 'PYGAME_DOWNLOAD_PREBUILT' in os.environ
+    auto_download = "PYGAME_DOWNLOAD_PREBUILT" in os.environ
     if auto_download:
-        auto_download = os.environ['PYGAME_DOWNLOAD_PREBUILT'] == '1'
+        auto_download = os.environ["PYGAME_DOWNLOAD_PREBUILT"] == "1"
 
     try:
         from . import download_win_prebuilt
@@ -477,23 +605,24 @@ def main(auto_config=False):
         import download_win_prebuilt
 
     download_kwargs = {
-        'x86': False,
-        'x64': False,
+        "x86": False,
+        "x64": False,
     }
     download_kwargs[machine_type] = True
 
     if not auto_download:
-        if (not download_win_prebuilt.cached(**download_kwargs) or\
-            not os.path.isdir(prebuilt_dir))\
-            and download_win_prebuilt.ask(**download_kwargs):
+        if (
+            not download_win_prebuilt.cached(**download_kwargs)
+            or not os.path.isdir(prebuilt_dir)
+        ) and download_win_prebuilt.ask(**download_kwargs):
             use_prebuilt = True
     else:
         download_win_prebuilt.update(**download_kwargs)
 
     if os.path.isdir(prebuilt_dir):
         if not use_prebuilt:
-            if 'PYGAME_USE_PREBUILT' in os.environ:
-                use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
+            if "PYGAME_USE_PREBUILT" in os.environ:
+                use_prebuilt = os.environ["PYGAME_USE_PREBUILT"] == "1"
             else:
                 logging.warning('Using the SDL libraries in "%s".' % prebuilt_dir)
                 use_prebuilt = True
@@ -501,14 +630,18 @@ def main(auto_config=False):
         if use_prebuilt:
             return setup_prebuilt_sdl2(prebuilt_dir)
     else:
-        print("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
+        print('Note: cannot find directory "%s"; do not use prebuilts.' % prebuilt_dir)
     return setup()
 
-if __name__ == '__main__':
-    print("""This is the configuration subscript for Windows.
-Please run "config.py" for full configuration.""")
+
+if __name__ == "__main__":
+    print(
+        """This is the configuration subscript for Windows.
+Please run "config.py" for full configuration."""
+    )
 
     import sys
+
     if "--download" in sys.argv:
         try:
             from . import download_win_prebuilt

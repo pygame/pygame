@@ -14,34 +14,37 @@ class Dependency:
         self.lib_dir = None
         self.libs = None
         self.found = 0
-        self.cflags = ''
-        infos = [info for info in conanbuildinfo['dependencies'] if info['name'] == conan_name]
+        self.cflags = ""
+        infos = [
+            info
+            for info in conanbuildinfo["dependencies"]
+            if info["name"] == conan_name
+        ]
 
         if infos:
             info = infos[0]
             self.found = 1
-            self.lib_dir = info['lib_paths'][:]
-            self.libs = info['libs'][:]
-            self.inc_dir = info['include_paths'][:]
+            self.lib_dir = info["lib_paths"][:]
+            self.libs = info["libs"][:]
+            self.inc_dir = info["include_paths"][:]
 
             if info["frameworks"]:
                 for n in info["frameworks"]:
                     # -Xlinker is a weird thing for distutils.extension.read_setup_file
                     # so that it can pass things through to the linker from the Setup file.
-                    self.cflags += (' -Xlinker "-framework" -Xlinker "' + n + '"')
+                    self.cflags += ' -Xlinker "-framework" -Xlinker "' + n + '"'
 
         if not extra_libs is None:
             self.libs.extend(extra_libs)
 
 
 def conan_install(force_build=True):
-    """
-    """
-    build_dir = os.path.join('build', 'conan')
+    """ """
+    build_dir = os.path.join("build", "conan")
 
     if not os.path.exists(build_dir):
-        if not os.path.exists('build'):
-            os.mkdir('build')
+        if not os.path.exists("build"):
+            os.mkdir("build")
         os.mkdir(build_dir)
 
     os.chdir(build_dir)
@@ -49,27 +52,28 @@ def conan_install(force_build=True):
     cmd = [
         "conan",
         "install",
-        os.path.join('..', '..', 'buildconfig', 'conanconf'),
+        os.path.join("..", "..", "buildconfig", "conanconf"),
     ]
     if force_build:
         cmd.append("--build")
 
-    if '-conan' in sys.argv:
-        other_args = sys.argv[sys.argv.index('-conan')+1:]
+    if "-conan" in sys.argv:
+        other_args = sys.argv[sys.argv.index("-conan") + 1 :]
         cmd.extend(other_args)
 
     print(cmd)
     try:
         return subprocess.call(cmd)
     finally:
-        os.chdir(os.path.join('..', '..'))
+        os.chdir(os.path.join("..", ".."))
+
 
 def main(sdl2=True, auto_config=False):
     # conan_install(force_build=True)
     # Reuse the previous conan build with this setting:
     conan_install(force_build=False)
 
-    conanbuildinfo_json = os.path.join('build', 'conan', 'conanbuildinfo.json')
+    conanbuildinfo_json = os.path.join("build", "conan", "conanbuildinfo.json")
     conanbuildinfo = json.load(open(conanbuildinfo_json))
 
     DEPS = [
@@ -86,6 +90,9 @@ def main(sdl2=True, auto_config=False):
 
     return DEPS
 
-if __name__ == '__main__':
-    print ("""This is the configuration subscript for the Conan package manager.
-Please run "config.py" for full configuration.""")
+
+if __name__ == "__main__":
+    print(
+        """This is the configuration subscript for the Conan package manager.
+Please run "config.py" for full configuration."""
+    )
