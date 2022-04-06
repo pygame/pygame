@@ -471,7 +471,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.configure()
     return list(DEPS)
 
-def main():
+def main(auto_config=False):
     machine_type = get_machine_type()
     prebuilt_dir = 'prebuilt-%s' % machine_type
     use_prebuilt = '-prebuilt' in sys.argv

@@ -222,7 +222,7 @@ Only SDL2 is supported now.""")
             logging.info('Backing up existing "Setup" file into Setup.bak')
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
 
-    deps = CFG.main(**kwds)
+    deps = CFG.main(**kwds, auto_config=auto)
     if '-conan' in sys.argv:
         sys.argv.remove('-conan')
 
