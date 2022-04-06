@@ -126,7 +126,7 @@ def find_freetype():
 
 
 
-def main():
+def main(auto_config=False):
 
     DEPS = [
         [DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl'])],

@@ -130,7 +130,7 @@ class DependencyPython:
 
 sdl_lib_name = 'SDL'
 
-def main():
+def main(auto_config=False):
     global origincdirs, origlibdirs
 
     #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
@@ -234,7 +234,9 @@ def main():
 
     for d in DEPS[1:]:
         if not d.found:
-            if "-auto" not in sys.argv:
+            if auto_config:
+                logging.info("Some pygame dependencies were not found.")
+            else:
                 logging.warning(
                     "Some pygame dependencies were not found. "
                     "Pygame can still compile and install, but games that "
