@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import unittest
 import math
 import platform
+import unittest
+from collections.abc import Collection, Sequence
 
 import pygame.math
 from pygame.math import Vector2, Vector3
@@ -259,6 +259,19 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(type(a), type(self.v1))
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
+
+    def test_contains(self):
+        c = Vector2(0, 1)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 not in c)
+        self.assertFalse(c.__contains__(2))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
 
     def testAdd(self):
         v3 = self.v1 + self.v2
@@ -1141,6 +1154,11 @@ class Vector2TypeTest(unittest.TestCase):
         # act / assert
         self.assertRaises(TypeError, v.project, other)
 
+    def test_collection_abc(self):
+        v = Vector2(3, 4)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
+
     def test_clamp_mag_v2_max(self):
         v1 = Vector2(7, 2)
         v2 = v1.clamp_magnitude(5)
@@ -1345,6 +1363,20 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(a), type(self.v1))
         self.assertEqual(type(b), type(self.v1))
         self.assertEqual(type(c), type(self.v1))
+
+    def test_contains(self):
+        c = Vector3(0, 1, 2)
+
+        # call __contains__ explicitly to test that it is defined
+        self.assertTrue(c.__contains__(0))
+        self.assertTrue(0 in c)
+        self.assertTrue(1 in c)
+        self.assertTrue(2 in c)
+        self.assertTrue(3 not in c)
+        self.assertFalse(c.__contains__(10))
+
+        self.assertRaises(TypeError, lambda: "string" in c)
+        self.assertRaises(TypeError, lambda: 3 + 4j in c)
 
     def testAdd(self):
         v3 = self.v1 + self.v2
@@ -2437,6 +2469,11 @@ class Vector3TypeTest(unittest.TestCase):
 
         # act / assert
         self.assertRaises(TypeError, v.project, other)
+
+    def test_collection_abc(self):
+        v = Vector3(3, 4, 5)
+        self.assertTrue(isinstance(v, Collection))
+        self.assertFalse(isinstance(v, Sequence))
 
     def test_clamp_mag_v3_max(self):
         v1 = Vector3(7, 2, 2)
