@@ -66,7 +66,7 @@ pg_touch_num_fingers(PyObject *self, PyObject *device_id)
     }
     return PyLong_FromLong(fingercount);
 }
-
+#if !defined(BUILD_STATIC)
 /* Helper for adding objects to dictionaries. Check for errors with
    PyErr_Occurred() */
 static void
@@ -77,6 +77,9 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
         Py_DECREF(v);
     }
 }
+#else
+extern void _pg_insobj(PyObject *dict, char *name, PyObject *v);
+#endif
 
 static PyObject *
 pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
