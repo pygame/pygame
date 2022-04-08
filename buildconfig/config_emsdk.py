@@ -1,4 +1,4 @@
-"""Config on Unix"""
+"""Config on Emscripten SDK is almost like Unix"""
 
 import os, sys
 from glob import glob
