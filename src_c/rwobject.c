@@ -692,7 +692,7 @@ _rwops_from_pystr(PyObject *obj)
 
     encoded = PyBytes_AS_STRING(oencoded);
     rw = SDL_RWFromFile(encoded, "rb");
-    Py_DECREF(oencoded);
+    
     if (rw) {
         /* adding the extension to the hidden data for RWops from files */
         /* this is necessary to support loading functions that rely on
@@ -709,9 +709,11 @@ _rwops_from_pystr(PyObject *obj)
             strcpy(extension, ext);
         }
         rw->hidden.unknown.data1 = (void *)extension;
+        Py_DECREF(oencoded);
         return rw;
     }
-
+    
+    Py_DECREF(oencoded);
     /* Clear SDL error and set our own error message for filenotfound errors
      * TODO: Check SDL error here and forward any non filenotfound related
      * errors correctly here */
