@@ -62,6 +62,8 @@ PyFont_New(TTF_Font *);
 
 static unsigned int current_ttf_generation = 0;
 #if defined(BUILD_STATIC)
+// SDL_Init + TTF_Init()  are made in main before CPython process the module inittab
+// so the emscripten handler knows it will use SDL2 next cycle.
 static int font_initialized = 1;
 #else
 static int font_initialized = 0;
