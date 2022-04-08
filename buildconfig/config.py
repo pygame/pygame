@@ -218,7 +218,6 @@ Only SDL2 is supported now.""")
             os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
         ).readlines()
     elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
-        pass
         additional_platform_setup = open(
             os.path.join(BASE_PATH, 'buildconfig', "Setup.Emscripten.SDL2.in"), "r"
         ).readlines()
