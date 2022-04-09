@@ -167,6 +167,11 @@ typedef struct {
     PyObject *weakreflist;
 } pgRectObject;
 
+typedef struct {
+    PyObject_HEAD SDL_FRect r;
+    PyObject *weakreflist;
+} pgFRectObject;
+
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
