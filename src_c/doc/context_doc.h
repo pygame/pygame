@@ -1,5 +1,5 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMECONTEXT "pygame module to provide additional context on the system"
+#define DOC_PYGAMECONTEXT "pygame module to provide additional context about the system"
 #define DOC_PYGAMECONTEXTGETPREFPATH "get_pref_path(org, app) -> path\nget a writeable folder for your app"
 
 
@@ -8,7 +8,7 @@
 /*
 
 pygame.context
-pygame module to provide additional context on the system
+pygame module to provide additional context about the system
 
 pygame.context.get_pref_path
  get_pref_path(org, app) -> path

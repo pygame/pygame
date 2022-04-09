@@ -6,7 +6,7 @@
 .. module:: pygame.context
     :synopsis: pygame module to provide additional context about the system
 
-| :sl:`pygame module to provide additional context on the system`
+| :sl:`pygame module to provide additional context about the system`
 
 **EXPERIMENTAL!** This API may change or disappear in later pygame releases. 
 If you use this, your code may break with the next pygame release.
@@ -29,14 +29,11 @@ open just in case something obvious comes up.
    savegames, settings, and the like. This path is unique per user and
    per app name.
 
-   It takes two strings, ``org`` and ``app``. It then will figure out the
+   It takes two strings, ``org`` and ``app``, refering to the "organization"
+   and "application name." For example, the organization could be "Valve," 
+   and the application name could be "Half Life 2." It then will figure out the
    preferred path, **creating the folders referenced by the path if necessary**,
-   and returns a string containing the absolute path.
-
-    .. note::
-        Since the organization and app names can potentially be used as
-        a folder name, it is highly encouraged to avoid punctuation.
-        Instead stick to letters, numbers, and spaces.
+   and return a string containing the absolute path.
 
    For example::
 
@@ -48,5 +45,14 @@ open just in case something obvious comes up.
 
         And on Linux it would resemble
         /home/bob/.local/share/My Program Name/
+
+   .. note::
+        Since the organization and app names can potentially be used as
+        a folder name, it is highly encouraged to avoid punctuation.
+        Instead stick to letters, numbers, and spaces.
+
+   .. note::
+        The ``appdirs`` library has similar functionality for this use case,
+        but has more "folder types" to choose from.
 
    .. versionadded:: 2.1.3
