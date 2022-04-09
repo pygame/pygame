@@ -257,9 +257,9 @@ fail:
 }
 
 static int
-SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
-{
-    static unsigned char **ss_rows;
+SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw) {
+    IMG_SavePNG(surface, file);
+    /*static unsigned char **ss_rows;
     static int ss_size;
     static int ss_w, ss_h;
     SDL_Surface *ss_surface;
@@ -289,8 +289,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
                                           0xff, 0xff00, 0xff0000, 0xff000000
 #endif
         );
-    }
-    else {
+    } else {
         ss_surface = SDL_CreateRGBSurface(0, ss_w, ss_h, 24,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                           0xff0000, 0xff00, 0xff, 0
@@ -320,8 +319,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     SDL_BlitSurface(surface, &ss_rect, ss_surface, NULL);
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
-     * a false analyzer report */
+    //Make MSVC static analyzer happy by assuring ss_size >= 2 to supress a false analyzer report
     __analysis_assume(ss_size >= 2);
 #endif
 
@@ -357,7 +355,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     free(ss_rows);
     SDL_FreeSurface(ss_surface);
     ss_surface = NULL;
-    return r;
+    return r;*/
 }
 
 #endif /* end if PNG_H */
@@ -511,8 +509,9 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
 }
 
 int
-SaveJPEG(SDL_Surface *surface, const char *file)
-{
+SaveJPEG(SDL_Surface *surface, const char *file) {
+    IMG_SaveJPG(surface, file);
+/*
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define RED_MASK 0xff0000
 #define GREEN_MASK 0xff00
@@ -545,25 +544,19 @@ SaveJPEG(SDL_Surface *surface, const char *file)
 
     pixel_bits = 24;
 
-    /* See if the Surface is suitable for using directly.
-       So no conversion is needed.  24bit, RGB
-    */
+    //See if the Surface is suitable for using directly. So no conversion is needed.  24bit, RGB
+    
 
     if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
-        /*
-           printf("not creating...\n");
-        */
+        // printf("not creating...\n");
         ss_surface = surface;
 
         free_ss_surface = 0;
     }
     else {
-        /*
-        printf("creating...\n");
-        */
+        // printf("creating...\n");
 
-        /* If it is not, then we need to make a new surface.
-         */
+        // If it is not, then we need to make a new surface.
 
         ss_surface = SDL_CreateRGBSurface(0, ss_w, ss_h, pixel_bits, RED_MASK,
                                           GREEN_MASK, BLUE_MASK, 0);
@@ -581,23 +574,21 @@ SaveJPEG(SDL_Surface *surface, const char *file)
     }
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
-     * a false analyzer report */
+    // Make MSVC static analyzer happy by assuring ss_size >= 2 to supressa false analyzer report
     __analysis_assume(ss_size >= 2);
 #endif
 
     ss_size = ss_h;
     ss_rows = (unsigned char **)malloc(sizeof(unsigned char *) * ss_size);
     if (ss_rows == NULL) {
-        /* clean up the allocated surface too */
+        // clean up the allocated surface too
         if (free_ss_surface) {
             SDL_FreeSurface(ss_surface);
         }
         return -1;
     }
 
-    /* copy pointers to the scanlines... since they might not be packed.
-     */
+    // copy pointers to the scanlines... since they might not be packed.
     for (i = 0; i < ss_h; i++) {
         ss_rows[i] =
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
@@ -609,7 +600,7 @@ SaveJPEG(SDL_Surface *surface, const char *file)
         SDL_FreeSurface(ss_surface);
         ss_surface = NULL;
     }
-    return r;
+    return r;*/
 }
 
 #endif /* end if JPEGLIB_H */
