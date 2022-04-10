@@ -65,42 +65,16 @@ def initsysfonts_win32():
     fonts = {}
 
     # add fonts entered in the registry
-
-    # find valid registry keys containing font information.
-    # http://docs.python.org/lib/module-sys.html
-    # 0 (VER_PLATFORM_WIN32s)          Win32s on Windows 3.1
-    # 1 (VER_PLATFORM_WIN32_WINDOWS)   Windows 95/98/ME
-    # 2 (VER_PLATFORM_WIN32_NT)        Windows NT/2000/XP
-    # 3 (VER_PLATFORM_WIN32_CE)        Windows CE
-    if sys.getwindowsversion()[0] == 1:
-        key_name = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Fonts"
-    else:
-        key_name = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"
-    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key_name)
+    key_path = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"
+    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key_path)
 
     for i in range(_winreg.QueryInfoKey(key)[1]):
         try:
             # name is the font's name e.g. Times New Roman (TrueType)
             # font is the font's filename e.g. times.ttf
-            name, font = _winreg.EnumValue(key, i)[0:2]
-        except EnvironmentError:
+            name, font, _ = _winreg.EnumValue(key, i)
+        except OSError:
             break
-
-        # try to handle windows unicode strings for file names with
-        # international characters
-
-        # here are two documents with some information about it:
-        # http://www.python.org/peps/pep-0277.html
-        # https://www.microsoft.com/technet/archive/interopmigration/linux/mvc/lintowin.mspx#ECAA
-        try:
-            font = str(font)
-        except UnicodeEncodeError:
-            # MBCS is the windows encoding for unicode file names.
-            try:
-                font = font.encode("MBCS")
-            except UnicodeEncodeError:
-                # no success with str or MBCS encoding... skip this font.
-                continue
 
         if splitext(font)[1].lower() not in OpenType_extensions:
             continue
