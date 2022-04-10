@@ -52,7 +52,7 @@ PG_AUTOIMPORT_SUBMODS = [
 
 # pygame classes that are autoimported into main namespace are kept in this dict
 PG_AUTOIMPORT_CLASSES = {
-    "rect": ["Rect"],
+    "rect": ["Rect", "FRect"],
     "surface": ["Surface", "SurfaceType"],
     "color": ["Color"],
     "pixelarray": ["PixelArray"],
