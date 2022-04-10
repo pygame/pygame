@@ -1170,7 +1170,12 @@ static void
 pgBuffer_Release(pg_buffer *pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
+    /* some calls to this function expect this function to not clear previously
+     * set errors, so save and restore any potential errors here */
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
     pg_view_p->release_buffer((Py_buffer *)pg_view_p);
+    PyErr_Restore(type, value, traceback);
 }
 
 static void
