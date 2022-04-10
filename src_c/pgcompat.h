@@ -46,4 +46,9 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
 #endif /* defined(SDL_VERSION_ATLEAST) */
 
+/* incase it is defined in the future by Python.h */
+#ifndef PyFloat_FromFloat
+#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double) (round((x)*100000)/100000)))
+#endif /* PyFloat_FromFloat */
+
 #endif /* ~PGCOMPAT_INTERNAL_H */

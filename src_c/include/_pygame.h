@@ -167,7 +167,13 @@ typedef struct {
     PyObject *weakreflist;
 } pgRectObject;
 
+typedef struct {
+    PyObject_HEAD SDL_FRect r;
+    PyObject *weakreflist;
+} pgFRectObject;
+
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+#define pgFRect_AsRect(x) (((pgFRectObject *)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
 
@@ -181,6 +187,19 @@ typedef struct {
     (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
 #define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
+
+#define pgFRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 5))
+
+#define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
+#define pgFRect_New (*(PyObject * (*)(SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 6))
+
+#define pgFRect_New4 \
+    (*(PyObject * (*)(float, float, float, float)) PYGAMEAPI_GET_SLOT(rect, 7))
+
+#define pgFRect_FromObject \
+    (*(SDL_FRect * (*)(PyObject *, SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 8))
+
+#define pgFRect_Normalize (*(void (*)(SDL_FRect *))PYGAMEAPI_GET_SLOT(rect, 9))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)
 #endif /* ~PYGAMEAPI_RECT_INTERNAL */
