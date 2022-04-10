@@ -135,8 +135,10 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 /* generic vector functions */
 static PyObject *
 _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim);
+/* 
 static PyObject *
 pgVector_NEW(Py_ssize_t dim);
+*/
 static void
 vector_dealloc(pgVector *self);
 static PyObject *
@@ -572,6 +574,7 @@ _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim)
     return (PyObject *)vec;
 }
 
+/*
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
 {
@@ -585,7 +588,7 @@ pgVector_NEW(Py_ssize_t dim)
                             "Wrong internal call to pgVector_NEW.\n");
             return NULL;
     }
-}
+}*/
 
 static void
 vector_dealloc(pgVector *self)
@@ -641,7 +644,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     }
     else if (op != (OP_MUL | OP_ARG_VECTOR) &&
              op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
-        ret = (pgVector *)_vector_subtype_new(Py_TYPE(o1), dim);
+        ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
         if (ret == NULL)
             return NULL;
     }
@@ -3664,8 +3667,9 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
     switch (op) {
         case OP_ADD | OP_ARG_NUMBER:
         case OP_ADD | OP_ARG_NUMBER | OP_ARG_REVERSE:
-            for (i = 0; i < dim; i++)
+            for (i = 0; i < dim; i++) {
                 ret->coords[i] = vec->coords[i] + other_value;
+            }
             break;
         case OP_SUB | OP_ARG_NUMBER:
             for (i = 0; i < dim; i++)
@@ -3868,6 +3872,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
     if (vector_elementwiseproxy_Check(baseObj)) {
         dim = ((vector_elementwiseproxy *)baseObj)->vec->dim;
         tmp = ((vector_elementwiseproxy *)baseObj)->vec->coords;
+        vec = ((vector_elementwiseproxy *)baseObj)->vec;
         for (i = 0; i < dim; ++i)
             bases[i] = PyFloat_FromDouble(tmp[i]);
         if (vector_elementwiseproxy_Check(expoObj)) {
@@ -3895,6 +3900,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
     else {
         dim = ((vector_elementwiseproxy *)expoObj)->vec->dim;
         tmp = ((vector_elementwiseproxy *)expoObj)->vec->coords;
+        vec = ((vector_elementwiseproxy *)expoObj)->vec;
         for (i = 0; i < dim; ++i)
             expos[i] = PyFloat_FromDouble(tmp[i]);
         if (pgVectorCompatible_Check(baseObj, dim)) {
@@ -3919,8 +3925,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
         goto clean_up;
     }
 
-    vec = ((vector_elementwiseproxy *)baseObj)->vec;
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
+    ret = (PyObject *)_vector_subtype_new(Py_TYPE(vec), dim);
     if (ret == NULL)
         goto clean_up;
     /* there are many special cases so we let python do the work for us */
@@ -4023,6 +4028,8 @@ vector_elementwise(pgVector *vec, PyObject *_null)
         return NULL;
     Py_INCREF(vec);
     proxy->vec = (pgVector *)vec;
+
+    // proxy->vec = (pgVector *)vec;
     return (PyObject *)proxy;
 }
 
