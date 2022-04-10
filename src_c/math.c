@@ -3920,7 +3920,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
     }
 
     vec = ((vector_elementwiseproxy *)baseObj)->vec;
-    ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
+    ret = (PyObject *)_vector_subtype_new(Py_TYPE(vec), dim);
     if (ret == NULL)
         goto clean_up;
     /* there are many special cases so we let python do the work for us */
