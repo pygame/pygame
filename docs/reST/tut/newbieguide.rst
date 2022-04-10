@@ -23,7 +23,7 @@ platforms (Windows, Linux, Mac, and others).
 
 Pygame may be easy to learn, but the world of graphics programming can be
 pretty confusing to the newcomer.  I wrote this to try to distill the practical
-knowledge I've gained over the past year or so of working with pygame, and it's
+knowledge I've gained over the past year or so of working with pygame, and its
 predecessor, PySDL.  I've tried to rank these suggestions in order of
 importance, but how relevant any particular hint is will depend on your own
 background and the details of your project.
@@ -167,7 +167,7 @@ for a moving sprite:
  * Blit a piece of the background over the sprite's current location, erasing it.
  * Append the sprite's current location rectangle to a list called dirty_rects.
  * Move the sprite.
- * Draw the sprite at it's new location.
+ * Draw the sprite at its new location.
  * Append the sprite's new location to my dirty_rects list.
  * Call ``display.update(dirty_rects)``
 
@@ -191,11 +191,13 @@ internet (via google), or the pygame community if they've got some better algori
 
 **HWSURFACE and DOUBLEBUF**
 
-These :func:`.display.set_mode()` flags do nothing in pygame versions 2.0.0 and
+The HWSURFACE :func:`.display.set_mode()` flag does nothing in pygame versions 2.0.0 and
 later (you can check the docs if you don't believe me)!  There's no reason to
-use them anymore.  Even in pygame 1, their effects were pretty nuanced and
-generally misunderstood by most pygame users.  They were never magic speed-up
-flags, unfortunately.
+use it anymore.  Even in pygame 1, its effect is pretty nuanced and
+generally misunderstood by most pygame users.  It was never a magic speed-up
+flag, unfortunately.
+
+DOUBLEBUF still has some use, but is also not a magic speed up flag.
 
 **The Sprite class**
 
