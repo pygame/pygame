@@ -381,7 +381,7 @@ Multiple coordinates can be set using slices or swizzling
 
       | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
       | :sg:`clamp_magnitude(max_length) -> Vector2`
-      | :sg:`clamp_magnitude(max_length, min_length) -> Vector2`
+      | :sg:`clamp_magnitude(min_length, max_length) -> Vector2`
 
       Returns a new copy of a vector with the magnitude clamped between max_length and min_length. If
       a min_length value is not assigned, then it will automatically be set to 0.
@@ -395,7 +395,7 @@ Multiple coordinates can be set using slices or swizzling
 
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
-      | :sg:`clamp_magnitude_ip(max_length, min_length) -> None`
+      | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
 
       Clamps the vector's magnitude between max_length and min_length. If a min_length value is not assigned,
       then it will automatically be set to 0.
@@ -950,7 +950,7 @@ Multiple coordinates can be set using slices or swizzling
 
       | :sl:`Returns a copy of a vector with the magnitude clamped between max_length and min_length.`
       | :sg:`clamp_magnitude(max_length) -> Vector3`
-      | :sg:`clamp_magnitude(max_length, min_length) -> Vector3`
+      | :sg:`clamp_magnitude(min_length, max_length) -> Vector3`
 
       Returns a new copy of a vector with the magnitude clamped between max_length and min_length. If
       a min_length value is not assigned, then it will automatically be set to 0.
@@ -964,7 +964,7 @@ Multiple coordinates can be set using slices or swizzling
 
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
-      | :sg:`clamp_magnitude_ip(max_length, min_length) -> None`
+      | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
 
       Clamps the vector's magnitude between max_length and min_length. If a min_length value is not assigned,
       then it will automatically be set to 0.

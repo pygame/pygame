@@ -832,19 +832,32 @@ static PyObject *
 vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
 {
     Py_ssize_t i;
-    double min_length = 0; /* Default minimum. */
+    double arg0;
+    double arg1 = 0; /*
+    Default value, if arg1 is set to a different value,
+    then it will clamp to the minimum and maximum.
+    */
     double max_length;
+    double min_length;
     double old_length_sq;
     double fraction;
 
     int length_greater;
     int length_less;
 
-    static char *keywords[] = {"max_length", "min_length", NULL};
+    static char *keywords[] = {"arg0", "arg1", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords,
-                                     &max_length, &min_length)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords, &arg0,
+                                     &arg1)) {
         return NULL;
+    }
+
+    if (arg1 != 0) {
+        min_length = arg0;
+        max_length = arg1;
+    }
+    else if (arg1 == 0) {
+        max_length = arg0;
     }
 
     /* Get magnitude of Vector */
