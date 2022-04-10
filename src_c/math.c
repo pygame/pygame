@@ -858,6 +858,7 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
     }
     else if (arg1 == 0) {
         max_length = arg0;
+        min_length = arg1;
     }
 
     /* Get magnitude of Vector */
