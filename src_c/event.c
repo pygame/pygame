@@ -663,23 +663,64 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
-/* This function posts an SDL "UserEvent" event, can also optionally take a
- * python dict. This function does not need GIL to be held if dict is NULL, but
- * needs GIL otherwise */
+/* Posts a pygame event that is an ``SDL_USEREVENT`` on the SDL side, can also
+ * optionally take a dictproxy instance. Using this dictproxy API is especially
+ * useful when multiple events that need to be posted share the same dict
+ * attribute, like in the case of event timers. This way, the number of python
+ * increfs and decrefs are reduced, and callers of this function don't need to
+ * hold GIL for every event posted, the GIL only needs to be held during the
+ * creation of the dictproxy instance, and when it is freed.
+ * Just like the SDL ``SDL_PushEvent`` function, returns 1 on success, 0 if the
+ * event was not posted due to it being blocked, and -1 on failure. */
 static int
-pg_post_event(Uint32 type, PyObject *dict)
+pg_post_event_dictproxy(Uint32 type, pgEventDictProxy *dict_proxy)
 {
     int ret;
     SDL_Event event = {0};
 
-    Py_XINCREF(dict);
     event.type = _pg_pgevent_proxify(type);
-    event.user.data1 = (void *)dict;
+    event.user.data1 = (void *)dict_proxy;
 
     ret = SDL_PushEvent(&event);
+    if (ret == 1 && dict_proxy) {
+        /* successfully posted event with dictproxy */
+        SDL_AtomicLock(&dict_proxy->lock);
+        dict_proxy->num_on_queue++;
+        SDL_AtomicUnlock(&dict_proxy->lock);
+    }
+
+    return ret;
+}
+
+/* This function posts an SDL "UserEvent" event, can also optionally take a
+ * python dict. This function does not need GIL to be held if dict is NULL, but
+ * needs GIL otherwise  */
+static int
+pg_post_event(Uint32 type, PyObject *dict)
+{
+    int ret;
+    if (!dict) {
+        return pg_post_event_dictproxy(type, NULL);
+    }
+
+    pgEventDictProxy *dict_proxy =
+        (pgEventDictProxy *)malloc(sizeof(pgEventDictProxy));
+    if (!dict_proxy) {
+        return SDL_SetError("insufficient memory (internal malloc failed)");
+    }
+
+    Py_INCREF(dict);
+    dict_proxy->dict = dict;
+    /* initially set to 0 - unlocked state */
+    dict_proxy->lock = 0;
+    dict_proxy->num_on_queue = 0;
+    /* So that event function handling this frees it */
+    dict_proxy->is_freed = 1;
+
+    ret = pg_post_event_dictproxy(type, dict_proxy);
     if (ret != 1) {
-        /* decref dict if event could not be posted */
-        Py_XDECREF(dict);
+        Py_DECREF(dict);
+        free(dict_proxy);
     }
     return ret;
 }
@@ -936,12 +977,29 @@ dict_from_event(SDL_Event *event)
 
     /* check if a proxy event or userevent was posted */
     if (event->type >= PGPOST_EVENTBEGIN) {
-        if (!event->user.data1) {
+        int is_freed;
+        pgEventDictProxy *dict_proxy = (pgEventDictProxy *)event->user.data1;
+        if (!dict_proxy) {
             /* the field being NULL implies empty dict */
             return dict;
         }
+        /* decref dict which was allocated previously */
         Py_DECREF(dict);
-        return (PyObject *)event->user.data1;
+
+        /* spinlocks must be held and released as quickly as possible */
+        SDL_AtomicLock(&dict_proxy->lock);
+        dict = dict_proxy->dict;
+        dict_proxy->num_on_queue--;
+        is_freed = dict_proxy->num_on_queue <= 0 && dict_proxy->is_freed;
+        SDL_AtomicUnlock(&dict_proxy->lock);
+
+        if (is_freed) {
+            free(dict_proxy);
+        }
+        else {
+            Py_INCREF(dict);
+        }
+        return dict;
     }
 
     switch (event->type) {
@@ -2273,12 +2331,13 @@ MODINIT_DEFINE(event)
     }
 
     /* export the c api */
-    assert(PYGAMEAPI_EVENT_NUMSLOTS == 5);
+    assert(PYGAMEAPI_EVENT_NUMSLOTS == 6);
     c_api[0] = &pgEvent_Type;
     c_api[1] = pgEvent_New;
     c_api[2] = pg_post_event;
-    c_api[3] = pg_EnableKeyRepeat;
-    c_api[4] = pg_GetKeyRepeat;
+    c_api[3] = pg_post_event_dictproxy;
+    c_api[4] = pg_EnableKeyRepeat;
+    c_api[5] = pg_GetKeyRepeat;
 
     apiobj = encapsulate_api(c_api, "event");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

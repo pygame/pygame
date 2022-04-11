@@ -47,3 +47,15 @@ Header file: src_c/include/pygame.h
    otherwise. Just like the SDL ``SDL_PushEvent`` function, returns 1 on
    success, 0 if the event was not posted due to it being blocked, and -1 on
    failure.
+
+.. c:function:: int pg_post_event_dictproxy(Uint32 type, pgEventDictProxy *dict_proxy)
+
+   Posts a pygame event that is an ``SDL_USEREVENT`` on the SDL side, can also
+   optionally take a dictproxy instance. Using this dictproxy API is especially
+   useful when multiple events that need to be posted share the same dict
+   attribute, like in the case of event timers. This way, the number of python
+   increfs and decrefs are reduced, and callers of this function don't need to
+   hold GIL for every event posted, the GIL only needs to be held during the
+   creation of the dictproxy instance, and when it is freed.
+   Just like the SDL ``SDL_PushEvent`` function, returns 1 on success, 0 if the
+   event was not posted due to it being blocked, and -1 on failure.

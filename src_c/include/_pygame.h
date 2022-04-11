@@ -346,9 +346,12 @@ typedef struct pgEventObject pgEventObject;
 #define pg_post_event \
     (*(int (*)(Uint32, PyObject *))PYGAMEAPI_GET_SLOT(event, 2))
 
-#define pg_EnableKeyRepeat (*(int (*)(int, int))PYGAMEAPI_GET_SLOT(event, 3))
+#define pg_post_event_dictproxy \
+    (*(int (*)(Uint32, pgEventDictProxy *))PYGAMEAPI_GET_SLOT(event, 3))
 
-#define pg_GetKeyRepeat (*(void (*)(int *, int *))PYGAMEAPI_GET_SLOT(event, 4))
+#define pg_EnableKeyRepeat (*(int (*)(int, int))PYGAMEAPI_GET_SLOT(event, 4))
+
+#define pg_GetKeyRepeat (*(void (*)(int *, int *))PYGAMEAPI_GET_SLOT(event, 5))
 
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event)
 #endif
