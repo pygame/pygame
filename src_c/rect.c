@@ -1,6 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "Simplify"
-
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
@@ -1021,5 +1018,3 @@ MODINIT_DEFINE(rect)
     }
     return module;
 }
-
-#pragma clang diagnostic pop
