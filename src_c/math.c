@@ -135,8 +135,10 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 /* generic vector functions */
 static PyObject *
 _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim);
+/* 
 static PyObject *
 pgVector_NEW(Py_ssize_t dim);
+*/
 static void
 vector_dealloc(pgVector *self);
 static PyObject *
@@ -572,6 +574,7 @@ _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim)
     return (PyObject *)vec;
 }
 
+/*
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
 {
@@ -585,7 +588,7 @@ pgVector_NEW(Py_ssize_t dim)
                             "Wrong internal call to pgVector_NEW.\n");
             return NULL;
     }
-}
+}*/
 
 static void
 vector_dealloc(pgVector *self)
