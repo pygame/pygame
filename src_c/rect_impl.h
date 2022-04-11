@@ -1580,7 +1580,7 @@ RectExport_subscript(RectObject *self, PyObject *op)
             return NULL;
         }
         for (i = 0; i < slicelen; ++i) {
-            n = PyLong_FromSsize_t(data[start + (step * i)]);
+            n = PyLong_FromSsize_t((Py_ssize_t) data[start + (step * i)]);
             if (n == NULL) {
                 Py_DECREF(slice);
                 return NULL;
