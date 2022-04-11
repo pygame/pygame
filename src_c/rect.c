@@ -885,7 +885,7 @@ static PyTypeObject pgRect_Type = {
     NULL,                                /* tp_clear */
     (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
     offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
-    pg_rect_iterator,                    /* tp_iter */
+    (getiterfunc)pg_rect_iterator,       /* tp_iter */
     NULL,                                /* tp_iternext */
     pg_rect_methods,                     /* tp_methods */
     NULL,                                /* tp_members */
@@ -925,7 +925,7 @@ static PyTypeObject pgFRect_Type = {
     NULL,                                 /* tp_clear */
     (richcmpfunc)pg_frect_richcompare,    /* tp_richcompare */
     offsetof(pgFRectObject, weakreflist), /* tp_weaklistoffset */
-    pg_frect_iterator,                    /* tp_iter */
+    (getiterfunc)pg_frect_iterator,       /* tp_iter */
     NULL,                                 /* tp_iternext */
     pg_frect_methods,                     /* tp_methods */
     NULL,                                 /* tp_members */
