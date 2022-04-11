@@ -240,6 +240,83 @@ class ClockTypeTest(unittest.TestCase):
 class TimeModuleTest(unittest.TestCase):
     __tags__ = ["timing"]
 
+    def test_multiple_timers(self):
+        """
+        Test for multiple timers running together, test repeat and dict
+        posting, test per event timing too
+        """
+        pygame.init()
+        # other timers in background should not affect current timer
+        # test different kinds of timers simultaneously. Test repeat, early
+        # stop with repeat, and stopping timers running on infinite loops.
+        # test dict and no dict posting
+        events_tests_dict = {
+            # each value here is like
+            # (delay time(ms), event dict, set repeat, early repeat stop)
+            pygame.event.custom_type(): (20, {}, 3, None),
+            pygame.event.custom_type(): (13, {1: 2, 3: 1}, 1, None),
+            pygame.event.custom_type(): (30, {"attr1": 10}, 5, 5),
+            pygame.event.custom_type(): (15, {"foo": "bar", "spam": "eggs"}, 10, 8),
+            pygame.event.custom_type(): (16, {}, None, 4),
+            pygame.event.custom_type(): (12, {"test": 42.26}, None, 6),
+            pygame.event.custom_type(): (10, {"foo": "spam", "bar": "eggs"}, None, 8),
+        }
+
+        times = {k: 0.0 for k in events_tests_dict}
+        counts = {k: 0 for k in events_tests_dict}
+
+        # post events, note start times
+        for event, (delay, attrs, repeat, _) in events_tests_dict.items():
+            if repeat is None:
+                pygame.time.set_timer(pygame.event.Event(event, attrs), delay)
+            else:
+                pygame.time.set_timer(pygame.event.Event(event, attrs), delay, repeat)
+            times[event] = time.perf_counter()
+
+        # run for 500ms
+        loop_start = time.perf_counter()
+        while time.perf_counter() < loop_start + 0.5:
+            for event in pygame.event.get():
+                if event.type in events_tests_dict:
+                    now_time = time.perf_counter()
+                    set_time, set_dict, repeat, stop = events_tests_dict[event.type]
+                    # measure time for each event, should almost match expected time
+                    self.assertAlmostEqual(
+                        (now_time - times[event.type]) * 1000, set_time, delta=4
+                    )
+
+                    # the dict attribute should be the same reference, if it exists
+                    self.assertIs(event.dict, set_dict)
+
+                    times[event.type] = now_time
+                    counts[event.type] += 1
+                    if counts[event.type] == stop:
+                        # stop event
+                        pygame.time.set_timer(event.type, 0)
+
+                    # assert extra events are not created
+                    if stop is None:
+                        if counts[event.type] > repeat:
+                            self.fail("got more events than expected with repeat")
+                    else:
+                        if counts[event.type] > stop:
+                            self.fail("got more events, timer stop did not work")
+
+        # assert events don't come in after the stipulated time
+        time.sleep(0.5)
+        for event in pygame.event.get():
+            self.assertNotIn(event.type, events_tests_dict)
+
+        for event_type, (_, _, repeat, stop) in events_tests_dict.items():
+            # recheck that the counts exactly match, and we don't have lesser
+            # events than expected
+            if stop is not None:
+                self.assertEqual(stop, counts[event_type])
+            else:
+                self.assertEqual(repeat, counts[event_type])
+
+        pygame.quit()
+
     def test_delay(self):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
