@@ -1,0 +1,27 @@
+name: build-emsdk
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: pygame-wasm-builder prepare
+      run: |
+            WD=$(pwd)
+            python3 -V
+            echo $WD
+            clang --version | head -n 1
+            echo
+            grep "^Pkg.Revision =" ${ANDROID_HOME}/ndk-bundle/source.properties
+            sudo apt-get update
+            sudo apt-get install bash wget
+            cd /home/runner/work/pygame
+            git checkout https://github.com/pmp-p/python-wasm-plus.git
+            mkdir /home/runner/work/pygame/python-wasm-plus/src
+            mv pygame /home/runner/work/pygame/python-wasm-plus/src/pygame-wasm
+            cd python-wasm-plus
+            bash ./python-wasm-plus.sh
+            bash ./buildapp.sh
+
