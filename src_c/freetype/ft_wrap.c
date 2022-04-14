@@ -58,7 +58,6 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
     int i;
     const char *ft_msg;
-    int error_msg_len = (int)strlen(error_msg);
 
     ft_msg = 0;
     for (i = 0; ft_errors[i].err_msg; ++i) {
@@ -68,13 +67,19 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         }
     }
 
-    if (error_id && ft_msg && maxlen > error_msg_len - 42)
-        sprintf(ft->_error_msg, "%.*s: %.*s", maxlen - 3, error_msg,
-                maxlen - error_msg_len - 3, ft_msg);
-    else {
-        strncpy(ft->_error_msg, error_msg, maxlen);
-        ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
+    if (error_id && ft_msg) {
+        int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg),
+                                "%.*s: %s", maxlen - 3, error_msg, ft_msg);
+        if (ret >= 0) {
+            /* return after successfully copying full or truncated error.
+             * If ret < 0, PyOS_snprintf failed so try to strncpy error
+             * message */
+            return;
+        }
     }
+
+    strncpy(ft->_error_msg, error_msg, maxlen);
+    ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
 }
 
 const char *

@@ -205,7 +205,7 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
 int
 v4l2_query_buffer(pgCameraObject *self);
 int
-v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf);
+v4l2_read_frame(pgCameraObject *self, SDL_Surface *surf, int *errno_code);
 int
 v4l2_stop_capturing(pgCameraObject *self);
 int

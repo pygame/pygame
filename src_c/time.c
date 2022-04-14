@@ -40,7 +40,7 @@ static SDL_mutex *timermutex = NULL;
 static intptr_t pg_timer_id = 0;
 
 static PyObject *
-pg_time_autoquit(PyObject *self)
+pg_time_autoquit(PyObject *self, PyObject *_null)
 {
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
@@ -52,7 +52,7 @@ pg_time_autoquit(PyObject *self)
             todel = hunt;
             hunt = hunt->next;
             Py_DECREF(todel->event);
-            PyMem_Del(todel);
+            PyMem_Free(todel);
         }
         pg_event_timer = NULL;
         pg_timer_id = 0;
@@ -65,7 +65,7 @@ pg_time_autoquit(PyObject *self)
 }
 
 static PyObject *
-pg_time_autoinit(PyObject *self)
+pg_time_autoinit(PyObject *self, PyObject *_null)
 {
     /* allocate a mutex for timer data holding struct*/
     if (!timermutex) {
@@ -89,7 +89,7 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     if (SDL_LockMutex(timermutex) < 0) {
         /* this case will almost never happen, but still handle it */
-        PyMem_Del(new);
+        PyMem_Free(new);
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
     }
@@ -223,7 +223,7 @@ accurate_delay(int ticks)
 }
 
 static PyObject *
-time_get_ticks(PyObject *self)
+time_get_ticks(PyObject *self, PyObject *_null)
 {
     if (!SDL_WasInit(SDL_INIT_TIMER))
         return PyLong_FromLong(0);
@@ -426,21 +426,21 @@ clock_tick_busy_loop(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-clock_get_fps(PyObject *self, PyObject *args)
+clock_get_fps(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyFloat_FromDouble(_clock->fps);
 }
 
 static PyObject *
-clock_get_time(PyObject *self, PyObject *args)
+clock_get_time(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyLong_FromLong(_clock->timepassed);
 }
 
 static PyObject *
-clock_get_rawtime(PyObject *self, PyObject *args)
+clock_get_rawtime(PyObject *self, PyObject *_null)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyLong_FromLong(_clock->rawpassed);
@@ -462,90 +462,68 @@ clock_dealloc(PyObject *self)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     Py_XDECREF(_clock->rendered);
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 
 PyObject *
 clock_str(PyObject *self)
 {
-    char str[1024];
+    char str[64];
     PyClockObject *_clock = (PyClockObject *)self;
 
-    sprintf(str, "<Clock(fps=%.2f)>", (float)_clock->fps);
+    int ret = PyOS_snprintf(str, 64, "<Clock(fps=%.2f)>", _clock->fps);
+    if (ret < 0 || ret >= 64) {
+        return RAISE(PyExc_RuntimeError,
+                     "Internal PyOS_snprintf call failed!");
+    }
 
     return PyUnicode_FromString(str);
 }
 
-static PyTypeObject PyClock_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Clock", /* name */
-    sizeof(PyClockObject),                  /* basic size */
-    0,                                      /* itemsize */
-    clock_dealloc,                          /* dealloc */
-    0,                                      /* print */
-    0,                                      /* getattr */
-    0,                                      /* setattr */
-    0,                                      /* compare */
-    clock_str,                              /* repr */
-    0,                                      /* as_number */
-    0,                                      /* as_sequence */
-    0,                                      /* as_mapping */
-    (hashfunc)0,                            /* hash */
-    (ternaryfunc)0,                         /* call */
-    clock_str,                              /* str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    0,                                      /* tp_as_buffer */
-    0,                                      /* flags */
-    DOC_PYGAMETIMECLOCK,                    /* Documentation string */
-    0,                                      /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    0,                                      /* tp_weaklistoffset */
-    0,                                      /* tp_iter */
-    0,                                      /* tp_iternext */
-    clock_methods,                          /* tp_methods */
-    0,                                      /* tp_members */
-    0,                                      /* tp_getset */
-    0,                                      /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    0,                                      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-};
-
-PyObject *
-ClockInit(PyObject *self)
+static PyObject *
+clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 {
-    PyClockObject *_clock = PyObject_NEW(PyClockObject, &PyClock_Type);
-
-    if (!_clock) {
+    char *kwids[] = {NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "", kwids)) {
+        /* This function does not actually take in any arguments, but this
+         * argparse function is used to generate pythonic error messages if
+         * any args are passed */
         return NULL;
     }
 
-    /*just doublecheck that timer is initialized*/
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER))
+        if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
             return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
 
-    _clock->fps_tick = 0;
-    _clock->timepassed = 0;
-    _clock->rawpassed = 0;
-    _clock->last_tick = SDL_GetTicks();
-    _clock->fps = 0.0f;
-    _clock->fps_count = 0;
-    _clock->rendered = NULL;
+    PyClockObject *self = (PyClockObject *)(type->tp_alloc(type, 0));
+    self->fps_tick = 0;
+    self->timepassed = 0;
+    self->rawpassed = 0;
+    self->last_tick = SDL_GetTicks();
+    self->fps = 0.0f;
+    self->fps_count = 0;
+    self->rendered = NULL;
 
-    return (PyObject *)_clock;
+    return (PyObject *)self;
 }
 
+static PyTypeObject PyClock_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Clock",
+    .tp_basicsize = sizeof(PyClockObject),
+    .tp_dealloc = clock_dealloc,
+    .tp_repr = clock_str,
+    .tp_str = clock_str,
+    .tp_doc = DOC_PYGAMETIMECLOCK,
+    .tp_methods = clock_methods,
+    .tp_new = clock_new,
+};
+
 static PyMethodDef _time_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
+    {"_internal_mod_init", (PyCFunction)pg_time_autoinit, METH_NOARGS,
      "auto initialize function for time"},
-    {"__PYGAMEquit__", (PyCFunction)pg_time_autoquit, METH_NOARGS,
+    {"_internal_mod_quit", (PyCFunction)pg_time_autoquit, METH_NOARGS,
      "auto quit function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
@@ -553,8 +531,6 @@ static PyMethodDef _time_methods[] = {
     {"wait", time_wait, METH_VARARGS, DOC_PYGAMETIMEWAIT},
     {"set_timer", (PyCFunction)time_set_timer, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETIMESETTIMER},
-
-    {"Clock", (PyCFunction)ClockInit, METH_NOARGS, DOC_PYGAMETIMECLOCK},
 
     {NULL, NULL, 0, NULL}};
 
@@ -566,6 +542,7 @@ initpygame_time(void)
 MODINIT_DEFINE(time)
 #endif
 {
+    PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "time",
                                          DOC_PYGAMETIME,
@@ -595,5 +572,17 @@ MODINIT_DEFINE(time)
     }
 
     /* create the module */
-    return PyModule_Create(&_module);
+    module = PyModule_Create(&_module);
+    if (!module) {
+        return NULL;
+    }
+
+    Py_INCREF(&PyClock_Type);
+    if (PyModule_AddObject(module, "Clock", (PyObject *)&PyClock_Type)) {
+        Py_DECREF(&PyClock_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    return module;
 }

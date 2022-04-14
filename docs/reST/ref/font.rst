@@ -8,29 +8,31 @@
 
 | :sl:`pygame module for loading and rendering fonts`
 
-The font module allows for rendering TrueType fonts into a new Surface object.
-It accepts any UCS-2 character ('\u0001' to '\uFFFF'). This module is optional
-and requires SDL_ttf as a dependency. You should test that :mod:`pygame.font`
-is available and initialized before attempting to use the module.
+The font module allows for rendering TrueType fonts into Surface objects.
+This module is built on top of the SDL_ttf library, which comes with all
+normal pygame installations.
 
-Most of the work done with fonts are done by using the actual Font objects. The
-module by itself only has routines to initialize the module and create Font
-objects with ``pygame.font.Font()``.
+Most of the work done with fonts are done by using the actual Font objects.
+The module by itself only has routines to support the creation of Font objects
+with :func:`pygame.font.Font`.
 
-You can load fonts from the system by using the ``pygame.font.SysFont()``
-function. There are a few other functions to help lookup the system fonts.
+You can load fonts from the system by using the :func:`pygame.font.SysFont`
+function. There are a few other functions to help look up the system fonts.
 
-Pygame comes with a builtin default font. This can always be accessed by
-passing None as the font name.
+Pygame comes with a builtin default font, freesansbold. This can always be
+accessed by passing ``None`` as the font name.
 
-To use the :mod:`pygame.freetype` based ``pygame.ftfont`` as
-:mod:`pygame.font` define the environment variable PYGAME_FREETYPE before the
-first import of :mod:`pygame`. Module ``pygame.ftfont`` is a :mod:`pygame.font`
-compatible module that passes all but one of the font module unit tests:
-it does not have the UCS-2 limitation of the SDL_ttf based font module, so
-fails to raise an exception for a code point greater than '\uFFFF'. If
-:mod:`pygame.freetype` is unavailable then the SDL_ttf font module will be
-loaded instead.
+Before pygame 2.0.3, pygame.font accepts any UCS-2 / UTF-16 character
+('\\u0001' to '\\uFFFF'). After 2.0.3, pygame.font built with SDL_ttf
+2.0.15 accepts any valid UCS-4 / UTF-32 character 
+(like emojis, if the font has them) ('\\U00000001' to '\\U0010FFFF')).
+More about this in :func:`Font.render`.
+
+Before pygame 2.0.3, this character space restriction can be avoided by
+using the  :mod:`pygame.freetype` based ``pygame.ftfont`` to emulate the Font
+module. This can be used by defining the environment variable PYGAME_FREETYPE
+before the first import of :mod:`pygame`. Since the problem ``pygame.ftfont``
+solves no longer exists, it will likely be removed in the future.
 
 .. function:: init
 
@@ -76,6 +78,21 @@ loaded instead.
    module, but it can also be bundled in separate archives.
 
    .. ## pygame.font.get_default_font ##
+
+.. function:: get_sdl_ttf_version
+
+   | :sl:`gets SDL_ttf version`
+   | :sg:`get_sdl_ttf_version(linked=True) -> (major, minor, patch)`
+
+   Returns a tuple of integers that identify SDL_ttf's version.
+   SDL_ttf is the underlying font rendering library, written in C,
+   on which pygame's font module depends. If 'linked' is True (the default), 
+   the function returns the version of the linked TTF library. 
+   Otherwise this function returns the version of TTF pygame was compiled with
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.font.get_sdl_ttf_version ##
 
 .. function:: get_fonts
 
@@ -141,15 +158,14 @@ loaded instead.
    | :sg:`Font(object, size) -> Font`
 
    Load a new font from a given filename or a python file object. The size is
-   the height of the font in pixels. If the filename is None the pygame default
-   font will be loaded. If a font cannot be loaded from the arguments given an
-   exception will be raised. Once the font is created the size cannot be
-   changed.
+   the height of the font in pixels. If the filename is ``None`` the pygame
+   default font will be loaded. If a font cannot be loaded from the arguments
+   given an exception will be raised. Once the font is created the size cannot
+   be changed.
 
    Font objects are mainly used to render text into new Surface objects. The
    render can emulate bold or italic features, but it is better to load from a
-   font with actual italic or bold glyphs. The rendered text can be regular
-   strings or unicode.
+   font with actual italic or bold glyphs.
 
    .. attribute:: bold
 
@@ -206,25 +222,25 @@ loaded instead.
       | :sl:`draw text on a new Surface`
       | :sg:`render(text, antialias, color, background=None) -> Surface`
 
-      This creates a new Surface with the specified text rendered on it. pygame
-      provides no way to directly draw text on an existing Surface: instead you
-      must use ``Font.render()`` to create an image (Surface) of the text, then
-      blit this image onto another Surface.
+      This creates a new Surface with the specified text rendered on it. 
+      :mod:`pygame.font` provides no way to directly draw text on an existing
+      Surface: instead you must use :func:`Font.render` to create an image
+      (Surface) of the text, then blit this image onto another Surface.
 
       The text can only be a single line: newline characters are not rendered.
       Null characters ('\x00') raise a TypeError. Both Unicode and char (byte)
       strings are accepted. For Unicode strings only UCS-2 characters
-      ('\u0001' to '\uFFFF') were previously supported and any greater unicode
-      codepoint would raise a UnicodeError. Now, characters in the UCS-4 range
-      are supported. For char strings a ``LATIN1`` encoding is assumed. The
-      antialias argument is a boolean: if true the characters will have smooth
-      edges. The color argument is the color of the text
+      ('\\u0001' to '\\uFFFF') were previously supported and any greater
+      unicode codepoint would raise a UnicodeError. Now, characters in the
+      UCS-4 range are supported. For char strings a ``LATIN1`` encoding is
+      assumed. The antialias argument is a boolean: if True the characters
+      will have smooth edges. The color argument is the color of the text
       [e.g.: (0,0,255) for blue]. The optional background argument is a color
       to use for the text background. If no background is passed the area
       outside the text will be transparent.
 
       The Surface returned will be of the dimensions required to hold the text.
-      (the same as those returned by Font.size()). If an empty string is passed
+      (the same as those returned by :func:`Font.size`). If an empty string is passed
       for the text, a blank surface will be returned that is zero pixel wide and
       the height of the font.
 
@@ -243,7 +259,7 @@ loaded instead.
       colorkey rather than (much less efficient) alpha values.
 
       If you render '\\n' an unknown char will be rendered. Usually a
-      rectangle. Instead you need to handle new lines yourself.
+      rectangle. Instead you need to handle newlines yourself.
 
       Font rendering is not thread safe: only a single thread can render text
       at any time.
@@ -262,7 +278,7 @@ loaded instead.
 
       Returns the dimensions needed to render the text. This can be used to
       help determine the positioning needed for text before it is rendered. It
-      can also be used for wordwrapping and other layout effects.
+      can also be used for word wrapping and other layout effects.
 
       Be aware that most fonts use kerning which adjusts the widths for
       specific letter pairs. For example, the width for "ae" will not always

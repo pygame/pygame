@@ -429,7 +429,7 @@ _pg_rw_close(SDL_RWops *context)
     Py_XDECREF(helper->close);
     Py_XDECREF(helper->file);
 
-    PyMem_Del(helper);
+    PyMem_Free(helper);
 #ifdef WITH_THREAD
     PyGILState_Release(state);
 #endif /* WITH_THREAD */
@@ -455,13 +455,13 @@ pgRWops_FromFileObject(PyObject *obj)
     if (helper->fileno == -1)
         PyErr_Clear();
     if (fetch_object_methods(helper, obj)) {
-        PyMem_Del(helper);
+        PyMem_Free(helper);
         return NULL;
     }
 
     rw = SDL_AllocRW();
     if (rw == NULL) {
-        PyMem_Del(helper);
+        PyMem_Free(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
 
@@ -691,7 +691,6 @@ _rwops_from_pystr(PyObject *obj)
     }
 
     encoded = PyBytes_AS_STRING(oencoded);
-    Py_DECREF(oencoded);
 
     rw = SDL_RWFromFile(encoded, "rb");
     if (rw) {
@@ -710,9 +709,11 @@ _rwops_from_pystr(PyObject *obj)
             strcpy(extension, ext);
         }
         rw->hidden.unknown.data1 = (void *)extension;
+        Py_DECREF(oencoded);
         return rw;
     }
 
+    Py_DECREF(oencoded);
     /* Clear SDL error and set our own error message for filenotfound errors
      * TODO: Check SDL error here and forward any non filenotfound related
      * errors correctly here */

@@ -10,6 +10,7 @@ Demonstrating several Font object attributes.
 """
 import pygame as pg
 
+
 def main():
     # initialize
     pg.init()
