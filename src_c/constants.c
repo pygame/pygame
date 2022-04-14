@@ -27,12 +27,15 @@
 #include "scrap.h"
 
 /* macros used to create each constant */
-#define ADD_ERROR(x)       \
-    {                      \
-        Py_DECREF(module); \
-        return NULL;       \
-    }                      \
-    else { PyList_Append(all_list, PyUnicode_FromString(x)); }
+#define ADD_ERROR(x)                                      \
+    {                                                     \
+        Py_DECREF(module);                                \
+        return NULL;                                      \
+    }                                                     \
+    else                                                  \
+    {                                                     \
+        PyList_Append(all_list, PyUnicode_FromString(x)); \
+    }
 #define STRINGIZE(x) #x
 #define DEC_CONSTS_(x, y)                           \
     if (PyModule_AddIntConstant(module, x, (int)y)) \
