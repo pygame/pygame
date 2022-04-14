@@ -644,7 +644,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     }
     else if (op != (OP_MUL | OP_ARG_VECTOR) &&
              op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
-        ret = (pgVector *)_vector_subtype_new(Py_TYPE(o1), dim);
+        ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
         if (ret == NULL)
             return NULL;
     }
