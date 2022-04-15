@@ -18,7 +18,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install bash wget
             cd /home/runner/work/pygame
-            git checkout https://github.com/pmp-p/python-wasm-plus.git
+            git clone https://github.com/pmp-p/python-wasm-plus.git
             mkdir /home/runner/work/pygame/python-wasm-plus/src
             mv pygame /home/runner/work/pygame/python-wasm-plus/src/pygame-wasm
             cd python-wasm-plus
