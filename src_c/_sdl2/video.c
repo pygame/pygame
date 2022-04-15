@@ -1296,6 +1296,29 @@ static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObje
 /* PyObjectCallOneArg.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
+/* IncludeStringH.proto */
+#include <string.h>
+
+/* decode_c_string_utf16.proto */
+static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16(const char *s, Py_ssize_t size, const char *errors) {
+    int byteorder = 0;
+    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
+}
+static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16LE(const char *s, Py_ssize_t size, const char *errors) {
+    int byteorder = -1;
+    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
+}
+static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16BE(const char *s, Py_ssize_t size, const char *errors) {
+    int byteorder = 1;
+    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
+}
+
+/* decode_c_string.proto */
+static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
+         const char* cstring, Py_ssize_t start, Py_ssize_t stop,
+         const char* encoding, const char* errors,
+         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors));
+
 /* PyObjectSetAttrStr.proto */
 #if CYTHON_USE_TYPE_SLOTS
 #define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
@@ -1512,29 +1535,6 @@ static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb);
 
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
-
-/* IncludeStringH.proto */
-#include <string.h>
-
-/* decode_c_string_utf16.proto */
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = 0;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16LE(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = -1;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16BE(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = 1;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-
-/* decode_c_string.proto */
-static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
-         const char* cstring, Py_ssize_t start, Py_ssize_t stop,
-         const char* encoding, const char* errors,
-         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors));
 
 /* WriteUnraisableException.proto */
 static void __Pyx_WriteUnraisable(const char *name, int clineno,
@@ -2780,6 +2780,7 @@ static PyObject *__pyx_gb_6pygame_5_sdl2_5video_2generator(__pyx_CoroutineObject
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
+  char const *__pyx_t_5;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2819,7 +2820,7 @@ static PyObject *__pyx_gb_6pygame_5_sdl2_5video_2generator(__pyx_CoroutineObject
  *     for ind from 0 <= ind < num:
  *         SDL_GetRenderDriverInfo(ind, &info)             # <<<<<<<<<<<<<<
  *         ret = RendererDriverInfo()
- *         ret.name = info.name
+ *         ret.name = info.name.decode("utf-8")
  */
     (void)(SDL_GetRenderDriverInfo(__pyx_cur_scope->__pyx_v_ind, (&__pyx_cur_scope->__pyx_v_info)));
 
@@ -2827,7 +2828,7 @@ static PyObject *__pyx_gb_6pygame_5_sdl2_5video_2generator(__pyx_CoroutineObject
  *     for ind from 0 <= ind < num:
  *         SDL_GetRenderDriverInfo(ind, &info)
  *         ret = RendererDriverInfo()             # <<<<<<<<<<<<<<
- *         ret.name = info.name
+ *         ret.name = info.name.decode("utf-8")
  *         ret.flags = info.flags
  */
     __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_RendererDriverInfo); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
@@ -2855,18 +2856,19 @@ static PyObject *__pyx_gb_6pygame_5_sdl2_5video_2generator(__pyx_CoroutineObject
     /* "pygame/_sdl2/video.pyx":82
  *         SDL_GetRenderDriverInfo(ind, &info)
  *         ret = RendererDriverInfo()
- *         ret.name = info.name             # <<<<<<<<<<<<<<
+ *         ret.name = info.name.decode("utf-8")             # <<<<<<<<<<<<<<
  *         ret.flags = info.flags
  *         ret.num_texture_formats = info.num_texture_formats
  */
-    __pyx_t_2 = __Pyx_PyBytes_FromString(__pyx_cur_scope->__pyx_v_info.name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __pyx_t_5 = __pyx_cur_scope->__pyx_v_info.name;
+    __pyx_t_2 = __Pyx_decode_c_string(__pyx_t_5, 0, strlen(__pyx_t_5), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_ret, __pyx_n_s_name_2, __pyx_t_2) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "pygame/_sdl2/video.pyx":83
  *         ret = RendererDriverInfo()
- *         ret.name = info.name
+ *         ret.name = info.name.decode("utf-8")
  *         ret.flags = info.flags             # <<<<<<<<<<<<<<
  *         ret.num_texture_formats = info.num_texture_formats
  *         ret.max_texture_width = info.max_texture_width
@@ -2877,7 +2879,7 @@ static PyObject *__pyx_gb_6pygame_5_sdl2_5video_2generator(__pyx_CoroutineObject
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "pygame/_sdl2/video.pyx":84
- *         ret.name = info.name
+ *         ret.name = info.name.decode("utf-8")
  *         ret.flags = info.flags
  *         ret.num_texture_formats = info.num_texture_formats             # <<<<<<<<<<<<<<
  *         ret.max_texture_width = info.max_texture_width
@@ -21933,6 +21935,39 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 }
 #endif
 
+/* decode_c_string */
+static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
+         const char* cstring, Py_ssize_t start, Py_ssize_t stop,
+         const char* encoding, const char* errors,
+         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors)) {
+    Py_ssize_t length;
+    if (unlikely((start < 0) | (stop < 0))) {
+        size_t slen = strlen(cstring);
+        if (unlikely(slen > (size_t) PY_SSIZE_T_MAX)) {
+            PyErr_SetString(PyExc_OverflowError,
+                            "c-string too long to convert to Python");
+            return NULL;
+        }
+        length = (Py_ssize_t) slen;
+        if (start < 0) {
+            start += length;
+            if (start < 0)
+                start = 0;
+        }
+        if (stop < 0)
+            stop += length;
+    }
+    if (unlikely(stop <= start))
+        return __Pyx_NewRef(__pyx_empty_unicode);
+    length = stop - start;
+    cstring += start;
+    if (decode_func) {
+        return decode_func(cstring, length, errors);
+    } else {
+        return PyUnicode_Decode(cstring, length, encoding, errors);
+    }
+}
+
 /* PyObjectSetAttrStr */
 #if CYTHON_USE_TYPE_SLOTS
 static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
@@ -23270,39 +23305,6 @@ bad:
     Py_XDECREF(empty_list);
     Py_XDECREF(empty_dict);
     return module;
-}
-
-/* decode_c_string */
-static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
-         const char* cstring, Py_ssize_t start, Py_ssize_t stop,
-         const char* encoding, const char* errors,
-         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors)) {
-    Py_ssize_t length;
-    if (unlikely((start < 0) | (stop < 0))) {
-        size_t slen = strlen(cstring);
-        if (unlikely(slen > (size_t) PY_SSIZE_T_MAX)) {
-            PyErr_SetString(PyExc_OverflowError,
-                            "c-string too long to convert to Python");
-            return NULL;
-        }
-        length = (Py_ssize_t) slen;
-        if (start < 0) {
-            start += length;
-            if (start < 0)
-                start = 0;
-        }
-        if (stop < 0)
-            stop += length;
-    }
-    if (unlikely(stop <= start))
-        return __Pyx_NewRef(__pyx_empty_unicode);
-    length = stop - start;
-    cstring += start;
-    if (decode_func) {
-        return decode_func(cstring, length, errors);
-    } else {
-        return PyUnicode_Decode(cstring, length, encoding, errors);
-    }
 }
 
 /* WriteUnraisableException */

@@ -50,24 +50,7 @@
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
 
-/* The structure passed to the low level blit functions */
-typedef struct {
-    int width;
-    int height;
-    Uint8 *s_pixels;
-    int s_pxskip;
-    int s_skip;
-    Uint8 *d_pixels;
-    int d_pxskip;
-    int d_skip;
-    SDL_PixelFormat *src;
-    SDL_PixelFormat *dst;
-    Uint8 src_blanket_alpha;
-    int src_has_colorkey;
-    Uint32 src_colorkey;
-    SDL_BlendMode src_blend;
-    SDL_BlendMode dst_blend;
-} SDL_BlitInfo;
+#include "simd_blitters.h"
 
 static void
 alphablit_alpha(SDL_BlitInfo *info);
@@ -302,6 +285,46 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MULT: {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgba_mul_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgba_mul_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgba_mul_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+                    /* if we call MULT_RGBA on a surface without alpha
+                       we will be forced down this slow non-SIMD path
+                       right now. When we upgrade RGB_MULT to SIMD
+                       force them down there instead*/
                     blit_blend_rgba_mul(&info);
                     break;
                 }
@@ -665,7 +688,9 @@ blit_blend_rgba_mul(SDL_BlitInfo *info)
             LOOP_UNROLLED4(
                 {
                     REPEAT_4({
-                        tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) >> 8 : 0;
+                        tmp = ((*dst) && (*src))
+                                  ? (((*dst) * (*src)) + 255) >> 8
+                                  : 0;
                         (*dst) = (tmp <= 255 ? tmp : 255);
                         src += incr;
                         dst += incr;
@@ -1764,17 +1789,20 @@ blit_blend_mul(SDL_BlitInfo *info)
         while (height--) {
             LOOP_UNROLLED4(
                 {
-                    tmp = ((dst[dstoffsetR] && src[srcoffsetR])
-                               ? (dst[dstoffsetR] * src[srcoffsetR]) >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetR] && src[srcoffsetR])
+                             ? ((dst[dstoffsetR] * src[srcoffsetR]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
-                    tmp = ((dst[dstoffsetG] && src[srcoffsetG])
-                               ? (dst[dstoffsetG] * src[srcoffsetG]) >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetG] && src[srcoffsetG])
+                             ? ((dst[dstoffsetG] * src[srcoffsetG]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
-                    tmp = ((dst[dstoffsetB] && src[srcoffsetB])
-                               ? (dst[dstoffsetB] * src[srcoffsetB]) >> 8
-                               : 0);
+                    tmp =
+                        ((dst[dstoffsetB] && src[srcoffsetB])
+                             ? ((dst[dstoffsetB] * src[srcoffsetB]) + 255) >> 8
+                             : 0);
                     dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
                     src += srcpxskip;
                     dst += dstpxskip;
@@ -2572,7 +2600,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#else  /* 32 bit 2 pixel path */
+#else
 
         /* two pixels at a time - 32 bit version - only works when blit width
            is an even number */
@@ -2681,7 +2709,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#endif /* 32 bit 2 pixel path */
+#endif
     }
     else {
         /* one pixel at a time */
@@ -2897,7 +2925,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#else  /* 32 bit */
+#else
 
         /* two pixels at a time - 32 bit version - only works when blit width
            is an even number */
@@ -2966,7 +2994,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
             srcp64 += srcskip;
             dstp64 += dstskip;
         }
-#endif /* 32 bit */
+#endif
     }
     else {
         /* one pixel at a time */

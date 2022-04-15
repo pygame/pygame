@@ -321,6 +321,11 @@ try:
 except (ImportError, IOError):
     fastevent = MissingModule("fastevent", urgent=0)
 
+try:
+    import pygame.context
+except (ImportError, IOError):
+    context = MissingModule("context", urgent=0)
+
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
 # programs get everything they need (like py2exe)
