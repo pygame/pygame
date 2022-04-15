@@ -6,7 +6,7 @@
 #define PYGAMEAPI_BASE_INTERNAL
 #define PYGAMEAPI_SURFACE_INTERNAL
 
-#define pgSurface_New(surface) pgSurface_New2((surface), 1)
+#define pgSurface_New(surface) (pgSurfaceObject *)pgSurface_New2((surface), 1)
 #define pgSurface_NewNoOwn(surface) \
     (pgSurfaceObject *)pgSurface_New2((surface), 0)
 
@@ -137,6 +137,12 @@ PyInit_controller(void);
 PyMODINIT_FUNC
 PyInit_transform(void);
 
+PyMODINIT_FUNC
+PyInit_video(void);
+
+PyMODINIT_FUNC
+PyInit__sprite(void);
+
 void
 PyGame_static_init()
 {
@@ -164,6 +170,8 @@ PyGame_static_init()
     PyImport_AppendInittab("pygame_event", PyInit_event);
     PyImport_AppendInittab("pygame_joystick", PyInit_joystick);
     PyImport_AppendInittab("pygame_time", PyInit_pg_time);
+    PyImport_AppendInittab("pygame_sdl2_video", PyInit_video);
+    PyImport_AppendInittab("pygame_sprite", PyInit__sprite);
     PyImport_AppendInittab("pygame__sdl2_sdl2", PyInit_sdl2);
     PyImport_AppendInittab("pygame__sdl2_sdl2_mixer", PyInit_mixer);
     PyImport_AppendInittab("pygame__sdl2_controller", PyInit_controller);
