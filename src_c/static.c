@@ -7,7 +7,8 @@
 #define PYGAMEAPI_SURFACE_INTERNAL
 
 #define pgSurface_New(surface) pgSurface_New2((surface), 1)
-#define pgSurface_NewNoOwn(surface) (pgSurfaceObject *)pgSurface_New2((surface), 0)
+#define pgSurface_NewNoOwn(surface) \
+    (pgSurfaceObject *)pgSurface_New2((surface), 0)
 
 #include "pygame.h"
 #include "Python.h"
@@ -266,7 +267,6 @@ PyGame_static_init()
 #include "pixelarray.c"
 #include "pixelcopy.c"
 #include "newbuffer.c"
-
 
 #include "_sdl2/controller.c"
 #include "_sdl2/touch.c"
