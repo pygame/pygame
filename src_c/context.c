@@ -26,9 +26,84 @@ pg_context_get_pref_path(PyObject *self, PyObject *args, PyObject *kwargs)
     return ret;
 }
 
+static PyObject *
+pg_context_get_pref_locales(PyObject *self, PyObject *_null)
+{
+    PyObject *ret_list = PyList_New(0);
+    if (!ret_list) {
+        return NULL;
+    }
+
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+    PyObject *dict, *val = NULL;
+    SDL_Locale *locales = SDL_GetPreferredLocales();
+    if (!locales) {
+        /* Return an empty list if SDL function does not return any useful
+         * information */
+        return ret_list;
+    }
+
+    SDL_Locale *current_locale = locales;
+
+    /* The array is terminated when the language attribute of the last struct
+     * in the array is NULL */
+    while (current_locale->language) {
+        dict = PyDict_New();
+        if (!dict) {
+            goto error;
+        }
+
+        val = PyUnicode_FromString(current_locale->language);
+        if (!val) {
+            goto error;
+        }
+        if (PyDict_SetItemString(dict, "language", val)) {
+            goto error;
+        }
+        Py_DECREF(val);
+
+        if (current_locale->country) {
+            val = PyUnicode_FromString(current_locale->country);
+            if (!val) {
+                goto error;
+            }
+        }
+        else {
+            Py_INCREF(Py_None);
+            val = Py_None;
+        }
+        if (PyDict_SetItemString(dict, "country", val)) {
+            goto error;
+        }
+        Py_DECREF(val);
+
+        /* reset val to NULL because goto XDECREF's this */
+        val = NULL;
+        if (PyList_Append(ret_list, dict)) {
+            goto error;
+        }
+        Py_DECREF(dict);
+        current_locale++;
+    }
+
+    SDL_free(locales);
+    return ret_list;
+error:
+    Py_XDECREF(val);
+    Py_XDECREF(dict);
+    SDL_free(locales);
+    Py_DECREF(ret_list);
+    return NULL;
+#else
+    return ret_list;
+#endif
+}
+
 static PyMethodDef _context_methods[] = {
     {"get_pref_path", (PyCFunction)pg_context_get_pref_path,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMECONTEXTGETPREFPATH},
+    {"get_pref_locales", pg_context_get_pref_locales, METH_NOARGS,
+     DOC_PYGAMECONTEXTGETPREFLOCALES},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(context)
