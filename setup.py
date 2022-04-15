@@ -793,6 +793,7 @@ class LintFormatCommand(Command):
         import subprocess
         import sys
         import warnings
+        import pathlib
 
         def check_linter_exists(linter):
             if shutil.which(linter) is None:
@@ -800,9 +801,36 @@ class LintFormatCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
-        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
-        c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+        def filter_files(path_obj, all_files, allowed_files, disallowed_files):
+            files = []
+            for file in all_files:
+                for disallowed in disallowed_files:
+                    if file.match(str(path_obj / disallowed)):
+                        break
+                else:  # no-break
+                    files.append(str(file))
+                    continue
+
+                for allowed in allowed_files:
+                    if file.match(str(path_obj / allowed)):
+                        files.append(str(file))
+                        break
+
+            return files
+
+        path_obj = pathlib.Path(path, "src_c")
+        c_files_unfiltered = path_obj.glob("**/*.[ch]")
+        c_file_disallow = [
+            "_sdl2/**",
+            "pypm.c",
+            "SDL_gfx/**",
+            "**/sse2neon.h",
+            "doc/**",
+            "_sprite.c",
+        ]
+        c_file_allow = ["_sdl2/touch.c"]
+        c_files = filter_files(path_obj, c_files_unfiltered, c_file_allow, c_file_disallow)
+
 
         # Other files have too many issues for now. setup.py, buildconfig, etc
         python_directories = ["src_py", "test", "examples"]
