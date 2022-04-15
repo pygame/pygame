@@ -44,6 +44,9 @@ pg_context_get_pref_locales(PyObject *self, PyObject *_null)
     }
 
     SDL_Locale *current_locale = locales;
+
+    /* The array is terminated when the language attribute of the last struct
+     * in the array is NULL */
     while (current_locale->language) {
         dict = PyDict_New();
         if (!dict) {
