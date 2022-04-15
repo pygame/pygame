@@ -44,6 +44,7 @@ from pygame import (
     surface as surface,
     surflock as surflock,
     sysfont as sysfont,
+    context as context,
 )
 
 from .rect import Rect as Rect
