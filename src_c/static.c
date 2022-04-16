@@ -230,7 +230,7 @@ PyGame_static_init()
 
 #include "rwobject.c"
 
-#define pgSurface_New(surface) pgSurface_New2((surface), 1)
+#define pgSurface_New(surface) (pgSurfaceObject *)pgSurface_New2((surface), 1)
 #include "image.c"
 
 #include "imageext.c"
