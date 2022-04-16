@@ -1369,16 +1369,6 @@ class RectTypeTest(unittest.TestCase):
         # Bug for an empty list. Would return a Rect instead of None.
         self.assertTrue(r1.unionall_ip([]) is None)
 
-    def test_unionall__invalid_rect_format(self):
-        """Ensures unionall_ip correctly handles invalid rect parameters."""
-        numbers = [0, 1.2, 2, 3.3]
-        strs = ["a", "b", "c"]
-        nones = [None, None]
-
-        for invalid_rects in (numbers, strs, nones):
-            with self.assertRaises(TypeError):
-                Rect(0, 0, 1, 1).unionall_ip(invalid_rects)
-
     def test_colliderect(self):
         r1 = Rect(1, 2, 3, 4)
         self.assertTrue(
@@ -2072,6 +2062,27 @@ class RectTypeTest(unittest.TestCase):
         def __init__(self, r):
             self.rect = r
 
+    class _ObjectWithCallableRectAttribute:
+        def __init__(self, r):
+            self._rect = r
+
+        def rect(self):
+            return self._rect
+
+    class _ObjectWithRectProperty:
+        def __init__(self, r):
+            self._rect = r
+
+        @property
+        def rect(self):
+            return self._rect
+
+    class _ObjectWithMultipleRectAttribute:
+        def __init__(self, r1, r2, r3):
+            self.rect1 = r1
+            self.rect2 = r2
+            self.rect3 = r3
+
     def test_collidelistall_list_of_object_with_rect_attribute(self):
         r = Rect(1, 1, 10, 10)
 
@@ -2088,13 +2099,6 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithRectAttribute(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
-
-    class _ObjectWithCallableRectAttribute:
-        def __init__(self, r):
-            self._rect = r
-
-        def rect(self):
-            return self._rect
 
     def test_collidelistall_list_of_object_with_callable_rect_attribute(self):
         r = Rect(1, 1, 10, 10)
@@ -2140,14 +2144,6 @@ class RectTypeTest(unittest.TestCase):
         ]
         self.assertFalse(r.collidelistall(f))
 
-    class _ObjectWithRectProperty:
-        def __init__(self, r):
-            self._rect = r
-
-        @property
-        def rect(self):
-            return self._rect
-
     def test_collidelistall_list_of_object_with_rect_property(self):
         r = Rect(1, 1, 10, 10)
 
@@ -2164,6 +2160,296 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithRectProperty(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+
+    def test_collideobjects_call_variants(self):
+        # arrange
+        r = Rect(1, 1, 10, 10)
+        rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
+        objects = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+        ]
+
+        # act / verify
+        r.collideobjects(rects)
+        r.collideobjects(rects, key=None)
+        r.collideobjects(objects, key=lambda o: o.rect1)
+        self.assertRaises(TypeError, r.collideobjects, objects)
+
+    def test_collideobjects_without_key(self):
+        r = Rect(1, 1, 10, 10)
+        types_to_test = [
+            [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(4, 4, 1, 1)],
+            [
+                self._ObjectWithRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectAttribute(Rect(5, 5, 10, 10)),
+                self._ObjectWithRectAttribute(Rect(4, 4, 1, 1)),
+            ],
+            [
+                self._ObjectWithRectProperty(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectProperty(Rect(5, 5, 10, 10)),
+                self._ObjectWithRectProperty(Rect(4, 4, 1, 1)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithCallableRectAttribute(Rect(5, 5, 10, 10)),
+                self._ObjectWithCallableRectAttribute(Rect(4, 4, 1, 1)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(50, 50, 1, 1))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(5, 5, 10, 10))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(4, 4, 1, 1))
+                ),
+            ],
+            [(50, 50, 1, 1), (5, 5, 10, 10), (4, 4, 1, 1)],
+            [((50, 50), (1, 1)), ((5, 5), (10, 10)), ((4, 4), (1, 1))],
+            [[50, 50, 1, 1], [5, 5, 10, 10], [4, 4, 1, 1]],
+            [
+                Rect(50, 50, 1, 1),
+                self._ObjectWithRectAttribute(Rect(5, 5, 10, 10)),
+                (4, 4, 1, 1),
+            ],  # mix
+        ]
+
+        for l in types_to_test:
+            with self.subTest(type=l[0].__class__.__name__):
+                # act
+                actual = r.collideobjects(l)
+                # assert
+                self.assertEqual(actual, l[1])
+
+        types_to_test = [
+            [Rect(50, 50, 1, 1), Rect(100, 100, 4, 4)],
+            [
+                self._ObjectWithRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectAttribute(Rect(100, 100, 4, 4)),
+            ],
+            [
+                self._ObjectWithRectProperty(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectProperty(Rect(100, 100, 4, 4)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithCallableRectAttribute(Rect(100, 100, 4, 4)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(50, 50, 1, 1))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(100, 100, 4, 4))
+                ),
+            ],
+            [(50, 50, 1, 1), (100, 100, 4, 4)],
+            [((50, 50), (1, 1)), ((100, 100), (4, 4))],
+            [[50, 50, 1, 1], [100, 100, 4, 4]],
+            [Rect(50, 50, 1, 1), [100, 100, 4, 4]],  # mix
+        ]
+
+        for f in types_to_test:
+            with self.subTest(type=f[0].__class__.__name__, expected=None):
+                # act
+                actual = r.collideobjects(f)
+                # assert
+                self.assertEqual(actual, None)
+
+    def test_collideobjects_list_of_object_with_multiple_rect_attribute(self):
+        r = Rect(1, 1, 10, 10)
+
+        things = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 1, 10, 10), Rect(5, 5, 1, 1), Rect(-73, 3, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(5, 5, 10, 10), Rect(-5, -5, 10, 10), Rect(3, 3, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(15, 15, 1, 1), Rect(100, 1, 1, 1), Rect(3, 83, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(2, 2, 1, 1), Rect(1, -81, 10, 10), Rect(3, 8, 3, 3)
+            ),
+        ]
+        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect1), things[0])
+        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect2), things[0])
+        self.assertEqual(r.collideobjects(things, key=lambda o: o.rect3), things[1])
+
+        f = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(50, 50, 1, 1), Rect(11, 1, 1, 1), Rect(2, -32, 2, 2)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(20, 20, 5, 5), Rect(1, 11, 1, 1), Rect(-20, 2, 2, 2)
+            ),
+        ]
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
+
+    def test_collideobjectsall_call_variants(self):
+        # arrange
+        r = Rect(1, 1, 10, 10)
+        rects = [Rect(1, 2, 3, 4), Rect(10, 20, 30, 40)]
+        objects = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 2, 3, 4), Rect(10, 20, 30, 40), Rect(100, 200, 300, 400)
+            ),
+        ]
+
+        # act / verify
+        r.collideobjectsall(rects)
+        r.collideobjectsall(rects, key=None)
+        r.collideobjectsall(objects, key=lambda o: o.rect1)
+        self.assertRaises(TypeError, r.collideobjectsall, objects)
+
+    def test_collideobjectsall(self):
+        r = Rect(1, 1, 10, 10)
+
+        types_to_test = [
+            [
+                Rect(1, 1, 10, 10),
+                Rect(5, 5, 10, 10),
+                Rect(15, 15, 1, 1),
+                Rect(2, 2, 1, 1),
+            ],
+            [
+                (1, 1, 10, 10),
+                (5, 5, 10, 10),
+                (15, 15, 1, 1),
+                (2, 2, 1, 1),
+            ],
+            [
+                ((1, 1), (10, 10)),
+                ((5, 5), (10, 10)),
+                ((15, 15), (1, 1)),
+                ((2, 2), (1, 1)),
+            ],
+            [
+                [1, 1, 10, 10],
+                [5, 5, 10, 10],
+                [15, 15, 1, 1],
+                [2, 2, 1, 1],
+            ],
+            [
+                self._ObjectWithRectAttribute(Rect(1, 1, 10, 10)),
+                self._ObjectWithRectAttribute(Rect(5, 5, 10, 10)),
+                self._ObjectWithRectAttribute(Rect(15, 15, 1, 1)),
+                self._ObjectWithRectAttribute(Rect(2, 2, 1, 1)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(Rect(1, 1, 10, 10)),
+                self._ObjectWithCallableRectAttribute(Rect(5, 5, 10, 10)),
+                self._ObjectWithCallableRectAttribute(Rect(15, 15, 1, 1)),
+                self._ObjectWithCallableRectAttribute(Rect(2, 2, 1, 1)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(1, 1, 10, 10))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(5, 5, 10, 10))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(15, 15, 1, 1))
+                ),
+                self._ObjectWithCallableRectAttribute(
+                    self._ObjectWithRectAttribute(Rect(2, 2, 1, 1))
+                ),
+            ],
+            [
+                self._ObjectWithRectProperty(Rect(1, 1, 10, 10)),
+                self._ObjectWithRectProperty(Rect(5, 5, 10, 10)),
+                self._ObjectWithRectProperty(Rect(15, 15, 1, 1)),
+                self._ObjectWithRectProperty(Rect(2, 2, 1, 1)),
+            ],
+        ]
+        for things in types_to_test:
+            with self.subTest(type=things[0].__class__.__name__):
+                # act
+                actual = r.collideobjectsall(things, key=None)
+                # assert
+                self.assertEqual(actual, [things[0], things[1], things[3]])
+
+        types_to_test = [
+            [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)],
+            [(50, 50, 1, 1), (20, 20, 5, 5)],
+            [((50, 50), (1, 1)), ((20, 20), (5, 5))],
+            [[50, 50, 1, 1], [20, 20, 5, 5]],
+            [
+                self._ObjectWithRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectAttribute(Rect(20, 20, 5, 5)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
+            ],
+            [
+                self._ObjectWithCallableRectAttribute(Rect(50, 50, 1, 1)),
+                self._ObjectWithCallableRectAttribute(Rect(20, 20, 5, 5)),
+            ],
+            [
+                self._ObjectWithRectProperty(Rect(50, 50, 1, 1)),
+                self._ObjectWithRectProperty(Rect(20, 20, 5, 5)),
+            ],
+        ]
+        for f in types_to_test:
+            with self.subTest(type=f[0].__class__.__name__, expected=None):
+                # act
+                actual = r.collideobjectsall(f)
+                # assert
+                self.assertFalse(actual)
+
+    def test_collideobjectsall_list_of_object_with_multiple_rect_attribute(self):
+        r = Rect(1, 1, 10, 10)
+
+        things = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(1, 1, 10, 10), Rect(5, 5, 1, 1), Rect(-73, 3, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(5, 5, 10, 10), Rect(-5, -5, 10, 10), Rect(3, 3, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(15, 15, 1, 1), Rect(100, 1, 1, 1), Rect(3, 83, 3, 3)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(2, 2, 1, 1), Rect(1, -81, 10, 10), Rect(3, 8, 3, 3)
+            ),
+        ]
+        self.assertEqual(
+            r.collideobjectsall(things, key=lambda o: o.rect1),
+            [things[0], things[1], things[3]],
+        )
+        self.assertEqual(
+            r.collideobjectsall(things, key=lambda o: o.rect2), [things[0], things[1]]
+        )
+        self.assertEqual(
+            r.collideobjectsall(things, key=lambda o: o.rect3), [things[1], things[3]]
+        )
+
+        f = [
+            self._ObjectWithMultipleRectAttribute(
+                Rect(50, 50, 1, 1), Rect(11, 1, 1, 1), Rect(2, -32, 2, 2)
+            ),
+            self._ObjectWithMultipleRectAttribute(
+                Rect(20, 20, 5, 5), Rect(1, 11, 1, 1), Rect(-20, 2, 2, 2)
+            ),
+        ]
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect1))
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect2))
+        self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
 
     def test_fit(self):
 
