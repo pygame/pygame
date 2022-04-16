@@ -17,10 +17,10 @@ jobs:
             grep "^Pkg.Revision =" ${ANDROID_HOME}/ndk-bundle/source.properties
             sudo apt-get update
             sudo apt-get install bash wget
-            cd /home/runner/work/pygame
+            cd $GITHUB_WORKSPACE/..
             git clone https://github.com/pmp-p/python-wasm-plus.git
-            mkdir /home/runner/work/pygame/python-wasm-plus/src
-            ln -s $(pwd)/pygame /home/runner/work/pygame/python-wasm-plus/src/pygame-wasm
+            mkdir $GITHUB_WORKSPACE/../python-wasm-plus/src
+            ln -s $(pwd)/pygame GITHUB_WORKSPACE/../python-wasm-plus/src/pygame-wasm
             cd python-wasm-plus
             bash ./python-wasm-plus.sh
             bash ./buildapp.sh
