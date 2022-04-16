@@ -465,6 +465,7 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     if (!SDL_GetWindowWMInfo(win, &info))
         return dict;
 
+    (void)tmp;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
     tmp = PyLong_FromLongLong((long long)info.info.win.window);
     PyDict_SetItemString(dict, "window", tmp);
