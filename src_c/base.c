@@ -2040,20 +2040,6 @@ pg_install_parachute(void)
         }
     }
 
-#if defined(SIGALRM) && defined(HAVE_SIGACTION)
-    { /* Set SIGALRM to be ignored -- necessary on Solaris */
-        struct sigaction action, oaction;
-
-        /* Set SIG_IGN action */
-        memset(&action, 0, (sizeof action));
-        action.sa_handler = SIG_IGN;
-        sigaction(SIGALRM, &action, &oaction);
-        /* Reset original action if it was already being handled */
-        if (oaction.sa_handler != SIG_DFL) {
-            sigaction(SIGALRM, &oaction, NULL);
-        }
-    }
-#endif
 #endif
     return;
 }
