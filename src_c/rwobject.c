@@ -763,8 +763,10 @@ again:
 #endif
 
     rw = _rwops_from_pystr(obj);
+#if __EMSCRIPTEN__
     if (retry)
         Py_XDECREF(obj);
+#endif
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
