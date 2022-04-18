@@ -755,11 +755,13 @@ static SDL_RWops *
 pgRWops_FromObject(PyObject *obj)
 {
     SDL_RWops *rw;
-    int retry = 0;
 
 #if __EMSCRIPTEN__
+    int retry = 0;
 again:
+
 #endif
+
     rw = _rwops_from_pystr(obj);
     if (retry)
         Py_XDECREF(obj);
@@ -770,6 +772,7 @@ again:
     else {
         return rw;
     }
+
 #if __EMSCRIPTEN__
 fail:
     if (retry)
@@ -784,7 +787,6 @@ fail:
     goto fail;
     // unreachable.
 #else
-    (void)retry;
     return pgRWops_FromFileObject(obj);
 #endif
 }
