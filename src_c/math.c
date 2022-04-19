@@ -4025,7 +4025,7 @@ vector_elementwise(pgVector *vec, PyObject *_null)
     if (proxy == NULL)
         return NULL;
     Py_INCREF(vec);
-    proxy->vec = (pgVector *)_vector_subtype_new(Py_TYPE(vec), &pgVectorElementwiseProxy_Type);
+    proxy->vec = (pgVector *)_vector_subtype_new(Py_TYPE(vec), vec->dim);
     // proxy->vec = (pgVector *)vec;
     return (PyObject *)proxy;
 }
