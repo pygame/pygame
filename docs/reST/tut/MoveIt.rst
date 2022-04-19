@@ -469,5 +469,3 @@ issues. So when you're ready to keep learning, keep on reading. :-)
 Lastly, you can feel free to come to the pygame mailing list or chatroom
 with any questions on this stuff. There's always folks on hand who can help
 you out with this sort of business.
-
-Lastly, have fun, that's what games are for!
