@@ -3640,6 +3640,9 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
     }
 
     dim = vec->dim;
+    for (i = 0; i < dim; i++) {
+        printf("%lf ", vec->coords[i]);
+    }
 
     if (vector_elementwiseproxy_Check(other))
         other = (PyObject *)((vector_elementwiseproxy *)other)->vec;
@@ -3657,9 +3660,6 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
         op |= OP_ARG_UNKNOWN;
 
     ret = (pgVector *)_vector_subtype_new(Py_TYPE(vec), dim);
-    for (i = 0; i < dim; i++) {
-        printf("%f ", ret->coords[i]);
-    }
 
     if (ret == NULL) {
         return NULL;
@@ -3671,12 +3671,6 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
         case OP_ADD | OP_ARG_NUMBER:
         case OP_ADD | OP_ARG_NUMBER | OP_ARG_REVERSE:
             for (i = 0; i < dim; i++) {
-                /*printf(" ");
-                printf("%lf", ret->coords[i]);
-                printf(" ");
-                printf("%lf", vec->coords[i]);
-                printf(" ");
-                printf("%lf", other_value);*/
                 ret->coords[i] = vec->coords[i] + other_value;
             }
             break;
