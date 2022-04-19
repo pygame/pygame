@@ -103,6 +103,7 @@ def main(image_file=None):
     background_color = pg.Color("beige")
 
     pg.init()
+    pg.display.set_caption("Scroll Example")
 
     # set up key repeating so we can hold down the key to scroll.
     old_k_delay, old_k_interval = pg.key.get_repeat()
@@ -151,44 +152,25 @@ def main(image_file=None):
 
         going = True
 
-        # scroll events
-        scroll_down = 0
-        scroll_up = 0
-        scroll_left = 0
-        scroll_right = 0
-
         while going:
             # wait for events before doing anything.
             # events = [pg.event.wait()] + pg.event.get()
             events = pg.event.get()
 
-            for e in events:
-                # if a key is pressed, update the scroll event associated with it (or exit the program if it's escape)
-                if e.type == pg.KEYDOWN:
-                    if e.key == pg.K_ESCAPE:
-                        going = False
-                    elif e.key == pg.K_DOWN:
-                        scroll_down = 1
-                    elif e.key == pg.K_UP:
-                        scroll_up = 1
-                    elif e.key == pg.K_LEFT:
-                        scroll_left = 1
-                    elif e.key == pg.K_RIGHT:
-                        scroll_right = 1
+            # During the loop, if a key is held, scroll the view.
+            keys = pg.key.get_pressed()
+            if keys[pg.K_UP]:
+                scroll_view(screen, image, DIR_UP, view_rect)
+            if keys[pg.K_DOWN]:
+                scroll_view(screen, image, DIR_DOWN, view_rect)
+            if keys[pg.K_LEFT]:
+                scroll_view(screen, image, DIR_LEFT, view_rect)
+            if keys[pg.K_RIGHT]:
+                scroll_view(screen, image, DIR_RIGHT, view_rect)
 
-                # if a key is lifted, the scroll event associated with that key will be set to 0.
-                if e.type == pg.KEYUP:
-                    if e.key == pg.K_DOWN:
-                        scroll_down = 0
-                    elif e.key == pg.K_UP:
-                        scroll_up = 0
-                    elif e.key == pg.K_LEFT:
-                        scroll_left = 0
-                    elif e.key == pg.K_RIGHT:
-                        scroll_right = 0
-                
+            for e in events:
                 # quit if the event is quit.
-                elif e.type == pg.QUIT:
+                if e.type == pg.QUIT:
                     going = False
 
                 # handle mouse button presses on arrows.
@@ -197,16 +179,6 @@ def main(image_file=None):
                 elif e.type == pg.MOUSEBUTTONUP:
                     direction = None
             
-            # given a scroll event, preform that action. This enables concurrent presses and multidirectional scrolling.
-            if scroll_up:
-                scroll_view(screen, image, DIR_UP, view_rect)
-            if scroll_down:
-                scroll_view(screen, image, DIR_DOWN, view_rect)
-            if scroll_left:
-                scroll_view(screen, image, DIR_LEFT, view_rect)
-            if scroll_right:
-                scroll_view(screen, image, DIR_RIGHT, view_rect)
-
             if direction:
                 scroll_view(screen, image, direction, view_rect)
             clock.tick(30)
