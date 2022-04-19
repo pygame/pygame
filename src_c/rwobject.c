@@ -754,19 +754,13 @@ simple_case:
 static SDL_RWops *
 pgRWops_FromObject(PyObject *obj)
 {
-    SDL_RWops *rw;
-
 #if __EMSCRIPTEN__
+    SDL_RWops *rw;
     int retry = 0;
 again:
-
-#endif
-
     rw = _rwops_from_pystr(obj);
-#if __EMSCRIPTEN__
     if (retry)
         Py_XDECREF(obj);
-#endif
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
@@ -775,7 +769,6 @@ again:
         return rw;
     }
 
-#if __EMSCRIPTEN__
 fail:
     if (retry)
         return RAISE(PyExc_RuntimeError, "can't access ressource on platform");
@@ -789,6 +782,14 @@ fail:
     goto fail;
     // unreachable.
 #else
+    SDL_RWops *rw = _rwops_from_pystr(obj);
+    if (!rw) {
+        if (PyErr_Occurred())
+            return NULL;
+    }
+    else {
+        return rw;
+    }
     return pgRWops_FromFileObject(obj);
 #endif
 }
