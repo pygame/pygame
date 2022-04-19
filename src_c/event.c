@@ -567,7 +567,7 @@ pg_GetKeyRepeat(int *delay, int *interval)
 }
 
 static PyObject *
-pgEvent_AutoQuit(PyObject *self)
+pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
     if (_pg_event_is_init) {
         if (_pg_repeat_timer) {
@@ -585,7 +585,7 @@ pgEvent_AutoQuit(PyObject *self)
 }
 
 static PyObject *
-pgEvent_AutoInit(PyObject *self)
+pgEvent_AutoInit(PyObject *self, PyObject *_null)
 {
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
@@ -1278,42 +1278,8 @@ PyObject *
 pg_event_str(PyObject *self)
 {
     pgEventObject *e = (pgEventObject *)self;
-    char *str;
-    PyObject *strobj;
-    PyObject *pyobj;
-    char *s;
-    size_t size;
-    PyObject *encodedobj;
-
-    strobj = PyObject_Str(e->dict);
-    if (strobj == NULL) {
-        return NULL;
-    }
-    encodedobj = PyUnicode_AsUTF8String(strobj);
-    Py_DECREF(strobj);
-    strobj = encodedobj;
-    encodedobj = NULL;
-    if (strobj == NULL) {
-        return NULL;
-    }
-    s = PyBytes_AsString(strobj);
-    size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
-            sizeof(e->type) * 3 + 1);
-
-    str = (char *)PyMem_Malloc(size);
-    if (!str) {
-        Py_DECREF(strobj);
-        return PyErr_NoMemory();
-    }
-    sprintf(str, "<Event(%d-%s %s)>", e->type,
-            _pg_name_from_eventtype(e->type), s);
-
-    Py_DECREF(strobj);
-
-    pyobj = PyUnicode_FromString(str);
-    PyMem_Free(str);
-
-    return (pyobj);
+    return PyUnicode_FromFormat("<Event(%d-%s %S)>", e->type,
+                                _pg_name_from_eventtype(e->type), e->dict);
 }
 
 static int
@@ -1323,24 +1289,7 @@ _pg_event_nonzero(pgEventObject *self)
 }
 
 static PyNumberMethods pg_event_as_number = {
-    (binaryfunc)NULL,           /*Add*/
-    (binaryfunc)NULL,           /*subtract*/
-    (binaryfunc)NULL,           /*multiply*/
-    (binaryfunc)NULL,           /*remainder*/
-    (binaryfunc)NULL,           /*divmod*/
-    (ternaryfunc)NULL,          /*power*/
-    (unaryfunc)NULL,            /*negative*/
-    (unaryfunc)NULL,            /*pos*/
-    (unaryfunc)NULL,            /*abs*/
-    (inquiry)_pg_event_nonzero, /*nonzero*/
-    (unaryfunc)NULL,            /*invert*/
-    (binaryfunc)NULL,           /*lshift*/
-    (binaryfunc)NULL,           /*rshift*/
-    (binaryfunc)NULL,           /*and*/
-    (binaryfunc)NULL,           /*xor*/
-    (binaryfunc)NULL,           /*or*/
-    (unaryfunc)NULL,            /*int*/
-    (unaryfunc)NULL,            /*float*/
+    .nb_bool = (inquiry)_pg_event_nonzero,
 };
 
 static PyTypeObject pgEvent_Type;
@@ -1451,48 +1400,24 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgEvent_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Event", /*name*/
-    sizeof(pgEventObject),                  /*basic size*/
-    0,                                      /*itemsize*/
-    pg_event_dealloc,                       /*dealloc*/
-    0,                                      /*print*/
-    0,                                      /*getattr*/
-    0,                                      /*setattr*/
-    0,                                      /*compare*/
-    pg_event_str,                           /*repr*/
-    &pg_event_as_number,                    /*as_number*/
-    0,                                      /*as_sequence*/
-    0,                                      /*as_mapping*/
-    (hashfunc)NULL,                         /*hash*/
-    (ternaryfunc)NULL,                      /*call*/
-    (reprfunc)NULL,                         /*str*/
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    .tp_basicsize = sizeof(pgEventObject),
+    .tp_dealloc = pg_event_dealloc,
+    .tp_repr = pg_event_str,
+    .tp_as_number = &pg_event_as_number,
 #ifdef PYPY_VERSION
-    pg_EventGetAttr, /* tp_getattro */
-    pg_EventSetAttr, /* tp_setattro */
+    .tp_getattro = pg_EventGetAttr,
+    .tp_setattro = pg_EventSetAttr,
 #else
-    PyObject_GenericGetAttr, /* tp_getattro */
-    PyObject_GenericSetAttr, /* tp_setattro */
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_setattro = PyObject_GenericSetAttr,
 #endif
-    0, /* tp_as_buffer */
-    0,
-    DOC_PYGAMEEVENTEVENT,          /* Documentation string */
-    0,                             /* tp_traverse */
-    0,                             /* tp_clear */
-    pg_event_richcompare,          /* tp_richcompare */
-    0,                             /* tp_weaklistoffset */
-    0,                             /* tp_iter */
-    0,                             /* tp_iternext */
-    0,                             /* tp_methods */
-    pg_event_members,              /* tp_members */
-    0,                             /* tp_getset */
-    0,                             /* tp_base */
-    0,                             /* tp_dict */
-    0,                             /* tp_descr_get */
-    0,                             /* tp_descr_set */
-    offsetof(pgEventObject, dict), /* tp_dictoffset */
-    (initproc)pg_event_init,       /* tp_init */
-    0,                             /* tp_alloc */
-    PyType_GenericNew,             /* tp_new */
+    .tp_doc = DOC_PYGAMEEVENTEVENT,
+    .tp_richcompare = pg_event_richcompare,
+    .tp_members = pg_event_members,
+    .tp_dictoffset = offsetof(pgEventObject, dict),
+    .tp_init = (initproc)pg_event_init,
+    .tp_new = PyType_GenericNew,
 };
 
 static PyObject *
@@ -1574,7 +1499,7 @@ set_grab(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-get_grab(PyObject *self)
+get_grab(PyObject *self, PyObject *_null)
 {
     SDL_Window *win;
     SDL_bool mode = SDL_FALSE;
@@ -1629,7 +1554,7 @@ _pg_event_wait(SDL_Event *event, int timeout)
 }
 
 static PyObject *
-pg_event_pump(PyObject *self)
+pg_event_pump(PyObject *self, PyObject *_null)
 {
     VIDEO_INIT_CHECK();
     _pg_event_pump(1);
@@ -1637,7 +1562,7 @@ pg_event_pump(PyObject *self)
 }
 
 static PyObject *
-pg_event_poll(PyObject *self)
+pg_event_poll(PyObject *self, PyObject *_null)
 {
     SDL_Event event;
     VIDEO_INIT_CHECK();
@@ -2192,7 +2117,7 @@ pg_event_get_blocked(PyObject *self, PyObject *obj)
 }
 
 static PyObject *
-pg_event_custom_type(PyObject *self)
+pg_event_custom_type(PyObject *self, PyObject *_null)
 {
     if (_custom_event < PG_NUMEVENTS)
         return PyLong_FromLong(_custom_event++);

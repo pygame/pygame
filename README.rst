@@ -1,10 +1,10 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.svg
+.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/reST/_static/pygame_logo.svg
   :alt: pygame
   :target: https://www.pygame.org/
 
 
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
-|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC|
+|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |BlackFormatBadge|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -126,7 +126,7 @@ NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
 * CPython >= 3.6 or PyPy3
-* SDL >= 2.0.0
+* SDL >= 2.0.1
 * SDL_mixer >= 2.0.0
 * SDL_image >= 2.0.0
 * SDL_ttf >= 2.0.11
@@ -173,6 +173,9 @@ See docs/licenses for licenses of dependencies.
 
 .. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
+
+.. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org

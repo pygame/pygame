@@ -160,7 +160,7 @@ required).
    ::
 
       pygame.FULLSCREEN    create a fullscreen display
-      pygame.DOUBLEBUF     (obsolete in pygame 2) recommended for HWSURFACE or OPENGL
+      pygame.DOUBLEBUF     only applicable with OPENGL
       pygame.HWSURFACE     (obsolete in pygame 2) hardware accelerated, only in FULLSCREEN
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
