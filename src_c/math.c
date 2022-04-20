@@ -135,10 +135,8 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 /* generic vector functions */
 static PyObject *
 _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim);
-/* 
 static PyObject *
 pgVector_NEW(Py_ssize_t dim);
-*/
 static void
 vector_dealloc(pgVector *self);
 static PyObject *
@@ -574,21 +572,40 @@ _vector_subtype_new(PyTypeObject *type, Py_ssize_t dim)
     return (PyObject *)vec;
 }
 
-/*
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
 {
+    pgVector *vec;
     switch (dim) {
         case 2:
-            return _vector_subtype_new(&pgVector2_Type, dim);
+            vec = PyObject_New(pgVector, &pgVector2_Type);
+            break;
         case 3:
-            return _vector_subtype_new(&pgVector3_Type, dim);
+            vec = PyObject_New(pgVector, &pgVector3_Type);
+            break;
+            /*
+                case 4:
+                    vec = PyObject_New(pgVector, &pgVector4_Type);
+                    break;
+            */
         default:
             PyErr_SetString(PyExc_SystemError,
                             "Wrong internal call to pgVector_NEW.\n");
             return NULL;
     }
-}*/
+
+    if (vec != NULL) {
+        vec->dim = dim;
+        vec->epsilon = VECTOR_EPSILON;
+        vec->coords = PyMem_New(double, dim);
+        if (vec->coords == NULL) {
+            Py_DECREF(vec);
+            return PyErr_NoMemory();
+        }
+    }
+
+    return (PyObject *)vec;
+}
 
 static void
 vector_dealloc(pgVector *self)
@@ -1805,7 +1822,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     }
 
     if (len == 2 || len == 3) {
-        res = (PyObject *)_vector_subtype_new(Py_TYPE(self), (int)len);
+        res = (PyObject *)pgVector_NEW((int)len);
     }
     else {
         /* More than 3, we return a tuple. */
