@@ -35,10 +35,7 @@ class TextInput:
     ]
 
     def __init__(
-        self, promt: str,
-        pos, screen_dimensions,
-        print_event: bool,
-        text_color="white"
+        self, promt: str, pos, screen_dimensions, print_event: bool, text_color="white"
     ) -> None:
         self.promt = promt
         self.print_event = print_event
@@ -187,8 +184,7 @@ class Game:
     def __init__(self, caption: str) -> None:
         # Initalize
         pg.init()
-        self.screen = pg.display.set_mode((self.SCREEN_WIDTH,
-                                           self.SCREEN_HEIGHT))
+        self.screen = pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pg.display.set_caption(caption)
         self.clock = pg.time.Clock()
 

@@ -1,11 +1,32 @@
-from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload
+import sys
+from typing import (
+    Dict,
+    Iterator,
+    List,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+    Callable,
+    Any,
+    Optional,
+)
 
 from ._common import Coordinate, Literal, RectValue
 
+if sys.version_info >= (3, 9):
+    from collections.abc import Collection
+else:
+    from typing import Collection
+
 _K = TypeVar("_K")
 _V = TypeVar("_V")
+_T = TypeVar("_T")
 
-class Rect:
+# Rect confirms to the Collection ABC, since it also confirms to
+# Sized, Iterable and Container ABCs
+class Rect(Collection[int]):
     x: int
     y: int
     top: int
@@ -39,6 +60,7 @@ class Rect:
     @overload
     def __init__(self, single_arg: RectValue) -> None: ...
     def __len__(self) -> Literal[4]: ...
+    def __iter__(self) -> Iterator[int]: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload
@@ -126,7 +148,7 @@ class Rect:
     @overload
     def fit(self, left: float, top: float, width: float, height: float) -> Rect: ...
     def normalize(self) -> None: ...
-    def __contains__(self, rect: Union[RectValue, int]) -> bool: ...
+    def __contains__(self, rect: Union[RectValue, int]) -> bool: ...  # type: ignore[override]
     @overload
     def contains(self, rect: RectValue) -> bool: ...
     @overload
@@ -149,6 +171,12 @@ class Rect:
     ) -> bool: ...
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
+    def collideobjectsall(
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> List[_T]: ...
+    def collideobjects(
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> Optional[_T]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.

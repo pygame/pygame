@@ -2257,7 +2257,7 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
             minx = MIN(minx, point_x[i]);
             maxx = MAX(maxx, point_x[i]);
         }
-        draw_line(surf, minx, miny, maxx, miny, color, drawn_area);
+        drawhorzlineclipbounding(surf, color, minx, miny, maxx, drawn_area);
         PyMem_Free(x_intersect);
         return;
     }
@@ -2303,8 +2303,8 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
         qsort(x_intersect, n_intersections, sizeof(int), compare_int);
 
         for (i = 0; (i < n_intersections); i += 2) {
-            draw_line(surf, x_intersect[i], y, x_intersect[i + 1], y, color,
-                      drawn_area);
+            drawhorzlineclipbounding(surf, color, x_intersect[i], y,
+                                     x_intersect[i + 1], drawn_area);
         }
     }
 
@@ -2322,8 +2322,8 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
         y = point_y[i];
 
         if ((miny < y) && (point_y[i_previous] == y) && (y < maxy)) {
-            draw_line(surf, point_x[i], y, point_x[i_previous], y, color,
-                      drawn_area);
+            drawhorzlineclipbounding(surf, color, point_x[i], y,
+                                     point_x[i_previous], drawn_area);
         }
     }
     PyMem_Free(x_intersect);
