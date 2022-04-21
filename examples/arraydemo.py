@@ -30,7 +30,7 @@ def surfdemo_show(array_img, name):
     pg.display.set_caption(name)
     while True:
         e = pg.event.wait()
-        #Force application to only advance when main button is released
+        # Force application to only advance when main button is released
         if e.type == pg.MOUSEBUTTONUP and e.button == pg.BUTTON_LEFT:
             break
         elif e.type == pg.KEYDOWN and e.key == pg.K_s:

@@ -88,7 +88,7 @@ class FontViewer:
         font_size = self.font_size
         color = (255, 255, 255)
         instruction_color = (255, 255, 0)
-        self.back_color =  (0, 0, 0)
+        self.back_color = (0, 0, 0)
 
         fonts, path = self.get_font_list()
         font_surfaces = []

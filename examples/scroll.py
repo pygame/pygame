@@ -93,6 +93,7 @@ def scroll_view(screen, image, direction, view_rect):
         scale(image.subsurface(src_rect), dst_rect.size, screen.subsurface(dst_rect))
         pg.display.update(zoom_view_rect)
 
+
 def main(image_file=None):
     if image_file is None:
         image_file = os.path.join(main_dir, "data", "arraydemo.bmp")
@@ -178,7 +179,7 @@ def main(image_file=None):
                     direction = regions.get_at(e.pos)[0]
                 elif e.type == pg.MOUSEBUTTONUP:
                     direction = None
-            
+
             if direction:
                 scroll_view(screen, image, direction, view_rect)
             clock.tick(30)

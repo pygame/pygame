@@ -90,7 +90,9 @@ class VideoCapturePlayer:
         camera = clist[0]
 
         # create a list of options for the user to easily understand.
-        print("\nPress the associated number for the desired camera to see that display!")
+        print(
+            "\nPress the associated number for the desired camera to see that display!"
+        )
         print("(Selecting a camera that does not exist will default to camera 0)")
         for index, cam in enumerate(clist):
             print("[" + str(index) + "]: " + cam)
