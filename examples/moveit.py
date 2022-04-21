@@ -2,7 +2,7 @@
 """ pygame.examples.moveit
 
 This is the full and final example from the Pygame Tutorial,
-"How Do I Make It Move". It creates 5 objects and animates
+"How Do I Make It Move". It creates 10 objects and animates
 them on the screen.
 
 It also has a separate player character that can be controlled with arrow keys.
