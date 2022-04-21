@@ -16,6 +16,13 @@ import pygame as pg
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
+# Height and Width of screen
+WIDTH = 640
+HEIGHT = 480
+# Height and width of the sprite
+SPRITE_WIDTH = 80
+SPRITE_HEIGHT = 60
+
 # our game object class
 class GameObject:
     def __init__(self, image, height, speed):
@@ -33,16 +40,16 @@ class GameObject:
             self.pos.top += self.speed
         if up:
             self.pos.top -= self.speed
-        
+
         # controls the object such that it cannot leave the screen's viewpoint
-        if self.pos.right > 640:
+        if self.pos.right > WIDTH:
             self.pos.left = 0
-        if self.pos.top > 420:
+        if self.pos.top > HEIGHT - SPRITE_HEIGHT:
             self.pos.top = 0
-        if self.pos.right < 79:
-            self.pos.right = 640
+        if self.pos.right < SPRITE_WIDTH:
+            self.pos.right = WIDTH
         if self.pos.top < 0:
-            self.pos.top = 420
+            self.pos.top = HEIGHT - SPRITE_HEIGHT
 
 
 # quick function to load an image
@@ -55,7 +62,7 @@ def load_image(name):
 def main():
     pg.init()
     clock = pg.time.Clock()
-    screen = pg.display.set_mode((640, 480))
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
 
     player = load_image("player1.gif")
     entity = load_image("alien1.gif")
@@ -79,7 +86,7 @@ def main():
     # This is a simple event handler that enables player input.
     while True:
 
-        #Get all keys currently pressed, and move when an arrow key is held.
+        # Get all keys currently pressed, and move when an arrow key is held.
         keys = pg.key.get_pressed()
         if keys[pg.K_UP]:
             p.move(up=True)
@@ -90,14 +97,13 @@ def main():
         if keys[pg.K_RIGHT]:
             p.move(right=True)
 
-        #Draw the background
+        # Draw the background
         screen.blit(background, (0, 0))
         for e in pg.event.get():
 
             # quit upon screen exit
             if e.type == pg.QUIT:
-                exit()
-
+                return ()
 
         for o in objects:
             screen.blit(background, o.pos, o.pos)
@@ -107,7 +113,7 @@ def main():
         screen.blit(p.image, p.pos)
         clock.tick(60)
         pg.display.update()
-    
+
 
 if __name__ == "__main__":
     main()

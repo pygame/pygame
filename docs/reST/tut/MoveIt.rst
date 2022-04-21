@@ -473,14 +473,14 @@ our move function under our GameObject class. ::
   ...       self.pos.top += self.speed
   ...   if up:
   ...       self.pos.top -= self.speed   
-  ...   if self.pos.right > 640:
+  ...   if self.pos.right > WIDTH:
   ...       self.pos.left = 0
-  ...   if self.pos.top > 420:
+  ...   if self.pos.top > HEIGHT-SPRITE_HEIGHT:
   ...       self.pos.top = 0
-  ...   if self.pos.right < 79:
-  ...       self.pos.right = 640
+  ...   if self.pos.right < SPRITE_WIDTH:
+  ...       self.pos.right = WIDTH
   ...   if self.pos.top < 0:
-  ...       self.pos.top = 420
+  ...       self.pos.top = HEIGHT-SPRITE_HEIGHT
 
 There's certainly a lot more going on here, so let's take it one step at a time.
 First, we've added some default values into the move function, declared as up,
@@ -488,6 +488,11 @@ down, left, and right. These booleans will allow us to specifically select a
 direction that the object is moving in. The first part, where we go through and
 check True for each variable, is where we will add to the position of the object,
 much like before. Right controls horizontal, and top controls vertical positions.
+
+Additionally, we've removed the magic number present previously, and replaced it
+with the constants WIDTH, HEIGHT, SPRITE_WIDTH, and SPRITE_HEIGHT. These values
+represent the screen width and height, along with the width and height of the object
+displayed on the screen.
 
 The second part, where the position is being checked, ensures that the position
 is within the confines of our screen. With this in place, we need to make sure that
