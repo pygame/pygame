@@ -103,7 +103,7 @@ def main():
 
             # quit upon screen exit
             if e.type == pg.QUIT:
-                return ()
+                return
 
         for o in objects:
             screen.blit(background, o.pos, o.pos)
