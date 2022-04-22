@@ -1168,15 +1168,26 @@ class Vector2TypeTest(unittest.TestCase):
         other = TestVector(4, 1)
 
         self.assertEqual(other.supermariobrosiscool(), 722)
-        self.assertNotEqual(type(v), type(other))
+        self.assertNotEqual(type(v), TestVector)
         self.assertNotEqual(type(v), type(other.copy()))
-        self.assertEqual(type(other), type(other.reflect(v)))
-        self.assertEqual(type(other), type(other.lerp(v, 1)))
-        self.assertEqual(type(other), type(other.slerp(v, 1)))
-        self.assertEqual(type(other), type(other.rotate(5)))
-        self.assertEqual(type(other), type(other.rotate_rad(5)))
-        self.assertEqual(type(other), type(other.project(v)))
-        self.assertEqual(type(other), type(other.move_towards(v, 5)))
+        self.assertEqual(TestVector, type(other.reflect(v)))
+        self.assertEqual(TestVector, type(other.lerp(v, 1)))
+        self.assertEqual(TestVector, type(other.slerp(v, 1)))
+        self.assertEqual(TestVector, type(other.rotate(5)))
+        self.assertEqual(TestVector, type(other.rotate_rad(5)))
+        self.assertEqual(TestVector, type(other.project(v)))
+        self.assertEqual(TestVector, type(other.move_towards(v, 5)))
+        self.assertEqual(TestVector, type(other.clamp_magnitude(5)))
+        self.assertEqual(TestVector, type(other.clamp_magnitude(1, 5)))
+        self.assertEqual(TestVector, type(other.elementwise() + other))
+
+        other1 = TestVector(4, 2)
+
+        self.assertEqual(type(other + other1), TestVector)
+        self.assertEqual(type(other - other1), TestVector)
+        self.assertEqual(type(other * 3), TestVector)
+        self.assertEqual(type(other / 3), TestVector)
+        self.assertEqual(type(other.elementwise() ** 3), TestVector)
 
 
 class Vector3TypeTest(unittest.TestCase):
@@ -2486,15 +2497,26 @@ class Vector3TypeTest(unittest.TestCase):
         other = TestVector(4, 1, 0)
 
         self.assertEqual(other.supermariobrosiscool(), 722)
-        self.assertNotEqual(type(v), type(other))
+        self.assertNotEqual(type(v), TestVector)
         self.assertNotEqual(type(v), type(other.copy()))
-        self.assertEqual(type(other), type(other.reflect(v)))
-        self.assertEqual(type(other), type(other.lerp(v, 1)))
-        self.assertEqual(type(other), type(other.slerp(v, 1)))
-        self.assertEqual(type(other), type(other.rotate(5, v)))
-        self.assertEqual(type(other), type(other.rotate_rad(5, v)))
-        self.assertEqual(type(other), type(other.project(v)))
-        self.assertEqual(type(other), type(other.move_towards(v, 5)))
+        self.assertEqual(TestVector, type(other.reflect(v)))
+        self.assertEqual(TestVector, type(other.lerp(v, 1)))
+        self.assertEqual(TestVector, type(other.slerp(v, 1)))
+        self.assertEqual(TestVector, type(other.rotate(5, v)))
+        self.assertEqual(TestVector, type(other.rotate_rad(5, v)))
+        self.assertEqual(TestVector, type(other.project(v)))
+        self.assertEqual(TestVector, type(other.move_towards(v, 5)))
+        self.assertEqual(TestVector, type(other.clamp_magnitude(5)))
+        self.assertEqual(TestVector, type(other.clamp_magnitude(1, 5)))
+        self.assertEqual(TestVector, type(other.elementwise() + other))
+
+        other1 = TestVector(4, 2, 0)
+
+        self.assertEqual(type(other + other1), TestVector)
+        self.assertEqual(type(other - other1), TestVector)
+        self.assertEqual(type(other * 3), TestVector)
+        self.assertEqual(type(other / 3), TestVector)
+        self.assertEqual(type(other.elementwise() ** 3), TestVector)
 
 
 if __name__ == "__main__":

@@ -571,7 +571,7 @@ _vector_subtype_new(pgVector *base)
             return PyErr_NoMemory();
         }
     }
-    return (PyObject *)vec;
+    return vec;
 }
 
 static PyObject *
