@@ -265,7 +265,6 @@ PyGame_static_init()
 #undef DOC_FONTRENDER
 #undef DOC_FONTSIZE
 
-
 #include "font.c"
 
 #include "mixer.c"
