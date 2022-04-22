@@ -1742,20 +1742,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         chunk = Mix_LoadWAV_RW(rw, 1);
         Py_END_ALLOW_THREADS;
         if (chunk == NULL) {
-            if (obj) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                return -1;
-            }
-
-            obj = pg_EncodeString(file, NULL, NULL, NULL);
-            if (obj == Py_None) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            }
-            else {
-                PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
-                             PyBytes_AS_STRING(obj));
-            }
-            Py_XDECREF(obj);
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
             return -1;
         }
     }
