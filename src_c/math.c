@@ -568,7 +568,7 @@ _vector_subtype_new(pgVector *base)
 
         if (vec->coords == NULL) {
             Py_DECREF(vec);
-            return PyErr_NoMemory();
+            return (pgVector *)PyErr_NoMemory();
         }
     }
     return vec;
