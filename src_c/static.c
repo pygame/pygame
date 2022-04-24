@@ -132,6 +132,9 @@ PyMODINIT_FUNC
 PyInit_mixer(void);
 
 PyMODINIT_FUNC
+PyInit_context(void);
+
+PyMODINIT_FUNC
 PyInit_controller(void);
 
 PyMODINIT_FUNC
@@ -171,6 +174,7 @@ PyGame_static_init()
     PyImport_AppendInittab("pygame_joystick", PyInit_joystick);
     PyImport_AppendInittab("pygame_time", PyInit_pg_time);
     PyImport_AppendInittab("pygame_sdl2_video", PyInit_video);
+    PyImport_AppendInittab("pygame_context", PyInit_context);
     PyImport_AppendInittab("pygame_sprite", PyInit__sprite);
     PyImport_AppendInittab("pygame__sdl2_sdl2", PyInit_sdl2);
     PyImport_AppendInittab("pygame__sdl2_sdl2_mixer", PyInit_mixer);
@@ -252,6 +256,8 @@ PyGame_static_init()
 #include "joystick.c"
 
 #include "time.c"
+
+#include "context.c"
 
 #include "_freetype.c"
 #include "freetype/ft_wrap.c"
