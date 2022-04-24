@@ -1947,6 +1947,14 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
     int ddF_y = -2 * radius;
     int x = 0;
     int y = radius;
+    int xmin = INT_MAX;
+    int xmax = INT_MIN;
+
+    if (x0 < 0) {
+        xmin = x0 + INT_MAX + 1;
+    } else {
+        xmax = INT_MAX - x0;
+    }
 
     while (x < y) {
         if (f >= 0) {
@@ -1961,14 +1969,14 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
         /* optimisation to avoid overdrawing and repeated return rect checks:
            only draw a line if y-step is about to be decreased. */
         if (f >= 0) {
-            drawhorzlineclipbounding(surf, color, x0 - x, y0 + y - 1,
-                                     x0 + x - 1, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - x, y0 - y, x0 + x - 1,
+            drawhorzlineclipbounding(surf, color, x0 - MIN(x, xmin), y0 + y - 1,
+                                     x0 + MIN(x - 1, xmax), drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - MIN(x, xmin), y0 - y, x0 + MIN(x - 1, xmax),
                                      drawn_area);
         }
-        drawhorzlineclipbounding(surf, color, x0 - y, y0 + x - 1, x0 + y - 1,
+        drawhorzlineclipbounding(surf, color, x0 - MIN(y, xmin), y0 + x - 1, x0 + MIN(y - 1, xmax),
                                  drawn_area);
-        drawhorzlineclipbounding(surf, color, x0 - y, y0 - x, x0 + y - 1,
+        drawhorzlineclipbounding(surf, color, x0 - MIN(y, xmin), y0 - x, x0 + MIN(y - 1, xmax),
                                  drawn_area);
     }
 }
