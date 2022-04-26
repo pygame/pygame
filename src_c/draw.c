@@ -717,8 +717,10 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     SDL_GetClipRect(surf, &cliprect);
 
-    if (posx > cliprect.x+cliprect.w+radius || posx < cliprect.x-radius ||
-        posy > cliprect.y+cliprect.h+radius || posy < cliprect.y-radius) {
+    if (posx > cliprect.x + cliprect.w + radius ||
+        posx < cliprect.x - radius ||
+        posy > cliprect.y + cliprect.h + radius ||
+        posy < cliprect.y - radius) {
         return pgRect_New4(0, 0, 0, 0);
     }
 
