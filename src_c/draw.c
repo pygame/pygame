@@ -662,6 +662,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
+    SDL_Rect cliprect;
     PyObject *posobj, *radiusobj;
     int posx, posy, radius;
     int width = 0; /* Default values. */
@@ -712,6 +713,13 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (width > radius) {
         width = radius;
+    }
+
+    SDL_GetClipRect(surf, &cliprect);
+
+    if (posx > cliprect.x+cliprect.w+radius || posx < cliprect.x-radius ||
+        posy > cliprect.y+cliprect.h+radius || posy < cliprect.y-radius) {
+        return pgRect_New4(0, 0, 0, 0);
     }
 
     if (!pgSurface_Lock(surfobj)) {
