@@ -304,7 +304,7 @@ Here's a summary of what they are, and what they do.
     bomb that did collide, it plays a "boom" sound effect, and creates a new
     ``Explosion`` where the bomb was. (Note, the ``Explosion`` class here knows to
     add each instance to the appropriate class, so we don't need to store it in a
-    variable, that last line might feel a little "funny" to you python programmers.
+    variable, that last line might feel a little "funny" to you python programmers.)
 
   :func:`groupcollide(group1, group2, dokill1, dokill2) -> dictionary <pygame.sprite.groupcollide>`
 
