@@ -378,7 +378,7 @@ user asks us to stop. ::
   >>> while True:
   ...     for event in pygame.event.get():
   ...         if event.type in (QUIT, KEYDOWN):
-  ...             sys.exit()
+  ...             return
   ...     move_and_draw_all_game_objects()
 
 
@@ -434,7 +434,7 @@ is what the main function for our program will look like. ::
   >>> while True:
   ...     for event in pygame.event.get():
   ...         if event.type in (QUIT, KEYDOWN):
-  ...             sys.exit()
+  ...             return
   ...     for o in objects:
   ...         screen.blit(background, o.pos, o.pos)
   ...     for o in objects:
@@ -561,7 +561,7 @@ sure we understand everything. ::
   ...         p.move(right=True)
   ...     for event in pygame.event.get():
   ...         if event.type in (QUIT, KEYDOWN):
-  ...             sys.exit()
+  ...             return
   ...     for o in objects:
   ...         screen.blit(background, o.pos, o.pos)
   ...     for o in objects:
