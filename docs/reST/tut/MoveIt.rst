@@ -377,16 +377,15 @@ user asks us to stop. ::
 
   >>> while True:
   ...     for event in pygame.event.get():
-  ...         if event.type in (QUIT, KEYDOWN):
-  ...             return
+  ...         if event.type == pygame.QUIT:
+  ...             sys.exit()
   ...     move_and_draw_all_game_objects()
 
 
 What this code simply does is, first loop forever, then check if there are
-any events from the user. We exit the program if the user presses the keyboard
-or the close button on the window. After we've checked all the events we
-move and draw our game objects. (We'll also erase them before they move,
-too)
+any events from the user. We exit the program if the user presses the close 
+button on the window. After we've checked all the events we move and draw 
+our game objects. (We'll also erase them before they move, too)
 
 
 Moving Multiple Images
@@ -433,8 +432,8 @@ is what the main function for our program will look like. ::
   ...     objects.append(o)
   >>> while True:
   ...     for event in pygame.event.get():
-  ...         if event.type in (QUIT, KEYDOWN):
-  ...             return
+  ...         if event.type == pygame.QUIT:
+  ...             sys.exit()
   ...     for o in objects:
   ...         screen.blit(background, o.pos, o.pos)
   ...     for o in objects:
@@ -560,8 +559,8 @@ sure we understand everything. ::
   ...     if keys[pygame.K_RIGHT]:
   ...         p.move(right=True)
   ...     for event in pygame.event.get():
-  ...         if event.type in (QUIT, KEYDOWN):
-  ...             return
+  ...         if event.type == pygame.QUIT:
+  ...             sys.exit()
   ...     for o in objects:
   ...         screen.blit(background, o.pos, o.pos)
   ...     for o in objects:
