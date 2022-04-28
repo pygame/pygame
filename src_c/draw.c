@@ -721,7 +721,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         posx < cliprect.x - radius ||
         posy > cliprect.y + cliprect.h + radius ||
         posy < cliprect.y - radius) {
-        return pgRect_New4(0, 0, 0, 0);
+        return pgRect_New4(posx, posy, 0, 0);
     }
 
     if (!pgSurface_Lock(surfobj)) {
