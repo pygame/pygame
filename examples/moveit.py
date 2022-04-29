@@ -30,7 +30,7 @@ class GameObject:
         self.image = image
         self.pos = image.get_rect().move(0, height)
 
-    # move the object. Defaults to moving right.
+    # move the object.
     def move(self, up=False, down=False, left=False, right=False):
         if right:
             self.pos.right += self.speed
@@ -69,7 +69,7 @@ def main():
     background = load_image("liquid.bmp")
 
     # scale the background image so that it fills the window and
-    #   successfully overwrites the old sprite position.
+    # successfully overwrites the old sprite position.
     background = pg.transform.scale2x(background)
     background = pg.transform.scale2x(background)
 
@@ -85,7 +85,6 @@ def main():
 
     # This is a simple event handler that enables player input.
     while True:
-
         # Get all keys currently pressed, and move when an arrow key is held.
         keys = pg.key.get_pressed()
         if keys[pg.K_UP]:
@@ -100,11 +99,9 @@ def main():
         # Draw the background
         screen.blit(background, (0, 0))
         for e in pg.event.get():
-
             # quit upon screen exit
             if e.type == pg.QUIT:
                 return
-
         for o in objects:
             screen.blit(background, o.pos, o.pos)
         for o in objects:
