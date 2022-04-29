@@ -20,28 +20,19 @@
 """sysfont, used in the font module to find system fonts"""
 
 import os
+import subprocess
 import sys
+import warnings
 from os.path import basename, dirname, exists, join, splitext
 
 from pygame.font import Font
-
 
 OpenType_extensions = frozenset((".ttf", ".ttc", ".otf"))
 Sysfonts = {}
 Sysalias = {}
 
-# Python 3 compatibility
-
-
-def toascii(raw):
-    """convert bytes to ASCII-only string"""
-    return raw.decode("ascii", "ignore")
-
-
 if os.name == "nt":
     import winreg as _winreg
-else:
-    import subprocess
 
 
 def _simplename(name):
@@ -204,34 +195,38 @@ def initsysfonts_unix(path="fc-list"):
     fonts = {}
 
     try:
-        # pylint: disable=consider-using-with
-        # subprocess.Popen is not a context manager in all of
-        # pygame's supported python versions.
+        proc = subprocess.run(
+            [path, ":", "file", "family", "style"],
+            stdout=subprocess.PIPE,  # capture stdout
+            stderr=subprocess.PIPE,  # capture stderr
+            check=True,  # so that errors raise python exception which is handled below
+            timeout=1,  # so that we don't hang the program waiting
+        )
 
-        # note, we capture stderr so if fc-list isn't there to stop stderr
-        # printing.
-        flout, _ = subprocess.Popen(
-            f"{path} : file family style",
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            close_fds=True,
-        ).communicate()
-    except (OSError, ValueError):
-        return fonts
+    except FileNotFoundError:
+        warnings.warn(
+            f"'{path}' is missing, system fonts cannot be loaded on your platform"
+        )
 
-    entries = toascii(flout)
-    try:
-        for entry in entries.split("\n"):
+    except subprocess.TimeoutExpired:
+        warnings.warn(
+            f"Process running '{path}' timed-out! System fonts cannot be loaded on "
+            "your platform"
+        )
 
+    except subprocess.CalledProcessError as e:
+        warnings.warn(
+            f"'{path}' failed with error code {e.returncode}! System fonts cannot be "
+            f"loaded on your platform. Error log is:\n{e.stderr}"
+        )
+
+    else:
+        for entry in proc.stdout.decode("ascii", "ignore").splitlines():
             try:
                 _parse_font_entry_unix(entry, fonts)
             except ValueError:
                 # try the next one.
                 pass
-
-    except ValueError:
-        pass
 
     return fonts
 
@@ -458,7 +453,9 @@ def get_fonts():
     """
     if not Sysfonts:
         initsysfonts()
-    return list(Sysfonts)
+
+    # 'Sysfonts' can contain a sentinel 'None' key, don't forward that to users
+    return [i for i in Sysfonts if i is not None]
 
 
 def match_font(name, bold=0, italic=0):
