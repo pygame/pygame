@@ -570,7 +570,7 @@ sure we understand everything. ::
   ...     clock.tick(60)
 
 A few things not mentioned earlier: we load in a second image and call it entity,
-and we user that for all objects that aren't the player, which uses the player
+and we use that for all objects that aren't the player, which uses the player
 image defined earlier. 
 
 And that's all there is to it! Now we have a fully functional player object that
