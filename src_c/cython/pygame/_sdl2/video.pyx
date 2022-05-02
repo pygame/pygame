@@ -295,8 +295,17 @@ cdef class Window:
         if self._display_surf == None:
             raise error("No display surface associated with Window")
 
+        # How do you call C extension functions well from Cython?
+        # I have no clue, and I can't find any clues around
+        # The problem seems to be with error propagation
+        # If this C extension function raises an error, I don't know how to
+        # just return NULL to signal the interpreter that there's an error.
+        # So the interpreter says "SystemError: returned stuff w/ error as well"
+        
+        # So, I think the only way pg_FlipWindow errors here is an SDL error, so
+        # in this case I can just use SDL_GetError (behind error()) and reraise it
         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
-            return <object>NULL
+            raise error()
 
     @property
     def grab(self):

@@ -1073,7 +1073,7 @@ struct __pyx_obj_6pygame_5_sdl2_5video___pyx_scope_struct__get_drivers {
 
 
 
-/* "pygame/_sdl2/video.pyx":936
+/* "pygame/_sdl2/video.pyx":945
  * 
  * 
  * cdef class Renderer:             # <<<<<<<<<<<<<<
@@ -1088,7 +1088,7 @@ struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Renderer {
 static struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Renderer *__pyx_vtabptr_6pygame_5_sdl2_5video_Renderer;
 
 
-/* "pygame/_sdl2/video.pyx":567
+/* "pygame/_sdl2/video.pyx":576
  * 
  * 
  * cdef class Texture:             # <<<<<<<<<<<<<<
@@ -1103,7 +1103,7 @@ struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture {
 static struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *__pyx_vtabptr_6pygame_5_sdl2_5video_Texture;
 
 
-/* "pygame/_sdl2/video.pyx":813
+/* "pygame/_sdl2/video.pyx":822
  *             raise error()
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
@@ -5288,7 +5288,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_6flip(struct __pyx_obj_6
  *         if self._display_surf == None:
  *             raise error("No display surface associated with Window")             # <<<<<<<<<<<<<<
  * 
- *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
+ *         # How do you call C extension functions well from Cython?
  */
     __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
@@ -5320,33 +5320,49 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_6flip(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":298
- *             raise error("No display surface associated with Window")
- * 
+  /* "pygame/_sdl2/video.pyx":307
+ *         # So, I think the only way pg_FlipWindow errors here is an SDL error, so
+ *         # in this case I can just use SDL_GetError (behind error()) and reraise it
  *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:             # <<<<<<<<<<<<<<
- *             return <object>NULL
+ *             raise error()
  * 
  */
   __pyx_t_2 = ((pg_FlipWindow(__pyx_v_self->_win, ((PyObject *)__pyx_v_self->_display_surf), NULL, NULL, 0) == 0) != 0);
-  if (__pyx_t_2) {
+  if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":299
- * 
+    /* "pygame/_sdl2/video.pyx":308
+ *         # in this case I can just use SDL_GetError (behind error()) and reraise it
  *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
- *             return <object>NULL             # <<<<<<<<<<<<<<
+ *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_XDECREF(__pyx_r);
-    __Pyx_INCREF(((PyObject *)NULL));
-    __pyx_r = ((PyObject *)NULL);
-    goto __pyx_L0;
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 308, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 308, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __PYX_ERR(0, 308, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":298
- *             raise error("No display surface associated with Window")
- * 
+    /* "pygame/_sdl2/video.pyx":307
+ *         # So, I think the only way pg_FlipWindow errors here is an SDL error, so
+ *         # in this case I can just use SDL_GetError (behind error()) and reraise it
  *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:             # <<<<<<<<<<<<<<
- *             return <object>NULL
+ *             raise error()
  * 
  */
   }
@@ -5374,7 +5390,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_6flip(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":302
+/* "pygame/_sdl2/video.pyx":311
  * 
  *     @property
  *     def grab(self):             # <<<<<<<<<<<<<<
@@ -5404,7 +5420,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4grab___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":313
+  /* "pygame/_sdl2/video.pyx":322
  *         :rtype: bool
  *         """
  *         return SDL_GetWindowGrab(self._win) != 0             # <<<<<<<<<<<<<<
@@ -5412,13 +5428,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4grab___get__(struct __p
  *     @grab.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong((SDL_GetWindowGrab(__pyx_v_self->_win) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong((SDL_GetWindowGrab(__pyx_v_self->_win) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":302
+  /* "pygame/_sdl2/video.pyx":311
  * 
  *     @property
  *     def grab(self):             # <<<<<<<<<<<<<<
@@ -5437,7 +5453,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4grab___get__(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":316
+/* "pygame/_sdl2/video.pyx":325
  * 
  *     @grab.setter
  *     def grab(self, bint grabbed):             # <<<<<<<<<<<<<<
@@ -5456,7 +5472,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_6Window_4grab_3__set__(PyObject *__pyx
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_grabbed); {
-    __pyx_v_grabbed = __Pyx_PyObject_IsTrue(__pyx_arg_grabbed); if (unlikely((__pyx_v_grabbed == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 316, __pyx_L3_error)
+    __pyx_v_grabbed = __Pyx_PyObject_IsTrue(__pyx_arg_grabbed); if (unlikely((__pyx_v_grabbed == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 325, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5477,7 +5493,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4grab_2__set__(struct __pyx_ob
   SDL_bool __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":318
+  /* "pygame/_sdl2/video.pyx":327
  *     def grab(self, bint grabbed):
  *         # https://wiki.libsdl.org/SDL_SetWindowGrab
  *         SDL_SetWindowGrab(self._win, 1 if grabbed else 0)             # <<<<<<<<<<<<<<
@@ -5491,7 +5507,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4grab_2__set__(struct __pyx_ob
   }
   SDL_SetWindowGrab(__pyx_v_self->_win, __pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":316
+  /* "pygame/_sdl2/video.pyx":325
  * 
  *     @grab.setter
  *     def grab(self, bint grabbed):             # <<<<<<<<<<<<<<
@@ -5505,7 +5521,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4grab_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":321
+/* "pygame/_sdl2/video.pyx":330
  * 
  *     @property
  *     def relative_mouse(self):             # <<<<<<<<<<<<<<
@@ -5535,7 +5551,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse___get__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":330
+  /* "pygame/_sdl2/video.pyx":339
  *         :rtype: bool
  *         """
  *         return SDL_GetRelativeMouseMode()             # <<<<<<<<<<<<<<
@@ -5543,13 +5559,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse___get__
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_SDL_bool(SDL_GetRelativeMouseMode()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_SDL_bool(SDL_GetRelativeMouseMode()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 339, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":321
+  /* "pygame/_sdl2/video.pyx":330
  * 
  *     @property
  *     def relative_mouse(self):             # <<<<<<<<<<<<<<
@@ -5568,7 +5584,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse___get__
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":334
+/* "pygame/_sdl2/video.pyx":343
  * 
  *     @relative_mouse.setter
  *     def relative_mouse(self, bint enable):             # <<<<<<<<<<<<<<
@@ -5587,7 +5603,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_6Window_14relative_mouse_3__set__(PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_enable); {
-    __pyx_v_enable = __Pyx_PyObject_IsTrue(__pyx_arg_enable); if (unlikely((__pyx_v_enable == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 334, __pyx_L3_error)
+    __pyx_v_enable = __Pyx_PyObject_IsTrue(__pyx_arg_enable); if (unlikely((__pyx_v_enable == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5608,7 +5624,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse_2__set__(CYTH
   SDL_bool __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":337
+  /* "pygame/_sdl2/video.pyx":346
  *         # https://wiki.libsdl.org/SDL_SetRelativeMouseMode
  *         #SDL_SetWindowGrab(self._win, 1 if enable else 0)
  *         SDL_SetRelativeMouseMode(1 if enable else 0)             # <<<<<<<<<<<<<<
@@ -5622,7 +5638,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse_2__set__(CYTH
   }
   (void)(SDL_SetRelativeMouseMode(__pyx_t_1));
 
-  /* "pygame/_sdl2/video.pyx":334
+  /* "pygame/_sdl2/video.pyx":343
  * 
  *     @relative_mouse.setter
  *     def relative_mouse(self, bint enable):             # <<<<<<<<<<<<<<
@@ -5636,7 +5652,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_14relative_mouse_2__set__(CYTH
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":339
+/* "pygame/_sdl2/video.pyx":348
  *         SDL_SetRelativeMouseMode(1 if enable else 0)
  * 
  *     def set_windowed(self):             # <<<<<<<<<<<<<<
@@ -5670,7 +5686,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8set_windowed(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_windowed", 0);
 
-  /* "pygame/_sdl2/video.pyx":346
+  /* "pygame/_sdl2/video.pyx":355
  *         """
  *         # https://wiki.libsdl.org/SDL_SetWindowFullscreen
  *         if SDL_SetWindowFullscreen(self._win, 0):             # <<<<<<<<<<<<<<
@@ -5680,14 +5696,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8set_windowed(struct __p
   __pyx_t_1 = (SDL_SetWindowFullscreen(__pyx_v_self->_win, 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":347
+    /* "pygame/_sdl2/video.pyx":356
  *         # https://wiki.libsdl.org/SDL_SetWindowFullscreen
  *         if SDL_SetWindowFullscreen(self._win, 0):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     #TODO: not sure about this...
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 356, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5701,14 +5717,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8set_windowed(struct __p
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 356, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 347, __pyx_L1_error)
+    __PYX_ERR(0, 356, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":346
+    /* "pygame/_sdl2/video.pyx":355
  *         """
  *         # https://wiki.libsdl.org/SDL_SetWindowFullscreen
  *         if SDL_SetWindowFullscreen(self._win, 0):             # <<<<<<<<<<<<<<
@@ -5717,7 +5733,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8set_windowed(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":339
+  /* "pygame/_sdl2/video.pyx":348
  *         SDL_SetRelativeMouseMode(1 if enable else 0)
  * 
  *     def set_windowed(self):             # <<<<<<<<<<<<<<
@@ -5740,7 +5756,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8set_windowed(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":354
+/* "pygame/_sdl2/video.pyx":363
  *     #     window.fullscreen_desktop = True
  *     #     window.windowed = True
  *     def set_fullscreen(self, bint desktop=False):             # <<<<<<<<<<<<<<
@@ -5780,7 +5796,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_11set_fullscreen(PyObjec
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_fullscreen") < 0)) __PYX_ERR(0, 354, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_fullscreen") < 0)) __PYX_ERR(0, 363, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5791,14 +5807,14 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_11set_fullscreen(PyObjec
       }
     }
     if (values[0]) {
-      __pyx_v_desktop = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_desktop == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 354, __pyx_L3_error)
+      __pyx_v_desktop = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_desktop == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 363, __pyx_L3_error)
     } else {
       __pyx_v_desktop = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("set_fullscreen", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 354, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("set_fullscreen", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 363, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Window.set_fullscreen", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5824,7 +5840,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_fullscreen", 0);
 
-  /* "pygame/_sdl2/video.pyx":362
+  /* "pygame/_sdl2/video.pyx":371
  *         .. seealso:: :func:`set_windowed`
  *         """
  *         cdef int flags = 0             # <<<<<<<<<<<<<<
@@ -5833,7 +5849,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
  */
   __pyx_v_flags = 0;
 
-  /* "pygame/_sdl2/video.pyx":363
+  /* "pygame/_sdl2/video.pyx":372
  *         """
  *         cdef int flags = 0
  *         if desktop:             # <<<<<<<<<<<<<<
@@ -5843,7 +5859,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
   __pyx_t_1 = (__pyx_v_desktop != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":364
+    /* "pygame/_sdl2/video.pyx":373
  *         cdef int flags = 0
  *         if desktop:
  *             flags = _SDL_WINDOW_FULLSCREEN_DESKTOP             # <<<<<<<<<<<<<<
@@ -5852,7 +5868,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
  */
     __pyx_v_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-    /* "pygame/_sdl2/video.pyx":363
+    /* "pygame/_sdl2/video.pyx":372
  *         """
  *         cdef int flags = 0
  *         if desktop:             # <<<<<<<<<<<<<<
@@ -5862,7 +5878,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":366
+  /* "pygame/_sdl2/video.pyx":375
  *             flags = _SDL_WINDOW_FULLSCREEN_DESKTOP
  *         else:
  *             flags = _SDL_WINDOW_FULLSCREEN             # <<<<<<<<<<<<<<
@@ -5874,7 +5890,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":367
+  /* "pygame/_sdl2/video.pyx":376
  *         else:
  *             flags = _SDL_WINDOW_FULLSCREEN
  *         if SDL_SetWindowFullscreen(self._win, flags):             # <<<<<<<<<<<<<<
@@ -5884,14 +5900,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
   __pyx_t_1 = (SDL_SetWindowFullscreen(__pyx_v_self->_win, __pyx_v_flags) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":368
+    /* "pygame/_sdl2/video.pyx":377
  *             flags = _SDL_WINDOW_FULLSCREEN
  *         if SDL_SetWindowFullscreen(self._win, flags):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 368, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 377, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5905,14 +5921,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 368, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 368, __pyx_L1_error)
+    __PYX_ERR(0, 377, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":367
+    /* "pygame/_sdl2/video.pyx":376
  *         else:
  *             flags = _SDL_WINDOW_FULLSCREEN
  *         if SDL_SetWindowFullscreen(self._win, flags):             # <<<<<<<<<<<<<<
@@ -5921,7 +5937,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":354
+  /* "pygame/_sdl2/video.pyx":363
  *     #     window.fullscreen_desktop = True
  *     #     window.windowed = True
  *     def set_fullscreen(self, bint desktop=False):             # <<<<<<<<<<<<<<
@@ -5944,7 +5960,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10set_fullscreen(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":371
+/* "pygame/_sdl2/video.pyx":380
  * 
  *     @property
  *     def title(self):             # <<<<<<<<<<<<<<
@@ -5975,7 +5991,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_5title___get__(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":375
+  /* "pygame/_sdl2/video.pyx":384
  *         """
  *         # https://wiki.libsdl.org/SDL_GetWindowTitle
  *         return SDL_GetWindowTitle(self._win).decode('utf8')             # <<<<<<<<<<<<<<
@@ -5984,14 +6000,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_5title___get__(struct __
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = SDL_GetWindowTitle(__pyx_v_self->_win);
-  __pyx_t_2 = __Pyx_decode_c_string(__pyx_t_1, 0, strlen(__pyx_t_1), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 375, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_decode_c_string(__pyx_t_1, 0, strlen(__pyx_t_1), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 384, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":371
+  /* "pygame/_sdl2/video.pyx":380
  * 
  *     @property
  *     def title(self):             # <<<<<<<<<<<<<<
@@ -6010,7 +6026,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_5title___get__(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":378
+/* "pygame/_sdl2/video.pyx":387
  * 
  *     @title.setter
  *     def title(self, title):             # <<<<<<<<<<<<<<
@@ -6043,14 +6059,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_5title_2__set__(struct __pyx_o
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":384
+  /* "pygame/_sdl2/video.pyx":393
  *         """
  *         # https://wiki.libsdl.org/SDL_SetWindowTitle
  *         SDL_SetWindowTitle(self._win, title.encode('utf8'))             # <<<<<<<<<<<<<<
  * 
  *     def destroy(self):
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_title, __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 384, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_title, __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 393, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -6064,14 +6080,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_5title_2__set__(struct __pyx_o
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_n_s_utf8) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_n_s_utf8);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 384, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 393, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_AsString(__pyx_t_1); if (unlikely((!__pyx_t_4) && PyErr_Occurred())) __PYX_ERR(0, 384, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_AsString(__pyx_t_1); if (unlikely((!__pyx_t_4) && PyErr_Occurred())) __PYX_ERR(0, 393, __pyx_L1_error)
   SDL_SetWindowTitle(__pyx_v_self->_win, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":378
+  /* "pygame/_sdl2/video.pyx":387
  * 
  *     @title.setter
  *     def title(self, title):             # <<<<<<<<<<<<<<
@@ -6093,7 +6109,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_5title_2__set__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":386
+/* "pygame/_sdl2/video.pyx":395
  *         SDL_SetWindowTitle(self._win, title.encode('utf8'))
  * 
  *     def destroy(self):             # <<<<<<<<<<<<<<
@@ -6121,7 +6137,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("destroy", 0);
 
-  /* "pygame/_sdl2/video.pyx":390
+  /* "pygame/_sdl2/video.pyx":399
  *         """
  *         # https://wiki.libsdl.org/SDL_DestroyWindow
  *         if self._win:             # <<<<<<<<<<<<<<
@@ -6131,7 +6147,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
   __pyx_t_1 = (__pyx_v_self->_win != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":391
+    /* "pygame/_sdl2/video.pyx":400
  *         # https://wiki.libsdl.org/SDL_DestroyWindow
  *         if self._win:
  *             SDL_DestroyWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6140,7 +6156,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
  */
     SDL_DestroyWindow(__pyx_v_self->_win);
 
-    /* "pygame/_sdl2/video.pyx":392
+    /* "pygame/_sdl2/video.pyx":401
  *         if self._win:
  *             SDL_DestroyWindow(self._win)
  *             self._win = NULL             # <<<<<<<<<<<<<<
@@ -6149,7 +6165,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
  */
     __pyx_v_self->_win = NULL;
 
-    /* "pygame/_sdl2/video.pyx":390
+    /* "pygame/_sdl2/video.pyx":399
  *         """
  *         # https://wiki.libsdl.org/SDL_DestroyWindow
  *         if self._win:             # <<<<<<<<<<<<<<
@@ -6158,7 +6174,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":386
+  /* "pygame/_sdl2/video.pyx":395
  *         SDL_SetWindowTitle(self._win, title.encode('utf8'))
  * 
  *     def destroy(self):             # <<<<<<<<<<<<<<
@@ -6173,7 +6189,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_12destroy(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":394
+/* "pygame/_sdl2/video.pyx":403
  *             self._win = NULL
  * 
  *     def hide(self):             # <<<<<<<<<<<<<<
@@ -6200,7 +6216,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14hide(struct __pyx_obj_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("hide", 0);
 
-  /* "pygame/_sdl2/video.pyx":398
+  /* "pygame/_sdl2/video.pyx":407
  *         """
  *         # https://wiki.libsdl.org/SDL_HideWindow
  *         SDL_HideWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6209,7 +6225,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14hide(struct __pyx_obj_
  */
   SDL_HideWindow(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":394
+  /* "pygame/_sdl2/video.pyx":403
  *             self._win = NULL
  * 
  *     def hide(self):             # <<<<<<<<<<<<<<
@@ -6224,7 +6240,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_14hide(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":400
+/* "pygame/_sdl2/video.pyx":409
  *         SDL_HideWindow(self._win)
  * 
  *     def show(self):             # <<<<<<<<<<<<<<
@@ -6251,7 +6267,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_16show(struct __pyx_obj_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("show", 0);
 
-  /* "pygame/_sdl2/video.pyx":404
+  /* "pygame/_sdl2/video.pyx":413
  *         """
  *         # https://wiki.libsdl.org/SDL_ShowWindow
  *         SDL_ShowWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6260,7 +6276,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_16show(struct __pyx_obj_
  */
   SDL_ShowWindow(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":400
+  /* "pygame/_sdl2/video.pyx":409
  *         SDL_HideWindow(self._win)
  * 
  *     def show(self):             # <<<<<<<<<<<<<<
@@ -6275,7 +6291,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_16show(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":406
+/* "pygame/_sdl2/video.pyx":415
  *         SDL_ShowWindow(self._win)
  * 
  *     def focus(self, input_only=False):             # <<<<<<<<<<<<<<
@@ -6316,7 +6332,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_19focus(PyObject *__pyx_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "focus") < 0)) __PYX_ERR(0, 406, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "focus") < 0)) __PYX_ERR(0, 415, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -6330,7 +6346,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_19focus(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("focus", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 406, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("focus", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 415, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Window.focus", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6355,17 +6371,17 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("focus", 0);
 
-  /* "pygame/_sdl2/video.pyx":413
+  /* "pygame/_sdl2/video.pyx":422
  *         """
  *         # https://wiki.libsdl.org/SDL_RaiseWindow
  *         if input_only:             # <<<<<<<<<<<<<<
  *             if SDL_SetWindowInputFocus(self._win):
  *                 raise error()
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_input_only); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 413, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_input_only); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 422, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":414
+    /* "pygame/_sdl2/video.pyx":423
  *         # https://wiki.libsdl.org/SDL_RaiseWindow
  *         if input_only:
  *             if SDL_SetWindowInputFocus(self._win):             # <<<<<<<<<<<<<<
@@ -6375,14 +6391,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
     __pyx_t_1 = (SDL_SetWindowInputFocus(__pyx_v_self->_win) != 0);
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":415
+      /* "pygame/_sdl2/video.pyx":424
  *         if input_only:
  *             if SDL_SetWindowInputFocus(self._win):
  *                 raise error()             # <<<<<<<<<<<<<<
  *         else:
  *             SDL_RaiseWindow(self._win)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 415, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 424, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_4 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -6396,14 +6412,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
       }
       __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 415, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 424, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_Raise(__pyx_t_2, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __PYX_ERR(0, 415, __pyx_L1_error)
+      __PYX_ERR(0, 424, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":414
+      /* "pygame/_sdl2/video.pyx":423
  *         # https://wiki.libsdl.org/SDL_RaiseWindow
  *         if input_only:
  *             if SDL_SetWindowInputFocus(self._win):             # <<<<<<<<<<<<<<
@@ -6412,7 +6428,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":413
+    /* "pygame/_sdl2/video.pyx":422
  *         """
  *         # https://wiki.libsdl.org/SDL_RaiseWindow
  *         if input_only:             # <<<<<<<<<<<<<<
@@ -6422,7 +6438,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":417
+  /* "pygame/_sdl2/video.pyx":426
  *                 raise error()
  *         else:
  *             SDL_RaiseWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6434,7 +6450,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":406
+  /* "pygame/_sdl2/video.pyx":415
  *         SDL_ShowWindow(self._win)
  * 
  *     def focus(self, input_only=False):             # <<<<<<<<<<<<<<
@@ -6457,7 +6473,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_18focus(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":419
+/* "pygame/_sdl2/video.pyx":428
  *             SDL_RaiseWindow(self._win)
  * 
  *     def restore(self):             # <<<<<<<<<<<<<<
@@ -6484,7 +6500,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_20restore(struct __pyx_o
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("restore", 0);
 
-  /* "pygame/_sdl2/video.pyx":422
+  /* "pygame/_sdl2/video.pyx":431
  *         """ Restore the size and position of a minimized or maximized window.
  *         """
  *         SDL_RestoreWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6493,7 +6509,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_20restore(struct __pyx_o
  */
   SDL_RestoreWindow(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":419
+  /* "pygame/_sdl2/video.pyx":428
  *             SDL_RaiseWindow(self._win)
  * 
  *     def restore(self):             # <<<<<<<<<<<<<<
@@ -6508,7 +6524,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_20restore(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":424
+/* "pygame/_sdl2/video.pyx":433
  *         SDL_RestoreWindow(self._win)
  * 
  *     def maximize(self):             # <<<<<<<<<<<<<<
@@ -6535,7 +6551,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_22maximize(struct __pyx_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("maximize", 0);
 
-  /* "pygame/_sdl2/video.pyx":427
+  /* "pygame/_sdl2/video.pyx":436
  *         """ Maximize the window.
  *         """
  *         SDL_MaximizeWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6544,7 +6560,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_22maximize(struct __pyx_
  */
   SDL_MaximizeWindow(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":424
+  /* "pygame/_sdl2/video.pyx":433
  *         SDL_RestoreWindow(self._win)
  * 
  *     def maximize(self):             # <<<<<<<<<<<<<<
@@ -6559,7 +6575,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_22maximize(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":429
+/* "pygame/_sdl2/video.pyx":438
  *         SDL_MaximizeWindow(self._win)
  * 
  *     def minimize(self):             # <<<<<<<<<<<<<<
@@ -6586,7 +6602,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_24minimize(struct __pyx_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("minimize", 0);
 
-  /* "pygame/_sdl2/video.pyx":432
+  /* "pygame/_sdl2/video.pyx":441
  *         """ Minimize the window.
  *         """
  *         SDL_MinimizeWindow(self._win)             # <<<<<<<<<<<<<<
@@ -6595,7 +6611,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_24minimize(struct __pyx_
  */
   SDL_MinimizeWindow(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":429
+  /* "pygame/_sdl2/video.pyx":438
  *         SDL_MaximizeWindow(self._win)
  * 
  *     def minimize(self):             # <<<<<<<<<<<<<<
@@ -6610,7 +6626,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_24minimize(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":435
+/* "pygame/_sdl2/video.pyx":444
  * 
  *     @property
  *     def resizable(self):             # <<<<<<<<<<<<<<
@@ -6640,7 +6656,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable___get__(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":438
+  /* "pygame/_sdl2/video.pyx":447
  *         """ Sets whether the window is resizable.
  *         """
  *         return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_RESIZABLE != 0             # <<<<<<<<<<<<<<
@@ -6648,13 +6664,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable___get__(struc
  *     @resizable.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(((SDL_GetWindowFlags(__pyx_v_self->_win) & SDL_WINDOW_RESIZABLE) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(((SDL_GetWindowFlags(__pyx_v_self->_win) & SDL_WINDOW_RESIZABLE) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":435
+  /* "pygame/_sdl2/video.pyx":444
  * 
  *     @property
  *     def resizable(self):             # <<<<<<<<<<<<<<
@@ -6673,7 +6689,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable___get__(struc
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":441
+/* "pygame/_sdl2/video.pyx":450
  * 
  *     @resizable.setter
  *     def resizable(self, enabled):             # <<<<<<<<<<<<<<
@@ -6704,14 +6720,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable_2__set__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":442
+  /* "pygame/_sdl2/video.pyx":451
  *     @resizable.setter
  *     def resizable(self, enabled):
  *         SDL_SetWindowResizable(self._win, 1 if enabled else 0)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_enabled); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_enabled); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 451, __pyx_L1_error)
   if (__pyx_t_2) {
     __pyx_t_1 = 1;
   } else {
@@ -6719,7 +6735,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable_2__set__(struct __p
   }
   SDL_SetWindowResizable(__pyx_v_self->_win, __pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":441
+  /* "pygame/_sdl2/video.pyx":450
  * 
  *     @resizable.setter
  *     def resizable(self, enabled):             # <<<<<<<<<<<<<<
@@ -6738,7 +6754,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_9resizable_2__set__(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":445
+/* "pygame/_sdl2/video.pyx":454
  * 
  *     @property
  *     def borderless(self):             # <<<<<<<<<<<<<<
@@ -6768,7 +6784,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless___get__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":450
+  /* "pygame/_sdl2/video.pyx":459
  *         .. note:: You can't change the border state of a fullscreen window.
  *         """
  *         return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_BORDERLESS != 0             # <<<<<<<<<<<<<<
@@ -6776,13 +6792,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless___get__(str
  *     @borderless.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(((SDL_GetWindowFlags(__pyx_v_self->_win) & SDL_WINDOW_BORDERLESS) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 450, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(((SDL_GetWindowFlags(__pyx_v_self->_win) & SDL_WINDOW_BORDERLESS) != 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":445
+  /* "pygame/_sdl2/video.pyx":454
  * 
  *     @property
  *     def borderless(self):             # <<<<<<<<<<<<<<
@@ -6801,7 +6817,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless___get__(str
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":453
+/* "pygame/_sdl2/video.pyx":462
  * 
  *     @borderless.setter
  *     def borderless(self, enabled):             # <<<<<<<<<<<<<<
@@ -6832,14 +6848,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless_2__set__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":454
+  /* "pygame/_sdl2/video.pyx":463
  *     @borderless.setter
  *     def borderless(self, enabled):
  *         SDL_SetWindowBordered(self._win, 1 if enabled else 0)             # <<<<<<<<<<<<<<
  * 
  *     def set_icon(self, surface):
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_enabled); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_enabled); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 463, __pyx_L1_error)
   if (__pyx_t_2) {
     __pyx_t_1 = 1;
   } else {
@@ -6847,7 +6863,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless_2__set__(struct _
   }
   SDL_SetWindowBordered(__pyx_v_self->_win, __pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":453
+  /* "pygame/_sdl2/video.pyx":462
  * 
  *     @borderless.setter
  *     def borderless(self, enabled):             # <<<<<<<<<<<<<<
@@ -6866,7 +6882,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10borderless_2__set__(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":456
+/* "pygame/_sdl2/video.pyx":465
  *         SDL_SetWindowBordered(self._win, 1 if enabled else 0)
  * 
  *     def set_icon(self, surface):             # <<<<<<<<<<<<<<
@@ -6898,7 +6914,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_26set_icon(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_icon", 0);
 
-  /* "pygame/_sdl2/video.pyx":461
+  /* "pygame/_sdl2/video.pyx":470
  *         :param pygame.Surface surface: A Surface to use as the icon.
  *         """
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -6908,20 +6924,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_26set_icon(struct __pyx_
   __pyx_t_1 = ((!(pgSurface_Check(__pyx_v_surface) != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":462
+    /* "pygame/_sdl2/video.pyx":471
  *         """
  *         if not pgSurface_Check(surface):
  *             raise TypeError('surface must be a Surface object')             # <<<<<<<<<<<<<<
  *         SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 462, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 471, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 462, __pyx_L1_error)
+    __PYX_ERR(0, 471, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":461
+    /* "pygame/_sdl2/video.pyx":470
  *         :param pygame.Surface surface: A Surface to use as the icon.
  *         """
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -6930,7 +6946,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_26set_icon(struct __pyx_
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":463
+  /* "pygame/_sdl2/video.pyx":472
  *         if not pgSurface_Check(surface):
  *             raise TypeError('surface must be a Surface object')
  *         SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))             # <<<<<<<<<<<<<<
@@ -6939,7 +6955,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_26set_icon(struct __pyx_
  */
   SDL_SetWindowIcon(__pyx_v_self->_win, pgSurface_AsSurface(__pyx_v_surface));
 
-  /* "pygame/_sdl2/video.pyx":456
+  /* "pygame/_sdl2/video.pyx":465
  *         SDL_SetWindowBordered(self._win, 1 if enabled else 0)
  * 
  *     def set_icon(self, surface):             # <<<<<<<<<<<<<<
@@ -6960,7 +6976,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_26set_icon(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":466
+/* "pygame/_sdl2/video.pyx":475
  * 
  *     @property
  *     def id(self):             # <<<<<<<<<<<<<<
@@ -6990,7 +7006,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_2id___get__(struct __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":471
+  /* "pygame/_sdl2/video.pyx":480
  *         :rtype: int
  *         """
  *         return SDL_GetWindowID(self._win)             # <<<<<<<<<<<<<<
@@ -6998,13 +7014,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_2id___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_Uint32(SDL_GetWindowID(__pyx_v_self->_win)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_Uint32(SDL_GetWindowID(__pyx_v_self->_win)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":466
+  /* "pygame/_sdl2/video.pyx":475
  * 
  *     @property
  *     def id(self):             # <<<<<<<<<<<<<<
@@ -7023,7 +7039,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_2id___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":474
+/* "pygame/_sdl2/video.pyx":483
  * 
  *     @property
  *     def size(self):             # <<<<<<<<<<<<<<
@@ -7057,7 +7073,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4size___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":477
+  /* "pygame/_sdl2/video.pyx":486
  *         """ The size of the window's client area."""
  *         cdef int w, h
  *         SDL_GetWindowSize(self._win, &w, &h)             # <<<<<<<<<<<<<<
@@ -7066,7 +7082,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4size___get__(struct __p
  */
   SDL_GetWindowSize(__pyx_v_self->_win, (&__pyx_v_w), (&__pyx_v_h));
 
-  /* "pygame/_sdl2/video.pyx":478
+  /* "pygame/_sdl2/video.pyx":487
  *         cdef int w, h
  *         SDL_GetWindowSize(self._win, &w, &h)
  *         return (w, h)             # <<<<<<<<<<<<<<
@@ -7074,11 +7090,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4size___get__(struct __p
  *     @size.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 487, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_h); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_h); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 487, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 487, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -7090,7 +7106,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4size___get__(struct __p
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":474
+  /* "pygame/_sdl2/video.pyx":483
  * 
  *     @property
  *     def size(self):             # <<<<<<<<<<<<<<
@@ -7111,7 +7127,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4size___get__(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":481
+/* "pygame/_sdl2/video.pyx":490
  * 
  *     @size.setter
  *     def size(self, size):             # <<<<<<<<<<<<<<
@@ -7143,24 +7159,24 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4size_2__set__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":482
+  /* "pygame/_sdl2/video.pyx":491
  *     @size.setter
  *     def size(self, size):
  *         SDL_SetWindowSize(self._win, size[0], size[1])             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 491, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 491, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 491, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 491, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   SDL_SetWindowSize(__pyx_v_self->_win, __pyx_t_2, __pyx_t_3);
 
-  /* "pygame/_sdl2/video.pyx":481
+  /* "pygame/_sdl2/video.pyx":490
  * 
  *     @size.setter
  *     def size(self, size):             # <<<<<<<<<<<<<<
@@ -7180,7 +7196,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4size_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":485
+/* "pygame/_sdl2/video.pyx":494
  * 
  *     @property
  *     def position(self):             # <<<<<<<<<<<<<<
@@ -7214,7 +7230,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8position___get__(struct
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":488
+  /* "pygame/_sdl2/video.pyx":497
  *         """ Window's screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED"""
  *         cdef int x, y
  *         SDL_GetWindowPosition(self._win, &x, &y)             # <<<<<<<<<<<<<<
@@ -7223,7 +7239,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8position___get__(struct
  */
   SDL_GetWindowPosition(__pyx_v_self->_win, (&__pyx_v_x), (&__pyx_v_y));
 
-  /* "pygame/_sdl2/video.pyx":489
+  /* "pygame/_sdl2/video.pyx":498
  *         cdef int x, y
  *         SDL_GetWindowPosition(self._win, &x, &y)
  *         return (x, y)             # <<<<<<<<<<<<<<
@@ -7231,11 +7247,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8position___get__(struct
  *     @position.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 489, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 489, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 489, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -7247,7 +7263,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8position___get__(struct
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":485
+  /* "pygame/_sdl2/video.pyx":494
  * 
  *     @property
  *     def position(self):             # <<<<<<<<<<<<<<
@@ -7268,7 +7284,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_8position___get__(struct
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":492
+/* "pygame/_sdl2/video.pyx":501
  * 
  *     @position.setter
  *     def position(self, position):             # <<<<<<<<<<<<<<
@@ -7306,40 +7322,40 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":494
+  /* "pygame/_sdl2/video.pyx":503
  *     def position(self, position):
  *         cdef int x, y
  *         if position == WINDOWPOS_UNDEFINED:             # <<<<<<<<<<<<<<
  *             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
  *         elif position == WINDOWPOS_CENTERED:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_RichCompare(__pyx_v_position, __pyx_t_1, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_v_position, __pyx_t_1, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_3) {
 
-    /* "pygame/_sdl2/video.pyx":495
+    /* "pygame/_sdl2/video.pyx":504
  *         cdef int x, y
  *         if position == WINDOWPOS_UNDEFINED:
  *             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED             # <<<<<<<<<<<<<<
  *         elif position == WINDOWPOS_CENTERED:
  *             x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 495, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 504, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 495, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 504, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 495, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_UNDEFINED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 504, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 495, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 504, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_x = __pyx_t_4;
     __pyx_v_y = __pyx_t_5;
 
-    /* "pygame/_sdl2/video.pyx":494
+    /* "pygame/_sdl2/video.pyx":503
  *     def position(self, position):
  *         cdef int x, y
  *         if position == WINDOWPOS_UNDEFINED:             # <<<<<<<<<<<<<<
@@ -7349,40 +7365,40 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":496
+  /* "pygame/_sdl2/video.pyx":505
  *         if position == WINDOWPOS_UNDEFINED:
  *             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
  *         elif position == WINDOWPOS_CENTERED:             # <<<<<<<<<<<<<<
  *             x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED
  *         else:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 496, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 505, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_position, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 496, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_position, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 505, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 496, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 505, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_3) {
 
-    /* "pygame/_sdl2/video.pyx":497
+    /* "pygame/_sdl2/video.pyx":506
  *             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
  *         elif position == WINDOWPOS_CENTERED:
  *             x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED             # <<<<<<<<<<<<<<
  *         else:
  *             x, y = position
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 506, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 497, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 506, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_WINDOWPOS_CENTERED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 506, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 497, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 506, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_x = __pyx_t_5;
     __pyx_v_y = __pyx_t_4;
 
-    /* "pygame/_sdl2/video.pyx":496
+    /* "pygame/_sdl2/video.pyx":505
  *         if position == WINDOWPOS_UNDEFINED:
  *             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
  *         elif position == WINDOWPOS_CENTERED:             # <<<<<<<<<<<<<<
@@ -7392,7 +7408,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":499
+  /* "pygame/_sdl2/video.pyx":508
  *             x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED
  *         else:
  *             x, y = position             # <<<<<<<<<<<<<<
@@ -7406,7 +7422,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        __PYX_ERR(0, 499, __pyx_L1_error)
+        __PYX_ERR(0, 508, __pyx_L1_error)
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -7419,21 +7435,21 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
       __Pyx_INCREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_t_2);
       #else
-      __pyx_t_1 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 499, __pyx_L1_error)
+      __pyx_t_1 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 508, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+      __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 508, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       #endif
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_6 = PyObject_GetIter(__pyx_v_position); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 499, __pyx_L1_error)
+      __pyx_t_6 = PyObject_GetIter(__pyx_v_position); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 508, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_7 = Py_TYPE(__pyx_t_6)->tp_iternext;
       index = 0; __pyx_t_1 = __pyx_t_7(__pyx_t_6); if (unlikely(!__pyx_t_1)) goto __pyx_L4_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_1);
       index = 1; __pyx_t_2 = __pyx_t_7(__pyx_t_6); if (unlikely(!__pyx_t_2)) goto __pyx_L4_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_2);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 2) < 0) __PYX_ERR(0, 499, __pyx_L1_error)
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 2) < 0) __PYX_ERR(0, 508, __pyx_L1_error)
       __pyx_t_7 = NULL;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       goto __pyx_L5_unpacking_done;
@@ -7441,19 +7457,19 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_t_7 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      __PYX_ERR(0, 499, __pyx_L1_error)
+      __PYX_ERR(0, 508, __pyx_L1_error)
       __pyx_L5_unpacking_done:;
     }
-    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 508, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 508, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_x = __pyx_t_4;
     __pyx_v_y = __pyx_t_5;
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":500
+  /* "pygame/_sdl2/video.pyx":509
  *         else:
  *             x, y = position
  *         SDL_SetWindowPosition(self._win, x, y)             # <<<<<<<<<<<<<<
@@ -7462,7 +7478,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
  */
   SDL_SetWindowPosition(__pyx_v_self->_win, __pyx_v_x, __pyx_v_y);
 
-  /* "pygame/_sdl2/video.pyx":492
+  /* "pygame/_sdl2/video.pyx":501
  * 
  *     @position.setter
  *     def position(self, position):             # <<<<<<<<<<<<<<
@@ -7484,7 +7500,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_8position_2__set__(struct __py
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":503
+/* "pygame/_sdl2/video.pyx":512
  * 
  *     @property
  *     def opacity(self):             # <<<<<<<<<<<<<<
@@ -7518,7 +7534,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":507
+  /* "pygame/_sdl2/video.pyx":516
  *         and 1.0 (fully opaque)."""
  *         cdef float opacity
  *         if SDL_GetWindowOpacity(self._win, &opacity):             # <<<<<<<<<<<<<<
@@ -7528,14 +7544,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
   __pyx_t_1 = (SDL_GetWindowOpacity(__pyx_v_self->_win, (&__pyx_v_opacity)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":508
+    /* "pygame/_sdl2/video.pyx":517
  *         cdef float opacity
  *         if SDL_GetWindowOpacity(self._win, &opacity):
  *             raise error()             # <<<<<<<<<<<<<<
  *         return opacity
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 508, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 517, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -7549,14 +7565,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 508, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 517, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 508, __pyx_L1_error)
+    __PYX_ERR(0, 517, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":507
+    /* "pygame/_sdl2/video.pyx":516
  *         and 1.0 (fully opaque)."""
  *         cdef float opacity
  *         if SDL_GetWindowOpacity(self._win, &opacity):             # <<<<<<<<<<<<<<
@@ -7565,7 +7581,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":509
+  /* "pygame/_sdl2/video.pyx":518
  *         if SDL_GetWindowOpacity(self._win, &opacity):
  *             raise error()
  *         return opacity             # <<<<<<<<<<<<<<
@@ -7573,13 +7589,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
  *     @opacity.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_opacity); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 509, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_opacity); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":503
+  /* "pygame/_sdl2/video.pyx":512
  * 
  *     @property
  *     def opacity(self):             # <<<<<<<<<<<<<<
@@ -7600,7 +7616,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity___get__(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":512
+/* "pygame/_sdl2/video.pyx":521
  * 
  *     @opacity.setter
  *     def opacity(self, opacity):             # <<<<<<<<<<<<<<
@@ -7634,25 +7650,25 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity_2__set__(struct __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":513
+  /* "pygame/_sdl2/video.pyx":522
  *     @opacity.setter
  *     def opacity(self, opacity):
  *         if SDL_SetWindowOpacity(self._win, opacity):             # <<<<<<<<<<<<<<
  *             raise error()
  * 
  */
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_opacity); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_opacity); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 522, __pyx_L1_error)
   __pyx_t_2 = (SDL_SetWindowOpacity(__pyx_v_self->_win, __pyx_t_1) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":514
+    /* "pygame/_sdl2/video.pyx":523
  *     def opacity(self, opacity):
  *         if SDL_SetWindowOpacity(self._win, opacity):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 514, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 523, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -7666,14 +7682,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity_2__set__(struct __pyx
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 514, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 523, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 514, __pyx_L1_error)
+    __PYX_ERR(0, 523, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":513
+    /* "pygame/_sdl2/video.pyx":522
  *     @opacity.setter
  *     def opacity(self, opacity):
  *         if SDL_SetWindowOpacity(self._win, opacity):             # <<<<<<<<<<<<<<
@@ -7682,7 +7698,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity_2__set__(struct __pyx
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":512
+  /* "pygame/_sdl2/video.pyx":521
  * 
  *     @opacity.setter
  *     def opacity(self, opacity):             # <<<<<<<<<<<<<<
@@ -7704,7 +7720,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_7opacity_2__set__(struct __pyx
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":517
+/* "pygame/_sdl2/video.pyx":526
  * 
  *     @property
  *     def brightness(self):             # <<<<<<<<<<<<<<
@@ -7734,7 +7750,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness___get__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":520
+  /* "pygame/_sdl2/video.pyx":529
  *         """ The brightness (gamma multiplier) for the display that owns a given window.
  *         0.0 is completely dark and 1.0 is normal brightness."""
  *         return SDL_GetWindowBrightness(self._win)             # <<<<<<<<<<<<<<
@@ -7742,13 +7758,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness___get__(str
  *     @brightness.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(SDL_GetWindowBrightness(__pyx_v_self->_win)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 520, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(SDL_GetWindowBrightness(__pyx_v_self->_win)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 529, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":517
+  /* "pygame/_sdl2/video.pyx":526
  * 
  *     @property
  *     def brightness(self):             # <<<<<<<<<<<<<<
@@ -7767,7 +7783,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness___get__(str
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":523
+/* "pygame/_sdl2/video.pyx":532
  * 
  *     @brightness.setter
  *     def brightness(self, float value):             # <<<<<<<<<<<<<<
@@ -7786,7 +7802,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_6Window_10brightness_3__set__(PyObject
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_value); {
-    __pyx_v_value = __pyx_PyFloat_AsFloat(__pyx_arg_value); if (unlikely((__pyx_v_value == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 523, __pyx_L3_error)
+    __pyx_v_value = __pyx_PyFloat_AsFloat(__pyx_arg_value); if (unlikely((__pyx_v_value == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 532, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7813,7 +7829,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness_2__set__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":524
+  /* "pygame/_sdl2/video.pyx":533
  *     @brightness.setter
  *     def brightness(self, float value):
  *         if SDL_SetWindowBrightness(self._win, value):             # <<<<<<<<<<<<<<
@@ -7823,14 +7839,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness_2__set__(struct _
   __pyx_t_1 = (SDL_SetWindowBrightness(__pyx_v_self->_win, __pyx_v_value) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":525
+    /* "pygame/_sdl2/video.pyx":534
  *     def brightness(self, float value):
  *         if SDL_SetWindowBrightness(self._win, value):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 525, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -7844,14 +7860,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness_2__set__(struct _
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 525, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 525, __pyx_L1_error)
+    __PYX_ERR(0, 534, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":524
+    /* "pygame/_sdl2/video.pyx":533
  *     @brightness.setter
  *     def brightness(self, float value):
  *         if SDL_SetWindowBrightness(self._win, value):             # <<<<<<<<<<<<<<
@@ -7860,7 +7876,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness_2__set__(struct _
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":523
+  /* "pygame/_sdl2/video.pyx":532
  * 
  *     @brightness.setter
  *     def brightness(self, float value):             # <<<<<<<<<<<<<<
@@ -7882,7 +7898,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_6Window_10brightness_2__set__(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":528
+/* "pygame/_sdl2/video.pyx":537
  * 
  *     @property
  *     def display_index(self):             # <<<<<<<<<<<<<<
@@ -7916,7 +7932,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":533
+  /* "pygame/_sdl2/video.pyx":542
  *         :rtype: int
  *         """
  *         cdef int index = SDL_GetWindowDisplayIndex(self._win)             # <<<<<<<<<<<<<<
@@ -7925,7 +7941,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
  */
   __pyx_v_index = SDL_GetWindowDisplayIndex(__pyx_v_self->_win);
 
-  /* "pygame/_sdl2/video.pyx":534
+  /* "pygame/_sdl2/video.pyx":543
  *         """
  *         cdef int index = SDL_GetWindowDisplayIndex(self._win)
  *         if index < 0:             # <<<<<<<<<<<<<<
@@ -7935,14 +7951,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
   __pyx_t_1 = ((__pyx_v_index < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":535
+    /* "pygame/_sdl2/video.pyx":544
  *         cdef int index = SDL_GetWindowDisplayIndex(self._win)
  *         if index < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  *         return index
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 544, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -7956,14 +7972,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 535, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 544, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 535, __pyx_L1_error)
+    __PYX_ERR(0, 544, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":534
+    /* "pygame/_sdl2/video.pyx":543
  *         """
  *         cdef int index = SDL_GetWindowDisplayIndex(self._win)
  *         if index < 0:             # <<<<<<<<<<<<<<
@@ -7972,7 +7988,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":536
+  /* "pygame/_sdl2/video.pyx":545
  *         if index < 0:
  *             raise error()
  *         return index             # <<<<<<<<<<<<<<
@@ -7980,13 +7996,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
  *     def set_modal_for(self, Window parent):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 545, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":528
+  /* "pygame/_sdl2/video.pyx":537
  * 
  *     @property
  *     def display_index(self):             # <<<<<<<<<<<<<<
@@ -8007,7 +8023,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_13display_index___get__(
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":538
+/* "pygame/_sdl2/video.pyx":547
  *         return index
  * 
  *     def set_modal_for(self, Window parent):             # <<<<<<<<<<<<<<
@@ -8025,7 +8041,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_29set_modal_for(PyObject
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set_modal_for (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_parent), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "parent", 0))) __PYX_ERR(0, 538, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_parent), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "parent", 0))) __PYX_ERR(0, 547, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(((struct __pyx_obj_6pygame_5_sdl2_5video_Window *)__pyx_v_self), ((struct __pyx_obj_6pygame_5_sdl2_5video_Window *)__pyx_v_parent));
 
   /* function exit code */
@@ -8049,7 +8065,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_modal_for", 0);
 
-  /* "pygame/_sdl2/video.pyx":541
+  /* "pygame/_sdl2/video.pyx":550
  *         """set the window as a modal for a parent window
  *         This function is only supported on X11."""
  *         if SDL_SetWindowModalFor(self._win, parent._win):             # <<<<<<<<<<<<<<
@@ -8059,14 +8075,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(struct _
   __pyx_t_1 = (SDL_SetWindowModalFor(__pyx_v_self->_win, __pyx_v_parent->_win) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":542
+    /* "pygame/_sdl2/video.pyx":551
  *         This function is only supported on X11."""
  *         if SDL_SetWindowModalFor(self._win, parent._win):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 542, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 551, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -8080,14 +8096,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(struct _
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 542, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 551, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 542, __pyx_L1_error)
+    __PYX_ERR(0, 551, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":541
+    /* "pygame/_sdl2/video.pyx":550
  *         """set the window as a modal for a parent window
  *         This function is only supported on X11."""
  *         if SDL_SetWindowModalFor(self._win, parent._win):             # <<<<<<<<<<<<<<
@@ -8096,7 +8112,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(struct _
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":538
+  /* "pygame/_sdl2/video.pyx":547
  *         return index
  * 
  *     def set_modal_for(self, Window parent):             # <<<<<<<<<<<<<<
@@ -8119,7 +8135,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_28set_modal_for(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":544
+/* "pygame/_sdl2/video.pyx":553
  *             raise error()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -8149,7 +8165,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_6Window_30__dealloc__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "pygame/_sdl2/video.pyx":545
+  /* "pygame/_sdl2/video.pyx":554
  * 
  *     def __dealloc__(self):
  *         if self._is_borrowed:             # <<<<<<<<<<<<<<
@@ -8159,7 +8175,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_6Window_30__dealloc__(struct __pyx_ob
   __pyx_t_1 = (__pyx_v_self->_is_borrowed != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":546
+    /* "pygame/_sdl2/video.pyx":555
  *     def __dealloc__(self):
  *         if self._is_borrowed:
  *             return             # <<<<<<<<<<<<<<
@@ -8168,7 +8184,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_6Window_30__dealloc__(struct __pyx_ob
  */
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/video.pyx":545
+    /* "pygame/_sdl2/video.pyx":554
  * 
  *     def __dealloc__(self):
  *         if self._is_borrowed:             # <<<<<<<<<<<<<<
@@ -8177,14 +8193,14 @@ static void __pyx_pf_6pygame_5_sdl2_5video_6Window_30__dealloc__(struct __pyx_ob
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":547
+  /* "pygame/_sdl2/video.pyx":556
  *         if self._is_borrowed:
  *             return
  *         self.destroy()             # <<<<<<<<<<<<<<
  * 
  * cdef Uint32 format_from_depth(int depth):
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_destroy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 547, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_destroy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 556, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -8198,12 +8214,12 @@ static void __pyx_pf_6pygame_5_sdl2_5video_6Window_30__dealloc__(struct __pyx_ob
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 547, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 556, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygame/_sdl2/video.pyx":544
+  /* "pygame/_sdl2/video.pyx":553
  *             raise error()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -8335,7 +8351,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_34__setstate_cython__(CY
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":549
+/* "pygame/_sdl2/video.pyx":558
  *         self.destroy()
  * 
  * cdef Uint32 format_from_depth(int depth):             # <<<<<<<<<<<<<<
@@ -8356,7 +8372,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("format_from_depth", 0);
 
-  /* "pygame/_sdl2/video.pyx":551
+  /* "pygame/_sdl2/video.pyx":560
  * cdef Uint32 format_from_depth(int depth):
  *     cdef Uint32 Rmask, Gmask, Bmask, Amask
  *     if depth == 16:             # <<<<<<<<<<<<<<
@@ -8366,7 +8382,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
   switch (__pyx_v_depth) {
     case 16:
 
-    /* "pygame/_sdl2/video.pyx":552
+    /* "pygame/_sdl2/video.pyx":561
  *     cdef Uint32 Rmask, Gmask, Bmask, Amask
  *     if depth == 16:
  *         Rmask = 0xF << 8             # <<<<<<<<<<<<<<
@@ -8375,7 +8391,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Rmask = 0xF00;
 
-    /* "pygame/_sdl2/video.pyx":553
+    /* "pygame/_sdl2/video.pyx":562
  *     if depth == 16:
  *         Rmask = 0xF << 8
  *         Gmask = 0xF << 4             # <<<<<<<<<<<<<<
@@ -8384,7 +8400,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Gmask = 0xF0;
 
-    /* "pygame/_sdl2/video.pyx":554
+    /* "pygame/_sdl2/video.pyx":563
  *         Rmask = 0xF << 8
  *         Gmask = 0xF << 4
  *         Bmask = 0xF             # <<<<<<<<<<<<<<
@@ -8393,7 +8409,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Bmask = 0xF;
 
-    /* "pygame/_sdl2/video.pyx":555
+    /* "pygame/_sdl2/video.pyx":564
  *         Gmask = 0xF << 4
  *         Bmask = 0xF
  *         Amask = 0xF << 12             # <<<<<<<<<<<<<<
@@ -8402,7 +8418,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Amask = 0xF000;
 
-    /* "pygame/_sdl2/video.pyx":551
+    /* "pygame/_sdl2/video.pyx":560
  * cdef Uint32 format_from_depth(int depth):
  *     cdef Uint32 Rmask, Gmask, Bmask, Amask
  *     if depth == 16:             # <<<<<<<<<<<<<<
@@ -8412,7 +8428,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
     break;
     case 0:
 
-    /* "pygame/_sdl2/video.pyx":556
+    /* "pygame/_sdl2/video.pyx":565
  *         Bmask = 0xF
  *         Amask = 0xF << 12
  *     elif depth in (0, 32):             # <<<<<<<<<<<<<<
@@ -8421,7 +8437,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     case 32:
 
-    /* "pygame/_sdl2/video.pyx":557
+    /* "pygame/_sdl2/video.pyx":566
  *         Amask = 0xF << 12
  *     elif depth in (0, 32):
  *         Rmask = 0xFF << 16             # <<<<<<<<<<<<<<
@@ -8430,7 +8446,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Rmask = 0xFF0000;
 
-    /* "pygame/_sdl2/video.pyx":558
+    /* "pygame/_sdl2/video.pyx":567
  *     elif depth in (0, 32):
  *         Rmask = 0xFF << 16
  *         Gmask = 0xFF << 8             # <<<<<<<<<<<<<<
@@ -8439,7 +8455,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Gmask = 0xFF00;
 
-    /* "pygame/_sdl2/video.pyx":559
+    /* "pygame/_sdl2/video.pyx":568
  *         Rmask = 0xFF << 16
  *         Gmask = 0xFF << 8
  *         Bmask = 0xFF             # <<<<<<<<<<<<<<
@@ -8448,7 +8464,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Bmask = 0xFF;
 
-    /* "pygame/_sdl2/video.pyx":560
+    /* "pygame/_sdl2/video.pyx":569
  *         Gmask = 0xFF << 8
  *         Bmask = 0xFF
  *         Amask = 0xFF << 24             # <<<<<<<<<<<<<<
@@ -8457,7 +8473,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
  */
     __pyx_v_Amask = 0xFF000000;
 
-    /* "pygame/_sdl2/video.pyx":556
+    /* "pygame/_sdl2/video.pyx":565
  *         Bmask = 0xF
  *         Amask = 0xF << 12
  *     elif depth in (0, 32):             # <<<<<<<<<<<<<<
@@ -8467,22 +8483,22 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
     break;
     default:
 
-    /* "pygame/_sdl2/video.pyx":562
+    /* "pygame/_sdl2/video.pyx":571
  *         Amask = 0xFF << 24
  *     else:
  *         raise ValueError("no standard masks exist for given bitdepth with alpha")             # <<<<<<<<<<<<<<
  *     return SDL_MasksToPixelFormatEnum(depth,
  *                                       Rmask, Gmask, Bmask, Amask)
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 562, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 571, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 562, __pyx_L1_error)
+    __PYX_ERR(0, 571, __pyx_L1_error)
     break;
   }
 
-  /* "pygame/_sdl2/video.pyx":563
+  /* "pygame/_sdl2/video.pyx":572
  *     else:
  *         raise ValueError("no standard masks exist for given bitdepth with alpha")
  *     return SDL_MasksToPixelFormatEnum(depth,             # <<<<<<<<<<<<<<
@@ -8492,7 +8508,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
   __pyx_r = SDL_MasksToPixelFormatEnum(__pyx_v_depth, __pyx_v_Rmask, __pyx_v_Gmask, __pyx_v_Bmask, __pyx_v_Amask);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":549
+  /* "pygame/_sdl2/video.pyx":558
  *         self.destroy()
  * 
  * cdef Uint32 format_from_depth(int depth):             # <<<<<<<<<<<<<<
@@ -8510,7 +8526,7 @@ static Uint32 __pyx_f_6pygame_5_sdl2_5video_format_from_depth(int __pyx_v_depth)
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":568
+/* "pygame/_sdl2/video.pyx":577
  * 
  * cdef class Texture:
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -8545,7 +8561,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture___cinit__(struct __pyx_obj_6p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "pygame/_sdl2/video.pyx":569
+  /* "pygame/_sdl2/video.pyx":578
  * cdef class Texture:
  *     def __cinit__(self):
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]             # <<<<<<<<<<<<<<
@@ -8558,23 +8574,23 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture___cinit__(struct __pyx_obj_6p
   __pyx_t_1[3] = 0xFF;
   memcpy(&(__pyx_v_defaultColor[0]), __pyx_t_1, sizeof(__pyx_v_defaultColor[0]) * (4));
 
-  /* "pygame/_sdl2/video.pyx":570
+  /* "pygame/_sdl2/video.pyx":579
  *     def __cinit__(self):
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._color = pgColor_NewLength(defaultColor, 3)             # <<<<<<<<<<<<<<
  * 
  *     def __init__(self,
  */
-  __pyx_t_2 = pgColor_NewLength(__pyx_v_defaultColor, 3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 570, __pyx_L1_error)
+  __pyx_t_2 = pgColor_NewLength(__pyx_v_defaultColor, 3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 579, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 570, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 579, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->_color);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_color));
   __pyx_v_self->_color = ((pgColorObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygame/_sdl2/video.pyx":568
+  /* "pygame/_sdl2/video.pyx":577
  * 
  * cdef class Texture:
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -8594,7 +8610,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture___cinit__(struct __pyx_obj_6p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":572
+/* "pygame/_sdl2/video.pyx":581
  *         self._color = pgColor_NewLength(defaultColor, 3)
  * 
  *     def __init__(self,             # <<<<<<<<<<<<<<
@@ -8625,7 +8641,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_renderer,&__pyx_n_s_size,&__pyx_n_s_depth,&__pyx_n_s_static,&__pyx_n_s_streaming,&__pyx_n_s_target,0};
     PyObject* values[6] = {0,0,0,0,0,0};
 
-    /* "pygame/_sdl2/video.pyx":575
+    /* "pygame/_sdl2/video.pyx":584
  *                  Renderer renderer,
  *                  size, int depth=0,
  *                  static=False, streaming=False,             # <<<<<<<<<<<<<<
@@ -8635,7 +8651,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
     values[3] = ((PyObject *)Py_False);
     values[4] = ((PyObject *)Py_False);
 
-    /* "pygame/_sdl2/video.pyx":576
+    /* "pygame/_sdl2/video.pyx":585
  *                  size, int depth=0,
  *                  static=False, streaming=False,
  *                  target=False):             # <<<<<<<<<<<<<<
@@ -8671,7 +8687,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 6, 1); __PYX_ERR(0, 572, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 6, 1); __PYX_ERR(0, 581, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -8699,7 +8715,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 572, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 581, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -8720,7 +8736,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
     __pyx_v_renderer = ((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)values[0]);
     __pyx_v_size = values[1];
     if (values[2]) {
-      __pyx_v_depth = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 574, __pyx_L3_error)
+      __pyx_v_depth = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 583, __pyx_L3_error)
     } else {
       __pyx_v_depth = ((int)0);
     }
@@ -8730,16 +8746,16 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_3__init__(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 572, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 581, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Texture.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_renderer), __pyx_ptype_6pygame_5_sdl2_5video_Renderer, 1, "renderer", 0))) __PYX_ERR(0, 573, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_renderer), __pyx_ptype_6pygame_5_sdl2_5video_Renderer, 1, "renderer", 0))) __PYX_ERR(0, 582, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_v_self), __pyx_v_renderer, __pyx_v_size, __pyx_v_depth, __pyx_v_static, __pyx_v_streaming, __pyx_v_target);
 
-  /* "pygame/_sdl2/video.pyx":572
+  /* "pygame/_sdl2/video.pyx":581
  *         self._color = pgColor_NewLength(defaultColor, 3)
  * 
  *     def __init__(self,             # <<<<<<<<<<<<<<
@@ -8782,7 +8798,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pygame/_sdl2/video.pyx":593
+  /* "pygame/_sdl2/video.pyx":602
  *         # TODO: masks
  *         cdef Uint32 format
  *         try:             # <<<<<<<<<<<<<<
@@ -8793,7 +8809,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     (void)__pyx_t_1; (void)__pyx_t_2; (void)__pyx_t_3; /* mark used */
     /*try:*/ {
 
-      /* "pygame/_sdl2/video.pyx":594
+      /* "pygame/_sdl2/video.pyx":603
  *         cdef Uint32 format
  *         try:
  *             format = format_from_depth(depth)             # <<<<<<<<<<<<<<
@@ -8802,7 +8818,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
       __pyx_v_format = __pyx_f_6pygame_5_sdl2_5video_format_from_depth(__pyx_v_depth);
 
-      /* "pygame/_sdl2/video.pyx":593
+      /* "pygame/_sdl2/video.pyx":602
  *         # TODO: masks
  *         cdef Uint32 format
  *         try:             # <<<<<<<<<<<<<<
@@ -8812,31 +8828,31 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     }
   }
 
-  /* "pygame/_sdl2/video.pyx":599
+  /* "pygame/_sdl2/video.pyx":608
  * 
  *         cdef int width, height
  *         if len(size) != 2:             # <<<<<<<<<<<<<<
  *             raise ValueError('size must have two elements')
  *         width, height = size[0], size[1]
  */
-  __pyx_t_4 = PyObject_Length(__pyx_v_size); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 599, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_v_size); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 608, __pyx_L1_error)
   __pyx_t_5 = ((__pyx_t_4 != 2) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":600
+    /* "pygame/_sdl2/video.pyx":609
  *         cdef int width, height
  *         if len(size) != 2:
  *             raise ValueError('size must have two elements')             # <<<<<<<<<<<<<<
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:
  */
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 600, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 609, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_Raise(__pyx_t_6, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __PYX_ERR(0, 600, __pyx_L1_error)
+    __PYX_ERR(0, 609, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":599
+    /* "pygame/_sdl2/video.pyx":608
  * 
  *         cdef int width, height
  *         if len(size) != 2:             # <<<<<<<<<<<<<<
@@ -8845,25 +8861,25 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":601
+  /* "pygame/_sdl2/video.pyx":610
  *         if len(size) != 2:
  *             raise ValueError('size must have two elements')
  *         width, height = size[0], size[1]             # <<<<<<<<<<<<<<
  *         if width <= 0 or height <= 0:
  *             raise ValueError('size must contain two positive values')
  */
-  __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 610, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 610, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 610, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 610, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_width = __pyx_t_7;
   __pyx_v_height = __pyx_t_8;
 
-  /* "pygame/_sdl2/video.pyx":602
+  /* "pygame/_sdl2/video.pyx":611
  *             raise ValueError('size must have two elements')
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:             # <<<<<<<<<<<<<<
@@ -8881,20 +8897,20 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   __pyx_L11_bool_binop_done:;
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":603
+    /* "pygame/_sdl2/video.pyx":612
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:
  *             raise ValueError('size must contain two positive values')             # <<<<<<<<<<<<<<
  * 
  *         cdef int access
  */
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 603, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_Raise(__pyx_t_6, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __PYX_ERR(0, 603, __pyx_L1_error)
+    __PYX_ERR(0, 612, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":602
+    /* "pygame/_sdl2/video.pyx":611
  *             raise ValueError('size must have two elements')
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:             # <<<<<<<<<<<<<<
@@ -8903,48 +8919,48 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":606
+  /* "pygame/_sdl2/video.pyx":615
  * 
  *         cdef int access
  *         if static:             # <<<<<<<<<<<<<<
  *             if streaming or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  */
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 606, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 615, __pyx_L1_error)
   if (__pyx_t_5) {
 
-    /* "pygame/_sdl2/video.pyx":607
+    /* "pygame/_sdl2/video.pyx":616
  *         cdef int access
  *         if static:
  *             if streaming or target:             # <<<<<<<<<<<<<<
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STATIC
  */
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 607, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 616, __pyx_L1_error)
     if (!__pyx_t_9) {
     } else {
       __pyx_t_5 = __pyx_t_9;
       goto __pyx_L15_bool_binop_done;
     }
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 607, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 616, __pyx_L1_error)
     __pyx_t_5 = __pyx_t_9;
     __pyx_L15_bool_binop_done:;
     if (unlikely(__pyx_t_5)) {
 
-      /* "pygame/_sdl2/video.pyx":608
+      /* "pygame/_sdl2/video.pyx":617
  *         if static:
  *             if streaming or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')             # <<<<<<<<<<<<<<
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:
  */
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 608, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 617, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_Raise(__pyx_t_6, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __PYX_ERR(0, 608, __pyx_L1_error)
+      __PYX_ERR(0, 617, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":607
+      /* "pygame/_sdl2/video.pyx":616
  *         cdef int access
  *         if static:
  *             if streaming or target:             # <<<<<<<<<<<<<<
@@ -8953,7 +8969,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":609
+    /* "pygame/_sdl2/video.pyx":618
  *             if streaming or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STATIC             # <<<<<<<<<<<<<<
@@ -8962,7 +8978,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     __pyx_v_access = SDL_TEXTUREACCESS_STATIC;
 
-    /* "pygame/_sdl2/video.pyx":606
+    /* "pygame/_sdl2/video.pyx":615
  * 
  *         cdef int access
  *         if static:             # <<<<<<<<<<<<<<
@@ -8972,48 +8988,48 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     goto __pyx_L13;
   }
 
-  /* "pygame/_sdl2/video.pyx":610
+  /* "pygame/_sdl2/video.pyx":619
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:             # <<<<<<<<<<<<<<
  *             if static or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  */
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 610, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 619, __pyx_L1_error)
   if (__pyx_t_5) {
 
-    /* "pygame/_sdl2/video.pyx":611
+    /* "pygame/_sdl2/video.pyx":620
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:
  *             if static or target:             # <<<<<<<<<<<<<<
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STREAMING
  */
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 611, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 620, __pyx_L1_error)
     if (!__pyx_t_9) {
     } else {
       __pyx_t_5 = __pyx_t_9;
       goto __pyx_L18_bool_binop_done;
     }
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 611, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 620, __pyx_L1_error)
     __pyx_t_5 = __pyx_t_9;
     __pyx_L18_bool_binop_done:;
     if (unlikely(__pyx_t_5)) {
 
-      /* "pygame/_sdl2/video.pyx":612
+      /* "pygame/_sdl2/video.pyx":621
  *         elif streaming:
  *             if static or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')             # <<<<<<<<<<<<<<
  *             access = _SDL_TEXTUREACCESS_STREAMING
  *         elif target:
  */
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 612, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 621, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_Raise(__pyx_t_6, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __PYX_ERR(0, 612, __pyx_L1_error)
+      __PYX_ERR(0, 621, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":611
+      /* "pygame/_sdl2/video.pyx":620
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:
  *             if static or target:             # <<<<<<<<<<<<<<
@@ -9022,7 +9038,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":613
+    /* "pygame/_sdl2/video.pyx":622
  *             if static or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STREAMING             # <<<<<<<<<<<<<<
@@ -9031,7 +9047,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     __pyx_v_access = SDL_TEXTUREACCESS_STREAMING;
 
-    /* "pygame/_sdl2/video.pyx":610
+    /* "pygame/_sdl2/video.pyx":619
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:             # <<<<<<<<<<<<<<
@@ -9041,48 +9057,48 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     goto __pyx_L13;
   }
 
-  /* "pygame/_sdl2/video.pyx":614
+  /* "pygame/_sdl2/video.pyx":623
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STREAMING
  *         elif target:             # <<<<<<<<<<<<<<
  *             if streaming or static:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  */
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 614, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_target); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 623, __pyx_L1_error)
   if (__pyx_t_5) {
 
-    /* "pygame/_sdl2/video.pyx":615
+    /* "pygame/_sdl2/video.pyx":624
  *             access = _SDL_TEXTUREACCESS_STREAMING
  *         elif target:
  *             if streaming or static:             # <<<<<<<<<<<<<<
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_TARGET
  */
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 615, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_streaming); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 624, __pyx_L1_error)
     if (!__pyx_t_9) {
     } else {
       __pyx_t_5 = __pyx_t_9;
       goto __pyx_L21_bool_binop_done;
     }
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 615, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_v_static); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 624, __pyx_L1_error)
     __pyx_t_5 = __pyx_t_9;
     __pyx_L21_bool_binop_done:;
     if (unlikely(__pyx_t_5)) {
 
-      /* "pygame/_sdl2/video.pyx":616
+      /* "pygame/_sdl2/video.pyx":625
  *         elif target:
  *             if streaming or static:
  *                 raise ValueError('only one of static, streaming, or target can be true')             # <<<<<<<<<<<<<<
  *             access = _SDL_TEXTUREACCESS_TARGET
  *         else:
  */
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 616, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 625, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_Raise(__pyx_t_6, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __PYX_ERR(0, 616, __pyx_L1_error)
+      __PYX_ERR(0, 625, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":615
+      /* "pygame/_sdl2/video.pyx":624
  *             access = _SDL_TEXTUREACCESS_STREAMING
  *         elif target:
  *             if streaming or static:             # <<<<<<<<<<<<<<
@@ -9091,7 +9107,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":617
+    /* "pygame/_sdl2/video.pyx":626
  *             if streaming or static:
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_TARGET             # <<<<<<<<<<<<<<
@@ -9100,7 +9116,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
     __pyx_v_access = SDL_TEXTUREACCESS_TARGET;
 
-    /* "pygame/_sdl2/video.pyx":614
+    /* "pygame/_sdl2/video.pyx":623
  *                 raise ValueError('only one of static, streaming, or target can be true')
  *             access = _SDL_TEXTUREACCESS_STREAMING
  *         elif target:             # <<<<<<<<<<<<<<
@@ -9110,7 +9126,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     goto __pyx_L13;
   }
 
-  /* "pygame/_sdl2/video.pyx":620
+  /* "pygame/_sdl2/video.pyx":629
  *         else:
  *             # Create static texture by default.
  *             access = _SDL_TEXTUREACCESS_STATIC             # <<<<<<<<<<<<<<
@@ -9122,7 +9138,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   }
   __pyx_L13:;
 
-  /* "pygame/_sdl2/video.pyx":622
+  /* "pygame/_sdl2/video.pyx":631
  *             access = _SDL_TEXTUREACCESS_STATIC
  * 
  *         self.renderer = renderer             # <<<<<<<<<<<<<<
@@ -9135,7 +9151,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   __Pyx_DECREF(((PyObject *)__pyx_v_self->renderer));
   __pyx_v_self->renderer = __pyx_v_renderer;
 
-  /* "pygame/_sdl2/video.pyx":623
+  /* "pygame/_sdl2/video.pyx":632
  * 
  *         self.renderer = renderer
  *         cdef SDL_Renderer* _renderer = renderer._renderer             # <<<<<<<<<<<<<<
@@ -9145,7 +9161,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   __pyx_t_10 = __pyx_v_renderer->_renderer;
   __pyx_v__renderer = __pyx_t_10;
 
-  /* "pygame/_sdl2/video.pyx":624
+  /* "pygame/_sdl2/video.pyx":633
  *         self.renderer = renderer
  *         cdef SDL_Renderer* _renderer = renderer._renderer
  *         self._tex = SDL_CreateTexture(_renderer,             # <<<<<<<<<<<<<<
@@ -9154,7 +9170,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
   __pyx_v_self->_tex = SDL_CreateTexture(__pyx_v__renderer, __pyx_v_format, __pyx_v_access, __pyx_v_width, __pyx_v_height);
 
-  /* "pygame/_sdl2/video.pyx":628
+  /* "pygame/_sdl2/video.pyx":637
  *                                       access,
  *                                       width, height)
  *         if not self._tex:             # <<<<<<<<<<<<<<
@@ -9164,14 +9180,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   __pyx_t_5 = ((!(__pyx_v_self->_tex != 0)) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":629
+    /* "pygame/_sdl2/video.pyx":638
  *                                       width, height)
  *         if not self._tex:
  *             raise error()             # <<<<<<<<<<<<<<
  *         self.width, self.height = width, height
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_error); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 629, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_error); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 638, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __pyx_t_12 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_11))) {
@@ -9185,14 +9201,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
     }
     __pyx_t_6 = (__pyx_t_12) ? __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12) : __Pyx_PyObject_CallNoArg(__pyx_t_11);
     __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 629, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 638, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_Raise(__pyx_t_6, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __PYX_ERR(0, 629, __pyx_L1_error)
+    __PYX_ERR(0, 638, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":628
+    /* "pygame/_sdl2/video.pyx":637
  *                                       access,
  *                                       width, height)
  *         if not self._tex:             # <<<<<<<<<<<<<<
@@ -9201,7 +9217,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":630
+  /* "pygame/_sdl2/video.pyx":639
  *         if not self._tex:
  *             raise error()
  *         self.width, self.height = width, height             # <<<<<<<<<<<<<<
@@ -9213,7 +9229,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   __pyx_v_self->width = __pyx_t_8;
   __pyx_v_self->height = __pyx_t_7;
 
-  /* "pygame/_sdl2/video.pyx":572
+  /* "pygame/_sdl2/video.pyx":581
  *         self._color = pgColor_NewLength(defaultColor, 3)
  * 
  *     def __init__(self,             # <<<<<<<<<<<<<<
@@ -9236,7 +9252,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_2__init__(struct __pyx_obj_6p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":633
+/* "pygame/_sdl2/video.pyx":642
  * 
  *     @staticmethod
  *     def from_surface(Renderer renderer, surface):             # <<<<<<<<<<<<<<
@@ -9280,11 +9296,11 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_5from_surface(CYTHON_UN
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_surface)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("from_surface", 1, 2, 2, 1); __PYX_ERR(0, 633, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("from_surface", 1, 2, 2, 1); __PYX_ERR(0, 642, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "from_surface") < 0)) __PYX_ERR(0, 633, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "from_surface") < 0)) __PYX_ERR(0, 642, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -9297,13 +9313,13 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_5from_surface(CYTHON_UN
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("from_surface", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 633, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("from_surface", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 642, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Texture.from_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_renderer), __pyx_ptype_6pygame_5_sdl2_5video_Renderer, 1, "renderer", 0))) __PYX_ERR(0, 633, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_renderer), __pyx_ptype_6pygame_5_sdl2_5video_Renderer, 1, "renderer", 0))) __PYX_ERR(0, 642, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(__pyx_v_renderer, __pyx_v_surface);
 
   /* function exit code */
@@ -9332,7 +9348,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("from_surface", 0);
 
-  /* "pygame/_sdl2/video.pyx":640
+  /* "pygame/_sdl2/video.pyx":649
  *         """
  *         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -9342,20 +9358,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   __pyx_t_1 = ((!(pgSurface_Check(__pyx_v_surface) != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":641
+    /* "pygame/_sdl2/video.pyx":650
  *         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
  *         if not pgSurface_Check(surface):
  *             raise TypeError('2nd argument must be a surface')             # <<<<<<<<<<<<<<
  *         cdef Texture self = Texture.__new__(Texture)
  *         self.renderer = renderer
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 641, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 641, __pyx_L1_error)
+    __PYX_ERR(0, 650, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":640
+    /* "pygame/_sdl2/video.pyx":649
  *         """
  *         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -9364,19 +9380,19 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":642
+  /* "pygame/_sdl2/video.pyx":651
  *         if not pgSurface_Check(surface):
  *             raise TypeError('2nd argument must be a surface')
  *         cdef Texture self = Texture.__new__(Texture)             # <<<<<<<<<<<<<<
  *         self.renderer = renderer
  *         cdef SDL_Renderer* _renderer = renderer._renderer
  */
-  __pyx_t_2 = ((PyObject *)__pyx_tp_new_6pygame_5_sdl2_5video_Texture(((PyTypeObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_tp_new_6pygame_5_sdl2_5video_Texture(((PyTypeObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 651, __pyx_L1_error)
   __Pyx_GOTREF(((PyObject *)__pyx_t_2));
   __pyx_v_self = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygame/_sdl2/video.pyx":643
+  /* "pygame/_sdl2/video.pyx":652
  *             raise TypeError('2nd argument must be a surface')
  *         cdef Texture self = Texture.__new__(Texture)
  *         self.renderer = renderer             # <<<<<<<<<<<<<<
@@ -9389,7 +9405,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   __Pyx_DECREF(((PyObject *)__pyx_v_self->renderer));
   __pyx_v_self->renderer = __pyx_v_renderer;
 
-  /* "pygame/_sdl2/video.pyx":644
+  /* "pygame/_sdl2/video.pyx":653
  *         cdef Texture self = Texture.__new__(Texture)
  *         self.renderer = renderer
  *         cdef SDL_Renderer* _renderer = renderer._renderer             # <<<<<<<<<<<<<<
@@ -9399,7 +9415,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   __pyx_t_3 = __pyx_v_renderer->_renderer;
   __pyx_v__renderer = __pyx_t_3;
 
-  /* "pygame/_sdl2/video.pyx":645
+  /* "pygame/_sdl2/video.pyx":654
  *         self.renderer = renderer
  *         cdef SDL_Renderer* _renderer = renderer._renderer
  *         cdef SDL_Surface *surf_ptr = pgSurface_AsSurface(surface)             # <<<<<<<<<<<<<<
@@ -9408,7 +9424,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
  */
   __pyx_v_surf_ptr = pgSurface_AsSurface(__pyx_v_surface);
 
-  /* "pygame/_sdl2/video.pyx":646
+  /* "pygame/_sdl2/video.pyx":655
  *         cdef SDL_Renderer* _renderer = renderer._renderer
  *         cdef SDL_Surface *surf_ptr = pgSurface_AsSurface(surface)
  *         self._tex = SDL_CreateTextureFromSurface(_renderer,             # <<<<<<<<<<<<<<
@@ -9417,7 +9433,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
  */
   __pyx_v_self->_tex = SDL_CreateTextureFromSurface(__pyx_v__renderer, __pyx_v_surf_ptr);
 
-  /* "pygame/_sdl2/video.pyx":648
+  /* "pygame/_sdl2/video.pyx":657
  *         self._tex = SDL_CreateTextureFromSurface(_renderer,
  *                                                  surf_ptr)
  *         if not self._tex:             # <<<<<<<<<<<<<<
@@ -9427,14 +9443,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   __pyx_t_1 = ((!(__pyx_v_self->_tex != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":649
+    /* "pygame/_sdl2/video.pyx":658
  *                                                  surf_ptr)
  *         if not self._tex:
  *             raise error()             # <<<<<<<<<<<<<<
  *         self.width = surface.get_width()
  *         self.height = surface.get_height()
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 649, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 658, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -9448,14 +9464,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
     }
     __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 649, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 658, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 649, __pyx_L1_error)
+    __PYX_ERR(0, 658, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":648
+    /* "pygame/_sdl2/video.pyx":657
  *         self._tex = SDL_CreateTextureFromSurface(_renderer,
  *                                                  surf_ptr)
  *         if not self._tex:             # <<<<<<<<<<<<<<
@@ -9464,14 +9480,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":650
+  /* "pygame/_sdl2/video.pyx":659
  *         if not self._tex:
  *             raise error()
  *         self.width = surface.get_width()             # <<<<<<<<<<<<<<
  *         self.height = surface.get_height()
  *         return self
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_surface, __pyx_n_s_get_width); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_surface, __pyx_n_s_get_width); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 659, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -9485,21 +9501,21 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   }
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 659, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 650, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 659, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_self->width = __pyx_t_6;
 
-  /* "pygame/_sdl2/video.pyx":651
+  /* "pygame/_sdl2/video.pyx":660
  *             raise error()
  *         self.width = surface.get_width()
  *         self.height = surface.get_height()             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_surface, __pyx_n_s_get_height); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_surface, __pyx_n_s_get_height); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 660, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -9513,14 +9529,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   }
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 651, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 660, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 660, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_self->height = __pyx_t_6;
 
-  /* "pygame/_sdl2/video.pyx":652
+  /* "pygame/_sdl2/video.pyx":661
  *         self.width = surface.get_width()
  *         self.height = surface.get_height()
  *         return self             # <<<<<<<<<<<<<<
@@ -9532,7 +9548,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":633
+  /* "pygame/_sdl2/video.pyx":642
  * 
  *     @staticmethod
  *     def from_surface(Renderer renderer, surface):             # <<<<<<<<<<<<<<
@@ -9554,7 +9570,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_4from_surface(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":654
+/* "pygame/_sdl2/video.pyx":663
  *         return self
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -9578,7 +9594,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_7Texture_6__dealloc__(struct __pyx_ob
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "pygame/_sdl2/video.pyx":655
+  /* "pygame/_sdl2/video.pyx":664
  * 
  *     def __dealloc__(self):
  *         if self._tex:             # <<<<<<<<<<<<<<
@@ -9588,7 +9604,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_7Texture_6__dealloc__(struct __pyx_ob
   __pyx_t_1 = (__pyx_v_self->_tex != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":656
+    /* "pygame/_sdl2/video.pyx":665
  *     def __dealloc__(self):
  *         if self._tex:
  *             SDL_DestroyTexture(self._tex)             # <<<<<<<<<<<<<<
@@ -9597,7 +9613,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_7Texture_6__dealloc__(struct __pyx_ob
  */
     SDL_DestroyTexture(__pyx_v_self->_tex);
 
-    /* "pygame/_sdl2/video.pyx":655
+    /* "pygame/_sdl2/video.pyx":664
  * 
  *     def __dealloc__(self):
  *         if self._tex:             # <<<<<<<<<<<<<<
@@ -9606,7 +9622,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_7Texture_6__dealloc__(struct __pyx_ob
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":654
+  /* "pygame/_sdl2/video.pyx":663
  *         return self
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -9618,7 +9634,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_7Texture_6__dealloc__(struct __pyx_ob
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pygame/_sdl2/video.pyx":659
+/* "pygame/_sdl2/video.pyx":668
  * 
  *     @property
  *     def alpha(self):             # <<<<<<<<<<<<<<
@@ -9653,7 +9669,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":662
+  /* "pygame/_sdl2/video.pyx":671
  *         # https://wiki.libsdl.org/SDL_GetTextureAlphaMod
  *         cdef Uint8 alpha
  *         res = SDL_GetTextureAlphaMod(self._tex, &alpha)             # <<<<<<<<<<<<<<
@@ -9662,7 +9678,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
  */
   __pyx_v_res = SDL_GetTextureAlphaMod(__pyx_v_self->_tex, (&__pyx_v_alpha));
 
-  /* "pygame/_sdl2/video.pyx":663
+  /* "pygame/_sdl2/video.pyx":672
  *         cdef Uint8 alpha
  *         res = SDL_GetTextureAlphaMod(self._tex, &alpha)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9672,14 +9688,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":664
+    /* "pygame/_sdl2/video.pyx":673
  *         res = SDL_GetTextureAlphaMod(self._tex, &alpha)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         return alpha
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 664, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 673, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -9693,14 +9709,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 664, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 673, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 664, __pyx_L1_error)
+    __PYX_ERR(0, 673, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":663
+    /* "pygame/_sdl2/video.pyx":672
  *         cdef Uint8 alpha
  *         res = SDL_GetTextureAlphaMod(self._tex, &alpha)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9709,7 +9725,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":666
+  /* "pygame/_sdl2/video.pyx":675
  *             raise error()
  * 
  *         return alpha             # <<<<<<<<<<<<<<
@@ -9717,13 +9733,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
  *     @alpha.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyInt_From_Uint8(__pyx_v_alpha); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 666, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_Uint8(__pyx_v_alpha); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":659
+  /* "pygame/_sdl2/video.pyx":668
  * 
  *     @property
  *     def alpha(self):             # <<<<<<<<<<<<<<
@@ -9744,7 +9760,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha___get__(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":669
+/* "pygame/_sdl2/video.pyx":678
  * 
  *     @alpha.setter
  *     def alpha(self, Uint8 new_value):             # <<<<<<<<<<<<<<
@@ -9763,7 +9779,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_7Texture_5alpha_3__set__(PyObject *__p
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_new_value); {
-    __pyx_v_new_value = __Pyx_PyInt_As_Uint8(__pyx_arg_new_value); if (unlikely((__pyx_v_new_value == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 669, __pyx_L3_error)
+    __pyx_v_new_value = __Pyx_PyInt_As_Uint8(__pyx_arg_new_value); if (unlikely((__pyx_v_new_value == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 678, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9791,7 +9807,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":671
+  /* "pygame/_sdl2/video.pyx":680
  *     def alpha(self, Uint8 new_value):
  *         # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
  *         res = SDL_SetTextureAlphaMod(self._tex, new_value)             # <<<<<<<<<<<<<<
@@ -9800,7 +9816,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
  */
   __pyx_v_res = SDL_SetTextureAlphaMod(__pyx_v_self->_tex, __pyx_v_new_value);
 
-  /* "pygame/_sdl2/video.pyx":672
+  /* "pygame/_sdl2/video.pyx":681
  *         # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
  *         res = SDL_SetTextureAlphaMod(self._tex, new_value)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9810,14 +9826,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":673
+    /* "pygame/_sdl2/video.pyx":682
  *         res = SDL_SetTextureAlphaMod(self._tex, new_value)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 673, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 682, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -9831,14 +9847,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 673, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 682, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 673, __pyx_L1_error)
+    __PYX_ERR(0, 682, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":672
+    /* "pygame/_sdl2/video.pyx":681
  *         # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
  *         res = SDL_SetTextureAlphaMod(self._tex, new_value)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9847,7 +9863,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":669
+  /* "pygame/_sdl2/video.pyx":678
  * 
  *     @alpha.setter
  *     def alpha(self, Uint8 new_value):             # <<<<<<<<<<<<<<
@@ -9869,7 +9885,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5alpha_2__set__(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":676
+/* "pygame/_sdl2/video.pyx":685
  * 
  *     @property
  *     def blend_mode(self):             # <<<<<<<<<<<<<<
@@ -9904,7 +9920,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":679
+  /* "pygame/_sdl2/video.pyx":688
  *         # https://wiki.libsdl.org/SDL_GetTextureBlendMode
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetTextureBlendMode(self._tex, &blendMode)             # <<<<<<<<<<<<<<
@@ -9913,7 +9929,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
  */
   __pyx_v_res = SDL_GetTextureBlendMode(__pyx_v_self->_tex, (&__pyx_v_blendMode));
 
-  /* "pygame/_sdl2/video.pyx":680
+  /* "pygame/_sdl2/video.pyx":689
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetTextureBlendMode(self._tex, &blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9923,14 +9939,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":681
+    /* "pygame/_sdl2/video.pyx":690
  *         res = SDL_GetTextureBlendMode(self._tex, &blendMode)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         return blendMode
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 681, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 690, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -9944,14 +9960,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 681, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 690, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 681, __pyx_L1_error)
+    __PYX_ERR(0, 690, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":680
+    /* "pygame/_sdl2/video.pyx":689
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetTextureBlendMode(self._tex, &blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -9960,7 +9976,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":683
+  /* "pygame/_sdl2/video.pyx":692
  *             raise error()
  * 
  *         return blendMode             # <<<<<<<<<<<<<<
@@ -9968,13 +9984,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
  *     @blend_mode.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_blendMode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 683, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_blendMode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 692, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":676
+  /* "pygame/_sdl2/video.pyx":685
  * 
  *     @property
  *     def blend_mode(self):             # <<<<<<<<<<<<<<
@@ -9995,7 +10011,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode___get__(st
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":686
+/* "pygame/_sdl2/video.pyx":695
  * 
  *     @blend_mode.setter
  *     def blend_mode(self, blendMode):             # <<<<<<<<<<<<<<
@@ -10030,17 +10046,17 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode_2__set__(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":688
+  /* "pygame/_sdl2/video.pyx":697
  *     def blend_mode(self, blendMode):
  *         # https://wiki.libsdl.org/SDL_SetTextureBlendMode
  *         res = SDL_SetTextureBlendMode(self._tex, blendMode)             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_blendMode)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 688, __pyx_L1_error)
+  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_blendMode)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 697, __pyx_L1_error)
   __pyx_v_res = SDL_SetTextureBlendMode(__pyx_v_self->_tex, __pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":689
+  /* "pygame/_sdl2/video.pyx":698
  *         # https://wiki.libsdl.org/SDL_SetTextureBlendMode
  *         res = SDL_SetTextureBlendMode(self._tex, blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10050,14 +10066,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode_2__set__(struct 
   __pyx_t_2 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":690
+    /* "pygame/_sdl2/video.pyx":699
  *         res = SDL_SetTextureBlendMode(self._tex, blendMode)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 690, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 699, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -10071,14 +10087,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode_2__set__(struct 
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 690, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 699, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 690, __pyx_L1_error)
+    __PYX_ERR(0, 699, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":689
+    /* "pygame/_sdl2/video.pyx":698
  *         # https://wiki.libsdl.org/SDL_SetTextureBlendMode
  *         res = SDL_SetTextureBlendMode(self._tex, blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10087,7 +10103,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode_2__set__(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":686
+  /* "pygame/_sdl2/video.pyx":695
  * 
  *     @blend_mode.setter
  *     def blend_mode(self, blendMode):             # <<<<<<<<<<<<<<
@@ -10109,7 +10125,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_10blend_mode_2__set__(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":693
+/* "pygame/_sdl2/video.pyx":702
  * 
  *     @property
  *     def color(self):             # <<<<<<<<<<<<<<
@@ -10143,7 +10159,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":695
+  /* "pygame/_sdl2/video.pyx":704
  *     def color(self):
  *         # https://wiki.libsdl.org/SDL_GetTextureColorMod
  *         res = SDL_GetTextureColorMod(self._tex,             # <<<<<<<<<<<<<<
@@ -10152,7 +10168,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
  */
   __pyx_v_res = SDL_GetTextureColorMod(__pyx_v_self->_tex, (&(__pyx_v_self->_color->data[0])), (&(__pyx_v_self->_color->data[1])), (&(__pyx_v_self->_color->data[2])));
 
-  /* "pygame/_sdl2/video.pyx":699
+  /* "pygame/_sdl2/video.pyx":708
  *             &self._color.data[1],
  *             &self._color.data[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10162,14 +10178,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":700
+    /* "pygame/_sdl2/video.pyx":709
  *             &self._color.data[2])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         return self._color
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 700, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 709, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -10183,14 +10199,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 700, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 709, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 700, __pyx_L1_error)
+    __PYX_ERR(0, 709, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":699
+    /* "pygame/_sdl2/video.pyx":708
  *             &self._color.data[1],
  *             &self._color.data[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10199,7 +10215,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":702
+  /* "pygame/_sdl2/video.pyx":711
  *             raise error()
  * 
  *         return self._color             # <<<<<<<<<<<<<<
@@ -10211,7 +10227,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
   __pyx_r = ((PyObject *)__pyx_v_self->_color);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":693
+  /* "pygame/_sdl2/video.pyx":702
  * 
  *     @property
  *     def color(self):             # <<<<<<<<<<<<<<
@@ -10232,7 +10248,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_5color___get__(struct _
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":705
+/* "pygame/_sdl2/video.pyx":714
  * 
  *     @color.setter
  *     def color(self, new_value):             # <<<<<<<<<<<<<<
@@ -10269,43 +10285,43 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":708
+  /* "pygame/_sdl2/video.pyx":717
  *         # https://wiki.libsdl.org/SDL_SetTextureColorMod
  *         res = SDL_SetTextureColorMod(self._tex,
  *                                      new_value[0],             # <<<<<<<<<<<<<<
  *                                      new_value[1],
  *                                      new_value[2])
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 717, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_2 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 708, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_2 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 717, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":709
+  /* "pygame/_sdl2/video.pyx":718
  *         res = SDL_SetTextureColorMod(self._tex,
  *                                      new_value[0],
  *                                      new_value[1],             # <<<<<<<<<<<<<<
  *                                      new_value[2])
  *         if res < 0:
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 709, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 718, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_3 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 709, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_3 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 718, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":710
+  /* "pygame/_sdl2/video.pyx":719
  *                                      new_value[0],
  *                                      new_value[1],
  *                                      new_value[2])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 710, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_4 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 710, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_4 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":707
+  /* "pygame/_sdl2/video.pyx":716
  *     def color(self, new_value):
  *         # https://wiki.libsdl.org/SDL_SetTextureColorMod
  *         res = SDL_SetTextureColorMod(self._tex,             # <<<<<<<<<<<<<<
@@ -10314,7 +10330,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
  */
   __pyx_v_res = SDL_SetTextureColorMod(__pyx_v_self->_tex, __pyx_t_2, __pyx_t_3, __pyx_t_4);
 
-  /* "pygame/_sdl2/video.pyx":711
+  /* "pygame/_sdl2/video.pyx":720
  *                                      new_value[1],
  *                                      new_value[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10324,14 +10340,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
   __pyx_t_5 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":712
+    /* "pygame/_sdl2/video.pyx":721
  *                                      new_value[2])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def get_rect(self, **kwargs):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_error); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 712, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_error); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 721, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -10345,14 +10361,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
     }
     __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7) : __Pyx_PyObject_CallNoArg(__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 712, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 721, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 712, __pyx_L1_error)
+    __PYX_ERR(0, 721, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":711
+    /* "pygame/_sdl2/video.pyx":720
  *                                      new_value[1],
  *                                      new_value[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10361,7 +10377,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":705
+  /* "pygame/_sdl2/video.pyx":714
  * 
  *     @color.setter
  *     def color(self, new_value):             # <<<<<<<<<<<<<<
@@ -10383,7 +10399,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_7Texture_5color_2__set__(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":714
+/* "pygame/_sdl2/video.pyx":723
  *             raise error()
  * 
  *     def get_rect(self, **kwargs):             # <<<<<<<<<<<<<<
@@ -10429,19 +10445,19 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8get_rect(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_rect", 0);
 
-  /* "pygame/_sdl2/video.pyx":719
+  /* "pygame/_sdl2/video.pyx":728
  *         This rectangle will always start at 0, 0 with a width. and height the same size as the texture.
  *         """
  *         rect = pgRect_New4(0, 0, self.width, self.height)             # <<<<<<<<<<<<<<
  *         for key in kwargs:
  *             setattr(rect, key, kwargs[key])
  */
-  __pyx_t_1 = pgRect_New4(0, 0, __pyx_v_self->width, __pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
+  __pyx_t_1 = pgRect_New4(0, 0, __pyx_v_self->width, __pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 728, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_rect = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":720
+  /* "pygame/_sdl2/video.pyx":729
  *         """
  *         rect = pgRect_New4(0, 0, self.width, self.height)
  *         for key in kwargs:             # <<<<<<<<<<<<<<
@@ -10449,7 +10465,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8get_rect(struct __pyx_
  * 
  */
   __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_dict_iterator(__pyx_v_kwargs, 1, ((PyObject *)NULL), (&__pyx_t_3), (&__pyx_t_4)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 720, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_dict_iterator(__pyx_v_kwargs, 1, ((PyObject *)NULL), (&__pyx_t_3), (&__pyx_t_4)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 729, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_1);
   __pyx_t_1 = __pyx_t_5;
@@ -10457,26 +10473,26 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8get_rect(struct __pyx_
   while (1) {
     __pyx_t_6 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_3, &__pyx_t_2, &__pyx_t_5, NULL, NULL, __pyx_t_4);
     if (unlikely(__pyx_t_6 == 0)) break;
-    if (unlikely(__pyx_t_6 == -1)) __PYX_ERR(0, 720, __pyx_L1_error)
+    if (unlikely(__pyx_t_6 == -1)) __PYX_ERR(0, 729, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "pygame/_sdl2/video.pyx":721
+    /* "pygame/_sdl2/video.pyx":730
  *         rect = pgRect_New4(0, 0, self.width, self.height)
  *         for key in kwargs:
  *             setattr(rect, key, kwargs[key])             # <<<<<<<<<<<<<<
  * 
  *         return rect
  */
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 721, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 730, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_7 = PyObject_SetAttr(__pyx_v_rect, __pyx_v_key, __pyx_t_5); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 721, __pyx_L1_error)
+    __pyx_t_7 = PyObject_SetAttr(__pyx_v_rect, __pyx_v_key, __pyx_t_5); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 730, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":723
+  /* "pygame/_sdl2/video.pyx":732
  *             setattr(rect, key, kwargs[key])
  * 
  *         return rect             # <<<<<<<<<<<<<<
@@ -10488,7 +10504,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8get_rect(struct __pyx_
   __pyx_r = __pyx_v_rect;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":714
+  /* "pygame/_sdl2/video.pyx":723
  *             raise error()
  * 
  *     def get_rect(self, **kwargs):             # <<<<<<<<<<<<<<
@@ -10510,7 +10526,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_8get_rect(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":725
+/* "pygame/_sdl2/video.pyx":734
  *         return rect
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,             # <<<<<<<<<<<<<<
@@ -10522,7 +10538,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
   float __pyx_v_angle = ((float)0.0);
   SDL_Point *__pyx_v_originptr = ((SDL_Point *)NULL);
 
-  /* "pygame/_sdl2/video.pyx":726
+  /* "pygame/_sdl2/video.pyx":735
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,
  *                        bint flip_x=False, bint flip_y=False):             # <<<<<<<<<<<<<<
@@ -10558,7 +10574,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
     }
   }
 
-  /* "pygame/_sdl2/video.pyx":727
+  /* "pygame/_sdl2/video.pyx":736
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,
  *                        bint flip_x=False, bint flip_y=False):
  *         cdef int flip = SDL_FLIP_NONE             # <<<<<<<<<<<<<<
@@ -10567,7 +10583,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
   __pyx_v_flip = SDL_FLIP_NONE;
 
-  /* "pygame/_sdl2/video.pyx":728
+  /* "pygame/_sdl2/video.pyx":737
  *                        bint flip_x=False, bint flip_y=False):
  *         cdef int flip = SDL_FLIP_NONE
  *         if flip_x:             # <<<<<<<<<<<<<<
@@ -10577,7 +10593,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
   __pyx_t_1 = (__pyx_v_flip_x != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":729
+    /* "pygame/_sdl2/video.pyx":738
  *         cdef int flip = SDL_FLIP_NONE
  *         if flip_x:
  *             flip |= SDL_FLIP_HORIZONTAL             # <<<<<<<<<<<<<<
@@ -10586,7 +10602,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
     __pyx_v_flip = (__pyx_v_flip | SDL_FLIP_HORIZONTAL);
 
-    /* "pygame/_sdl2/video.pyx":728
+    /* "pygame/_sdl2/video.pyx":737
  *                        bint flip_x=False, bint flip_y=False):
  *         cdef int flip = SDL_FLIP_NONE
  *         if flip_x:             # <<<<<<<<<<<<<<
@@ -10595,7 +10611,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":730
+  /* "pygame/_sdl2/video.pyx":739
  *         if flip_x:
  *             flip |= SDL_FLIP_HORIZONTAL
  *         if flip_y:             # <<<<<<<<<<<<<<
@@ -10605,7 +10621,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
   __pyx_t_1 = (__pyx_v_flip_y != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":731
+    /* "pygame/_sdl2/video.pyx":740
  *             flip |= SDL_FLIP_HORIZONTAL
  *         if flip_y:
  *             flip |= SDL_FLIP_VERTICAL             # <<<<<<<<<<<<<<
@@ -10614,7 +10630,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
     __pyx_v_flip = (__pyx_v_flip | SDL_FLIP_VERTICAL);
 
-    /* "pygame/_sdl2/video.pyx":730
+    /* "pygame/_sdl2/video.pyx":739
  *         if flip_x:
  *             flip |= SDL_FLIP_HORIZONTAL
  *         if flip_y:             # <<<<<<<<<<<<<<
@@ -10623,7 +10639,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":733
+  /* "pygame/_sdl2/video.pyx":742
  *             flip |= SDL_FLIP_VERTICAL
  * 
  *         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,             # <<<<<<<<<<<<<<
@@ -10632,7 +10648,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
   __pyx_v_res = SDL_RenderCopyEx(__pyx_v_self->renderer->_renderer, __pyx_v_self->_tex, __pyx_v_csrcrect, __pyx_v_cdstrect, __pyx_v_angle, __pyx_v_originptr, ((SDL_RendererFlip)__pyx_v_flip));
 
-  /* "pygame/_sdl2/video.pyx":735
+  /* "pygame/_sdl2/video.pyx":744
  *         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
  *                                angle, originptr, <SDL_RendererFlip>flip)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10642,14 +10658,14 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":736
+    /* "pygame/_sdl2/video.pyx":745
  *                                angle, originptr, <SDL_RendererFlip>flip)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 736, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 745, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -10663,14 +10679,14 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 736, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 745, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 736, __pyx_L1_error)
+    __PYX_ERR(0, 745, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":735
+    /* "pygame/_sdl2/video.pyx":744
  *         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
  *                                angle, originptr, <SDL_RendererFlip>flip)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -10679,7 +10695,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":725
+  /* "pygame/_sdl2/video.pyx":734
  *         return rect
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,             # <<<<<<<<<<<<<<
@@ -10702,7 +10718,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":738
+/* "pygame/_sdl2/video.pyx":747
  *             raise error()
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
@@ -10717,7 +10733,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
   float __pyx_v_angle = ((float)0.0);
   PyObject *__pyx_v_origin = ((PyObject *)Py_None);
 
-  /* "pygame/_sdl2/video.pyx":739
+  /* "pygame/_sdl2/video.pyx":748
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
  *                     bint flip_x=False, bint flip_y=False):             # <<<<<<<<<<<<<<
@@ -10771,7 +10787,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     }
   }
 
-  /* "pygame/_sdl2/video.pyx":738
+  /* "pygame/_sdl2/video.pyx":747
  *             raise error()
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
@@ -10787,14 +10803,14 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 738, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 747, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pygame_5_sdl2_5video_7Texture_11draw)) {
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 738, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 747, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_flip_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 738, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_flip_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 747, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_flip_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 738, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_flip_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 747, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_6 = __pyx_t_1; __pyx_t_7 = NULL;
@@ -10812,7 +10828,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[7] = {__pyx_t_7, __pyx_v_srcrect, __pyx_v_dstrect, __pyx_t_3, __pyx_v_origin, __pyx_t_4, __pyx_t_5};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 738, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 747, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -10823,7 +10839,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[7] = {__pyx_t_7, __pyx_v_srcrect, __pyx_v_dstrect, __pyx_t_3, __pyx_v_origin, __pyx_t_4, __pyx_t_5};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 738, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 747, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -10832,7 +10848,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         } else
         #endif
         {
-          __pyx_t_9 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 738, __pyx_L1_error)
+          __pyx_t_9 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 747, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_9);
           if (__pyx_t_7) {
             __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -10855,7 +10871,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
           __pyx_t_5 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 738, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 747, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         }
@@ -10877,7 +10893,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     #endif
   }
 
-  /* "pygame/_sdl2/video.pyx":752
+  /* "pygame/_sdl2/video.pyx":761
  *         """
  *         cdef SDL_Rect src, dst
  *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
@@ -10886,7 +10902,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
   __pyx_v_csrcrect = NULL;
 
-  /* "pygame/_sdl2/video.pyx":753
+  /* "pygame/_sdl2/video.pyx":762
  *         cdef SDL_Rect src, dst
  *         cdef SDL_Rect *csrcrect = NULL
  *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
@@ -10895,7 +10911,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
   __pyx_v_cdstrect = NULL;
 
-  /* "pygame/_sdl2/video.pyx":757
+  /* "pygame/_sdl2/video.pyx":766
  *         cdef SDL_Point *originptr
  * 
  *         if srcrect is not None:             # <<<<<<<<<<<<<<
@@ -10906,7 +10922,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
   __pyx_t_11 = (__pyx_t_10 != 0);
   if (__pyx_t_11) {
 
-    /* "pygame/_sdl2/video.pyx":758
+    /* "pygame/_sdl2/video.pyx":767
  * 
  *         if srcrect is not None:
  *             csrcrect = pgRect_FromObject(srcrect, &src)             # <<<<<<<<<<<<<<
@@ -10915,7 +10931,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
     __pyx_v_csrcrect = pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src));
 
-    /* "pygame/_sdl2/video.pyx":759
+    /* "pygame/_sdl2/video.pyx":768
  *         if srcrect is not None:
  *             csrcrect = pgRect_FromObject(srcrect, &src)
  *             if not csrcrect:             # <<<<<<<<<<<<<<
@@ -10925,20 +10941,20 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     __pyx_t_11 = ((!(__pyx_v_csrcrect != 0)) != 0);
     if (unlikely(__pyx_t_11)) {
 
-      /* "pygame/_sdl2/video.pyx":760
+      /* "pygame/_sdl2/video.pyx":769
  *             csrcrect = pgRect_FromObject(srcrect, &src)
  *             if not csrcrect:
  *                 raise TypeError("the argument is not a rectangle or None")             # <<<<<<<<<<<<<<
  * 
  *         if dstrect is not None:
  */
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 760, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 769, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 760, __pyx_L1_error)
+      __PYX_ERR(0, 769, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":759
+      /* "pygame/_sdl2/video.pyx":768
  *         if srcrect is not None:
  *             csrcrect = pgRect_FromObject(srcrect, &src)
  *             if not csrcrect:             # <<<<<<<<<<<<<<
@@ -10947,7 +10963,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":757
+    /* "pygame/_sdl2/video.pyx":766
  *         cdef SDL_Point *originptr
  * 
  *         if srcrect is not None:             # <<<<<<<<<<<<<<
@@ -10956,7 +10972,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":762
+  /* "pygame/_sdl2/video.pyx":771
  *                 raise TypeError("the argument is not a rectangle or None")
  * 
  *         if dstrect is not None:             # <<<<<<<<<<<<<<
@@ -10967,7 +10983,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
   __pyx_t_10 = (__pyx_t_11 != 0);
   if (__pyx_t_10) {
 
-    /* "pygame/_sdl2/video.pyx":763
+    /* "pygame/_sdl2/video.pyx":772
  * 
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
@@ -10976,7 +10992,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
     __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
 
-    /* "pygame/_sdl2/video.pyx":764
+    /* "pygame/_sdl2/video.pyx":773
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
@@ -10986,44 +11002,44 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     __pyx_t_10 = ((__pyx_v_cdstrect == NULL) != 0);
     if (__pyx_t_10) {
 
-      /* "pygame/_sdl2/video.pyx":765
+      /* "pygame/_sdl2/video.pyx":774
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]
  */
-      __pyx_t_12 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 765, __pyx_L1_error)
+      __pyx_t_12 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 774, __pyx_L1_error)
       __pyx_t_10 = ((__pyx_t_12 == 2) != 0);
       if (likely(__pyx_t_10)) {
 
-        /* "pygame/_sdl2/video.pyx":766
+        /* "pygame/_sdl2/video.pyx":775
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:
  *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
  *                     dst.y = dstrect[1]
  *                     dst.w = self.width
  */
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 766, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 775, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 766, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 775, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.x = __pyx_t_8;
 
-        /* "pygame/_sdl2/video.pyx":767
+        /* "pygame/_sdl2/video.pyx":776
  *                 if len(dstrect) == 2:
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
  *                     dst.w = self.width
  *                     dst.h = self.height
  */
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 767, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 776, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 767, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 776, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.y = __pyx_t_8;
 
-        /* "pygame/_sdl2/video.pyx":768
+        /* "pygame/_sdl2/video.pyx":777
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]
  *                     dst.w = self.width             # <<<<<<<<<<<<<<
@@ -11033,7 +11049,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         __pyx_t_8 = __pyx_v_self->width;
         __pyx_v_dst.w = __pyx_t_8;
 
-        /* "pygame/_sdl2/video.pyx":769
+        /* "pygame/_sdl2/video.pyx":778
  *                     dst.y = dstrect[1]
  *                     dst.w = self.width
  *                     dst.h = self.height             # <<<<<<<<<<<<<<
@@ -11043,7 +11059,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         __pyx_t_8 = __pyx_v_self->height;
         __pyx_v_dst.h = __pyx_t_8;
 
-        /* "pygame/_sdl2/video.pyx":770
+        /* "pygame/_sdl2/video.pyx":779
  *                     dst.w = self.width
  *                     dst.h = self.height
  *                     cdstrect = &dst             # <<<<<<<<<<<<<<
@@ -11052,7 +11068,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
         __pyx_v_cdstrect = (&__pyx_v_dst);
 
-        /* "pygame/_sdl2/video.pyx":765
+        /* "pygame/_sdl2/video.pyx":774
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
@@ -11062,7 +11078,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
         goto __pyx_L7;
       }
 
-      /* "pygame/_sdl2/video.pyx":772
+      /* "pygame/_sdl2/video.pyx":781
  *                     cdstrect = &dst
  *                 else:
  *                     raise TypeError('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
@@ -11070,15 +11086,15 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  *         if origin:
  */
       /*else*/ {
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 772, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 781, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_Raise(__pyx_t_1, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __PYX_ERR(0, 772, __pyx_L1_error)
+        __PYX_ERR(0, 781, __pyx_L1_error)
       }
       __pyx_L7:;
 
-      /* "pygame/_sdl2/video.pyx":764
+      /* "pygame/_sdl2/video.pyx":773
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
@@ -11087,7 +11103,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":762
+    /* "pygame/_sdl2/video.pyx":771
  *                 raise TypeError("the argument is not a rectangle or None")
  * 
  *         if dstrect is not None:             # <<<<<<<<<<<<<<
@@ -11096,17 +11112,17 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":774
+  /* "pygame/_sdl2/video.pyx":783
  *                     raise TypeError('dstrect must be a position, rect, or None')
  * 
  *         if origin:             # <<<<<<<<<<<<<<
  *             originptr = &corigin
  *             corigin.x = origin[0]
  */
-  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_origin); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 774, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_origin); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 783, __pyx_L1_error)
   if (__pyx_t_10) {
 
-    /* "pygame/_sdl2/video.pyx":775
+    /* "pygame/_sdl2/video.pyx":784
  * 
  *         if origin:
  *             originptr = &corigin             # <<<<<<<<<<<<<<
@@ -11115,33 +11131,33 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
  */
     __pyx_v_originptr = (&__pyx_v_corigin);
 
-    /* "pygame/_sdl2/video.pyx":776
+    /* "pygame/_sdl2/video.pyx":785
  *         if origin:
  *             originptr = &corigin
  *             corigin.x = origin[0]             # <<<<<<<<<<<<<<
  *             corigin.y = origin[1]
  *         else:
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 776, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 785, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 776, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 785, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_corigin.x = __pyx_t_8;
 
-    /* "pygame/_sdl2/video.pyx":777
+    /* "pygame/_sdl2/video.pyx":786
  *             originptr = &corigin
  *             corigin.x = origin[0]
  *             corigin.y = origin[1]             # <<<<<<<<<<<<<<
  *         else:
  *             originptr = NULL
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 777, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 786, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 777, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 786, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_corigin.y = __pyx_t_8;
 
-    /* "pygame/_sdl2/video.pyx":774
+    /* "pygame/_sdl2/video.pyx":783
  *                     raise TypeError('dstrect must be a position, rect, or None')
  * 
  *         if origin:             # <<<<<<<<<<<<<<
@@ -11151,7 +11167,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
     goto __pyx_L8;
   }
 
-  /* "pygame/_sdl2/video.pyx":779
+  /* "pygame/_sdl2/video.pyx":788
  *             corigin.y = origin[1]
  *         else:
  *             originptr = NULL             # <<<<<<<<<<<<<<
@@ -11163,7 +11179,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
   }
   __pyx_L8:;
 
-  /* "pygame/_sdl2/video.pyx":781
+  /* "pygame/_sdl2/video.pyx":790
  *             originptr = NULL
  * 
  *         self.draw_internal(csrcrect, cdstrect, angle, originptr,             # <<<<<<<<<<<<<<
@@ -11175,11 +11191,11 @@ static void __pyx_f_6pygame_5_sdl2_5video_7Texture_draw(struct __pyx_obj_6pygame
   __pyx_t_13.originptr = __pyx_v_originptr;
   __pyx_t_13.flip_x = __pyx_v_flip_x;
   __pyx_t_13.flip_y = __pyx_v_flip_y;
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *)__pyx_v_self->__pyx_vtab)->draw_internal(__pyx_v_self, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_13); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *)__pyx_v_self->__pyx_vtab)->draw_internal(__pyx_v_self, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_13); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 790, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":738
+  /* "pygame/_sdl2/video.pyx":747
  *             raise error()
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
@@ -11283,7 +11299,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_11draw(PyObject *__pyx_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw") < 0)) __PYX_ERR(0, 738, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw") < 0)) __PYX_ERR(0, 747, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -11306,16 +11322,16 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_11draw(PyObject *__pyx_
     __pyx_v_srcrect = values[0];
     __pyx_v_dstrect = values[1];
     if (values[2]) {
-      __pyx_v_angle = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_angle == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 738, __pyx_L3_error)
+      __pyx_v_angle = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_angle == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 747, __pyx_L3_error)
     } else {
       __pyx_v_angle = ((float)0.0);
     }
     __pyx_v_origin = values[3];
     if (values[4]) {
-      __pyx_v_flip_x = __Pyx_PyObject_IsTrue(values[4]); if (unlikely((__pyx_v_flip_x == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 739, __pyx_L3_error)
+      __pyx_v_flip_x = __Pyx_PyObject_IsTrue(values[4]); if (unlikely((__pyx_v_flip_x == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 748, __pyx_L3_error)
     } else {
 
-      /* "pygame/_sdl2/video.pyx":739
+      /* "pygame/_sdl2/video.pyx":748
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
  *                     bint flip_x=False, bint flip_y=False):             # <<<<<<<<<<<<<<
@@ -11325,14 +11341,14 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_11draw(PyObject *__pyx_
       __pyx_v_flip_x = ((int)0);
     }
     if (values[5]) {
-      __pyx_v_flip_y = __Pyx_PyObject_IsTrue(values[5]); if (unlikely((__pyx_v_flip_y == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 739, __pyx_L3_error)
+      __pyx_v_flip_y = __Pyx_PyObject_IsTrue(values[5]); if (unlikely((__pyx_v_flip_y == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 748, __pyx_L3_error)
     } else {
       __pyx_v_flip_y = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("draw", 0, 0, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 738, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("draw", 0, 0, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 747, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Texture.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -11340,7 +11356,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_11draw(PyObject *__pyx_
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_7Texture_10draw(((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_v_self), __pyx_v_srcrect, __pyx_v_dstrect, __pyx_v_angle, __pyx_v_origin, __pyx_v_flip_x, __pyx_v_flip_y);
 
-  /* "pygame/_sdl2/video.pyx":738
+  /* "pygame/_sdl2/video.pyx":747
  *             raise error()
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
@@ -11371,7 +11387,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10draw(struct __pyx_obj
   __pyx_t_1.flip_x = __pyx_v_flip_x;
   __pyx_t_1.flip_y = __pyx_v_flip_y;
   __pyx_vtabptr_6pygame_5_sdl2_5video_Texture->draw(__pyx_v_self, 1, &__pyx_t_1); 
-  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 738, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 747, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -11388,7 +11404,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_10draw(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":784
+/* "pygame/_sdl2/video.pyx":793
  *                            flip_x, flip_y)
  * 
  *     def update(self, surface, area=None):             # <<<<<<<<<<<<<<
@@ -11436,7 +11452,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_13update(PyObject *__py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update") < 0)) __PYX_ERR(0, 784, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update") < 0)) __PYX_ERR(0, 793, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -11452,7 +11468,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_7Texture_13update(PyObject *__py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 784, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("update", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 793, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Texture.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -11483,7 +11499,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update", 0);
 
-  /* "pygame/_sdl2/video.pyx":799
+  /* "pygame/_sdl2/video.pyx":808
  *         """
  * 
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -11493,20 +11509,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
   __pyx_t_1 = ((!(pgSurface_Check(__pyx_v_surface) != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":800
+    /* "pygame/_sdl2/video.pyx":809
  * 
  *         if not pgSurface_Check(surface):
  *             raise TypeError("update source should be a Surface.")             # <<<<<<<<<<<<<<
  * 
  *         cdef SDL_Rect rect
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 800, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 809, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 800, __pyx_L1_error)
+    __PYX_ERR(0, 809, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":799
+    /* "pygame/_sdl2/video.pyx":808
  *         """
  * 
  *         if not pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -11515,7 +11531,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":803
+  /* "pygame/_sdl2/video.pyx":812
  * 
  *         cdef SDL_Rect rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &rect)             # <<<<<<<<<<<<<<
@@ -11524,7 +11540,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   __pyx_v_rectptr = pgRect_FromObject(__pyx_v_area, (&__pyx_v_rect));
 
-  /* "pygame/_sdl2/video.pyx":804
+  /* "pygame/_sdl2/video.pyx":813
  *         cdef SDL_Rect rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &rect)
  *         cdef SDL_Surface *surf = pgSurface_AsSurface(surface)             # <<<<<<<<<<<<<<
@@ -11533,7 +11549,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   __pyx_v_surf = pgSurface_AsSurface(__pyx_v_surface);
 
-  /* "pygame/_sdl2/video.pyx":806
+  /* "pygame/_sdl2/video.pyx":815
  *         cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
  * 
  *         if rectptr == NULL and area is not None:             # <<<<<<<<<<<<<<
@@ -11552,20 +11568,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
   __pyx_L5_bool_binop_done:;
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":807
+    /* "pygame/_sdl2/video.pyx":816
  * 
  *         if rectptr == NULL and area is not None:
  *             raise TypeError('area must be a rectangle or None')             # <<<<<<<<<<<<<<
  * 
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 807, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 816, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 807, __pyx_L1_error)
+    __PYX_ERR(0, 816, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":806
+    /* "pygame/_sdl2/video.pyx":815
  *         cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
  * 
  *         if rectptr == NULL and area is not None:             # <<<<<<<<<<<<<<
@@ -11574,7 +11590,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":809
+  /* "pygame/_sdl2/video.pyx":818
  *             raise TypeError('area must be a rectangle or None')
  * 
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)             # <<<<<<<<<<<<<<
@@ -11583,7 +11599,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   __pyx_v_res = SDL_UpdateTexture(__pyx_v_self->_tex, __pyx_v_rectptr, __pyx_v_surf->pixels, __pyx_v_surf->pitch);
 
-  /* "pygame/_sdl2/video.pyx":810
+  /* "pygame/_sdl2/video.pyx":819
  * 
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -11593,14 +11609,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":811
+    /* "pygame/_sdl2/video.pyx":820
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  * cdef class Image:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 811, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 820, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -11614,14 +11630,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
     }
     __pyx_t_2 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 811, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 820, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 811, __pyx_L1_error)
+    __PYX_ERR(0, 820, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":810
+    /* "pygame/_sdl2/video.pyx":819
  * 
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -11630,7 +11646,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_12update(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":784
+  /* "pygame/_sdl2/video.pyx":793
  *                            flip_x, flip_y)
  * 
  *     def update(self, surface, area=None):             # <<<<<<<<<<<<<<
@@ -11897,7 +11913,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_7Texture_16__setstate_cython__(C
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":815
+/* "pygame/_sdl2/video.pyx":824
  * cdef class Image:
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -11932,7 +11948,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "pygame/_sdl2/video.pyx":816
+  /* "pygame/_sdl2/video.pyx":825
  * 
  *     def __cinit__(self):
  *         self.angle = 0             # <<<<<<<<<<<<<<
@@ -11941,7 +11957,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->angle = 0.0;
 
-  /* "pygame/_sdl2/video.pyx":817
+  /* "pygame/_sdl2/video.pyx":826
  *     def __cinit__(self):
  *         self.angle = 0
  *         self._origin.x = 0             # <<<<<<<<<<<<<<
@@ -11950,7 +11966,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->_origin.x = 0;
 
-  /* "pygame/_sdl2/video.pyx":818
+  /* "pygame/_sdl2/video.pyx":827
  *         self.angle = 0
  *         self._origin.x = 0
  *         self._origin.y = 0             # <<<<<<<<<<<<<<
@@ -11959,7 +11975,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->_origin.y = 0;
 
-  /* "pygame/_sdl2/video.pyx":819
+  /* "pygame/_sdl2/video.pyx":828
  *         self._origin.x = 0
  *         self._origin.y = 0
  *         self._originptr = NULL             # <<<<<<<<<<<<<<
@@ -11968,7 +11984,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->_originptr = NULL;
 
-  /* "pygame/_sdl2/video.pyx":820
+  /* "pygame/_sdl2/video.pyx":829
  *         self._origin.y = 0
  *         self._originptr = NULL
  *         self.flip_x = False             # <<<<<<<<<<<<<<
@@ -11977,7 +11993,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->flip_x = 0;
 
-  /* "pygame/_sdl2/video.pyx":821
+  /* "pygame/_sdl2/video.pyx":830
  *         self._originptr = NULL
  *         self.flip_x = False
  *         self.flip_y = False             # <<<<<<<<<<<<<<
@@ -11986,7 +12002,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->flip_y = 0;
 
-  /* "pygame/_sdl2/video.pyx":823
+  /* "pygame/_sdl2/video.pyx":832
  *         self.flip_y = False
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]             # <<<<<<<<<<<<<<
@@ -11999,23 +12015,23 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
   __pyx_t_1[3] = 0xFF;
   memcpy(&(__pyx_v_defaultColor[0]), __pyx_t_1, sizeof(__pyx_v_defaultColor[0]) * (4));
 
-  /* "pygame/_sdl2/video.pyx":824
+  /* "pygame/_sdl2/video.pyx":833
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._color = pgColor_NewLength(defaultColor, 3)             # <<<<<<<<<<<<<<
  *         self.alpha = 255
  * 
  */
-  __pyx_t_2 = pgColor_NewLength(__pyx_v_defaultColor, 3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_2 = pgColor_NewLength(__pyx_v_defaultColor, 3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 833, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 824, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 833, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->_color);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_color));
   __pyx_v_self->_color = ((pgColorObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygame/_sdl2/video.pyx":825
+  /* "pygame/_sdl2/video.pyx":834
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._color = pgColor_NewLength(defaultColor, 3)
  *         self.alpha = 255             # <<<<<<<<<<<<<<
@@ -12024,7 +12040,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
  */
   __pyx_v_self->alpha = 255.0;
 
-  /* "pygame/_sdl2/video.pyx":815
+  /* "pygame/_sdl2/video.pyx":824
  * cdef class Image:
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -12044,7 +12060,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image___cinit__(struct __pyx_obj_6pyg
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":827
+/* "pygame/_sdl2/video.pyx":836
  *         self.alpha = 255
  * 
  *     def __init__(self, textureOrImage, srcrect=None):             # <<<<<<<<<<<<<<
@@ -12091,7 +12107,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_5Image_3__init__(PyObject *__pyx_v_sel
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 827, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 836, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -12107,7 +12123,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_5Image_3__init__(PyObject *__pyx_v_sel
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 827, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 836, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Image.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -12137,7 +12153,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pygame/_sdl2/video.pyx":831
+  /* "pygame/_sdl2/video.pyx":840
  *         cdef SDL_Rect *rectptr
  * 
  *         if isinstance(textureOrImage, Image):             # <<<<<<<<<<<<<<
@@ -12148,42 +12164,42 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygame/_sdl2/video.pyx":832
+    /* "pygame/_sdl2/video.pyx":841
  * 
  *         if isinstance(textureOrImage, Image):
  *             self.texture = textureOrImage.texture             # <<<<<<<<<<<<<<
  *             self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)
  *         else:
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_texture); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 832, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_texture); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 841, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 832, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 841, __pyx_L1_error)
     __Pyx_GIVEREF(__pyx_t_3);
     __Pyx_GOTREF(__pyx_v_self->texture);
     __Pyx_DECREF(((PyObject *)__pyx_v_self->texture));
     __pyx_v_self->texture = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pygame/_sdl2/video.pyx":833
+    /* "pygame/_sdl2/video.pyx":842
  *         if isinstance(textureOrImage, Image):
  *             self.texture = textureOrImage.texture
  *             self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)             # <<<<<<<<<<<<<<
  *         else:
  *             self.texture = textureOrImage
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_srcrect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 833, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_srcrect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 842, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = pgRect_New((&((pgRectObject *)__pyx_t_3)->r)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 833, __pyx_L1_error)
+    __pyx_t_4 = pgRect_New((&((pgRectObject *)__pyx_t_3)->r)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 842, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 833, __pyx_L1_error)
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 842, __pyx_L1_error)
     __Pyx_GIVEREF(__pyx_t_4);
     __Pyx_GOTREF(__pyx_v_self->srcrect);
     __Pyx_DECREF(((PyObject *)__pyx_v_self->srcrect));
     __pyx_v_self->srcrect = ((pgRectObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pygame/_sdl2/video.pyx":831
+    /* "pygame/_sdl2/video.pyx":840
  *         cdef SDL_Rect *rectptr
  * 
  *         if isinstance(textureOrImage, Image):             # <<<<<<<<<<<<<<
@@ -12193,7 +12209,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":835
+  /* "pygame/_sdl2/video.pyx":844
  *             self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)
  *         else:
  *             self.texture = textureOrImage             # <<<<<<<<<<<<<<
@@ -12201,7 +12217,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  *         self.blend_mode = textureOrImage.blend_mode
  */
   /*else*/ {
-    if (!(likely(((__pyx_v_textureOrImage) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_textureOrImage, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 835, __pyx_L1_error)
+    if (!(likely(((__pyx_v_textureOrImage) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_textureOrImage, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 844, __pyx_L1_error)
     __pyx_t_4 = __pyx_v_textureOrImage;
     __Pyx_INCREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
@@ -12210,14 +12226,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_v_self->texture = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pygame/_sdl2/video.pyx":836
+    /* "pygame/_sdl2/video.pyx":845
  *         else:
  *             self.texture = textureOrImage
  *             self.srcrect = textureOrImage.get_rect()             # <<<<<<<<<<<<<<
  *         self.blend_mode = textureOrImage.blend_mode
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_get_rect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 836, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_get_rect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 845, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -12231,10 +12247,10 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     }
     __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 836, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 845, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 836, __pyx_L1_error)
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 845, __pyx_L1_error)
     __Pyx_GIVEREF(__pyx_t_4);
     __Pyx_GOTREF(__pyx_v_self->srcrect);
     __Pyx_DECREF(((PyObject *)__pyx_v_self->srcrect));
@@ -12243,20 +12259,20 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":837
+  /* "pygame/_sdl2/video.pyx":846
  *             self.texture = textureOrImage
  *             self.srcrect = textureOrImage.get_rect()
  *         self.blend_mode = textureOrImage.blend_mode             # <<<<<<<<<<<<<<
  * 
  *         if srcrect is not None:
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_blend_mode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 837, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_textureOrImage, __pyx_n_s_blend_mode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 846, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_t_4)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 837, __pyx_L1_error)
+  __pyx_t_6 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_t_4)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 846, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_self->blend_mode = __pyx_t_6;
 
-  /* "pygame/_sdl2/video.pyx":839
+  /* "pygame/_sdl2/video.pyx":848
  *         self.blend_mode = textureOrImage.blend_mode
  * 
  *         if srcrect is not None:             # <<<<<<<<<<<<<<
@@ -12267,7 +12283,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":840
+    /* "pygame/_sdl2/video.pyx":849
  * 
  *         if srcrect is not None:
  *             rectptr = pgRect_FromObject(srcrect, &temp)             # <<<<<<<<<<<<<<
@@ -12276,7 +12292,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  */
     __pyx_v_rectptr = pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_temp));
 
-    /* "pygame/_sdl2/video.pyx":841
+    /* "pygame/_sdl2/video.pyx":850
  *         if srcrect is not None:
  *             rectptr = pgRect_FromObject(srcrect, &temp)
  *             if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -12286,20 +12302,20 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_t_1 = ((__pyx_v_rectptr == NULL) != 0);
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":842
+      /* "pygame/_sdl2/video.pyx":851
  *             rectptr = pgRect_FromObject(srcrect, &temp)
  *             if rectptr == NULL:
  *                 raise TypeError('srcrect must be None or a rectangle')             # <<<<<<<<<<<<<<
  *             temp.x = rectptr.x
  *             temp.y = rectptr.y
  */
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 842, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_Raise(__pyx_t_4, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __PYX_ERR(0, 842, __pyx_L1_error)
+      __PYX_ERR(0, 851, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":841
+      /* "pygame/_sdl2/video.pyx":850
  *         if srcrect is not None:
  *             rectptr = pgRect_FromObject(srcrect, &temp)
  *             if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -12308,7 +12324,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":843
+    /* "pygame/_sdl2/video.pyx":852
  *             if rectptr == NULL:
  *                 raise TypeError('srcrect must be None or a rectangle')
  *             temp.x = rectptr.x             # <<<<<<<<<<<<<<
@@ -12318,7 +12334,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_t_7 = __pyx_v_rectptr->x;
     __pyx_v_temp.x = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":844
+    /* "pygame/_sdl2/video.pyx":853
  *                 raise TypeError('srcrect must be None or a rectangle')
  *             temp.x = rectptr.x
  *             temp.y = rectptr.y             # <<<<<<<<<<<<<<
@@ -12328,7 +12344,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_t_7 = __pyx_v_rectptr->y;
     __pyx_v_temp.y = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":845
+    /* "pygame/_sdl2/video.pyx":854
  *             temp.x = rectptr.x
  *             temp.y = rectptr.y
  *             temp.w = rectptr.w             # <<<<<<<<<<<<<<
@@ -12338,7 +12354,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_t_7 = __pyx_v_rectptr->w;
     __pyx_v_temp.w = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":846
+    /* "pygame/_sdl2/video.pyx":855
  *             temp.y = rectptr.y
  *             temp.w = rectptr.w
  *             temp.h = rectptr.h             # <<<<<<<<<<<<<<
@@ -12348,7 +12364,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
     __pyx_t_7 = __pyx_v_rectptr->h;
     __pyx_v_temp.h = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":848
+    /* "pygame/_sdl2/video.pyx":857
  *             temp.h = rectptr.h
  * 
  *             if temp.x < 0 or temp.y < 0 or \             # <<<<<<<<<<<<<<
@@ -12368,7 +12384,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
       goto __pyx_L7_bool_binop_done;
     }
 
-    /* "pygame/_sdl2/video.pyx":849
+    /* "pygame/_sdl2/video.pyx":858
  * 
  *             if temp.x < 0 or temp.y < 0 or \
  *                 temp.w < 0 or temp.h < 0 or \             # <<<<<<<<<<<<<<
@@ -12388,21 +12404,21 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
       goto __pyx_L7_bool_binop_done;
     }
 
-    /* "pygame/_sdl2/video.pyx":850
+    /* "pygame/_sdl2/video.pyx":859
  *             if temp.x < 0 or temp.y < 0 or \
  *                 temp.w < 0 or temp.h < 0 or \
  *                 temp.x + temp.w > self.srcrect.w or \             # <<<<<<<<<<<<<<
  *                 temp.y + temp.h > self.srcrect.h:
  *                 raise ValueError('rect values are out of range')
  */
-    __pyx_t_4 = __Pyx_PyInt_From_int((__pyx_v_temp.x + __pyx_v_temp.w)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 850, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int((__pyx_v_temp.x + __pyx_v_temp.w)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 850, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = PyObject_RichCompare(__pyx_t_4, __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 850, __pyx_L1_error)
+    __pyx_t_5 = PyObject_RichCompare(__pyx_t_4, __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 850, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (!__pyx_t_2) {
     } else {
@@ -12410,26 +12426,26 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
       goto __pyx_L7_bool_binop_done;
     }
 
-    /* "pygame/_sdl2/video.pyx":851
+    /* "pygame/_sdl2/video.pyx":860
  *                 temp.w < 0 or temp.h < 0 or \
  *                 temp.x + temp.w > self.srcrect.w or \
  *                 temp.y + temp.h > self.srcrect.h:             # <<<<<<<<<<<<<<
  *                 raise ValueError('rect values are out of range')
  *             temp.x += self.srcrect.x
  */
-    __pyx_t_5 = __Pyx_PyInt_From_int((__pyx_v_temp.y + __pyx_v_temp.h)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int((__pyx_v_temp.y + __pyx_v_temp.h)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_1 = __pyx_t_2;
     __pyx_L7_bool_binop_done:;
 
-    /* "pygame/_sdl2/video.pyx":848
+    /* "pygame/_sdl2/video.pyx":857
  *             temp.h = rectptr.h
  * 
  *             if temp.x < 0 or temp.y < 0 or \             # <<<<<<<<<<<<<<
@@ -12438,20 +12454,20 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  */
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":852
+      /* "pygame/_sdl2/video.pyx":861
  *                 temp.x + temp.w > self.srcrect.w or \
  *                 temp.y + temp.h > self.srcrect.h:
  *                 raise ValueError('rect values are out of range')             # <<<<<<<<<<<<<<
  *             temp.x += self.srcrect.x
  *             temp.y += self.srcrect.y
  */
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 852, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 861, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_Raise(__pyx_t_4, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __PYX_ERR(0, 852, __pyx_L1_error)
+      __PYX_ERR(0, 861, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":848
+      /* "pygame/_sdl2/video.pyx":857
  *             temp.h = rectptr.h
  * 
  *             if temp.x < 0 or temp.y < 0 or \             # <<<<<<<<<<<<<<
@@ -12460,61 +12476,61 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":853
+    /* "pygame/_sdl2/video.pyx":862
  *                 temp.y + temp.h > self.srcrect.h:
  *                 raise ValueError('rect values are out of range')
  *             temp.x += self.srcrect.x             # <<<<<<<<<<<<<<
  *             temp.y += self.srcrect.y
  *             self.srcrect = pgRect_New(&temp)
  */
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_temp.x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 853, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_temp.x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 862, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 853, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 862, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 853, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 862, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 853, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 862, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_temp.x = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":854
+    /* "pygame/_sdl2/video.pyx":863
  *                 raise ValueError('rect values are out of range')
  *             temp.x += self.srcrect.x
  *             temp.y += self.srcrect.y             # <<<<<<<<<<<<<<
  *             self.srcrect = pgRect_New(&temp)
  * 
  */
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_temp.y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 854, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_temp.y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 863, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 854, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 863, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 854, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 863, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 854, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 863, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_temp.y = __pyx_t_7;
 
-    /* "pygame/_sdl2/video.pyx":855
+    /* "pygame/_sdl2/video.pyx":864
  *             temp.x += self.srcrect.x
  *             temp.y += self.srcrect.y
  *             self.srcrect = pgRect_New(&temp)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_4 = pgRect_New((&__pyx_v_temp)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 855, __pyx_L1_error)
+    __pyx_t_4 = pgRect_New((&__pyx_v_temp)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 864, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 855, __pyx_L1_error)
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygame_5_sdl2_5video_Rect))))) __PYX_ERR(0, 864, __pyx_L1_error)
     __Pyx_GIVEREF(__pyx_t_4);
     __Pyx_GOTREF(__pyx_v_self->srcrect);
     __Pyx_DECREF(((PyObject *)__pyx_v_self->srcrect));
     __pyx_v_self->srcrect = ((pgRectObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pygame/_sdl2/video.pyx":839
+    /* "pygame/_sdl2/video.pyx":848
  *         self.blend_mode = textureOrImage.blend_mode
  * 
  *         if srcrect is not None:             # <<<<<<<<<<<<<<
@@ -12523,7 +12539,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":827
+  /* "pygame/_sdl2/video.pyx":836
  *         self.alpha = 255
  * 
  *     def __init__(self, textureOrImage, srcrect=None):             # <<<<<<<<<<<<<<
@@ -12545,7 +12561,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_2__init__(struct __pyx_obj_6pyg
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":858
+/* "pygame/_sdl2/video.pyx":867
  * 
  *     @property
  *     def color(self):             # <<<<<<<<<<<<<<
@@ -12571,7 +12587,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5color___get__(struct __p
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":859
+  /* "pygame/_sdl2/video.pyx":868
  *     @property
  *     def color(self):
  *         return self._color             # <<<<<<<<<<<<<<
@@ -12583,7 +12599,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5color___get__(struct __p
   __pyx_r = ((PyObject *)__pyx_v_self->_color);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":858
+  /* "pygame/_sdl2/video.pyx":867
  * 
  *     @property
  *     def color(self):             # <<<<<<<<<<<<<<
@@ -12598,7 +12614,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5color___get__(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":862
+/* "pygame/_sdl2/video.pyx":871
  * 
  *     @color.setter
  *     def color(self, new_color):             # <<<<<<<<<<<<<<
@@ -12628,19 +12644,19 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5color_2__set__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":863
+  /* "pygame/_sdl2/video.pyx":872
  *     @color.setter
  *     def color(self, new_color):
  *         self._color[:3] = new_color[:3]             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __Pyx_PyObject_GetSlice(__pyx_v_new_color, 0, 3, NULL, NULL, &__pyx_slice__22, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 863, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetSlice(__pyx_v_new_color, 0, 3, NULL, NULL, &__pyx_slice__22, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 872, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetSlice(((PyObject *)__pyx_v_self->_color), __pyx_t_1, 0, 3, NULL, NULL, &__pyx_slice__22, 0, 1, 1) < 0) __PYX_ERR(0, 863, __pyx_L1_error)
+  if (__Pyx_PyObject_SetSlice(((PyObject *)__pyx_v_self->_color), __pyx_t_1, 0, 3, NULL, NULL, &__pyx_slice__22, 0, 1, 1) < 0) __PYX_ERR(0, 872, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":862
+  /* "pygame/_sdl2/video.pyx":871
  * 
  *     @color.setter
  *     def color(self, new_color):             # <<<<<<<<<<<<<<
@@ -12660,7 +12676,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5color_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":866
+/* "pygame/_sdl2/video.pyx":875
  * 
  *     @property
  *     def origin(self):             # <<<<<<<<<<<<<<
@@ -12693,7 +12709,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":867
+  /* "pygame/_sdl2/video.pyx":876
  *     @property
  *     def origin(self):
  *         if self._originptr == NULL:             # <<<<<<<<<<<<<<
@@ -12703,7 +12719,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
   __pyx_t_1 = ((__pyx_v_self->_originptr == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":868
+    /* "pygame/_sdl2/video.pyx":877
  *     def origin(self):
  *         if self._originptr == NULL:
  *             return None             # <<<<<<<<<<<<<<
@@ -12714,7 +12730,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/video.pyx":867
+    /* "pygame/_sdl2/video.pyx":876
  *     @property
  *     def origin(self):
  *         if self._originptr == NULL:             # <<<<<<<<<<<<<<
@@ -12723,7 +12739,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":870
+  /* "pygame/_sdl2/video.pyx":879
  *             return None
  *         else:
  *             return (self._origin.x, self._origin.y)             # <<<<<<<<<<<<<<
@@ -12732,11 +12748,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
  */
   /*else*/ {
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_origin.x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_origin.x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 879, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->_origin.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->_origin.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 879, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 879, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -12749,7 +12765,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
     goto __pyx_L0;
   }
 
-  /* "pygame/_sdl2/video.pyx":866
+  /* "pygame/_sdl2/video.pyx":875
  * 
  *     @property
  *     def origin(self):             # <<<<<<<<<<<<<<
@@ -12770,7 +12786,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":873
+/* "pygame/_sdl2/video.pyx":882
  * 
  *     @origin.setter
  *     def origin(self, new_origin):             # <<<<<<<<<<<<<<
@@ -12802,43 +12818,43 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":874
+  /* "pygame/_sdl2/video.pyx":883
  *     @origin.setter
  *     def origin(self, new_origin):
  *         if new_origin:             # <<<<<<<<<<<<<<
  *             self._origin.x = <int>new_origin[0]
  *             self._origin.y = <int>new_origin[1]
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_new_origin); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 874, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_new_origin); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 883, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":875
+    /* "pygame/_sdl2/video.pyx":884
  *     def origin(self, new_origin):
  *         if new_origin:
  *             self._origin.x = <int>new_origin[0]             # <<<<<<<<<<<<<<
  *             self._origin.y = <int>new_origin[1]
  *             self._originptr = &self._origin
  */
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_new_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 875, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_new_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 875, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 884, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_self->_origin.x = ((int)__pyx_t_3);
 
-    /* "pygame/_sdl2/video.pyx":876
+    /* "pygame/_sdl2/video.pyx":885
  *         if new_origin:
  *             self._origin.x = <int>new_origin[0]
  *             self._origin.y = <int>new_origin[1]             # <<<<<<<<<<<<<<
  *             self._originptr = &self._origin
  *         else:
  */
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_new_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 876, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_new_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 885, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 876, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 885, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_self->_origin.y = ((int)__pyx_t_3);
 
-    /* "pygame/_sdl2/video.pyx":877
+    /* "pygame/_sdl2/video.pyx":886
  *             self._origin.x = <int>new_origin[0]
  *             self._origin.y = <int>new_origin[1]
  *             self._originptr = &self._origin             # <<<<<<<<<<<<<<
@@ -12847,7 +12863,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
  */
     __pyx_v_self->_originptr = (&__pyx_v_self->_origin);
 
-    /* "pygame/_sdl2/video.pyx":874
+    /* "pygame/_sdl2/video.pyx":883
  *     @origin.setter
  *     def origin(self, new_origin):
  *         if new_origin:             # <<<<<<<<<<<<<<
@@ -12857,7 +12873,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":879
+  /* "pygame/_sdl2/video.pyx":888
  *             self._originptr = &self._origin
  *         else:
  *             self._originptr = NULL             # <<<<<<<<<<<<<<
@@ -12869,7 +12885,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":873
+  /* "pygame/_sdl2/video.pyx":882
  * 
  *     @origin.setter
  *     def origin(self, new_origin):             # <<<<<<<<<<<<<<
@@ -12889,7 +12905,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":881
+/* "pygame/_sdl2/video.pyx":890
  *             self._originptr = NULL
  * 
  *     def get_rect(self):             # <<<<<<<<<<<<<<
@@ -12919,7 +12935,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_4get_rect(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_rect", 0);
 
-  /* "pygame/_sdl2/video.pyx":882
+  /* "pygame/_sdl2/video.pyx":891
  * 
  *     def get_rect(self):
  *         return pgRect_New(&self.srcrect.r)             # <<<<<<<<<<<<<<
@@ -12927,13 +12943,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_4get_rect(struct __pyx_ob
  *     cpdef void draw(self, srcrect=None, dstrect=None):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = pgRect_New((&__pyx_v_self->srcrect->r)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 882, __pyx_L1_error)
+  __pyx_t_1 = pgRect_New((&__pyx_v_self->srcrect->r)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 891, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":881
+  /* "pygame/_sdl2/video.pyx":890
  *             self._originptr = NULL
  * 
  *     def get_rect(self):             # <<<<<<<<<<<<<<
@@ -12952,7 +12968,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_4get_rect(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":884
+/* "pygame/_sdl2/video.pyx":893
  *         return pgRect_New(&self.srcrect.r)
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
@@ -13002,7 +13018,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 884, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 893, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pygame_5_sdl2_5video_5Image_7draw)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -13021,7 +13037,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_3)) {
           PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_srcrect, __pyx_v_dstrect};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 893, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -13029,13 +13045,13 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
           PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_srcrect, __pyx_v_dstrect};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 893, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 884, __pyx_L1_error)
+          __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 893, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
           if (__pyx_t_4) {
             __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -13046,7 +13062,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
           __Pyx_INCREF(__pyx_v_dstrect);
           __Pyx_GIVEREF(__pyx_v_dstrect);
           PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_dstrect);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 893, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         }
@@ -13068,7 +13084,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     #endif
   }
 
-  /* "pygame/_sdl2/video.pyx":893
+  /* "pygame/_sdl2/video.pyx":902
  *         cdef SDL_Rect src
  *         cdef SDL_Rect dst
  *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
@@ -13077,7 +13093,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
   __pyx_v_csrcrect = NULL;
 
-  /* "pygame/_sdl2/video.pyx":894
+  /* "pygame/_sdl2/video.pyx":903
  *         cdef SDL_Rect dst
  *         cdef SDL_Rect *csrcrect = NULL
  *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
@@ -13086,7 +13102,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
   __pyx_v_cdstrect = NULL;
 
-  /* "pygame/_sdl2/video.pyx":897
+  /* "pygame/_sdl2/video.pyx":906
  *         cdef SDL_Rect *rectptr
  * 
  *         if srcrect is None:             # <<<<<<<<<<<<<<
@@ -13097,7 +13113,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
   __pyx_t_8 = (__pyx_t_7 != 0);
   if (__pyx_t_8) {
 
-    /* "pygame/_sdl2/video.pyx":898
+    /* "pygame/_sdl2/video.pyx":907
  * 
  *         if srcrect is None:
  *             csrcrect = &self.srcrect.r             # <<<<<<<<<<<<<<
@@ -13106,7 +13122,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
     __pyx_v_csrcrect = (&__pyx_v_self->srcrect->r);
 
-    /* "pygame/_sdl2/video.pyx":897
+    /* "pygame/_sdl2/video.pyx":906
  *         cdef SDL_Rect *rectptr
  * 
  *         if srcrect is None:             # <<<<<<<<<<<<<<
@@ -13116,7 +13132,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":900
+  /* "pygame/_sdl2/video.pyx":909
  *             csrcrect = &self.srcrect.r
  *         else:
  *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
@@ -13127,7 +13143,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     __pyx_t_8 = (pgRect_Check(__pyx_v_srcrect) != 0);
     if (__pyx_t_8) {
 
-      /* "pygame/_sdl2/video.pyx":901
+      /* "pygame/_sdl2/video.pyx":910
  *         else:
  *             if pgRect_Check(srcrect):
  *                 src = (<Rect>srcrect).r             # <<<<<<<<<<<<<<
@@ -13137,7 +13153,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       __pyx_t_9 = ((pgRectObject *)__pyx_v_srcrect)->r;
       __pyx_v_src = __pyx_t_9;
 
-      /* "pygame/_sdl2/video.pyx":900
+      /* "pygame/_sdl2/video.pyx":909
  *             csrcrect = &self.srcrect.r
  *         else:
  *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
@@ -13147,7 +13163,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       goto __pyx_L4;
     }
 
-    /* "pygame/_sdl2/video.pyx":904
+    /* "pygame/_sdl2/video.pyx":913
  *             else:
  * 
  *                 rectptr = pgRect_FromObject(srcrect, &src)             # <<<<<<<<<<<<<<
@@ -13157,7 +13173,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     /*else*/ {
       __pyx_v_rectptr = pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src));
 
-      /* "pygame/_sdl2/video.pyx":905
+      /* "pygame/_sdl2/video.pyx":914
  * 
  *                 rectptr = pgRect_FromObject(srcrect, &src)
  *                 if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -13167,20 +13183,20 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       __pyx_t_8 = ((__pyx_v_rectptr == NULL) != 0);
       if (unlikely(__pyx_t_8)) {
 
-        /* "pygame/_sdl2/video.pyx":906
+        /* "pygame/_sdl2/video.pyx":915
  *                 rectptr = pgRect_FromObject(srcrect, &src)
  *                 if rectptr == NULL:
  *                     raise TypeError('srcrect must be a rect or None')             # <<<<<<<<<<<<<<
  *                 src.x = rectptr.x
  *                 src.y = rectptr.y
  */
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 906, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 915, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_Raise(__pyx_t_1, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __PYX_ERR(0, 906, __pyx_L1_error)
+        __PYX_ERR(0, 915, __pyx_L1_error)
 
-        /* "pygame/_sdl2/video.pyx":905
+        /* "pygame/_sdl2/video.pyx":914
  * 
  *                 rectptr = pgRect_FromObject(srcrect, &src)
  *                 if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -13189,7 +13205,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
       }
 
-      /* "pygame/_sdl2/video.pyx":907
+      /* "pygame/_sdl2/video.pyx":916
  *                 if rectptr == NULL:
  *                     raise TypeError('srcrect must be a rect or None')
  *                 src.x = rectptr.x             # <<<<<<<<<<<<<<
@@ -13199,7 +13215,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       __pyx_t_5 = __pyx_v_rectptr->x;
       __pyx_v_src.x = __pyx_t_5;
 
-      /* "pygame/_sdl2/video.pyx":908
+      /* "pygame/_sdl2/video.pyx":917
  *                     raise TypeError('srcrect must be a rect or None')
  *                 src.x = rectptr.x
  *                 src.y = rectptr.y             # <<<<<<<<<<<<<<
@@ -13209,7 +13225,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       __pyx_t_5 = __pyx_v_rectptr->y;
       __pyx_v_src.y = __pyx_t_5;
 
-      /* "pygame/_sdl2/video.pyx":909
+      /* "pygame/_sdl2/video.pyx":918
  *                 src.x = rectptr.x
  *                 src.y = rectptr.y
  *                 src.w = rectptr.w             # <<<<<<<<<<<<<<
@@ -13219,7 +13235,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
       __pyx_t_5 = __pyx_v_rectptr->w;
       __pyx_v_src.w = __pyx_t_5;
 
-      /* "pygame/_sdl2/video.pyx":910
+      /* "pygame/_sdl2/video.pyx":919
  *                 src.y = rectptr.y
  *                 src.w = rectptr.w
  *                 src.h = rectptr.h             # <<<<<<<<<<<<<<
@@ -13231,45 +13247,45 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     }
     __pyx_L4:;
 
-    /* "pygame/_sdl2/video.pyx":912
+    /* "pygame/_sdl2/video.pyx":921
  *                 src.h = rectptr.h
  * 
  *             src.x += self.srcrect.x             # <<<<<<<<<<<<<<
  *             src.y += self.srcrect.y
  *             csrcrect = &src
  */
-    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_src.x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_src.x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 921, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 921, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 921, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 921, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_src.x = __pyx_t_5;
 
-    /* "pygame/_sdl2/video.pyx":913
+    /* "pygame/_sdl2/video.pyx":922
  * 
  *             src.x += self.srcrect.x
  *             src.y += self.srcrect.y             # <<<<<<<<<<<<<<
  *             csrcrect = &src
  * 
  */
-    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_src.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_src.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 922, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 922, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 922, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 922, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_src.y = __pyx_t_5;
 
-    /* "pygame/_sdl2/video.pyx":914
+    /* "pygame/_sdl2/video.pyx":923
  *             src.x += self.srcrect.x
  *             src.y += self.srcrect.y
  *             csrcrect = &src             # <<<<<<<<<<<<<<
@@ -13280,7 +13296,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":916
+  /* "pygame/_sdl2/video.pyx":925
  *             csrcrect = &src
  * 
  *         if dstrect is not None:             # <<<<<<<<<<<<<<
@@ -13291,7 +13307,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
   __pyx_t_7 = (__pyx_t_8 != 0);
   if (__pyx_t_7) {
 
-    /* "pygame/_sdl2/video.pyx":917
+    /* "pygame/_sdl2/video.pyx":926
  * 
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
@@ -13300,7 +13316,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
     __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
 
-    /* "pygame/_sdl2/video.pyx":918
+    /* "pygame/_sdl2/video.pyx":927
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
@@ -13310,70 +13326,70 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
     __pyx_t_7 = ((__pyx_v_cdstrect == NULL) != 0);
     if (__pyx_t_7) {
 
-      /* "pygame/_sdl2/video.pyx":919
+      /* "pygame/_sdl2/video.pyx":928
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]
  */
-      __pyx_t_10 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_10 == ((Py_ssize_t)-1))) __PYX_ERR(0, 919, __pyx_L1_error)
+      __pyx_t_10 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_10 == ((Py_ssize_t)-1))) __PYX_ERR(0, 928, __pyx_L1_error)
       __pyx_t_7 = ((__pyx_t_10 == 2) != 0);
       if (likely(__pyx_t_7)) {
 
-        /* "pygame/_sdl2/video.pyx":920
+        /* "pygame/_sdl2/video.pyx":929
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:
  *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
  *                     dst.y = dstrect[1]
  *                     dst.w = self.srcrect.w
  */
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 920, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 929, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 920, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 929, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.x = __pyx_t_5;
 
-        /* "pygame/_sdl2/video.pyx":921
+        /* "pygame/_sdl2/video.pyx":930
  *                 if len(dstrect) == 2:
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
  *                     dst.w = self.srcrect.w
  *                     dst.h = self.srcrect.h
  */
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 921, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 930, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 921, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 930, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.y = __pyx_t_5;
 
-        /* "pygame/_sdl2/video.pyx":922
+        /* "pygame/_sdl2/video.pyx":931
  *                     dst.x = dstrect[0]
  *                     dst.y = dstrect[1]
  *                     dst.w = self.srcrect.w             # <<<<<<<<<<<<<<
  *                     dst.h = self.srcrect.h
  *                     cdstrect = &dst
  */
-        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 922, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 931, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 922, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 931, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.w = __pyx_t_5;
 
-        /* "pygame/_sdl2/video.pyx":923
+        /* "pygame/_sdl2/video.pyx":932
  *                     dst.y = dstrect[1]
  *                     dst.w = self.srcrect.w
  *                     dst.h = self.srcrect.h             # <<<<<<<<<<<<<<
  *                     cdstrect = &dst
  *                 else:
  */
-        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 923, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 923, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 932, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_v_dst.h = __pyx_t_5;
 
-        /* "pygame/_sdl2/video.pyx":924
+        /* "pygame/_sdl2/video.pyx":933
  *                     dst.w = self.srcrect.w
  *                     dst.h = self.srcrect.h
  *                     cdstrect = &dst             # <<<<<<<<<<<<<<
@@ -13382,7 +13398,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
         __pyx_v_cdstrect = (&__pyx_v_dst);
 
-        /* "pygame/_sdl2/video.pyx":919
+        /* "pygame/_sdl2/video.pyx":928
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:
  *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
@@ -13392,7 +13408,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
         goto __pyx_L8;
       }
 
-      /* "pygame/_sdl2/video.pyx":926
+      /* "pygame/_sdl2/video.pyx":935
  *                     cdstrect = &dst
  *                 else:
  *                     raise TypeError('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
@@ -13400,15 +13416,15 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  *         self.texture.color = self._color
  */
       /*else*/ {
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 926, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 935, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_Raise(__pyx_t_1, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __PYX_ERR(0, 926, __pyx_L1_error)
+        __PYX_ERR(0, 935, __pyx_L1_error)
       }
       __pyx_L8:;
 
-      /* "pygame/_sdl2/video.pyx":918
+      /* "pygame/_sdl2/video.pyx":927
  *         if dstrect is not None:
  *             cdstrect = pgRect_FromObject(dstrect, &dst)
  *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
@@ -13417,7 +13433,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":916
+    /* "pygame/_sdl2/video.pyx":925
  *             csrcrect = &src
  * 
  *         if dstrect is not None:             # <<<<<<<<<<<<<<
@@ -13426,7 +13442,7 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":928
+  /* "pygame/_sdl2/video.pyx":937
  *                     raise TypeError('dstrect must be a position, rect, or None')
  * 
  *         self.texture.color = self._color             # <<<<<<<<<<<<<<
@@ -13435,34 +13451,34 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
  */
   __pyx_t_1 = ((PyObject *)__pyx_v_self->_color);
   __Pyx_INCREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_color, __pyx_t_1) < 0) __PYX_ERR(0, 928, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_color, __pyx_t_1) < 0) __PYX_ERR(0, 937, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":929
+  /* "pygame/_sdl2/video.pyx":938
  * 
  *         self.texture.color = self._color
  *         self.texture.alpha = self.alpha             # <<<<<<<<<<<<<<
  *         self.texture.blend_mode = self.blend_mode
  * 
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 929, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 938, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_alpha, __pyx_t_1) < 0) __PYX_ERR(0, 929, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_alpha, __pyx_t_1) < 0) __PYX_ERR(0, 938, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":930
+  /* "pygame/_sdl2/video.pyx":939
  *         self.texture.color = self._color
  *         self.texture.alpha = self.alpha
  *         self.texture.blend_mode = self.blend_mode             # <<<<<<<<<<<<<<
  * 
  *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
  */
-  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_self->blend_mode); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 930, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_self->blend_mode); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 939, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_blend_mode, __pyx_t_1) < 0) __PYX_ERR(0, 930, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_blend_mode, __pyx_t_1) < 0) __PYX_ERR(0, 939, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":932
+  /* "pygame/_sdl2/video.pyx":941
  *         self.texture.blend_mode = self.blend_mode
  * 
  *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,             # <<<<<<<<<<<<<<
@@ -13474,11 +13490,11 @@ static void __pyx_f_6pygame_5_sdl2_5video_5Image_draw(struct __pyx_obj_6pygame_5
   __pyx_t_11.originptr = __pyx_v_self->_originptr;
   __pyx_t_11.flip_x = __pyx_v_self->flip_x;
   __pyx_t_11.flip_y = __pyx_v_self->flip_y;
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *)__pyx_v_self->texture->__pyx_vtab)->draw_internal(__pyx_v_self->texture, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *)__pyx_v_self->texture->__pyx_vtab)->draw_internal(__pyx_v_self->texture, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 941, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":884
+  /* "pygame/_sdl2/video.pyx":893
  *         return pgRect_New(&self.srcrect.r)
  * 
  *     cpdef void draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
@@ -13542,7 +13558,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_5Image_7draw(PyObject *__pyx_v_s
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw") < 0)) __PYX_ERR(0, 884, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw") < 0)) __PYX_ERR(0, 893, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -13559,7 +13575,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_5Image_7draw(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("draw", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 884, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("draw", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 893, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Image.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -13586,7 +13602,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6draw(struct __pyx_obj_6p
   __pyx_t_1.srcrect = __pyx_v_srcrect;
   __pyx_t_1.dstrect = __pyx_v_dstrect;
   __pyx_vtabptr_6pygame_5_sdl2_5video_Image->draw(__pyx_v_self, 1, &__pyx_t_1); 
-  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 893, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -14342,7 +14358,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_10__setstate_cython__(CYT
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":939
+/* "pygame/_sdl2/video.pyx":948
  * 
  *     @classmethod
  *     def from_window(cls, Window window):             # <<<<<<<<<<<<<<
@@ -14359,7 +14375,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_1from_window(PyObject 
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("from_window (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_window), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "window", 0))) __PYX_ERR(0, 939, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_window), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "window", 0))) __PYX_ERR(0, 948, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(((PyTypeObject*)__pyx_v_cls), ((struct __pyx_obj_6pygame_5_sdl2_5video_Window *)__pyx_v_window));
 
   /* function exit code */
@@ -14387,7 +14403,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("from_window", 0);
 
-  /* "pygame/_sdl2/video.pyx":940
+  /* "pygame/_sdl2/video.pyx":949
  *     @classmethod
  *     def from_window(cls, Window window):
  *         cdef Renderer self = cls.__new__(cls)             # <<<<<<<<<<<<<<
@@ -14396,15 +14412,15 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  */
   if (unlikely(((PyObject *)__pyx_v_cls) == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object.__new__(X): X is not a type object (NoneType)");
-    __PYX_ERR(0, 940, __pyx_L1_error)
+    __PYX_ERR(0, 949, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_tp_new(((PyObject *)__pyx_v_cls), __pyx_empty_tuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 940, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_tp_new(((PyObject *)__pyx_v_cls), __pyx_empty_tuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 949, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6pygame_5_sdl2_5video_Renderer)))) __PYX_ERR(0, 940, __pyx_L1_error)
+  if (!(likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6pygame_5_sdl2_5video_Renderer)))) __PYX_ERR(0, 949, __pyx_L1_error)
   __pyx_v_self = ((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":941
+  /* "pygame/_sdl2/video.pyx":950
  *     def from_window(cls, Window window):
  *         cdef Renderer self = cls.__new__(cls)
  *         self._win = window             # <<<<<<<<<<<<<<
@@ -14417,7 +14433,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_win));
   __pyx_v_self->_win = __pyx_v_window;
 
-  /* "pygame/_sdl2/video.pyx":942
+  /* "pygame/_sdl2/video.pyx":951
  *         cdef Renderer self = cls.__new__(cls)
  *         self._win = window
  *         if window._is_borrowed:             # <<<<<<<<<<<<<<
@@ -14427,7 +14443,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __pyx_t_2 = (__pyx_v_window->_is_borrowed != 0);
   if (likely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":943
+    /* "pygame/_sdl2/video.pyx":952
  *         self._win = window
  *         if window._is_borrowed:
  *             self._is_borrowed=1             # <<<<<<<<<<<<<<
@@ -14436,7 +14452,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  */
     __pyx_v_self->_is_borrowed = 1;
 
-    /* "pygame/_sdl2/video.pyx":942
+    /* "pygame/_sdl2/video.pyx":951
  *         cdef Renderer self = cls.__new__(cls)
  *         self._win = window
  *         if window._is_borrowed:             # <<<<<<<<<<<<<<
@@ -14446,7 +14462,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":945
+  /* "pygame/_sdl2/video.pyx":954
  *             self._is_borrowed=1
  *         else:
  *             raise error()             # <<<<<<<<<<<<<<
@@ -14454,7 +14470,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  *             raise error()
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 945, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 954, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -14468,34 +14484,34 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 945, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 954, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 945, __pyx_L1_error)
+    __PYX_ERR(0, 954, __pyx_L1_error)
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":946
+  /* "pygame/_sdl2/video.pyx":955
  *         else:
  *             raise error()
  *         if not self._win:             # <<<<<<<<<<<<<<
  *             raise error()
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(((PyObject *)__pyx_v_self->_win)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 946, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(((PyObject *)__pyx_v_self->_win)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 955, __pyx_L1_error)
   __pyx_t_5 = ((!__pyx_t_2) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":947
+    /* "pygame/_sdl2/video.pyx":956
  *             raise error()
  *         if not self._win:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         self._renderer =  SDL_GetRenderer(self._win._win)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 947, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 956, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -14509,14 +14525,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 947, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 956, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 947, __pyx_L1_error)
+    __PYX_ERR(0, 956, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":946
+    /* "pygame/_sdl2/video.pyx":955
  *         else:
  *             raise error()
  *         if not self._win:             # <<<<<<<<<<<<<<
@@ -14525,7 +14541,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":949
+  /* "pygame/_sdl2/video.pyx":958
  *             raise error()
  * 
  *         self._renderer =  SDL_GetRenderer(self._win._win)             # <<<<<<<<<<<<<<
@@ -14534,7 +14550,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  */
   __pyx_v_self->_renderer = SDL_GetRenderer(__pyx_v_self->_win->_win);
 
-  /* "pygame/_sdl2/video.pyx":950
+  /* "pygame/_sdl2/video.pyx":959
  * 
  *         self._renderer =  SDL_GetRenderer(self._win._win)
  *         if not self._renderer:             # <<<<<<<<<<<<<<
@@ -14544,14 +14560,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __pyx_t_5 = ((!(__pyx_v_self->_renderer != 0)) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pygame/_sdl2/video.pyx":951
+    /* "pygame/_sdl2/video.pyx":960
  *         self._renderer =  SDL_GetRenderer(self._win._win)
  *         if not self._renderer:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 951, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 960, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -14565,14 +14581,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 951, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 960, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 951, __pyx_L1_error)
+    __PYX_ERR(0, 960, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":950
+    /* "pygame/_sdl2/video.pyx":959
  * 
  *         self._renderer =  SDL_GetRenderer(self._win._win)
  *         if not self._renderer:             # <<<<<<<<<<<<<<
@@ -14581,7 +14597,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":953
+  /* "pygame/_sdl2/video.pyx":962
  *             raise error()
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]             # <<<<<<<<<<<<<<
@@ -14594,23 +14610,23 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __pyx_t_6[3] = 0xFF;
   memcpy(&(__pyx_v_defaultColor[0]), __pyx_t_6, sizeof(__pyx_v_defaultColor[0]) * (4));
 
-  /* "pygame/_sdl2/video.pyx":954
+  /* "pygame/_sdl2/video.pyx":963
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)             # <<<<<<<<<<<<<<
  *         self._target = None
  *         return self
  */
-  __pyx_t_1 = pgColor_NewLength(__pyx_v_defaultColor, 4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 954, __pyx_L1_error)
+  __pyx_t_1 = pgColor_NewLength(__pyx_v_defaultColor, 4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 963, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 954, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 963, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->_draw_color);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_draw_color));
   __pyx_v_self->_draw_color = ((pgColorObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":955
+  /* "pygame/_sdl2/video.pyx":964
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)
  *         self._target = None             # <<<<<<<<<<<<<<
@@ -14623,7 +14639,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_target));
   __pyx_v_self->_target = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)Py_None);
 
-  /* "pygame/_sdl2/video.pyx":956
+  /* "pygame/_sdl2/video.pyx":965
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)
  *         self._target = None
  *         return self             # <<<<<<<<<<<<<<
@@ -14635,7 +14651,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":939
+  /* "pygame/_sdl2/video.pyx":948
  * 
  *     @classmethod
  *     def from_window(cls, Window window):             # <<<<<<<<<<<<<<
@@ -14657,7 +14673,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_from_window(PyTypeObje
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":958
+/* "pygame/_sdl2/video.pyx":967
  *         return self
  * 
  *     def __init__(self, Window window, int index=-1,             # <<<<<<<<<<<<<<
@@ -14734,7 +14750,7 @@ static int __pyx_pw_6pygame_5_sdl2_5video_8Renderer_3__init__(PyObject *__pyx_v_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 958, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 967, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -14753,20 +14769,20 @@ static int __pyx_pw_6pygame_5_sdl2_5video_8Renderer_3__init__(PyObject *__pyx_v_
     }
     __pyx_v_window = ((struct __pyx_obj_6pygame_5_sdl2_5video_Window *)values[0]);
     if (values[1]) {
-      __pyx_v_index = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_index == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 958, __pyx_L3_error)
+      __pyx_v_index = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_index == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 967, __pyx_L3_error)
     } else {
       __pyx_v_index = ((int)-1);
     }
     if (values[2]) {
-      __pyx_v_accelerated = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_accelerated == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 959, __pyx_L3_error)
+      __pyx_v_accelerated = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_accelerated == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 968, __pyx_L3_error)
     } else {
       __pyx_v_accelerated = ((int)-1);
     }
     if (values[3]) {
-      __pyx_v_vsync = __Pyx_PyObject_IsTrue(values[3]); if (unlikely((__pyx_v_vsync == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 959, __pyx_L3_error)
+      __pyx_v_vsync = __Pyx_PyObject_IsTrue(values[3]); if (unlikely((__pyx_v_vsync == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 968, __pyx_L3_error)
     } else {
 
-      /* "pygame/_sdl2/video.pyx":959
+      /* "pygame/_sdl2/video.pyx":968
  * 
  *     def __init__(self, Window window, int index=-1,
  *                  int accelerated=-1, bint vsync=False,             # <<<<<<<<<<<<<<
@@ -14776,10 +14792,10 @@ static int __pyx_pw_6pygame_5_sdl2_5video_8Renderer_3__init__(PyObject *__pyx_v_
       __pyx_v_vsync = ((int)0);
     }
     if (values[4]) {
-      __pyx_v_target_texture = __Pyx_PyObject_IsTrue(values[4]); if (unlikely((__pyx_v_target_texture == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 960, __pyx_L3_error)
+      __pyx_v_target_texture = __Pyx_PyObject_IsTrue(values[4]); if (unlikely((__pyx_v_target_texture == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 969, __pyx_L3_error)
     } else {
 
-      /* "pygame/_sdl2/video.pyx":960
+      /* "pygame/_sdl2/video.pyx":969
  *     def __init__(self, Window window, int index=-1,
  *                  int accelerated=-1, bint vsync=False,
  *                  bint target_texture=False):             # <<<<<<<<<<<<<<
@@ -14791,16 +14807,16 @@ static int __pyx_pw_6pygame_5_sdl2_5video_8Renderer_3__init__(PyObject *__pyx_v_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 958, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 967, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Renderer.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_window), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "window", 0))) __PYX_ERR(0, 958, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_window), __pyx_ptype_6pygame_5_sdl2_5video_Window, 1, "window", 0))) __PYX_ERR(0, 967, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self), __pyx_v_window, __pyx_v_index, __pyx_v_accelerated, __pyx_v_vsync, __pyx_v_target_texture);
 
-  /* "pygame/_sdl2/video.pyx":958
+  /* "pygame/_sdl2/video.pyx":967
  *         return self
  * 
  *     def __init__(self, Window window, int index=-1,             # <<<<<<<<<<<<<<
@@ -14833,7 +14849,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pygame/_sdl2/video.pyx":974
+  /* "pygame/_sdl2/video.pyx":983
  *         # https://wiki.libsdl.org/SDL_CreateRenderer
  *         # https://wiki.libsdl.org/SDL_RendererFlags
  *         flags = 0             # <<<<<<<<<<<<<<
@@ -14843,7 +14859,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_flags = __pyx_int_0;
 
-  /* "pygame/_sdl2/video.pyx":975
+  /* "pygame/_sdl2/video.pyx":984
  *         # https://wiki.libsdl.org/SDL_RendererFlags
  *         flags = 0
  *         if accelerated >= 0:             # <<<<<<<<<<<<<<
@@ -14853,7 +14869,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __pyx_t_1 = ((__pyx_v_accelerated >= 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":976
+    /* "pygame/_sdl2/video.pyx":985
  *         flags = 0
  *         if accelerated >= 0:
  *             flags |= _SDL_RENDERER_ACCELERATED if accelerated else _SDL_RENDERER_SOFTWARE             # <<<<<<<<<<<<<<
@@ -14861,23 +14877,23 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  *             flags |= _SDL_RENDERER_PRESENTVSYNC
  */
     if ((__pyx_v_accelerated != 0)) {
-      __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_ACCELERATED); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 976, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_ACCELERATED); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 985, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_2 = __pyx_t_3;
       __pyx_t_3 = 0;
     } else {
-      __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_SOFTWARE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 976, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_SOFTWARE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 985, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_2 = __pyx_t_3;
       __pyx_t_3 = 0;
     }
-    __pyx_t_3 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 976, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 985, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF_SET(__pyx_v_flags, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pygame/_sdl2/video.pyx":975
+    /* "pygame/_sdl2/video.pyx":984
  *         # https://wiki.libsdl.org/SDL_RendererFlags
  *         flags = 0
  *         if accelerated >= 0:             # <<<<<<<<<<<<<<
@@ -14886,7 +14902,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":977
+  /* "pygame/_sdl2/video.pyx":986
  *         if accelerated >= 0:
  *             flags |= _SDL_RENDERER_ACCELERATED if accelerated else _SDL_RENDERER_SOFTWARE
  *         if vsync:             # <<<<<<<<<<<<<<
@@ -14896,22 +14912,22 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __pyx_t_1 = (__pyx_v_vsync != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":978
+    /* "pygame/_sdl2/video.pyx":987
  *             flags |= _SDL_RENDERER_ACCELERATED if accelerated else _SDL_RENDERER_SOFTWARE
  *         if vsync:
  *             flags |= _SDL_RENDERER_PRESENTVSYNC             # <<<<<<<<<<<<<<
  *         if target_texture:
  *             flags |= _SDL_RENDERER_TARGETTEXTURE
  */
-    __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_PRESENTVSYNC); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 978, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_PRESENTVSYNC); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 987, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 978, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 987, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_flags, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pygame/_sdl2/video.pyx":977
+    /* "pygame/_sdl2/video.pyx":986
  *         if accelerated >= 0:
  *             flags |= _SDL_RENDERER_ACCELERATED if accelerated else _SDL_RENDERER_SOFTWARE
  *         if vsync:             # <<<<<<<<<<<<<<
@@ -14920,7 +14936,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":979
+  /* "pygame/_sdl2/video.pyx":988
  *         if vsync:
  *             flags |= _SDL_RENDERER_PRESENTVSYNC
  *         if target_texture:             # <<<<<<<<<<<<<<
@@ -14930,22 +14946,22 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __pyx_t_1 = (__pyx_v_target_texture != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":980
+    /* "pygame/_sdl2/video.pyx":989
  *             flags |= _SDL_RENDERER_PRESENTVSYNC
  *         if target_texture:
  *             flags |= _SDL_RENDERER_TARGETTEXTURE             # <<<<<<<<<<<<<<
  * 
  *         self._renderer = SDL_CreateRenderer(window._win, index, flags)
  */
-    __pyx_t_2 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_TARGETTEXTURE); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 980, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_Uint32(SDL_RENDERER_TARGETTEXTURE); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 989, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 980, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_InPlaceOr(__pyx_v_flags, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 989, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF_SET(__pyx_v_flags, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pygame/_sdl2/video.pyx":979
+    /* "pygame/_sdl2/video.pyx":988
  *         if vsync:
  *             flags |= _SDL_RENDERER_PRESENTVSYNC
  *         if target_texture:             # <<<<<<<<<<<<<<
@@ -14954,17 +14970,17 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":982
+  /* "pygame/_sdl2/video.pyx":991
  *             flags |= _SDL_RENDERER_TARGETTEXTURE
  * 
  *         self._renderer = SDL_CreateRenderer(window._win, index, flags)             # <<<<<<<<<<<<<<
  *         if not self._renderer:
  *             raise error()
  */
-  __pyx_t_4 = __Pyx_PyInt_As_Uint32(__pyx_v_flags); if (unlikely((__pyx_t_4 == ((Uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 982, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_Uint32(__pyx_v_flags); if (unlikely((__pyx_t_4 == ((Uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 991, __pyx_L1_error)
   __pyx_v_self->_renderer = SDL_CreateRenderer(__pyx_v_window->_win, __pyx_v_index, __pyx_t_4);
 
-  /* "pygame/_sdl2/video.pyx":983
+  /* "pygame/_sdl2/video.pyx":992
  * 
  *         self._renderer = SDL_CreateRenderer(window._win, index, flags)
  *         if not self._renderer:             # <<<<<<<<<<<<<<
@@ -14974,14 +14990,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __pyx_t_1 = ((!(__pyx_v_self->_renderer != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":984
+    /* "pygame/_sdl2/video.pyx":993
  *         self._renderer = SDL_CreateRenderer(window._win, index, flags)
  *         if not self._renderer:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 984, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 993, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -14995,14 +15011,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 984, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 993, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 984, __pyx_L1_error)
+    __PYX_ERR(0, 993, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":983
+    /* "pygame/_sdl2/video.pyx":992
  * 
  *         self._renderer = SDL_CreateRenderer(window._win, index, flags)
  *         if not self._renderer:             # <<<<<<<<<<<<<<
@@ -15011,7 +15027,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":986
+  /* "pygame/_sdl2/video.pyx":995
  *             raise error()
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]             # <<<<<<<<<<<<<<
@@ -15024,23 +15040,23 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __pyx_t_6[3] = 0xFF;
   memcpy(&(__pyx_v_defaultColor[0]), __pyx_t_6, sizeof(__pyx_v_defaultColor[0]) * (4));
 
-  /* "pygame/_sdl2/video.pyx":987
+  /* "pygame/_sdl2/video.pyx":996
  * 
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)             # <<<<<<<<<<<<<<
  *         self._target = None
  *         self._win = window
  */
-  __pyx_t_3 = pgColor_NewLength(__pyx_v_defaultColor, 4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 987, __pyx_L1_error)
+  __pyx_t_3 = pgColor_NewLength(__pyx_v_defaultColor, 4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 996, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 987, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(0, 996, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->_draw_color);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_draw_color));
   __pyx_v_self->_draw_color = ((pgColorObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "pygame/_sdl2/video.pyx":988
+  /* "pygame/_sdl2/video.pyx":997
  *         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)
  *         self._target = None             # <<<<<<<<<<<<<<
@@ -15053,7 +15069,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_target));
   __pyx_v_self->_target = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)Py_None);
 
-  /* "pygame/_sdl2/video.pyx":989
+  /* "pygame/_sdl2/video.pyx":998
  *         self._draw_color = pgColor_NewLength(defaultColor, 4)
  *         self._target = None
  *         self._win = window             # <<<<<<<<<<<<<<
@@ -15066,7 +15082,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_win));
   __pyx_v_self->_win = __pyx_v_window;
 
-  /* "pygame/_sdl2/video.pyx":990
+  /* "pygame/_sdl2/video.pyx":999
  *         self._target = None
  *         self._win = window
  *         self._is_borrowed=0             # <<<<<<<<<<<<<<
@@ -15075,7 +15091,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
  */
   __pyx_v_self->_is_borrowed = 0;
 
-  /* "pygame/_sdl2/video.pyx":958
+  /* "pygame/_sdl2/video.pyx":967
  *         return self
  * 
  *     def __init__(self, Window window, int index=-1,             # <<<<<<<<<<<<<<
@@ -15098,7 +15114,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_2__init__(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":992
+/* "pygame/_sdl2/video.pyx":1001
  *         self._is_borrowed=0
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -15122,7 +15138,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "pygame/_sdl2/video.pyx":993
+  /* "pygame/_sdl2/video.pyx":1002
  * 
  *     def __dealloc__(self):
  *         if self._is_borrowed:             # <<<<<<<<<<<<<<
@@ -15132,7 +15148,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
   __pyx_t_1 = (__pyx_v_self->_is_borrowed != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":994
+    /* "pygame/_sdl2/video.pyx":1003
  *     def __dealloc__(self):
  *         if self._is_borrowed:
  *             return             # <<<<<<<<<<<<<<
@@ -15141,7 +15157,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
  */
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/video.pyx":993
+    /* "pygame/_sdl2/video.pyx":1002
  * 
  *     def __dealloc__(self):
  *         if self._is_borrowed:             # <<<<<<<<<<<<<<
@@ -15150,7 +15166,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":995
+  /* "pygame/_sdl2/video.pyx":1004
  *         if self._is_borrowed:
  *             return
  *         if self._renderer:             # <<<<<<<<<<<<<<
@@ -15160,7 +15176,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
   __pyx_t_1 = (__pyx_v_self->_renderer != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":996
+    /* "pygame/_sdl2/video.pyx":1005
  *             return
  *         if self._renderer:
  *             SDL_DestroyRenderer(self._renderer)             # <<<<<<<<<<<<<<
@@ -15169,7 +15185,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
  */
     SDL_DestroyRenderer(__pyx_v_self->_renderer);
 
-    /* "pygame/_sdl2/video.pyx":995
+    /* "pygame/_sdl2/video.pyx":1004
  *         if self._is_borrowed:
  *             return
  *         if self._renderer:             # <<<<<<<<<<<<<<
@@ -15178,7 +15194,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":992
+  /* "pygame/_sdl2/video.pyx":1001
  *         self._is_borrowed=0
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -15191,7 +15207,7 @@ static void __pyx_pf_6pygame_5_sdl2_5video_8Renderer_4__dealloc__(struct __pyx_o
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pygame/_sdl2/video.pyx":999
+/* "pygame/_sdl2/video.pyx":1008
  * 
  *     @property
  *     def draw_blend_mode(self):             # <<<<<<<<<<<<<<
@@ -15226,7 +15242,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1002
+  /* "pygame/_sdl2/video.pyx":1011
  *         # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)             # <<<<<<<<<<<<<<
@@ -15235,7 +15251,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
  */
   __pyx_v_res = SDL_GetRenderDrawBlendMode(__pyx_v_self->_renderer, (&__pyx_v_blendMode));
 
-  /* "pygame/_sdl2/video.pyx":1003
+  /* "pygame/_sdl2/video.pyx":1012
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15245,14 +15261,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1004
+    /* "pygame/_sdl2/video.pyx":1013
  *         res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *         return blendMode
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1004, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1013, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15266,14 +15282,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1004, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1013, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1004, __pyx_L1_error)
+    __PYX_ERR(0, 1013, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1003
+    /* "pygame/_sdl2/video.pyx":1012
  *         cdef SDL_BlendMode blendMode
  *         res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15282,7 +15298,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1006
+  /* "pygame/_sdl2/video.pyx":1015
  *             raise error()
  * 
  *         return blendMode             # <<<<<<<<<<<<<<
@@ -15290,13 +15306,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
  *     @draw_blend_mode.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_blendMode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_blendMode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1015, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":999
+  /* "pygame/_sdl2/video.pyx":1008
  * 
  *     @property
  *     def draw_blend_mode(self):             # <<<<<<<<<<<<<<
@@ -15317,7 +15333,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode___ge
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1009
+/* "pygame/_sdl2/video.pyx":1018
  * 
  *     @draw_blend_mode.setter
  *     def draw_blend_mode(self, blendMode):             # <<<<<<<<<<<<<<
@@ -15352,17 +15368,17 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode_2__set__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1011
+  /* "pygame/_sdl2/video.pyx":1020
  *     def draw_blend_mode(self, blendMode):
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
  *         res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_blendMode)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1011, __pyx_L1_error)
+  __pyx_t_1 = ((SDL_BlendMode)__Pyx_PyInt_As_SDL_BlendMode(__pyx_v_blendMode)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1020, __pyx_L1_error)
   __pyx_v_res = SDL_SetRenderDrawBlendMode(__pyx_v_self->_renderer, __pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":1012
+  /* "pygame/_sdl2/video.pyx":1021
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
  *         res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15372,14 +15388,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode_2__set__(s
   __pyx_t_2 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":1013
+    /* "pygame/_sdl2/video.pyx":1022
  *         res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1013, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1022, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -15393,14 +15409,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode_2__set__(s
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1013, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1022, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1013, __pyx_L1_error)
+    __PYX_ERR(0, 1022, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1012
+    /* "pygame/_sdl2/video.pyx":1021
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
  *         res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15409,7 +15425,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode_2__set__(s
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1009
+  /* "pygame/_sdl2/video.pyx":1018
  * 
  *     @draw_blend_mode.setter
  *     def draw_blend_mode(self, blendMode):             # <<<<<<<<<<<<<<
@@ -15431,7 +15447,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_15draw_blend_mode_2__set__(s
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1016
+/* "pygame/_sdl2/video.pyx":1025
  * 
  *     @property
  *     def draw_color(self):             # <<<<<<<<<<<<<<
@@ -15457,7 +15473,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color___get__(s
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1019
+  /* "pygame/_sdl2/video.pyx":1028
  *         """ Color used by the drawing functions.
  *         """
  *         return self._draw_color             # <<<<<<<<<<<<<<
@@ -15469,7 +15485,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color___get__(s
   __pyx_r = ((PyObject *)__pyx_v_self->_draw_color);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1016
+  /* "pygame/_sdl2/video.pyx":1025
  * 
  *     @property
  *     def draw_color(self):             # <<<<<<<<<<<<<<
@@ -15484,7 +15500,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color___get__(s
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1022
+/* "pygame/_sdl2/video.pyx":1031
  * 
  *     @draw_color.setter
  *     def draw_color(self, new_value):             # <<<<<<<<<<<<<<
@@ -15522,64 +15538,64 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1026
+  /* "pygame/_sdl2/video.pyx":1035
  *         """
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
  *         self._draw_color[:] = new_value             # <<<<<<<<<<<<<<
  *         res = SDL_SetRenderDrawColor(self._renderer,
  *                                      new_value[0],
  */
-  if (__Pyx_PyObject_SetSlice(((PyObject *)__pyx_v_self->_draw_color), __pyx_v_new_value, 0, 0, NULL, NULL, &__pyx_slice__26, 0, 0, 1) < 0) __PYX_ERR(0, 1026, __pyx_L1_error)
+  if (__Pyx_PyObject_SetSlice(((PyObject *)__pyx_v_self->_draw_color), __pyx_v_new_value, 0, 0, NULL, NULL, &__pyx_slice__26, 0, 0, 1) < 0) __PYX_ERR(0, 1035, __pyx_L1_error)
 
-  /* "pygame/_sdl2/video.pyx":1028
+  /* "pygame/_sdl2/video.pyx":1037
  *         self._draw_color[:] = new_value
  *         res = SDL_SetRenderDrawColor(self._renderer,
  *                                      new_value[0],             # <<<<<<<<<<<<<<
  *                                      new_value[1],
  *                                      new_value[2],
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1028, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1037, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_2 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1028, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_2 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1037, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1029
+  /* "pygame/_sdl2/video.pyx":1038
  *         res = SDL_SetRenderDrawColor(self._renderer,
  *                                      new_value[0],
  *                                      new_value[1],             # <<<<<<<<<<<<<<
  *                                      new_value[2],
  *                                      new_value[3])
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1029, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1038, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_3 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1029, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_3 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1038, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1030
+  /* "pygame/_sdl2/video.pyx":1039
  *                                      new_value[0],
  *                                      new_value[1],
  *                                      new_value[2],             # <<<<<<<<<<<<<<
  *                                      new_value[3])
  *         if res < 0:
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1030, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1039, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_4 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1030, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_4 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1039, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1031
+  /* "pygame/_sdl2/video.pyx":1040
  *                                      new_value[1],
  *                                      new_value[2],
  *                                      new_value[3])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1031, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_new_value, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1040, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_5 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1031, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_Uint8(__pyx_t_1); if (unlikely((__pyx_t_5 == ((Uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 1040, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1027
+  /* "pygame/_sdl2/video.pyx":1036
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
  *         self._draw_color[:] = new_value
  *         res = SDL_SetRenderDrawColor(self._renderer,             # <<<<<<<<<<<<<<
@@ -15588,7 +15604,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
  */
   __pyx_v_res = SDL_SetRenderDrawColor(__pyx_v_self->_renderer, __pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5);
 
-  /* "pygame/_sdl2/video.pyx":1032
+  /* "pygame/_sdl2/video.pyx":1041
  *                                      new_value[2],
  *                                      new_value[3])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15598,14 +15614,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
   __pyx_t_6 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_6)) {
 
-    /* "pygame/_sdl2/video.pyx":1033
+    /* "pygame/_sdl2/video.pyx":1042
  *                                      new_value[3])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def clear(self):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1033, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1042, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
@@ -15619,14 +15635,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
     }
     __pyx_t_1 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1033, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1042, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1033, __pyx_L1_error)
+    __PYX_ERR(0, 1042, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1032
+    /* "pygame/_sdl2/video.pyx":1041
  *                                      new_value[2],
  *                                      new_value[3])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15635,7 +15651,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1022
+  /* "pygame/_sdl2/video.pyx":1031
  * 
  *     @draw_color.setter
  *     def draw_color(self, new_value):             # <<<<<<<<<<<<<<
@@ -15657,7 +15673,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_10draw_color_2__set__(struct
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1035
+/* "pygame/_sdl2/video.pyx":1044
  *             raise error()
  * 
  *     def clear(self):             # <<<<<<<<<<<<<<
@@ -15692,7 +15708,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("clear", 0);
 
-  /* "pygame/_sdl2/video.pyx":1039
+  /* "pygame/_sdl2/video.pyx":1048
  *         """
  *         # https://wiki.libsdl.org/SDL_RenderClear
  *         res = SDL_RenderClear(self._renderer)             # <<<<<<<<<<<<<<
@@ -15701,7 +15717,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
  */
   __pyx_v_res = SDL_RenderClear(__pyx_v_self->_renderer);
 
-  /* "pygame/_sdl2/video.pyx":1040
+  /* "pygame/_sdl2/video.pyx":1049
  *         # https://wiki.libsdl.org/SDL_RenderClear
  *         res = SDL_RenderClear(self._renderer)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15711,14 +15727,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1041
+    /* "pygame/_sdl2/video.pyx":1050
  *         res = SDL_RenderClear(self._renderer)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def present(self):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1041, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1050, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15732,14 +15748,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1041, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1050, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1041, __pyx_L1_error)
+    __PYX_ERR(0, 1050, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1040
+    /* "pygame/_sdl2/video.pyx":1049
  *         # https://wiki.libsdl.org/SDL_RenderClear
  *         res = SDL_RenderClear(self._renderer)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15748,7 +15764,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1035
+  /* "pygame/_sdl2/video.pyx":1044
  *             raise error()
  * 
  *     def clear(self):             # <<<<<<<<<<<<<<
@@ -15771,7 +15787,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6clear(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1043
+/* "pygame/_sdl2/video.pyx":1052
  *             raise error()
  * 
  *     def present(self):             # <<<<<<<<<<<<<<
@@ -15798,7 +15814,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_8present(struct __pyx_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("present", 0);
 
-  /* "pygame/_sdl2/video.pyx":1049
+  /* "pygame/_sdl2/video.pyx":1058
  *         """
  *         # https://wiki.libsdl.org/SDL_RenderPresent
  *         SDL_RenderPresent(self._renderer)             # <<<<<<<<<<<<<<
@@ -15807,7 +15823,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_8present(struct __pyx_
  */
   SDL_RenderPresent(__pyx_v_self->_renderer);
 
-  /* "pygame/_sdl2/video.pyx":1043
+  /* "pygame/_sdl2/video.pyx":1052
  *             raise error()
  * 
  *     def present(self):             # <<<<<<<<<<<<<<
@@ -15822,7 +15838,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_8present(struct __pyx_
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1051
+/* "pygame/_sdl2/video.pyx":1060
  *         SDL_RenderPresent(self._renderer)
  * 
  *     cpdef get_viewport(self):             # <<<<<<<<<<<<<<
@@ -15852,7 +15868,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(struct __p
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_viewport); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1051, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_viewport); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1060, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_11get_viewport)) {
         __Pyx_XDECREF(__pyx_r);
@@ -15869,7 +15885,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(struct __p
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1051, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1060, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -15890,7 +15906,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(struct __p
     #endif
   }
 
-  /* "pygame/_sdl2/video.pyx":1058
+  /* "pygame/_sdl2/video.pyx":1067
  *         # https://wiki.libsdl.org/SDL_RenderGetViewport
  *         cdef SDL_Rect rect
  *         SDL_RenderGetViewport(self._renderer, &rect)             # <<<<<<<<<<<<<<
@@ -15899,7 +15915,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(struct __p
  */
   SDL_RenderGetViewport(__pyx_v_self->_renderer, (&__pyx_v_rect));
 
-  /* "pygame/_sdl2/video.pyx":1059
+  /* "pygame/_sdl2/video.pyx":1068
  *         cdef SDL_Rect rect
  *         SDL_RenderGetViewport(self._renderer, &rect)
  *         return pgRect_New(&rect)             # <<<<<<<<<<<<<<
@@ -15907,13 +15923,13 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(struct __p
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = pgRect_New((&__pyx_v_rect)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1059, __pyx_L1_error)
+  __pyx_t_1 = pgRect_New((&__pyx_v_rect)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1068, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1051
+  /* "pygame/_sdl2/video.pyx":1060
  *         SDL_RenderPresent(self._renderer)
  * 
  *     cpdef get_viewport(self):             # <<<<<<<<<<<<<<
@@ -15958,7 +15974,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_10get_viewport(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_viewport", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1051, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1060, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -15975,7 +15991,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_10get_viewport(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1062
+/* "pygame/_sdl2/video.pyx":1071
  * 
  *     @property
  *     def logical_size(self):             # <<<<<<<<<<<<<<
@@ -16009,7 +16025,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size___get__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1065
+  /* "pygame/_sdl2/video.pyx":1074
  *         cdef int w
  *         cdef int h
  *         SDL_RenderGetLogicalSize(self._renderer, &w, &h)             # <<<<<<<<<<<<<<
@@ -16018,7 +16034,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size___get__
  */
   SDL_RenderGetLogicalSize(__pyx_v_self->_renderer, (&__pyx_v_w), (&__pyx_v_h));
 
-  /* "pygame/_sdl2/video.pyx":1066
+  /* "pygame/_sdl2/video.pyx":1075
  *         cdef int h
  *         SDL_RenderGetLogicalSize(self._renderer, &w, &h)
  *         return (w, h)             # <<<<<<<<<<<<<<
@@ -16026,11 +16042,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size___get__
  *     @logical_size.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1066, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1075, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_h); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1066, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_h); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1075, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1066, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1075, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -16042,7 +16058,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size___get__
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1062
+  /* "pygame/_sdl2/video.pyx":1071
  * 
  *     @property
  *     def logical_size(self):             # <<<<<<<<<<<<<<
@@ -16063,7 +16079,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size___get__
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1069
+/* "pygame/_sdl2/video.pyx":1078
  * 
  *     @logical_size.setter
  *     def logical_size(self, size):             # <<<<<<<<<<<<<<
@@ -16099,33 +16115,33 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size_2__set__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1070
+  /* "pygame/_sdl2/video.pyx":1079
  *     @logical_size.setter
  *     def logical_size(self, size):
  *         cdef int w = size[0]             # <<<<<<<<<<<<<<
  *         cdef int h = size[1]
  *         if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1070, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1079, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1070, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1079, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_w = __pyx_t_2;
 
-  /* "pygame/_sdl2/video.pyx":1071
+  /* "pygame/_sdl2/video.pyx":1080
  *     def logical_size(self, size):
  *         cdef int w = size[0]
  *         cdef int h = size[1]             # <<<<<<<<<<<<<<
  *         if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1071, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1080, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1071, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1080, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_h = __pyx_t_2;
 
-  /* "pygame/_sdl2/video.pyx":1072
+  /* "pygame/_sdl2/video.pyx":1081
  *         cdef int w = size[0]
  *         cdef int h = size[1]
  *         if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):             # <<<<<<<<<<<<<<
@@ -16135,14 +16151,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size_2__set__(stru
   __pyx_t_3 = ((SDL_RenderSetLogicalSize(__pyx_v_self->_renderer, __pyx_v_w, __pyx_v_h) != 0) != 0);
   if (unlikely(__pyx_t_3)) {
 
-    /* "pygame/_sdl2/video.pyx":1073
+    /* "pygame/_sdl2/video.pyx":1082
  *         cdef int h = size[1]
  *         if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1073, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1082, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16156,14 +16172,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size_2__set__(stru
     }
     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1073, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1082, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1073, __pyx_L1_error)
+    __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1072
+    /* "pygame/_sdl2/video.pyx":1081
  *         cdef int w = size[0]
  *         cdef int h = size[1]
  *         if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):             # <<<<<<<<<<<<<<
@@ -16172,7 +16188,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size_2__set__(stru
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1069
+  /* "pygame/_sdl2/video.pyx":1078
  * 
  *     @logical_size.setter
  *     def logical_size(self, size):             # <<<<<<<<<<<<<<
@@ -16194,7 +16210,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_12logical_size_2__set__(stru
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1076
+/* "pygame/_sdl2/video.pyx":1085
  * 
  *     @property
  *     def scale(self):             # <<<<<<<<<<<<<<
@@ -16228,7 +16244,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale___get__(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1079
+  /* "pygame/_sdl2/video.pyx":1088
  *         cdef float x
  *         cdef float y
  *         SDL_RenderGetScale(self._renderer, &x, &y);             # <<<<<<<<<<<<<<
@@ -16237,7 +16253,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale___get__(struct 
  */
   SDL_RenderGetScale(__pyx_v_self->_renderer, (&__pyx_v_x), (&__pyx_v_y));
 
-  /* "pygame/_sdl2/video.pyx":1080
+  /* "pygame/_sdl2/video.pyx":1089
  *         cdef float y
  *         SDL_RenderGetScale(self._renderer, &x, &y);
  *         return (x, y)             # <<<<<<<<<<<<<<
@@ -16245,11 +16261,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale___get__(struct 
  *     @scale.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1080, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1089, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1080, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1089, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1080, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1089, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -16261,7 +16277,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale___get__(struct 
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1076
+  /* "pygame/_sdl2/video.pyx":1085
  * 
  *     @property
  *     def scale(self):             # <<<<<<<<<<<<<<
@@ -16282,7 +16298,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale___get__(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1083
+/* "pygame/_sdl2/video.pyx":1092
  * 
  *     @scale.setter
  *     def scale(self, scale):             # <<<<<<<<<<<<<<
@@ -16318,33 +16334,33 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale_2__set__(struct __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1084
+  /* "pygame/_sdl2/video.pyx":1093
  *     @scale.setter
  *     def scale(self, scale):
  *         cdef float x = scale[0]             # <<<<<<<<<<<<<<
  *         cdef float y = scale[1]
  *         if (SDL_RenderSetScale(self._renderer, x, y) != 0):
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_scale, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1084, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_scale, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1093, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1084, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1093, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x = __pyx_t_2;
 
-  /* "pygame/_sdl2/video.pyx":1085
+  /* "pygame/_sdl2/video.pyx":1094
  *     def scale(self, scale):
  *         cdef float x = scale[0]
  *         cdef float y = scale[1]             # <<<<<<<<<<<<<<
  *         if (SDL_RenderSetScale(self._renderer, x, y) != 0):
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_scale, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1085, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_scale, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1094, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1085, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1094, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y = __pyx_t_2;
 
-  /* "pygame/_sdl2/video.pyx":1086
+  /* "pygame/_sdl2/video.pyx":1095
  *         cdef float x = scale[0]
  *         cdef float y = scale[1]
  *         if (SDL_RenderSetScale(self._renderer, x, y) != 0):             # <<<<<<<<<<<<<<
@@ -16354,14 +16370,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale_2__set__(struct __pyx
   __pyx_t_3 = ((SDL_RenderSetScale(__pyx_v_self->_renderer, __pyx_v_x, __pyx_v_y) != 0) != 0);
   if (unlikely(__pyx_t_3)) {
 
-    /* "pygame/_sdl2/video.pyx":1087
+    /* "pygame/_sdl2/video.pyx":1096
  *         cdef float y = scale[1]
  *         if (SDL_RenderSetScale(self._renderer, x, y) != 0):
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     # TODO ifdef
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1087, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1096, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16375,14 +16391,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale_2__set__(struct __pyx
     }
     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1087, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1096, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1087, __pyx_L1_error)
+    __PYX_ERR(0, 1096, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1086
+    /* "pygame/_sdl2/video.pyx":1095
  *         cdef float x = scale[0]
  *         cdef float y = scale[1]
  *         if (SDL_RenderSetScale(self._renderer, x, y) != 0):             # <<<<<<<<<<<<<<
@@ -16391,7 +16407,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale_2__set__(struct __pyx
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1083
+  /* "pygame/_sdl2/video.pyx":1092
  * 
  *     @scale.setter
  *     def scale(self, scale):             # <<<<<<<<<<<<<<
@@ -16413,7 +16429,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_5scale_2__set__(struct __pyx
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1093
+/* "pygame/_sdl2/video.pyx":1102
  *     #     return SDL_RenderGetIntegerScale(self._renderer)
  * 
  *     def set_viewport(self, area):             # <<<<<<<<<<<<<<
@@ -16450,7 +16466,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_viewport", 0);
 
-  /* "pygame/_sdl2/video.pyx":1101
+  /* "pygame/_sdl2/video.pyx":1110
  *         """
  *         # https://wiki.libsdl.org/SDL_RenderSetViewport
  *         if area is None:             # <<<<<<<<<<<<<<
@@ -16461,7 +16477,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygame/_sdl2/video.pyx":1102
+    /* "pygame/_sdl2/video.pyx":1111
  *         # https://wiki.libsdl.org/SDL_RenderSetViewport
  *         if area is None:
  *             if SDL_RenderSetViewport(self._renderer, NULL) < 0:             # <<<<<<<<<<<<<<
@@ -16471,14 +16487,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
     __pyx_t_2 = ((SDL_RenderSetViewport(__pyx_v_self->_renderer, NULL) < 0) != 0);
     if (unlikely(__pyx_t_2)) {
 
-      /* "pygame/_sdl2/video.pyx":1103
+      /* "pygame/_sdl2/video.pyx":1112
  *         if area is None:
  *             if SDL_RenderSetViewport(self._renderer, NULL) < 0:
  *                 raise error()             # <<<<<<<<<<<<<<
  *             return
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1103, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16492,14 +16508,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
       }
       __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1103, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1103, __pyx_L1_error)
+      __PYX_ERR(0, 1112, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1102
+      /* "pygame/_sdl2/video.pyx":1111
  *         # https://wiki.libsdl.org/SDL_RenderSetViewport
  *         if area is None:
  *             if SDL_RenderSetViewport(self._renderer, NULL) < 0:             # <<<<<<<<<<<<<<
@@ -16508,7 +16524,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1104
+    /* "pygame/_sdl2/video.pyx":1113
  *             if SDL_RenderSetViewport(self._renderer, NULL) < 0:
  *                 raise error()
  *             return             # <<<<<<<<<<<<<<
@@ -16519,7 +16535,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/video.pyx":1101
+    /* "pygame/_sdl2/video.pyx":1110
  *         """
  *         # https://wiki.libsdl.org/SDL_RenderSetViewport
  *         if area is None:             # <<<<<<<<<<<<<<
@@ -16528,7 +16544,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1107
+  /* "pygame/_sdl2/video.pyx":1116
  * 
  *         cdef SDL_Rect tmprect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)             # <<<<<<<<<<<<<<
@@ -16537,7 +16553,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
  */
   __pyx_v_rectptr = pgRect_FromObject(__pyx_v_area, (&__pyx_v_tmprect));
 
-  /* "pygame/_sdl2/video.pyx":1108
+  /* "pygame/_sdl2/video.pyx":1117
  *         cdef SDL_Rect tmprect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -16547,20 +16563,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
   __pyx_t_2 = ((__pyx_v_rectptr == NULL) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":1109
+    /* "pygame/_sdl2/video.pyx":1118
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')             # <<<<<<<<<<<<<<
  * 
  *         if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1109, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1118, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1109, __pyx_L1_error)
+    __PYX_ERR(0, 1118, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1108
+    /* "pygame/_sdl2/video.pyx":1117
  *         cdef SDL_Rect tmprect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -16569,7 +16585,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1111
+  /* "pygame/_sdl2/video.pyx":1120
  *             raise TypeError('expected a rectangle')
  * 
  *         if SDL_RenderSetViewport(self._renderer, rectptr) < 0:             # <<<<<<<<<<<<<<
@@ -16579,14 +16595,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
   __pyx_t_2 = ((SDL_RenderSetViewport(__pyx_v_self->_renderer, __pyx_v_rectptr) < 0) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "pygame/_sdl2/video.pyx":1112
+    /* "pygame/_sdl2/video.pyx":1121
  * 
  *         if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1112, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1121, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16600,14 +16616,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1112, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1121, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1112, __pyx_L1_error)
+    __PYX_ERR(0, 1121, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1111
+    /* "pygame/_sdl2/video.pyx":1120
  *             raise TypeError('expected a rectangle')
  * 
  *         if SDL_RenderSetViewport(self._renderer, rectptr) < 0:             # <<<<<<<<<<<<<<
@@ -16616,7 +16632,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1093
+  /* "pygame/_sdl2/video.pyx":1102
  *     #     return SDL_RenderGetIntegerScale(self._renderer)
  * 
  *     def set_viewport(self, area):             # <<<<<<<<<<<<<<
@@ -16639,7 +16655,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_12set_viewport(struct 
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1116
+/* "pygame/_sdl2/video.pyx":1125
  * 
  *     @property
  *     def target(self):             # <<<<<<<<<<<<<<
@@ -16665,7 +16681,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target___get__(struct
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1122
+  /* "pygame/_sdl2/video.pyx":1131
  *         """
  *         # https://wiki.libsdl.org/SDL_GetRenderTarget
  *         return self._target             # <<<<<<<<<<<<<<
@@ -16677,7 +16693,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target___get__(struct
   __pyx_r = ((PyObject *)__pyx_v_self->_target);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1116
+  /* "pygame/_sdl2/video.pyx":1125
  * 
  *     @property
  *     def target(self):             # <<<<<<<<<<<<<<
@@ -16692,7 +16708,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target___get__(struct
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1125
+/* "pygame/_sdl2/video.pyx":1134
  * 
  *     @target.setter
  *     def target(self, newtarget):             # <<<<<<<<<<<<<<
@@ -16726,7 +16742,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pygame/_sdl2/video.pyx":1127
+  /* "pygame/_sdl2/video.pyx":1136
  *     def target(self, newtarget):
  *         # https://wiki.libsdl.org/SDL_SetRenderTarget
  *         if newtarget is None:             # <<<<<<<<<<<<<<
@@ -16737,7 +16753,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygame/_sdl2/video.pyx":1128
+    /* "pygame/_sdl2/video.pyx":1137
  *         # https://wiki.libsdl.org/SDL_SetRenderTarget
  *         if newtarget is None:
  *             self._target = None             # <<<<<<<<<<<<<<
@@ -16750,7 +16766,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
     __Pyx_DECREF(((PyObject *)__pyx_v_self->_target));
     __pyx_v_self->_target = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)Py_None);
 
-    /* "pygame/_sdl2/video.pyx":1129
+    /* "pygame/_sdl2/video.pyx":1138
  *         if newtarget is None:
  *             self._target = None
  *             if SDL_SetRenderTarget(self._renderer, NULL) < 0:             # <<<<<<<<<<<<<<
@@ -16760,14 +16776,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
     __pyx_t_2 = ((SDL_SetRenderTarget(__pyx_v_self->_renderer, NULL) < 0) != 0);
     if (unlikely(__pyx_t_2)) {
 
-      /* "pygame/_sdl2/video.pyx":1130
+      /* "pygame/_sdl2/video.pyx":1139
  *             self._target = None
  *             if SDL_SetRenderTarget(self._renderer, NULL) < 0:
  *                 raise error()             # <<<<<<<<<<<<<<
  *         elif isinstance(newtarget, Texture):
  *             self._target = newtarget
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1130, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1139, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16781,14 +16797,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
       }
       __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1130, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1139, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1130, __pyx_L1_error)
+      __PYX_ERR(0, 1139, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1129
+      /* "pygame/_sdl2/video.pyx":1138
  *         if newtarget is None:
  *             self._target = None
  *             if SDL_SetRenderTarget(self._renderer, NULL) < 0:             # <<<<<<<<<<<<<<
@@ -16797,7 +16813,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1127
+    /* "pygame/_sdl2/video.pyx":1136
  *     def target(self, newtarget):
  *         # https://wiki.libsdl.org/SDL_SetRenderTarget
  *         if newtarget is None:             # <<<<<<<<<<<<<<
@@ -16807,7 +16823,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":1131
+  /* "pygame/_sdl2/video.pyx":1140
  *             if SDL_SetRenderTarget(self._renderer, NULL) < 0:
  *                 raise error()
  *         elif isinstance(newtarget, Texture):             # <<<<<<<<<<<<<<
@@ -16818,14 +16834,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (likely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1132
+    /* "pygame/_sdl2/video.pyx":1141
  *                 raise error()
  *         elif isinstance(newtarget, Texture):
  *             self._target = newtarget             # <<<<<<<<<<<<<<
  *             if SDL_SetRenderTarget(self._renderer,
  *                                    self._target._tex) < 0:
  */
-    if (!(likely(((__pyx_v_newtarget) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_newtarget, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 1132, __pyx_L1_error)
+    if (!(likely(((__pyx_v_newtarget) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_newtarget, __pyx_ptype_6pygame_5_sdl2_5video_Texture))))) __PYX_ERR(0, 1141, __pyx_L1_error)
     __pyx_t_3 = __pyx_v_newtarget;
     __Pyx_INCREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_3);
@@ -16834,7 +16850,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
     __pyx_v_self->_target = ((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pygame/_sdl2/video.pyx":1134
+    /* "pygame/_sdl2/video.pyx":1143
  *             self._target = newtarget
  *             if SDL_SetRenderTarget(self._renderer,
  *                                    self._target._tex) < 0:             # <<<<<<<<<<<<<<
@@ -16843,7 +16859,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
  */
     __pyx_t_1 = ((SDL_SetRenderTarget(__pyx_v_self->_renderer, __pyx_v_self->_target->_tex) < 0) != 0);
 
-    /* "pygame/_sdl2/video.pyx":1133
+    /* "pygame/_sdl2/video.pyx":1142
  *         elif isinstance(newtarget, Texture):
  *             self._target = newtarget
  *             if SDL_SetRenderTarget(self._renderer,             # <<<<<<<<<<<<<<
@@ -16852,14 +16868,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
  */
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":1135
+      /* "pygame/_sdl2/video.pyx":1144
  *             if SDL_SetRenderTarget(self._renderer,
  *                                    self._target._tex) < 0:
  *                 raise error()             # <<<<<<<<<<<<<<
  *         else:
  *             raise TypeError('target must be a Texture or None')
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1135, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16873,14 +16889,14 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
       }
       __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1135, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1135, __pyx_L1_error)
+      __PYX_ERR(0, 1144, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1133
+      /* "pygame/_sdl2/video.pyx":1142
  *         elif isinstance(newtarget, Texture):
  *             self._target = newtarget
  *             if SDL_SetRenderTarget(self._renderer,             # <<<<<<<<<<<<<<
@@ -16889,7 +16905,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1131
+    /* "pygame/_sdl2/video.pyx":1140
  *             if SDL_SetRenderTarget(self._renderer, NULL) < 0:
  *                 raise error()
  *         elif isinstance(newtarget, Texture):             # <<<<<<<<<<<<<<
@@ -16899,7 +16915,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":1137
+  /* "pygame/_sdl2/video.pyx":1146
  *                 raise error()
  *         else:
  *             raise TypeError('target must be a Texture or None')             # <<<<<<<<<<<<<<
@@ -16907,15 +16923,15 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
  *     cpdef object blit(self, object source, Rect dest=None, Rect area=None, int special_flags=0):
  */
   /*else*/ {
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1137, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1137, __pyx_L1_error)
+    __PYX_ERR(0, 1146, __pyx_L1_error)
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":1125
+  /* "pygame/_sdl2/video.pyx":1134
  * 
  *     @target.setter
  *     def target(self, newtarget):             # <<<<<<<<<<<<<<
@@ -16937,7 +16953,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_8Renderer_6target_2__set__(struct __py
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1139
+/* "pygame/_sdl2/video.pyx":1148
  *             raise TypeError('target must be a Texture or None')
  * 
  *     cpdef object blit(self, object source, Rect dest=None, Rect area=None, int special_flags=0):             # <<<<<<<<<<<<<<
@@ -16987,11 +17003,11 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_blit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1139, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_blit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1148, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pygame_5_sdl2_5video_8Renderer_15blit)) {
         __Pyx_XDECREF(__pyx_r);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_special_flags); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1139, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_special_flags); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1148, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -17009,7 +17025,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[5] = {__pyx_t_5, __pyx_v_source, ((PyObject *)__pyx_v_dest), ((PyObject *)__pyx_v_area), __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 4+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1139, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 4+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1148, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -17018,14 +17034,14 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[5] = {__pyx_t_5, __pyx_v_source, ((PyObject *)__pyx_v_dest), ((PyObject *)__pyx_v_area), __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 4+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1139, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 4+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1148, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         } else
         #endif
         {
-          __pyx_t_7 = PyTuple_New(4+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1139, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_New(4+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1148, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           if (__pyx_t_5) {
             __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -17042,7 +17058,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
           __Pyx_GIVEREF(__pyx_t_3);
           PyTuple_SET_ITEM(__pyx_t_7, 3+__pyx_t_6, __pyx_t_3);
           __pyx_t_3 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1139, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1148, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         }
@@ -17065,7 +17081,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     #endif
   }
 
-  /* "pygame/_sdl2/video.pyx":1147
+  /* "pygame/_sdl2/video.pyx":1156
  *         :param special_flags: have no effect at this moment.
  *         """
  *         if isinstance(source, Texture):             # <<<<<<<<<<<<<<
@@ -17076,7 +17092,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
   __pyx_t_9 = (__pyx_t_8 != 0);
   if (__pyx_t_9) {
 
-    /* "pygame/_sdl2/video.pyx":1148
+    /* "pygame/_sdl2/video.pyx":1157
  *         """
  *         if isinstance(source, Texture):
  *             (<Texture>source).draw(area, dest)             # <<<<<<<<<<<<<<
@@ -17088,7 +17104,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     __pyx_t_10.dstrect = ((PyObject *)__pyx_v_dest);
     ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Texture *)((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_v_source)->__pyx_vtab)->draw(((struct __pyx_obj_6pygame_5_sdl2_5video_Texture *)__pyx_v_source), 0, &__pyx_t_10); 
 
-    /* "pygame/_sdl2/video.pyx":1147
+    /* "pygame/_sdl2/video.pyx":1156
  *         :param special_flags: have no effect at this moment.
  *         """
  *         if isinstance(source, Texture):             # <<<<<<<<<<<<<<
@@ -17098,7 +17114,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":1149
+  /* "pygame/_sdl2/video.pyx":1158
  *         if isinstance(source, Texture):
  *             (<Texture>source).draw(area, dest)
  *         elif isinstance(source, Image):             # <<<<<<<<<<<<<<
@@ -17109,7 +17125,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
   __pyx_t_8 = (__pyx_t_9 != 0);
   if (__pyx_t_8) {
 
-    /* "pygame/_sdl2/video.pyx":1150
+    /* "pygame/_sdl2/video.pyx":1159
  *             (<Texture>source).draw(area, dest)
  *         elif isinstance(source, Image):
  *             (<Image>source).draw(area, dest)             # <<<<<<<<<<<<<<
@@ -17121,7 +17137,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     __pyx_t_11.dstrect = ((PyObject *)__pyx_v_dest);
     ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Image *)((struct __pyx_obj_6pygame_5_sdl2_5video_Image *)__pyx_v_source)->__pyx_vtab)->draw(((struct __pyx_obj_6pygame_5_sdl2_5video_Image *)__pyx_v_source), 0, &__pyx_t_11); 
 
-    /* "pygame/_sdl2/video.pyx":1149
+    /* "pygame/_sdl2/video.pyx":1158
  *         if isinstance(source, Texture):
  *             (<Texture>source).draw(area, dest)
  *         elif isinstance(source, Image):             # <<<<<<<<<<<<<<
@@ -17131,31 +17147,31 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":1151
+  /* "pygame/_sdl2/video.pyx":1160
  *         elif isinstance(source, Image):
  *             (<Image>source).draw(area, dest)
  *         elif not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
  *             raise TypeError('source must be drawable')
  *         else:
  */
-  __pyx_t_8 = __Pyx_HasAttr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 1151, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_HasAttr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 1160, __pyx_L1_error)
   __pyx_t_9 = ((!(__pyx_t_8 != 0)) != 0);
   if (unlikely(__pyx_t_9)) {
 
-    /* "pygame/_sdl2/video.pyx":1152
+    /* "pygame/_sdl2/video.pyx":1161
  *             (<Image>source).draw(area, dest)
  *         elif not hasattr(source, 'draw'):
  *             raise TypeError('source must be drawable')             # <<<<<<<<<<<<<<
  *         else:
  *             source.draw(area, dest)
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1152, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1161, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1152, __pyx_L1_error)
+    __PYX_ERR(0, 1161, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1151
+    /* "pygame/_sdl2/video.pyx":1160
  *         elif isinstance(source, Image):
  *             (<Image>source).draw(area, dest)
  *         elif not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
@@ -17164,7 +17180,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1154
+  /* "pygame/_sdl2/video.pyx":1163
  *             raise TypeError('source must be drawable')
  *         else:
  *             source.draw(area, dest)             # <<<<<<<<<<<<<<
@@ -17172,7 +17188,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
  *         if not dest:
  */
   /*else*/ {
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1154, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_4 = NULL;
     __pyx_t_6 = 0;
@@ -17189,7 +17205,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_4, ((PyObject *)__pyx_v_area), ((PyObject *)__pyx_v_dest)};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1154, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1163, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -17197,13 +17213,13 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_4, ((PyObject *)__pyx_v_area), ((PyObject *)__pyx_v_dest)};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1154, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1163, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1154, __pyx_L1_error)
+      __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1163, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -17214,7 +17230,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
       __Pyx_INCREF(((PyObject *)__pyx_v_dest));
       __Pyx_GIVEREF(((PyObject *)__pyx_v_dest));
       PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, ((PyObject *)__pyx_v_dest));
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1154, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1163, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     }
@@ -17223,18 +17239,18 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":1156
+  /* "pygame/_sdl2/video.pyx":1165
  *             source.draw(area, dest)
  * 
  *         if not dest:             # <<<<<<<<<<<<<<
  *             return self.get_viewport()
  *         return dest
  */
-  __pyx_t_9 = __Pyx_PyObject_IsTrue(((PyObject *)__pyx_v_dest)); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 1156, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_IsTrue(((PyObject *)__pyx_v_dest)); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 1165, __pyx_L1_error)
   __pyx_t_8 = ((!__pyx_t_9) != 0);
   if (__pyx_t_8) {
 
-    /* "pygame/_sdl2/video.pyx":1157
+    /* "pygame/_sdl2/video.pyx":1166
  * 
  *         if not dest:
  *             return self.get_viewport()             # <<<<<<<<<<<<<<
@@ -17242,13 +17258,13 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
  * 
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self->__pyx_vtab)->get_viewport(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1157, __pyx_L1_error)
+    __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self->__pyx_vtab)->get_viewport(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1166, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_r = __pyx_t_1;
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "pygame/_sdl2/video.pyx":1156
+    /* "pygame/_sdl2/video.pyx":1165
  *             source.draw(area, dest)
  * 
  *         if not dest:             # <<<<<<<<<<<<<<
@@ -17257,7 +17273,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1158
+  /* "pygame/_sdl2/video.pyx":1167
  *         if not dest:
  *             return self.get_viewport()
  *         return dest             # <<<<<<<<<<<<<<
@@ -17269,7 +17285,7 @@ static PyObject *__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit(struct __pyx_obj_6
   __pyx_r = ((PyObject *)__pyx_v_dest);
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1139
+  /* "pygame/_sdl2/video.pyx":1148
  *             raise TypeError('target must be a Texture or None')
  * 
  *     cpdef object blit(self, object source, Rect dest=None, Rect area=None, int special_flags=0):             # <<<<<<<<<<<<<<
@@ -17352,7 +17368,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_15blit(PyObject *__pyx
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "blit") < 0)) __PYX_ERR(0, 1139, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "blit") < 0)) __PYX_ERR(0, 1148, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -17371,21 +17387,21 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_15blit(PyObject *__pyx
     __pyx_v_dest = ((pgRectObject *)values[1]);
     __pyx_v_area = ((pgRectObject *)values[2]);
     if (values[3]) {
-      __pyx_v_special_flags = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_special_flags == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1139, __pyx_L3_error)
+      __pyx_v_special_flags = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_special_flags == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1148, __pyx_L3_error)
     } else {
       __pyx_v_special_flags = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("blit", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1139, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("blit", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1148, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Renderer.blit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_dest), __pyx_ptype_6pygame_5_sdl2_5video_Rect, 1, "dest", 0))) __PYX_ERR(0, 1139, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_area), __pyx_ptype_6pygame_5_sdl2_5video_Rect, 1, "area", 0))) __PYX_ERR(0, 1139, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_dest), __pyx_ptype_6pygame_5_sdl2_5video_Rect, 1, "dest", 0))) __PYX_ERR(0, 1148, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_area), __pyx_ptype_6pygame_5_sdl2_5video_Rect, 1, "area", 0))) __PYX_ERR(0, 1148, __pyx_L1_error)
   __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_8Renderer_14blit(((struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *)__pyx_v_self), __pyx_v_source, __pyx_v_dest, __pyx_v_area, __pyx_v_special_flags);
 
   /* function exit code */
@@ -17411,7 +17427,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_14blit(struct __pyx_ob
   __pyx_t_2.dest = __pyx_v_dest;
   __pyx_t_2.area = __pyx_v_area;
   __pyx_t_2.special_flags = __pyx_v_special_flags;
-  __pyx_t_1 = __pyx_vtabptr_6pygame_5_sdl2_5video_Renderer->blit(__pyx_v_self, __pyx_v_source, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1139, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_6pygame_5_sdl2_5video_Renderer->blit(__pyx_v_self, __pyx_v_source, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -17428,7 +17444,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_14blit(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1160
+/* "pygame/_sdl2/video.pyx":1169
  *         return dest
  * 
  *     def draw_line(self, p1, p2):             # <<<<<<<<<<<<<<
@@ -17470,11 +17486,11 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_17draw_line(PyObject *
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, 1); __PYX_ERR(0, 1160, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, 1); __PYX_ERR(0, 1169, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw_line") < 0)) __PYX_ERR(0, 1160, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw_line") < 0)) __PYX_ERR(0, 1169, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -17487,7 +17503,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_17draw_line(PyObject *
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1160, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1169, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Renderer.draw_line", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -17517,39 +17533,39 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("draw_line", 0);
 
-  /* "pygame/_sdl2/video.pyx":1163
+  /* "pygame/_sdl2/video.pyx":1172
  *         # https://wiki.libsdl.org/SDL_RenderDrawLine
  *         res = SDL_RenderDrawLine(self._renderer,
  *                                  p1[0], p1[1],             # <<<<<<<<<<<<<<
  *                                  p2[0], p2[1])
  *         if res < 0:
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1163, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1163, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1172, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1163, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1163, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1172, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1164
+  /* "pygame/_sdl2/video.pyx":1173
  *         res = SDL_RenderDrawLine(self._renderer,
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1164, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1164, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1173, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1164, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1164, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1173, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1162
+  /* "pygame/_sdl2/video.pyx":1171
  *     def draw_line(self, p1, p2):
  *         # https://wiki.libsdl.org/SDL_RenderDrawLine
  *         res = SDL_RenderDrawLine(self._renderer,             # <<<<<<<<<<<<<<
@@ -17558,7 +17574,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
  */
   __pyx_v_res = SDL_RenderDrawLine(__pyx_v_self->_renderer, __pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5);
 
-  /* "pygame/_sdl2/video.pyx":1165
+  /* "pygame/_sdl2/video.pyx":1174
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17568,14 +17584,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
   __pyx_t_6 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_6)) {
 
-    /* "pygame/_sdl2/video.pyx":1166
+    /* "pygame/_sdl2/video.pyx":1175
  *                                  p2[0], p2[1])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def draw_point(self, point):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1166, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
@@ -17589,14 +17605,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
     }
     __pyx_t_1 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1166, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1166, __pyx_L1_error)
+    __PYX_ERR(0, 1175, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1165
+    /* "pygame/_sdl2/video.pyx":1174
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17605,7 +17621,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1160
+  /* "pygame/_sdl2/video.pyx":1169
  *         return dest
  * 
  *     def draw_line(self, p1, p2):             # <<<<<<<<<<<<<<
@@ -17628,7 +17644,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_16draw_line(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1168
+/* "pygame/_sdl2/video.pyx":1177
  *             raise error()
  * 
  *     def draw_point(self, point):             # <<<<<<<<<<<<<<
@@ -17664,23 +17680,23 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("draw_point", 0);
 
-  /* "pygame/_sdl2/video.pyx":1171
+  /* "pygame/_sdl2/video.pyx":1180
  *         # https://wiki.libsdl.org/SDL_RenderDrawPoint
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1171, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1171, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1180, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1171, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1171, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1180, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1170
+  /* "pygame/_sdl2/video.pyx":1179
  *     def draw_point(self, point):
  *         # https://wiki.libsdl.org/SDL_RenderDrawPoint
  *         res = SDL_RenderDrawPoint(self._renderer,             # <<<<<<<<<<<<<<
@@ -17689,7 +17705,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
  */
   __pyx_v_res = SDL_RenderDrawPoint(__pyx_v_self->_renderer, __pyx_t_2, __pyx_t_3);
 
-  /* "pygame/_sdl2/video.pyx":1172
+  /* "pygame/_sdl2/video.pyx":1181
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17699,14 +17715,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
   __pyx_t_4 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_4)) {
 
-    /* "pygame/_sdl2/video.pyx":1173
+    /* "pygame/_sdl2/video.pyx":1182
  *                                   point[0], point[1])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def draw_rect(self, rect):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1173, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1182, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -17720,14 +17736,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
     }
     __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1173, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1182, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1173, __pyx_L1_error)
+    __PYX_ERR(0, 1182, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1172
+    /* "pygame/_sdl2/video.pyx":1181
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17736,7 +17752,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1168
+  /* "pygame/_sdl2/video.pyx":1177
  *             raise error()
  * 
  *     def draw_point(self, point):             # <<<<<<<<<<<<<<
@@ -17759,7 +17775,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_18draw_point(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1175
+/* "pygame/_sdl2/video.pyx":1184
  *             raise error()
  * 
  *     def draw_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -17795,7 +17811,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("draw_rect", 0);
 
-  /* "pygame/_sdl2/video.pyx":1178
+  /* "pygame/_sdl2/video.pyx":1187
  *         # https://wiki.libsdl.org/SDL_RenderDrawRect
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)             # <<<<<<<<<<<<<<
@@ -17804,7 +17820,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
  */
   __pyx_v_rectptr = pgRect_FromObject(__pyx_v_rect, (&__pyx_v__rect));
 
-  /* "pygame/_sdl2/video.pyx":1179
+  /* "pygame/_sdl2/video.pyx":1188
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -17814,20 +17830,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
   __pyx_t_1 = ((__pyx_v_rectptr == NULL) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1180
+    /* "pygame/_sdl2/video.pyx":1189
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')             # <<<<<<<<<<<<<<
  *         res = SDL_RenderDrawRect(self._renderer, rectptr)
  *         if res < 0:
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1180, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1189, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1180, __pyx_L1_error)
+    __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1179
+    /* "pygame/_sdl2/video.pyx":1188
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -17836,7 +17852,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1181
+  /* "pygame/_sdl2/video.pyx":1190
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')
  *         res = SDL_RenderDrawRect(self._renderer, rectptr)             # <<<<<<<<<<<<<<
@@ -17845,7 +17861,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
  */
   __pyx_v_res = SDL_RenderDrawRect(__pyx_v_self->_renderer, __pyx_v_rectptr);
 
-  /* "pygame/_sdl2/video.pyx":1182
+  /* "pygame/_sdl2/video.pyx":1191
  *             raise TypeError('expected a rectangle')
  *         res = SDL_RenderDrawRect(self._renderer, rectptr)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17855,14 +17871,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1183
+    /* "pygame/_sdl2/video.pyx":1192
  *         res = SDL_RenderDrawRect(self._renderer, rectptr)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def fill_rect(self, rect):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1183, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1192, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -17876,14 +17892,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1183, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1192, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1183, __pyx_L1_error)
+    __PYX_ERR(0, 1192, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1182
+    /* "pygame/_sdl2/video.pyx":1191
  *             raise TypeError('expected a rectangle')
  *         res = SDL_RenderDrawRect(self._renderer, rectptr)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -17892,7 +17908,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1175
+  /* "pygame/_sdl2/video.pyx":1184
  *             raise error()
  * 
  *     def draw_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -17915,7 +17931,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_20draw_rect(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1185
+/* "pygame/_sdl2/video.pyx":1194
  *             raise error()
  * 
  *     def fill_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -17951,7 +17967,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("fill_rect", 0);
 
-  /* "pygame/_sdl2/video.pyx":1188
+  /* "pygame/_sdl2/video.pyx":1197
  *         # https://wiki.libsdl.org/SDL_RenderFillRect
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)             # <<<<<<<<<<<<<<
@@ -17960,7 +17976,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
  */
   __pyx_v_rectptr = pgRect_FromObject(__pyx_v_rect, (&__pyx_v__rect));
 
-  /* "pygame/_sdl2/video.pyx":1189
+  /* "pygame/_sdl2/video.pyx":1198
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -17970,20 +17986,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
   __pyx_t_1 = ((__pyx_v_rectptr == NULL) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1190
+    /* "pygame/_sdl2/video.pyx":1199
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')             # <<<<<<<<<<<<<<
  *         res = SDL_RenderFillRect(self._renderer, rectptr)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1190, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1190, __pyx_L1_error)
+    __PYX_ERR(0, 1199, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1189
+    /* "pygame/_sdl2/video.pyx":1198
  *         cdef SDL_Rect _rect
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
  *         if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -17992,7 +18008,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1191
+  /* "pygame/_sdl2/video.pyx":1200
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')
  *         res = SDL_RenderFillRect(self._renderer, rectptr)             # <<<<<<<<<<<<<<
@@ -18001,7 +18017,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
  */
   __pyx_v_res = SDL_RenderFillRect(__pyx_v_self->_renderer, __pyx_v_rectptr);
 
-  /* "pygame/_sdl2/video.pyx":1193
+  /* "pygame/_sdl2/video.pyx":1202
  *         res = SDL_RenderFillRect(self._renderer, rectptr)
  * 
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -18011,14 +18027,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1194
+    /* "pygame/_sdl2/video.pyx":1203
  * 
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def to_surface(self, surface=None, area=None):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1194, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1203, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -18032,14 +18048,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1194, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1203, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1194, __pyx_L1_error)
+    __PYX_ERR(0, 1203, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1193
+    /* "pygame/_sdl2/video.pyx":1202
  *         res = SDL_RenderFillRect(self._renderer, rectptr)
  * 
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -18048,7 +18064,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1185
+  /* "pygame/_sdl2/video.pyx":1194
  *             raise error()
  * 
  *     def fill_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -18071,7 +18087,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_22fill_rect(struct __p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1196
+/* "pygame/_sdl2/video.pyx":1205
  *             raise error()
  * 
  *     def to_surface(self, surface=None, area=None):             # <<<<<<<<<<<<<<
@@ -18122,7 +18138,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_25to_surface(PyObject 
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "to_surface") < 0)) __PYX_ERR(0, 1196, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "to_surface") < 0)) __PYX_ERR(0, 1205, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -18139,7 +18155,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_25to_surface(PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("to_surface", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1196, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("to_surface", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1205, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Renderer.to_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -18175,7 +18191,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   __Pyx_RefNannySetupContext("to_surface", 0);
   __Pyx_INCREF(__pyx_v_surface);
 
-  /* "pygame/_sdl2/video.pyx":1218
+  /* "pygame/_sdl2/video.pyx":1227
  * 
  *         # obtain area to use
  *         if area is not None:             # <<<<<<<<<<<<<<
@@ -18186,7 +18202,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygame/_sdl2/video.pyx":1220
+    /* "pygame/_sdl2/video.pyx":1229
  *         if area is not None:
  * 
  *             rectptr = pgRect_FromObject(area, &rarea)             # <<<<<<<<<<<<<<
@@ -18195,7 +18211,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     __pyx_v_rectptr = pgRect_FromObject(__pyx_v_area, (&__pyx_v_rarea));
 
-    /* "pygame/_sdl2/video.pyx":1221
+    /* "pygame/_sdl2/video.pyx":1230
  * 
  *             rectptr = pgRect_FromObject(area, &rarea)
  *             if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -18205,20 +18221,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_2 = ((__pyx_v_rectptr == NULL) != 0);
     if (unlikely(__pyx_t_2)) {
 
-      /* "pygame/_sdl2/video.pyx":1222
+      /* "pygame/_sdl2/video.pyx":1231
  *             rectptr = pgRect_FromObject(area, &rarea)
  *             if rectptr == NULL:
  *                 raise TypeError('area must be None or a rect')             # <<<<<<<<<<<<<<
  * 
  *             # clip area
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1222, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1231, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1222, __pyx_L1_error)
+      __PYX_ERR(0, 1231, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1221
+      /* "pygame/_sdl2/video.pyx":1230
  * 
  *             rectptr = pgRect_FromObject(area, &rarea)
  *             if rectptr == NULL:             # <<<<<<<<<<<<<<
@@ -18227,7 +18243,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1225
+    /* "pygame/_sdl2/video.pyx":1234
  * 
  *             # clip area
  *             SDL_RenderGetViewport(self._renderer, &tempviewport)             # <<<<<<<<<<<<<<
@@ -18236,7 +18252,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     SDL_RenderGetViewport(__pyx_v_self->_renderer, (&__pyx_v_tempviewport));
 
-    /* "pygame/_sdl2/video.pyx":1226
+    /* "pygame/_sdl2/video.pyx":1235
  *             # clip area
  *             SDL_RenderGetViewport(self._renderer, &tempviewport)
  *             SDL_IntersectRect(rectptr, &tempviewport, rectptr)             # <<<<<<<<<<<<<<
@@ -18245,7 +18261,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     (void)(SDL_IntersectRect(__pyx_v_rectptr, (&__pyx_v_tempviewport), __pyx_v_rectptr));
 
-    /* "pygame/_sdl2/video.pyx":1228
+    /* "pygame/_sdl2/video.pyx":1237
  *             SDL_IntersectRect(rectptr, &tempviewport, rectptr)
  * 
  *             areaparam = rectptr             # <<<<<<<<<<<<<<
@@ -18254,7 +18270,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     __pyx_v_areaparam = __pyx_v_rectptr;
 
-    /* "pygame/_sdl2/video.pyx":1229
+    /* "pygame/_sdl2/video.pyx":1238
  * 
  *             areaparam = rectptr
  *             rarea.x = rectptr.x             # <<<<<<<<<<<<<<
@@ -18264,7 +18280,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_4 = __pyx_v_rectptr->x;
     __pyx_v_rarea.x = __pyx_t_4;
 
-    /* "pygame/_sdl2/video.pyx":1230
+    /* "pygame/_sdl2/video.pyx":1239
  *             areaparam = rectptr
  *             rarea.x = rectptr.x
  *             rarea.y = rectptr.y             # <<<<<<<<<<<<<<
@@ -18274,7 +18290,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_4 = __pyx_v_rectptr->y;
     __pyx_v_rarea.y = __pyx_t_4;
 
-    /* "pygame/_sdl2/video.pyx":1231
+    /* "pygame/_sdl2/video.pyx":1240
  *             rarea.x = rectptr.x
  *             rarea.y = rectptr.y
  *             rarea.w = rectptr.w             # <<<<<<<<<<<<<<
@@ -18284,7 +18300,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_4 = __pyx_v_rectptr->w;
     __pyx_v_rarea.w = __pyx_t_4;
 
-    /* "pygame/_sdl2/video.pyx":1232
+    /* "pygame/_sdl2/video.pyx":1241
  *             rarea.y = rectptr.y
  *             rarea.w = rectptr.w
  *             rarea.h = rectptr.h             # <<<<<<<<<<<<<<
@@ -18294,7 +18310,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_4 = __pyx_v_rectptr->h;
     __pyx_v_rarea.h = __pyx_t_4;
 
-    /* "pygame/_sdl2/video.pyx":1218
+    /* "pygame/_sdl2/video.pyx":1227
  * 
  *         # obtain area to use
  *         if area is not None:             # <<<<<<<<<<<<<<
@@ -18304,7 +18320,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     goto __pyx_L3;
   }
 
-  /* "pygame/_sdl2/video.pyx":1234
+  /* "pygame/_sdl2/video.pyx":1243
  *             rarea.h = rectptr.h
  *         else:
  *             SDL_RenderGetViewport(self._renderer, &rarea)             # <<<<<<<<<<<<<<
@@ -18314,7 +18330,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   /*else*/ {
     SDL_RenderGetViewport(__pyx_v_self->_renderer, (&__pyx_v_rarea));
 
-    /* "pygame/_sdl2/video.pyx":1235
+    /* "pygame/_sdl2/video.pyx":1244
  *         else:
  *             SDL_RenderGetViewport(self._renderer, &rarea)
  *             areaparam = NULL             # <<<<<<<<<<<<<<
@@ -18325,7 +18341,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   }
   __pyx_L3:;
 
-  /* "pygame/_sdl2/video.pyx":1238
+  /* "pygame/_sdl2/video.pyx":1247
  * 
  *         # prepare surface
  *         if surface is None:             # <<<<<<<<<<<<<<
@@ -18336,7 +18352,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "pygame/_sdl2/video.pyx":1240
+    /* "pygame/_sdl2/video.pyx":1249
  *         if surface is None:
  *             # create a new surface
  *             format = SDL_GetWindowPixelFormat(self._win._win)             # <<<<<<<<<<<<<<
@@ -18345,7 +18361,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     __pyx_v_format = SDL_GetWindowPixelFormat(__pyx_v_self->_win->_win);
 
-    /* "pygame/_sdl2/video.pyx":1241
+    /* "pygame/_sdl2/video.pyx":1250
  *             # create a new surface
  *             format = SDL_GetWindowPixelFormat(self._win._win)
  *             if format == SDL_PIXELFORMAT_UNKNOWN:             # <<<<<<<<<<<<<<
@@ -18355,14 +18371,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_1 = ((__pyx_v_format == SDL_PIXELFORMAT_UNKNOWN) != 0);
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":1242
+      /* "pygame/_sdl2/video.pyx":1251
  *             format = SDL_GetWindowPixelFormat(self._win._win)
  *             if format == SDL_PIXELFORMAT_UNKNOWN:
  *                 raise error()             # <<<<<<<<<<<<<<
  * 
  *             surf = SDL_CreateRGBSurfaceWithFormat(
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1242, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1251, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_6 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -18376,14 +18392,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
       }
       __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1242, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1251, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1242, __pyx_L1_error)
+      __PYX_ERR(0, 1251, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1241
+      /* "pygame/_sdl2/video.pyx":1250
  *             # create a new surface
  *             format = SDL_GetWindowPixelFormat(self._win._win)
  *             if format == SDL_PIXELFORMAT_UNKNOWN:             # <<<<<<<<<<<<<<
@@ -18392,7 +18408,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1244
+    /* "pygame/_sdl2/video.pyx":1253
  *                 raise error()
  * 
  *             surf = SDL_CreateRGBSurfaceWithFormat(             # <<<<<<<<<<<<<<
@@ -18401,7 +18417,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     __pyx_v_surf = SDL_CreateRGBSurfaceWithFormat(0, __pyx_v_rarea.w, __pyx_v_rarea.h, SDL_BITSPERPIXEL(__pyx_v_format), __pyx_v_format);
 
-    /* "pygame/_sdl2/video.pyx":1249
+    /* "pygame/_sdl2/video.pyx":1258
  *                 SDL_BITSPERPIXEL(format),
  *                 format)
  *             if surf == NULL:             # <<<<<<<<<<<<<<
@@ -18411,20 +18427,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_1 = ((__pyx_v_surf == NULL) != 0);
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":1250
+      /* "pygame/_sdl2/video.pyx":1259
  *                 format)
  *             if surf == NULL:
  *                 raise MemoryError("not enough memory for the surface")             # <<<<<<<<<<<<<<
  * 
  *             surface = <object>pgSurface_New2(surf, 1)
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1250, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1259, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1250, __pyx_L1_error)
+      __PYX_ERR(0, 1259, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1249
+      /* "pygame/_sdl2/video.pyx":1258
  *                 SDL_BITSPERPIXEL(format),
  *                 format)
  *             if surf == NULL:             # <<<<<<<<<<<<<<
@@ -18433,7 +18449,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1252
+    /* "pygame/_sdl2/video.pyx":1261
  *                 raise MemoryError("not enough memory for the surface")
  * 
  *             surface = <object>pgSurface_New2(surf, 1)             # <<<<<<<<<<<<<<
@@ -18446,7 +18462,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __Pyx_DECREF_SET(__pyx_v_surface, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pygame/_sdl2/video.pyx":1238
+    /* "pygame/_sdl2/video.pyx":1247
  * 
  *         # prepare surface
  *         if surface is None:             # <<<<<<<<<<<<<<
@@ -18456,7 +18472,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     goto __pyx_L5;
   }
 
-  /* "pygame/_sdl2/video.pyx":1253
+  /* "pygame/_sdl2/video.pyx":1262
  * 
  *             surface = <object>pgSurface_New2(surf, 1)
  *         elif pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -18466,7 +18482,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   __pyx_t_1 = (pgSurface_Check(__pyx_v_surface) != 0);
   if (likely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1254
+    /* "pygame/_sdl2/video.pyx":1263
  *             surface = <object>pgSurface_New2(surf, 1)
  *         elif pgSurface_Check(surface):
  *             surf = pgSurface_AsSurface(surface)             # <<<<<<<<<<<<<<
@@ -18475,7 +18491,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     __pyx_v_surf = pgSurface_AsSurface(__pyx_v_surface);
 
-    /* "pygame/_sdl2/video.pyx":1255
+    /* "pygame/_sdl2/video.pyx":1264
  *         elif pgSurface_Check(surface):
  *             surf = pgSurface_AsSurface(surface)
  *             if surf.w < rarea.w or surf.h < rarea.h:             # <<<<<<<<<<<<<<
@@ -18493,20 +18509,20 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_L9_bool_binop_done:;
     if (unlikely(__pyx_t_1)) {
 
-      /* "pygame/_sdl2/video.pyx":1256
+      /* "pygame/_sdl2/video.pyx":1265
  *             surf = pgSurface_AsSurface(surface)
  *             if surf.w < rarea.w or surf.h < rarea.h:
  *                 raise ValueError("the surface is too small")             # <<<<<<<<<<<<<<
  *             format = surf.format.format
  *         else:
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1256, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1265, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 1256, __pyx_L1_error)
+      __PYX_ERR(0, 1265, __pyx_L1_error)
 
-      /* "pygame/_sdl2/video.pyx":1255
+      /* "pygame/_sdl2/video.pyx":1264
  *         elif pgSurface_Check(surface):
  *             surf = pgSurface_AsSurface(surface)
  *             if surf.w < rarea.w or surf.h < rarea.h:             # <<<<<<<<<<<<<<
@@ -18515,7 +18531,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
     }
 
-    /* "pygame/_sdl2/video.pyx":1257
+    /* "pygame/_sdl2/video.pyx":1266
  *             if surf.w < rarea.w or surf.h < rarea.h:
  *                 raise ValueError("the surface is too small")
  *             format = surf.format.format             # <<<<<<<<<<<<<<
@@ -18525,7 +18541,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     __pyx_t_8 = __pyx_v_surf->format->format;
     __pyx_v_format = __pyx_t_8;
 
-    /* "pygame/_sdl2/video.pyx":1253
+    /* "pygame/_sdl2/video.pyx":1262
  * 
  *             surface = <object>pgSurface_New2(surf, 1)
  *         elif pgSurface_Check(surface):             # <<<<<<<<<<<<<<
@@ -18535,7 +18551,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     goto __pyx_L5;
   }
 
-  /* "pygame/_sdl2/video.pyx":1259
+  /* "pygame/_sdl2/video.pyx":1268
  *             format = surf.format.format
  *         else:
  *             raise TypeError("'surface' must be a surface or None")             # <<<<<<<<<<<<<<
@@ -18543,15 +18559,15 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  *         if SDL_RenderReadPixels(self._renderer,
  */
   /*else*/ {
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1259, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1268, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1259, __pyx_L1_error)
+    __PYX_ERR(0, 1268, __pyx_L1_error)
   }
   __pyx_L5:;
 
-  /* "pygame/_sdl2/video.pyx":1263
+  /* "pygame/_sdl2/video.pyx":1272
  *         if SDL_RenderReadPixels(self._renderer,
  *                                 areaparam,
  *                                 format, surf.pixels, surf.pitch) < 0:             # <<<<<<<<<<<<<<
@@ -18560,7 +18576,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
   __pyx_t_1 = ((SDL_RenderReadPixels(__pyx_v_self->_renderer, __pyx_v_areaparam, __pyx_v_format, __pyx_v_surf->pixels, __pyx_v_surf->pitch) < 0) != 0);
 
-  /* "pygame/_sdl2/video.pyx":1261
+  /* "pygame/_sdl2/video.pyx":1270
  *             raise TypeError("'surface' must be a surface or None")
  * 
  *         if SDL_RenderReadPixels(self._renderer,             # <<<<<<<<<<<<<<
@@ -18569,14 +18585,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "pygame/_sdl2/video.pyx":1264
+    /* "pygame/_sdl2/video.pyx":1273
  *                                 areaparam,
  *                                 format, surf.pixels, surf.pitch) < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  *         return surface
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1264, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1273, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -18590,14 +18606,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
     }
     __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1264, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1273, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 1264, __pyx_L1_error)
+    __PYX_ERR(0, 1273, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1261
+    /* "pygame/_sdl2/video.pyx":1270
  *             raise TypeError("'surface' must be a surface or None")
  * 
  *         if SDL_RenderReadPixels(self._renderer,             # <<<<<<<<<<<<<<
@@ -18606,7 +18622,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1265
+  /* "pygame/_sdl2/video.pyx":1274
  *                                 format, surf.pixels, surf.pitch) < 0:
  *             raise error()
  *         return surface             # <<<<<<<<<<<<<<
@@ -18618,7 +18634,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   __pyx_r = __pyx_v_surface;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1196
+  /* "pygame/_sdl2/video.pyx":1205
  *             raise error()
  * 
  *     def to_surface(self, surface=None, area=None):             # <<<<<<<<<<<<<<
@@ -18640,7 +18656,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_24to_surface(struct __
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pyx":1268
+/* "pygame/_sdl2/video.pyx":1277
  * 
  *     @staticmethod
  *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
@@ -18684,11 +18700,11 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_alpha_mode)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, 1); __PYX_ERR(0, 1268, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, 1); __PYX_ERR(0, 1277, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compose_custom_blend_mode") < 0)) __PYX_ERR(0, 1268, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compose_custom_blend_mode") < 0)) __PYX_ERR(0, 1277, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -18701,7 +18717,7 @@ static PyObject *__pyx_pw_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1268, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compose_custom_blend_mode", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1277, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pygame._sdl2.video.Renderer.compose_custom_blend_mode", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -18733,79 +18749,79 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("compose_custom_blend_mode", 0);
 
-  /* "pygame/_sdl2/video.pyx":1276
+  /* "pygame/_sdl2/video.pyx":1285
  *         """
  *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
  *         res = SDL_ComposeCustomBlendMode(color_mode[0],             # <<<<<<<<<<<<<<
  *                                          color_mode[1],
  *                                          color_mode[2],
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1276, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1285, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1276, __pyx_L1_error)
+  __pyx_t_2 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1285, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1277
+  /* "pygame/_sdl2/video.pyx":1286
  *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
  *         res = SDL_ComposeCustomBlendMode(color_mode[0],
  *                                          color_mode[1],             # <<<<<<<<<<<<<<
  *                                          color_mode[2],
  *                                          alpha_mode[0],
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1277, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1277, __pyx_L1_error)
+  __pyx_t_3 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1286, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1278
+  /* "pygame/_sdl2/video.pyx":1287
  *         res = SDL_ComposeCustomBlendMode(color_mode[0],
  *                                          color_mode[1],
  *                                          color_mode[2],             # <<<<<<<<<<<<<<
  *                                          alpha_mode[0],
  *                                          alpha_mode[1],
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1278, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_color_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1287, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1278, __pyx_L1_error)
+  __pyx_t_4 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1287, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1279
+  /* "pygame/_sdl2/video.pyx":1288
  *                                          color_mode[1],
  *                                          color_mode[2],
  *                                          alpha_mode[0],             # <<<<<<<<<<<<<<
  *                                          alpha_mode[1],
  *                                          alpha_mode[2])
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1279, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1279, __pyx_L1_error)
+  __pyx_t_5 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1288, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1280
+  /* "pygame/_sdl2/video.pyx":1289
  *                                          color_mode[2],
  *                                          alpha_mode[0],
  *                                          alpha_mode[1],             # <<<<<<<<<<<<<<
  *                                          alpha_mode[2])
  *         if res < 0:
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1280, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1280, __pyx_L1_error)
+  __pyx_t_6 = ((SDL_BlendFactor)__Pyx_PyInt_As_SDL_BlendFactor(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1289, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1281
+  /* "pygame/_sdl2/video.pyx":1290
  *                                          alpha_mode[0],
  *                                          alpha_mode[1],
  *                                          alpha_mode[2])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1281, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_alpha_mode, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1281, __pyx_L1_error)
+  __pyx_t_7 = ((SDL_BlendOperation)__Pyx_PyInt_As_SDL_BlendOperation(__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1290, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygame/_sdl2/video.pyx":1276
+  /* "pygame/_sdl2/video.pyx":1285
  *         """
  *         # https://wiki.libsdl.org/SDL_ComposeCustomBlendMode
  *         res = SDL_ComposeCustomBlendMode(color_mode[0],             # <<<<<<<<<<<<<<
@@ -18814,7 +18830,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend
  */
   __pyx_v_res = SDL_ComposeCustomBlendMode(__pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5, __pyx_t_6, __pyx_t_7);
 
-  /* "pygame/_sdl2/video.pyx":1282
+  /* "pygame/_sdl2/video.pyx":1291
  *                                          alpha_mode[1],
  *                                          alpha_mode[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -18824,13 +18840,13 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend
   __pyx_t_8 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_8)) {
 
-    /* "pygame/_sdl2/video.pyx":1283
+    /* "pygame/_sdl2/video.pyx":1292
  *                                          alpha_mode[2])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  *         return res
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1283, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __pyx_t_10 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
@@ -18844,14 +18860,14 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend
     }
     __pyx_t_1 = (__pyx_t_10) ? __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_10) : __Pyx_PyObject_CallNoArg(__pyx_t_9);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1283, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 1283, __pyx_L1_error)
+    __PYX_ERR(0, 1292, __pyx_L1_error)
 
-    /* "pygame/_sdl2/video.pyx":1282
+    /* "pygame/_sdl2/video.pyx":1291
  *                                          alpha_mode[1],
  *                                          alpha_mode[2])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -18860,19 +18876,19 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_8Renderer_26compose_custom_blend
  */
   }
 
-  /* "pygame/_sdl2/video.pyx":1284
+  /* "pygame/_sdl2/video.pyx":1293
  *         if res < 0:
  *             raise error()
  *         return res             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1284, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_SDL_BlendMode(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygame/_sdl2/video.pyx":1268
+  /* "pygame/_sdl2/video.pyx":1277
  * 
  *     @staticmethod
  *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
@@ -20380,7 +20396,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_n_s_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 632, __pyx_L1_error)
+  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_n_s_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 641, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 163, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 164, __pyx_L1_error)
   __pyx_builtin_reversed = __Pyx_GetBuiltinName(__pyx_n_s_reversed); if (!__pyx_builtin_reversed) __PYX_ERR(0, 164, __pyx_L1_error)
@@ -20418,14 +20434,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "pygame/_sdl2/video.pyx":462
+  /* "pygame/_sdl2/video.pyx":471
  *         """
  *         if not pgSurface_Check(surface):
  *             raise TypeError('surface must be a Surface object')             # <<<<<<<<<<<<<<
  *         SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))
  * 
  */
-  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_kp_s_surface_must_be_a_Surface_object); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_kp_s_surface_must_be_a_Surface_object); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 471, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
@@ -20448,102 +20464,102 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "pygame/_sdl2/video.pyx":562
+  /* "pygame/_sdl2/video.pyx":571
  *         Amask = 0xFF << 24
  *     else:
  *         raise ValueError("no standard masks exist for given bitdepth with alpha")             # <<<<<<<<<<<<<<
  *     return SDL_MasksToPixelFormatEnum(depth,
  *                                       Rmask, Gmask, Bmask, Amask)
  */
-  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_no_standard_masks_exist_for_give); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 562, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_no_standard_masks_exist_for_give); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 571, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "pygame/_sdl2/video.pyx":600
+  /* "pygame/_sdl2/video.pyx":609
  *         cdef int width, height
  *         if len(size) != 2:
  *             raise ValueError('size must have two elements')             # <<<<<<<<<<<<<<
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:
  */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_s_size_must_have_two_elements); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 600, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_s_size_must_have_two_elements); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 609, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "pygame/_sdl2/video.pyx":603
+  /* "pygame/_sdl2/video.pyx":612
  *         width, height = size[0], size[1]
  *         if width <= 0 or height <= 0:
  *             raise ValueError('size must contain two positive values')             # <<<<<<<<<<<<<<
  * 
  *         cdef int access
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_size_must_contain_two_positive_v); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 603, __pyx_L1_error)
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_size_must_contain_two_positive_v); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 612, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "pygame/_sdl2/video.pyx":608
+  /* "pygame/_sdl2/video.pyx":617
  *         if static:
  *             if streaming or target:
  *                 raise ValueError('only one of static, streaming, or target can be true')             # <<<<<<<<<<<<<<
  *             access = _SDL_TEXTUREACCESS_STATIC
  *         elif streaming:
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_only_one_of_static_streaming_or); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 608, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_only_one_of_static_streaming_or); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 617, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
 
-  /* "pygame/_sdl2/video.pyx":641
+  /* "pygame/_sdl2/video.pyx":650
  *         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
  *         if not pgSurface_Check(surface):
  *             raise TypeError('2nd argument must be a surface')             # <<<<<<<<<<<<<<
  *         cdef Texture self = Texture.__new__(Texture)
  *         self.renderer = renderer
  */
-  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_s_2nd_argument_must_be_a_surface); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(0, 641, __pyx_L1_error)
+  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_s_2nd_argument_must_be_a_surface); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(0, 650, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__13);
   __Pyx_GIVEREF(__pyx_tuple__13);
 
-  /* "pygame/_sdl2/video.pyx":760
+  /* "pygame/_sdl2/video.pyx":769
  *             csrcrect = pgRect_FromObject(srcrect, &src)
  *             if not csrcrect:
  *                 raise TypeError("the argument is not a rectangle or None")             # <<<<<<<<<<<<<<
  * 
  *         if dstrect is not None:
  */
-  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_s_the_argument_is_not_a_rectangle); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 760, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_s_the_argument_is_not_a_rectangle); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 769, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
 
-  /* "pygame/_sdl2/video.pyx":772
+  /* "pygame/_sdl2/video.pyx":781
  *                     cdstrect = &dst
  *                 else:
  *                     raise TypeError('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
  * 
  *         if origin:
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_dstrect_must_be_a_position_rect); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 772, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_dstrect_must_be_a_position_rect); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 781, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
 
-  /* "pygame/_sdl2/video.pyx":800
+  /* "pygame/_sdl2/video.pyx":809
  * 
  *         if not pgSurface_Check(surface):
  *             raise TypeError("update source should be a Surface.")             # <<<<<<<<<<<<<<
  * 
  *         cdef SDL_Rect rect
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_update_source_should_be_a_Surfac); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 800, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_update_source_should_be_a_Surfac); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 809, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
 
-  /* "pygame/_sdl2/video.pyx":807
+  /* "pygame/_sdl2/video.pyx":816
  * 
  *         if rectptr == NULL and area is not None:
  *             raise TypeError('area must be a rectangle or None')             # <<<<<<<<<<<<<<
  * 
  *         res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
  */
-  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_area_must_be_a_rectangle_or_None); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_area_must_be_a_rectangle_or_None); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__17);
   __Pyx_GIVEREF(__pyx_tuple__17);
 
@@ -20566,47 +20582,47 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
 
-  /* "pygame/_sdl2/video.pyx":842
+  /* "pygame/_sdl2/video.pyx":851
  *             rectptr = pgRect_FromObject(srcrect, &temp)
  *             if rectptr == NULL:
  *                 raise TypeError('srcrect must be None or a rectangle')             # <<<<<<<<<<<<<<
  *             temp.x = rectptr.x
  *             temp.y = rectptr.y
  */
-  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_srcrect_must_be_None_or_a_rectan); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 842, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_srcrect_must_be_None_or_a_rectan); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 851, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
 
-  /* "pygame/_sdl2/video.pyx":852
+  /* "pygame/_sdl2/video.pyx":861
  *                 temp.x + temp.w > self.srcrect.w or \
  *                 temp.y + temp.h > self.srcrect.h:
  *                 raise ValueError('rect values are out of range')             # <<<<<<<<<<<<<<
  *             temp.x += self.srcrect.x
  *             temp.y += self.srcrect.y
  */
-  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_rect_values_are_out_of_range); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 852, __pyx_L1_error)
+  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_rect_values_are_out_of_range); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
-  /* "pygame/_sdl2/video.pyx":863
+  /* "pygame/_sdl2/video.pyx":872
  *     @color.setter
  *     def color(self, new_color):
  *         self._color[:3] = new_color[:3]             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_slice__22 = PySlice_New(Py_None, __pyx_int_3, Py_None); if (unlikely(!__pyx_slice__22)) __PYX_ERR(0, 863, __pyx_L1_error)
+  __pyx_slice__22 = PySlice_New(Py_None, __pyx_int_3, Py_None); if (unlikely(!__pyx_slice__22)) __PYX_ERR(0, 872, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__22);
   __Pyx_GIVEREF(__pyx_slice__22);
 
-  /* "pygame/_sdl2/video.pyx":906
+  /* "pygame/_sdl2/video.pyx":915
  *                 rectptr = pgRect_FromObject(srcrect, &src)
  *                 if rectptr == NULL:
  *                     raise TypeError('srcrect must be a rect or None')             # <<<<<<<<<<<<<<
  *                 src.x = rectptr.x
  *                 src.y = rectptr.y
  */
-  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_srcrect_must_be_a_rect_or_None); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 906, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_srcrect_must_be_a_rect_or_None); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 915, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
 
@@ -20629,91 +20645,91 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
 
-  /* "pygame/_sdl2/video.pyx":1026
+  /* "pygame/_sdl2/video.pyx":1035
  *         """
  *         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
  *         self._draw_color[:] = new_value             # <<<<<<<<<<<<<<
  *         res = SDL_SetRenderDrawColor(self._renderer,
  *                                      new_value[0],
  */
-  __pyx_slice__26 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__26)) __PYX_ERR(0, 1026, __pyx_L1_error)
+  __pyx_slice__26 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__26)) __PYX_ERR(0, 1035, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__26);
   __Pyx_GIVEREF(__pyx_slice__26);
 
-  /* "pygame/_sdl2/video.pyx":1109
+  /* "pygame/_sdl2/video.pyx":1118
  *         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
  *         if rectptr == NULL:
  *             raise TypeError('expected a rectangle')             # <<<<<<<<<<<<<<
  * 
  *         if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
  */
-  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_expected_a_rectangle); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 1109, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_expected_a_rectangle); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 1118, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
 
-  /* "pygame/_sdl2/video.pyx":1137
+  /* "pygame/_sdl2/video.pyx":1146
  *                 raise error()
  *         else:
  *             raise TypeError('target must be a Texture or None')             # <<<<<<<<<<<<<<
  * 
  *     cpdef object blit(self, object source, Rect dest=None, Rect area=None, int special_flags=0):
  */
-  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_target_must_be_a_Texture_or_None); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 1137, __pyx_L1_error)
+  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_target_must_be_a_Texture_or_None); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 1146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
-  /* "pygame/_sdl2/video.pyx":1152
+  /* "pygame/_sdl2/video.pyx":1161
  *             (<Image>source).draw(area, dest)
  *         elif not hasattr(source, 'draw'):
  *             raise TypeError('source must be drawable')             # <<<<<<<<<<<<<<
  *         else:
  *             source.draw(area, dest)
  */
-  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_source_must_be_drawable); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 1152, __pyx_L1_error)
+  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_source_must_be_drawable); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 1161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
 
-  /* "pygame/_sdl2/video.pyx":1222
+  /* "pygame/_sdl2/video.pyx":1231
  *             rectptr = pgRect_FromObject(area, &rarea)
  *             if rectptr == NULL:
  *                 raise TypeError('area must be None or a rect')             # <<<<<<<<<<<<<<
  * 
  *             # clip area
  */
-  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_area_must_be_None_or_a_rect); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 1222, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_area_must_be_None_or_a_rect); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 1231, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
 
-  /* "pygame/_sdl2/video.pyx":1250
+  /* "pygame/_sdl2/video.pyx":1259
  *                 format)
  *             if surf == NULL:
  *                 raise MemoryError("not enough memory for the surface")             # <<<<<<<<<<<<<<
  * 
  *             surface = <object>pgSurface_New2(surf, 1)
  */
-  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_not_enough_memory_for_the_surfac); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1250, __pyx_L1_error)
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_not_enough_memory_for_the_surfac); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1259, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
   __Pyx_GIVEREF(__pyx_tuple__31);
 
-  /* "pygame/_sdl2/video.pyx":1256
+  /* "pygame/_sdl2/video.pyx":1265
  *             surf = pgSurface_AsSurface(surface)
  *             if surf.w < rarea.w or surf.h < rarea.h:
  *                 raise ValueError("the surface is too small")             # <<<<<<<<<<<<<<
  *             format = surf.format.format
  *         else:
  */
-  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_the_surface_is_too_small); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 1256, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_the_surface_is_too_small); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 1265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__32);
   __Pyx_GIVEREF(__pyx_tuple__32);
 
-  /* "pygame/_sdl2/video.pyx":1259
+  /* "pygame/_sdl2/video.pyx":1268
  *             format = surf.format.format
  *         else:
  *             raise TypeError("'surface' must be a surface or None")             # <<<<<<<<<<<<<<
  * 
  *         if SDL_RenderReadPixels(self._renderer,
  */
-  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_surface_must_be_a_surface_or_No); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 1259, __pyx_L1_error)
+  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_surface_must_be_a_surface_or_No); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 1268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
 
@@ -20795,29 +20811,29 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__44);
   __Pyx_GIVEREF(__pyx_tuple__44);
 
-  /* "pygame/_sdl2/video.pyx":633
+  /* "pygame/_sdl2/video.pyx":642
  * 
  *     @staticmethod
  *     def from_surface(Renderer renderer, surface):             # <<<<<<<<<<<<<<
  *         """ Create a texture from an existing surface.
  * 
  */
-  __pyx_tuple__45 = PyTuple_Pack(5, __pyx_n_s_renderer, __pyx_n_s_surface, __pyx_n_s_self, __pyx_n_s_renderer_2, __pyx_n_s_surf_ptr); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(0, 633, __pyx_L1_error)
+  __pyx_tuple__45 = PyTuple_Pack(5, __pyx_n_s_renderer, __pyx_n_s_surface, __pyx_n_s_self, __pyx_n_s_renderer_2, __pyx_n_s_surf_ptr); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(0, 642, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__45);
   __Pyx_GIVEREF(__pyx_tuple__45);
-  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_from_surface, 633, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 633, __pyx_L1_error)
+  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_from_surface, 642, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 642, __pyx_L1_error)
 
-  /* "pygame/_sdl2/video.pyx":1268
+  /* "pygame/_sdl2/video.pyx":1277
  * 
  *     @staticmethod
  *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
  *         """ Use this function to compose a custom blend mode..
  * 
  */
-  __pyx_tuple__47 = PyTuple_Pack(3, __pyx_n_s_color_mode, __pyx_n_s_alpha_mode, __pyx_n_s_res); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 1268, __pyx_L1_error)
+  __pyx_tuple__47 = PyTuple_Pack(3, __pyx_n_s_color_mode, __pyx_n_s_alpha_mode, __pyx_n_s_res); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__47);
   __Pyx_GIVEREF(__pyx_tuple__47);
-  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_compose_custom_blend_mode, 1268, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 1268, __pyx_L1_error)
+  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_cython_pygame__sdl2_video, __pyx_n_s_compose_custom_blend_mode, 1277, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -20908,7 +20924,7 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtabptr_6pygame_5_sdl2_5video_Renderer = &__pyx_vtable_6pygame_5_sdl2_5video_Renderer;
   __pyx_vtable_6pygame_5_sdl2_5video_Renderer.get_viewport = (PyObject *(*)(struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *, int __pyx_skip_dispatch))__pyx_f_6pygame_5_sdl2_5video_8Renderer_get_viewport;
   __pyx_vtable_6pygame_5_sdl2_5video_Renderer.blit = (PyObject *(*)(struct __pyx_obj_6pygame_5_sdl2_5video_Renderer *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygame_5_sdl2_5video_8Renderer_blit *__pyx_optional_args))__pyx_f_6pygame_5_sdl2_5video_8Renderer_blit;
-  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 936, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 945, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6pygame_5_sdl2_5video_Renderer.tp_print = 0;
   #endif
@@ -20917,7 +20933,7 @@ static int __Pyx_modinit_type_init_code(void) {
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Renderer, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 936, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Renderer, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 945, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
       __pyx_wrapperbase_6pygame_5_sdl2_5video_8Renderer_2__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
       __pyx_wrapperbase_6pygame_5_sdl2_5video_8Renderer_2__init__.doc = __pyx_doc_6pygame_5_sdl2_5video_8Renderer_2__init__;
@@ -20925,14 +20941,14 @@ static int __Pyx_modinit_type_init_code(void) {
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Renderer.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 936, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Renderer, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 936, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 936, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Renderer.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 945, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Renderer, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 945, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Renderer) < 0) __PYX_ERR(0, 945, __pyx_L1_error)
   __pyx_ptype_6pygame_5_sdl2_5video_Renderer = &__pyx_type_6pygame_5_sdl2_5video_Renderer;
   __pyx_vtabptr_6pygame_5_sdl2_5video_Texture = &__pyx_vtable_6pygame_5_sdl2_5video_Texture;
   __pyx_vtable_6pygame_5_sdl2_5video_Texture.draw_internal = (PyObject *(*)(struct __pyx_obj_6pygame_5_sdl2_5video_Texture *, SDL_Rect *, SDL_Rect *, struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw_internal *__pyx_optional_args))__pyx_f_6pygame_5_sdl2_5video_7Texture_draw_internal;
   __pyx_vtable_6pygame_5_sdl2_5video_Texture.draw = (void (*)(struct __pyx_obj_6pygame_5_sdl2_5video_Texture *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygame_5_sdl2_5video_7Texture_draw *__pyx_optional_args))__pyx_f_6pygame_5_sdl2_5video_7Texture_draw;
-  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 567, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 576, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6pygame_5_sdl2_5video_Texture.tp_print = 0;
   #endif
@@ -20941,7 +20957,7 @@ static int __Pyx_modinit_type_init_code(void) {
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Texture, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 567, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Texture, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 576, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
       __pyx_wrapperbase_6pygame_5_sdl2_5video_7Texture_2__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
       __pyx_wrapperbase_6pygame_5_sdl2_5video_7Texture_2__init__.doc = __pyx_doc_6pygame_5_sdl2_5video_7Texture_2__init__;
@@ -20949,22 +20965,22 @@ static int __Pyx_modinit_type_init_code(void) {
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Texture.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 567, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Texture, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 567, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 567, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Texture.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 576, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Texture, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 576, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Texture) < 0) __PYX_ERR(0, 576, __pyx_L1_error)
   __pyx_ptype_6pygame_5_sdl2_5video_Texture = &__pyx_type_6pygame_5_sdl2_5video_Texture;
   __pyx_vtabptr_6pygame_5_sdl2_5video_Image = &__pyx_vtable_6pygame_5_sdl2_5video_Image;
   __pyx_vtable_6pygame_5_sdl2_5video_Image.draw = (void (*)(struct __pyx_obj_6pygame_5_sdl2_5video_Image *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygame_5_sdl2_5video_5Image_draw *__pyx_optional_args))__pyx_f_6pygame_5_sdl2_5video_5Image_draw;
-  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 822, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6pygame_5_sdl2_5video_Image.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pygame_5_sdl2_5video_Image.tp_dictoffset && __pyx_type_6pygame_5_sdl2_5video_Image.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_6pygame_5_sdl2_5video_Image.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Image.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Image, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_6pygame_5_sdl2_5video_Image.tp_dict, __pyx_vtabptr_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 822, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Image, (PyObject *)&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 822, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pygame_5_sdl2_5video_Image) < 0) __PYX_ERR(0, 822, __pyx_L1_error)
   __pyx_ptype_6pygame_5_sdl2_5video_Image = &__pyx_type_6pygame_5_sdl2_5video_Image;
   if (PyType_Ready(&__pyx_type_6pygame_5_sdl2_5video___pyx_scope_struct__get_drivers) < 0) __PYX_ERR(0, 76, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
@@ -21726,85 +21742,85 @@ if (!__Pyx_RefNanny) {
   __Pyx_GIVEREF(__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygame/_sdl2/video.pyx":633
+  /* "pygame/_sdl2/video.pyx":642
  * 
  *     @staticmethod
  *     def from_surface(Renderer renderer, surface):             # <<<<<<<<<<<<<<
  *         """ Create a texture from an existing surface.
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5video_7Texture_5from_surface, NULL, __pyx_n_s_pygame__sdl2_video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 633, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5video_7Texture_5from_surface, NULL, __pyx_n_s_pygame__sdl2_video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 642, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture->tp_dict, __pyx_n_s_from_surface, __pyx_t_2) < 0) __PYX_ERR(0, 633, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture->tp_dict, __pyx_n_s_from_surface, __pyx_t_2) < 0) __PYX_ERR(0, 642, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Texture);
 
-  /* "pygame/_sdl2/video.pyx":632
+  /* "pygame/_sdl2/video.pyx":641
  *         self.width, self.height = width, height
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
  *     def from_surface(Renderer renderer, surface):
  *         """ Create a texture from an existing surface.
  */
-  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture, __pyx_n_s_from_surface); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 633, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture, __pyx_n_s_from_surface); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 642, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 632, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture->tp_dict, __pyx_n_s_from_surface, __pyx_t_1) < 0) __PYX_ERR(0, 633, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Texture->tp_dict, __pyx_n_s_from_surface, __pyx_t_1) < 0) __PYX_ERR(0, 642, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Texture);
 
-  /* "pygame/_sdl2/video.pyx":939
+  /* "pygame/_sdl2/video.pyx":948
  * 
  *     @classmethod
  *     def from_window(cls, Window window):             # <<<<<<<<<<<<<<
  *         cdef Renderer self = cls.__new__(cls)
  *         self._win = window
  */
-  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer, __pyx_n_s_from_window); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 939, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer, __pyx_n_s_from_window); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 948, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "pygame/_sdl2/video.pyx":938
+  /* "pygame/_sdl2/video.pyx":947
  * cdef class Renderer:
  * 
  *     @classmethod             # <<<<<<<<<<<<<<
  *     def from_window(cls, Window window):
  *         cdef Renderer self = cls.__new__(cls)
  */
-  __pyx_t_2 = __Pyx_Method_ClassMethod(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 938, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Method_ClassMethod(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 947, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_from_window, __pyx_t_2) < 0) __PYX_ERR(0, 939, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_from_window, __pyx_t_2) < 0) __PYX_ERR(0, 948, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
 
-  /* "pygame/_sdl2/video.pyx":1268
+  /* "pygame/_sdl2/video.pyx":1277
  * 
  *     @staticmethod
  *     def compose_custom_blend_mode(color_mode, alpha_mode):             # <<<<<<<<<<<<<<
  *         """ Use this function to compose a custom blend mode..
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode, NULL, __pyx_n_s_pygame__sdl2_video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1268, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5video_8Renderer_27compose_custom_blend_mode, NULL, __pyx_n_s_pygame__sdl2_video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_2) < 0) __PYX_ERR(0, 1268, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_2) < 0) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
 
-  /* "pygame/_sdl2/video.pyx":1267
+  /* "pygame/_sdl2/video.pyx":1276
  *         return surface
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
  *     def compose_custom_blend_mode(color_mode, alpha_mode):
  *         """ Use this function to compose a custom blend mode..
  */
-  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer, __pyx_n_s_compose_custom_blend_mode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1268, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer, __pyx_n_s_compose_custom_blend_mode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1267, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_1) < 0) __PYX_ERR(0, 1268, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Renderer->tp_dict, __pyx_n_s_compose_custom_blend_mode, __pyx_t_1) < 0) __PYX_ERR(0, 1277, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Renderer);
 
