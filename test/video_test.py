@@ -1,5 +1,7 @@
 import unittest
 import sys
+import os
+
 import pygame
 
 from pygame._sdl2 import video
@@ -25,13 +27,17 @@ class VideoModuleTest(unittest.TestCase):
         window = video.Window()
         self.assertEqual(window.title, self.default_caption)
 
-    def test_window_software_render(self):
+    def test_window_software_blit(self):
         window = video.Window()
         screen = window.get_surface()
 
         screen.fill("red")
         window.flip()
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        "requires the SDL_VIDEODRIVER to be a non dummy value",
+    )
     def test_window_opacity(self):
         window = video.Window()
 

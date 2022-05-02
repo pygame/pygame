@@ -295,7 +295,8 @@ cdef class Window:
         if self._display_surf == None:
             raise error("No display surface associated with Window")
 
-        pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0)
+        if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
+            return <object>NULL
 
     @property
     def grab(self):
