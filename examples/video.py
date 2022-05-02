@@ -15,6 +15,7 @@ from pygame._sdl2 import Window, Texture, Image, Renderer, get_drivers, messageb
 
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
 
+
 def load_img(file):
     return pg.image.load(os.path.join(data_dir, file))
 
@@ -60,8 +61,8 @@ win2.set_icon(load_img("bomb.gif"))
 
 screen2 = win2.get_surface()
 asprite = load_img("asprite.bmp")
-asprite = pg.transform.scale(asprite, (128,128))
-screen2.blit(asprite, (64,64))
+asprite = pg.transform.scale(asprite, (128, 128))
+screen2.blit(asprite, (64, 64))
 win2.flip()
 
 full = 0
