@@ -66,7 +66,7 @@ As you can see, this class is very similar to the ball class in its structure. B
 First of all, there is a reinit function, which is used when a round ends, and the bat needs to be set back in its starting place,
 with any attributes set back to their necessary values. Next, the way in which the bat is moved is a little more complex than with the
 ball, because here its movement is simple (up/down), but it relies on the user telling it to move, unlike the ball which just keeps
-moving in every frame. To make sense of how the ball moves, it is helpful to look at a quick diagram to show the sequence of events:
+moving in every frame. To make sense of how the bat moves, it is helpful to look at a quick diagram to show the sequence of events:
 
 .. image:: tom_event-flowchart.png
 
