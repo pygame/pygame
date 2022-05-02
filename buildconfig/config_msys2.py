@@ -467,7 +467,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     return list(DEPS)
 
 
-def main():
+def main(auto_config=False):
     machine_type = get_machine_type()
 
     # config MSYS2 always requires prebuilt dependencies, in the
