@@ -173,8 +173,6 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
 
-static PyObject *pgExc_SDLError_ForBase = NULL;
-
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
@@ -1966,17 +1964,6 @@ static int
 pg_FlipWindow(SDL_Window *win, PyObject *screen_obj, SDL_Renderer *renderer,
               SDL_Texture *texture, int opengl)
 {
-    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        PyErr_SetString(pgExc_SDLError_ForBase,
-                        "video system not initialized");
-        return 0;
-    }
-
-    if (!win) {
-        PyErr_SetString(pgExc_SDLError_ForBase, "Display mode not set");
-        return 0;
-    }
-
     pgSurfaceObject *screen = (pgSurfaceObject *)screen_obj;
 
     int status = 0;
@@ -2007,13 +1994,7 @@ pg_FlipWindow(SDL_Window *win, PyObject *screen_obj, SDL_Renderer *renderer,
     }
 
     Py_END_ALLOW_THREADS;
-
-    if (status < 0) {
-        PyErr_SetString(pgExc_SDLError_ForBase, SDL_GetError());
-        return 0;
-    }
-
-    return 1;
+    return status;
 }
 
 static char *
@@ -2181,7 +2162,6 @@ MODINIT_DEFINE(base)
     /* create the exceptions */
     pgExc_SDLError =
         PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
-    pgExc_SDLError_ForBase = pgExc_SDLError;
     if (PyModule_AddObject(module, "error", pgExc_SDLError)) {
         Py_XDECREF(pgExc_SDLError);
         goto error;

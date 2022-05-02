@@ -1514,8 +1514,19 @@ pg_flip_internal(_DisplayState *state)
     SDL_Window *win = pg_GetDefaultWindow();
     PyObject *screen = (PyObject *)pg_GetDefaultWindowSurface();
 
-    if (!pg_FlipWindow(win, screen, pg_renderer, pg_texture,
-                       state->using_gl)) {
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        PyErr_SetString(pgExc_SDLError, "video system not initialized");
+        return -1;
+    }
+
+    if (!win) {
+        PyErr_SetString(pgExc_SDLError, "Display mode not set");
+        return -1;
+    }
+
+    if (pg_FlipWindow(win, screen, pg_renderer, pg_texture, state->using_gl) <
+        0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;

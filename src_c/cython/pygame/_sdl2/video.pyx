@@ -304,7 +304,7 @@ cdef class Window:
         
         # So, I think the only way pg_FlipWindow errors here is an SDL error, so
         # in this case I can just use SDL_GetError (behind error()) and reraise it
-        if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
+        if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) < 0:
             raise error()
 
     @property

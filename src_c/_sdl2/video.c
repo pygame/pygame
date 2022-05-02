@@ -5323,16 +5323,16 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_6flip(struct __pyx_obj_6
   /* "pygame/_sdl2/video.pyx":307
  *         # So, I think the only way pg_FlipWindow errors here is an SDL error, so
  *         # in this case I can just use SDL_GetError (behind error()) and reraise it
- *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:             # <<<<<<<<<<<<<<
+ *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) < 0:             # <<<<<<<<<<<<<<
  *             raise error()
  * 
  */
-  __pyx_t_2 = ((pg_FlipWindow(__pyx_v_self->_win, ((PyObject *)__pyx_v_self->_display_surf), NULL, NULL, 0) == 0) != 0);
+  __pyx_t_2 = ((pg_FlipWindow(__pyx_v_self->_win, ((PyObject *)__pyx_v_self->_display_surf), NULL, NULL, 0) < 0) != 0);
   if (unlikely(__pyx_t_2)) {
 
     /* "pygame/_sdl2/video.pyx":308
  *         # in this case I can just use SDL_GetError (behind error()) and reraise it
- *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:
+ *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     @property
@@ -5361,7 +5361,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_6flip(struct __pyx_obj_6
     /* "pygame/_sdl2/video.pyx":307
  *         # So, I think the only way pg_FlipWindow errors here is an SDL error, so
  *         # in this case I can just use SDL_GetError (behind error()) and reraise it
- *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) == 0:             # <<<<<<<<<<<<<<
+ *         if pg_FlipWindow(self._win, <PyObject*>self._display_surf, NULL, NULL, 0) < 0:             # <<<<<<<<<<<<<<
  *             raise error()
  * 
  */
