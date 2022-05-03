@@ -16,6 +16,17 @@ these programs a more intuitive task.
 New contributors are welcome.
 
 
+Community Standards
+-------------------
+
+We are respectful, open and considerate to each other. We follow the Python comuunity code of conduct. 
+
+That means with along with focusing on what is best for the community and gracefully accepting constructive criticism,
+We do not tolerate inappropriate behavior
+
+ps. We spell colour without the u, and we always spell pygame with lower case letter. 
+
+
 Installation
 ------------
 
