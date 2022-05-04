@@ -161,7 +161,7 @@ separate group. Then when you need to access all the enemies that are near the
 player, you already have a list of them, instead of going through a list of all
 the enemies, checking for the "close_to_player" flag. Later on your game could
 add multiple players, and instead of adding more "close_to_player2",
-"close_to_player3" attributes, you can easily add them to different groups or
+"close_to_player3" attributes, you can easily add them to different groups for
 each player.
 
 Another important benefit of using the ``Sprites`` and ``Groups`` is that the groups
