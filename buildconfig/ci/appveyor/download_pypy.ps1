@@ -31,7 +31,7 @@ function DownloadPyPy($which_pypy) {
 
 
 function main ($pypy_version) {
-   DownloadPyPy "pypy3.6-v7.3.2-win32"
+   DownloadPyPy "pypy3.7-v7.3.9-win64"
 }
 
 main $pypy_version

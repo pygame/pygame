@@ -83,13 +83,6 @@ jobs:
         # builds on macOS
         include:
           - { 
-            name: "MacOS x86_64 (cp36-cp37)",
-            os: macos-10.15,
-            macarch: x86_64,
-            pyversions: cp36-* cp37-*
-          }
-
-          - { 
             name: "MacOS x86_64 (cp37-cp38)",
             os: macos-10.15,
             macarch: x86_64,
@@ -104,17 +97,25 @@ jobs:
           }
 
           - { 
-            name: "MacOS x86_64 (pp37)",
+            name: "MacOS x86_64 (pp37-pp38-pp39)",
             os: macos-10.15,
             macarch: x86_64,
-            pyversions: pp37-*
+            pyversions: pp37-* pp38-* pp39-*
           }
 
           - { 
-            name: "MacOS arm64 (cp38-cp39-cp310)",
+            name: "MacOS arm64 (cp38-cp39)",
             os: macos-11,
             macarch: arm64,
-            pyversions: cp38-* cp39-* cp310-*
+            pyversions: cp38-* cp39-*
+          }
+
+
+          - { 
+            name: "MacOS arm64 (cp310)",
+            os: macos-11,
+            macarch: arm64,
+            pyversions: cp310-*
           }
 
         # seperate into matrix for concurrency. 

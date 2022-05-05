@@ -16,18 +16,6 @@ environment:
       secure: FtHM0I+wubit/UWOzHsykHayL06KImKRZQznRUHUfzM=
 
   matrix:
-    - PYTHON: "pypy3.exe"
-      PYTHON_VERSION: "3.6.0"
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy3.6-v7.3.2-win32"
-      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
-
-    - PYTHON: "C:\\Python36\\python"
-      PYTHONPATH: "C:\\Python36"
-      PYTHON_VERSION: "3.6.0"
-      PYTHON_ARCH: "32"
-      USE_ANALYZE: ""
-
     - PYTHON: "C:\\Python37\\python"
       PYTHONPATH: "C:\\Python37"
       PYTHON_VERSION: "3.7.0"
@@ -52,11 +40,11 @@ environment:
       PYTHON_ARCH: "32"
       USE_ANALYZE: ""
 
-    - PYTHON: "C:\\Python36-x64\\python"
-      PYTHONPATH: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.0"
+    - PYTHON: "pypy3.exe"
+      PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "64"
-      USE_ANALYZE: ""
+      PYPY_VERSION: "pypy3.7-v7.3.9-win64"
+      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
     - PYTHON: "C:\\Python37-x64\\python"
       PYTHONPATH: "C:\\Python37-x64"
