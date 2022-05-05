@@ -67,9 +67,7 @@
 
 #define JPEG_QUALITY 85
 
-#ifdef WITH_THREAD
 static SDL_mutex *_pg_img_mutex = 0;
-#endif /* WITH_THREAD */
 
 #ifdef WIN32
 #include <windows.h>
@@ -116,7 +114,6 @@ image_load_ext(PyObject *self, PyObject *arg)
     if (name) /* override extension with namehint if given */
         ext = find_extension(name);
 
-#ifdef WITH_THREAD
     /*
     if (ext)
         lock_mutex = !strcasecmp(ext, "gif");
@@ -132,9 +129,6 @@ image_load_ext(PyObject *self, PyObject *arg)
 
     surf = IMG_LoadTyped_RW(rw, 1, ext);
     Py_END_ALLOW_THREADS;
-#else  /* ~WITH_THREAD */
-    surf = IMG_LoadTyped_RW(rw, 1, ext);
-#endif /* ~WITH_THREAD */
 
     if (surf == NULL)
         return RAISE(pgExc_SDLError, IMG_GetError());
@@ -749,7 +743,6 @@ image_get_sdl_image_version(PyObject *self, PyObject *_null)
                          SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
 }
 
-#ifdef WITH_THREAD
 static void
 _imageext_free(void *ptr)
 {
@@ -758,7 +751,6 @@ _imageext_free(void *ptr)
         _pg_img_mutex = 0;
     }
 }
-#endif /* WITH_THREAD */
 
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
@@ -776,11 +768,7 @@ MODINIT_DEFINE(imageext)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "imageext", _imageext_doc, -1,
         _imageext_methods,     NULL,       NULL,          NULL,
-#ifdef WITH_THREAD
         _imageext_free};
-#else  /* ~WITH_THREAD */
-                                         0};
-#endif /* ~WITH_THREAD */
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -799,13 +787,11 @@ MODINIT_DEFINE(imageext)
         return NULL;
     }
 
-#ifdef WITH_THREAD
     _pg_img_mutex = SDL_CreateMutex();
     if (!_pg_img_mutex) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return NULL;
     }
-#endif /* WITH_THREAD */
 
     /* create the module */
     return PyModule_Create(&_module);

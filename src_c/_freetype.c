@@ -760,9 +760,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     else {
         PyObject *str = 0;
         PyObject *path = 0;
-#ifndef WITH_THREAD
-        goto end;
-#endif
+
         source = pgRWops_FromFileObject(original_file);
         if (!source) {
             goto end;
@@ -805,8 +803,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     /* FT uses fopen(); as a workaround, always use RWops */
     if (file == original_file)
         Py_INCREF(file);
-    if (!PG_CHECK_THREADS())
-        goto end;
+
     source = pgRWops_FromObject(file);
     if (!source) {
         goto end;

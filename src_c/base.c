@@ -346,7 +346,7 @@ pg_init(PyObject *self, PyObject *_null)
     }
 
     /*nice to initialize timer, so startup time will reflec pg_init() time*/
-#if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
+#if !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
     pg_sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD | SDL_INIT_TIMER |
                                SDL_INIT_NOPARACHUTE) == 0;
 #else

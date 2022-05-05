@@ -271,14 +271,6 @@ supported Python version. #endif */
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
     return RAISE(pgExc_SDLError, "joystick system not initialized")
 
-/* thread check */
-#ifdef WITH_THREAD
-#define PG_CHECK_THREADS() (1)
-#else /* ~WITH_THREAD */
-#define PG_CHECK_THREADS() \
-    (RAISE(PyExc_NotImplementedError, "Python built without thread support"))
-#endif /* ~WITH_THREAD */
-
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
 
 /*
