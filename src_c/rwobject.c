@@ -478,15 +478,6 @@ pgRWops_FromFileObject(PyObject *obj)
     rw->write = _pg_rw_write;
     rw->close = _pg_rw_close;
 
-/* https://docs.python.org/3/c-api/init.html#c.PyEval_InitThreads */
-/* ^ in Python >= 3.7, we don't have to call this function, and in 3.11
- * it will be removed */
-#if PY_VERSION_HEX < 0x03070000
-#ifdef WITH_THREAD
-    PyEval_InitThreads();
-#endif /* WITH_THREAD */
-#endif
-
     return rw;
 }
 
