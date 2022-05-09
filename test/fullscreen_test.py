@@ -42,9 +42,13 @@ class VisualTests(unittest.TestCase):
         text = ""
         if fullscreen:
             text = "Is this in fullscreen? [y/n]"
-            self.isfullscreen = True
-            pygame.display.toggle_fullscreen()
+            if not self.isfullscreen:
+                pygame.display.toggle_fullscreen()
+                self.isfullscreen = True
         else:
+            if self.isfullscreen:
+                pygame.display.toggle_fullscreen()
+                self.isfullscreen = False
             text = "Is this not in fullscreen [y/n]"
         s = self.font.render(text, False, (0, 0, 0))
         self.screen.blit(s, (self.WIDTH / 2 - self.font.size(text)[0] / 2, 100))
