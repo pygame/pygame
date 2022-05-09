@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import pygame
 from pygame.tests import test_utils
@@ -17,7 +18,12 @@ class VisualTests(unittest.TestCase):
     def setUp(self):
         if self.screen is None:
             pygame.init()
-            self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+            if sys.platform == "win32":
+                # known issue with windows, must have mode from pygame.display.list_modes()
+                # or window created with flag pygame.SCALED
+                self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), flags=pygame.SCALED)
+            else:
+                self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
             pygame.display.set_caption("Fullscreen Tests")
             self.screen.fill((255, 255, 255))
             pygame.display.flip()
