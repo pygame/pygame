@@ -162,7 +162,7 @@ class DependencyPython:
 
 sdl_lib_name = 'SDL'
 
-def main():
+def main(auto_config=False):
     global origincdirs, origlibdirs
 
     #these get prefixes with $EMSDK
