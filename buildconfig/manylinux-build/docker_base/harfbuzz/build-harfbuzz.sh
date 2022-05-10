@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-HARFBUZZ_VER=3.0.0
+HARFBUZZ_VER=4.2.1
 HARFBUZZ_NAME="harfbuzz-$HARFBUZZ_VER"
 curl -sL --retry 10 https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VER}/${HARFBUZZ_NAME}.tar.xz > ${HARFBUZZ_NAME}.tar.xz
 
