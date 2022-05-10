@@ -783,8 +783,9 @@ class DisplayInteractiveTest(unittest.TestCase):
 
         pygame.display.quit()
 
+
 class FullscreenToggleTests(unittest.TestCase):
-    __tags__ = [ "interactive" ]
+    __tags__ = ["interactive"]
 
     screen = None
     font = None
@@ -800,7 +801,9 @@ class FullscreenToggleTests(unittest.TestCase):
             if sys.platform == "win32":
                 # known issue with windows, must have mode from pygame.display.list_modes()
                 # or window created with flag pygame.SCALED
-                self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), flags=pygame.SCALED)
+                self.screen = pygame.display.set_mode(
+                    (self.WIDTH, self.HEIGHT), flags=pygame.SCALED
+                )
             else:
                 self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
             pygame.display.set_caption("Fullscreen Tests")
@@ -808,22 +811,19 @@ class FullscreenToggleTests(unittest.TestCase):
             pygame.display.flip()
             self.font = pygame.font.Font(None, 32)
 
-    def quit(self):
+    def tearDown(self):
         if self.screen is not None:
             if self.isfullscreen:
                 pygame.display.toggle_fullscreen()
             pygame.quit()
-        self.aborted = True
 
     def visual_test(self, fullscreen=False):
-        if self.aborted:
-            return False
         text = ""
         if fullscreen:
-            text = "Is this in fullscreen? [y/n]"
             if not self.isfullscreen:
                 pygame.display.toggle_fullscreen()
                 self.isfullscreen = True
+            text = "Is this in fullscreen? [y/n]"
         else:
             if self.isfullscreen:
                 pygame.display.toggle_fullscreen()
@@ -844,7 +844,6 @@ class FullscreenToggleTests(unittest.TestCase):
                     if event.key == pygame.K_n:
                         return False
                 if event.type == pygame.QUIT:
-                    self.quit()
                     return False
 
     def test_fullscreen_true(self):
@@ -852,6 +851,7 @@ class FullscreenToggleTests(unittest.TestCase):
 
     def test_fullscreen_false(self):
         self.assertTrue(self.visual_test(fullscreen=False))
+
 
 @unittest.skipIf(
     os.environ.get("SDL_VIDEODRIVER") == "dummy",
