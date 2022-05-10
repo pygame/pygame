@@ -22,6 +22,9 @@ RUN linux32 yum install -y dbus-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
+ADD cmake /cmake_build/
+RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
+
 ADD brotli /brotli_build/
 RUN ["linux32", "bash", "/brotli_build/build-brotli.sh"]
 
@@ -74,9 +77,6 @@ RUN ["linux32", "bash", "/pulseaudio_build/build-pulseaudio.sh"]
 
 ADD libmodplug /libmodplug_build/
 RUN ["linux32", "bash", "/libmodplug_build/build-libmodplug.sh"]
-
-ADD cmake /cmake_build/
-RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
 
 ADD fluidsynth /fluidsynth_build/
 RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
