@@ -27,9 +27,18 @@ balls = []
 
 
 class Ball:
-    def __init__(self, position, speed):
+    def __init__(self, position: pg.Vector2, speed: float):
         self.position = position
         self.speed = speed
+
+    def move_towards_ip(self, target_position: pg.Vector2, amount: float):
+        distance_vec = target_position - self.position
+        length = distance_vec.length()
+        if length < amount:
+            self.position = target_position
+        else:
+            self.position += distance_vec.normalize() * amount
+
 
 
 def reset():
@@ -57,7 +66,7 @@ while running:
             running = False
 
         if event.type == pg.MOUSEBUTTONUP:
-            target_position = pg.mouse.get_pos()
+            target_position = pg.Vector2(pg.mouse.get_pos())
 
         if event.type == pg.KEYUP:
             if event.key == pg.K_ESCAPE:
@@ -70,7 +79,7 @@ while running:
 
     for o in balls:
         if target_position is not None:
-            o.position.move_towards_ip(target_position, o.speed * delta_time)
+            o.move_towards_ip(target_position, o.speed * delta_time)
         pg.draw.circle(screen, (118, 207, 145), o.position, CIRCLE_RADIUS)
 
     pg.display.flip()
