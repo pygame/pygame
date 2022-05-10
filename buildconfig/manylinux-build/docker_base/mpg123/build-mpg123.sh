@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e -x
 
-MPG123="mpg123-1.28.2"
-
 cd $(dirname `readlink -f "$0"`)
+
+MPG123="mpg123-1.29.3"
 
 curl -sL --retry 10 https://downloads.sourceforge.net/sourceforge/mpg123/${MPG123}.tar.bz2 > ${MPG123}.tar.bz2
 sha512sum -c mpg123.sha512

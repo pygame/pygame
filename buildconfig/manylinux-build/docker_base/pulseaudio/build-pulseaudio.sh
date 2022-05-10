@@ -2,7 +2,9 @@
 set -e -x
 
 cd $(dirname `readlink -f "$0"`)
-PULSEFILE="pulseaudio-14.0"
+
+# pulseaudio 15.0+ needs meson build system
+PULSEFILE="pulseaudio-14.2"
 
 curl -sL --retry 10 https://www.freedesktop.org/software/pulseaudio/releases/${PULSEFILE}.tar.xz > ${PULSEFILE}.tar.xz
 sha512sum -c pulseaudio.sha512
