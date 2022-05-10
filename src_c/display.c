@@ -1011,7 +1011,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
-                    else {
+                    else if (!center_window) {
                         SDL_GetWindowPosition(win, &x, &y);
                     }
                 }
