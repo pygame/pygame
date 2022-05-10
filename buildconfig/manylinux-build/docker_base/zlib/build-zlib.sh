@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-ZLIB_VER=1.2.11
+ZLIB_VER=1.2.12
 ZLIB_NAME="zlib-$ZLIB_VER"
 curl -sL --retry 10 https://www.zlib.net/${ZLIB_NAME}.tar.gz > ${ZLIB_NAME}.tar.gz
 
