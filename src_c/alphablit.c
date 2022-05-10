@@ -368,14 +368,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     }
 #endif /* PG_ENABLE_ARM_NEON */
 #endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
-<<<<<<< HEAD
 #endif /* __EMSCRIPTEN__ */
-                    /* if we call MULT_RGBA on a surface without alpha
-                       we will be forced down this slow non-SIMD path
-                       right now. When we upgrade RGB_MULT to SIMD
-                       force them down there instead*/
-=======
->>>>>>> 6fe54c35 (Add SIMD versions of RGB_MUL blitter)
                     blit_blend_rgba_mul(&info);
                     break;
                 }
