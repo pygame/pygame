@@ -790,7 +790,6 @@ class FullscreenToggleTests(unittest.TestCase):
     screen = None
     font = None
     isfullscreen = False
-    aborted = False
 
     WIDTH = 800
     HEIGHT = 600
@@ -837,7 +836,6 @@ class FullscreenToggleTests(unittest.TestCase):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.quit()
                         return False
                     if event.key == pygame.K_y:
                         return True
