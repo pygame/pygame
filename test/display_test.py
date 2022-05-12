@@ -795,26 +795,24 @@ class FullscreenToggleTests(unittest.TestCase):
     HEIGHT = 600
 
     def setUp(self):
-        if self.screen is None:
-            pygame.init()
-            if sys.platform == "win32":
-                # known issue with windows, must have mode from pygame.display.list_modes()
-                # or window created with flag pygame.SCALED
-                self.screen = pygame.display.set_mode(
-                    (self.WIDTH, self.HEIGHT), flags=pygame.SCALED
-                )
-            else:
-                self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-            pygame.display.set_caption("Fullscreen Tests")
-            self.screen.fill((255, 255, 255))
-            pygame.display.flip()
-            self.font = pygame.font.Font(None, 32)
+        pygame.init()
+        if sys.platform == "win32":
+            # known issue with windows, must have mode from pygame.display.list_modes()
+            # or window created with flag pygame.SCALED
+            self.screen = pygame.display.set_mode(
+                (self.WIDTH, self.HEIGHT), flags=pygame.SCALED
+            )
+        else:
+            self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        pygame.display.set_caption("Fullscreen Tests")
+        self.screen.fill((255, 255, 255))
+        pygame.display.flip()
+        self.font = pygame.font.Font(None, 32)
 
     def tearDown(self):
-        if self.screen is not None:
-            if self.isfullscreen:
-                pygame.display.toggle_fullscreen()
-            pygame.quit()
+        if self.isfullscreen:
+            pygame.display.toggle_fullscreen()
+        pygame.quit()
 
     def visual_test(self, fullscreen=False):
         text = ""
