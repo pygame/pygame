@@ -620,10 +620,12 @@ static PyObject *
 pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
     if (_pg_event_is_init) {
+        PG_LOCK_EVFILTER_MUTEX
         if (_pg_repeat_timer) {
             SDL_RemoveTimer(_pg_repeat_timer);
             _pg_repeat_timer = 0;
         }
+        PG_UNLOCK_EVFILTER_MUTEX
         /* The main reason for _custom_event to be reset here is so we
          * can have a unit test that checks if pygame.event.custom_type()
          * stops returning new types when they are finished, without that
