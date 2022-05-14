@@ -96,21 +96,27 @@ static SDL_Event _pg_repeat_event;
 static SDL_Event _pg_last_keydown_event = {0};
 
 #define PG_LOCK_EVFILTER_MUTEX                                             \
-    if (SDL_LockMutex(pg_evfilter_mutex) < 0) {                            \
-        /* TODO: better error handling with future error-event API */      \
-        /* since this error is very rare, we can completely give up if     \
-         * this happens for now */                                         \
-        printf("Fatal pygame error in SDL_LockMutex: %s", SDL_GetError()); \
-        PG_EXIT(1);                                                        \
+    if (pg_evfilter_mutex) {                                               \
+        if (SDL_LockMutex(pg_evfilter_mutex) < 0) {                        \
+            /* TODO: better error handling with future error-event API */  \
+            /* since this error is very rare, we can completely give up if \
+             * this happens for now */                                     \
+            printf("Fatal pygame error in SDL_LockMutex: %s",              \
+                   SDL_GetError());                                        \
+            PG_EXIT(1);                                                    \
+        }                                                                  \
     }
 
-#define PG_UNLOCK_EVFILTER_MUTEX                                             \
-    if (SDL_UnlockMutex(pg_evfilter_mutex) < 0) {                            \
-        /* TODO: handle errors with future error-event API */                \
-        /* since this error is very rare, we can completely give up if       \
-         * this happens for now */                                           \
-        printf("Fatal pygame error in SDL_UnlockMutex: %s", SDL_GetError()); \
-        PG_EXIT(1);                                                          \
+#define PG_UNLOCK_EVFILTER_MUTEX                                           \
+    if (pg_evfilter_mutex) {                                               \
+        if (SDL_UnlockMutex(pg_evfilter_mutex) < 0) {                      \
+            /* TODO: handle errors with future error-event API */          \
+            /* since this error is very rare, we can completely give up if \
+             * this happens for now */                                     \
+            printf("Fatal pygame error in SDL_UnlockMutex: %s",            \
+                   SDL_GetError());                                        \
+            PG_EXIT(1);                                                    \
+        }                                                                  \
     }
 
 static Uint32
