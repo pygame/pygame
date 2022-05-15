@@ -371,7 +371,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 
     char* ext = pgRWops_GetFileExtension(rw);
     if (namehint) {
-        ext = namehint;
+        ext = find_extension(namehint);
     }
 
     /* TODO: Py_BEGIN_ALLOW_THREADS anywhere here? */
@@ -393,7 +393,8 @@ image_save_ext(PyObject *self, PyObject *arg)
 
     /* result 1 means no image type was ever found to match */
     if (result == 1) {
-        return RAISE(pgExc_SDLError, "Unrecognized image type");
+        PyErr_Format(pgExc_SDLError, "Unrecognized image type: %s", ext);
+        return NULL;
     }
 
     /* result < 0 means error, can be propagated as python error */
