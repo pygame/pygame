@@ -54,7 +54,7 @@ The full code for this example looks like this::
       # Event loop
       while True:
           for event in pygame.event.get():
-              if event.type == QUIT:
+              if event.type == 'QUIT':
                   return
 
           screen.blit(background, (0, 0))
