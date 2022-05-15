@@ -37,8 +37,6 @@
 #endif
 
 static int
-SaveTGA(SDL_Surface *surface, const char *file, int rle);
-static int
 SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
 
 #define DATAROW(data, row, width, height, flipped)             \
@@ -170,6 +168,8 @@ image_save(PyObject *self, PyObject *arg)
         result = 0;
     }
 
+    /* having an RWops object was convenient and all, but now we're going to
+       try using imageext instead, so we should get free this */
     pgRWops_ReleaseObject(ext);
 
     if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
@@ -1403,18 +1403,6 @@ error:
     free(rlebuf);
     SDL_FreeSurface(linebuf);
     return -1;
-}
-
-static int
-SaveTGA(SDL_Surface *surface, const char *file, int rle)
-{
-    SDL_RWops *out = SDL_RWFromFile(file, "wb");
-    int ret;
-    if (!out)
-        return -1;
-    ret = SaveTGA_RW(surface, out, rle);
-    SDL_RWclose(out);
-    return ret;
 }
 
 static PyMethodDef _image_methods[] = {
