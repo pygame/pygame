@@ -1,10 +1,15 @@
-/* Python 2.x/3.x and SDL compatibility tools
- */
-
 #if !defined(PGCOMPAT_H)
 #define PGCOMPAT_H
 
 #include <Python.h>
+
+/* In CPython, Py_Exit finalises the python interpreter before calling C exit()
+ * This does not exist on PyPy, so use exit() directly here */
+#ifdef PYPY_VERSION
+#define PG_EXIT(n) exit(n)
+#else
+#define PG_EXIT(n) Py_Exit(n)
+#endif
 
 /* define common types where SDL is not included */
 #ifndef SDL_VERSION_ATLEAST
