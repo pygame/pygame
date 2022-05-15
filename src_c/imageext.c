@@ -167,23 +167,13 @@ png_flush_fn(png_structp png_ptr)
 }
 
 static int
-write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
+write_png(SDL_RWops *rwops, png_bytep *rows,
           SDL_Palette *palette, int w, int h, int colortype, int bitdepth)
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     png_colorp color_ptr = NULL;
-    SDL_RWops *rwops;
     char *doing;
-
-    if (rw == NULL) {
-        if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
-            return -1;
-        }
-    }
-    else {
-        rwops = rw;
-    }
 
     doing = "create png write struct";
     if (!(png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
@@ -230,11 +220,6 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
     /* doing = "write end"; */
     png_write_end(png_ptr, NULL);
 
-    if (rw == NULL) {
-        doing = "close file";
-        if (0 != SDL_RWclose(rwops))
-            goto fail;
-    }
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
 
@@ -254,7 +239,7 @@ fail:
 }
 
 static int
-SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
+SavePNG_RW(SDL_Surface *surface, SDL_RWops *rw)
 {
     static unsigned char **ss_rows;
     static int ss_size;
@@ -339,15 +324,15 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     }
 
     if (palette) {
-        r = write_png(file, rw, ss_rows, palette, surface->w, surface->h,
+        r = write_png(rw, ss_rows, palette, surface->w, surface->h,
                       PNG_COLOR_TYPE_PALETTE, 8);
     }
     else if (alpha) {
-        r = write_png(file, rw, ss_rows, NULL, surface->w, surface->h,
+        r = write_png(rw, ss_rows, NULL, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB_ALPHA, 8);
     }
     else {
-        r = write_png(file, rw, ss_rows, NULL, surface->w, surface->h,
+        r = write_png(rw, ss_rows, NULL, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB, 8);
     }
 
@@ -379,65 +364,41 @@ image_save_ext(PyObject *self, PyObject *arg)
     surf = pgSurface_AsSurface(surfobj);
     pgSurface_Prep(surfobj);
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == NULL) {
-        result = -2;
-    }
-    else if (oencoded == Py_None) {
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            PyErr_Format(PyExc_TypeError,
-                         "Expected a string or file object for the file "
-                         "argument: got %.1024s",
-                         Py_TYPE(obj)->tp_name);
-            result = -2;
-        }
-        else {
-            name = namehint;
-        }
-    }
-    else {
-        name = PyBytes_AS_STRING(oencoded);
-    }
-
-    if (result > 0) {
-        char *ext = find_extension(name);
-        if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
-            /* SDL_Image is version 2.0.2 or newer and therefore does
-             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
-             */
-            if (rw != NULL) {
-                result = IMG_SaveJPG_RW(surf, rw, 0, JPEG_QUALITY);
-            }
-            else {
-                result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
-            }
-        }
-        else if (!strcasecmp(ext, "png")) {
-#ifdef PNG_H
-            /*Py_BEGIN_ALLOW_THREADS; */
-            result = SavePNG(surf, name, rw);
-            /*Py_END_ALLOW_THREADS; */
-#else
-            PyErr_SetString(pgExc_SDLError, "No support for png compiled in.");
-            result = -2;
-#endif /* ~PNG_H */
-        }
-    }
-
-    pgSurface_Unprep(surfobj);
-
-    Py_XDECREF(oencoded);
-    if (result == -2) {
-        /* Python error raised elsewhere */
+    rw = pgRWops_FromObjectAndMode(obj, "wb");
+    if (rw == NULL) { /* propagate error immediately */
         return NULL;
     }
-    if (result == -1) {
-        /* SDL error: translate to Python error */
-        return RAISE(pgExc_SDLError, SDL_GetError());
+
+    char* ext = pgRWops_GetFileExtension(rw);
+    if (namehint) {
+        ext = namehint;
     }
+
+    /* TODO: Py_BEGIN_ALLOW_THREADS anywhere here? */
+
+    if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
+        if (result = IMG_SaveJPG_RW(surf, rw, 0, JPEG_QUALITY) < 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        }
+    }
+
+    if (!strcasecmp(ext, "png")) {
+        if (result = SavePNG_RW(surf, rw) < 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        }
+    }
+
+    pgRWops_ReleaseObject(rw);
+    pgSurface_Unprep(surfobj);
+
+    /* result 1 means no image type was ever found to match */
     if (result == 1) {
         return RAISE(pgExc_SDLError, "Unrecognized image type");
+    }
+
+    /* result < 0 means error, can be propagated as python error */
+    if (result < 0) {
+        return NULL;
     }
 
     Py_RETURN_NONE;

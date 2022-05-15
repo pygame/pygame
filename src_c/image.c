@@ -144,15 +144,25 @@ image_save(PyObject *self, PyObject *arg)
         return NULL;
     }
 
+    SDL_RWops *rw = pgRWops_FromObjectAndMode(obj, "wb");
+    if (rw == NULL) { /* propagate error immediately */
+        return NULL;
+    }
+
     surf = pgSurface_AsSurface(surfobj);
     pgSurface_Prep(surfobj);
-
-    SDL_RWops *rw = pgRWops_FromObjectAndMode(obj, "wb");
 
     char *ext = pgRWops_GetFileExtension(rw);
     if (namehint) {
         ext = namehint;
     }
+
+    /* default to tga if no other indicator is provided */
+    if (ext == NULL) {
+        ext = "tga";
+    }
+
+    /* TODO: Py_BEGIN_ALLOW_THREADS anywhere here? */
 
     if (!strcasecmp(ext, "bmp")) {
         if (result = SDL_SaveBMP_RW(surf, rw, 0) < 0) {
@@ -166,12 +176,15 @@ image_save(PyObject *self, PyObject *arg)
         }
     }
 
+    int extended_format = !strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
+        !strcasecmp(ext, "jpeg");
+
     /* having an RWops object was convenient and all, but now we're going to
        try using imageext instead, so we should get free this */
     pgRWops_ReleaseObject(rw);
+    pgSurface_Unprep(surfobj);
 
-    if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
-        !strcasecmp(ext, "jpeg")) {
+    if (extended_format) {
         /* If it is .png .jpg .jpeg use the extended module. */
         /* try to get extended formats */
         result = 0;
@@ -179,8 +192,6 @@ image_save(PyObject *self, PyObject *arg)
             result = -1;
         }
     }
-
-    pgSurface_Unprep(surfobj);
 
     /* result 1 means no image type was ever found to match */
     if (result == 1) {

@@ -768,7 +768,7 @@ pgRWops_FromObjectAndMode(PyObject *obj, char* mode)
 static SDL_RWops *
 pgRWops_FromObject(PyObject *obj)
 {
-    pgRWops_FromObjectAndMode(obj, "rb");
+    return pgRWops_FromObjectAndMode(obj, "rb");
 }
 
 static PyObject *
