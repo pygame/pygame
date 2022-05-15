@@ -671,7 +671,7 @@ end:
 }
 
 static SDL_RWops *
-_rwops_from_pystr(PyObject *obj)
+_rwops_from_pystr(PyObject *obj, char* mode)
 {
     SDL_RWops *rw = NULL;
     PyObject *oencoded;
@@ -692,7 +692,7 @@ _rwops_from_pystr(PyObject *obj)
 
     encoded = PyBytes_AS_STRING(oencoded);
 
-    rw = SDL_RWFromFile(encoded, "rb");
+    rw = SDL_RWFromFile(encoded, mode);
     if (rw) {
         /* adding the extension to the hidden data for RWops from files */
         /* this is necessary to support loading functions that rely on
@@ -752,9 +752,9 @@ simple_case:
 }
 
 static SDL_RWops *
-pgRWops_FromObject(PyObject *obj)
+pgRWops_FromObjectAndMode(PyObject *obj, char* mode)
 {
-    SDL_RWops *rw = _rwops_from_pystr(obj);
+    SDL_RWops *rw = _rwops_from_pystr(obj, mode);
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
@@ -763,6 +763,12 @@ pgRWops_FromObject(PyObject *obj)
         return rw;
     }
     return pgRWops_FromFileObject(obj);
+}
+
+static SDL_RWops *
+pgRWops_FromObject(PyObject *obj)
+{
+    pgRWops_FromObjectAndMode(obj, "rb");
 }
 
 static PyObject *
@@ -843,6 +849,7 @@ MODINIT_DEFINE(rwobject)
     c_api[4] = pgRWops_FromFileObject;
     c_api[5] = pgRWops_ReleaseObject;
     c_api[6] = pgRWops_GetFileExtension;
+    c_api[7] = pgRWops_FromObjectAndMode;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_XDECREF(apiobj);

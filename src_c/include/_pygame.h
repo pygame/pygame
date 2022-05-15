@@ -383,6 +383,9 @@ typedef struct pgEventObject pgEventObject;
 #define pgRWops_GetFileExtension \
     (*(char *(*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 6))
 
+#define pgRWops_FromObjectAndMode \
+    (*(SDL_RWops * (*)(PyObject *, char*)) PYGAMEAPI_GET_SLOT(rwobject, 7))
+
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject)
 
 #endif

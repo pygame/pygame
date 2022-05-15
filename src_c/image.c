@@ -138,8 +138,6 @@ image_save(PyObject *self, PyObject *arg)
     pgSurfaceObject *surfobj;
     PyObject *obj;
     const char *namehint = NULL;
-    PyObject *oencoded;
-    PyObject *ret;
     SDL_Surface *surf;
     int result = 1;
 
@@ -151,75 +149,39 @@ image_save(PyObject *self, PyObject *arg)
     surf = pgSurface_AsSurface(surfobj);
     pgSurface_Prep(surfobj);
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == NULL) {
-        result = -2;
-    }
-    else {
-        const char *name = NULL;
-        const char *ext = NULL;
-        if (oencoded == Py_None) {
-            name = (namehint ? namehint : "tga");
-        }
-        else {
-            name = PyBytes_AS_STRING(oencoded);
-        }
+    SDL_RWops *rw = pgRWops_FromObjectAndMode(obj, "wb");
 
-        ext = find_extension(name);
-        if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
-            !strcasecmp(ext, "jpeg")) {
-            /* If it is .png .jpg .jpeg use the extended module. */
-            /* try to get extended formats */
-            ret = image_save_extended(self, arg);
-            result = (ret == NULL ? -2 : 0);
-        }
-        else if (oencoded == Py_None) {
-            SDL_RWops *rw = pgRWops_FromFileObject(obj);
-            if (rw != NULL) {
-                if (!strcasecmp(ext, "bmp")) {
-                    /* The SDL documentation didn't specify which negative
-                     * number is returned upon error. We want to be sure that
-                     * result is either 0 or -1: */
-                    result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
-                }
-                else {
-                    result = SaveTGA_RW(surf, rw, 1);
-                }
-            }
-            else {
-                result = -2;
-            }
-        }
-        else {
-            if (!strcasecmp(ext, "bmp")) {
-                Py_BEGIN_ALLOW_THREADS;
-                /* The SDL documentation didn't specify which negative number
-                 * is returned upon error. We want to be sure that result is
-                 * either 0 or -1: */
-                result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
-                Py_END_ALLOW_THREADS;
-            }
-            else {
-                Py_BEGIN_ALLOW_THREADS;
-                result = SaveTGA(surf, name, 1);
-                Py_END_ALLOW_THREADS;
-            }
-        }
+    char *ext = pgRWops_GetFileExtension(rw);
+    if (namehint) {
+        ext = namehint;
     }
-    Py_XDECREF(oencoded);
 
-    pgSurface_Unprep(surfobj);
+    if (!strcasecmp(ext, "bmp")) {
+        if (SDL_SaveBMP_RW(surf, rw, 0) < 0) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+        result = 0;
+    }
 
-    if (result == -2) {
-        /* Python error raised elsewhere */
-        return NULL;
+    else if (!strcasecmp(ext, "tga")) {
+        if (SaveTGA_RW(surf, rw, 1) < 0) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+        result = 0;
     }
-    if (result == -1) {
-        /* SDL error: translate to Python error */
-        return RAISE(pgExc_SDLError, SDL_GetError());
+
+    pgRWops_ReleaseObject(ext);
+
+    if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
+        !strcasecmp(ext, "jpeg")) {
+        /* If it is .png .jpg .jpeg use the extended module. */
+        /* try to get extended formats */
+        if (image_save_extended(self, arg) == NULL) {
+            return NULL; /* propagate python exception raised in extended */
+        }
     }
+
     if (result == 1) {
-        /* Should never get here */
         return RAISE(pgExc_SDLError, "Unrecognized image type");
     }
 
