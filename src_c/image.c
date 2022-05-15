@@ -168,7 +168,7 @@ image_save(PyObject *self, PyObject *arg)
 
     /* having an RWops object was convenient and all, but now we're going to
        try using imageext instead, so we should get free this */
-    pgRWops_ReleaseObject(ext);
+    pgRWops_ReleaseObject(rw);
 
     if (!strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
         !strcasecmp(ext, "jpeg")) {
