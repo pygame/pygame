@@ -155,17 +155,15 @@ image_save(PyObject *self, PyObject *arg)
     }
 
     if (!strcasecmp(ext, "bmp")) {
-        if (SDL_SaveBMP_RW(surf, rw, 0) < 0) {
-            return RAISE(pgExc_SDLError, SDL_GetError());
+        if (result = SDL_SaveBMP_RW(surf, rw, 0) < 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
         }
-        result = 0;
     }
 
     else if (!strcasecmp(ext, "tga")) {
-        if (SaveTGA_RW(surf, rw, 1) < 0) {
-            return RAISE(pgExc_SDLError, SDL_GetError());
+        if (result = SaveTGA_RW(surf, rw, 1) < 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
         }
-        result = 0;
     }
 
     /* having an RWops object was convenient and all, but now we're going to
@@ -176,15 +174,24 @@ image_save(PyObject *self, PyObject *arg)
         !strcasecmp(ext, "jpeg")) {
         /* If it is .png .jpg .jpeg use the extended module. */
         /* try to get extended formats */
+        result = 0;
         if (image_save_extended(self, arg) == NULL) {
-            return NULL; /* propagate python exception raised in extended */
+            result = -1;
         }
     }
 
+    pgSurface_Unprep(surfobj);
+
+    /* result 1 means no image type was ever found to match */
     if (result == 1) {
-        return RAISE(pgExc_SDLError, "Unrecognized image type");
+        PyErr_SetString(pgExc_SDLError, "Unrecognized image type");
     }
 
+    /* result < 0 means error, can be propagated as python error */
+    if (result < 0) {
+        return NULL;
+    }
+    
     Py_RETURN_NONE;
 }
 
