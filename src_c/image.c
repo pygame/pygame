@@ -195,7 +195,7 @@ image_save(PyObject *self, PyObject *arg)
 
     /* result 1 means no image type was ever found to match */
     if (result == 1) {
-        PyErr_SetString(pgExc_SDLError, "Unrecognized image type");
+        return RAISE(pgExc_SDLError, "Unrecognized image type");
     }
 
     /* result < 0 means error, can be propagated as python error */
