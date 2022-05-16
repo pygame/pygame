@@ -77,22 +77,6 @@ static SDL_mutex *_pg_img_mutex = 0;
 #define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
 #endif /* ~WIN32 */
 
-static char *
-find_extension(char *fullname)
-{
-    char *dot;
-
-    if (fullname == NULL) {
-        return NULL;
-    }
-
-    dot = strrchr(fullname, '.');
-    if (dot == NULL) {
-        return fullname;
-    }
-    return dot + 1;
-}
-
 static PyObject *
 image_load_ext(PyObject *self, PyObject *arg)
 {

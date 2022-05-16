@@ -47,22 +47,6 @@ static PyObject *extloadobj = NULL;
 static PyObject *extsaveobj = NULL;
 static PyObject *extverobj = NULL;
 
-static const char *
-find_extension(const char *fullname)
-{
-    const char *dot;
-
-    if (fullname == NULL) {
-        return NULL;
-    }
-
-    dot = strrchr(fullname, '.');
-    if (dot == NULL) {
-        return fullname;
-    }
-    return dot + 1;
-}
-
 static PyObject *
 image_load_basic(PyObject *self, PyObject *obj)
 {
