@@ -390,12 +390,7 @@ _load_music(PyObject *obj, char *namehint)
         Py_XDECREF(_traceback);
         return NULL;
     }
-    if (namehint) {
-        ext = namehint;
-    }
-    else {
-        ext = pgRWops_GetFileExtension(rw);
-    }
+    ext = pgRWops_GetFileExtension(rw, namehint);
 
     Py_BEGIN_ALLOW_THREADS;
     new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(ext), SDL_TRUE);

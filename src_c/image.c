@@ -152,10 +152,7 @@ image_save(PyObject *self, PyObject *arg)
     surf = pgSurface_AsSurface(surfobj);
     pgSurface_Prep(surfobj);
 
-    char *ext = pgRWops_GetFileExtension(rw);
-    if (namehint) {
-        ext = find_extension(namehint);
-    }
+    char *ext = pgRWops_GetFileExtension(rw, namehint);
 
     /* default to tga if no other indicator is provided */
     if (ext == NULL) {
@@ -177,7 +174,7 @@ image_save(PyObject *self, PyObject *arg)
     }
 
     int extended_format = !strcasecmp(ext, "png") || !strcasecmp(ext, "jpg") ||
-        !strcasecmp(ext, "jpeg");
+                          !strcasecmp(ext, "jpeg");
 
     /* having an RWops object was convenient and all, but now we're going to
        try using imageext instead, so we should get free this */
@@ -203,7 +200,7 @@ image_save(PyObject *self, PyObject *arg)
     if (result < 0) {
         return NULL;
     }
-    
+
     Py_RETURN_NONE;
 }
 

@@ -24,6 +24,12 @@ Header file: src_c/include/pygame.h
    the Python GIL is acquired before calling any of the *obj* methods.
    On error raise a Python exception and return ``NULL``.
 
+.. c:function:: SDL_RWops* pgRWops_FromObjectAndMode(PyObject *obj, char* mode)
+
+   Same as :func:`pgRWops_FromObject`, except it allows you to specify the mode
+   string to create the RWops from. pgRWops_FromObject uses "rb" by default.
+   This function is mainly used for things that instead need "wb" mode.
+
 .. c:function:: SDL_RWops* pgRWops_FromFileObject(PyObject *obj)
 
    Return a SDL_RWops struct filled to access the Python file-like object *obj*.
@@ -36,11 +42,14 @@ Header file: src_c/include/pygame.h
    Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWops_FromObject`
    or :c:func:`pgRWops_FromFileObject`.
 
-.. c:function:: char* pgRWops_GetFileExtension(SDL_RWops *rw)
+.. c:function:: char* pgRWops_GetFileExtension(SDL_RWops *rw, char *namehint)
 
-   Return a string that contains the file extension of the original file
-   loaded into the SDL_RWops object, or NULL if the SDL_RWops object comes
-   from a file object.
+   Takes a pygame-created RWop. If the OPTIONAL (can be NULL) namehint argument
+   is provided, the file extension is extracted from that and returned.
+   If the namehint is NULL and the RWop comes from a file (as opposed to a
+   file object), the file extension of the original filename is returned.
+   If the RWop came from a file object and a namehint isn't provided, this will
+   return NULL.
 
 .. c:function:: int pgRWops_ReleaseObject(SDL_RWops *context)
 

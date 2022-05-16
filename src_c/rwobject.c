@@ -275,8 +275,16 @@ pgRWops_IsFileObject(SDL_RWops *rw)
 }
 
 char *
-pgRWops_GetFileExtension(SDL_RWops *rw)
+pgRWops_GetFileExtension(SDL_RWops *rw, char *namehint)
 {
+    if (namehint != NULL) {
+        char *dot = strrchr(namehint, '.');
+        if (dot == NULL) {
+            return namehint;
+        }
+        return dot + 1;
+    }
+
     if (pgRWops_IsFileObject(rw)) {
         return NULL;
     }
@@ -671,7 +679,7 @@ end:
 }
 
 static SDL_RWops *
-_rwops_from_pystr(PyObject *obj, char* mode)
+_rwops_from_pystr(PyObject *obj, char *mode)
 {
     SDL_RWops *rw = NULL;
     PyObject *oencoded;
@@ -752,7 +760,7 @@ simple_case:
 }
 
 static SDL_RWops *
-pgRWops_FromObjectAndMode(PyObject *obj, char* mode)
+pgRWops_FromObjectAndMode(PyObject *obj, char *mode)
 {
     SDL_RWops *rw = _rwops_from_pystr(obj, mode);
     if (!rw) {

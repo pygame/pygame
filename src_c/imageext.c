@@ -109,9 +109,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     rw = pgRWops_FromObject(obj);
     if (rw == NULL) /* stop on NULL, error already set */
         return NULL;
-    ext = pgRWops_GetFileExtension(rw);
-    if (name) /* override extension with namehint if given */
-        ext = find_extension(name);
+    ext = pgRWops_GetFileExtension(rw, name);
 
 #ifdef WITH_THREAD
     /*
@@ -167,8 +165,8 @@ png_flush_fn(png_structp png_ptr)
 }
 
 static int
-write_png(SDL_RWops *rwops, png_bytep *rows,
-          SDL_Palette *palette, int w, int h, int colortype, int bitdepth)
+write_png(SDL_RWops *rwops, png_bytep *rows, SDL_Palette *palette, int w,
+          int h, int colortype, int bitdepth)
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
@@ -369,10 +367,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    char* ext = pgRWops_GetFileExtension(rw);
-    if (namehint) {
-        ext = find_extension(namehint);
-    }
+    char *ext = pgRWops_GetFileExtension(rw, namehint);
 
     /* TODO: Py_BEGIN_ALLOW_THREADS anywhere here? */
 
