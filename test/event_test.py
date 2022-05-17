@@ -431,6 +431,17 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(e.a, "a" * 1024)
         self.assertEqual(e.test, list(range(100)))
 
+    def test_post_same_reference(self):
+        """
+        Test that event.post posts an event with a common reference to a dict.
+        """
+        event = pygame.event.Event(pygame.USEREVENT, attr=(1, 2, 3, 4))
+        pygame.event.post(event)
+        e = pygame.event.poll()
+
+        self.assertEqual(e.type, pygame.USEREVENT)
+        self.assertIs(event.dict, e.dict)
+
     def test_post_blocked(self):
         """
         Test blocked events are not posted. Also test whether post()

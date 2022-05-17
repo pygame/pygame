@@ -72,8 +72,15 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
    Setting an event timer for a particular event discards the old one for that
    event type.
 
+   When this function is called with an ``Event`` object, the event(s) received
+   on the event queue will be a shallow copy; the dict attribute of the event
+   object passed as an argument and the dict attributes of the event objects
+   received on timer will be references to the same dict object in memory.
+   Modifications on one dict can affect another, use deepcopy operations on the
+   dict object if you don't want this behaviour.
+
    ``loops`` replaces the ``once`` argument, and this does not break backward
-   compatibility
+   compatibility.
 
    .. versionadded:: 2.0.0.dev3 once argument added.
    .. versionchanged:: 2.0.1 event argument supports ``pygame.event.Event`` object
