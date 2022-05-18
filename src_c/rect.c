@@ -348,9 +348,9 @@ _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
     }
 
     // A.left   < B.right  &&
-    // A.top    < A.bottom &&
+    // A.top    < B.bottom &&
     // A.right  > B.left   &&
-    // A.bottom > b.top
+    // A.bottom > B.top
     return (MIN(A->x, A->x + A->w) < MAX(B->x, B->x + B->w) &&
             MIN(A->y, A->y + A->h) < MAX(B->y, B->y + B->h) &&
             MAX(A->x, A->x + A->w) > MIN(B->x, B->x + B->w) &&
