@@ -472,7 +472,7 @@ pg_quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_get_init(PyObject *self, PyObject *_null)
+pg_base_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -2071,7 +2071,8 @@ pg_uninstall_parachute(void)
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS,
+     DOC_PYGAMEGETINIT},
     {"register_quit", (PyCFunction)pg_register_quit, METH_O,
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
@@ -2085,11 +2086,21 @@ static PyMethodDef _base_methods[] = {
      "return an array struct interface as an interface dictionary"},
     {NULL, NULL, 0, NULL}};
 
+#if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
+// in case of wasm+dynamic loading it could be a trampoline in the globals
+// generated at runtime.
+// when building static make global accessible symbol directly.
+static PyObject *pgExc_SDLError;
+#endif
+
 MODINIT_DEFINE(base)
 {
     PyObject *module, *apiobj, *atexit;
     PyObject *atexit_register;
+#if !defined(BUILD_STATIC) || defined(NO_PYGAME_C_API)
+    // only pointer via C-api will be used, no need to keep global.
     PyObject *pgExc_SDLError;
+#endif
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,

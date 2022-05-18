@@ -4122,7 +4122,12 @@ static PyMethodDef _math_methods[] = {
  * Module init function
  ****************************/
 
+#if defined(BUILD_STATIC)
+// prevent name collision with CPython builtin PyInit_math from math module
+MODINIT_DEFINE(pg_math)
+#else
 MODINIT_DEFINE(math)
+#endif
 {
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];

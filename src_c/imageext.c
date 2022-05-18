@@ -81,7 +81,7 @@ static SDL_mutex *_pg_img_mutex = 0;
 #endif /* ~WIN32 */
 
 static char *
-find_extension(char *fullname)
+iext_find_extension(char *fullname)
 {
     char *dot;
 
@@ -114,7 +114,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     ext = pgRWops_GetFileExtension(rw);
     if (name) /* override extension with namehint if given */
-        ext = find_extension(name);
+        ext = iext_find_extension(name);
 
 #ifdef WITH_THREAD
     /*
@@ -656,7 +656,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
 
     if (result > 0) {
-        char *ext = find_extension(name);
+        char *ext = iext_find_extension(name);
         if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
 #if (SDL_IMAGE_MAJOR_VERSION * 1000 + SDL_IMAGE_MINOR_VERSION * 100 + \
      SDL_IMAGE_PATCHLEVEL) < 2002
@@ -743,7 +743,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *_null)
+imageext_get_sdl_image_version(PyObject *self, PyObject *_null)
 {
     return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
                          SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
@@ -763,7 +763,7 @@ _imageext_free(void *ptr)
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
-    {"_get_sdl_image_version", image_get_sdl_image_version, METH_NOARGS,
+    {"_get_sdl_image_version", imageext_get_sdl_image_version, METH_NOARGS,
      "_get_sdl_image_version() -> (major, minor, patch)\n"
      "Note: Should not be used directly."},
     {NULL, NULL, 0, NULL}};

@@ -103,7 +103,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
                SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args);
 
 /* statics */
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *info, int owner);
 static PyObject *
 surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner);
@@ -393,10 +393,10 @@ static PyTypeObject pgSurface_Type = {
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *s, int owner)
 {
-    return surf_subtype_new(&pgSurface_Type, s, owner);
+    return (pgSurfaceObject *)surf_subtype_new(&pgSurface_Type, s, owner);
 }
 
 static int

@@ -691,8 +691,8 @@ _rwops_from_pystr(PyObject *obj)
     }
 
     encoded = PyBytes_AS_STRING(oencoded);
-
     rw = SDL_RWFromFile(encoded, "rb");
+
     if (rw) {
         /* adding the extension to the hidden data for RWops from files */
         /* this is necessary to support loading functions that rely on
@@ -754,6 +754,34 @@ simple_case:
 static SDL_RWops *
 pgRWops_FromObject(PyObject *obj)
 {
+#if __EMSCRIPTEN__
+    SDL_RWops *rw;
+    int retry = 0;
+again:
+    rw = _rwops_from_pystr(obj);
+    if (retry)
+        Py_XDECREF(obj);
+    if (!rw) {
+        if (PyErr_Occurred())
+            return NULL;
+    }
+    else {
+        return rw;
+    }
+
+fail:
+    if (retry)
+        return RAISE(PyExc_RuntimeError, "can't access ressource on platform");
+
+    retry = 1;
+    PyObject *name = PyObject_GetAttrString(obj, "name");
+    if (name) {
+        obj = name;
+        goto again;
+    }
+    goto fail;
+    // unreachable.
+#else
     SDL_RWops *rw = _rwops_from_pystr(obj);
     if (!rw) {
         if (PyErr_Occurred())
@@ -763,6 +791,7 @@ pgRWops_FromObject(PyObject *obj)
         return rw;
     }
     return pgRWops_FromFileObject(obj);
+#endif
 }
 
 static PyObject *
@@ -804,14 +833,14 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     return pg_EncodeFilePath(obj, eclass);
 }
 
-static PyMethodDef _pg_module_methods[] = {
+static PyMethodDef _pg_rwobject_methods[] = {
     {"encode_string", (PyCFunction)pg_encode_string,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING},
     {"encode_file_path", (PyCFunction)pg_encode_file_path,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH},
     {NULL, NULL, 0, NULL}};
 
-/*DOC*/ static char _pg_module_doc[] =
+/*DOC*/ static char _pg_rwobject_doc[] =
     /*DOC*/ "SDL_RWops support";
 
 MODINIT_DEFINE(rwobject)
@@ -821,9 +850,9 @@ MODINIT_DEFINE(rwobject)
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "rwobject",
-                                         _pg_module_doc,
+                                         _pg_rwobject_doc,
                                          -1,
-                                         _pg_module_methods,
+                                         _pg_rwobject_methods,
                                          NULL,
                                          NULL,
                                          NULL,

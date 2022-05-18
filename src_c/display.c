@@ -465,6 +465,7 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     if (!SDL_GetWindowWMInfo(win, &info))
         return dict;
 
+    (void)tmp;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
     tmp = PyLong_FromLongLong((long long)info.info.win.window);
     PyDict_SetItemString(dict, "window", tmp);
@@ -605,7 +606,7 @@ pg_get_surface(PyObject *self, PyObject *_null)
         pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
         if (sdl_surface != old_surface->surf) {
             pgSurfaceObject *new_surface =
-                pgSurface_New2(sdl_surface, SDL_FALSE);
+                (pgSurfaceObject *)pgSurface_New2(sdl_surface, SDL_FALSE);
             if (!new_surface)
                 return NULL;
             pg_SetDefaultWindowSurface(new_surface);

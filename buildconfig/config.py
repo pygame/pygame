@@ -20,6 +20,7 @@ try:
 except ImportError:
     import buildconfig.msysio as msysio
 import sys, os, shutil, logging
+import sysconfig
 import re
 
 BASE_PATH = '.'
@@ -100,7 +101,7 @@ def writesetupfile(deps, basepath, additional_lines):
     """create a modified copy of Setup.SDLx.in"""
     sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
                                           'Setup.SDL2.in')
-    
+
     with open(sdl_setup_filename, 'r') as origsetup, \
             open(os.path.join(BASE_PATH, 'Setup'), 'w') as newsetup:
         line = ''
@@ -194,6 +195,12 @@ Only SDL2 is supported now.""")
             import config_darwin as CFG
         except ImportError:
             import buildconfig.config_darwin as CFG
+    elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
+        print_('Using Emscripten configuration...\n')
+        try:
+            import config_emsdk as CFG
+        except ImportError:
+            import buildconfig.config_emsdk as CFG
     else:
         print_('Using UNIX configuration...\n')
         try:
@@ -209,6 +216,10 @@ Only SDL2 is supported now.""")
     elif sys.platform == 'darwin':
         additional_platform_setup = open(
             os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
+        ).readlines()
+    elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup.Emscripten.SDL2.in"), "r"
         ).readlines()
     else:
         additional_platform_setup = open(

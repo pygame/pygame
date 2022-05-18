@@ -67,12 +67,19 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
 static PyObject *
 pg_time_autoinit(PyObject *self, PyObject *_null)
 {
+#if defined(__EMSCRIPTEN__)
+    puts(__FILE__
+         ":71+308 TODO: SDL_CreateMutex() is invalid on __EMSCRIPTEN__ sdl2 "
+         "port");
+#else
     /* allocate a mutex for timer data holding struct*/
+
     if (!timermutex) {
         timermutex = SDL_CreateMutex();
         if (!timermutex)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
+#endif
     Py_RETURN_NONE;
 }
 
@@ -297,10 +304,10 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids, &obj, &ticks,
                                      &loops))
         return NULL;
-
+#if !defined(__EMSCRIPTEN__)
     if (!timermutex)
         return RAISE(pgExc_SDLError, "pygame is not initialized");
-
+#endif
     if (PyLong_Check(obj)) {
         e = (pgEventObject *)pgEvent_New2(PyLong_AsLong(obj), NULL);
         if (!e)
@@ -539,8 +546,13 @@ PYGAME_EXPORT
 void
 initpygame_time(void)
 #else
+#if defined(BUILD_STATIC)
+// avoid PyInit_time conflict with static builtin
+MODINIT_DEFINE(pg_time)
+#else
 MODINIT_DEFINE(time)
-#endif
+#endif  // BUILD_STATIC
+#endif  //__SYMBIAN32__
 {
     PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
