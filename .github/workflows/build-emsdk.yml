@@ -20,7 +20,7 @@ jobs:
             cd $GITHUB_WORKSPACE/..
             git clone https://github.com/pmp-p/python-wasm-plus.git
             mkdir $GITHUB_WORKSPACE/../python-wasm-plus/src
-            ln -s $(pwd)/pygame GITHUB_WORKSPACE/../python-wasm-plus/src/pygame-wasm
+            ln -s $(pwd)/pygame $GITHUB_WORKSPACE/../python-wasm-plus/src/pygame-wasm
             cd python-wasm-plus
             bash ./python-wasm-plus.sh
             bash ./buildapp.sh
