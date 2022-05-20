@@ -185,6 +185,10 @@ class FontModuleTest(unittest.TestCase):
         image.set_alpha(255)
         surf.blit(image, (0, 0))
 
+        # not issue 742, but be sure to test that background color is
+        # correctly issued on this mode
+        self.assertEqual(surf.get_at((0, 0)), pygame.Color(0, 0, 0))
+
     def test_issue_font_alphablit(self):
         """Check that blitting anti-aliased text doesn't
         change the background blue"""
@@ -393,10 +397,9 @@ class FontTypeTest(unittest.TestCase):
         else:
             self.assertFalse(equal_images(su, sb))
 
-        b = b"ab\x00cd"
-        self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
-        u = "ab\x00cd"
-        self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
+        # test for internal null bytes
+        self.assertRaises(ValueError, f.render, b"ab\x00cd", 0, [0, 0, 0])
+        self.assertRaises(ValueError, f.render, "ab\x00cd", 0, [0, 0, 0])
 
     def test_render_ucs2_ucs4(self):
         """that it renders without raising if there is a new enough SDL_ttf."""
