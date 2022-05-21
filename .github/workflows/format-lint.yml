@@ -1,36 +1,31 @@
 name: python3 setup.py lint
 
 # Run lint CI on changes to main branch, or any PR to main. Do not run CI on
-# any other branch. Also, skip any non-source changes from running on lint CI
+# any other branch.
+# run only if there are changes on files that are linted (C, python and rst files)
 on:
   push:
     branches: main
-    paths-ignore:
-      - 'docs/**'
-      - '.gitignore'
-      - '*.rst'
-      - '*.md'
-      - '.github/workflows/*.yml'
-      # re-include current file to not be excluded
-      - '!.github/workflows/format-lint.yml'
+    paths:
+      - '**.h'
+      - '**.c'
+      - '**.py'
+      - '**.rst'
 
   pull_request:
     branches: main
-    paths-ignore:
-      - 'docs/**'
-      - '.gitignore'
-      - '*.rst'
-      - '*.md'
-      - '.github/workflows/*.yml'
-      # re-include current file to not be excluded
-      - '!.github/workflows/format-lint.yml'
+    paths:
+      - '**.h'
+      - '**.c'
+      - '**.py'
+      - '**.rst'
 
 jobs:
   format-lint-code-check:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
 
       - name: Install deps
         run: python3 -m pip install pylint black clang-format sphinx
