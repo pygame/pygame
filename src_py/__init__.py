@@ -1,4 +1,3 @@
-# coding: ascii
 # pygame - Python Game Library
 # Copyright (C) 2000-2001  Pete Shinners
 #
@@ -30,13 +29,16 @@ import os
 # Choose Windows display driver
 if os.name == "nt":
     # pypy does not find the dlls, so we add package folder to PATH.
-    pygame_dir = os.path.split(__file__)[0]
-    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
+    os.environ["PATH"] = os.environ["PATH"] + ";" + os.path.split(__file__)[0]
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
 elif "DISPLAY" in os.environ and "SDL_VIDEO_X11_WMCLASS" not in os.environ:
     os.environ["SDL_VIDEO_X11_WMCLASS"] = os.path.basename(sys.argv[0])
+
+
+def _attribute_undefined(name):
+    raise RuntimeError(f"{name} is not available")
 
 
 class MissingModule:
@@ -148,7 +150,10 @@ try:
     from pygame.cursors import Cursor
 except (ImportError, IOError):
     cursors = MissingModule("cursors", urgent=1)
-    Cursor = lambda: Missing_Function
+
+    def Cursor(*args):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Cursor")
+
 
 try:
     import pygame.sprite
@@ -222,24 +227,37 @@ def warn_unwanted_files():
 try:
     from pygame.surface import Surface, SurfaceType
 except (ImportError, IOError):
-    Surface = lambda: Missing_Function
+
+    def Surface(size, flags, depth, masks):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Surface")
+
+    SurfaceType = Surface
 
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
     mask = MissingModule("mask", urgent=0)
-    Mask = lambda: Missing_Function
+
+    def Mask(size, fill):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Mask")
+
 
 try:
     from pygame.pixelarray import PixelArray
 except (ImportError, IOError):
-    PixelArray = lambda: Missing_Function
+
+    def PixelArray(surface):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.PixelArray")
+
 
 try:
     from pygame.overlay import Overlay
 except (ImportError, IOError):
-    Overlay = lambda: Missing_Function
+
+    def Overlay(format, size):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Overlay")
+
 
 try:
     import pygame.time
@@ -283,12 +301,6 @@ try:
 except (ImportError, IOError):
     mixer = MissingModule("mixer", urgent=0)
 
-# always fails, but MissingModule needs an exception to process
-try:
-    import pygame.movie
-except (ImportError, IOError):
-    movie = MissingModule("movie", urgent=0)
-
 try:
     import pygame.scrap
 except (ImportError, IOError):
@@ -309,6 +321,11 @@ try:
 except (ImportError, IOError):
     fastevent = MissingModule("fastevent", urgent=0)
 
+try:
+    import pygame.context
+except (ImportError, IOError):
+    context = MissingModule("context", urgent=0)
+
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
 # programs get everything they need (like py2exe)
@@ -316,6 +333,14 @@ try:
     import pygame.imageext
 
     del pygame.imageext
+except (ImportError, IOError):
+    pass
+
+# this internal module needs to be included for dependency
+# finders, but can't be deleted, as some tests need it
+try:
+    import pygame.pkgdata
+
 except (ImportError, IOError):
     pass
 
@@ -368,4 +393,4 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, MissingModule, copyreg
+del pygame, os, sys, MissingModule, copyreg, warn_unwanted_files, packager_imports

@@ -36,6 +36,22 @@ class FontModuleTest(unittest.TestCase):
     def tearDown(self):
         pygame_font.quit()
 
+    def test_get_sdl_ttf_version(self):
+        def test_ver_tuple(ver):
+            self.assertIsInstance(ver, tuple)
+            self.assertEqual(len(ver), 3)
+            for i in ver:
+                self.assertIsInstance(i, int)
+
+        if pygame_font.__name__ != "pygame.ftfont":
+            compiled = pygame_font.get_sdl_ttf_version()
+            linked = pygame_font.get_sdl_ttf_version(linked=True)
+
+            test_ver_tuple(compiled)
+            test_ver_tuple(linked)
+
+            self.assertTrue(linked >= compiled)
+
     def test_SysFont(self):
         # Can only check that a font object is returned.
         fonts = pygame_font.get_fonts()
@@ -469,7 +485,7 @@ class FontTypeTest(unittest.TestCase):
 
         pygame_font.init()
         self.assertRaises(
-            FileNotFoundError, pygame_font.Font, str("some-fictional-font.ttf"), 20
+            FileNotFoundError, pygame_font.Font, "some-fictional-font.ttf", 20
         )
 
     def test_load_from_file(self):

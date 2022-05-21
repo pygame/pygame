@@ -28,9 +28,9 @@
 static unsigned long
 RWops_read(FT_Stream, unsigned long, unsigned char *, unsigned long);
 static int
-init(FreeTypeInstance *, pgFontObject *);
+ft_wrap_init(FreeTypeInstance *, pgFontObject *);
 static void
-quit(pgFontObject *);
+ft_wrap_quit(pgFontObject *);
 
 /*********************************************************
  *
@@ -58,7 +58,6 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
     int i;
     const char *ft_msg;
-    int error_msg_len = (int)strlen(error_msg);
 
     ft_msg = 0;
     for (i = 0; ft_errors[i].err_msg; ++i) {
@@ -68,13 +67,19 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         }
     }
 
-    if (error_id && ft_msg && maxlen > error_msg_len - 42)
-        sprintf(ft->_error_msg, "%.*s: %.*s", maxlen - 3, error_msg,
-                maxlen - error_msg_len - 3, ft_msg);
-    else {
-        strncpy(ft->_error_msg, error_msg, maxlen);
-        ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
+    if (error_id && ft_msg) {
+        int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg),
+                                "%.*s: %s", maxlen - 3, error_msg, ft_msg);
+        if (ret >= 0) {
+            /* return after successfully copying full or truncated error.
+             * If ret < 0, PyOS_snprintf failed so try to strncpy error
+             * message */
+            return;
+        }
     }
+
+    strncpy(ft->_error_msg, error_msg, maxlen);
+    ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
 }
 
 const char *
@@ -372,7 +377,7 @@ _PGFT_font_request(FTC_FaceID font_id, FT_Library library,
 }
 
 static int
-init(FreeTypeInstance *ft, pgFontObject *fontobj)
+ft_wrap_init(FreeTypeInstance *ft, pgFontObject *fontobj)
 {
     FT_Face font;
     fontobj->_internals = 0;
@@ -401,7 +406,7 @@ init(FreeTypeInstance *ft, pgFontObject *fontobj)
 }
 
 static void
-quit(pgFontObject *fontobj)
+ft_wrap_quit(pgFontObject *fontobj)
 {
     if (fontobj->_internals) {
         _PGFT_LayoutFree(fontobj);
@@ -445,7 +450,7 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, pgFontObject *fontobj,
     fontobj->id.open_args.flags = FT_OPEN_PATHNAME;
     fontobj->id.open_args.pathname = filename_alloc;
 
-    return init(ft, fontobj);
+    return ft_wrap_init(ft, fontobj);
 }
 
 static unsigned long
@@ -491,7 +496,7 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
     fontobj->id.open_args.flags = FT_OPEN_STREAM;
     fontobj->id.open_args.stream = stream;
 
-    return init(ft, fontobj);
+    return ft_wrap_init(ft, fontobj);
 }
 
 SDL_RWops *
@@ -511,7 +516,7 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
     if (ft) {
         FTC_Manager_RemoveFaceID(ft->cache_manager,
                                  (FTC_FaceID)(&fontobj->id));
-        quit(fontobj);
+        ft_wrap_quit(fontobj);
     }
 
     if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {

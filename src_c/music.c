@@ -125,7 +125,7 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-music_get_busy(PyObject *self, PyObject *args)
+music_get_busy(PyObject *self, PyObject *_null)
 {
     int playing;
 
@@ -162,7 +162,7 @@ music_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_stop(PyObject *self, PyObject *args)
+music_stop(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -181,7 +181,7 @@ music_stop(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_pause(PyObject *self, PyObject *args)
+music_pause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -190,7 +190,7 @@ music_pause(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_unpause(PyObject *self, PyObject *args)
+music_unpause(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -201,7 +201,7 @@ music_unpause(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_rewind(PyObject *self, PyObject *args)
+music_rewind(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 
@@ -230,7 +230,7 @@ music_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_volume(PyObject *self, PyObject *args)
+music_get_volume(PyObject *self, PyObject *_null)
 {
     int volume;
     MIXER_INIT_CHECK();
@@ -262,7 +262,7 @@ music_set_pos(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-music_get_pos(PyObject *self, PyObject *args)
+music_get_pos(PyObject *self, PyObject *_null)
 {
     long ticks;
 
@@ -292,7 +292,7 @@ music_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_endevent(PyObject *self, PyObject *args)
+music_get_endevent(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(endmusic_event);
 }
@@ -444,7 +444,7 @@ music_load(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-music_unload(PyObject *self, PyObject *noarg)
+music_unload(PyObject *self, PyObject *_null)
 {
     MIXER_INIT_CHECK();
 

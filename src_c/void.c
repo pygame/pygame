@@ -1,0 +1,5 @@
+/*
+    this file is used for static compilation
+    to avoid duplicate symbols in some objects files
+    while some other may need to be linked manually
+*/

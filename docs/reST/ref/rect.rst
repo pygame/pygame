@@ -355,7 +355,169 @@
       with the Rect. If no intersecting rectangles are found, an empty list is
       returned.
 
+      Not only Rects are valid arguments, but these are all valid calls:
+
+      .. code-block:: python
+          :linenos:
+    
+          Rect = pygame.Rect
+          r = Rect(0, 0, 10, 10)
+          
+          list_of_rects = [Rect(1, 1, 1, 1), Rect(2, 2, 2, 2)]
+          indices0 = r.collidelistall(list_of_rects)
+          
+          list_of_lists = [[1, 1, 1, 1], [2, 2, 2, 2]]
+          indices1 = r.collidelistall(list_of_lists)
+          
+          list_of_tuples = [(1, 1, 1, 1), (2, 2, 2, 2)]
+          indices2 = r.collidelistall(list_of_tuples)
+          
+          list_of_double_tuples = [((1, 1), (1, 1)), ((2, 2), (2, 2))]
+          indices3 = r.collidelistall(list_of_double_tuples)
+          
+          class ObjectWithRectAttribute(object):
+              def __init__(self, r):
+                  self.rect = r
+          
+          list_of_object_with_rect_attribute = [
+              ObjectWithRectAttribute(Rect(1, 1, 1, 1)),
+              ObjectWithRectAttribute(Rect(2, 2, 2, 2)),
+          ]
+          indices4 = r.collidelistall(list_of_object_with_rect_attribute)
+          
+          class ObjectWithCallableRectAttribute(object):
+              def __init__(self, r):
+                  self._rect = r
+          
+              def rect(self):
+                  return self._rect
+          
+          list_of_object_with_callable_rect = [
+              ObjectWithCallableRectAttribute(Rect(1, 1, 1, 1)),
+              ObjectWithCallableRectAttribute(Rect(2, 2, 2, 2)),
+          ]
+          indices5 = r.collidelistall(list_of_object_with_callable_rect)
+
+
       .. ## Rect.collidelistall ##
+
+   .. method:: collideobjects
+
+      | :sl:`test if any object in a list intersects`
+      | :sg:`collideobjects(rect_list) -> object`
+      | :sg:`collideobjects(obj_list, key=func) -> object`
+
+      Test whether the rectangle collides with any object in the sequence.
+      The object of the first collision found is returned. If no collisions are
+      found then ``None`` is returned
+
+      If key is given, then it should be a method taking an object from the list
+      as input and returning a rect like object e.g. ``lambda obj: obj.rectangle``.
+      If an object has multiple attributes of type Rect then key could return one
+      of them.
+
+      .. code-block:: python
+          :linenos:
+
+          r = Rect(1, 1, 10, 10)
+
+          rects = [
+              Rect(1, 1, 10, 10),
+              Rect(5, 5, 10, 10),
+              Rect(15, 15, 1, 1),
+              Rect(2, 2, 1, 1),
+          ]
+
+          result = r.collideobjects(rects)  # -> <rect(1, 1, 10, 10)>
+          print(result)
+
+          class ObjectWithSomRectAttribute:
+              def __init__(self, name, collision_box, draw_rect):
+                  self.name = name
+                  self.draw_rect = draw_rect
+                  self.collision_box = collision_box
+
+              def __repr__(self):
+                  return f'<{self.__class__.__name__}("{self.name}", {list(self.collision_box)}, {list(self.draw_rect)})>'
+
+          objects = [
+              ObjectWithSomRectAttribute("A", Rect(15, 15, 1, 1), Rect(150, 150, 50, 50)),
+              ObjectWithSomRectAttribute("B", Rect(1, 1, 10, 10), Rect(300, 300, 50, 50)),
+              ObjectWithSomRectAttribute("C", Rect(5, 5, 10, 10), Rect(200, 500, 50, 50)),
+          ]
+
+          # collision = r.collideobjects(objects) # this does not work because the items in the list are no Rect like object
+          collision = r.collideobjects(
+              objects, key=lambda o: o.collision_box
+          )  # -> <ObjectWithSomRectAttribute("B", [1, 1, 10, 10], [300, 300, 50, 50])>
+          print(collision)
+
+          screen_rect = r.collideobjects(objects, key=lambda o: o.draw_rect)  # -> None
+          print(screen_rect)
+
+      .. versionadded:: 2.1.3
+
+      .. ## Rect.collideobjects ##
+
+   .. method:: collideobjectsall
+
+      | :sl:`test if all objects in a list intersect`
+      | :sg:`collideobjectsall(rect_list) -> objects`
+      | :sg:`collideobjectsall(obj_list, key=func) -> objects`
+
+      Returns a list of all the objects that contain rectangles that collide
+      with the Rect. If no intersecting objects are found, an empty list is
+      returned.
+
+      If key is given, then it should be a method taking an object from the list
+      as input and returning a rect like object e.g. ``lambda obj: obj.rectangle``.
+      If an object has multiple attributes of type Rect then key could return one
+      of them.
+
+      .. code-block:: python
+          :linenos:
+
+          r = Rect(1, 1, 10, 10)
+
+          rects = [
+              Rect(1, 1, 10, 10),
+              Rect(5, 5, 10, 10),
+              Rect(15, 15, 1, 1),
+              Rect(2, 2, 1, 1),
+          ]
+
+          result = r.collideobjectsall(
+              rects
+          )  # -> [<rect(1, 1, 10, 10)>, <rect(5, 5, 10, 10)>, <rect(2, 2, 1, 1)>]
+          print(result)
+
+          class ObjectWithSomRectAttribute:
+              def __init__(self, name, collision_box, draw_rect):
+                  self.name = name
+                  self.draw_rect = draw_rect
+                  self.collision_box = collision_box
+
+              def __repr__(self):
+                  return f'<{self.__class__.__name__}("{self.name}", {list(self.collision_box)}, {list(self.draw_rect)})>'
+
+          objects = [
+              ObjectWithSomRectAttribute("A", Rect(1, 1, 10, 10), Rect(300, 300, 50, 50)),
+              ObjectWithSomRectAttribute("B", Rect(5, 5, 10, 10), Rect(200, 500, 50, 50)),
+              ObjectWithSomRectAttribute("C", Rect(15, 15, 1, 1), Rect(150, 150, 50, 50)),
+          ]
+
+          # collisions = r.collideobjectsall(objects) # this does not work because ObjectWithSomRectAttribute is not a Rect like object
+          collisions = r.collideobjectsall(
+              objects, key=lambda o: o.collision_box
+          )  # -> [<ObjectWithSomRectAttribute("A", [1, 1, 10, 10], [300, 300, 50, 50])>, <ObjectWithSomRectAttribute("B", [5, 5, 10, 10], [200, 500, 50, 50])>]
+          print(collisions)
+
+          screen_rects = r.collideobjectsall(objects, key=lambda o: o.draw_rect)  # -> []
+          print(screen_rects)
+
+      .. versionadded:: 2.1.3
+
+      .. ## Rect.collideobjectsall ##
 
    .. method:: collidedict
 

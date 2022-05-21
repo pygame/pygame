@@ -150,7 +150,7 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
 /* list_cameras() - lists cameras available on the computer */
 PyObject *
-list_cameras(PyObject *self, PyObject *arg)
+list_cameras(PyObject *self, PyObject *_null)
 {
 #if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
     PyObject *ret_list;
@@ -160,41 +160,46 @@ list_cameras(PyObject *self, PyObject *arg)
 #else
     WCHAR **devices;
 #endif
-    int num_devices, i;
+    int j, i = 0, num_devices = 0;
 
-    num_devices = 0;
-    ret_list = NULL;
-    ret_list = PyList_New(0);
-    if (!ret_list)
-        return NULL;
-
+    /* TODO for future PRs: errors in these functions are being ignored as
+     * of now, and an empty list is being returned by this function */
 #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
 #elif defined(PYGAME_WINDOWS_CAMERA)
     devices = windows_list_cameras(&num_devices);
 #endif
+
+    ret_list = PyList_New(num_devices);
+    if (!ret_list) {
+        goto error;
+    }
+
     for (i = 0; i < num_devices; i++) {
 #if defined(PYGAME_WINDOWS_CAMERA)
         string = PyUnicode_FromWideChar(devices[i], -1);
 #else
         string = PyUnicode_FromString(devices[i]);
 #endif
-        if (0 != PyList_Append(ret_list, string)) {
-            /* Append failed; clean up and return */
-            Py_DECREF(ret_list);
-            Py_DECREF(string);
-            for (; i < num_devices; i++) {
-                free(devices[i]);
-            }
-            free(devices);
-            return NULL; /* Exception already set. */
+        if (!string) {
+            goto error;
         }
-        Py_DECREF(string);
+        /* steals reference to 'string' */
+        PyList_SET_ITEM(ret_list, i, string);
         free(devices[i]);
     }
     free(devices);
 
     return ret_list;
+error:
+    /* free the remaining devices */
+    for (j = i; j < num_devices; j++) {
+        free(devices[j]);
+    }
+    free(devices);
+    Py_XDECREF(ret_list);
+    return NULL;
+
 #else
     Py_RETURN_NONE;
 #endif
@@ -202,7 +207,7 @@ list_cameras(PyObject *self, PyObject *arg)
 
 /* start() - opens, inits, and starts capturing on the camera */
 PyObject *
-camera_start(pgCameraObject *self, PyObject *args)
+camera_start(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
@@ -235,7 +240,7 @@ camera_start(pgCameraObject *self, PyObject *args)
 
 /* stop() - stops capturing, uninits, and closes the camera */
 PyObject *
-camera_stop(pgCameraObject *self, PyObject *args)
+camera_stop(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     if (v4l2_stop_capturing(self) == 0)
@@ -256,7 +261,7 @@ camera_stop(pgCameraObject *self, PyObject *args)
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
 PyObject *
-camera_get_controls(pgCameraObject *self, PyObject *args)
+camera_get_controls(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     int value;
@@ -333,7 +338,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 
 /* get_size() - returns the dimensions of the images being recorded */
 PyObject *
-camera_get_size(pgCameraObject *self, PyObject *args)
+camera_get_size(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
     return Py_BuildValue("(ii)", self->width, self->height);
@@ -343,7 +348,7 @@ camera_get_size(pgCameraObject *self, PyObject *args)
 
 /* query_image() - checks if a frame is ready */
 PyObject *
-camera_query_image(pgCameraObject *self, PyObject *args)
+camera_query_image(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
@@ -365,6 +370,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 #if defined(__unix__)
     SDL_Surface *surf = NULL;
     pgSurfaceObject *surfobj = NULL;
+    int ret, errno_code = 0;
 
     if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
         return NULL;
@@ -386,12 +392,18 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    if (!v4l2_read_frame(self, surf))
-        return NULL;
+    ret = v4l2_read_frame(self, surf, &errno_code);
     Py_END_ALLOW_THREADS;
-
-    if (!surf)
-        return NULL;
+    if (!ret) {
+        /* error occurred */
+        if (errno_code) {
+            PyErr_Format(PyExc_SystemError,
+                         "ioctl(VIDIOC_DQBUF) failure : %d, %s", errno_code,
+                         strerror(errno_code));
+            return NULL;
+        }
+        return RAISE(PyExc_SystemError, "image processing error");
+    }
 
     if (surfobj) {
         Py_INCREF(surfobj);
@@ -429,9 +441,6 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     if (!windows_read_frame(self, surf))
         return NULL;
 
-    if (!surf)
-        return NULL;
-
     if (surfobj) {
         Py_INCREF(surfobj);
         return (PyObject *)surfobj;
@@ -446,7 +455,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 
 /* get_raw() - returns an unmodified image as a string from the buffer */
 PyObject *
-camera_get_raw(pgCameraObject *self, PyObject *args)
+camera_get_raw(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);
@@ -1776,108 +1785,63 @@ camera_dealloc(PyObject *self)
 #else
     free(((pgCameraObject *)self)->device_name);
 #endif
-    PyObject_DEL(self);
+    PyObject_Free(self);
 }
 /*
 PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
 */
-PyTypeObject pgCamera_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "Camera",
-    sizeof(pgCameraObject),
-    0,
-    camera_dealloc,
-    0,
-    0,                 /*camera_getattr */
-    NULL,              /*setattr*/
-    NULL,              /*compare*/
-    NULL,              /*repr*/
-    NULL,              /*as_number*/
-    NULL,              /*as_sequence*/
-    NULL,              /*as_mapping*/
-    (hashfunc)NULL,    /*hash*/
-    (ternaryfunc)NULL, /*call*/
-    (reprfunc)NULL,    /*str*/
-    0L,
-    0L,
-    0L,
-    0L,
-    DOC_PYGAMECAMERACAMERA, /* Documentation string */
-    0,                      /* tp_traverse */
-    0,                      /* tp_clear */
-    0,                      /* tp_richcompare */
-    0,                      /* tp_weaklistoffset */
-    0,                      /* tp_iter */
-    0,                      /* tp_iternext */
-    cameraobj_builtins,     /* tp_methods */
-    0,                      /* tp_members */
-    0,                      /* tp_getset */
-    0,                      /* tp_base */
-    0,                      /* tp_dict */
-    0,                      /* tp_descr_get */
-    0,                      /* tp_descr_set */
-    0,                      /* tp_dictoffset */
-    0,                      /* tp_init */
-    0,                      /* tp_alloc */
-    0,                      /* tp_new */
-};
 
-PyObject *
-Camera(pgCameraObject *self, PyObject *arg)
+static int
+camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
 {
 #if defined(__unix__)
     int w, h;
     char *dev_name = NULL;
     char *color = NULL;
-    pgCameraObject *cameraobj;
 
     w = DEFAULT_WIDTH;
     h = DEFAULT_HEIGHT;
 
-    if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
-        return NULL;
-
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
-
-    if (cameraobj) {
-        cameraobj->device_name =
-            (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
-        if (!cameraobj->device_name) {
-            Py_DECREF(cameraobj);
-            return PyErr_NoMemory();
-        }
-        strcpy(cameraobj->device_name, dev_name);
-        cameraobj->camera_type = 0;
-        cameraobj->pixelformat = 0;
-        if (color) {
-            if (!strcmp(color, "YUV")) {
-                cameraobj->color_out = YUV_OUT;
-            }
-            else if (!strcmp(color, "HSV")) {
-                cameraobj->color_out = HSV_OUT;
-            }
-            else {
-                cameraobj->color_out = RGB_OUT;
-            }
-        }
-        else {
-            cameraobj->color_out = RGB_OUT;
-        }
-        cameraobj->buffers = NULL;
-        cameraobj->n_buffers = 0;
-        cameraobj->width = w;
-        cameraobj->height = h;
-        cameraobj->size = 0;
-        cameraobj->hflip = 0;
-        cameraobj->vflip = 0;
-        cameraobj->brightness = 0;
-        cameraobj->fd = -1;
+    if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color)) {
+        return -1;
     }
 
-    return (PyObject *)cameraobj;
+    self->device_name = (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+    if (!self->device_name) {
+        PyErr_NoMemory();
+        return -1;
+    }
+    strcpy(self->device_name, dev_name);
+    self->camera_type = 0;
+    self->pixelformat = 0;
+    if (color) {
+        if (!strcmp(color, "YUV")) {
+            self->color_out = YUV_OUT;
+        }
+        else if (!strcmp(color, "HSV")) {
+            self->color_out = HSV_OUT;
+        }
+        else {
+            self->color_out = RGB_OUT;
+        }
+    }
+    else {
+        self->color_out = RGB_OUT;
+    }
+    self->buffers = NULL;
+    self->n_buffers = 0;
+    self->width = w;
+    self->height = h;
+    self->size = 0;
+    self->hflip = 0;
+    self->vflip = 0;
+    self->brightness = 0;
+    self->fd = -1;
+
+    return 0;
 #elif defined(PYGAME_WINDOWS_CAMERA)
-    pgCameraObject *cameraobj;
     PyObject *name_obj = NULL;
     WCHAR *dev_name = NULL;
     int w, h;
@@ -1887,8 +1851,9 @@ Camera(pgCameraObject *self, PyObject *arg)
     w = DEFAULT_WIDTH;
     h = DEFAULT_HEIGHT;
 
-    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color))
-        return NULL;
+    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color)) {
+        return -1;
+    }
 
     /* needs to be freed with PyMem_Free later */
     dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
@@ -1896,55 +1861,64 @@ Camera(pgCameraObject *self, PyObject *arg)
     p = windows_device_from_name(dev_name);
 
     if (!p) {
-        return RAISE(PyExc_ValueError,
-                     "Couldn't find a camera with that name");
+        PyErr_SetString(PyExc_ValueError,
+                        "Couldn't find a camera with that name");
+        return -1;
     }
-
-    cameraobj = PyObject_NEW(pgCameraObject, &pgCamera_Type);
 
     if (color) {
         if (!strcmp(color, "YUV")) {
-            cameraobj->color_out = YUV_OUT;
+            self->color_out = YUV_OUT;
         }
         else if (!strcmp(color, "HSV")) {
-            cameraobj->color_out = HSV_OUT;
+            self->color_out = HSV_OUT;
         }
         else {
-            cameraobj->color_out = RGB_OUT;
+            self->color_out = RGB_OUT;
         }
     }
     else {
-        cameraobj->color_out = RGB_OUT;
+        self->color_out = RGB_OUT;
     }
 
-    cameraobj->device_name = dev_name;
-    cameraobj->width = w;
-    cameraobj->height = h;
-    cameraobj->open = 0;
-    cameraobj->hflip = 0;
-    cameraobj->vflip = 0;
-    cameraobj->last_vflip = 0;
+    self->device_name = dev_name;
+    self->width = w;
+    self->height = h;
+    self->open = 0;
+    self->hflip = 0;
+    self->vflip = 0;
+    self->last_vflip = 0;
 
-    cameraobj->raw_buf = NULL;
-    cameraobj->buf = NULL;
-    cameraobj->t_handle = NULL;
+    self->raw_buf = NULL;
+    self->buf = NULL;
+    self->t_handle = NULL;
 
-    if (!windows_init_device(self)) {
-        return NULL;
+    if (!windows_init_device(NULL)) {
+        return -1;
     }
 
-    return (PyObject *)cameraobj;
+    return 0;
 #else
-    return RAISE(PyExc_RuntimeError,
-                 "_camera backend not available on your platform");
+    PyErr_SetString(PyExc_RuntimeError,
+                    "_camera backend not available on your platform");
+    return -1;
 #endif
 }
+
+PyTypeObject pgCamera_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Camera",
+    .tp_basicsize = sizeof(pgCameraObject),
+    .tp_dealloc = camera_dealloc,
+    .tp_doc = DOC_PYGAMECAMERACAMERA,
+    .tp_methods = cameraobj_builtins,
+    .tp_init = (initproc)camera_init,
+    .tp_new = PyType_GenericNew,
+};
 
 /* Camera module definition */
 PyMethodDef camera_builtins[] = {
     {"colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE},
     {"list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS},
-    {"Camera", (PyCFunction)Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(_camera)
@@ -1992,6 +1966,11 @@ MODINIT_DEFINE(_camera)
         Py_DECREF(module);
         return NULL;
     }
-
+    Py_INCREF(&pgCamera_Type);
+    if (PyModule_AddObject(module, "Camera", (PyObject *)&pgCamera_Type)) {
+        Py_DECREF(&pgCamera_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
     return module;
 }

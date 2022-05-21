@@ -227,7 +227,7 @@ image_save(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_extended(PyObject *self)
+image_get_extended(PyObject *self, PyObject *_null)
 {
     if (extverobj == NULL)
         Py_RETURN_FALSE;
@@ -236,7 +236,7 @@ image_get_extended(PyObject *self)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self)
+image_get_sdl_image_version(PyObject *self, PyObject *_null)
 {
     if (extverobj == NULL)
         Py_RETURN_NONE;
@@ -1187,7 +1187,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
 
     if (!surf)
         return RAISE(pgExc_SDLError, SDL_GetError());
-    surfobj = pgSurface_New(surf);
+    surfobj = (pgSurfaceObject *)pgSurface_New(surf);
     Py_INCREF(buffer);
     surfobj->dependency = buffer;
     return (PyObject *)surfobj;

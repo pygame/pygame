@@ -192,6 +192,34 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked.major, linked.minor, linked.patch);
         return 0;
     }
+    else if (linked.major == 2 && linked.minor == 0 && linked.patch < 14 &&
+             compiled.patch >=
+                 14) {  // major and minor versions match, check edge case
+        /* SDL 2.0.14 replaces some macros with symbols, see
+         * https://github.com/libsdl-org/SDL/commit/316ff3847b4d9d87d9b0aab15321461db0e8ae0b
+         */
+        PyErr_Format(PyExc_RuntimeError,
+                     "Known SDL incompatibility detected! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
+    else if ((linked.major == compiled.major &&
+              linked.minor == compiled.minor &&
+              linked.patch < compiled.patch) ||
+             (linked.major == compiled.major &&
+              linked.minor < compiled.minor)) {
+        /* We do some ifdefs to support different SDL versions at compile time.
+           We use newer API only when available.
+           Downgrading via dynamic API probably breaks this.*/
+        PyErr_Format(PyExc_RuntimeError,
+                     "Dynamic linking causes SDL downgrade! (compiled with "
+                     "version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
+    }
 
     return 1;
 }
@@ -244,9 +272,9 @@ pg_mod_autoinit(const char *modname)
     if (!module)
         return 0;
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEinit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_init");
 
-    /* If we could not load __PYGAMEinit__, load init function */
+    /* If we could not load _internal_mod_init, load init function */
     if (!funcobj) {
         PyErr_Clear();
         funcobj = PyObject_GetAttrString(module, "init");
@@ -277,9 +305,9 @@ pg_mod_autoquit(const char *modname)
         return;
     }
 
-    funcobj = PyObject_GetAttrString(module, "__PYGAMEquit__");
+    funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
 
-    /* If we could not load __PYGAMEquit__, load quit function */
+    /* If we could not load _internal_mod_quit, load quit function */
     if (!funcobj)
         funcobj = PyObject_GetAttrString(module, "quit");
 
@@ -301,7 +329,7 @@ pg_mod_autoquit(const char *modname)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *_null)
 {
     int i = 0, success = 0, fail = 0;
 
@@ -357,7 +385,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self)
+pg_get_sdl_version(PyObject *self, PyObject *_null)
 {
     SDL_version v;
 
@@ -366,7 +394,7 @@ pg_get_sdl_version(PyObject *self)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self)
+pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
@@ -437,14 +465,14 @@ _pg_quit(void)
 }
 
 static PyObject *
-pg_quit(PyObject *self)
+pg_quit(PyObject *self, PyObject *_null)
 {
     _pg_quit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
-pg_get_init(PyObject *self, PyObject *args)
+pg_base_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -627,7 +655,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self)
+pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }
@@ -1142,7 +1170,12 @@ static void
 pgBuffer_Release(pg_buffer *pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
+    /* some calls to this function expect this function to not clear previously
+     * set errors, so save and restore any potential errors here */
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
     pg_view_p->release_buffer((Py_buffer *)pg_view_p);
+    PyErr_Restore(type, value, traceback);
 }
 
 static void
@@ -2007,20 +2040,6 @@ pg_install_parachute(void)
         }
     }
 
-#if defined(SIGALRM) && defined(HAVE_SIGACTION)
-    { /* Set SIGALRM to be ignored -- necessary on Solaris */
-        struct sigaction action, oaction;
-
-        /* Set SIG_IGN action */
-        memset(&action, 0, (sizeof action));
-        action.sa_handler = SIG_IGN;
-        sigaction(SIGALRM, &action, &oaction);
-        /* Reset original action if it was already being handled */
-        if (oaction.sa_handler != SIG_DFL) {
-            sigaction(SIGALRM, &oaction, NULL);
-        }
-    }
-#endif
 #endif
     return;
 }
@@ -2052,7 +2071,8 @@ pg_uninstall_parachute(void)
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS,
+     DOC_PYGAMEGETINIT},
     {"register_quit", (PyCFunction)pg_register_quit, METH_O,
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
@@ -2066,11 +2086,21 @@ static PyMethodDef _base_methods[] = {
      "return an array struct interface as an interface dictionary"},
     {NULL, NULL, 0, NULL}};
 
+#if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
+// in case of wasm+dynamic loading it could be a trampoline in the globals
+// generated at runtime.
+// when building static make global accessible symbol directly.
+static PyObject *pgExc_SDLError;
+#endif
+
 MODINIT_DEFINE(base)
 {
     PyObject *module, *apiobj, *atexit;
     PyObject *atexit_register;
+#if !defined(BUILD_STATIC) || defined(NO_PYGAME_C_API)
+    // only pointer via C-api will be used, no need to keep global.
     PyObject *pgExc_SDLError;
+#endif
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2184,6 +2214,11 @@ MODINIT_DEFINE(base)
 #ifdef MS_WIN32
     SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
+
+    if (!pg_CheckSDLVersions()) {
+        goto error;
+    }
+
     return module;
 
 error:

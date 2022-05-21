@@ -27,12 +27,12 @@
 #include "doc/pixelarray_doc.h"
 
 #include "surface.h"
-
+#if !defined(BUILD_STATIC)
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
 static char FormatUint24[] = "3x";
 static char FormatUint32[] = "=I";
-
+#endif
 struct _pixelarray_t;
 
 /* The array, like its surface, is in column-major (FORTRAN) order.
@@ -240,25 +240,19 @@ static PyGetSetDef _pxarray_getsets[] = {
  * of their behaviour (see lists numpy array).
  */
 static PySequenceMethods _pxarray_sequence = {
-    (lenfunc)_pxarray_length,           /*sq_length*/
-    0,                                  /*sq_concat*/
-    0,                                  /*sq_repeat*/
-    (ssizeargfunc)_pxarray_item,        /*sq_item*/
-    0,                                  /*reserved*/
-    (ssizeobjargproc)_pxarray_ass_item, /*sq_ass_item*/
-    0,                                  /*reserved*/
-    (objobjproc)_pxarray_contains,      /*sq_contains*/
-    0,                                  /*sq_inplace_concat*/
-    0                                   /*sq_inplace_repeat*/
+    .sq_length = (lenfunc)_pxarray_length,
+    .sq_item = (ssizeargfunc)_pxarray_item,
+    .sq_ass_item = (ssizeobjargproc)_pxarray_ass_item,
+    .sq_contains = (objobjproc)_pxarray_contains,
 };
 
 /**
  * Mapping interface support for the pgPixelArrayObject.
  */
 static PyMappingMethods _pxarray_mapping = {
-    (lenfunc)_pxarray_length,              /*mp_length*/
-    (binaryfunc)_pxarray_subscript,        /*mp_subscript*/
-    (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
+    .mp_length = (lenfunc)_pxarray_length,
+    .mp_subscript = (binaryfunc)_pxarray_subscript,
+    .mp_ass_subscript = (objobjargproc)_pxarray_ass_subscript,
 };
 
 static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,
@@ -270,53 +264,22 @@ static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject pgPixelArray_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0) "pygame.PixelArray", /* tp_name */
-    sizeof(pgPixelArrayObject),                         /* tp_basicsize */
-    0,                                                  /* tp_itemsize */
-    (destructor)_pxarray_dealloc,                       /* tp_dealloc */
-    0,                                                  /* tp_print */
-    0,                                                  /* tp_getattr */
-    0,                                                  /* tp_setattr */
-    0,                                                  /* tp_compare */
-    (reprfunc)_pxarray_repr,                            /* tp_repr */
-    0,                                                  /* tp_as_number */
-    &_pxarray_sequence,                                 /* tp_as_sequence */
-    &_pxarray_mapping,                                  /* tp_as_mapping */
-    0,                                                  /* tp_hash */
-    0,                                                  /* tp_call */
-    0,                                                  /* tp_str */
-    0,                                                  /* tp_getattro */
-    0,                                                  /* tp_setattro */
-    PXARRAY_BUFFERPROCS,                                /* tp_as_buffer */
-    PXARRAY_TPFLAGS,
-    DOC_PYGAMEPIXELARRAY,                   /* tp_doc */
-    (traverseproc)_pxarray_traverse,        /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    offsetof(pgPixelArrayObject, weakrefs), /* tp_weaklistoffset */
-    PySeqIter_New,                          /* tp_iter */
-    0,                                      /* tp_iternext */
-    _pxarray_methods,                       /* tp_methods */
-    0,                                      /* tp_members */
-    _pxarray_getsets,                       /* tp_getset */
-    0,                                      /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    offsetof(pgPixelArrayObject, dict),     /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    _pxarray_new,                           /* tp_new */
-#ifndef __SYMBIAN32__
-    0, /* tp_free */
-    0, /* tp_is_gc */
-    0, /* tp_bases */
-    0, /* tp_mro */
-    0, /* tp_cache */
-    0, /* tp_subclasses */
-    0, /* tp_weaklist */
-    0  /* tp_del */
-#endif
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.PixelArray",
+    .tp_basicsize = sizeof(pgPixelArrayObject),
+    .tp_dealloc = (destructor)_pxarray_dealloc,
+    .tp_repr = (reprfunc)_pxarray_repr,
+    .tp_as_sequence = &_pxarray_sequence,
+    .tp_as_mapping = &_pxarray_mapping,
+    .tp_as_buffer = PXARRAY_BUFFERPROCS,
+    .tp_flags = PXARRAY_TPFLAGS,
+    .tp_doc = DOC_PYGAMEPIXELARRAY,
+    .tp_traverse = (traverseproc)_pxarray_traverse,
+    .tp_weaklistoffset = offsetof(pgPixelArrayObject, weakrefs),
+    .tp_iter = PySeqIter_New,
+    .tp_methods = _pxarray_methods,
+    .tp_getset = _pxarray_getsets,
+    .tp_dictoffset = offsetof(pgPixelArrayObject, dict),
+    .tp_new = _pxarray_new,
 };
 
 static pgPixelArrayObject *

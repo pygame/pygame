@@ -389,8 +389,8 @@ def setup():
     DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
              ['SDL', 'jpeg', 'png', 'tiff'], 0)
     DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
-    DEPS.add('FREETYPE', 'freetype', ['freetype-[1-9].*'], r'(lib){0,1}freetype[-0-9]*\.dll$',
-             find_header=r'ft2build\.h', find_lib=r'(lib)?freetype[-0-9]*\.lib')
+    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
+             find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
     DEPS.configure()
     _add_sdl2_dll_deps(DEPS)
     for d in get_definitions():
@@ -411,7 +411,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS = DependencyGroup()
 
     DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
-    fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
+    fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL'])
     imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                         ['SDL', 'jpeg', 'png', 'tiff'], 0)
     mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
@@ -421,15 +421,8 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.add_dummy('PORTTIME')
     DEPS.configure()
 
-    # force use of the correct freetype DLL
-    ftDep = DEPS.add('FREETYPE', 'freetype', ['SDL2_ttf-[2-9].*', 'freetype-[1-9].*'], r'(lib)?freetype[-0-9]*\.dll$',
-                     find_header=r'ft2build\.h', find_lib=r'libfreetype[-0-9]*\.lib')
-    ftDep.path = fontDep.path
-    ftDep.inc_dir = [
-        os.path.join(prebuilt_dir, 'include').replace('\\', '/')
-    ]
-    ftDep.inc_dir.append('%s/freetype2' % ftDep.inc_dir[0])
-    ftDep.found = True
+    DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
+                     find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
 
     png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
                    find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
@@ -457,8 +450,6 @@ def setup_prebuilt_sdl2(prebuilt_dir):
         'mpg123': mixerDep.path,
         'opus': mixerDep.path,
         'opusfile': mixerDep.path,
-
-        'freetype': fontDep.path,
     }
     _add_sdl2_dll_deps(DEPS)
     for dll in DEPS.dlls:
@@ -471,7 +462,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.configure()
     return list(DEPS)
 
-def main():
+def main(auto_config=False):
     machine_type = get_machine_type()
     prebuilt_dir = 'prebuilt-%s' % machine_type
     use_prebuilt = '-prebuilt' in sys.argv
@@ -510,11 +501,11 @@ def main():
         if use_prebuilt:
             return setup_prebuilt_sdl2(prebuilt_dir)
     else:
-        print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
+        print("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
     return setup()
 
 if __name__ == '__main__':
-    print ("""This is the configuration subscript for Windows.
+    print("""This is the configuration subscript for Windows.
 Please run "config.py" for full configuration.""")
 
     import sys
