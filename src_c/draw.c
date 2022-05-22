@@ -247,7 +247,7 @@ static PyObject *
 aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *colorobj, *closedobj;
+    PyObject *colorobj;
     PyObject *points, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
@@ -258,16 +258,15 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     int l, t;
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
-    int result;
-    int closed = 0; /* Default closed. */
-    int blend = 1;  /* Default blend. */
+    int result, closed;
+    int blend = 1; /* Default blend. */
     Py_ssize_t loop, length;
     static char *keywords[] = {"surface", "color", "closed",
                                "points",  "blend", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OpO|i", keywords,
                                      &pgSurface_Type, &surfobj, &colorobj,
-                                     &closedobj, &points, &blend)) {
+                                     &closed, &points, &blend)) {
         return NULL; /* Exception already set. */
     }
 
@@ -290,12 +289,6 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     CHECK_LOAD_COLOR(colorobj)
-
-    closed = PyObject_IsTrue(closedobj);
-
-    if (-1 == closed) {
-        return RAISE(PyExc_TypeError, "closed argument is invalid");
-    }
 
     if (!PySequence_Check(points)) {
         return RAISE(PyExc_TypeError,
@@ -390,7 +383,7 @@ static PyObject *
 lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *colorobj, *closedobj;
+    PyObject *colorobj;
     PyObject *points, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
@@ -404,9 +397,9 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     static char *keywords[] = {"surface", "color", "closed",
                                "points",  "width", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OpO|i", keywords,
                                      &pgSurface_Type, &surfobj, &colorobj,
-                                     &closedobj, &points, &width)) {
+                                     &closed, &points, &width)) {
         return NULL; /* Exception already set. */
     }
 
@@ -419,12 +412,6 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     CHECK_LOAD_COLOR(colorobj)
-
-    closed = PyObject_IsTrue(closedobj);
-
-    if (-1 == closed) {
-        return RAISE(PyExc_TypeError, "closed argument is invalid");
-    }
 
     if (!PySequence_Check(points)) {
         return RAISE(PyExc_TypeError,
