@@ -219,6 +219,10 @@ def _pg_strip_utf8(string):
     else:
         return ""
 */
+
+PyObject * lastKeyPress;
+PyObject * lastKeyRelease;
+
 static void
 _pg_strip_utf8(char *str, char *ret)
 {
@@ -1869,6 +1873,30 @@ error:
 }
 
 static PyObject *
+pg_get_just_pressed(void){
+    if (lastKeyPress != NULL){
+        Py_INCREF(lastKeyPress);
+        return lastKeyPress;
+    }
+    else{
+        Py_INCREF(PyLong_FromLong(-1));
+        return PyLong_FromLong(-1);
+    }
+}
+
+static PyObject *
+pg_get_just_released(void){
+    if (lastKeyRelease != NULL){
+        Py_INCREF(lastKeyRelease);
+        return lastKeyRelease;
+    }
+    else{
+        Py_INCREF(PyLong_FromLong(-1));
+        return PyLong_FromLong(-1);
+    }
+}
+
+static PyObject *
 _pg_get_all_events(void)
 {
     SDL_Event eventbuf[PG_GET_LIST_LEN];
@@ -1879,6 +1907,7 @@ _pg_get_all_events(void)
     if (!list)
         return PyErr_NoMemory();
 
+
     while (len == PG_GET_LIST_LEN) {
         len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
         if (len == -1) {
@@ -1887,6 +1916,10 @@ _pg_get_all_events(void)
         }
 
         for (loop = 0; loop < len; loop++) {
+            if (eventbuf[loop].type == SDL_KEYDOWN)
+                lastKeyPress = PyLong_FromLong(eventbuf[loop].key.keysym.sym);
+            else if (eventbuf[loop].type == SDL_KEYUP)
+                lastKeyRelease = PyLong_FromLong(eventbuf[loop].key.keysym.sym);
             if (!_pg_event_append_to_list(list, &eventbuf[loop]))
                 goto error;
         }
@@ -1969,6 +2002,9 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
     VIDEO_INIT_CHECK();
 
     _pg_event_pump(dopump);
+
+    lastKeyPress = NULL;
+    lastKeyRelease = NULL;
 
     if (obj_evtype == NULL || obj_evtype == Py_None) {
         if (obj_exclude != NULL && obj_exclude != Py_None) {
@@ -2219,6 +2255,10 @@ static PyMethodDef _event_methods[] = {
      DOC_PYGAMEEVENTGETBLOCKED},
     {"custom_type", (PyCFunction)pg_event_custom_type, METH_NOARGS,
      DOC_PYGAMEEVENTCUSTOMTYPE},
+    {"get_just_pressed", (PyCFunction)pg_get_just_pressed, METH_NOARGS, 
+     DOC_PYGAMEEVENTGETJUSTPRESSED},
+    {"get_just_released", (PyCFunction)pg_get_just_released, METH_NOARGS, 
+     DOC_PYGAMEEVENTGETJUSTRELEASED},
 
     {NULL, NULL, 0, NULL}};
 
