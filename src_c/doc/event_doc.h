@@ -17,8 +17,6 @@
 #define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> Event\nEvent(type, **attributes) -> Event\npygame object for representing events"
 #define DOC_EVENTTYPE "type -> int\nevent type identifier."
 #define DOC_EVENTDICT "__dict__ -> dict\nevent attribute dictionary"
-#define DOC_PYGAMEEVENTGETJUSTPRESSED "get_just_pressed() -> int\n get the id of the key that was just pressed"
-#define DOC_PYGAMEEVENTGETJUSTRELEASED "get_just_released() -> int\n get the id of the key that was just released"
 
 
 

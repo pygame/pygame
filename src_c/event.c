@@ -2255,10 +2255,8 @@ static PyMethodDef _event_methods[] = {
      DOC_PYGAMEEVENTGETBLOCKED},
     {"custom_type", (PyCFunction)pg_event_custom_type, METH_NOARGS,
      DOC_PYGAMEEVENTCUSTOMTYPE},
-    {"get_just_pressed", (PyCFunction)pg_get_just_pressed, METH_NOARGS, 
-     DOC_PYGAMEEVENTGETJUSTPRESSED},
-    {"get_just_released", (PyCFunction)pg_get_just_released, METH_NOARGS, 
-     DOC_PYGAMEEVENTGETJUSTRELEASED},
+    {"get_just_pressed", (PyCFunction)pg_get_just_pressed, METH_NOARGS},
+    {"get_just_released", (PyCFunction)pg_get_just_released, METH_NOARGS},
 
     {NULL, NULL, 0, NULL}};
 
