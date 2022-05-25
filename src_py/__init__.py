@@ -60,10 +60,8 @@ class MissingModule:
         missing_msg = f"{self.name} module not available ({self.reason})"
         raise NotImplementedError(missing_msg)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
-
-    __bool__ = __nonzero__
 
     def warn(self):
         msg_type = "import" if self.urgent else "use"
