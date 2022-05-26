@@ -1390,10 +1390,8 @@ class GroupSingle(AbstractGroup):
             self.remove_internal(self.__sprite)
         self.__sprite = sprite
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.__sprite is not None
-
-    __bool__ = __nonzero__
 
     def _get_sprite(self):
         return self.__sprite
