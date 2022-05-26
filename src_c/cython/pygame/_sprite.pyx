@@ -91,7 +91,6 @@ Sprites are not thread safe, so lock them yourself if using threads.
 import pygame
 from pygame import Rect
 from pygame.time import get_ticks
-from operator import truth
 
 from cpython cimport PyObject_CallFunctionObjArgs, PyDict_SetItem, \
     PyObject, PyList_SetSlice
@@ -242,7 +241,7 @@ cdef class Sprite:
 
         Returns True when the Sprite belongs to one or more Groups.
         """
-        return truth(self.__g)
+        return bool(self.__g)
 
     def __repr__(self):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
@@ -559,8 +558,8 @@ cdef class AbstractGroup:
             self.remove_internal(<Sprite>s)
             s.remove_internal(self)
 
-    def __nonzero__(self):
-        return truth(self.sprites())
+    def __bool__(self):
+        return bool(self.sprites())
 
     def __len__(self):
         """return number of sprites in group
@@ -1325,7 +1324,7 @@ cdef class GroupSingle(AbstractGroup):
             self.remove_internal(<Sprite>self.__sprite)
         self.__sprite = sprite
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.__sprite is not None
 
     def _get_sprite(self):
@@ -1479,7 +1478,7 @@ class collide_circle_ratio(object):
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
 
-        When the ratio is ratio=1.0, then it behaves exactly like the 
+        When the ratio is ratio=1.0, then it behaves exactly like the
         collide_circle method.
 
         """
