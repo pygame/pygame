@@ -1443,22 +1443,12 @@ mixer_unpause(PyObject *self, PyObject *_null)
 static PyObject *
 mixer_get_sdl_mixer_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *linkedobj = NULL;
     int linked = 1; /* Default is linked version. */
 
     static char *keywords[] = {"linked", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
-                                     &linkedobj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
         return NULL; /* Exception already set. */
-    }
-
-    if (NULL != linkedobj) {
-        linked = PyObject_IsTrue(linkedobj);
-
-        if (-1 == linked) {
-            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
-        }
     }
 
     /* MIXER_INIT_CHECK() is not required for these methods. */
