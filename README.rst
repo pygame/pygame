@@ -128,7 +128,7 @@ Dependency versions:
 * CPython >= 3.6 or PyPy3
 * SDL >= 2.0.1
 * SDL_mixer >= 2.0.0
-* SDL_image >= 2.0.0
+* SDL_image >= 2.0.2
 * SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
