@@ -51,13 +51,6 @@ jobs:
           - { image: manylinux2014, arch: x86_64, pyversions: cp* pp* }
           - { image: manylinux2014, arch: i686, pyversions: cp* pp* }
 
-          # split manylinux jobs on aarch64 because each takes a lot
-          # of time on github actions because it's emulated...
-          - { image: manylinux2014, arch: aarch64, pyversions: cp36-* cp310-* }
-          - { image: manylinux2014, arch: aarch64, pyversions: cp37-* pp37-* }
-          - { image: manylinux2014, arch: aarch64, pyversions: cp38-* pp39-* }
-          - { image: manylinux2014, arch: aarch64, pyversions: cp39-* pp39-* }
-
     env:
       # load pip config from this file. Define this in 'CIBW_ENVIRONMENT'
       # because this should not affect cibuildwheel machinery
@@ -75,8 +68,6 @@ jobs:
       CIBW_MANYLINUX_PYPY_X86_64_IMAGE: pygame/${{ matrix.image }}_base_x86_64
       CIBW_MANYLINUX_I686_IMAGE: pygame/${{ matrix.image }}_base_i686
       CIBW_MANYLINUX_PYPY_I686_IMAGE: pygame/${{ matrix.image }}_base_i686
-      CIBW_MANYLINUX_AARCH64_IMAGE: pygame/${{ matrix.image }}_base_aarch64
-      CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: pygame/${{ matrix.image }}_base_aarch64
 
       # command that runs before every build
       CIBW_BEFORE_BUILD: |
@@ -98,12 +89,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3.0.2
-
-    # setup QEMU only on aarch64 matrix
-    - name: Set up QEMU
-      if: ${{ matrix.arch == 'aarch64' }}
-      id: qemu
-      uses: docker/setup-qemu-action@v1
 
     - name: Build and test wheels
       uses: pypa/cibuildwheel@v2.5.0
