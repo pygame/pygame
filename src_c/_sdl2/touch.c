@@ -76,7 +76,8 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     }
 }
 #else
-extern void _pg_insobj(PyObject *dict, char *name, PyObject *v);
+extern void
+_pg_insobj(PyObject *dict, char *name, PyObject *v);
 #endif
 
 static PyObject *
