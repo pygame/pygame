@@ -6170,7 +6170,7 @@ class DrawArcMixin:
         surface = pygame.Surface((6, 6))
         rect = pygame.Rect((0, 0), (4, 4))
         rect.center = surface.get_rect().center
-        pos = rect.centerx + 1, rect.centery + 1
+        pos = rect.centerx + 1, rect.centery
         kwargs = {
             "surface": surface,
             "color": arc_color,
@@ -6208,7 +6208,7 @@ class DrawArcMixin:
             "width": 1,
         }
 
-        for stop_angle in (-10, -5.5, -1, 0, 1, 5.5, 10):
+        for stop_angle in (-5.5, -1, 0, 1, 5.5):
             msg = "stop_angle={}".format(stop_angle)
             surface.fill(surface_color)  # Clear for each test.
             kwargs["stop_angle"] = stop_angle
@@ -6225,7 +6225,7 @@ class DrawArcMixin:
         surface = pygame.Surface((6, 6))
         rect = pygame.Rect((0, 0), (4, 4))
         rect.center = surface.get_rect().center
-        pos = rect.centerx + 1, rect.centery + 1
+        pos = rect.centerx + 1, rect.centery - 1
         kwargs = {
             "surface": surface,
             "color": expected_color,
@@ -6235,7 +6235,7 @@ class DrawArcMixin:
             "width": 1,
         }
 
-        for start_angle in (-10.0, -5.5, -1, 0, 1, 5.5, 10.0):
+        for start_angle in (-5.5, -1, 0, 1, 5.5):
             msg = "start_angle={}".format(start_angle)
             surface.fill(surface_color)  # Clear for each test.
             kwargs["start_angle"] = start_angle
@@ -6252,7 +6252,7 @@ class DrawArcMixin:
         surface = pygame.Surface((6, 6))
         rect = pygame.Rect((0, 0), (4, 4))
         rect.center = surface.get_rect().center
-        pos = rect.centerx + 1, rect.centery + 1
+        pos = rect.centerx + 1, rect.centery
         kwargs = {
             "surface": surface,
             "color": expected_color,
@@ -6279,7 +6279,7 @@ class DrawArcMixin:
         surface = pygame.Surface((6, 6))
         rect = pygame.Rect((0, 0), (4, 4))
         rect.center = surface.get_rect().center
-        pos = rect.centerx + 1, rect.centery + 1
+        pos = rect.centerx + 1, rect.centery
         kwargs = {
             "surface": surface,
             "color": None,

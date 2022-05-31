@@ -48,8 +48,9 @@ static void
 draw_aaline(SDL_Surface *surf, Uint32 color, float startx, float starty,
             float endx, float endy, int blend, int *drawn_area);
 static void
-draw_arc(SDL_Surface *surf, int x, int y, int radius1, int radius2,
-         double angle_start, double angle_stop, Uint32 color, int *drawn_area);
+draw_arc(SDL_Surface *surf, int x0, int y0, int width, int height,
+         double start_angle, double end_angle, int thickness, Uint32 color,
+         int *drawn_area);
 static void
 draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
                       int thickness, Uint32 color, int *drawn_area);
@@ -505,7 +506,6 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int loop;
     int width = 1; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -535,29 +535,21 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (width < 0) {
+    if (width <= 0 || rect->w <= 0 || rect->h <= 0) {
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
-    if (width > rect->w / 2 || width > rect->h / 2) {
-        width = MAX(rect->w / 2, rect->h / 2);
-    }
-
-    if (angle_stop < angle_start) {
-        // Angle is in radians
-        angle_stop += 2 * M_PI;
-    }
+    width = MIN(width, MIN(rect->w / 2, rect->h / 2) + 1);
+    angle_start -= 2 * M_PI * floor(angle_start / (2 * M_PI));
+    angle_stop -= 2 * M_PI * floor(angle_stop / (2 * M_PI));
 
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    width = MIN(width, MIN(rect->w, rect->h) / 2);
-
-    for (loop = 0; loop < width; ++loop) {
-        draw_arc(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
-                 rect->w / 2 - loop, rect->h / 2 - loop, angle_start,
-                 angle_stop, color, drawn_area);
+    if (angle_start != angle_stop) {
+        draw_arc(surf, rect->x, rect->y, rect->w, rect->h, angle_start,
+                 angle_stop, width, color, drawn_area);
     }
 
     if (!pgSurface_Unlock(surfobj)) {
@@ -1615,49 +1607,1365 @@ draw_line(SDL_Surface *surf, int x1, int y1, int x2, int y2, Uint32 color,
 }
 
 static void
-draw_arc(SDL_Surface *surf, int x, int y, int radius1, int radius2,
-         double angle_start, double angle_stop, Uint32 color, int *drawn_area)
+draw_arc(SDL_Surface *surf, int x0, int y0, int width, int height,
+         double start_angle, double end_angle, int thickness, Uint32 color,
+         int *drawn_area)
 {
-    double aStep;  // Angle Step (rad)
-    double a;      // Current Angle (rad)
-    int x_last, x_next, y_last, y_next;
+    thickness -= 1;
+    double start_slope = tan(start_angle);
+    double end_slope = tan(end_angle);
+    short left =
+        (start_angle < M_PI && end_angle < M_PI && end_angle > start_angle) ||
+                (start_angle > M_PI && end_angle > M_PI &&
+                 end_angle > start_angle) ||
+                (start_angle > M_PI && end_angle < M_PI)
+            ? 0
+            : 1;
+    x0 += width / 2;
+    y0 += height / 2;
+    int x_offset = (width + 1) % 2;
+    int y_offset = (height + 1) % 2;
+    width = width / 2;
+    height = height / 2;
+    short line = 1;
+    long long x = 0;
+    long long x_inner = 0;
+    long long y = height;
+    long long y_inner = height - thickness;
+    double d1 =
+        (height * height) - (width * width * height) + (0.25 * width * width);
+    double d1_inner =
+        ((height - thickness) * (height - thickness)) -
+        ((width - thickness) * (width - thickness) * (height - thickness)) +
+        (0.25 * (width - thickness) * (width - thickness));
+    double dx = 2 * height * height * x;
+    double dx_inner =
+        2 * (height - thickness) * (height - thickness) * x_inner;
+    double dy = 2 * width * width * y;
+    double dy_inner = 2 * (width - thickness) * (width - thickness) * y_inner;
+    int start_x, start_x_offset, end_x, end_x_offset, l, r, t, b;
 
-    // Angle step in rad
-    if (radius1 < radius2) {
-        if (radius1 < 1.0e-4) {
-            aStep = 1.0;
+    while (dx < dy) {
+        while (d1 < 0) {
+            x += 1;
+            dx = dx + (2 * height * height);
+            d1 = d1 + dx + (height * height);
+        }
+        start_x = start_slope ? round(y / start_slope) : 0;
+        start_x_offset = start_slope ? round((y - y_offset) / start_slope) : 0;
+        end_x = end_slope ? round(y / end_slope) : 0;
+        end_x_offset = end_slope ? round((y - y_offset) / end_slope) : 0;
+
+        // DRAW_PART
+        l = x0 - x;
+        r = x0 + x - x_offset;
+        t = y0 - y;
+        b = y0 + y - y_offset;
+        if (left) {
+            if (start_angle < M_PI) {
+                if (end_angle < M_PI) {
+                    if (end_angle == 0) {
+                        if (y && l <= x0 + start_x) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(
+                                    surf, color, l, t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                                if (x0 + x_inner - x_offset <= x0 + start_x) {
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        t, MIN(r, x0 + start_x), drawn_area);
+                                }
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (start_slope < 0 && end_slope > 0) {
+                            if (x0 + start_x >= x0 - x) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, t,
+                                                             x0 + start_x,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 + start_x, x0 - x_inner),
+                                        drawn_area);
+                            }
+                            if (x0 + end_x <= r) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color,
+                                                             x0 + end_x, t, r,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + end_x,
+                                            x0 + x_inner - x_offset),
+                                        t, r, drawn_area);
+                            }
+                        }
+                        else if (start_slope < 0 && end_slope < 0) {
+                            if (x0 + start_x >= l) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, t,
+                                                             x0 + start_x,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 + start_x, x0 - x_inner),
+                                        drawn_area);
+                            }
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         MAX(x0 + end_x, l), t,
+                                                         r, drawn_area);
+                            else {
+                                if (x0 + end_x <= x0 - x_inner)
+                                    drawhorzlineclipbounding(
+                                        surf, color, MAX(x0 + end_x, l), t,
+                                        x0 - x_inner, drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                            }
+                        }
+                        else if (start_slope > 0 && end_slope > 0) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                if (x0 + x_inner - x_offset <= x0 + start_x)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        t, MIN(r, x0 + start_x), drawn_area);
+                            }
+                            if (x0 + end_x <= r) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color,
+                                                             x0 + end_x, t, r,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + end_x,
+                                            x0 + x_inner - x_offset),
+                                        t, r, drawn_area);
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                }
+                else {
+                    if (end_angle == M_PI) {
+                        if (start_angle == 0) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t, r,
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                            }
+                        }
+                        else if (line) {
+                            if (l <= x0 + start_x) {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 + start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, l, t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                            if (x0 + x_inner - x_offset <= x0 + start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t,
+                                    MIN(r, x0 + start_x), drawn_area);
+                        }
+                    }
+                    else {
+                        if (start_angle == 0) {
+                            if (line) {
+                                drawhorzlineclipbounding(surf, color, l, t, r,
+                                                         drawn_area);
+                                if (l <= x0 - end_x_offset && end_slope >= 0)
+                                    drawhorzlineclipbounding(surf, color, l, b,
+                                                             x0 - end_x_offset,
+                                                             drawn_area);
+                                else if (end_slope < 0)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, r), drawn_area);
+                            }
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                                if (x0 - end_x_offset >= l)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - x_inner, x0 - end_x_offset),
+                                        drawn_area);
+                                if (end_slope < 0 &&
+                                    x_inner - x_offset <= -end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        b, MIN(x0 - end_x_offset, r),
+                                        drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 + start_x) {
+                                if (line)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(r, x0 + start_x), drawn_area);
+                                else {
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 - x_inner, x0 + start_x),
+                                        drawn_area);
+                                    if (x0 + x_inner - x_offset <=
+                                        x0 + start_x)
+                                        drawhorzlineclipbounding(
+                                            surf, color,
+                                            x0 + x_inner - x_offset, t,
+                                            MIN(r, x0 + start_x), drawn_area);
+                                }
+                            }
+                            if (l <= x0 - end_x_offset && y) {
+                                if (line)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(r, x0 - end_x_offset), drawn_area);
+                                else {
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, x0 - x_inner),
+                                        drawn_area);
+                                    if (x0 - end_x_offset >=
+                                        x0 + x_inner - x_offset)
+                                        drawhorzlineclipbounding(
+                                            surf, color,
+                                            x0 + x_inner - x_offset, b,
+                                            MIN(x0 - end_x_offset, r),
+                                            drawn_area);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            else if (start_angle == M_PI) {
+                if (end_angle < M_PI) {
+                    if (end_slope > 0) {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                    else if (end_slope < 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(l, x0 + end_x), t, r,
+                                                     drawn_area);
+                        else {
+                            if (x0 + end_x <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    if (line)
+                        drawhorzlineclipbounding(surf, color, l, b, r,
+                                                 drawn_area);
+                    else {
+                        drawhorzlineclipbounding(surf, color, l, b,
+                                                 x0 - x_inner, drawn_area);
+                        drawhorzlineclipbounding(surf, color,
+                                                 x0 + x_inner - x_offset, b, r,
+                                                 drawn_area);
+                    }
+                }
+                else {
+                    if (end_slope > 0) {
+                        if (l <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, b,
+                                                         x0 - end_x_offset,
+                                                         drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                    }
+                    else {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     MIN(x0 - end_x_offset, r),
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            if (x0 + x_inner - x_offset <= x0 - end_x_offset)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, b,
+                                    MIN(x0 - end_x_offset, r), drawn_area);
+                        }
+                    }
+                }
+            }
+
+            else {
+                if (end_angle == M_PI) {
+                    if (line) {
+                        drawhorzlineclipbounding(surf, color, l, t, r,
+                                                 drawn_area);
+                        if (x0 - start_x_offset <= r)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 - start_x_offset), b, r,
+                                drawn_area);
+                    }
+                    else {
+                        drawhorzlineclipbounding(surf, color, l, t,
+                                                 x0 - x_inner, drawn_area);
+                        drawhorzlineclipbounding(surf, color,
+                                                 x0 + x_inner - x_offset, t, r,
+                                                 drawn_area);
+                        if (x0 - start_x_offset <= r)
+                            drawhorzlineclipbounding(
+                                surf, color,
+                                MAX(x0 + x_inner - x_offset,
+                                    x0 - start_x_offset),
+                                b, r, drawn_area);
+                        if (start_x_offset >= x_inner)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 - start_x_offset), b,
+                                x0 - x_inner, drawn_area);
+                    }
+                }
+                else {
+                    if (start_slope > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(x0 - start_x_offset, l), b, r,
+                                drawn_area);
+                        else {
+                            if (x0 - start_x_offset <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(x0 - start_x_offset, l),
+                                    b, x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                        if (l <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, b,
+                                                         x0 - end_x_offset,
+                                                         drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, t, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, t,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (r >= x0 - start_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         x0 - start_x_offset,
+                                                         b, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 - start_x_offset,
+                                        x0 + x_inner - x_offset),
+                                    b, r, drawn_area);
+                        }
+                        if (end_slope < 0) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, r), drawn_area);
+                            else {
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                                if (x0 + x_inner - x_offset <=
+                                    x0 - end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        b, MIN(x0 - end_x_offset, r),
+                                        drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 - end_x_offset) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, b,
+                                                             x0 - end_x_offset,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, x0 - x_inner),
+                                        drawn_area);
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, t, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, t,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                }
+            }
         }
         else {
-            aStep = asin(2.0 / radius1);
+            if (start_angle < M_PI) {
+                if (start_angle == 0) {
+                    if (end_slope <= 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(l, x0 + end_x), t, r,
+                                                     drawn_area);
+                        else {
+                            if (x0 + end_x <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                }
+                else if (end_slope > 0) {
+                    if (x0 + end_x <= MIN(r, x0 + start_x)) {
+                        if (line || x_inner <= end_x)
+                            drawhorzlineclipbounding(surf, color, x0 + end_x,
+                                                     t, MIN(r, x0 + start_x),
+                                                     drawn_area);
+                        else if (x_inner - x_offset <= start_x)
+                            drawhorzlineclipbounding(
+                                surf, color,
+                                MAX(end_x, x0 + x_inner - x_offset), t,
+                                MIN(r, x0 + start_x), drawn_area);
+                    }
+                }
+                else {
+                    if (MAX(l, x0 + end_x) <= MIN(r, x0 + start_x)) {
+                        if (line) {
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 + end_x), t,
+                                MIN(x0, x0 + start_x), drawn_area);
+                            if (start_x > 0)
+                                drawhorzlineclipbounding(surf, color, x0, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                        }
+                        else {
+                            if (x_inner <= -end_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                            if (x_inner - x_offset <= start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0, x0 + x_inner - x_offset), t,
+                                    MIN(r, x0 + start_x), drawn_area);
+                        }
+                    }
+                }
+            }
+            else {
+                if (end_angle > M_PI) {
+                    if (end_slope > 0) {
+                        if (MAX(l, x0 - start_x_offset) <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, x0 - end_x_offset, drawn_area);
+                            else if (x0 - start_x_offset <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                    }
+                    else {
+                        if (MAX(l, x0 - start_x_offset) <=
+                            MIN(r, x0 - end_x_offset)) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, MIN(r, x0 - end_x_offset), drawn_area);
+                            else {
+                                if (x0 - start_x_offset <= x0 - x_inner)
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(l, x0 - start_x_offset), b,
+                                        x0 - x_inner, drawn_area);
+                                if (x0 + x_inner - x_offset <=
+                                    x0 - end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + x_inner - x_offset,
+                                            x0 - start_x_offset),
+                                        b, MIN(r, x0 - end_x_offset),
+                                        drawn_area);
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (start_slope > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(x0 - start_x_offset, x0 - x),
+                                b, r, drawn_area);
+                        else {
+                            if (x0 - x_inner >= x0 - start_x_offset)
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 - start_x_offset, x0 - x), b,
+                                    MIN(x0, x0 - x_inner), drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (x0 - start_x_offset <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         x0 - start_x_offset,
+                                                         b, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + x_inner - x_offset,
+                                        x0 - start_x_offset),
+                                    b, r, drawn_area);
+                        }
+                    }
+                    if (end_slope > 0) {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                    else if (end_angle > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(x0 + end_x, l), t, r,
+                                                     drawn_area);
+                        else {
+                            if (MAX(x0 + end_x, l) <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(x0 + end_x, l), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                }
+            }
+        }
+
+        x += 1;
+        y -= 1;
+        dx = dx + (2 * height * height);
+        dy = dy - (2 * width * width);
+        d1 = d1 + dx - dy + (height * height);
+        if (line && y < height - thickness)
+            line = 0;
+        if (!line) {
+            if (dx_inner < dy_inner) {
+                while (d1_inner < 0) {
+                    x_inner += 1;
+                    dx_inner = dx_inner + (2 * (height - thickness) *
+                                           (height - thickness));
+                    d1_inner = d1_inner + dx_inner +
+                               ((height - thickness) * (height - thickness));
+                }
+                x_inner += 1;
+                y_inner -= 1;
+                dx_inner = dx_inner +
+                           (2 * (height - thickness) * (height - thickness));
+                dy_inner =
+                    dy_inner - (2 * (width - thickness) * (width - thickness));
+                d1_inner = d1_inner + dx_inner - dy_inner +
+                           ((height - thickness) * (height - thickness));
+            }
         }
     }
-    else {
-        if (radius2 < 1.0e-4) {
-            aStep = 1.0;
+
+    d1 = ((height * height) * ((x + 0.5) * (x + 0.5))) +
+         ((width * width) * ((y - 1) * (y - 1))) -
+         (width * width * height * height);
+    double d2_inner = 0;
+
+    while (y >= 0) {
+        start_x = start_slope ? round(y / start_slope) : 0;
+        start_x_offset = start_slope ? round((y - y_offset) / start_slope) : 0;
+        end_x = end_slope ? round(y / end_slope) : 0;
+        end_x_offset = end_slope ? round((y - y_offset) / end_slope) : 0;
+
+        // DRAW_PART
+        l = x0 - x;
+        r = x0 + x - x_offset;
+        t = y0 - y;
+        b = y0 + y - y_offset;
+        if (left) {
+            if (start_angle < M_PI) {
+                if (end_angle < M_PI) {
+                    if (end_angle == 0) {
+                        if (y && l <= x0 + start_x) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(
+                                    surf, color, l, t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                                if (x0 + x_inner - x_offset <= x0 + start_x) {
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        t, MIN(r, x0 + start_x), drawn_area);
+                                }
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (start_slope < 0 && end_slope > 0) {
+                            if (x0 + start_x >= x0 - x) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, t,
+                                                             x0 + start_x,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 + start_x, x0 - x_inner),
+                                        drawn_area);
+                            }
+                            if (x0 + end_x <= r) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color,
+                                                             x0 + end_x, t, r,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + end_x,
+                                            x0 + x_inner - x_offset),
+                                        t, r, drawn_area);
+                            }
+                        }
+                        else if (start_slope < 0 && end_slope < 0) {
+                            if (x0 + start_x >= l) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, t,
+                                                             x0 + start_x,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 + start_x, x0 - x_inner),
+                                        drawn_area);
+                            }
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         MAX(x0 + end_x, l), t,
+                                                         r, drawn_area);
+                            else {
+                                if (x0 + end_x <= x0 - x_inner)
+                                    drawhorzlineclipbounding(
+                                        surf, color, MAX(x0 + end_x, l), t,
+                                        x0 - x_inner, drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                            }
+                        }
+                        else if (start_slope > 0 && end_slope > 0) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                if (x0 + x_inner - x_offset <= x0 + start_x)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        t, MIN(r, x0 + start_x), drawn_area);
+                            }
+                            if (x0 + end_x <= r) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color,
+                                                             x0 + end_x, t, r,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + end_x,
+                                            x0 + x_inner - x_offset),
+                                        t, r, drawn_area);
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                }
+                else {
+                    if (end_angle == M_PI) {
+                        if (start_angle == 0) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, t, r,
+                                                         drawn_area);
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                            }
+                        }
+                        else if (line) {
+                            if (l <= x0 + start_x) {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 + start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, l, t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                            if (x0 + x_inner - x_offset <= x0 + start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t,
+                                    MIN(r, x0 + start_x), drawn_area);
+                        }
+                    }
+                    else {
+                        if (start_angle == 0) {
+                            if (line) {
+                                drawhorzlineclipbounding(surf, color, l, t, r,
+                                                         drawn_area);
+                                if (l <= x0 - end_x_offset && end_slope >= 0)
+                                    drawhorzlineclipbounding(surf, color, l, b,
+                                                             x0 - end_x_offset,
+                                                             drawn_area);
+                                else if (end_slope < 0)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, r), drawn_area);
+                            }
+                            else {
+                                drawhorzlineclipbounding(surf, color, l, t,
+                                                         x0 - x_inner,
+                                                         drawn_area);
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, t, r,
+                                    drawn_area);
+                                if (x0 - end_x_offset >= l)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - x_inner, x0 - end_x_offset),
+                                        drawn_area);
+                                if (end_slope < 0 &&
+                                    x_inner - x_offset <= -end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        b, MIN(x0 - end_x_offset, r),
+                                        drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 + start_x) {
+                                if (line)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(r, x0 + start_x), drawn_area);
+                                else {
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, t,
+                                        MIN(x0 - x_inner, x0 + start_x),
+                                        drawn_area);
+                                    if (x0 + x_inner - x_offset <=
+                                        x0 + start_x)
+                                        drawhorzlineclipbounding(
+                                            surf, color,
+                                            x0 + x_inner - x_offset, t,
+                                            MIN(r, x0 + start_x), drawn_area);
+                                }
+                            }
+                            if (l <= x0 - end_x_offset && y) {
+                                if (line)
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(r, x0 - end_x_offset), drawn_area);
+                                else {
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, x0 - x_inner),
+                                        drawn_area);
+                                    if (x0 - end_x_offset >=
+                                        x0 + x_inner - x_offset)
+                                        drawhorzlineclipbounding(
+                                            surf, color,
+                                            x0 + x_inner - x_offset, b,
+                                            MIN(x0 - end_x_offset, r),
+                                            drawn_area);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            else if (start_angle == M_PI) {
+                if (end_angle < M_PI) {
+                    if (end_slope > 0) {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                    else if (end_slope < 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(l, x0 + end_x), t, r,
+                                                     drawn_area);
+                        else {
+                            if (x0 + end_x <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    if (line)
+                        drawhorzlineclipbounding(surf, color, l, b, r,
+                                                 drawn_area);
+                    else {
+                        drawhorzlineclipbounding(surf, color, l, b,
+                                                 x0 - x_inner, drawn_area);
+                        drawhorzlineclipbounding(surf, color,
+                                                 x0 + x_inner - x_offset, b, r,
+                                                 drawn_area);
+                    }
+                }
+                else {
+                    if (end_slope > 0) {
+                        if (l <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, b,
+                                                         x0 - end_x_offset,
+                                                         drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                    }
+                    else {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     MIN(x0 - end_x_offset, r),
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, b,
+                                                     x0 - x_inner, drawn_area);
+                            if (x0 + x_inner - x_offset <= x0 - end_x_offset)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + x_inner - x_offset, b,
+                                    MIN(x0 - end_x_offset, r), drawn_area);
+                        }
+                    }
+                }
+            }
+
+            else {
+                if (end_angle == M_PI) {
+                    if (line) {
+                        drawhorzlineclipbounding(surf, color, l, t, r,
+                                                 drawn_area);
+                        if (x0 - start_x_offset <= r)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 - start_x_offset), b, r,
+                                drawn_area);
+                    }
+                    else {
+                        drawhorzlineclipbounding(surf, color, l, t,
+                                                 x0 - x_inner, drawn_area);
+                        drawhorzlineclipbounding(surf, color,
+                                                 x0 + x_inner - x_offset, t, r,
+                                                 drawn_area);
+                        if (x0 - start_x_offset <= r)
+                            drawhorzlineclipbounding(
+                                surf, color,
+                                MAX(x0 + x_inner - x_offset,
+                                    x0 - start_x_offset),
+                                b, r, drawn_area);
+                        if (start_x_offset >= x_inner)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 - start_x_offset), b,
+                                x0 - x_inner, drawn_area);
+                    }
+                }
+                else {
+                    if (start_slope > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(x0 - start_x_offset, l), b, r,
+                                drawn_area);
+                        else {
+                            if (x0 - start_x_offset <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(x0 - start_x_offset, l),
+                                    b, x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                        if (l <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color, l, b,
+                                                         x0 - end_x_offset,
+                                                         drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, t, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, t,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (r >= x0 - start_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         x0 - start_x_offset,
+                                                         b, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 - start_x_offset,
+                                        x0 + x_inner - x_offset),
+                                    b, r, drawn_area);
+                        }
+                        if (end_slope < 0) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, r), drawn_area);
+                            else {
+                                drawhorzlineclipbounding(
+                                    surf, color, l, b,
+                                    MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                                if (x0 + x_inner - x_offset <=
+                                    x0 - end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color, x0 + x_inner - x_offset,
+                                        b, MIN(x0 - end_x_offset, r),
+                                        drawn_area);
+                            }
+                        }
+                        else {
+                            if (l <= x0 - end_x_offset) {
+                                if (line)
+                                    drawhorzlineclipbounding(surf, color, l, b,
+                                                             x0 - end_x_offset,
+                                                             drawn_area);
+                                else
+                                    drawhorzlineclipbounding(
+                                        surf, color, l, b,
+                                        MIN(x0 - end_x_offset, x0 - x_inner),
+                                        drawn_area);
+                            }
+                        }
+                        if (line)
+                            drawhorzlineclipbounding(surf, color, l, t, r,
+                                                     drawn_area);
+                        else {
+                            drawhorzlineclipbounding(surf, color, l, t,
+                                                     x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                }
+            }
         }
         else {
-            aStep = asin(2.0 / radius2);
+            if (start_angle < M_PI) {
+                if (start_angle == 0) {
+                    if (end_slope <= 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(l, x0 + end_x), t, r,
+                                                     drawn_area);
+                        else {
+                            if (x0 + end_x <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                }
+                else if (end_slope > 0) {
+                    if (x0 + end_x <= MIN(r, x0 + start_x)) {
+                        if (line || x_inner <= end_x)
+                            drawhorzlineclipbounding(surf, color, x0 + end_x,
+                                                     t, MIN(r, x0 + start_x),
+                                                     drawn_area);
+                        else if (x_inner - x_offset <= start_x)
+                            drawhorzlineclipbounding(
+                                surf, color,
+                                MAX(end_x, x0 + x_inner - x_offset), t,
+                                MIN(r, x0 + start_x), drawn_area);
+                    }
+                }
+                else {
+                    if (MAX(l, x0 + end_x) <= MIN(r, x0 + start_x)) {
+                        if (line) {
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(l, x0 + end_x), t,
+                                MIN(x0, x0 + start_x), drawn_area);
+                            if (start_x > 0)
+                                drawhorzlineclipbounding(surf, color, x0, t,
+                                                         MIN(r, x0 + start_x),
+                                                         drawn_area);
+                        }
+                        else {
+                            if (x_inner <= -end_x)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 + end_x), t,
+                                    MIN(x0 + start_x, x0 - x_inner),
+                                    drawn_area);
+                            if (x_inner - x_offset <= start_x)
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0, x0 + x_inner - x_offset), t,
+                                    MIN(r, x0 + start_x), drawn_area);
+                        }
+                    }
+                }
+            }
+            else {
+                if (end_angle > M_PI) {
+                    if (end_slope > 0) {
+                        if (MAX(l, x0 - start_x_offset) <= x0 - end_x_offset) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, x0 - end_x_offset, drawn_area);
+                            else if (x0 - start_x_offset <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, MIN(x0 - end_x_offset, x0 - x_inner),
+                                    drawn_area);
+                        }
+                    }
+                    else {
+                        if (MAX(l, x0 - start_x_offset) <=
+                            MIN(r, x0 - end_x_offset)) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(l, x0 - start_x_offset),
+                                    b, MIN(r, x0 - end_x_offset), drawn_area);
+                            else {
+                                if (x0 - start_x_offset <= x0 - x_inner)
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(l, x0 - start_x_offset), b,
+                                        x0 - x_inner, drawn_area);
+                                if (x0 + x_inner - x_offset <=
+                                    x0 - end_x_offset)
+                                    drawhorzlineclipbounding(
+                                        surf, color,
+                                        MAX(x0 + x_inner - x_offset,
+                                            x0 - start_x_offset),
+                                        b, MIN(r, x0 - end_x_offset),
+                                        drawn_area);
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (start_slope > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(
+                                surf, color, MAX(x0 - start_x_offset, x0 - x),
+                                b, r, drawn_area);
+                        else {
+                            if (x0 - x_inner >= x0 - start_x_offset)
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 - start_x_offset, x0 - x), b,
+                                    MIN(x0, x0 - x_inner), drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     b, r, drawn_area);
+                        }
+                    }
+                    else {
+                        if (x0 - start_x_offset <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(surf, color,
+                                                         x0 - start_x_offset,
+                                                         b, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + x_inner - x_offset,
+                                        x0 - start_x_offset),
+                                    b, r, drawn_area);
+                        }
+                    }
+                    if (end_slope > 0) {
+                        if (x0 + end_x <= r) {
+                            if (line)
+                                drawhorzlineclipbounding(
+                                    surf, color, x0 + end_x, t, r, drawn_area);
+                            else
+                                drawhorzlineclipbounding(
+                                    surf, color,
+                                    MAX(x0 + end_x, x0 + x_inner - x_offset),
+                                    t, r, drawn_area);
+                        }
+                    }
+                    else if (end_angle > 0) {
+                        if (line)
+                            drawhorzlineclipbounding(surf, color,
+                                                     MAX(x0 + end_x, l), t, r,
+                                                     drawn_area);
+                        else {
+                            if (MAX(x0 + end_x, l) <= x0 - x_inner)
+                                drawhorzlineclipbounding(
+                                    surf, color, MAX(x0 + end_x, l), t,
+                                    x0 - x_inner, drawn_area);
+                            drawhorzlineclipbounding(surf, color,
+                                                     x0 + x_inner - x_offset,
+                                                     t, r, drawn_area);
+                        }
+                    }
+                }
+            }
         }
-    }
 
-    if (aStep < 0.05) {
-        aStep = 0.05;
-    }
-
-    x_last = (int)(x + cos(angle_start) * radius1);
-    y_last = (int)(y - sin(angle_start) * radius2);
-    for (a = angle_start + aStep; a < aStep + angle_stop; a += aStep) {
-        int points[4];
-        x_next = (int)(x + cos(MIN(a, angle_stop)) * radius1);
-        y_next = (int)(y - sin(MIN(a, angle_stop)) * radius2);
-        points[0] = x_last;
-        points[1] = y_last;
-        points[2] = x_next;
-        points[3] = y_next;
-        draw_line(surf, points[0], points[1], points[2], points[3], color,
-                  drawn_area);
-        x_last = x_next;
-        y_last = y_next;
+        if (d1 > 0) {
+            y -= 1;
+            dy = dy - (2 * width * width);
+            d1 = d1 + (width * width) - dy;
+        }
+        else {
+            y -= 1;
+            x += 1;
+            dx = dx + (2 * height * height);
+            dy = dy - (2 * width * width);
+            d1 = d1 + dx - dy + (width * width);
+        }
+        if (line && y < height - thickness)
+            line = 0;
+        if (!line) {
+            if (dx_inner < dy_inner) {
+                while (d1_inner < 0) {
+                    x_inner += 1;
+                    dx_inner = dx_inner + (2 * (height - thickness) *
+                                           (height - thickness));
+                    d1_inner = d1_inner + dx_inner +
+                               ((height - thickness) * (height - thickness));
+                }
+                x_inner += 1;
+                y_inner -= 1;
+                dx_inner = dx_inner +
+                           (2 * (height - thickness) * (height - thickness));
+                dy_inner =
+                    dy_inner - (2 * (width - thickness) * (width - thickness));
+                d1_inner = d1_inner + dx_inner - dy_inner +
+                           ((height - thickness) * (height - thickness));
+            }
+            else if (y_inner >= 0) {
+                if (d2_inner == 0) {
+                    d2_inner = (((height - thickness) * (height - thickness)) *
+                                ((x_inner + 0.5) * (x_inner + 0.5))) +
+                               (((width - thickness) * (width - thickness)) *
+                                ((y_inner - 1) * (y_inner - 1))) -
+                               ((width - thickness) * (width - thickness) *
+                                (height - thickness) * (height - thickness));
+                }
+                if (d2_inner > 0) {
+                    y_inner -= 1;
+                    dy_inner = dy_inner -
+                               (2 * (width - thickness) * (width - thickness));
+                    d2_inner = d2_inner +
+                               ((width - thickness) * (width - thickness)) -
+                               dy_inner;
+                }
+                else {
+                    y_inner -= 1;
+                    x_inner += 1;
+                    dx_inner = dx_inner + (2 * (height - thickness) *
+                                           (height - thickness));
+                    dy_inner = dy_inner -
+                               (2 * (width - thickness) * (width - thickness));
+                    d2_inner = d2_inner + dx_inner - dy_inner +
+                               ((width - thickness) * (width - thickness));
+                }
+            }
+        }
     }
 }
 
