@@ -159,7 +159,6 @@ def create_bounding_rect(surface, surf_color, default_pos):
 class InvalidBool:
     """To help test invalid bool values."""
 
-    __nonzero__ = None
     __bool__ = None
 
 

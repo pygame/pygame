@@ -28,8 +28,14 @@ import os
 
 # Choose Windows display driver
 if os.name == "nt":
+    pygame_dir = os.path.split(__file__)[0]
+
     # pypy does not find the dlls, so we add package folder to PATH.
-    os.environ["PATH"] = os.environ["PATH"] + ";" + os.path.split(__file__)[0]
+    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
+
+    # windows store python does not find the dlls, so we run this
+    if sys.version_info > (3, 8):
+        os.add_dll_directory(pygame_dir)  # only available in 3.8+
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
@@ -60,10 +66,8 @@ class MissingModule:
         missing_msg = f"{self.name} module not available ({self.reason})"
         raise NotImplementedError(missing_msg)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
-
-    __bool__ = __nonzero__
 
     def warn(self):
         msg_type = "import" if self.urgent else "use"
