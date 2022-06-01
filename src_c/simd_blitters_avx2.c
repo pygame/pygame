@@ -4,6 +4,14 @@
 #include <immintrin.h>
 #endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
 
+#define RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING()     \
+    char warning[128];                                 \
+    PyOS_snprintf(warning, sizeof(warning),            \
+                  "Blitting with SSE2 blitter on AVX2" \
+                  " capable system. Pygame may be "    \
+                  "compiled without AVX2 support.");   \
+    PyErr_WarnEx(PyExc_RuntimeWarning, warning, 0)
+
 #if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
     !defined(SDL_DISABLE_IMMINTRIN_H)
 void
@@ -125,6 +133,7 @@ blit_blend_rgba_mul_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgba_mul_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgba_mul_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -262,6 +271,7 @@ blit_blend_rgb_mul_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgb_mul_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgb_mul_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -338,6 +348,7 @@ blit_blend_rgba_add_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgba_add_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgba_add_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -423,6 +434,7 @@ blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgb_add_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgb_add_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -499,6 +511,7 @@ blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgba_sub_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -584,6 +597,7 @@ blit_blend_rgb_sub_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgb_sub_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgb_sub_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -660,6 +674,7 @@ blit_blend_rgba_max_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgba_max_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgba_max_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -745,6 +760,7 @@ blit_blend_rgb_max_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgb_max_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgb_max_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -821,6 +837,7 @@ blit_blend_rgba_min_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgba_min_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgba_min_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
@@ -906,6 +923,7 @@ blit_blend_rgb_min_avx2(SDL_BlitInfo *info)
 void
 blit_blend_rgb_min_avx2(SDL_BlitInfo *info)
 {
+    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
     blit_blend_rgb_min_sse2(info);
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
