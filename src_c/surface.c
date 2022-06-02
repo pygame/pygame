@@ -1829,13 +1829,31 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int dx, dy, result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0;
+    int the_args = 0; /* Represents kwarg: "special_flags" */
+    Py_ssize_t i;
+    PyObject *topleft_pos, *topright_pos, *bottomleft_pos, *bottomright_pos, 
+            *midleft_pos, *midright_pos, *midtop_pos, *midbottom_pos, *center_pos;
 
-    static char *kwids[] = {"source", "dest", "area", "special_flags", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Oi", kwids,
+    static char *kwids[] = {"source", "dest", "area", "special_flags", 
+                            "topleft", "topright", "bottomleft", "bottomright", 
+                            "midleft", "midright", "midtop", "midbottom", 
+                            "center", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|OiOOOOOOOOOO", kwids,
                                      &pgSurface_Type, &srcobject, &argpos,
-                                     &argrect, &the_args))
+                                     &argrect, &the_args, &topleft_pos, &topright_pos, &bottomleft_pos, &bottomright_pos, 
+                                     &midleft_pos, &midright_pos, &midtop_pos, &midbottom_pos, &center_pos
+    ))
         return NULL;
+
+    if (keywds != NULL) {
+        if (PyDict_DelItemString(keywds, "special_flags") == -1) {}
+        if (PyDict_DelItemString(keywds, "area") == -1) {}
+    }
+
+    if (PyDict_Size(keywds) > 1) {
+        return RAISE(PyExc_ValueError,
+                     "More than one position kwarg identified.");
+    }
 
     src = pgSurface_AsSurface(srcobject);
     if (!dest || !src)
