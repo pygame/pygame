@@ -289,7 +289,7 @@ class Input:
 
             elif is_output:
                 raise MidiException(
-                    "Device id given is not a valid" " input id, it is an output id."
+                    "Device id given is not a valid input id, it is an output id."
                 )
             else:
                 raise MidiException("Device id given is not a valid input id.")
@@ -428,10 +428,10 @@ class Output:
 
             elif is_input:
                 raise MidiException(
-                    "Device id given is not a valid output " "id, it is an input id."
+                    "Device id given is not a valid output id, it is an input id."
                 )
             else:
-                raise MidiException("Device id given is not a" " valid output id.")
+                raise MidiException("Device id given is not a valid output id.")
         else:
             raise MidiException("Device id invalid, out of range.")
 
