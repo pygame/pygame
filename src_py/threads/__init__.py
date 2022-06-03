@@ -103,7 +103,7 @@ def benchmark_workers(a_bench_func=None, the_data=None):
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for _ in range(20):
-            print(f"active count:{threading.activeCount()}")
+            print(f"active count:{threading.active_count()}")
             tmap(doit, thedata, worker_queue=wq)
         t2 = time.time()
 
