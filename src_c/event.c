@@ -81,7 +81,11 @@ static int _pg_event_is_init = 0;
  * duration of the program) because its cleanup can be messy with multiple
  * threads trying to use it. Since it's a singleton we don't need to worry
  * about memory leaks */
+#ifndef __EMSCRIPTEN__
+/* emscripten does not allow multithreading for now and SDL_CreateMutex fails.
+ * Don't bother with mutexes on emscripten for now */
 static SDL_mutex *pg_evfilter_mutex = NULL;
+#endif
 
 static struct ScanAndUnicode {
     SDL_Scancode key;
@@ -94,6 +98,12 @@ static int pg_key_repeat_interval = 0;
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
 static SDL_Event _pg_last_keydown_event = {0};
+
+#ifdef __EMSCRIPTEN__
+/* these macros are no-op here */
+#define PG_LOCK_EVFILTER_MUTEX
+#define PG_UNLOCK_EVFILTER_MUTEX
+#else /* not on emscripten */
 
 #define PG_LOCK_EVFILTER_MUTEX                                             \
     if (pg_evfilter_mutex) {                                               \
@@ -118,6 +128,7 @@ static SDL_Event _pg_last_keydown_event = {0};
             PG_EXIT(1);                                                    \
         }                                                                  \
     }
+#endif /* not on emscripten */
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -642,13 +653,14 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
+#ifndef __EMSCRIPTEN__
         if (!pg_evfilter_mutex) {
             /* Create mutex only if it has not been created already */
             pg_evfilter_mutex = SDL_CreateMutex();
             if (!pg_evfilter_mutex)
                 return RAISE(pgExc_SDLError, SDL_GetError());
         }
-
+#endif
         SDL_SetEventFilter(pg_event_filter, NULL);
     }
     _pg_event_is_init = 1;
