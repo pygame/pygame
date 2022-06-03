@@ -1,27 +1,77 @@
-name: build-emsdk
+name: Build WASM
 
-on: [push]
+# Run CI only on changes to main branch, or any PR to main. Do not run CI on 
+# any other branch. Also, skip any non-source changes from running on CI
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-emsdk.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-emsdk.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # pin SDK version to the latest, update manually
+      SDK_VERSION: 0.0.1
+      SDK_ARCHIVE: python-wasm-sdk-stable.tar.bz2
+
+      # use the most recent cython from github, but pin on a commit for CI
+      # stability. This is also needed to benefit from caching cython installs
+      LATEST_CYTHON_COMMIT: 6ac2422b48b689b021a48dff9ee14095232baafe
+
     steps:
     - uses: actions/checkout@v3.0.2
-    - name: pygame-wasm-builder prepare
-      run: |
-            WD=$(pwd)
-            python3 -V
-            echo $WD
-            clang --version | head -n 1
-            echo
-            grep "^Pkg.Revision =" ${ANDROID_HOME}/ndk-bundle/source.properties
-            sudo apt-get update
-            sudo apt-get install bash wget
-            cd $GITHUB_WORKSPACE/..
-            git clone https://github.com/pmp-p/python-wasm-plus.git
-            mkdir $GITHUB_WORKSPACE/../python-wasm-plus/src
-            ln -s $(pwd)/pygame $GITHUB_WORKSPACE/../python-wasm-plus/src/pygame-wasm
-            cd python-wasm-plus
-            bash ./python-wasm-plus.sh
-            bash ./buildapp.sh
+    
+    - name: Cache pip directory for cython
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: wasm-ubuntu-cython-${{ env.LATEST_CYTHON_COMMIT }}
 
+    - name: Install latest cython and regen
+      run: |
+        pip install git+https://github.com/cython/cython.git@${{ env.LATEST_CYTHON_COMMIT }}
+        touch $(find |grep pxd$)
+        python3 setup.py cython_only
+
+    - name: Install python-wasm-sdk
+      run: |
+        mkdir python-wasm-sdk
+        cd python-wasm-sdk
+        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvj
+        mkdir src
+        ln -s $GITHUB_WORKSPACE src/pygame-wasm
+        ls -A
+      working-directory: ../
+
+    - name: Run config
+      run: ./config
+      working-directory: ../python-wasm-sdk
+
+    - name: Building WASM with emsdk
+      run: |
+        python3-wasm setup.py -config -auto -sdl2
+        CC=emcc CFLAGS="-DBUILD_STATIC -DSDL_NO_COMPAT -ferror-limit=1 -Wno-unused-command-line-argument -Wno-unreachable-code-fallthrough -fPIC" \
+        EMCC_CFLAGS="-I$PREFIX/include/SDL2 -s USE_SDL=2 -sUSE_SDL_TTF=2 -sUSE_LIBPNG -sUSE_LIBJPEG" \
+        python3-wasm setup.py build
+      working-directory: ../python-wasm-sdk/src/pygame-wasm
