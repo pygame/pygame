@@ -1824,30 +1824,43 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp;
-    PyObject *argpos, *argrect = NULL;
+    PyObject *argrect = NULL;
     pgSurfaceObject *srcobject;
     int dx, dy, result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0; /* Represents kwarg: "special_flags" */
+    int the_args = 0; /* Represents kwarg: "special_flags". */
     Py_ssize_t i;
-    PyObject *topleft_pos, *topright_pos, *bottomleft_pos, *bottomright_pos, 
-            *midleft_pos, *midright_pos, *midtop_pos, *midbottom_pos, *center_pos;
+    PyObject *origin_pos = NULL;
 
-    static char *kwids[] = {"source", "dest", "area", "special_flags", 
-                            "topleft", "topright", "bottomleft", "bottomright", 
-                            "midleft", "midright", "midtop", "midbottom", 
-                            "center", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|OiOOOOOOOOOO", kwids,
-                                     &pgSurface_Type, &srcobject, &argpos,
-                                     &argrect, &the_args, &topleft_pos, &topright_pos, &bottomleft_pos, &bottomright_pos, 
-                                     &midleft_pos, &midright_pos, &midtop_pos, &midbottom_pos, &center_pos
-    ))
+    /* 1 = 100% of the width/height, 2 = 50% of the width/height */
+    int x_offset = 0;
+    int y_offset = 0;
+    PyObject *topleft_pos = NULL;
+    PyObject *topright_pos = NULL;
+    PyObject *bottomleft_pos = NULL;
+    PyObject *bottomright_pos = NULL;
+    PyObject *midleft_pos = NULL;
+    PyObject *midright_pos = NULL;
+    PyObject *midtop_pos = NULL;
+    PyObject *midbottom_pos = NULL;
+    PyObject *center_pos = NULL;
+
+    static char *kwids[] = {
+        "source",  "topleft",       "topright", "bottomleft", "bottomright",
+        "midleft", "midright",      "midtop",   "midbottom",  "center",
+        "area",    "special_flags", NULL};
+    if (!PyArg_ParseTupleAndKeywords(
+            args, keywds, "O!|OOOOOOOOOOi", kwids, &pgSurface_Type, &srcobject,
+            &topleft_pos, &topright_pos, &bottomleft_pos, &bottomright_pos,
+            &midleft_pos, &midright_pos, &midtop_pos, &midbottom_pos,
+            &center_pos, &argrect, &the_args))
         return NULL;
 
     if (keywds != NULL) {
-        if (PyDict_DelItemString(keywds, "special_flags") == -1) {}
-        if (PyDict_DelItemString(keywds, "area") == -1) {}
+        /* Non-position kwargs should go here. */
+        PyDict_DelItemString(keywds, "special_flags");
+        PyDict_DelItemString(keywds, "area");
     }
 
     if (PyDict_Size(keywds) > 1) {
@@ -1855,20 +1868,69 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
                      "More than one position kwarg identified.");
     }
 
+    if (topleft_pos != NULL) {
+        origin_pos = topleft_pos;
+    }
+    else if (topright_pos != NULL) {
+        origin_pos = topright_pos;
+        x_offset = 1;
+    }
+    else if (bottomleft_pos != NULL) {
+        origin_pos = bottomleft_pos;
+        y_offset = 1;
+    }
+    else if (bottomright_pos != NULL) {
+        origin_pos = bottomright_pos;
+    }
+    else if (midleft_pos != NULL) {
+        origin_pos = midleft_pos;
+        y_offset = 2;
+    }
+    else if (midright_pos != NULL) {
+        origin_pos = midright_pos;
+        x_offset = 1;
+        y_offset = 2;
+    }
+    else if (midtop_pos != NULL) {
+        origin_pos = midtop_pos;
+        x_offset = 2;
+    }
+    else if (midbottom_pos != NULL) {
+        origin_pos = midbottom_pos;
+        x_offset = 2;
+        y_offset = 1;
+    }
+    else if (center_pos != NULL) {
+        origin_pos = center_pos;
+        x_offset = 2;
+        y_offset = 2;
+    }
+    else {
+        return RAISE(PyExc_ValueError, "missing position parameter");
+    }
+
     src = pgSurface_AsSurface(srcobject);
     if (!dest || !src)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+    if ((src_rect = pgRect_FromObject(origin_pos, &temp))) {
         dx = src_rect->x;
         dy = src_rect->y;
     }
-    else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
+    else if (pg_TwoIntsFromObj(origin_pos, &sx, &sy)) {
         dx = sx;
         dy = sy;
     }
     else
         return RAISE(PyExc_TypeError, "invalid destination position for blit");
+
+    if (x_offset != 0) {
+        dx = dx - (int)(src->w / x_offset);
+    }
+
+    if (y_offset != 0) {
+        dy = dy - (int)(src->h / y_offset);
+    }
 
     if (argrect && argrect != Py_None) {
         if (!(src_rect = pgRect_FromObject(argrect, &temp)))
@@ -1886,13 +1948,15 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     dest_rect.w = src_rect->w;
     dest_rect.h = src_rect->h;
 
-    if (!the_args)
+    if (!the_args) {
         the_args = 0;
+    }
 
     result = pgSurface_Blit(self, srcobject, &dest_rect, src_rect, the_args);
 
-    if (result != 0)
+    if (result != 0) {
         return NULL;
+    }
 
     return pgRect_New(&dest_rect);
 }
