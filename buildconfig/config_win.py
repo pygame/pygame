@@ -24,7 +24,7 @@ def as_machine_type(size):
         return "x86"
     if size == 64:
         return "x64"
-    raise TypeError("Unknown pointer size {}".format(size))
+    raise ValueError("Unknown pointer size {}".format(size))
 
 def get_machine_type():
     return as_machine_type(get_ptr_size())
