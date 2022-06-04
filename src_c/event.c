@@ -1359,6 +1359,54 @@ static PyMemberDef pg_event_members[] = {
     {NULL} /* Sentinel */
 };
 
+/* Deprecated joy attribute of event */
+static PyObject *
+pg_event_joy_get(pgEventObject *self, void *closure)
+{
+    PyObject *joy = PyDict_GetItemString(self->dict, "joy");
+    if (!joy) {
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        return RAISE(PyExc_AttributeError,
+                     "'Event' object has no attribute 'joy'");
+    }
+    /* Don't warn if this is a custom event that happens to have an attribute
+     * named joy */
+    if (self->type < PGE_USEREVENT) {
+        if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                         "the joy attribute is deprecated in favour of "
+                         "instance_ids, and "
+                         "will be removed in the future",
+                         1) != 0) {
+            return NULL;
+        }
+    }
+    Py_INCREF(joy);
+    return joy;
+}
+static int
+pg_event_joy_set(pgEventObject *self, PyObject *other, void *closure)
+{
+    if (!other) {
+        if (PyDict_DelItemString(self->dict, "joy") == -1) {
+            if (PyErr_ExceptionMatches(PyExc_KeyError)) {
+                PyErr_Clear();
+                PyErr_SetString(PyExc_AttributeError, "joy");
+            }
+            return -1;
+        }
+        return 0;
+    }
+
+    return PyDict_SetItemString(self->dict, "joy", other);
+}
+
+static PyGetSetDef pg_event_getsets[] = {
+    {"joy", (getter)pg_event_joy_get, (setter)pg_event_joy_set,
+     "Deprecated: Use instance_id instead", NULL},
+    {NULL, NULL, NULL, NULL, NULL}};
+
 /*
  * eventA == eventB
  * eventA != eventB
@@ -1471,6 +1519,7 @@ static PyTypeObject pgEvent_Type = {
     .tp_doc = DOC_PYGAMEEVENTEVENT,
     .tp_richcompare = pg_event_richcompare,
     .tp_members = pg_event_members,
+    .tp_getset = pg_event_getsets,
     .tp_dictoffset = offsetof(pgEventObject, dict),
     .tp_init = (initproc)pg_event_init,
     .tp_new = PyType_GenericNew,

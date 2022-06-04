@@ -187,6 +187,12 @@ static PyObject *
 joy_get_id(PyObject *self, PyObject *_null)
 {
     int joy_id = pgJoystick_AsID(self);
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "joytick.get_id is deprecated and will be removed in the "
+                     "future. Use get_instance_id instead.",
+                     1) != 0) {
+        return NULL;
+    }
     return PyLong_FromLong(joy_id);
 }
 

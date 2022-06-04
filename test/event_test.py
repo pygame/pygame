@@ -1,6 +1,7 @@
 import collections
 import time
 import unittest
+import warnings
 
 import pygame
 
@@ -160,6 +161,29 @@ class EventTypeTest(unittest.TestCase):
         self.assertFalse(a == c)
         self.assertTrue(a != d)
         self.assertFalse(a == d)
+
+    def test_joy_attrib_warns(self):
+        ev1 = pygame.event.Event(pygame.JOYBUTTONDOWN, joy=0)
+        ev2 = pygame.event.Event(pygame.event.custom_type(), joy=0)
+
+        warnings.simplefilter("always")
+        with warnings.catch_warnings(record=True) as warns:
+            self.assertEqual(len(warns), 0)
+            ev1.joy  # Should raise deprecationwarning
+            self.assertEqual(len(warns), 1)
+            self.assertTrue(issubclass(warns[0].category, DeprecationWarning))
+            ev2.joy  # Should not raise deprecationwarning (custom type)
+            self.assertEqual(len(warns), 1)
+
+            # setting and deleting should work just like a normal attribute would
+            ev1.joy = 1
+            self.assertEqual(ev1.joy, 1)
+
+            del ev2.joy
+            with self.assertRaises(AttributeError):
+                ev2.joy
+
+        warnings.simplefilter("default")
 
 
 race_condition_notification = """
