@@ -175,7 +175,7 @@ def run(*args, **kwds):
     tmp = test_modules
     test_modules = []
     for name in tmp:
-        tag_module_name = "%s_tags" % (name[0:-5],)
+        tag_module_name = f"{name[0:-5]}_tags"
         try:
             tag_module = import_submodule(tag_module_name)
         except ImportError:
@@ -184,12 +184,12 @@ def run(*args, **kwds):
             try:
                 tags = tag_module.__tags__
             except AttributeError:
-                print("%s has no tags: ignoring" % (tag_module_name,))
+                print(f"{tag_module_name} has no tags: ignoring")
                 test_modules.append(name)
             else:
                 for tag in tags:
                     if tag in option_exclude:
-                        print("skipping %s (tag '%s')" % (name, tag))
+                        print(f"skipping {name} (tag '{tag}')")
                         break
                 else:
                     test_modules.append(name)

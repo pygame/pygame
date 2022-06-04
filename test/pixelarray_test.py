@@ -30,15 +30,15 @@ class TestMixin:
 
         self.assertTupleEqual((w, h), s2.get_size(), msg)
 
-        msg = "" if msg is None else "{}, ".format(msg)
-        msg += "size: ({}, {})".format(w, h)
+        msg = "" if msg is None else f"{msg}, "
+        msg += f"size: ({w}, {h})"
 
         for x in range(w):
             for y in range(h):
                 self.assertEqual(
                     s1.get_at((x, y)),
                     s2.get_at((x, y)),
-                    "{}, position: ({}, {})".format(msg, x, y),
+                    f"{msg}, position: ({x}, {y})",
                 )
 
     def assert_surface_filled(self, surface, expected_color, msg=None):

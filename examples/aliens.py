@@ -51,7 +51,7 @@ def load_image(file):
     try:
         surface = pg.image.load(file)
     except pg.error:
-        raise SystemExit('Could not load image "%s" %s' % (file, pg.get_error()))
+        raise SystemExit(f'Could not load image "{file}" {pg.get_error()}')
     return surface.convert()
 
 

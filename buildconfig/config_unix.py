@@ -38,7 +38,7 @@ class DependencyProg:
                 flags.remove('-D_GNU_SOURCE=1')
             self.ver = config[0].strip()
             if minver and self.ver < minver:
-                err= 'WARNING: requires %s version %s (%s found)' % (self.name, self.ver, minver)
+                err= f'WARNING: requires {self.name} version {self.ver} ({minver} found)'
                 raise ValueError(err)
             self.found = 1
             self.cflags = ''

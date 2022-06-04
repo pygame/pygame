@@ -1377,7 +1377,7 @@ class FreeTypeFontTest(unittest.TestCase):
         glen = len(glyphs)
         other_glyphs = "123"
         oglen = len(other_glyphs)
-        uempty = str("")
+        uempty = ""
         ##        many_glyphs = (uempty.join([chr(i) for i in range(32,127)] +
         ##                                   [chr(i) for i in range(161,172)] +
         ##                                   [chr(i) for i in range(174,239)]))

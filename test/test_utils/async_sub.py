@@ -277,7 +277,7 @@ def proc_in_time_or_kill(cmd, time_out, wd=None, env=None):
             proc.kill()
             ret_code += 'and was successfully terminated"'
         except Exception:
-            ret_code += 'and termination failed (exception: %s)"' % (geterror(),)
+            ret_code += f'and termination failed (exception: {geterror()})"'
 
     return ret_code, "".join(response)
 

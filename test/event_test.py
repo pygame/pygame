@@ -621,7 +621,7 @@ class EventModuleTest(unittest.TestCase):
         """Ensure event_name() returns the correct event name."""
         for expected_name, event in NAMES_AND_EVENTS:
             self.assertEqual(
-                pygame.event.event_name(event), expected_name, "0x{:X}".format(event)
+                pygame.event.event_name(event), expected_name, f"0x{event:X}"
             )
 
     def test_event_name__userevent_range(self):
@@ -633,7 +633,7 @@ class EventModuleTest(unittest.TestCase):
 
         for event in range(pygame.USEREVENT, pygame.NUMEVENTS):
             self.assertEqual(
-                pygame.event.event_name(event), expected_name, "0x{:X}".format(event)
+                pygame.event.event_name(event), expected_name, f"0x{event:X}"
             )
 
     def test_event_name__userevent_boundary(self):
@@ -644,7 +644,7 @@ class EventModuleTest(unittest.TestCase):
 
         for event in (pygame.USEREVENT - 1, pygame.NUMEVENTS):
             self.assertNotEqual(
-                pygame.event.event_name(event), unexpected_name, "0x{:X}".format(event)
+                pygame.event.event_name(event), unexpected_name, f"0x{event:X}"
             )
 
     def test_peek(self):

@@ -32,7 +32,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
 
     a1 = pg.sndarray.array(sound)
     if mydebug:
-        print("SHAPE1: %s" % (a1.shape,))
+        print(f"SHAPE1: {a1.shape}")
 
     length = a1.shape[0]
 
@@ -53,7 +53,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
     myarr = zeros(size, int32)
 
     if mydebug:
-        print("size %s" % (size,))
+        print(f"size {size}")
         print(myarr.shape)
     myarr[:length] = a1
     # print (myarr[3000:length+3000])
@@ -71,7 +71,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
     myarr[incr * 4 : gap + (incr * 4)] += a1 >> 4
 
     if mydebug:
-        print("SHAPE2: %s" % (myarr.shape,))
+        print(f"SHAPE2: {myarr.shape}")
 
     sound2 = pg.sndarray.make_sound(myarr.astype(int16))
 
@@ -134,7 +134,7 @@ def main():
     """play various sndarray effects"""
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
-    print("mixer.get_init %s" % (pg.mixer.get_init(),))
+    print(f"mixer.get_init {pg.mixer.get_init()}")
 
     samples_per_second = pg.mixer.get_init()[0]
 
@@ -149,8 +149,8 @@ def main():
     start_pos = 0.1
     sound2 = sound_from_pos(sound, start_pos, samples_per_second)
 
-    print("sound.get_length %s" % (sound.get_length(),))
-    print("sound2.get_length %s" % (sound2.get_length(),))
+    print(f"sound.get_length {sound.get_length()}")
+    print(f"sound2.get_length {sound2.get_length()}")
     sound2.play()
     while pg.mixer.get_busy():
         pg.time.wait(200)

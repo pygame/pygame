@@ -1013,7 +1013,7 @@ class ColorTypeTest(unittest.TestCase):
 
         class ColorImporter(buftools.Importer):
             def __init__(self, color, flags):
-                super(ColorImporter, self).__init__(color, flags)
+                super().__init__(color, flags)
                 self.items = cast(self.buf, POINTER(c_uint8))
 
             def __getitem__(self, index):

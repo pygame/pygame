@@ -58,7 +58,7 @@ def main():
     # Get some metrics.
     print("Font metrics for 'Fonty':  %s" % a_sys_font.metrics(text))
     ch = "\u3060"
-    msg = "Font metrics for '%s':  %s" % (ch, a_sys_font.metrics(ch))
+    msg = f"Font metrics for '{ch}':  {a_sys_font.metrics(ch)}"
     print(msg)
 
     ## #some_japanese_unicode = u"\u304b\u3070\u306b"

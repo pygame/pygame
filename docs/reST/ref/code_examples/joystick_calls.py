@@ -76,7 +76,7 @@ while not done:
     # Get count of joysticks.
     joystick_count = pygame.joystick.get_count()
 
-    textPrint.tprint(screen, "Number of joysticks: {}".format(joystick_count))
+    textPrint.tprint(screen, f"Number of joysticks: {joystick_count}")
     textPrint.indent()
 
     # For each joystick:
@@ -89,12 +89,12 @@ while not done:
         except AttributeError:
             # get_instance_id() is an SDL2 method
             jid = joystick.get_id()
-        textPrint.tprint(screen, "Joystick {}".format(jid))
+        textPrint.tprint(screen, f"Joystick {jid}")
         textPrint.indent()
 
         # Get the name from the OS for the controller/joystick.
         name = joystick.get_name()
-        textPrint.tprint(screen, "Joystick name: {}".format(name))
+        textPrint.tprint(screen, f"Joystick name: {name}")
 
         try:
             guid = joystick.get_guid()
@@ -102,38 +102,38 @@ while not done:
             # get_guid() is an SDL2 method
             pass
         else:
-            textPrint.tprint(screen, "GUID: {}".format(guid))
+            textPrint.tprint(screen, f"GUID: {guid}")
 
         # Usually axis run in pairs, up/down for one, and left/right for
         # the other.
         axes = joystick.get_numaxes()
-        textPrint.tprint(screen, "Number of axes: {}".format(axes))
+        textPrint.tprint(screen, f"Number of axes: {axes}")
         textPrint.indent()
 
         for i in range(axes):
             axis = joystick.get_axis(i)
-            textPrint.tprint(screen, "Axis {} value: {:>6.3f}".format(i, axis))
+            textPrint.tprint(screen, f"Axis {i} value: {axis:>6.3f}")
         textPrint.unindent()
 
         buttons = joystick.get_numbuttons()
-        textPrint.tprint(screen, "Number of buttons: {}".format(buttons))
+        textPrint.tprint(screen, f"Number of buttons: {buttons}")
         textPrint.indent()
 
         for i in range(buttons):
             button = joystick.get_button(i)
             textPrint.tprint(screen,
-                             "Button {:>2} value: {}".format(i, button))
+                             f"Button {i:>2} value: {button}")
         textPrint.unindent()
 
         hats = joystick.get_numhats()
-        textPrint.tprint(screen, "Number of hats: {}".format(hats))
+        textPrint.tprint(screen, f"Number of hats: {hats}")
         textPrint.indent()
 
         # Hat position. All or nothing for direction, not a float like
         # get_axis(). Position is a tuple of int values (x, y).
         for i in range(hats):
             hat = joystick.get_hat(i)
-            textPrint.tprint(screen, "Hat {} value: {}".format(i, str(hat)))
+            textPrint.tprint(screen, f"Hat {i} value: {str(hat)}")
         textPrint.unindent()
 
         textPrint.unindent()
