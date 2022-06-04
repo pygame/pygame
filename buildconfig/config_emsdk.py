@@ -1,18 +1,18 @@
 """Config on Emscripten SDK is almost like Unix"""
 
-import os, sys
-from glob import glob
-import platform
 import logging
+import os
+import sys
+from glob import glob
+
 from distutils.sysconfig import get_python_inc
+
+from .config_unix import get_porttime_dep
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
-if os.environ.get('PYGAME_EXTRA_BASE', ''):
-    extrabases = os.environ['PYGAME_EXTRA_BASE'].split(':')
-else:
-    extrabases = []
+extrabases = os.environ.get('PYGAME_EXTRA_BASE', '').split(':')
 
 EMSDK = os.environ.get('EMSDK', None)
 is_wasm = EMSDK is not None

@@ -16,6 +16,11 @@ import subprocess
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
+try:
+    BuildError
+except NameError:
+    BuildError = TypeError
+
 
 def get_ptr_size():
     return 64 if sys.maxsize > 2**32 else 32

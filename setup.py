@@ -85,8 +85,7 @@ def spawn(self, cmd, **kwargs):
     should_use_avx2 = False
     # try to be thorough in detecting that we are on a platform that potentially supports AVX2
     machine_name = platform.machine()
-    if ((machine_name.startswith("x86") or
-        machine_name.startswith("i686") or
+    if ((machine_name.startswith(("x86", "i686")) or
         machine_name.lower() == "amd64") and
             os.environ.get("MAC_ARCH") != "arm64"):
         should_use_avx2 = True
@@ -173,7 +172,7 @@ def compilation_help():
     print('---\n')
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
     compilation_help()
     raise SystemExit("Pygame requires Python3 version 3.6 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
@@ -375,10 +374,7 @@ if consume_arg("-noheaders"):
 
 # sanity check for any arguments
 if len(sys.argv) == 1 and sys.stdout.isatty():
-    if sys.version_info[0] >= 3:
-        reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
-    else:
-        reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     if not reply or reply[0].lower() != 'n':
         sys.argv.append('install')
 

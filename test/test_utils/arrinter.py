@@ -13,18 +13,15 @@ __all__ = [
     "ArrayInterface",
 ]
 
-try:
-    c_ssize_t  # Undefined in early Python versions
-except NameError:
-    if sizeof(c_uint) == sizeof(c_void_p):
-        c_size_t = c_uint
-        c_ssize_t = c_int
-    elif sizeof(c_ulong) == sizeof(c_void_p):
-        c_size_t = c_ulong
-        c_ssize_t = c_long
-    elif sizeof(c_ulonglong) == sizeof(c_void_p):
-        c_size_t = c_ulonglong
-        c_ssize_t = c_longlong
+if sizeof(c_uint) == sizeof(c_void_p):
+    c_size_t = c_uint
+    c_ssize_t = c_int
+elif sizeof(c_ulong) == sizeof(c_void_p):
+    c_size_t = c_ulong
+    c_ssize_t = c_long
+elif sizeof(c_ulonglong) == sizeof(c_void_p):
+    c_size_t = c_ulonglong
+    c_ssize_t = c_longlong
 
 
 SIZEOF_VOID_P = sizeof(c_void_p)
@@ -35,7 +32,7 @@ elif SIZEOF_VOID_P <= sizeof(c_long):
 elif "c_longlong" in globals() and SIZEOF_VOID_P <= sizeof(c_longlong):
     Py_intptr_t = c_longlong
 else:
-    raise RuntimeError("Unrecognized pointer size %i" % (pointer_size,))
+    raise RuntimeError("Unrecognized pointer size %i" % (SIZEOF_VOID_P,))
 
 
 class PyArrayInterface(Structure):

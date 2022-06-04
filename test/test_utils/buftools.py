@@ -46,14 +46,9 @@ from pygame.newbuffer import (
 )
 
 import unittest
-import sys
 import ctypes
 import operator
-
-try:
-    reduce
-except NameError:
-    from functools import reduce
+from functools import reduce
 
 __all__ = ["Exporter", "Importer"]
 
@@ -188,10 +183,10 @@ class Exporter(pygame.newbuffer.BufferMixin):
         self.buf = ctypes.addressof(self._buf) + offset
 
     def buffer_info(self):
-        return (addressof(self.buffer), self.shape[0])
+        return (ctypes.addressof(self.buffer), self.shape[0])
 
     def tobytes(self):
-        return cast(self.buffer, POINTER(c_char))[0 : self._len]
+        return ctypes.cast(self.buffer, ctypes.POINTER(ctypes.c_char))[0 : self._len]
 
     def __len__(self):
         return self.shape[0]

@@ -10,12 +10,6 @@ except ImportError:
     from buildconfig.config_unix import DependencyProg
 
 
-try:
-    basestring_ = basestring
-except NameError:
-    #python 3.
-    basestring_ = str
-
 class Dependency:
     libext = '.dylib'
     def __init__(self, name, checkhead, checklib, libs):
@@ -34,7 +28,7 @@ class Dependency:
         incnames = self.checkhead
         libnames = self.checklib, self.name.lower()
         for dir in incdirs:
-            if isinstance(incnames, basestring_):
+            if isinstance(incnames, str):
                 incnames = [incnames]
 
             for incname in incnames:
