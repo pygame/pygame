@@ -17,10 +17,6 @@
 
 [flake8]
 ignore = B303, E301, E302, E305, E501, E701, E704, E741, F401, F403, F405, F811, W504
-# We are checking with Python 3 but many of the stubs are Python 2 stubs.
-# A nice future improvement would be to provide separate .flake8
-# configurations for Python 2 and Python 3 files.
-# builtins = StandardError,apply,basestring,buffer,cmp,coerce,execfile,file,intern,long,raw_input,reduce,reload,unichr,unicode,xrange
 exclude = ./.*,@*
 max-line-length = 130
 statistics = True

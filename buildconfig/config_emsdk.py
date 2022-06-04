@@ -12,7 +12,10 @@ from .config_unix import get_porttime_dep
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
-extrabases = os.environ.get('PYGAME_EXTRA_BASE', '').split(':')
+if os.environ.get('PYGAME_EXTRA_BASE'):
+    extrabases = os.environ['PYGAME_EXTRA_BASE'].split(':')
+else:
+    extrabases = []
 
 EMSDK = os.environ.get('EMSDK', None)
 is_wasm = EMSDK is not None
