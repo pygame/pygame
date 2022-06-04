@@ -16,11 +16,6 @@ import subprocess
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
-try:
-    BuildError
-except NameError:
-    BuildError = TypeError
-
 
 def get_ptr_size():
     return 64 if sys.maxsize > 2**32 else 32
@@ -31,7 +26,7 @@ def as_machine_type(size):
         return "x86"
     if size == 64:
         return "x64"
-    raise BuildError("Unknown pointer size {}".format(size))
+    raise TypeError("Unknown pointer size {}".format(size))
 
 def get_machine_type():
     return as_machine_type(get_ptr_size())
