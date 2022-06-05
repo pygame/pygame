@@ -85,9 +85,13 @@ def get_urls(x86=True, x64=True):
         'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
         '137f86474691f4e12e76e07d58d5920c8d844d5b',
         ],
+        #[
+        #'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.18-VC.zip',
+        #'a421d47e9336ab722eac4ba107fab7f7b080eb4e',
+        #],
         [
-        'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.18-VC.zip',
-        'a421d47e9336ab722eac4ba107fab7f7b080eb4e',
+        'https://github.com/pygame/pygame/releases/download/2.1.3.dev4/SDL2_ttf-devel-2.0.19-VC.zip',
+        'e01f7a1f7ce1039729ffbaa621a2a2973b6c0469'
         ],
         [
         'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
@@ -223,12 +227,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_ttf-devel-2.0.18-VC/SDL2_ttf-2.0.18'
+                'SDL2_ttf-devel-2.0.19-VC/SDL2_ttf-2.0.19'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_ttf-2.0.18'
+                'SDL2_ttf-2.0.19'
             )
         )
         copy(

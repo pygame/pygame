@@ -550,6 +550,15 @@ class FontTypeTest(unittest.TestCase):
         bfont_path = font_path.encode(filesystem_encoding, filesystem_errors)
         f = pygame_font.Font(bfont_path, 20)
 
+    def test_issue_3144(self):
+        fpath = os.path.join(FONTDIR, "PlayfairDisplaySemibold.ttf")
+
+        # issue in SDL_ttf 2.0.18 DLL on Windows
+        # tested to make us aware of any regressions
+        for size in (60, 40, 10, 20, 70, 45, 50, 10):
+            font = pygame_font.Font(fpath, size)
+            font.render("WHERE", True, "black")
+
 
 @unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class VisualTests(unittest.TestCase):
