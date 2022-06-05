@@ -1,5 +1,3 @@
-# -*- coding: utf8 -*-
-
 import sys
 import unittest
 
@@ -158,7 +156,7 @@ class BaseModuleTest(unittest.TestCase):
 
         class Exporter(self.ExporterBase):
             def __init__(self, shape, typechar, itemsize):
-                super(Exporter, self).__init__(shape, typechar, itemsize)
+                super().__init__(shape, typechar, itemsize)
                 self.view = BufferProxy(self.__dict__)
 
             def get__array_struct__(self):

@@ -1203,7 +1203,7 @@ def from_array(a, mode=None, info={}):
             if dimension in info:
                 if info[dimension] != info["size"][axis]:
                     raise Error(
-                        "info[%r] should match info['size'][%r]." % (dimension, axis)
+                        f"info[{dimension!r}] should match info['size'][{axis!r}]."
                     )
         info["width"], info["height"] = info["size"]
     if "height" not in info:
@@ -1440,7 +1440,7 @@ class Reader:
                 (a,) = struct.unpack("!I", checksum)
                 (b,) = struct.unpack("!I", verify)
                 raise ChunkError(
-                    "Checksum error in %s chunk: 0x%08X != 0x%08X." % (type, a, b)
+                    f"Checksum error in {type} chunk: 0x{a:08X} != 0x{b:08X}."
                 )
             return type, data
 
@@ -1937,7 +1937,7 @@ class Reader:
             # each row.
             pixels = map(
                 lambda *row: array(arraycode, row),
-                *[iter(self.deinterlace(raw))] * self.width * self.planes
+                *[iter(self.deinterlace(raw))] * self.width * self.planes,
             )
         else:
             pixels = self.iterboxed(self.iterstraight(raw))
@@ -2466,7 +2466,7 @@ class Test(unittest.TestCase):
             candi = candidate.replace("n", "i")
             if candi not in _pngsuite:
                 continue
-            print("adam7 read %s" % (candidate,))
+            print(f"adam7 read {candidate}")
             straight = Reader(bytes=_pngsuite[candidate])
             adam7 = Reader(bytes=_pngsuite[candi])
             # Just compare the pixels.  Ignore x,y (because they're
@@ -3964,7 +3964,7 @@ def _main(argv):
             mi = supported.index(maxval)
         except ValueError:
             raise NotImplementedError(
-                "your maxval (%s) not in supported list %s" % (maxval, str(supported))
+                f"your maxval ({maxval}) not in supported list {str(supported)}"
             )
         bitdepth = mi + 1
         writer = Writer(
@@ -4001,4 +4001,4 @@ if __name__ == "__main__":
     try:
         _main(sys.argv)
     except Error as e:
-        sys.stderr.write("%s\n" % (e,))
+        sys.stderr.write(f"{e}\n")

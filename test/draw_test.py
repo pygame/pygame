@@ -706,7 +706,7 @@ class DrawEllipseMixin:
             self.assertEqual(
                 surface.get_at(pos),
                 expected_color,
-                "collide_rect={}, pos={}".format(collide_rect, pos),
+                f"collide_rect={collide_rect}, pos={pos}",
             )
 
         surface.unlock()
@@ -1445,7 +1445,7 @@ class LineMixin(BaseLineMixin):
             (2,),  # Too few coords.
             (2, 1, 0),  # Too many coords.
             (2, "1"),  # Wrong type.
-            set([2, 1]),  # Wrong type.
+            {2, 1},  # Wrong type.
             dict(((2, 1),)),
         )  # Wrong type.
 
@@ -1469,7 +1469,7 @@ class LineMixin(BaseLineMixin):
             (2,),  # Too few coords.
             (2, 1, 0),  # Too many coords.
             (2, "1"),  # Wrong type.
-            set([2, 1]),  # Wrong type.
+            {2, 1},  # Wrong type.
             dict(((2, 1),)),
         )  # Wrong type.
 
@@ -1536,9 +1536,7 @@ class LineMixin(BaseLineMixin):
             for expected_color in self.COLORS:
                 self.draw_line(surface, expected_color, pos, (1, 0))
 
-                self.assertEqual(
-                    surface.get_at(pos), expected_color, "pos={}".format(pos)
-                )
+                self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_line__color_with_thickness(self):
         """Ensures a thick line is drawn using the correct color."""
@@ -1549,9 +1547,7 @@ class LineMixin(BaseLineMixin):
             for expected_color in self.COLORS:
                 self.draw_line(surface, expected_color, (from_x, y), (to_x, y), 5)
                 for pos in ((x, y + i) for i in (-2, 0, 2) for x in (from_x, to_x)):
-                    self.assertEqual(
-                        surface.get_at(pos), expected_color, "pos={}".format(pos)
-                    )
+                    self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_line__gaps(self):
         """Tests if the line drawn contains any gaps."""
@@ -1562,9 +1558,7 @@ class LineMixin(BaseLineMixin):
 
             for x in range(width):
                 pos = (x, 0)
-                self.assertEqual(
-                    surface.get_at(pos), expected_color, "pos={}".format(pos)
-                )
+                self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_line__gaps_with_thickness(self):
         """Ensures a thick line is drawn without any gaps."""
@@ -1579,9 +1573,7 @@ class LineMixin(BaseLineMixin):
             for x in range(w + 1):
                 for y in range(3, 8):
                     pos = (x, y + ((x + 2) // 5))
-                    self.assertEqual(
-                        surface.get_at(pos), expected_color, "pos={}".format(pos)
-                    )
+                    self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_line__bounding_rect(self):
         """Ensures draw line returns the correct bounding rect.
@@ -1762,7 +1754,7 @@ class DrawLineTest(LineMixin, DrawTestCase):
         ]
 
         for p1, p2 in lines:
-            msg = "%s - %s" % (p1, p2)
+            msg = f"{p1} - {p2}"
             if p1[0] <= p2[0]:
                 plow = p1
                 phigh = p2
@@ -1807,7 +1799,7 @@ class DrawLineTest(LineMixin, DrawTestCase):
 
             w = abs(p2[0] - p1[0]) + 1 + xinc * (line_width - 1)
             h = abs(p2[1] - p1[1]) + 1 + yinc * (line_width - 1)
-            msg += ", %s" % (rec,)
+            msg += f", {rec}"
 
             self.assertEqual(rec, (rx, ry, w, h), msg)
 
@@ -2129,9 +2121,9 @@ class LinesMixin(BaseLineMixin):
             ((1, 1), (2,)),  # Too few coords.
             ((1, 1), (2, 2, 2)),  # Too many coords.
             ((1, 1), (2, "2")),  # Wrong type.
-            ((1, 1), set([2, 3])),  # Wrong type.
+            ((1, 1), {2, 3}),  # Wrong type.
             ((1, 1), dict(((2, 2), (3, 3)))),  # Wrong type.
-            set(((1, 1), (1, 2))),  # Wrong type.
+            {(1, 1), (1, 2)},  # Wrong type.
             dict(((1, 1), (4, 4))),
         )  # Wrong type.
 
@@ -2246,7 +2238,7 @@ class LinesMixin(BaseLineMixin):
                 self.draw_lines(surface, expected_color, True, corners(surface))
 
                 for pos, color in border_pos_and_color(surface):
-                    self.assertEqual(color, expected_color, "pos={}".format(pos))
+                    self.assertEqual(color, expected_color, f"pos={pos}")
 
     def test_lines__color_with_thickness(self):
         """Ensures thick lines are drawn using the correct color."""
@@ -2270,7 +2262,7 @@ class LinesMixin(BaseLineMixin):
                             self.assertEqual(
                                 surface.get_at(pos),
                                 expected_color,
-                                "pos={}".format(pos),
+                                f"pos={pos}",
                             )
                     for y in range(y_top, y_bottom + 1):
                         for x in (x_left, x_right):
@@ -2278,7 +2270,7 @@ class LinesMixin(BaseLineMixin):
                             self.assertEqual(
                                 surface.get_at(pos),
                                 expected_color,
-                                "pos={}".format(pos),
+                                f"pos={pos}",
                             )
 
     def test_lines__gaps(self):
@@ -2292,7 +2284,7 @@ class LinesMixin(BaseLineMixin):
             self.draw_lines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
-                self.assertEqual(color, expected_color, "pos={}".format(pos))
+                self.assertEqual(color, expected_color, f"pos={pos}")
 
     def test_lines__gaps_with_thickness(self):
         """Ensures thick lines are drawn without any gaps."""
@@ -2309,19 +2301,13 @@ class LinesMixin(BaseLineMixin):
             for x in range(x_left, x_right + 1):
                 for t in (-1, 0, 1):
                     pos = (x, y_top + t)
-                    self.assertEqual(
-                        surface.get_at(pos), expected_color, "pos={}".format(pos)
-                    )
+                    self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
                     pos = (x, y_top + t + ((x - 3) // 5))
-                    self.assertEqual(
-                        surface.get_at(pos), expected_color, "pos={}".format(pos)
-                    )
+                    self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
             for y in range(y_top, y_bottom + 1):
                 for t in (-1, 0, 1):
                     pos = (x_right + t, y)
-                    self.assertEqual(
-                        surface.get_at(pos), expected_color, "pos={}".format(pos)
-                    )
+                    self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_lines__bounding_rect(self):
         """Ensures draw lines returns the correct bounding rect.
@@ -2784,7 +2770,7 @@ class AALineMixin(BaseLineMixin):
             (2,),  # Too few coords.
             (2, 1, 0),  # Too many coords.
             (2, "1"),  # Wrong type.
-            set([2, 1]),  # Wrong type.
+            {2, 1},  # Wrong type.
             dict(((2, 1),)),
         )  # Wrong type.
 
@@ -2808,7 +2794,7 @@ class AALineMixin(BaseLineMixin):
             (2,),  # Too few coords.
             (2, 1, 0),  # Too many coords.
             (2, "1"),  # Wrong type.
-            set([2, 1]),  # Wrong type.
+            {2, 1},  # Wrong type.
             dict(((2, 1),)),
         )  # Wrong type.
 
@@ -2875,9 +2861,7 @@ class AALineMixin(BaseLineMixin):
             for expected_color in self.COLORS:
                 self.draw_aaline(surface, expected_color, pos, (1, 0))
 
-                self.assertEqual(
-                    surface.get_at(pos), expected_color, "pos={}".format(pos)
-                )
+                self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_aaline__gaps(self):
         """Tests if the aaline drawn contains any gaps.
@@ -2891,9 +2875,7 @@ class AALineMixin(BaseLineMixin):
 
             for x in range(width):
                 pos = (x, 0)
-                self.assertEqual(
-                    surface.get_at(pos), expected_color, "pos={}".format(pos)
-                )
+                self.assertEqual(surface.get_at(pos), expected_color, f"pos={pos}")
 
     def test_aaline__bounding_rect(self):
         """Ensures draw aaline returns the correct bounding rect.
@@ -3572,9 +3554,9 @@ class AALinesMixin(BaseLineMixin):
             ((1, 1), (2,)),  # Too few coords.
             ((1, 1), (2, 2, 2)),  # Too many coords.
             ((1, 1), (2, "2")),  # Wrong type.
-            ((1, 1), set([2, 3])),  # Wrong type.
+            ((1, 1), {2, 3}),  # Wrong type.
             ((1, 1), dict(((2, 2), (3, 3)))),  # Wrong type.
-            set(((1, 1), (1, 2))),  # Wrong type.
+            {(1, 1), (1, 2)},  # Wrong type.
             dict(((1, 1), (4, 4))),
         )  # Wrong type.
 
@@ -3689,7 +3671,7 @@ class AALinesMixin(BaseLineMixin):
                 self.draw_aalines(surface, expected_color, True, corners(surface))
 
                 for pos, color in border_pos_and_color(surface):
-                    self.assertEqual(color, expected_color, "pos={}".format(pos))
+                    self.assertEqual(color, expected_color, f"pos={pos}")
 
     def test_aalines__gaps(self):
         """Tests if the aalines drawn contain any gaps.
@@ -3704,7 +3686,7 @@ class AALinesMixin(BaseLineMixin):
             self.draw_aalines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
-                self.assertEqual(color, expected_color, "pos={}".format(pos))
+                self.assertEqual(color, expected_color, f"pos={pos}")
 
     def test_aalines__bounding_rect(self):
         """Ensures draw aalines returns the correct bounding rect.
@@ -4094,9 +4076,9 @@ class DrawPolygonMixin:
             ((1, 1), (2, 1), (2,)),  # Too few coords.
             ((1, 1), (2, 1), (2, 2, 2)),  # Too many coords.
             ((1, 1), (2, 1), (2, "2")),  # Wrong type.
-            ((1, 1), (2, 1), set([2, 3])),  # Wrong type.
+            ((1, 1), (2, 1), {2, 3}),  # Wrong type.
             ((1, 1), (2, 1), dict(((2, 2), (3, 3)))),  # Wrong type.
-            set(((1, 1), (2, 1), (2, 2), (1, 2))),  # Wrong type.
+            {(1, 1), (2, 1), (2, 2), (1, 2)},  # Wrong type.
             dict(((1, 1), (2, 2), (3, 3), (4, 4))),
         )  # Wrong type.
 
@@ -4366,7 +4348,7 @@ class DrawPolygonMixin:
                         self.assertEqual(
                             bounding_rect,
                             expected_rect,
-                            "thickness={}".format(thickness),
+                            f"thickness={thickness}",
                         )
 
     def test_polygon__surface_clip(self):
@@ -4821,7 +4803,7 @@ class DrawRectMixin:
             [1, 2],
             [1, 2, 3],
             [1, 2, 3, 4, 5],
-            set([1, 2, 3, 4]),
+            {1, 2, 3, 4},
             [1, 2, 3, "4"],
         )
 
@@ -5022,7 +5004,7 @@ class DrawRectMixin:
                         self.assertEqual(
                             bounding_rect,
                             expected_rect,
-                            "thickness={}".format(thickness),
+                            f"thickness={thickness}",
                         )
 
     def test_rect__surface_clip(self):
@@ -5475,7 +5457,7 @@ class DrawCircleMixin:
                     width,
                     draw_top_right,
                     draw_top_left,
-                    **kwargs
+                    **kwargs,
                 )
             elif "draw_bottom_left" == name:
                 bounds_rect = self.draw_circle(
@@ -5487,7 +5469,7 @@ class DrawCircleMixin:
                     draw_top_right,
                     draw_top_left,
                     draw_bottom_left,
-                    **kwargs
+                    **kwargs,
                 )
             else:
                 bounds_rect = self.draw_circle(
@@ -5500,7 +5482,7 @@ class DrawCircleMixin:
                     draw_top_left,
                     draw_bottom_left,
                     draw_bottom_right,
-                    **kwargs
+                    **kwargs,
                 )
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
@@ -6181,7 +6163,7 @@ class DrawArcMixin:
         }
 
         for width in (-50, -10, -3, -2, -1, 0, 1, 2, 3, 10, 50):
-            msg = "width={}".format(width)
+            msg = f"width={width}"
             surface.fill(surface_color)  # Clear for each test.
             kwargs["width"] = width
             expected_color = arc_color if width > 0 else surface_color
@@ -6209,7 +6191,7 @@ class DrawArcMixin:
         }
 
         for stop_angle in (-10, -5.5, -1, 0, 1, 5.5, 10):
-            msg = "stop_angle={}".format(stop_angle)
+            msg = f"stop_angle={stop_angle}"
             surface.fill(surface_color)  # Clear for each test.
             kwargs["stop_angle"] = stop_angle
 
@@ -6236,7 +6218,7 @@ class DrawArcMixin:
         }
 
         for start_angle in (-10.0, -5.5, -1, 0, 1, 5.5, 10.0):
-            msg = "start_angle={}".format(start_angle)
+            msg = f"start_angle={start_angle}"
             surface.fill(surface_color)  # Clear for each test.
             kwargs["start_angle"] = start_angle
 
@@ -6387,7 +6369,7 @@ class DrawArcMixin:
                             self.assertEqual(
                                 bounding_rect,
                                 expected_rect,
-                                "thickness={}".format(thickness),
+                                f"thickness={thickness}",
                             )
 
     def test_arc__surface_clip(self):

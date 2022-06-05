@@ -103,12 +103,12 @@ class Dependency:
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print (f"Path for {self.name}: {self.path}")
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print (f"Path for {self.name}: {self.path}")
         return True
 
     def matchfile(self, path, match):
@@ -183,8 +183,8 @@ class Dependency:
                     # MSYS2: lib<name>.dll.a -> <name>
                     self.libs[0] = os.path.splitext(lib_info[2])[0].lstrip('lib').rstrip('.dll')
         if self.lib_dir and self.inc_dir:
-            print("...Library directory for %s: %s" % (self.name, self.lib_dir))
-            print("...Include directory for %s: %s" % (self.name, self.inc_dir))
+            print(f"...Library directory for {self.name}: {self.lib_dir}")
+            print(f"...Include directory for {self.name}: {self.inc_dir}")
             self.found = True
 
 class DependencyPython:
@@ -240,7 +240,7 @@ class DependencyDLL(Dependency):
             self.check_roots()
 
         if self.lib_dir != '_':
-            print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+            print (f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
             print ("No DLL for %s: not found!" % (self.lib_name))
@@ -356,10 +356,7 @@ class DependencyGroup:
                     nonext_name = splitext(d.lib_dir)[0]
                     def_file = '%s.def' % nonext_name
                     basename = os.path.basename(nonext_name)
-                    print('Building lib from %s: %s.lib...' % (
-                        os.path.basename(d.lib_dir),
-                        basename
-                    ))
+                    print(f'Building lib from {os.path.basename(d.lib_dir)}: {basename}.lib...')
                     vstools.dump_def(d.lib_dir, def_file=def_file)
                     vstools.lib_from_def(def_file)
                     d.link.lib_dir = os.path.dirname(d.lib_dir)
@@ -367,10 +364,8 @@ class DependencyGroup:
                     d.link.configure()
 
     def __iter__(self):
-        for d in self.dependencies:
-            yield d
-        for d in self.dlls:
-            yield d
+        yield from self.dependencies
+        yield from self.dlls
 
 def _add_sdl2_dll_deps(DEPS):
     # MIXER

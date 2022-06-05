@@ -14,7 +14,7 @@ def add_files(bundle, root, alias, file_names):
     """Add files to the bundle."""
     for file_name in file_names:
         file_alias = os.path.join(alias, file_name)
-        print("  {} --> {}".format(file_name, file_alias))
+        print(f"  {file_name} --> {file_alias}")
         bundle.add(os.path.join(root, file_name), file_alias)
 
 
@@ -38,7 +38,7 @@ def add_directory(bundle, root, alias):
 
 def main():
     """Create a tar-zip file containing the pygame documents and examples."""
-    with open('setup.py', 'r') as setup:
+    with open('setup.py') as setup:
         match = re.search(r'"version":[ \t]+"([0-9]+\.[0-9]+)\.[^"]+"',
                           setup.read())
 
@@ -49,7 +49,7 @@ def main():
         version = '-%s' % match.group(1)
 
     bundle_name = 'pygame%s-docs-and-examples.tar.gz' % version
-    print("Creating bundle {}".format(bundle_name))
+    print(f"Creating bundle {bundle_name}")
 
     with tarfile.open(bundle_name, 'w:gz') as bundle:
         root = os.path.abspath('.')
@@ -61,7 +61,7 @@ def main():
         add_directory(bundle, os.path.join(root, 'examples'),
                       os.path.join(alias, 'examples'))
 
-    print("\nFinished {}".format(bundle_name))
+    print(f"\nFinished {bundle_name}")
 
 
 if __name__ == '__main__':

@@ -92,7 +92,7 @@ def visit_toc_ref_html(self, node):
     refid = as_refid(refuri)
     docname = get_descinfo_refid(refid, self.settings.env)["docname"]
     link_suffix = self.builder.link_suffix
-    node["refuri"] = "%s%s%s" % (os.path.basename(docname), link_suffix, refuri)
+    node["refuri"] = f"{os.path.basename(docname)}{link_suffix}{refuri}"
     visit_toc_ref(self, node)
 
 
@@ -142,7 +142,7 @@ class DocumentTransformer(Visitor):
     key_pat = re.compile(_key_re)
 
     def __init__(self, app, document_node):
-        super(DocumentTransformer, self).__init__(app, document_node)
+        super().__init__(app, document_node)
         self.module_stack = deque()
         self.title_stack = deque()
 
@@ -353,7 +353,7 @@ def inject_template_globals(app, pagename, templatename, context, doctree):
     def sort_by_order(sequence, existing_order):
         return existing_order + [x for x in sequence if x not in existing_order]
 
-    full_name_section = dict([(x["fullname"], x) for x in sections])
+    full_name_section = {x["fullname"]: x for x in sections}
     full_names = [x["fullname"] for x in sections]
     sorted_names = sort_by_order(full_names, existing_order)
 

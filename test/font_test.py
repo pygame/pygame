@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import os
 import unittest
@@ -596,7 +594,7 @@ class VisualTests(unittest.TestCase):
                 modes.append("underlined")
             if antialiase:
                 modes.append("antialiased")
-            text = "%s (y/n):" % ("-".join(modes),)
+            text = f"{'-'.join(modes)} (y/n):"
         f.set_bold(bold)
         f.set_italic(italic)
         f.set_underline(underline)

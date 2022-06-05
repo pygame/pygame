@@ -1,5 +1,3 @@
-# -*- coding:latin-1 -*-
-
 import re
 from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 import subprocess

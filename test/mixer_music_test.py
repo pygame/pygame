@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import platform
@@ -97,7 +95,7 @@ class MixerMusicModuleTest(unittest.TestCase):
             with open(temp_file, "w") as f:
                 pass
             os.remove(temp_file)
-        except IOError:
+        except OSError:
             raise unittest.SkipTest("the path cannot be opened")
         shutil.copy(org_file, temp_file)
         try:

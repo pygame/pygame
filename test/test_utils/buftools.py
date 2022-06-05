@@ -225,9 +225,7 @@ class Exporter(pygame.newbuffer.BufferMixin):
         elif self.is_contiguous("C"):
             view.shape = None
         else:
-            raise BufferError(
-                "shape required for {} dimensional data".format(self.ndim)
-            )
+            raise BufferError(f"shape required for {self.ndim} dimensional data")
         if (flags & PyBUF_STRIDES) == PyBUF_STRIDES:
             view.strides = ctypes.addressof(self._strides)
         elif view.shape is None or self.is_contiguous("C"):

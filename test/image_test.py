@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import array
 import binascii
 import io
@@ -275,7 +273,7 @@ class ImageModuleTest(unittest.TestCase):
 
         for fmt in formats:
             try:
-                temp_filename = "%s.%s" % ("tmpimg", fmt)
+                temp_filename = f"tmpimg.{fmt}"
                 pygame.image.save(s, temp_filename)
 
                 # Using 'with' ensures the file is closed even if test fails.
@@ -413,7 +411,7 @@ class ImageModuleTest(unittest.TestCase):
             with open(temp_file, "w") as f:
                 pass
             os.remove(temp_file)
-        except IOError:
+        except OSError:
             raise unittest.SkipTest("the path cannot be opened")
 
         self.assertFalse(os.path.exists(temp_file))
@@ -425,7 +423,7 @@ class ImageModuleTest(unittest.TestCase):
         finally:
             try:
                 os.remove(temp_file)
-            except EnvironmentError:
+            except OSError:
                 pass
 
     def test_save_unicode_path(self):

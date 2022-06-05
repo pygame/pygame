@@ -9,7 +9,7 @@
 import io
 import platform
 
-with io.open('README.rst', encoding='utf-8') as readme:
+with open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
 
 EXTRAS = {}
@@ -267,7 +267,7 @@ if consume_arg('cython'):
             outdated = True
             priority = 0
         if outdated:
-            print('Compiling {} because it changed.'.format(pyx_file))
+            print(f'Compiling {pyx_file} because it changed.')
             queue.append((priority, dict(pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
                                          options=c_options, full_module_name=ext.name,
                                          embedded_metadata=pyx_meta.get(ext.name))))
@@ -278,7 +278,7 @@ if consume_arg('cython'):
 
     count = len(queue)
     for i, kwargs in enumerate(queue):
-        kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
+        kwargs['progress'] = f'[{i + 1}/{count}] '
         cythonize_one(**kwargs)
 
 no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
@@ -573,7 +573,7 @@ def write_version_module(pygame_version, revision):
     if vernum != ', '.join(str(e) for e in src_vernum):
         raise SystemExit("_pygame.h version differs from 'METADATA' version"
                          ": %s vs %s" % (vernum, src_vernum))
-    with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
+    with open(os.path.join('buildconfig', 'version.py.in')) as header_file:
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)

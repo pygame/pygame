@@ -262,7 +262,7 @@ class Array(Exporter):
     }
 
     def __init__(self, *args, **kwds):
-        super(Array, self).__init__(*args, **kwds)
+        super().__init__(*args, **kwds)
         try:
             if self.flags & PAI_NOTSWAPPED:
                 ct = self._ctypes[self.typekind, self.itemsize]
@@ -288,7 +288,7 @@ class Array(Exporter):
             raise ValueError("wrong number of indexes")
         for i in range(self.nd):
             if not (0 <= key[i] < self.shape[i]):
-                raise IndexError("index {} out of range".format(i))
+                raise IndexError(f"index {i} out of range")
         return self.data + sum(i * s for i, s in zip(key, self.strides))
 
 
