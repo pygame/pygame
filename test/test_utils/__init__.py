@@ -77,11 +77,11 @@ def get_tmp_dir():
 
 
 def question(q):
-    return input("\n%s (y/n): " % q.rstrip(" ")).lower().strip() == "y"
+    return input(f"\n{q.rstrip(' ')} (y/n): ").lower().strip() == "y"
 
 
 def prompt(p):
-    return input("\n%s (press enter to continue): " % p.rstrip(" "))
+    return input(f"\n{p.rstrip(' ')} (press enter to continue): ")
 
 
 #################################### HELPERS ##################################

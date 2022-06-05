@@ -468,9 +468,9 @@ class Writer:
                 except TypeError:
                     c = (c,)
                 if len(c) != 1:
-                    raise ValueError("%s for greyscale must be 1-tuple" % which)
+                    raise ValueError(f"{which} for greyscale must be 1-tuple")
                 if not isinteger(c[0]):
-                    raise ValueError("%s colour for greyscale must be integer" % which)
+                    raise ValueError(f"{which} colour for greyscale must be integer")
             else:
                 if not (
                     len(c) == 3
@@ -478,7 +478,7 @@ class Writer:
                     and isinteger(c[1])
                     and isinteger(c[2])
                 ):
-                    raise ValueError("%s colour must be a triple of integers" % which)
+                    raise ValueError(f"{which} colour must be a triple of integers")
             return c
 
         if size:
@@ -518,7 +518,7 @@ class Writer:
         del bytes_per_sample
         if not isinteger(bitdepth) or bitdepth < 1 or 16 < bitdepth:
             raise ValueError(
-                "bitdepth (%r) must be a positive integer <= 16" % bitdepth
+                f"bitdepth ({bitdepth!r}) must be a positive integer <= 16"
             )
 
         self.rescale = None
@@ -728,7 +728,7 @@ class Writer:
         elif self.bitdepth == 16:
             # Decompose into bytes
             def extend(sl):
-                fmt = "!%dH" % len(sl)
+                fmt = f"!{len(sl)}H"
                 data.extend(array("B", struct.pack(fmt, *sl)))
 
         else:
@@ -2080,12 +2080,12 @@ class Reader:
             pixels = itertrns(pixels)
         targetbitdepth = None
         if self.sbit:
-            sbit = struct.unpack("%dB" % len(self.sbit), self.sbit)
+            sbit = struct.unpack(f"{len(self.sbit)}B", self.sbit)
             targetbitdepth = max(sbit)
             if targetbitdepth > meta["bitdepth"]:
                 raise Error("sBIT chunk %r exceeds bitdepth %d" % (sbit, self.bitdepth))
             if min(sbit) <= 0:
-                raise Error("sBIT chunk %r has a 0-entry" % sbit)
+                raise Error(f"sBIT chunk {sbit!r} has a 0-entry")
             if targetbitdepth == meta["bitdepth"]:
                 targetbitdepth = None
         if targetbitdepth:
@@ -3531,7 +3531,7 @@ def test_suite(options, args):
 
         if name not in _pngsuite:
             raise NotImplementedError(
-                "cannot find PngSuite file %s (use -L for a list)" % name
+                f"cannot find PngSuite file {name} (use -L for a list)"
             )
         r = Reader(bytes=_pngsuite[name])
         w, h, pixels, meta = r.asDirect()
@@ -3654,7 +3654,7 @@ def read_pnm_header(infile, supported=("P5", "P6")):
     # is acceptable.
     type = infile.read(3).rstrip()
     if type not in supported:
-        raise NotImplementedError("file format %s not supported" % type)
+        raise NotImplementedError(f"file format {type} not supported")
     if type == strtobytes("P7"):
         # PAM header parsing is completely different.
         return read_pam_header(infile)
@@ -3686,7 +3686,7 @@ def read_pnm_header(infile, supported=("P5", "P6")):
             while c not in "\n\r":
                 c = getc()
         if not c.isdigit():
-            raise Error("unexpected character %s found in header" % c)
+            raise Error(f"unexpected character {c} found in header")
         # According to the specification it is legal to have comments
         # that appear in the middle of a token.
         # This is bonkers; I've never seen it; and it's a bit awkward to
@@ -3706,7 +3706,7 @@ def read_pnm_header(infile, supported=("P5", "P6")):
         while c not in "\n\r":
             c = getc()
     if not c.isspace():
-        raise Error("expected header to end with whitespace, not %s" % c)
+        raise Error(f"expected header to end with whitespace, not {c}")
 
     if type in pbm:
         # synthesize a MAXVAL
@@ -3984,7 +3984,7 @@ def _main(argv):
             format, awidth, aheight, adepth, amaxval = read_pnm_header(pgmfile, "P5")
             if amaxval != "255":
                 raise NotImplementedError(
-                    "maxval %s not supported for alpha channel" % amaxval
+                    f"maxval {amaxval} not supported for alpha channel"
                 )
             if (awidth, aheight) != (width, height):
                 raise ValueError(

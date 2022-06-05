@@ -69,7 +69,7 @@ test_suite_dirs = [
 
 
 def assert_on_results(suite, single, sub):
-    test = globals().get("%s_test" % suite)
+    test = globals().get(f"{suite}_test")
     if hasattr(test, "__call_"):
         test(suite, single, sub)
         print(f"assertions on {suite} OK")

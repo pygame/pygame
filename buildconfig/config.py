@@ -153,7 +153,7 @@ def writesetupfile(deps, basepath, additional_lines):
                             newsetup.write('#'+line)
                             break
                 if useit:
-                    legalVars.add('$(%s)' % line.split('=')[0].strip())
+                    legalVars.add(f"$({line.split('=')[0].strip()})")
             if useit:
                 newsetup.write(line)
 

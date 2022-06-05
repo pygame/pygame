@@ -38,7 +38,7 @@ else:
     test_pkg_name = "test"
 program_name = sys.argv[0]
 if program_name == "-c":
-    program_name = 'python -c "import %s.go"' % test_pkg_name
+    program_name = f'python -c "import {test_pkg_name}.go"'
 
 ###########################################################################
 # Set additional command line options
@@ -46,17 +46,16 @@ if program_name == "-c":
 # Defined in test_runner.py as it shares options, added to here
 
 opt_parser.set_usage(
-    """
+    f"""
 
-Runs all or some of the %(pkg)s.xxxx_test tests.
+Runs all or some of the {test_pkg_name}.xxxx_test tests.
 
-$ %(exec)s sprite threads -sd
+$ {program_name} sprite threads -sd
 
 Runs the sprite and threads module tests isolated in subprocesses, dumping
 all failing tests info in the form of a dict.
 
 """
-    % {"pkg": test_pkg_name, "exec": program_name}
 )
 
 opt_parser.add_option(

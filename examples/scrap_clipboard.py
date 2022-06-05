@@ -53,7 +53,7 @@ while going:
             for t in scrap.get_types():
                 r = scrap.get(t)
                 if r and len(r) > 500:
-                    print("Type %s : (large %i byte buffer)" % (t, len(r)))
+                    print(f"Type {t} : (large {len(r)} byte buffer)")
                 elif r is None:
                     print(f"Type {t} : None")
                 else:

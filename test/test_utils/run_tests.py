@@ -209,7 +209,7 @@ def run(*args, **kwds):
         if option_seed is None:
             option_seed = time.time()
         meta["random_seed"] = option_seed
-        print("\nRANDOM SEED USED: %s\n" % option_seed)
+        print(f"\nRANDOM SEED USED: {option_seed}\n")
         random.seed(option_seed)
         random.shuffle(test_modules)
 
@@ -239,7 +239,7 @@ def run(*args, **kwds):
                 pass_on_args.append("--" + field)
 
         def sub_test(module):
-            print("loading %s" % module)
+            print(f"loading {module}")
 
             cmd = [option_python, "-m", test_runner_mod, module] + pass_on_args
 
@@ -264,7 +264,7 @@ def run(*args, **kwds):
         t = time.time()
 
         for module, cmd, (return_code, raw_return) in tmap(sub_test, test_modules):
-            test_file = "%s.py" % os.path.join(test_subdir, module)
+            test_file = f"{os.path.join(test_subdir, module)}.py"
             cmd, test_env, working_dir = cmd
 
             test_results = get_test_results(raw_return)

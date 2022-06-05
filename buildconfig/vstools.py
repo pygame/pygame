@@ -55,13 +55,13 @@ def find_symbols(dll):
 
 def dump_def(dll, def_file=None):
     if not def_file:
-        def_file = '%s.def' % os.path.splitext(dll)[0]
+        def_file = f'{os.path.splitext(dll)[0]}.def'
     dll_base = os.path.basename(dll)
     with open(def_file, 'w') as f:
         f.write(_fmt_header % dll_base)
-        f.write('LIBRARY "%s"\n' % dll_base)
+        f.write(f'LIBRARY "{dll_base}\"\n')
         f.write('EXPORTS\n')
-        f.writelines("%s\n" % line for line in find_symbols(dll))
+        f.writelines(f"{line}\n" for line in find_symbols(dll))
 
 def lib_from_def(def_file, arch=None):
     if not arch:
@@ -72,6 +72,6 @@ def lib_from_def(def_file, arch=None):
             arch = 'IA64'
         else:
             arch = 'x64'
-    lib_file = '%s.lib' % os.path.splitext(def_file)[0]
-    compiler.spawn([compiler.lib, '/nologo', '/MACHINE:%s' % arch,
-                   '/DEF:%s' % def_file, '/OUT:%s' % lib_file])
+    lib_file = f'{os.path.splitext(def_file)[0]}.lib'
+    compiler.spawn([compiler.lib, '/nologo', f'/MACHINE:{arch}',
+                   f'/DEF:{def_file}', f'/OUT:{lib_file}'])

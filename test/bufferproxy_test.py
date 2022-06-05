@@ -282,7 +282,7 @@ class BufferProxyTest(unittest.TestCase):
         d = b.__array_interface__
         try:
             lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
-            f = "{}i{}".format("<" if lil_endian else ">", exp.itemsize)
+            f = f"{'<' if lil_endian else '>'}i{exp.itemsize}"
             self.assertEqual(d["typestr"], f)
             self.assertEqual(d["shape"], exp.shape)
             self.assertEqual(d["strides"], exp.strides)

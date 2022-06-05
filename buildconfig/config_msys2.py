@@ -36,7 +36,7 @@ def get_absolute_win_path(msys2_path):
     output = subprocess.run(['cygpath', '-w', msys2_path],
                             capture_output=True, text=True)
     if output.returncode != 0:
-        raise Exception("Could not get absolute Windows path: %s"%msys2_path)
+        raise Exception(f"Could not get absolute Windows path: {msys2_path}")
     else:
         return output.stdout.strip()
 
@@ -92,10 +92,10 @@ class Dependency:
                 self.libs[0] = os.path.splitext(self.fallback_lib[2])[0].lstrip('lib').rstrip('.dll')
             if self.inc_dir and self.lib_dir:
                 if print_result:
-                    print("Path for %s found." % self.name)
+                    print(f"Path for {self.name} found.")
                 return True
             if print_result:
-                print("Path for %s not found." % self.name)
+                print(f"Path for {self.name} not found.")
                 for info in self.prune_info:
                     print(info)
                 if self.required:
@@ -244,7 +244,7 @@ class DependencyDLL(Dependency):
             print(f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
-            print("No DLL for %s: not found!" % (self.lib_name))
+            print(f"No DLL for {self.lib_name}: not found!")
             if self.required:
                 print('Too bad that is a requirement! Hand-fix the "Setup"')
 
@@ -324,7 +324,7 @@ class DependencyGroup:
                     link = d
                     break
             else:
-                raise KeyError("Link lib %s not found" % link_lib)
+                raise KeyError(f"Link lib {link_lib} not found")
         dep = DependencyDLL(dll_regex, lib, wildcards, libs, link)
         self.dlls.append(dep)
         return dep
@@ -355,7 +355,7 @@ class DependencyGroup:
                         from buildconfig import vstools
                     from os.path import splitext
                     nonext_name = splitext(d.lib_dir)[0]
-                    def_file = '%s.def' % nonext_name
+                    def_file = f'{nonext_name}.def'
                     basename = os.path.basename(nonext_name)
                     print(f'Building lib from {os.path.basename(d.lib_dir)}: {basename}.lib...')
                     vstools.dump_def(d.lib_dir, def_file=def_file)
@@ -402,7 +402,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     sdlDep.inc_dir = [
         os.path.join(prebuilt_dir, 'include').replace('\\', '/')
     ]
-    sdlDep.inc_dir.append('%s/SDL2' % sdlDep.inc_dir[0])
+    sdlDep.inc_dir.append(f'{sdlDep.inc_dir[0]}/SDL2')
     fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
     imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                         ['SDL', 'jpeg', 'png', 'tiff'], 0)
@@ -419,7 +419,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     ftDep.inc_dir = [
         os.path.join(prebuilt_dir, 'include').replace('\\', '/')
     ]
-    ftDep.inc_dir.append('%s/freetype2' % ftDep.inc_dir[0])
+    ftDep.inc_dir.append(f'{ftDep.inc_dir[0]}/freetype2')
     ftDep.found = True
 
     png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],

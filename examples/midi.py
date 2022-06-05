@@ -55,7 +55,7 @@ def input_main(device_id=None):
     else:
         input_id = device_id
 
-    print("using input_id :%s:" % input_id)
+    print(f"using input_id :{input_id}:")
     i = pygame.midi.Input(input_id)
 
     pg.display.set_mode((1, 1))
@@ -173,7 +173,7 @@ def output_main(device_id=None):
     else:
         port = device_id
 
-    print("using output_id :%s:" % port)
+    print(f"using output_id :{port}:")
 
     midi_out = pygame.midi.Output(port, 0)
     try:
@@ -342,8 +342,8 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
         key_color = "white"
     else:
         key_color = "black"
-    c_notify_down_method = "_right_%s_down" % key_color
-    c_notify_up_method = "_right_%s_up" % key_color
+    c_notify_down_method = f"_right_{key_color}_down"
+    c_notify_up_method = f"_right_{key_color}_up"
 
     # Images:
     #
@@ -853,7 +853,7 @@ def main(mode="output", device_id=None):
     elif mode == "list":
         print_device_info()
     else:
-        raise ValueError("Unknown mode option '%s'" % mode)
+        raise ValueError(f"Unknown mode option '{mode}'")
 
 
 if __name__ == "__main__":
