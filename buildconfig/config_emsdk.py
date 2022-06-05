@@ -78,7 +78,7 @@ class DependencyProg:
 
 
         except (ValueError, TypeError):
-            print ('WARNING: "%s" failed!' % command)
+            print (f'WARNING: "{command}" failed!')
             self.found = 0
             self.ver = '0'
             self.libs = defaultlibs

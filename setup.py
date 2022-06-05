@@ -167,7 +167,7 @@ def compilation_help():
 
     print('\n---')
     print('For help with compilation see:')
-    print('    %s' % url)
+    print(f'    {url}')
     print('To contribute to pygame development see:')
     print('    https://www.pygame.org/contribute.html')
     print('---\n')
@@ -582,7 +582,7 @@ def write_version_module(pygame_version, revision):
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"  # pylint: disable=invalid-name\n')
-        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
+        version_file.write(f'vernum = PygameVersion({vernum})\n')
         version_file.write('rev = "' + revision + '"  # pylint: disable=invalid-name\n')
         version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
@@ -649,7 +649,7 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         # next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
         if f == '_':
-            print("WARNING, DLL for %s library not found." % lib)
+            print(f"WARNING, DLL for {lib} library not found.")
         else:
             pygame_data_files.append(f)
 
@@ -815,7 +815,7 @@ if "bdist_msi" in sys.argv:
             # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
             installer_name = self.get_installer_filename(fullname)
-            print("changing %s to overwrite files on install" % installer_name)
+            print(f"changing {installer_name} to overwrite files on install")
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
 

@@ -1020,7 +1020,7 @@ class ColorTypeTest(unittest.TestCase):
                 if 0 <= index < 4:
                     return self.items[index]
                 raise IndexError(
-                    "valid index values are between 0 and 3: " "got {}".format(index)
+                    f"valid index values are between 0 and 3: got {index}"
                 )
 
             def __setitem__(self, index, value):
@@ -1028,8 +1028,7 @@ class ColorTypeTest(unittest.TestCase):
                     self.items[index] = value
                 else:
                     raise IndexError(
-                        "valid index values are between 0 and 3: "
-                        "got {}".format(index)
+                        f"valid index values are between 0 and 3: got {index}"
                     )
 
         c = pygame.Color(50, 100, 150, 200)

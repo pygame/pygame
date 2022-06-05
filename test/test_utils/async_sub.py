@@ -272,7 +272,7 @@ def proc_in_time_or_kill(cmd, time_out, wd=None, env=None):
         response += [proc.read_async(wait=0.1, e=0)]
 
     if ret_code is None:
-        ret_code = '"Process timed out (time_out = %s secs) ' % time_out
+        ret_code = f'"Process timed out (time_out = {time_out} secs) '
         try:
             proc.kill()
             ret_code += 'and was successfully terminated"'

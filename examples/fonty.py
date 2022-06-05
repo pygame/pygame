@@ -56,7 +56,7 @@ def main():
     a_sys_font.set_italic(0)
 
     # Get some metrics.
-    print("Font metrics for 'Fonty':  %s" % a_sys_font.metrics(text))
+    print(f"Font metrics for 'Fonty':  {a_sys_font.metrics(text)}")
     ch = "\u3060"
     msg = f"Font metrics for '{ch}':  {a_sys_font.metrics(ch)}"
     print(msg)

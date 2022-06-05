@@ -3281,7 +3281,7 @@ class SurfaceBlendTest(unittest.TestCase):
                 p.append(tuple(c))
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
         # Blend blits are special cased for 32 to 32 bit surfaces.
         #
@@ -3304,7 +3304,7 @@ class SurfaceBlendTest(unittest.TestCase):
                 p.append(tuple(c))
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
     def test_blit_blend_rgba(self):
         sources = [
@@ -3371,7 +3371,7 @@ class SurfaceBlendTest(unittest.TestCase):
             ]
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
         # Confirm this special case handles subsurfaces.
         src = pygame.Surface((8, 10), SRCALPHA, 32)
@@ -3746,7 +3746,7 @@ class SurfaceBlendTest(unittest.TestCase):
                     c = dst.unmap_rgb(dst.map_rgb(c))
                     p.append(c)
                 dst.fill(fill_color, special_flags=getattr(pygame, blend_name))
-                self._assert_surface(dst, p, ", %s" % blend_name)
+                self._assert_surface(dst, p, f", {blend_name}")
 
     def test_fill_blend_rgba(self):
         destinations = [
@@ -3778,7 +3778,7 @@ class SurfaceBlendTest(unittest.TestCase):
                     c = dst.unmap_rgb(dst.map_rgb(c))
                     p.append(c)
                 dst.fill(fill_color, special_flags=getattr(pygame, blend_name))
-                self._assert_surface(dst, p, ", %s" % blend_name)
+                self._assert_surface(dst, p, f", {blend_name}")
 
 
 class SurfaceSelfBlitTest(unittest.TestCase):

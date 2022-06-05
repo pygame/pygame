@@ -149,14 +149,14 @@ def main(*args):
         unused_mask = maskFromSurface(images[-1])
     t2 = time.time()
 
-    print("python maskFromSurface :%s" % (t2 - t1))
+    print(f"python maskFromSurface :{t2 - t1}")
 
     t1 = time.time()
     for x in range(numtimes):
         unused_mask = pg.mask.from_surface(images[-1])
     t2 = time.time()
 
-    print("C pg.mask.from_surface :%s" % (t2 - t1))
+    print(f"C pg.mask.from_surface :{t2 - t1}")
 
     sprites = []
     for i in range(20):

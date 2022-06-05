@@ -1767,9 +1767,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                         self.assertEqual(
                             count,
                             expected_count,
-                            "fill={}, size=({}, {}), pos={}".format(
-                                fill, width, height, pos
-                            ),
+                            f"fill={fill}, size=({width}, {height}), pos={pos}",
                         )
 
     def test_count__full_mask(self):
@@ -6096,9 +6094,7 @@ class MaskModuleTest(unittest.TestCase):
                 threshold_test_values = {-1, 0, alpha - 1, alpha, alpha + 1, 255, 256}
 
                 for threshold in threshold_test_values:
-                    msg = "depth={}, alpha={}, threshold={}".format(
-                        depth, alpha, threshold
-                    )
+                    msg = f"depth={depth}, alpha={alpha}, threshold={threshold}"
 
                     if alpha > threshold:
                         expected_count = all_set_count

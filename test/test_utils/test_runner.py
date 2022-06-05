@@ -170,7 +170,7 @@ def output_into_dots(output):
                     found = True
                     break
             if not found:
-                raise ValueError("Not sure what this is. Add to reasons. :%s" % l)
+                raise ValueError(f"Not sure what this is. Add to reasons. :{l}")
 
         return "".join(dotlist)
     dots = DOTS.search(output).group(1)
@@ -221,10 +221,10 @@ def combine_results(all_results, t):
     combined += [f"{RAN_TESTS_DIV} {total_tests} tests in {t:.3f}s\n"]
 
     if failures:
-        infos = (["failures=%s" % total_fails] if total_fails else []) + (
-            ["errors=%s" % total_errors] if total_errors else []
+        infos = ([f"failures={total_fails}"] if total_fails else []) + (
+            [f"errors={total_errors}"] if total_errors else []
         )
-        combined += ["FAILED (%s)\n" % ", ".join(infos)]
+        combined += [f"FAILED ({', '.join(infos)})\n"]
     else:
         combined += ["OK\n"]
 
@@ -245,7 +245,7 @@ def get_test_results(raw_return):
         try:
             return eval(test_results.group(1))
         except:
-            print("BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1))
+            print(f"BUGGY TEST RESULTS EVAL:\n {test_results.group(1)}")
             raise
 
 
@@ -269,7 +269,7 @@ def run_test(
         verbosity = 1
 
     if verbosity:
-        print("loading %s" % module)
+        print(f"loading {module}")
 
     loader = PygameTestLoader(
         randomize_tests=randomize, include_incomplete=incomplete, exclude=exclude
@@ -312,7 +312,7 @@ if __name__ == "__main__":
             run_from = "pygame.tests.go"
         else:
             run_from = os.path.join(main_dir, "run_tests.py")
-        sys.exit("No test module provided; consider using %s instead" % run_from)
+        sys.exit(f"No test module provided; consider using {run_from} instead")
     run_test(
         args[0],
         incomplete=options.incomplete,

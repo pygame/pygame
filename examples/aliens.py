@@ -64,7 +64,7 @@ def load_sound(file):
         sound = pg.mixer.Sound(file)
         return sound
     except pg.error:
-        print("Warning, unable to load, %s" % file)
+        print(f"Warning, unable to load, {file}")
     return None
 
 

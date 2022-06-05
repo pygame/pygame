@@ -351,7 +351,7 @@ class ImageModuleTest(unittest.TestCase):
             SDL_Im_version[0] * 10000 + SDL_Im_version[1] * 100 + SDL_Im_version[2]
         ) >= 20002
         for fmt in formats:
-            tmp_file, tmp_filename = tempfile.mkstemp(suffix=".%s" % fmt)
+            tmp_file, tmp_filename = tempfile.mkstemp(suffix=f".{fmt}")
             if not isAtLeastSDL_image_2_0_2 and fmt.lower() == "jpg":
                 with os.fdopen(tmp_file, "wb") as handle:
                     with self.assertRaises(pygame.error):
@@ -623,8 +623,7 @@ class ImageModuleTest(unittest.TestCase):
         self._assertSurfaceEqual(
             test_surface,
             test_to_from_fmt_string,
-            "tostring/fromstring functions are not "
-            'symmetric with "{}" format'.format(fmt),
+            f"tostring/fromstring functions are not symmetric with \"{fmt}\" format",
         )
 
     def test_frombuffer_8bit(self):
@@ -1107,7 +1106,7 @@ class ImageModuleTest(unittest.TestCase):
 
         # check that .jpg and .png save
         for fmt in passing_formats:
-            temp_file_name = "temp_file.%s" % fmt
+            temp_file_name = f"temp_file.{fmt}"
             # save image as .jpg and .png
             pygame.image.save_extended(surf, temp_file_name)
             with open(temp_file_name, "rb") as file:
@@ -1122,7 +1121,7 @@ class ImageModuleTest(unittest.TestCase):
         # check that .bmp and .tga do not save
         for fmt in failing_formats:
             self.assertRaises(
-                pygame.error, pygame.image.save_extended, surf, "temp_file.%s" % fmt
+                pygame.error, pygame.image.save_extended, surf, f"temp_file.{fmt}"
             )
 
     def threads_load(self, images):

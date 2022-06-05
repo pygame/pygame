@@ -62,14 +62,14 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
                 f.write(response)
 
     if unzip and filename.endswith('.zip'):
-        print("Unzipping :%s:" % save_to)
+        print(f"Unzipping :{save_to}:")
         with zipfile.ZipFile(save_to, 'r') as zip_ref:
             zip_dir = os.path.join(
                 save_to_directory,
                 filename.replace('.zip', '')
             )
             if os.path.exists(zip_dir):
-                print("Skipping unzip to zip_dir exists:%s:" % zip_dir)
+                print(f"Skipping unzip to zip_dir exists:{zip_dir}:")
             else:
                 os.mkdir(zip_dir)
                 zip_ref.extractall(zip_dir)
@@ -110,7 +110,7 @@ def download_prebuilts(temp_dir, x86=True, x64=True):
     """ For downloading prebuilt dependencies.
     """
     if not os.path.exists(temp_dir):
-        print("Making dir :%s:" % temp_dir)
+        print(f"Making dir :{temp_dir}:")
         os.makedirs(temp_dir)
     for url, checksum in get_urls(x86=x86, x64=x64):
         download_sha1_unzip(url, checksum, temp_dir, 1)
@@ -196,7 +196,7 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
 
     for prebuilt_dir in prebuilt_dirs:
         path = os.path.join(move_to_dir, prebuilt_dir)
-        print("copying into %s" % path)
+        print(f"copying into {path}")
 
         copy(
             os.path.join(
@@ -251,12 +251,12 @@ def update(x86=True, x64=True):
 def ask(x86=True, x64=True):
     move_to_dir = "."
     if x64:
-        dest_str = "\"%s/prebuilt-x64\"" % move_to_dir
+        dest_str = f"\"{move_to_dir}/prebuilt-x64\""
     else:
         dest_str = ""
     if x86:
         if dest_str:
-            dest_str = "%s and " % dest_str
+            dest_str = f"{dest_str} and "
         dest_str = f"{dest_str}\"{move_to_dir}/prebuilt-x86\""
     logging.info('Downloading prebuilts to "%s" and copying to %s.', (download_dir, dest_str))
     download_prebuilt = True

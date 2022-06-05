@@ -39,7 +39,7 @@ class MixerMusicModuleTest(unittest.TestCase):
     def music_load(self, format):
         data_fname = example_path("data")
 
-        path = os.path.join(data_fname, "house_lo.%s" % format)
+        path = os.path.join(data_fname, f"house_lo.{format}")
         if os.sep == "\\":
             path = path.replace("\\", "\\\\")
         umusfn = str(path)
@@ -53,7 +53,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         formats = ["ogg", "wav"]
         data_fname = example_path("data")
         for f in formats:
-            path = os.path.join(data_fname, "house_lo.%s" % f)
+            path = os.path.join(data_fname, f"house_lo.{f}")
             if os.sep == "\\":
                 path = path.replace("\\", "\\\\")
             bmusfn = path.encode()
@@ -66,7 +66,7 @@ class MixerMusicModuleTest(unittest.TestCase):
         formats = ["wav", "ogg"]
         data_fname = example_path("data")
         for f in formats:
-            path = os.path.join(data_fname, "house_lo.%s" % f)
+            path = os.path.join(data_fname, f"house_lo.{f}")
             if os.sep == "\\":
                 path = path.replace("\\", "\\\\")
             bmusfn = path.encode()
