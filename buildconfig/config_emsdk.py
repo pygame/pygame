@@ -5,8 +5,6 @@ import os
 import sys
 from glob import glob
 
-from .config_unix import get_porttime_dep
-
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
