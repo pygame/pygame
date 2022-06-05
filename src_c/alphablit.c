@@ -400,10 +400,92 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_MIN: {
+#if !defined(__EMSCRIPTEN__)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgb_min_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgb_min_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgb_min_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+#endif /* __EMSCRIPTEN__ */
                     blit_blend_min(&info);
                     break;
                 }
                 case PYGAME_BLEND_MAX: {
+#if !defined(__EMSCRIPTEN__)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgb_max_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgb_max_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        !(src->format->Amask != 0 && dst->format->Amask != 0 &&
+                          src->format->Amask != dst->format->Amask) &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgb_max_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+#endif /* __EMSCRIPTEN__ */
                     blit_blend_max(&info);
                     break;
                 }
@@ -535,10 +617,86 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MIN: {
+#if !defined(__EMSCRIPTEN__)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgba_min_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgba_min_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgba_min_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+#endif /* __EMSCRIPTEN__ */
                     blit_blend_rgba_min(&info);
                     break;
                 }
                 case PYGAME_BLEND_RGBA_MAX: {
+#if !defined(__EMSCRIPTEN__)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_rgba_max_avx2(&info);
+                        break;
+                    }
+#if defined(__SSE2__)
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasSSE2() && (src != dst)) {
+                        blit_blend_rgba_max_sse2(&info);
+                        break;
+                    }
+#endif /* __SSE2__*/
+#if PG_ENABLE_ARM_NEON
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasNEON() && (src != dst)) {
+                        blit_blend_rgba_max_sse2(&info);
+                        break;
+                    }
+#endif /* PG_ENABLE_ARM_NEON */
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+#endif /* __EMSCRIPTEN__ */
                     blit_blend_rgba_max(&info);
                     break;
                 }

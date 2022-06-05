@@ -613,3 +613,287 @@ blit_blend_rgb_sub_sse2(SDL_BlitInfo *info)
     }
 }
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+void
+blit_blend_rgba_max_sse2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+
+    int srcquadpxskip = 4 * dstpxskip;
+    int dstquadpxskip = 4 * dstpxskip;
+
+    int pre_4_width = width % 4;
+    int post_4_width = (width - pre_4_width) / 4;
+
+    __m128i mm_src, mm_dst;
+
+    __m128i *srcp128 = (__m128i *)info->s_pixels;
+    __m128i *dstp128 = (__m128i *)info->d_pixels;
+
+    while (height--) {
+        if (pre_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_dst = _mm_max_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_4_width);
+        }
+        srcp128 = (__m128i *)srcp;
+        dstp128 = (__m128i *)dstp;
+        if (post_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_loadu_si128(srcp128);
+                    mm_dst = _mm_loadu_si128(dstp128);
+
+                    mm_dst = _mm_max_epu8(mm_dst, mm_src);
+
+                    _mm_storeu_si128(dstp128, mm_dst);
+
+                    srcp128++;
+                    dstp128++;
+                    srcp += srcquadpxskip;
+                    dstp += dstquadpxskip;
+                },
+                n, post_4_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+void
+blit_blend_rgb_max_sse2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+
+    int srcquadpxskip = 4 * dstpxskip;
+    int dstquadpxskip = 4 * dstpxskip;
+
+    int pre_4_width = width % 4;
+    int post_4_width = (width - pre_4_width) / 4;
+
+    __m128i *srcp128 = (__m128i *)info->s_pixels;
+    __m128i *dstp128 = (__m128i *)info->d_pixels;
+
+    Uint32 amask = info->src->Amask | info->dst->Amask;
+
+    __m128i mm_src, mm_dst, mm_alpha_mask;
+
+    mm_alpha_mask = _mm_set_epi32(amask, amask, amask, amask);
+
+    while (height--) {
+        if (pre_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_max_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_4_width);
+        }
+        srcp128 = (__m128i *)srcp;
+        dstp128 = (__m128i *)dstp;
+        if (post_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_loadu_si128(srcp128);
+                    mm_dst = _mm_loadu_si128(dstp128);
+
+                    mm_src = _mm_subs_epu8(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_max_epu8(mm_dst, mm_src);
+
+                    _mm_storeu_si128(dstp128, mm_dst);
+
+                    srcp128++;
+                    dstp128++;
+                    srcp += srcquadpxskip;
+                    dstp += dstquadpxskip;
+                },
+                n, post_4_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+void
+blit_blend_rgba_min_sse2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+
+    int srcquadpxskip = 4 * dstpxskip;
+    int dstquadpxskip = 4 * dstpxskip;
+
+    int pre_4_width = width % 4;
+    int post_4_width = (width - pre_4_width) / 4;
+
+    __m128i mm_src, mm_dst;
+
+    __m128i *srcp128 = (__m128i *)info->s_pixels;
+    __m128i *dstp128 = (__m128i *)info->d_pixels;
+
+    while (height--) {
+        if (pre_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_dst = _mm_min_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_4_width);
+        }
+        srcp128 = (__m128i *)srcp;
+        dstp128 = (__m128i *)dstp;
+        if (post_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_loadu_si128(srcp128);
+                    mm_dst = _mm_loadu_si128(dstp128);
+
+                    mm_dst = _mm_min_epu8(mm_dst, mm_src);
+
+                    _mm_storeu_si128(dstp128, mm_dst);
+
+                    srcp128++;
+                    dstp128++;
+                    srcp += srcquadpxskip;
+                    dstp += dstquadpxskip;
+                },
+                n, post_4_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
+void
+blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
+{
+    int n;
+    int width = info->width;
+    int height = info->height;
+
+    Uint32 *srcp = (Uint32 *)info->s_pixels;
+    int srcskip = info->s_skip >> 2;
+    int srcpxskip = info->s_pxskip >> 2;
+
+    Uint32 *dstp = (Uint32 *)info->d_pixels;
+    int dstskip = info->d_skip >> 2;
+    int dstpxskip = info->d_pxskip >> 2;
+
+    int srcquadpxskip = 4 * dstpxskip;
+    int dstquadpxskip = 4 * dstpxskip;
+
+    int pre_4_width = width % 4;
+    int post_4_width = (width - pre_4_width) / 4;
+
+    __m128i *srcp128 = (__m128i *)info->s_pixels;
+    __m128i *dstp128 = (__m128i *)info->d_pixels;
+
+    Uint32 amask = info->src->Amask | info->dst->Amask;
+
+    __m128i mm_src, mm_dst, mm_alpha_mask;
+
+    mm_alpha_mask = _mm_set_epi32(amask, amask, amask, amask);
+
+    while (height--) {
+        if (pre_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_cvtsi32_si128(*srcp);
+                    mm_dst = _mm_cvtsi32_si128(*dstp);
+
+                    mm_src = _mm_adds_epu8(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_min_epu8(mm_dst, mm_src);
+
+                    *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
+                },
+                n, pre_4_width);
+        }
+        srcp128 = (__m128i *)srcp;
+        dstp128 = (__m128i *)dstp;
+        if (post_4_width > 0) {
+            LOOP_UNROLLED4(
+                {
+                    mm_src = _mm_loadu_si128(srcp128);
+                    mm_dst = _mm_loadu_si128(dstp128);
+
+                    mm_src = _mm_adds_epu8(mm_src, mm_alpha_mask);
+                    mm_dst = _mm_min_epu8(mm_dst, mm_src);
+
+                    _mm_storeu_si128(dstp128, mm_dst);
+
+                    srcp128++;
+                    dstp128++;
+                    srcp += srcquadpxskip;
+                    dstp += dstquadpxskip;
+                },
+                n, post_4_width);
+        }
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+#endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
