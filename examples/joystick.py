@@ -56,9 +56,7 @@ def main():
                 if event.button == 0:
                     joystick = joysticks[event.instance_id]
                     if joystick.rumble(0, 0.7, 500):
-                        print(
-                            f"Rumble effect played on joystick {event.instance_id}"
-                        )
+                        print(f"Rumble effect played on joystick {event.instance_id}")
 
             if event.type == pygame.JOYBUTTONUP:
                 print("Joystick button released.")

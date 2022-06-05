@@ -1019,9 +1019,7 @@ class ColorTypeTest(unittest.TestCase):
             def __getitem__(self, index):
                 if 0 <= index < 4:
                     return self.items[index]
-                raise IndexError(
-                    f"valid index values are between 0 and 3: got {index}"
-                )
+                raise IndexError(f"valid index values are between 0 and 3: got {index}")
 
             def __setitem__(self, index, value):
                 if 0 <= index < 4:

@@ -103,9 +103,7 @@ def SpeedTest(image):
         duration += time.time() - start
         del tempimg
 
-    print(
-        f"Average transform.smoothscale shrink time: {duration / 128 * 1000:.4f} ms."
-    )
+    print(f"Average transform.smoothscale shrink time: {duration / 128 * 1000:.4f} ms.")
 
     duration = 0.0
     for i in range(128):
@@ -116,9 +114,7 @@ def SpeedTest(image):
         duration += time.time() - start
         del tempimg
 
-    print(
-        f"Average transform.smoothscale expand time: {duration / 128 * 1000:.4f} ms."
-    )
+    print(f"Average transform.smoothscale expand time: {duration / 128 * 1000:.4f} ms.")
 
     duration = 0.0
     for i in range(128):

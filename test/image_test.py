@@ -623,7 +623,7 @@ class ImageModuleTest(unittest.TestCase):
         self._assertSurfaceEqual(
             test_surface,
             test_to_from_fmt_string,
-            f"tostring/fromstring functions are not symmetric with \"{fmt}\" format",
+            f'tostring/fromstring functions are not symmetric with "{fmt}" format',
         )
 
     def test_frombuffer_8bit(self):
