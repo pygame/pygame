@@ -29,7 +29,7 @@ open just in case something obvious comes up.
    savegames, settings, and the like. This path is unique per user and
    per app name.
 
-   It takes two strings, ``org`` and ``app``, refering to the "organization"
+   It takes two strings, ``org`` and ``app``, referring to the "organization"
    and "application name." For example, the organization could be "Valve," 
    and the application name could be "Half Life 2." It then will figure out the
    preferred path, **creating the folders referenced by the path if necessary**,

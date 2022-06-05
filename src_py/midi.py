@@ -521,7 +521,7 @@ class Output:
         Output.write_sys_ex(when, msg)
 
         msg - can be a *list* or a *string*
-        when - a timestamp in miliseconds
+        when - a timestamp in milliseconds
         example:
           (assuming o is an onput MIDI stream)
             o.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')

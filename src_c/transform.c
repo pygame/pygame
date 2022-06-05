@@ -127,7 +127,7 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
-            PyExc_ValueError, "unsupport Surface bit depth for transform"));
+            PyExc_ValueError, "unsupported Surface bit depth for transform"));
 
     newsurf = SDL_CreateRGBSurface(surf->flags, width, height,
                                    surf->format->BitsPerPixel,
@@ -704,7 +704,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,
-                     "unsupport Surface bit depth for transform");
+                     "unsupported Surface bit depth for transform");
 
     if (!(fmod((double)angle, (double)90.0f))) {
         pgSurface_Lock(surfobj);
@@ -1209,7 +1209,7 @@ filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     const int factorwidth = 4;
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring dstwidth >= 2 to supress
+    /* Make MSVC static analyzer happy by assuring dstwidth >= 2 to suppress
      * a false analyzer report */
     __analysis_assume(dstwidth >= 2);
 #endif
@@ -2688,7 +2688,7 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 #pragma optimize("", off)
 #endif
 
-/* When GCC compiles the following funtion with -O3 on PPC64 little endian,
+/* When GCC compiles the following function with -O3 on PPC64 little endian,
  * the function gives incorrect output with 24-bit surfaces. This is most
  * likely a compiler bug, see #2876 for related issue.
  * So turn optimisations off here */

@@ -358,7 +358,7 @@ typedef struct pgEventObject pgEventObject;
 
 /*
  * RWOBJECT module
- * the rwobject are only needed for C side work, not accessable from python.
+ * the rwobject are only needed for C side work, not accessible from python.
  */
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define pgRWops_FromObject \

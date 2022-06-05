@@ -356,7 +356,7 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pixels = surf->pixels;
     if (stride0 < 1 || stride0 > 4) {
         return RAISE(PyExc_ValueError,
-                     "unsupport bit depth for reference array");
+                     "unsupported bit depth for reference array");
     }
 
     return (PyObject *)_pxarray_new_internal(type, surfobj, 0, pixels, dim0,

@@ -57,7 +57,7 @@ in the game.
 Sprites and Groups manage their relationships with the add() and remove()
 methods. These methods can accept a single or multiple group arguments for
 membership.  The default initializers for these classes also take a
-single group or list of groups as argments for initial membership. It is safe
+single group or list of groups as arguments for initial membership. It is safe
 to repeatedly add and remove the same Sprite from a Group.
 
 While it is possible to design sprite and group classes that don't derive
@@ -420,8 +420,8 @@ cdef class AbstractGroup:
         """
         # This function behaves essentially the same as Group.add. It first
         # tries to handle each argument as an instance of the Sprite class. If
-        # that failes, then it tries to handle the argument as an iterable
-        # object. If that failes, then it tries to handle the argument as an
+        # that fails, then it tries to handle the argument as an iterable
+        # object. If that fails, then it tries to handle the argument as an
         # old-style sprite group. Lastly, if that fails, it assumes that the
         # normal Sprite methods should be used.
         for sprite in sprites:
@@ -1213,7 +1213,7 @@ cdef class LayeredDirty(LayeredUpdates):
 ##        # debug
 ##        print "               check: using dirty rects:", self._use_update
 
-        # emtpy dirty rects list
+        # empty dirty rects list
         _update[:] = []
 
         # -------
@@ -1278,7 +1278,22 @@ cdef class LayeredDirty(LayeredUpdates):
     def set_timing_treshold(self, time_ms):
         """set the treshold in milliseconds
 
+        DEPRECATED: misspelled 'threshold'
+
         set_timing_treshold(time_ms): return None
+
+        Defaults to 1000.0 / 80.0. This means that the screen will be painted
+        using the flip method rather than the update method if the update
+        method is taking so long to update the screen that the frame rate falls
+        below 80 frames per second.
+
+        """
+        self._time_threshold = time_ms
+
+    def set_timing_threshold(self, time_ms):
+        """set the threshold in milliseconds
+
+        (time_ms): return None
 
         Defaults to 1000.0 / 80.0. This means that the screen will be painted
         using the flip method rather than the update method if the update

@@ -911,7 +911,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_nonorigin(self):
-        """Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)"""
+        """Test Rectangle Dest, with overflow but with starting rect with top-left at (1,1)"""
         result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (63, 63))
@@ -3958,7 +3958,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
         self._assert_same(surf, comp)
 
         # Blitting a subsurface to its owner is forbidden because of
-        # lock conficts. This limitation allows the overlap check
+        # lock conflicts. This limitation allows the overlap check
         # in PySurface_Blit of alphablit.c to be simplified.
         def do_blit(d, s):
             d.blit(s, (0, 0))

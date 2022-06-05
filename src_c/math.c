@@ -106,7 +106,7 @@ typedef struct {
     PyObject_HEAD pgVector *vec;
 } vector_elementwiseproxy;
 
-/* further forward declerations */
+/* further forward declarations */
 /* generic helper functions */
 static int
 RealNumber_Check(PyObject *obj);
@@ -506,7 +506,7 @@ _vector_find_string_helper(PyObject *str_obj, const char *substr,
  * return
  *    0 on success.
  *   -1 if conversion was unsuccessful
- *   -2 if an internal error occured and an exception was set
+ *   -2 if an internal error occurred and an exception was set
  */
 static Py_ssize_t
 _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,

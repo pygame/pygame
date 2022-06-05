@@ -6,7 +6,7 @@ aliens.py
    This started off as a port of the SDL demonstration, Aliens.
    Now it has evolved into something sort of resembling fun.
    This demonstrates a lot of different uses of sprites and
-   optimized blitting.  Also transparancy, colorkeys, fonts, sound,
+   optimized blitting.  Also transparency, colorkeys, fonts, sound,
    music, joystick, and more.  (PS, my high score is 117! goodluck)
 
 arraydemo.py

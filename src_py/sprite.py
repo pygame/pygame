@@ -1184,7 +1184,7 @@ class LayeredDirty(LayeredUpdates):
         else:
             self._use_update = True
 
-        # emtpy dirty rects list
+        # empty dirty rects list
         local_update[:] = []
 
         # -------

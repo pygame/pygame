@@ -95,7 +95,7 @@ _validate_view_format(const char *format)
             /* default: unrecognized character; raise error later */
     }
     if (format[i] != '\0') {
-        PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
+        PyErr_SetString(PyExc_ValueError, "Unsupported array item type");
         return -1;
     }
 
@@ -493,7 +493,7 @@ array_to_surface(PyObject *self, PyObject *arg)
     }
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for surface");
+        return RAISE(PyExc_ValueError, "unsupported bit depth for surface");
 
     stridex = view_p->strides[0];
     stridey = view_p->strides[1];
@@ -820,7 +820,7 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     else {
         pgBuffer_Release(&pg_view);
         pgSurface_Unlock(surfobj);
-        PyErr_Format(PyExc_ValueError, "Unsupported array depth %d",
+        PyErr_Format(PyExc_ValueError, "unsupported array depth %d",
                      (int)view_p->ndim);
         return 0;
     }

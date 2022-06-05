@@ -20,7 +20,7 @@
 
 /*
   This module exports a proxy object that exposes another object's
-  data throught the Python buffer protocol or the array interface.
+  data through the Python buffer protocol or the array interface.
   The new buffer protocol is available for Python 3.x. For Python 2.x
   only the old protocol is implemented (for PyPy compatibility).
   Both the C level array structure - __array_struct__ - interface and

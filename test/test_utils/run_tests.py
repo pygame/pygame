@@ -69,7 +69,7 @@ def run(*args, **kwds):
            Pygame tests
     python - the path to a python executable to run subprocessed tests
              (default sys.executable)
-    interative - allow tests tagged 'interative'.
+    interactive - allow tests tagged 'interactive'.
 
     Return value:
     A tuple of total number of tests run, dictionary of error information. The

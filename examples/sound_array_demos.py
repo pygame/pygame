@@ -103,7 +103,7 @@ def slow_down_sound(sound, rate):
 
 def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     """returns a sound which begins at the start_pos.
-    start_pos - in seconds from the begining.
+    start_pos - in seconds from the beginning.
     samples_per_second -
     """
 

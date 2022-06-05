@@ -229,7 +229,7 @@ is colliding with the given target sprite. ::
         monkey when it is punched."""
 
         def __init__(self):
-            pg.sprite.Sprite.__init__(self)  # call Sprite intializer
+            pg.sprite.Sprite.__init__(self)  # call Sprite initializer
             self.image, self.rect = load_image("chimp.png", -1, 4)
             screen = pg.display.get_surface()
             self.area = screen.get_rect()

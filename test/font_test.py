@@ -345,7 +345,7 @@ class FontTypeTest(unittest.TestCase):
         # __doc__ (as of 2008-08-02) for pygame_font.Font.metrics:
 
         # Font.metrics(text): return list
-        # Gets the metrics for each character in the pased string.
+        # Gets the metrics for each character in the passed string.
         #
         # The list contains tuples for each character, which contain the
         # minimum X offset, the maximum X offset, the minimum Y offset, the

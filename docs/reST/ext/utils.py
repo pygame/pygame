@@ -50,7 +50,7 @@ def get_refid(node):
     try:
         return get_ids(node)[0]
     except IndexError:
-        raise GetError("Node has emtpy ids list")
+        raise GetError("Node has empty ids list")
 
 
 def as_refid(refuri):

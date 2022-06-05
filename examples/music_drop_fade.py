@@ -111,7 +111,7 @@ def play_next():
 def draw_text_line(text, y=0):
     """
     Draws a line of text onto the display surface
-    The text will be centered horizontally at the given y postition
+    The text will be centered horizontally at the given y position
     The text's height is added to y and returned to the caller
     """
     screen = pg.display.get_surface()
@@ -122,12 +122,12 @@ def draw_text_line(text, y=0):
     return y
 
 
-def change_music_postion(amount):
+def change_music_position(amount):
     """
-    Changes current playback postition by amount seconds.
+    Changes current playback position by amount seconds.
     This only works with OGG and MP3 files.
     music.get_pos() returns how many milliseconds the song has played, not
-    the current postion in the file. We must track the starting postion
+    the current position in the file. We must track the starting position
     ourselves. music.set_pos() will set the position in seconds.
     """
     global starting_pos
@@ -215,9 +215,9 @@ def main():
                 elif ev.key == pg.K_DOWN:
                     change_volume = -VOLUME_CHANGE_AMOUNT
                 elif ev.key == pg.K_RIGHT:
-                    change_music_postion(+5)
+                    change_music_position(+5)
                 elif ev.key == pg.K_LEFT:
-                    change_music_postion(-5)
+                    change_music_position(-5)
 
                 else:
                     play_next()
