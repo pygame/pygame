@@ -24,7 +24,7 @@ def as_machine_type(size):
         return "x86"
     if size == 64:
         return "x64"
-    raise BuildError("Unknown pointer size {}".format(size))
+    raise BuildError(f"Unknown pointer size {size}")
 
 def get_machine_type():
     return as_machine_type(get_ptr_size())
@@ -90,12 +90,12 @@ class Dependency:
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print (f"Path for {self.name}: {self.path}")
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print (f"Path for {self.name}: {self.path}")
         return True
 
     def matchfile(self, path, match):
@@ -167,8 +167,8 @@ class Dependency:
                 if lib_info[2]:
                     self.libs[0] = os.path.splitext(lib_info[2])[0]
         if self.lib_dir and self.inc_dir:
-            print("...Library directory for %s: %s" % (self.name, self.lib_dir))
-            print("...Include directory for %s: %s" % (self.name, self.inc_dir))
+            print(f"...Library directory for {self.name}: {self.lib_dir}")
+            print(f"...Include directory for {self.name}: {self.inc_dir}")
             self.found = True
 
 class DependencyPython:
@@ -224,7 +224,7 @@ class DependencyDLL(Dependency):
             self.check_roots()
 
         if self.lib_dir != '_':
-            print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+            print (f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
             print ("No DLL for %s: not found!" % (self.lib_name))
@@ -340,7 +340,7 @@ class DependencyGroup:
                     nonext_name = splitext(d.lib_dir)[0]
                     def_file = '%s.def' % nonext_name
                     basename = os.path.basename(nonext_name)
-                    print('Building lib from %s: %s.lib...' % (
+                    print('Building lib from {}: {}.lib...'.format(
                         os.path.basename(d.lib_dir),
                         basename
                     ))
@@ -351,10 +351,8 @@ class DependencyGroup:
                     d.link.configure()
 
     def __iter__(self):
-        for d in self.dependencies:
-            yield d
-        for d in self.dlls:
-            yield d
+        yield from self.dependencies
+        yield from self.dlls
 
 def _add_sdl2_dll_deps(DEPS):
     # MIXER

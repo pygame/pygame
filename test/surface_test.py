@@ -3366,7 +3366,7 @@ class SurfaceBlendTest(unittest.TestCase):
         )
         for blend_name, dst_color, op in blend:
             p = [
-                tuple([op(dst_color[i], src_color[i]) for i in range(4)])
+                tuple(op(dst_color[i], src_color[i]) for i in range(4))
                 for src_color in self._test_palette
             ]
             dst.fill(dst_color)

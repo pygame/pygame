@@ -15,7 +15,7 @@ labels = ("versionadded", "versionchanged", "deprecated", "versionextended")
 
 def set_version_formats(app, config):
     for label in labels:
-        versionlabels[label] = _(getattr(config, "{}_format".format(label)))
+        versionlabels[label] = _(getattr(config, f"{label}_format"))
 
 
 def setup(app):
@@ -27,7 +27,7 @@ def setup(app):
 
     for label in ("versionadded", "versionchanged", "deprecated", "versionextended"):
         app.add_config_value(
-            "{}_format".format(label), str(versionlabels[label]), "env"
+            f"{label}_format", str(versionlabels[label]), "env"
         )
 
     app.connect("config-inited", set_version_formats)

@@ -253,7 +253,7 @@ def main(
 
         frames += 1
     end = time()
-    print("FPS: %f" % (frames / ((end - start))))
+    print("FPS: %f" % (frames / (end - start)))
     pg.quit()
 
 

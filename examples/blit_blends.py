@@ -113,7 +113,7 @@ def main():
 
                     # show which key we're doing...
                     onedoing = blitsn[bkey]
-                    print("time to do :%s: is :%s:" % (onedoing, t2 - t1))
+                    print(f"time to do :{onedoing}: is :{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_o]:
                 t1 = time.time()

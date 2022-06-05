@@ -87,7 +87,7 @@ class Cursor:
             self.type = "bitmap"
             # pylint: disable=consider-using-generator
             # See https://github.com/pygame/pygame/pull/2509 for analysis
-            self.data = tuple([tuple(arg) for arg in args])
+            self.data = tuple(tuple(arg) for arg in args)
         else:
             raise TypeError("Arguments must match a cursor specification")
 

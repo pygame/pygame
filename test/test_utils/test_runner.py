@@ -10,18 +10,13 @@ if __name__ == "__main__":
 else:
     is_pygame_pkg = __name__.startswith("pygame.tests.")
 
-import unittest
-from .test_machinery import PygameTestLoader
-
-import re
-
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
-
+import io
 import optparse
+import re
+import unittest
 from pprint import pformat
+
+from .test_machinery import PygameTestLoader
 
 
 def prepare_test_env():
@@ -42,12 +37,12 @@ main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
 TAG_PAT = r"-?[a-zA-Z0-9_]+"
 TAG_RE = re.compile(TAG_PAT)
-EXCLUDE_RE = re.compile(r"(%s,?\s*)+$" % (TAG_PAT,))
+EXCLUDE_RE = re.compile(rf"({TAG_PAT},?\s*)+$")
 
 
 def exclude_callback(option, opt, value, parser):
     if EXCLUDE_RE.match(value) is None:
-        raise optparse.OptionValueError("%s argument has invalid value" % (opt,))
+        raise optparse.OptionValueError(f"{opt} argument has invalid value")
     parser.values.exclude = TAG_RE.findall(value)
 
 
@@ -223,7 +218,7 @@ def combine_results(all_results, t):
     combined = [all_dots]
     if failures:
         combined += ["".join(failures).lstrip("\n")[:-1]]
-    combined += ["%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)]
+    combined += [f"{RAN_TESTS_DIV} {total_tests} tests in {t:.3f}s\n"]
 
     if failures:
         infos = (["failures=%s" % total_fails] if total_fails else []) + (
@@ -240,7 +235,7 @@ def combine_results(all_results, t):
 
 TEST_RESULTS_START = "<--!! TEST RESULTS START HERE !!-->"
 TEST_RESULTS_END = "<--!! TEST RESULTS END HERE !!-->"
-_test_re_str = "%s\n(.*)%s" % (TEST_RESULTS_START, TEST_RESULTS_END)
+_test_re_str = f"{TEST_RESULTS_START}\n(.*){TEST_RESULTS_END}"
 TEST_RESULTS_RE = re.compile(_test_re_str, re.DOTALL | re.M)
 
 
@@ -281,7 +276,7 @@ def run_test(
     )
     suite.addTest(loader.loadTestsFromName(module))
 
-    output = StringIO.StringIO()
+    output = io.StringIO()
     runner = unittest.TextTestRunner(stream=output, buffer=buffer, verbosity=verbosity)
     results = runner.run(suite)
 

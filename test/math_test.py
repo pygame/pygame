@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import math
 import platform
 import unittest
@@ -1973,9 +1972,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_dir_works(self):
         # not every single one of the attributes...
-        attributes = set(
-            ["lerp", "normalize", "normalize_ip", "reflect", "slerp", "x", "y"]
-        )
+        attributes = {"lerp", "normalize", "normalize_ip", "reflect", "slerp", "x", "y"}
         # check if this selection of attributes are all there.
         self.assertTrue(attributes.issubset(set(dir(self.v1))))
 

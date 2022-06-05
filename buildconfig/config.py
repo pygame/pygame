@@ -102,7 +102,7 @@ def writesetupfile(deps, basepath, additional_lines):
     sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
                                           'Setup.SDL2.in')
 
-    with open(sdl_setup_filename, 'r') as origsetup, \
+    with open(sdl_setup_filename) as origsetup, \
             open(os.path.join(BASE_PATH, 'Setup'), 'w') as newsetup:
         line = ''
         while line.find('#--StartConfig') == -1:
@@ -136,7 +136,7 @@ def writesetupfile(deps, basepath, additional_lines):
 
         new_lines.extend(additional_lines)
         lines = new_lines
-        legalVars = set(d.varname for d in deps)
+        legalVars = {d.varname for d in deps}
         legalVars.add('$(DEBUG)')
 
         for line in lines:
@@ -211,20 +211,16 @@ Only SDL2 is supported now.""")
 
     if sys.platform == 'win32':
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in")).readlines()
     elif sys.platform == 'darwin':
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in")).readlines()
     elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup.Emscripten.SDL2.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup.Emscripten.SDL2.in")).readlines()
     else:
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in")).readlines()
 
 
     if os.path.isfile('Setup'):

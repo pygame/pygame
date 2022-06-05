@@ -36,7 +36,7 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
             data = the_file.read()
             cont_checksum = hashlib.sha1(data).hexdigest()
             if cont_checksum == checksum:
-                print("Skipping download url:%s: save_to:%s:" % (url, save_to))
+                print(f"Skipping download url:{url}: save_to:{save_to}:")
     else:
         print("Downloading...", url, checksum)
 
@@ -53,7 +53,7 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
 
         if checksum != cont_checksum:
             raise ValueError(
-                'url:%s should have checksum:%s: Has:%s: ' % (url, checksum, cont_checksum)
+                f'url:{url} should have checksum:{checksum}: Has:{cont_checksum}: '
             )
         with open(save_to, 'wb') as f:
             if use_requests:
@@ -257,7 +257,7 @@ def ask(x86=True, x64=True):
     if x86:
         if dest_str:
             dest_str = "%s and " % dest_str
-        dest_str = "%s\"%s/prebuilt-x86\"" % (dest_str, move_to_dir)
+        dest_str = f"{dest_str}\"{move_to_dir}/prebuilt-x86\""
     logging.info('Downloading prebuilts to "%s" and copying to %s.', (download_dir, dest_str))
     download_prebuilt = True
 

@@ -39,7 +39,7 @@ def writer(app, pagename, templatename, context, doctree):
     if not items:
         return
     templates = app.builder.templates
-    filename = "%s%s.h" % (os.path.basename(pagename), filename_suffix)
+    filename = f"{os.path.basename(pagename)}{filename_suffix}.h"
     filepath = os.path.join(dirpath, filename)
     template = app.config["headers_template"]
     header = open(filepath, "w", encoding="utf-8")

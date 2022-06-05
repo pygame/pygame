@@ -54,7 +54,7 @@ def install_prebuilts(x86=True, x64=True):
     errors = False
     print("Installing pre-built dependencies")
     for pkg in get_packages(x86=x86, x64=x64):
-        print("Installing {}".format(pkg))
+        print(f"Installing {pkg}")
         error = install_pacman_package(pkg)
         errors = errors or error
     if errors:

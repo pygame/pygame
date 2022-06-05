@@ -80,7 +80,7 @@ class CollectInfo(Visitor):
     }
 
     def __init__(self, app, document_node):
-        super(CollectInfo, self).__init__(app, document_node)
+        super().__init__(app, document_node)
         self.docname = self.env.docname
         self.summary_stack = deque()
         self.sig_stack = deque()

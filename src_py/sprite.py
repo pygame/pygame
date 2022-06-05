@@ -1474,7 +1474,7 @@ class collide_rect_ratio:  # noqa pylint: disable=invalid-name; this is a functi
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
-            attrs=" ".join("{}={!r}".format(k, v) for k, v in self.__dict__.items()),
+            attrs=" ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
         )
 
     def __call__(self, left, right):
@@ -1546,9 +1546,7 @@ def collide_circle(left, right):
     return distancesquared <= (leftradius + rightradius) ** 2
 
 
-class collide_circle_ratio(
-    object
-):  # noqa pylint: disable=invalid-name; this is a function-like class
+class collide_circle_ratio:  # noqa pylint: disable=invalid-name; this is a function-like class
     """detect collision between two sprites using scaled circles
 
     This callable class checks for collisions between two sprites using a
@@ -1580,7 +1578,7 @@ class collide_circle_ratio(
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
-            attrs=" ".join("{}={!r}".format(k, v) for k, v in self.__dict__.items()),
+            attrs=" ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
         )
 
     def __call__(self, left, right):
