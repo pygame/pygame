@@ -50,10 +50,10 @@ class Dependency:
                     self.lib_dir = dir
                     break
         if self.inc_dir and (self.lib_dir or not self.checklib):
-            print (self.name + '        '[len(self.name):] + ': found')
+            print(self.name + '        '[len(self.name):] + ': found')
             self.found = 1
         else:
-            print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name + '        '[len(self.name):] + ': not found')
 
 class FrameworkDependency(Dependency):
     def configure(self, incdirs, libdirs):
@@ -62,7 +62,7 @@ class FrameworkDependency(Dependency):
             n += 'Library/Frameworks/'
             fmwk = n + self.libs + '.framework/Versions/Current/'
             if os.path.isdir(fmwk):
-                print ('Framework ' + self.libs + ' found')
+                print('Framework ' + self.libs + ' found')
                 self.found = 1
                 self.inc_dir = fmwk + 'Headers'
                 self.cflags = (
@@ -71,7 +71,7 @@ class FrameworkDependency(Dependency):
                 self.origlib = self.libs
                 self.libs = ''
                 return
-        print ('Framework ' + self.libs + ' not found')
+        print('Framework ' + self.libs + ' not found')
 
 
 class DependencyPython:
@@ -100,9 +100,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print (self.name + '        '[len(self.name):] + ': found', self.ver)
+            print(self.name + '        '[len(self.name):] + ': found', self.ver)
         else:
-            print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name + '        '[len(self.name):] + ': not found')
 
 def find_freetype():
     """ modern freetype uses pkg-config. However, some older systems don't have that.
@@ -145,7 +145,7 @@ def main(auto_config=False):
         # Dependency('SCRAP', '','',[]),
     ])
 
-    print ('Hunting dependencies...')
+    print('Hunting dependencies...')
     incdirs = ['/usr/local/include', '/opt/homebrew/include']
     incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
 
@@ -180,5 +180,5 @@ def main(auto_config=False):
 
 
 if __name__ == '__main__':
-    print ("""This is the configuration subscript for OSX Darwin.
+    print("""This is the configuration subscript for OSX Darwin.
              Please run "config.py" for full configuration.""")

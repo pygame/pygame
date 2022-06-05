@@ -44,13 +44,13 @@ class BlitTest(unittest.TestCase):
 
         s.blit(d, (0, 0), None, BLEND_ADD)
 
-        # print "d %s" % (d.get_at((0,0)),)
-        # print s.get_at((0,0))
+        # print("d %s" % (d.get_at((0,0)),))
+        # print(s.get_at((0,0)))
         # self.assertEqual(s.get_at((0,0))[2], 255 )
         # self.assertEqual(s.get_at((0,0))[3], 0 )
 
         s.blit(d, (0, 0), None, BLEND_RGBA_ADD)
-        # print s.get_at((0,0))
+        # print(s.get_at((0,0)))
         self.assertEqual(s.get_at((0, 0))[3], 255)
 
         # test adding works.

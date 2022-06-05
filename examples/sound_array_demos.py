@@ -56,11 +56,11 @@ def make_echo(sound, samples_per_second, mydebug=True):
         print(f"size {size}")
         print(myarr.shape)
     myarr[:length] = a1
-    # print (myarr[3000:length+3000])
-    # print (a1 >> 1)
-    # print ("a1.shape %s" % (a1.shape,))
+    # print(myarr[3000:length+3000])
+    # print(a1 >> 1)
+    # print("a1.shape %s" % (a1.shape,))
     # c = myarr[3000:length+(3000*mult)]
-    # print ("c.shape %s" % (c.shape,))
+    # print("c.shape %s" % (c.shape,))
 
     incr = int(samples_per_second / echo_length)
     gap = length
@@ -88,15 +88,15 @@ def slow_down_sound(sound, rate):
     # make it 1/rate times longer.
     # a1 = pg.sndarray.array(sound)
     # surf = pg.surfarray.make_surface(a1)
-    # print (a1.shape[0] * grow_rate)
+    # print(a1.shape[0] * grow_rate)
     # scaled_surf = pg.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
-    # print (scaled_surf)
-    # print (surf)
+    # print(scaled_surf)
+    # print(surf)
 
     # a2 = a1 * rate
-    # print (a1.shape)
-    # print (a2.shape)
-    # print (a2)
+    # print(a1.shape)
+    # print(a2.shape)
+    # print(a2)
     # sound2 = pg.sndarray.make_sound(a2.astype(int16))
     # return sound2
 
@@ -168,8 +168,8 @@ def main():
 
     # if 0:
     #    #TODO: this is broken.
-    #    print (("-" * 30) + "\n")
-    #    print ("Slow down the original sound.")
+    #    print(("-" * 30) + "\n")
+    #    print("Slow down the original sound.")
     #    rate = 0.2
     #    slowed_sound = slow_down_sound(sound, rate)
     #    slowed_sound.play()

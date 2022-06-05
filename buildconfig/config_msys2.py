@@ -9,7 +9,8 @@ try:
 except ImportError:
     from buildconfig.setup_win_common import get_definitions
 
-import os, sys
+import os
+import sys
 import re
 import logging
 import subprocess
@@ -91,24 +92,24 @@ class Dependency:
                 self.libs[0] = os.path.splitext(self.fallback_lib[2])[0].lstrip('lib').rstrip('.dll')
             if self.inc_dir and self.lib_dir:
                 if print_result:
-                    print (f"Path for {self.name} found.")
+                    print(f"Path for {self.name} found.")
                 return True
             if print_result:
-                print (f"Path for {self.name} not found.")
+                print(f"Path for {self.name} not found.")
                 for info in self.prune_info:
                     print(info)
                 if self.required:
-                    print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                    print('Too bad that is a requirement! Hand-fix the "Setup"')
             return False
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print (f"Path for {self.name}: {self.path}")
+                print(f"Path for {self.name}: {self.path}")
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print (f"Path for {self.name}: {self.path}")
+                print(f"Path for {self.name}: {self.path}")
         return True
 
     def matchfile(self, path, match):
@@ -213,9 +214,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print ("%-8.8s: found %s" % (self.name, self.ver))
+            print("%-8.8s: found %s" % (self.name, self.ver))
         else:
-            print ("%-8.8s: not found" % self.name)
+            print("%-8.8s: not found" % self.name)
 
 class DependencyDLL(Dependency):
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
@@ -240,12 +241,12 @@ class DependencyDLL(Dependency):
             self.check_roots()
 
         if self.lib_dir != '_':
-            print (f"DLL for {self.lib_name}: {self.lib_dir}")
+            print(f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
-            print (f"No DLL for {self.lib_name}: not found!")
+            print(f"No DLL for {self.lib_name}: not found!")
             if self.required:
-                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                print('Too bad that is a requirement! Hand-fix the "Setup"')
 
     def check_roots(self):
         for p in self.huntpaths:
@@ -499,11 +500,10 @@ def main(auto_config=False):
     prebuilt_dir = get_absolute_win_path(prebuilt_msys_dir[machine_type])
     return setup_prebuilt_sdl2(prebuilt_dir)
 
-if __name__ == '__main__':
-    print ("""This is the configuration subscript for MSYS2.
-Please run "config.py" for full configuration.""")
 
-    import sys
+if __name__ == '__main__':
+    print("""This is the configuration subscript for MSYS2.
+Please run "config.py" for full configuration.""")
     if "--download" in sys.argv:
         try:
             from . import download_msys2_prebuilt

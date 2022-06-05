@@ -793,7 +793,7 @@ class Writer:
             if len(data) > self.chunk_limit:
                 compressed = compressor.compress(tostring(data))
                 if len(compressed):
-                    # print >> sys.stderr, len(data), len(compressed)
+                    # print(len(data), len(compressed), file= >> sys.stderr)
                     write_chunk(outfile, "IDAT", compressed)
                 # Because of our very witty definition of ``extend``,
                 # above, we must re-use the same ``data`` object.  Hence
@@ -806,7 +806,7 @@ class Writer:
             compressed = ""
         flushed = compressor.flush()
         if len(compressed) or len(flushed):
-            # print >> sys.stderr, len(data), len(compressed), len(flushed)
+            # print(len(data), len(compressed), len(flushed), file=sys.stderr)
             write_chunk(outfile, "IDAT", compressed + flushed)
         # http://www.w3.org/TR/PNG/#11IEND
         write_chunk(outfile, "IEND")
@@ -1433,7 +1433,7 @@ class Reader:
             verify &= 2**32 - 1
             verify = struct.pack("!I", verify)
             if checksum != verify:
-                # print repr(checksum)
+                # print(repr(checksum))
                 (a,) = struct.unpack("!I", checksum)
                 (b,) = struct.unpack("!I", verify)
                 raise ChunkError(
@@ -1571,8 +1571,8 @@ class Reader:
         Return in flat row flat pixel format.
         """
 
-        # print >> sys.stderr, ("Reading interlaced, w=%s, r=%s, planes=%s," +
-        #     " bpp=%s") % (self.width, self.height, self.planes, self.bps)
+        # print("Reading interlaced, w=%s, r=%s, planes=%s, bpp=%s"
+        # % (self.width, self.height, self.planes, self.bps, file=sys.stderr))
         # Values per row (of the target image)
         vpr = self.width * self.planes
 
@@ -1584,8 +1584,8 @@ class Reader:
         source_offset = 0
 
         for xstart, ystart, xstep, ystep in _adam7:
-            # print >> sys.stderr, "Adam7: start=%s,%s step=%s,%s" % (
-            #     xstart, ystart, xstep, ystep)
+            # print("Adam7: start=%s,%s step=%s,%s" % (
+            #     xstart, ystart, xstep, ystep, file=sys.stderr))
             if xstart >= self.width:
                 continue
             # The previous (reconstructed) scanline.  None at the
