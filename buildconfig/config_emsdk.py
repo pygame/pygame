@@ -1,26 +1,23 @@
 """Config on Emscripten SDK is almost like Unix"""
 
-import os, sys
-from glob import glob
-import platform
 import logging
-from distutils.sysconfig import get_python_inc
+import os
+import sys
+from glob import glob
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
-if os.environ.get('PYGAME_EXTRA_BASE', ''):
+if os.environ.get('PYGAME_EXTRA_BASE'):
     extrabases = os.environ['PYGAME_EXTRA_BASE'].split(':')
 else:
     extrabases = []
 
 EMSDK = os.environ.get('EMSDK', None)
 is_wasm = EMSDK is not None
-
 if not is_wasm:
     print("EMSDK not found")
     raise SystemExit(1)
-
 
 # EMCC_CFLAGS="-s USE_SDL=2 is required to prevent '-iwithsysroot/include/SDL'
 # which is SDL1 from ./emscripten/tools/ports/__init__.py
@@ -31,7 +28,6 @@ os.environ["EMCC_CFLAGS"]=EMCC_CFLAGS.strip()
 
 CC=os.environ.get("CC","emcc")
 os.environ["CC"] = CC.strip()
-
 
 
 class DependencyProg:
@@ -75,7 +71,6 @@ class DependencyProg:
             if self.name == 'FREETYPE':
                 inc = f"-I{EMSDK}/upstream/emscripten/cache/sysroot/include/freetype2/freetype "
                 self.cflags = inc + ' ' + self.cflags
-
 
         except (ValueError, TypeError):
             print('WARNING: "%s" failed!' % command)
@@ -185,13 +180,6 @@ def main(auto_config=False):
         #Dependency('SCRAP', '', 'libX11', ['X11']),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.a', ['SDL_gfx']),
     ])
-
-    if not is_wasm:
-        porttime_dep = get_porttime_dep()
-        DEPS.append(
-            Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.a', ['portmidi'])
-        )
-        DEPS.append(porttime_dep)
 
     if not DEPS[0].found:
         raise RuntimeError('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')

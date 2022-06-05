@@ -3,7 +3,7 @@
 from ext.utils import Visitor, get_name, GetError, get_refid, as_refid, as_refuri
 from ext.indexer import get_descinfo, get_descinfo_refid
 
-from sphinx.addnodes import desc, desc_signature, desc_content
+from sphinx.addnodes import desc, desc_content, desc_classname, desc_name, desc_signature
 from sphinx.addnodes import index as section_prelude_end_class
 from sphinx.domains.python import PyClasslike
 
@@ -299,10 +299,8 @@ def toc_ref(fullname, refid):
 def decorate_signatures(desc, classname):
     prefix = classname + "."
     for child in desc.children:
-        if isinstance(child, sphinx.addnodes.desc_signature) and isinstance(
-            child[0], sphinx.addnodes.desc_name
-        ):
-            new_desc_classname = sphinx.addnodes.desc_classname("", prefix)
+        if isinstance(child, desc_signature) and isinstance(child[0], desc_name):
+            new_desc_classname = desc_classname("", prefix)
             child.insert(0, new_desc_classname)
 
 

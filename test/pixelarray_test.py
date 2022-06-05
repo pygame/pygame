@@ -1,14 +1,10 @@
-import sys
-import platform
-
-try:
-    reduce
-except NameError:
-    from functools import reduce
-import operator
-import weakref
 import gc
+import operator
+import platform
+import sys
 import unittest
+import weakref
+from functools import reduce
 
 from pygame.tests.test_utils import SurfaceSubclass
 

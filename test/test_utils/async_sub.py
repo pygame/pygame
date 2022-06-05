@@ -140,7 +140,7 @@ class Popen(subprocess.Popen):
             sent = self.send(data)
             if sent is None:
                 raise Exception("Other end disconnected!")
-            data = buffer(data, sent)
+            data = memoryview(data, sent)
 
     def get_conn_maxsize(self, which, maxsize):
         if maxsize is None:

@@ -161,8 +161,7 @@ And now, my famous members
 
 __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 228 $"
 
-from array import array
-from pygame.tests.test_utils import tostring
+import io
 import itertools
 import math
 import operator
@@ -170,6 +169,10 @@ import struct
 import sys
 import zlib
 import warnings
+from array import array
+from functools import reduce
+
+from pygame.tests.test_utils import tostring
 
 __all__ = ["Image", "Reader", "Writer", "write_chunks", "from_array"]
 
@@ -1379,7 +1382,7 @@ class Reader:
                 kw["bytes"] = _guess
             elif isinstance(_guess, str):
                 kw["filename"] = _guess
-            elif isinstance(_guess, file):
+            elif isinstance(_guess, io.IOBase):
                 kw["file"] = _guess
 
         if "filename" in kw:
@@ -1420,7 +1423,7 @@ class Reader:
                 )
             checksum = self.file.read(4)
             if len(checksum) != 4:
-                raise ValueError("Chunk %s too short for checksum.", tag)
+                raise ValueError("Chunk %s too short for checksum.", checksum)
             if seek and type != seek:
                 continue
             verify = zlib.crc32(strtobytes(type))
