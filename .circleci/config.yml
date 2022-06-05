@@ -8,13 +8,14 @@ jobs:
   build:
     executor: python/default
     steps:
-      - checkout
-      - run: sudo apt-get update
-      - run: sudo apt-get install --yes libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev \
-                                        libportmidi-dev libjpeg-dev python3-setuptools python3-dev python3-numpy
-      - run: python3 -m pip install --upgrade pip
-      - run: python3 setup.py -config -auto
-      - run: python3 setup.py install --user
+      - run: python3 --version  # To minimize runtime until pygame/pygame#3187 is merged.
+      #- checkout
+      #- run: sudo apt-get update
+      #- run: sudo apt-get install --yes libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev \
+      #                                  libportmidi-dev libjpeg-dev python3-setuptools python3-dev python3-numpy
+      #- run: python3 -m pip install --upgrade pip
+      #- run: python3 setup.py -config -auto
+      #- run: python3 setup.py install --user
 workflows:
   main:
     jobs:
