@@ -78,24 +78,24 @@ class Dependency:
                 self.libs[0] = os.path.splitext(self.fallback_lib[2])[0]
             if self.inc_dir and self.lib_dir:
                 if print_result:
-                    print ("Path for %s found." % self.name)
+                    print("Path for %s found." % self.name)
                 return True
             if print_result:
-                print ("Path for %s not found." % self.name)
+                print("Path for %s not found." % self.name)
                 for info in self.prune_info:
                     print(info)
                 if self.required:
-                    print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                    print('Too bad that is a requirement! Hand-fix the "Setup"')
             return False
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print (f"Path for {self.name}: {self.path}")
+                print(f"Path for {self.name}: {self.path}")
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print (f"Path for {self.name}: {self.path}")
+                print(f"Path for {self.name}: {self.path}")
         return True
 
     def matchfile(self, path, match):
@@ -197,9 +197,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print ("%-8.8s: found %s" % (self.name, self.ver))
+            print("%-8.8s: found %s" % (self.name, self.ver))
         else:
-            print ("%-8.8s: not found" % self.name)
+            print("%-8.8s: not found" % self.name)
 
 class DependencyDLL(Dependency):
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
@@ -224,12 +224,12 @@ class DependencyDLL(Dependency):
             self.check_roots()
 
         if self.lib_dir != '_':
-            print (f"DLL for {self.lib_name}: {self.lib_dir}")
+            print(f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
-            print ("No DLL for %s: not found!" % (self.lib_name))
+            print("No DLL for %s: not found!" % (self.lib_name))
             if self.required:
-                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                print('Too bad that is a requirement! Hand-fix the "Setup"')
 
     def check_roots(self):
         for p in self.huntpaths:
