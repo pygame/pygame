@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESURFACE "Surface((width, height), flags=0, depth=0, masks=None) -> Surface\nSurface((width, height), flags=0, Surface) -> Surface\npygame object for representing images"
-#define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags=0) -> Rect\ndraw one image onto another"
+#define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags=0) -> Rect\nblit(source, <draw_pos>=dest, area=None, special_flags=0) -> Rect\ndraw one image onto another"
 #define DOC_SURFACEBLITS "blits(blit_sequence=((source, dest), ...), doreturn=1) -> [Rect, ...] or None\nblits(((source, dest, area), ...)) -> [Rect, ...]\nblits(((source, dest, area, special_flags), ...)) -> [Rect, ...]\ndraw many images onto another"
 #define DOC_SURFACECONVERT "convert(Surface=None) -> Surface\nconvert(depth, flags=0) -> Surface\nconvert(masks, flags=0) -> Surface\nchange the pixel format of an image"
 #define DOC_SURFACECONVERTALPHA "convert_alpha(Surface) -> Surface\nconvert_alpha() -> Surface\nchange the pixel format of an image including per pixel alphas"
@@ -62,6 +62,7 @@ pygame object for representing images
 
 pygame.Surface.blit
  blit(source, dest, area=None, special_flags=0) -> Rect
+ blit(source, <draw_pos>=dest, area=None, special_flags=0) -> Rect
 draw one image onto another
 
 pygame.Surface.blits

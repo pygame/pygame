@@ -91,6 +91,7 @@
 
       | :sl:`draw one image onto another`
       | :sg:`blit(source, dest, area=None, special_flags=0) -> Rect`
+      | :sg:`blit(source, <draw_pos>=dest, area=None, special_flags=0) -> Rect`
 
       Draws a source Surface onto this Surface. The draw can be positioned with
       the dest argument. The dest argument can either be a pair of coordinates representing the position of
@@ -119,6 +120,21 @@
          this gives different results than the default blitter, which is modelled after SDL1, due to
          different approximations used for the alpha blending formula. The SDL2 blitter also supports
          RLE on alpha blended surfaces which the pygame one does not.
+
+      .. versionadded:: 2.1.3
+         Optional kwargs for position draw has been added.
+         Replace ``<draw_pos>`` with any of the following:
+
+         ::
+
+            topleft, bottomleft, topright, bottomright
+            midtop, midleft, midbottom, midright, center
+         
+         Here's an example:
+         
+         ::
+         
+            surface.blit(text_surf, center=(256, 224))
 
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.

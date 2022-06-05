@@ -52,6 +52,23 @@ class Surface:
     ) -> None: ...
     def __copy__(self) -> Surface: ...
     copy = __copy__
+    @overload
+    def blit(
+        self,
+        source: Surface,
+        topleft: Union[Coordinate, RectValue, None] = None,
+        topright: Union[Coordinate, RectValue, None] = None,
+        bottomleft: Union[Coordinate, RectValue, None] = None,
+        bottomright: Union[Coordinate, RectValue, None] = None,
+        midleft: Union[Coordinate, RectValue, None] = None,
+        midright: Union[Coordinate, RectValue, None] = None,
+        midtop: Union[Coordinate, RectValue, None] = None,
+        midbottom: Union[Coordinate, RectValue, None] = None,
+        center: Union[Coordinate, RectValue, None] = None,
+        area: Optional[RectValue] = None,
+        special_flags: int = 0,
+    ) -> Rect: ...
+    @overload
     def blit(
         self,
         source: Surface,
