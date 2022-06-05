@@ -1830,12 +1830,11 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     SDL_Rect dest_rect;
     int sx, sy;
     int the_args = 0; /* Represents kwarg: "special_flags". */
-    Py_ssize_t i;
     PyObject *origin_pos = NULL;
 
     /* 1 = 100% of the width/height, 2 = 50% of the width/height */
-    int x_offset = 0;
-    int y_offset = 0;
+    int x_mod = 0;
+    int y_mod = 0;
     PyObject *topleft_pos = NULL;
     PyObject *topright_pos = NULL;
     PyObject *bottomleft_pos = NULL;
@@ -1873,37 +1872,37 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     }
     else if (topright_pos != NULL) {
         origin_pos = topright_pos;
-        x_offset = 1;
+        x_mod = 1;
     }
     else if (bottomleft_pos != NULL) {
         origin_pos = bottomleft_pos;
-        y_offset = 1;
+        y_mod = 1;
     }
     else if (bottomright_pos != NULL) {
         origin_pos = bottomright_pos;
     }
     else if (midleft_pos != NULL) {
         origin_pos = midleft_pos;
-        y_offset = 2;
+        y_mod = 2;
     }
     else if (midright_pos != NULL) {
         origin_pos = midright_pos;
-        x_offset = 1;
-        y_offset = 2;
+        x_mod = 1;
+        y_mod = 2;
     }
     else if (midtop_pos != NULL) {
         origin_pos = midtop_pos;
-        x_offset = 2;
+        x_mod = 2;
     }
     else if (midbottom_pos != NULL) {
         origin_pos = midbottom_pos;
-        x_offset = 2;
-        y_offset = 1;
+        x_mod = 2;
+        y_mod = 1;
     }
     else if (center_pos != NULL) {
         origin_pos = center_pos;
-        x_offset = 2;
-        y_offset = 2;
+        x_mod = 2;
+        y_mod = 2;
     }
     else {
         return RAISE(PyExc_ValueError, "missing position parameter");
@@ -1924,12 +1923,12 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     else
         return RAISE(PyExc_TypeError, "invalid destination position for blit");
 
-    if (x_offset != 0) {
-        dx = dx - (int)(src->w / x_offset);
+    if (x_mod != 0) {
+        dx = dx - (int)(src->w / x_mod);
     }
 
-    if (y_offset != 0) {
-        dy = dy - (int)(src->h / y_offset);
+    if (y_mod != 0) {
+        dy = dy - (int)(src->h / y_mod);
     }
 
     if (argrect && argrect != Py_None) {
