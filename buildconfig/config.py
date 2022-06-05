@@ -127,7 +127,7 @@ def writesetupfile(deps, basepath, additional_lines):
                 aparts = al.split()
                 if aparts and parts:
                     if aparts[0] == parts[0]:
-                        #print ('the same!' + repr(aparts) + repr(parts))
+                        #print('the same!' + repr(aparts) + repr(parts))
                         #the same, we should not add the old one.
                         #It will be overwritten by the new one.
                         addit = 0

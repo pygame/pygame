@@ -296,7 +296,7 @@ try:
     import pygame.mixer_music
 
     # del pygame.mixer_music
-    # print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
+    # print("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
 except (ImportError, OSError):
     pass
 

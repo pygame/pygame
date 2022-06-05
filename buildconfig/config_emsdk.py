@@ -78,17 +78,17 @@ class DependencyProg:
 
 
         except (ValueError, TypeError):
-            print ('WARNING: "%s" failed!' % command)
+            print('WARNING: "%s" failed!' % command)
             self.found = 0
             self.ver = '0'
             self.libs = defaultlibs
 
     def configure(self, incdirs, libdir):
         if self.found:
-            print (self.name + '        '[len(self.name):] + ': found ' + self.ver)
+            print(self.name + '        '[len(self.name):] + ': found ' + self.ver)
             self.found = 1
         else:
-            print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name + '        '[len(self.name):] + ': not found')
 
 class Dependency:
     def __init__(self, name, checkhead, checklib, libs):
@@ -118,15 +118,15 @@ class Dependency:
                     self.lib_dir = dir
 
         if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
-            print (self.name + '        '[len(self.name):] + ': found')
+            print(self.name + '        '[len(self.name):] + ': found')
             self.found = 1
         else:
 
             if self.name in ["FONT","IMAGE","MIXER","PNG","JPEG","FREETYPE"]:
                 self.found = 1
-                print (self.name + '        '[len(self.name):] + ': FORCED (via emsdk builtins)')
+                print(self.name + '        '[len(self.name):] + ': FORCED (via emsdk builtins)')
                 return
-            print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name + '        '[len(self.name):] + ': not found')
             print(self.name, self.checkhead, self.checklib, incdirs, libdirs)
 
 
@@ -156,9 +156,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print (self.name + '        '[len(self.name):] + ': found', self.ver)
+            print(self.name + '        '[len(self.name):] + ': found', self.ver)
         else:
-            print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name + '        '[len(self.name):] + ': not found')
 
 sdl_lib_name = 'SDL'
 
@@ -169,7 +169,7 @@ def main(auto_config=False):
     origincdirs = ['/include']
     origlibdirs = []
 
-    print ('\nHunting dependencies...')
+    print('\nHunting dependencies...')
 
     DEPS = [
         DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl']),
@@ -233,7 +233,7 @@ def main(auto_config=False):
             break
     return DEPS
 
-if __name__ == '__main__':
-    print ("""This is the configuration subscript for Unix.
-Please run "config.py" for full configuration.""")
 
+if __name__ == '__main__':
+    print("""This is the configuration subscript for Unix.
+Please run "config.py" for full configuration.""")

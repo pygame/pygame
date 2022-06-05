@@ -87,5 +87,5 @@ def main(sdl2=True, auto_config=False):
     return DEPS
 
 if __name__ == '__main__':
-    print ("""This is the configuration subscript for the Conan package manager.
+    print("""This is the configuration subscript for the Conan package manager.
 Please run "config.py" for full configuration.""")
