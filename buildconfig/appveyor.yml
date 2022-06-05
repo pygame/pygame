@@ -84,6 +84,8 @@ environment:
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+  - py --version
+  - py -VV
 
 install:
 
