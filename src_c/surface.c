@@ -103,7 +103,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
                SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args);
 
 /* statics */
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *info, int owner);
 static PyObject *
 surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner);
@@ -393,10 +393,10 @@ static PyTypeObject pgSurface_Type = {
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *s, int owner)
 {
-    return surf_subtype_new(&pgSurface_Type, s, owner);
+    return (pgSurfaceObject *)surf_subtype_new(&pgSurface_Type, s, owner);
 }
 
 static int
@@ -2810,7 +2810,7 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind)
             name = "contiguous bytes";
             break;
         case VIEWKIND_1D:
-            name = "contigous pixels";
+            name = "contiguous pixels";
             break;
         case VIEWKIND_2D:
             name = "2D";
@@ -2897,7 +2897,7 @@ surf_get_view(PyObject *self, PyObject *args)
             if (format->Gmask != 0x00ff00 &&
                 (format->BytesPerPixel != 4 || format->Gmask != 0xff0000)) {
                 return RAISE(PyExc_ValueError,
-                             "unsupport colormasks for 3D reference array");
+                             "unsupported colormasks for 3D reference array");
             }
             get_buffer = _get_buffer_3D;
             break;

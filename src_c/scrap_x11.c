@@ -323,7 +323,7 @@ _set_targets(PyObject *data, Display *display, Window window, Atom property)
  * \param display The requesting Display.
  * \param window The requesting Window.
  * \param property The request property to place the list into.
- * \param target The target porperty to place the list into.
+ * \param target The target property to place the list into.
  * \return 0 if no data for the target is available, 1 on success.
  */
 static int
@@ -403,7 +403,7 @@ _get_scrap_owner(Atom *selection)
  * \param length Out parameter that contains the length of the returned
  * buffer.
  * \return The requested content or NULL in case no content exists or an
- * error occured.
+ * error occurred.
  */
 static char *
 _get_data_as(Atom source, Atom format, unsigned long *length)

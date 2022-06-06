@@ -51,7 +51,7 @@ class CursorsModuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             pygame.cursors.compile(test_cursor3)
 
-        # Test that checks whether the byte data from compile funtion is equal to actual byte data
+        # Test that checks whether the byte data from compile function is equal to actual byte data
         actual_byte_data = (
             192,
             0,

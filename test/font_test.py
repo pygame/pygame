@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import os
 import unittest
@@ -347,7 +345,7 @@ class FontTypeTest(unittest.TestCase):
         # __doc__ (as of 2008-08-02) for pygame_font.Font.metrics:
 
         # Font.metrics(text): return list
-        # Gets the metrics for each character in the pased string.
+        # Gets the metrics for each character in the passed string.
         #
         # The list contains tuples for each character, which contain the
         # minimum X offset, the maximum X offset, the minimum Y offset, the
@@ -552,6 +550,15 @@ class FontTypeTest(unittest.TestCase):
         bfont_path = font_path.encode(filesystem_encoding, filesystem_errors)
         f = pygame_font.Font(bfont_path, 20)
 
+    def test_issue_3144(self):
+        fpath = os.path.join(FONTDIR, "PlayfairDisplaySemibold.ttf")
+
+        # issue in SDL_ttf 2.0.18 DLL on Windows
+        # tested to make us aware of any regressions
+        for size in (60, 40, 10, 20, 70, 45, 50, 10):
+            font = pygame_font.Font(fpath, size)
+            font.render("WHERE", True, "black")
+
 
 @unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class VisualTests(unittest.TestCase):
@@ -596,7 +603,7 @@ class VisualTests(unittest.TestCase):
                 modes.append("underlined")
             if antialiase:
                 modes.append("antialiased")
-            text = "%s (y/n):" % ("-".join(modes),)
+            text = f"{'-'.join(modes)} (y/n):"
         f.set_bold(bold)
         f.set_italic(italic)
         f.set_underline(underline)

@@ -47,7 +47,7 @@ def stopwatch(message=None):
         return
     now = pg.time.get_ticks()
     runtime = (now - timer) / 1000.0 + 0.001
-    print("%s %s %s" % (message, runtime, ("seconds\t(%.2ffps)" % (1.0 / runtime))))
+    print(f"{message} {runtime} seconds\t{(1.0 / runtime):.2f}fps")
     timer = now
 
 

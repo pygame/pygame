@@ -670,7 +670,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                                  (FT_Byte)color->g, (FT_Byte)color->b, 255);  \
                                                                               \
         shift = off_x & 7;                                                    \
-                                                                              \
+        (void)full_color;                                                     \
         if (color->a == 0xFF) {                                               \
             __MONO_RENDER_INNER_LOOP(_bpp, { _setp; });                       \
         }                                                                     \

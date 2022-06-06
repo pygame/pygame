@@ -911,7 +911,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_nonorigin(self):
-        """Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)"""
+        """Test Rectangle Dest, with overflow but with starting rect with top-left at (1,1)"""
         result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (63, 63))
@@ -3281,7 +3281,7 @@ class SurfaceBlendTest(unittest.TestCase):
                 p.append(tuple(c))
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
         # Blend blits are special cased for 32 to 32 bit surfaces.
         #
@@ -3304,7 +3304,7 @@ class SurfaceBlendTest(unittest.TestCase):
                 p.append(tuple(c))
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
     def test_blit_blend_rgba(self):
         sources = [
@@ -3366,12 +3366,12 @@ class SurfaceBlendTest(unittest.TestCase):
         )
         for blend_name, dst_color, op in blend:
             p = [
-                tuple([op(dst_color[i], src_color[i]) for i in range(4)])
+                tuple(op(dst_color[i], src_color[i]) for i in range(4))
                 for src_color in self._test_palette
             ]
             dst.fill(dst_color)
             dst.blit(src, (0, 0), special_flags=getattr(pygame, blend_name))
-            self._assert_surface(dst, p, ", %s" % blend_name)
+            self._assert_surface(dst, p, f", {blend_name}")
 
         # Confirm this special case handles subsurfaces.
         src = pygame.Surface((8, 10), SRCALPHA, 32)
@@ -3746,7 +3746,7 @@ class SurfaceBlendTest(unittest.TestCase):
                     c = dst.unmap_rgb(dst.map_rgb(c))
                     p.append(c)
                 dst.fill(fill_color, special_flags=getattr(pygame, blend_name))
-                self._assert_surface(dst, p, ", %s" % blend_name)
+                self._assert_surface(dst, p, f", {blend_name}")
 
     def test_fill_blend_rgba(self):
         destinations = [
@@ -3778,7 +3778,7 @@ class SurfaceBlendTest(unittest.TestCase):
                     c = dst.unmap_rgb(dst.map_rgb(c))
                     p.append(c)
                 dst.fill(fill_color, special_flags=getattr(pygame, blend_name))
-                self._assert_surface(dst, p, ", %s" % blend_name)
+                self._assert_surface(dst, p, f", {blend_name}")
 
 
 class SurfaceSelfBlitTest(unittest.TestCase):
@@ -3958,7 +3958,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
         self._assert_same(surf, comp)
 
         # Blitting a subsurface to its owner is forbidden because of
-        # lock conficts. This limitation allows the overlap check
+        # lock conflicts. This limitation allows the overlap check
         # in PySurface_Blit of alphablit.c to be simplified.
         def do_blit(d, s):
             d.blit(s, (0, 0))

@@ -38,7 +38,8 @@
 static int
 _RGBAFromColorObj(PyObject *obj, Uint8 rgba[4])
 {
-    if (PyObject_IsInstance(obj, &pgColor_Type) || PyTuple_Check(obj)) {
+    if (PyObject_IsInstance(obj, (PyObject *)&pgColor_Type) ||
+        PyTuple_Check(obj)) {
         return pg_RGBAFromColorObj(obj, rgba);
     }
     PyErr_SetString(PyExc_ValueError, "invalid color argument");

@@ -810,7 +810,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    :meth:`groupcollide`, :meth:`spritecollideany`).
 
    .. note::
-      To increase performance, create and set a ``mask`` attibute for all
+      To increase performance, create and set a ``mask`` attribute for all
       sprites that will use this function to check for collisions. Otherwise,
       each time this function is called it will create new masks.
 

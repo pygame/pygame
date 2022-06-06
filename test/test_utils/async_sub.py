@@ -140,7 +140,7 @@ class Popen(subprocess.Popen):
             sent = self.send(data)
             if sent is None:
                 raise Exception("Other end disconnected!")
-            data = buffer(data, sent)
+            data = memoryview(data, sent)
 
     def get_conn_maxsize(self, which, maxsize):
         if maxsize is None:
@@ -272,12 +272,12 @@ def proc_in_time_or_kill(cmd, time_out, wd=None, env=None):
         response += [proc.read_async(wait=0.1, e=0)]
 
     if ret_code is None:
-        ret_code = '"Process timed out (time_out = %s secs) ' % time_out
+        ret_code = f'"Process timed out (time_out = {time_out} secs) '
         try:
             proc.kill()
             ret_code += 'and was successfully terminated"'
         except Exception:
-            ret_code += 'and termination failed (exception: %s)"' % (geterror(),)
+            ret_code += f'and termination failed (exception: {geterror()})"'
 
     return ret_code, "".join(response)
 

@@ -1,5 +1,3 @@
-# -*- coding: utf8 -*-
-
 import sys
 import os
 import unittest
@@ -38,7 +36,6 @@ CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}
 class InvalidBool:
     """To help test invalid bool values."""
 
-    __nonzero__ = None
     __bool__ = None
 
 
@@ -179,12 +176,12 @@ class MixerModuleTest(unittest.TestCase):
         emsg = "Expected object with buffer interface: got a list"
         self.assertEqual(str(cm.exception), emsg)
 
-        ufake_path = str("12345678")
+        ufake_path = "12345678"
         self.assertRaises(IOError, mixer.Sound, ufake_path)
         self.assertRaises(IOError, mixer.Sound, "12345678")
 
         with self.assertRaises(TypeError) as cm:
-            mixer.Sound(buffer=str("something"))
+            mixer.Sound(buffer="something")
         emsg = "Unicode object not allowed as buffer object"
         self.assertEqual(str(cm.exception), emsg)
         self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
@@ -217,7 +214,7 @@ class MixerModuleTest(unittest.TestCase):
         try:
             with open(temp_file, "rb") as f:
                 pass
-        except IOError:
+        except OSError:
             raise unittest.SkipTest("the path cannot be opened")
 
         try:
@@ -250,7 +247,7 @@ class MixerModuleTest(unittest.TestCase):
         format_list = [-8, 8, -16, 16]
         channels_list = [1, 2]
 
-        a_lists = dict((f, []) for f in format_list)
+        a_lists = {f: [] for f in format_list}
         a32u_mono = arange(0, 256, 1, uint32)
         a16u_mono = a32u_mono.astype(uint16)
         a8u_mono = a32u_mono.astype(uint8)

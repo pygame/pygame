@@ -30,7 +30,7 @@ and display index to pass to ``pygame.display.set_mode()``.
 
 For backward compatibility ``pygame.display`` allows precise control over
 the pixel format or display resolutions. This used to be necessary with old
-grahics cards and CRT screens, but is usually not needed any more. Use the
+graphics cards and CRT screens, but is usually not needed any more. Use the
 functions ``pygame.display.mode_ok()``, ``pygame.display.list_modes()``, and
 ``pygame.display.Info()`` to query detailed information about the display.
 
@@ -325,7 +325,7 @@ required).
    | :sl:`Get sizes of active desktops`
    | :sg:`get_desktop_sizes() -> list`
 
-   This function returns the sizes of the currrently configured
+   This function returns the sizes of the currently configured
    virtual desktops as a list of (x, y) tuples of integers.
 
    The length of the list is not the same as the number of attached monitors,
@@ -526,7 +526,7 @@ required).
 
    When the display is iconified ``pygame.display.get_active()`` will return
    ``False``. The event queue should receive an ``ACTIVEEVENT`` event when the
-   window has been iconified. Additionally, the event queue also recieves a
+   window has been iconified. Additionally, the event queue also receives a
    ``WINDOWEVENT_MINIMIZED`` event when the window has been iconified on pygame 2.
 
    .. ## pygame.display.iconify ##

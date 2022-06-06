@@ -53,11 +53,11 @@ while going:
             for t in scrap.get_types():
                 r = scrap.get(t)
                 if r and len(r) > 500:
-                    print("Type %s : (large %i byte buffer)" % (t, len(r)))
+                    print(f"Type {t} : (large {len(r)} byte buffer)")
                 elif r is None:
-                    print("Type %s : None" % (t,))
+                    print(f"Type {t} : None")
                 else:
-                    print("Type %s : '%s'" % (t, r.decode("ascii", "ignore")))
+                    print(f"Type {t} : '{r.decode('ascii', 'ignore')}'")
                 if "image" in t:
                     namehint = t.split("/")[1]
                     if namehint in ["bmp", "png", "jpg"]:
@@ -76,7 +76,7 @@ while going:
             types = scrap.get_types()
             print(types)
             if len(types) > 0:
-                print("Contains %s: %s" % (types[0], scrap.contains(types[0])))
+                print(f"Contains {types[0]}: {scrap.contains(types[0])}")
                 print("Contains _INVALID_: ", scrap.contains("_INVALID_"))
 
         elif e.type == pg.KEYDOWN and e.key == pg.K_i:

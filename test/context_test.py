@@ -39,6 +39,32 @@ class ContextModuleTest(unittest.TestCase):
         except OSError:  # if the dir isn't empty (shouldn't happen)
             raise OSError("pygame.context.get_pref_path folder already occupied")
 
+    def test_get_pref_locales(self):
+        locales = pygame.context.get_pref_locales()
+
+        # check type of return first
+        self.assertIsInstance(locales, list)
+        for lc in locales:
+            self.assertIsInstance(lc, dict)
+            lang = lc["language"]
+            self.assertIsInstance(lang, str)
+
+            # length of language code should be greater than 1
+            self.assertTrue(len(lang) > 1)
+
+            country = lc["country"]
+            if country is not None:
+                # country field is optional, but when defined it should be a
+                # string
+                self.assertIsInstance(country, str)
+
+                # length of country code should be greater than 1
+                self.assertTrue(len(country) > 1)
+
+        # passing args should raise error
+        for arg in (None, 1, "hello"):
+            self.assertRaises(TypeError, pygame.context.get_pref_locales, arg)
+
 
 if __name__ == "__main__":
     unittest.main()

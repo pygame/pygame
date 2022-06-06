@@ -1,0 +1,118 @@
+name: ManyLinux
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-manylinux.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-manylinux.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        # Split job into many matrix builds, because GH actions provides 20
+        # concurrent builds on ubuntu. 10 are used here
+        include:
+          # no pypy and cpython >= cp310 on manylinux1
+          - { image: manylinux1, arch: x86_64, pyversions: cp36-* cp37-* cp38-* cp39-* }
+          - { image: manylinux1, arch: i686, pyversions: cp36-* cp37-* cp38-* cp39-* }
+
+          # no pypy 3.9 on manylinux2010
+          - { image: manylinux2010, arch: x86_64, pyversions: cp* pp37-* pp38-* }
+          - { image: manylinux2010, arch: i686, pyversions: cp* pp37-* pp38-* }
+
+          # all cpython and pypy versions should support this
+          - { image: manylinux2014, arch: x86_64, pyversions: cp* pp* }
+          - { image: manylinux2014, arch: i686, pyversions: cp* pp* }
+
+    env:
+      # load pip config from this file. Define this in 'CIBW_ENVIRONMENT'
+      # because this should not affect cibuildwheel machinery
+      # also define environment variables needed for testing
+      CIBW_ENVIRONMENT: PIP_CONFIG_FILE=buildconfig/pip_config.ini PORTMIDI_INC_PORTTIME=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=disk
+
+      CIBW_BUILD: ${{ matrix.pyversions }}
+      CIBW_ARCHS: ${{ matrix.arch }}
+
+      # skip musllinux for now
+      CIBW_SKIP: '*-musllinux_*'
+
+      # set custom pygame images
+      CIBW_MANYLINUX_X86_64_IMAGE: pygame/${{ matrix.image }}_base_x86_64
+      CIBW_MANYLINUX_PYPY_X86_64_IMAGE: pygame/${{ matrix.image }}_base_x86_64
+      CIBW_MANYLINUX_I686_IMAGE: pygame/${{ matrix.image }}_base_i686
+      CIBW_MANYLINUX_PYPY_I686_IMAGE: pygame/${{ matrix.image }}_base_i686
+
+      # command that runs before every build
+      CIBW_BEFORE_BUILD: |
+        pip install Sphinx
+        python setup.py docs
+
+      CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,music,timing --time_out 300
+
+      # To 'solve' this issue:
+      #   >>> process 338: D-Bus library appears to be incorrectly set up; failed to read
+      #   machine uuid: Failed to open "/var/lib/dbus/machine-id": No such file or directory
+      CIBW_BEFORE_TEST: |
+        if [ ! -f /var/lib/dbus/machine-id ]; then
+            dbus-uuidgen > /var/lib/dbus/machine-id
+        fi
+
+      # Increase pip debugging output
+      CIBW_BUILD_VERBOSITY: 2
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Build and test wheels
+      uses: pypa/cibuildwheel@v2.5.0
+
+    # We upload the generated files under github actions assets
+    - name: Upload dist
+      uses: actions/upload-artifact@v3
+      with:
+        name: pygame-manylinux-wheels
+        path: ./wheelhouse/*.whl
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release'
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: ./wheelhouse/*.whl
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release'
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload ./wheelhouse/*.whl

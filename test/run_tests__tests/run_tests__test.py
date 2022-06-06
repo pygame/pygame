@@ -33,7 +33,7 @@ def call_proc(cmd, cd=None):
         universal_newlines=True,
     )
     if proc.wait():
-        print("%s %s" % (cmd, proc.wait()))
+        print(f"{cmd} {proc.wait()}")
         raise Exception(proc.stdout.read())
 
     return proc.stdout.read()
@@ -69,19 +69,19 @@ test_suite_dirs = [
 
 
 def assert_on_results(suite, single, sub):
-    test = globals().get("%s_test" % suite)
+    test = globals().get(f"{suite}_test")
     if hasattr(test, "__call_"):
         test(suite, single, sub)
-        print("assertions on %s OK" % (suite,))
+        print(f"assertions on {suite} OK")
 
 
 # Don't modify tests in suites below. These assertions are in place to make sure
 # that tests are actually being ran
 
 
-def all_ok_test(uite, *args):
+def all_ok_test(suite, *args):
     for results in args:
-        assert "Ran 36 tests" in results  # some tests are runing
+        assert "Ran 36 tests" in results  # some tests are running
         assert "OK" in results  # OK
 
 
@@ -112,10 +112,10 @@ for suite in test_suite_dirs:
 
     failed = normed_single != normed_subs
     if failed:
-        print("%s suite comparison FAILED\n" % (suite,))
+        print(f"{suite} suite comparison FAILED\n")
     else:
         passes += 1
-        print("%s suite comparison OK" % (suite,))
+        print(f"{suite} suite comparison OK")
 
     assert_on_results(suite, single, subs)
 
@@ -138,7 +138,7 @@ assert "successfully terminated" in loop_test
 passes += 1
 print("OK")
 
-print("\n%s/%s suites pass" % (passes, len(test_suite_dirs) + 1))
+print(f"\n{passes}/{len(test_suite_dirs) + 1} suites pass")
 
 print("\n-h for help")
 
