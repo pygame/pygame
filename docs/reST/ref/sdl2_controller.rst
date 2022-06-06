@@ -108,7 +108,7 @@ events related to controllers.
 
 .. function:: name_forindex
 
-    | :sl:`Get the name of the contoller`
+    | :sl:`Get the name of the controller`
     | :sg:`name_forindex(index) -> name or None`
 
     Returns the name of controller, or None if there's no name or the
@@ -122,7 +122,7 @@ events related to controllers.
     | :sg:`Controller(index) -> Controller`
 
     Create a new Controller object. Index should be integer between
-    0 and ``pygame._sdl2.contoller.get_count()``. Controllers also
+    0 and ``pygame._sdl2.controller.get_count()``. Controllers also
     can be created from a ``pygame.joystick.Joystick`` using
     ``pygame._sdl2.controller.from_joystick``. Controllers are
     initialized on creation.

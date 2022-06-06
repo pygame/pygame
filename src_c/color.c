@@ -27,7 +27,7 @@
  * Apparently, the same problem plagues pygame.color, as it failed the
  * test_hsva__all_elements_within_limits and
  * test_hsva__sanity_testing_converted_should_not_raise test cases due
- * to slight, on the order of 10e-14, discrepencies in calculated double
+ * to slight, on the order of 10e-14, discrepancies in calculated double
  * values.
  */
 #if defined(__GNUC__) && defined(__linux__) && defined(__i386__) && \
@@ -1300,7 +1300,7 @@ _color_set_hsla(pgColorObject *color, PyObject *value, void *closure)
 
     ht = hsla[0] / 360.f;
 
-    /* Calulate R */
+    /* Calculate R */
     h = ht + onethird;
     if (h < 0) {
         h += 1;

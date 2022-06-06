@@ -20,7 +20,7 @@ def run():
         subprocess_args = [sys.executable, '-m', 'sphinx',
                            '-b', 'html',
                            '-d', rst_doctree_dir,
-                           '-D', 'headers_dest=%s' % (c_header_dir,),
+                           '-D', f'headers_dest={c_header_dir}',
                            '-D', 'headers_mkdirs=0',
                            rst_source_dir,
                            rst_build_dir, ]

@@ -1,5 +1,17 @@
 import sys
-from typing import Dict, Iterator, List, Sequence, Tuple, TypeVar, Union, overload
+from typing import (
+    Dict,
+    Iterator,
+    List,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+    Callable,
+    Any,
+    Optional,
+)
 
 from ._common import Coordinate, Literal, RectValue
 
@@ -10,6 +22,7 @@ else:
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
+_T = TypeVar("_T")
 
 # Rect confirms to the Collection ABC, since it also confirms to
 # Sized, Iterable and Container ABCs
@@ -158,6 +171,12 @@ class Rect(Collection[int]):
     ) -> bool: ...
     def collidelist(self, rect_list: Sequence[RectValue]) -> int: ...
     def collidelistall(self, rect_list: Sequence[RectValue]) -> List[int]: ...
+    def collideobjectsall(
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> List[_T]: ...
+    def collideobjects(
+        self, objects: Sequence[_T], key: Optional[Callable[[_T], RectValue]] = None
+    ) -> Optional[_T]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.

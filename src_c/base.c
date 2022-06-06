@@ -472,7 +472,7 @@ pg_quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_get_init(PyObject *self, PyObject *_null)
+pg_base_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -1046,7 +1046,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     view_p->len = 0;
 
 #ifndef NDEBUG
-    /* Allow a callback to assert that it recieved a pg_buffer,
+    /* Allow a callback to assert that it received a pg_buffer,
        not a Py_buffer */
     flags |= PyBUF_PYGAME;
 #endif
@@ -1170,7 +1170,12 @@ static void
 pgBuffer_Release(pg_buffer *pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
+    /* some calls to this function expect this function to not clear previously
+     * set errors, so save and restore any potential errors here */
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
     pg_view_p->release_buffer((Py_buffer *)pg_view_p);
+    PyErr_Restore(type, value, traceback);
 }
 
 static void
@@ -1185,7 +1190,7 @@ _pg_release_buffer_generic(Py_buffer *view_p)
 static void
 _pg_release_buffer_array(Py_buffer *view_p)
 {
-    /* This is deliberately made safe for use on an unitialized *view_p */
+    /* This is deliberately made safe for use on an uninitialized *view_p */
     if (view_p->internal) {
         PyMem_Free(view_p->internal);
         view_p->internal = 0;
@@ -2035,20 +2040,6 @@ pg_install_parachute(void)
         }
     }
 
-#if defined(SIGALRM) && defined(HAVE_SIGACTION)
-    { /* Set SIGALRM to be ignored -- necessary on Solaris */
-        struct sigaction action, oaction;
-
-        /* Set SIG_IGN action */
-        memset(&action, 0, (sizeof action));
-        action.sa_handler = SIG_IGN;
-        sigaction(SIGALRM, &action, &oaction);
-        /* Reset original action if it was already being handled */
-        if (oaction.sa_handler != SIG_DFL) {
-            sigaction(SIGALRM, &oaction, NULL);
-        }
-    }
-#endif
 #endif
     return;
 }
@@ -2080,7 +2071,8 @@ pg_uninstall_parachute(void)
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS,
+     DOC_PYGAMEGETINIT},
     {"register_quit", (PyCFunction)pg_register_quit, METH_O,
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
@@ -2094,11 +2086,21 @@ static PyMethodDef _base_methods[] = {
      "return an array struct interface as an interface dictionary"},
     {NULL, NULL, 0, NULL}};
 
+#if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
+// in case of wasm+dynamic loading it could be a trampoline in the globals
+// generated at runtime.
+// when building static make global accessible symbol directly.
+static PyObject *pgExc_SDLError;
+#endif
+
 MODINIT_DEFINE(base)
 {
     PyObject *module, *apiobj, *atexit;
     PyObject *atexit_register;
+#if !defined(BUILD_STATIC) || defined(NO_PYGAME_C_API)
+    // only pointer via C-api will be used, no need to keep global.
     PyObject *pgExc_SDLError;
+#endif
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -2189,7 +2191,7 @@ MODINIT_DEFINE(base)
         goto error;
     }
 
-    /*some intialization*/
+    /*some initialization*/
     PyObject *quit = PyObject_GetAttrString(module, "quit");
     PyObject *rval;
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Pygame documentation build configuration file, created by
 # sphinx-quickstart on Sat Mar  5 11:56:39 2011.
@@ -40,8 +39,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pygame'
-copyright = u'2000-2022, pygame developers'
+project = 'pygame'
+copyright = '2000-2022, pygame developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,7 +113,7 @@ html_theme_path = ['themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "%s v%s documentation" % (project, version)
+html_title = f"{project} v{version} documentation"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -189,8 +188,8 @@ htmlhelp_basename = 'Pygamedoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Pygame.tex', u'Pygame Documentation',
-   u'Pygame Developers', 'manual'),
+  ('index', 'Pygame.tex', 'Pygame Documentation',
+   'Pygame Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

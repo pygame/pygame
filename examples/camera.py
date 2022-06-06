@@ -21,7 +21,7 @@ class VideoCapturePlayer:
 
     def __init__(self, **argd):
         self.__dict__.update(**argd)
-        super(VideoCapturePlayer, self).__init__(**argd)
+        super().__init__(**argd)
 
         # create a display surface. standard pygame stuff
         self.display = pg.display.set_mode(self.size)

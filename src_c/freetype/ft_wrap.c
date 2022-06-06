@@ -28,9 +28,9 @@
 static unsigned long
 RWops_read(FT_Stream, unsigned long, unsigned char *, unsigned long);
 static int
-init(FreeTypeInstance *, pgFontObject *);
+ft_wrap_init(FreeTypeInstance *, pgFontObject *);
 static void
-quit(pgFontObject *);
+ft_wrap_quit(pgFontObject *);
 
 /*********************************************************
  *
@@ -377,7 +377,7 @@ _PGFT_font_request(FTC_FaceID font_id, FT_Library library,
 }
 
 static int
-init(FreeTypeInstance *ft, pgFontObject *fontobj)
+ft_wrap_init(FreeTypeInstance *ft, pgFontObject *fontobj)
 {
     FT_Face font;
     fontobj->_internals = 0;
@@ -406,7 +406,7 @@ init(FreeTypeInstance *ft, pgFontObject *fontobj)
 }
 
 static void
-quit(pgFontObject *fontobj)
+ft_wrap_quit(pgFontObject *fontobj)
 {
     if (fontobj->_internals) {
         _PGFT_LayoutFree(fontobj);
@@ -450,7 +450,7 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, pgFontObject *fontobj,
     fontobj->id.open_args.flags = FT_OPEN_PATHNAME;
     fontobj->id.open_args.pathname = filename_alloc;
 
-    return init(ft, fontobj);
+    return ft_wrap_init(ft, fontobj);
 }
 
 static unsigned long
@@ -496,7 +496,7 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
     fontobj->id.open_args.flags = FT_OPEN_STREAM;
     fontobj->id.open_args.stream = stream;
 
-    return init(ft, fontobj);
+    return ft_wrap_init(ft, fontobj);
 }
 
 SDL_RWops *
@@ -516,7 +516,7 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
     if (ft) {
         FTC_Manager_RemoveFaceID(ft->cache_manager,
                                  (FTC_FaceID)(&fontobj->id));
-        quit(fontobj);
+        ft_wrap_quit(fontobj);
     }
 
     if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {

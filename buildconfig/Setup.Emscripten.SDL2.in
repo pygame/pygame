@@ -1,0 +1,74 @@
+# This work differently from the other templates
+
+#SDL = -D_REENTRANT -DSDL2 -lSDL2
+#FONT = -lSDL2_ttf
+#IMAGE = -lSDL2_image
+#MIXER = -lSDL2_mixer
+#JPEG = -ljpeg
+#SCRAP =
+#PNG = -lpng
+#FREETYPE = -lfreetype -lharfbuzz
+
+DEBUG =
+
+# these can build alone and object files merged with ar
+
+_sdl2.sdl2 src_c/_sdl2/sdl2.c $(SDL) $(DEBUG) -Isrc_c
+
+_sdl2.audio src_c/_sdl2/audio.c $(SDL) $(DEBUG) -Isrc_c
+
+pygame_sdl2_video src_c/_sdl2/video.c src_c/pgcompat.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.video = src_c/void.c
+
+
+_sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG) -Isrc_c
+
+constants src_c/constants.c $(SDL) $(DEBUG)
+mask src_c/bitmask.c
+_sprite src_c/_sprite.c $(SDL) $(DEBUG)
+math src_c/math.c $(SDL) $(DEBUG)
+
+#GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
+GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
+
+
+static src_c/static.c $(SDL) $(FREETYPE) $(FONT) $(MIXER) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+
+# these should not be altered they already are in static.c merging file above
+time src_c/void.c
+_freetype src_c/void.c
+imageext src_c/void.c
+image src_c/void.c
+base src_c/void.c
+bufferproxy src_c/void.c
+color src_c/void.c
+controller src_c/void.c
+display src_c/void.c
+draw src_c/void.c
+event src_c/void.c
+font src_c/void.c
+gfxdraw  src_c/void.c
+joystick src_c/void.c
+key src_c/void.c
+newbuffer  src_c/void.c
+mixer_music src_c/void.c
+mixer src_c/void.c
+mouse src_c/void.c
+pixelcopy src_c/void.c
+pixelarray src_c/void.c
+surface src_c/void.c
+surflock src_c/void.c
+rect src_c/void.c
+rwobject src_c/void.c
+context src_c/void.c
+
+#_sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.controller src_c/void.c
+
+#_sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.touch src_c/void.c
+
+#transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
+transform src_c/void.c
+
+

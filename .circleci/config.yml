@@ -1,0 +1,42 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  linux-arm-wheels:
+    working_directory: ~/linux-wheels
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.medium
+
+    environment:
+      # these environment variables will be passed to the docker container
+      - CIBW_ENVIRONMENT: PIP_CONFIG_FILE=buildconfig/pip_config.ini PORTMIDI_INC_PORTTIME=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=disk
+      - CIBW_BUILD: cp* pp*
+      - CIBW_ARCHS: aarch64
+      - CIBW_SKIP: '*-musllinux_*'
+      - CIBW_MANYLINUX_AARCH64_IMAGE: pygame/manylinux2014_base_aarch64
+      - CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: pygame/manylinux2014_base_aarch64
+      - CIBW_BEFORE_BUILD: pip install Sphinx && python setup.py docs
+      - CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,music,timing --time_out 300
+      - CIBW_BUILD_VERBOSITY: 2
+
+    steps:
+      - checkout
+      - run:
+          name: Build the Linux wheels.
+          command: |
+            pip3 install --user cibuildwheel==2.5.0
+            PATH="$HOME/.local/bin:$PATH" cibuildwheel --output-dir wheelhouse
+
+      - store_artifacts:
+          path: wheelhouse/
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  build-arm:
+    jobs:
+      - linux-arm-wheels

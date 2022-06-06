@@ -64,7 +64,7 @@ def conan_install(force_build=True):
     finally:
         os.chdir(os.path.join('..', '..'))
 
-def main(sdl2=True):
+def main(sdl2=True, auto_config=False):
     # conan_install(force_build=True)
     # Reuse the previous conan build with this setting:
     conan_install(force_build=False)
@@ -87,5 +87,5 @@ def main(sdl2=True):
     return DEPS
 
 if __name__ == '__main__':
-    print ("""This is the configuration subscript for the Conan package manager.
+    print("""This is the configuration subscript for the Conan package manager.
 Please run "config.py" for full configuration.""")

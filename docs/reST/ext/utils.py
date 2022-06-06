@@ -13,7 +13,7 @@ def get_fullname(node):
         return get_sectionname(node)
     if isinstance(node, sphinx.addnodes.desc):
         return get_descname(node)
-    raise TypeError("Unrecognized node type '%s'" % (node.__class__,))
+    raise TypeError(f"Unrecognized node type '{node.__class__}'")
 
 
 def get_descname(desc):
@@ -50,7 +50,7 @@ def get_refid(node):
     try:
         return get_ids(node)[0]
     except IndexError:
-        raise GetError("Node has emtpy ids list")
+        raise GetError("Node has empty ids list")
 
 
 def as_refid(refuri):
@@ -76,7 +76,7 @@ def get_ids(node):
             return sig["ids"]
         except KeyError:
             raise GetError("No ids: desc's child missing ids attribute")
-    raise TypeError("Unrecognized node type '%s'" % (node.__class__,))
+    raise TypeError(f"Unrecognized node type '{node.__class__}'")
 
 
 def isections(doctree):

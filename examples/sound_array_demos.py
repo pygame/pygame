@@ -32,7 +32,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
 
     a1 = pg.sndarray.array(sound)
     if mydebug:
-        print("SHAPE1: %s" % (a1.shape,))
+        print(f"SHAPE1: {a1.shape}")
 
     length = a1.shape[0]
 
@@ -53,14 +53,14 @@ def make_echo(sound, samples_per_second, mydebug=True):
     myarr = zeros(size, int32)
 
     if mydebug:
-        print("size %s" % (size,))
+        print(f"size {size}")
         print(myarr.shape)
     myarr[:length] = a1
-    # print (myarr[3000:length+3000])
-    # print (a1 >> 1)
-    # print ("a1.shape %s" % (a1.shape,))
+    # print(myarr[3000:length+3000])
+    # print(a1 >> 1)
+    # print("a1.shape %s" % (a1.shape,))
     # c = myarr[3000:length+(3000*mult)]
-    # print ("c.shape %s" % (c.shape,))
+    # print("c.shape %s" % (c.shape,))
 
     incr = int(samples_per_second / echo_length)
     gap = length
@@ -71,7 +71,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
     myarr[incr * 4 : gap + (incr * 4)] += a1 >> 4
 
     if mydebug:
-        print("SHAPE2: %s" % (myarr.shape,))
+        print(f"SHAPE2: {myarr.shape}")
 
     sound2 = pg.sndarray.make_sound(myarr.astype(int16))
 
@@ -88,22 +88,22 @@ def slow_down_sound(sound, rate):
     # make it 1/rate times longer.
     # a1 = pg.sndarray.array(sound)
     # surf = pg.surfarray.make_surface(a1)
-    # print (a1.shape[0] * grow_rate)
+    # print(a1.shape[0] * grow_rate)
     # scaled_surf = pg.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
-    # print (scaled_surf)
-    # print (surf)
+    # print(scaled_surf)
+    # print(surf)
 
     # a2 = a1 * rate
-    # print (a1.shape)
-    # print (a2.shape)
-    # print (a2)
+    # print(a1.shape)
+    # print(a2.shape)
+    # print(a2)
     # sound2 = pg.sndarray.make_sound(a2.astype(int16))
     # return sound2
 
 
 def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     """returns a sound which begins at the start_pos.
-    start_pos - in seconds from the begining.
+    start_pos - in seconds from the beginning.
     samples_per_second -
     """
 
@@ -134,7 +134,7 @@ def main():
     """play various sndarray effects"""
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
-    print("mixer.get_init %s" % (pg.mixer.get_init(),))
+    print(f"mixer.get_init {pg.mixer.get_init()}")
 
     samples_per_second = pg.mixer.get_init()[0]
 
@@ -149,8 +149,8 @@ def main():
     start_pos = 0.1
     sound2 = sound_from_pos(sound, start_pos, samples_per_second)
 
-    print("sound.get_length %s" % (sound.get_length(),))
-    print("sound2.get_length %s" % (sound2.get_length(),))
+    print(f"sound.get_length {sound.get_length()}")
+    print(f"sound2.get_length {sound2.get_length()}")
     sound2.play()
     while pg.mixer.get_busy():
         pg.time.wait(200)
@@ -168,8 +168,8 @@ def main():
 
     # if 0:
     #    #TODO: this is broken.
-    #    print (("-" * 30) + "\n")
-    #    print ("Slow down the original sound.")
+    #    print(("-" * 30) + "\n")
+    #    print("Slow down the original sound.")
     #    rate = 0.2
     #    slowed_sound = slow_down_sound(sound, rate)
     #    slowed_sound.play()
