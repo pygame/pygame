@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # pin SDK version to the latest, update manually
-      SDK_VERSION: 0.0.1
+      SDK_VERSION: 0.0.2
       SDK_ARCHIVE: python-wasm-sdk-stable.tar.bz2
 
       # use the most recent cython from github, but pin on a commit for CI
@@ -62,11 +62,11 @@ jobs:
         mkdir src
         ln -s $GITHUB_WORKSPACE src/pygame-wasm
         ls -A
-      working-directory: ../
+      working-directory: /opt
 
     - name: Run config
       run: ./config
-      working-directory: ../python-wasm-sdk
+      working-directory: /opt/python-wasm-sdk
 
     - name: Building WASM with emsdk
       run: |
@@ -74,4 +74,4 @@ jobs:
         CC=emcc CFLAGS="-DBUILD_STATIC -DSDL_NO_COMPAT -ferror-limit=1 -Wno-unused-command-line-argument -Wno-unreachable-code-fallthrough -fPIC" \
         EMCC_CFLAGS="-I$PREFIX/include/SDL2 -s USE_SDL=2 -sUSE_SDL_TTF=2 -sUSE_LIBPNG -sUSE_LIBJPEG" \
         python3-wasm setup.py build
-      working-directory: ../python-wasm-sdk/src/pygame-wasm
+      working-directory: /opt/python-wasm-sdk/src/pygame-wasm
