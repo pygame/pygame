@@ -25,6 +25,7 @@ Controls
 
 import random
 import os
+from typing import List
 
 # import basic pygame modules
 import pygame as pg
@@ -82,7 +83,7 @@ class Player(pg.sprite.Sprite):
     speed = 10
     bounce = 24
     gun_offset = -11
-    images = []
+    images: List = []
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -113,7 +114,7 @@ class Alien(pg.sprite.Sprite):
 
     speed = 13
     animcycle = 12
-    images = []
+    images: List = []
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -139,7 +140,7 @@ class Explosion(pg.sprite.Sprite):
 
     defaultlife = 12
     animcycle = 3
-    images = []
+    images: List = []
 
     def __init__(self, actor):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -165,7 +166,7 @@ class Shot(pg.sprite.Sprite):
     """a bullet the Player sprite fires."""
 
     speed = -11
-    images = []
+    images: List = []
 
     def __init__(self, pos):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -186,7 +187,7 @@ class Bomb(pg.sprite.Sprite):
     """A bomb the aliens drop."""
 
     speed = 9
-    images = []
+    images: List = []
 
     def __init__(self, alien):
         pg.sprite.Sprite.__init__(self, self.containers)

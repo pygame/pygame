@@ -15,6 +15,7 @@ Keyboard Controls:
 * Press any other button to skip to the next music file in the list
 """
 
+from typing import List
 import pygame as pg
 import os, sys
 
@@ -146,7 +147,7 @@ data_dir = os.path.join(main_dir, "data")
 
 starting_pos = 0  # needed to fast forward and rewind
 volume = 0.75
-music_file_list = []
+music_file_list: List[str] = []
 music_file_types = ("mp3", "ogg", "mid", "mod", "it", "xm", "wav")
 music_can_seek = ("mp3", "ogg", "mod", "it", "xm")
 

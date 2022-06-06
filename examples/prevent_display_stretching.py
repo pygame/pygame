@@ -19,13 +19,14 @@ Vista and newer).
 # Ensure that the computer is running Windows Vista or newer
 import os
 import sys
+from typing import Optional
 
 # game constants
 TEXTCOLOR = "green"
 BACKGROUNDCOLOR = "black"
 AXISCOLOR = "white"
 
-if os.name != "nt" or sys.getwindowsversion()[0] < 6:
+if os.name != "nt" or sys.getwindowsversion()[0] < 6:  # type: ignore[attr-defined]
     raise NotImplementedError("this script requires Windows Vista or newer")
 
 import pygame as pg
@@ -34,7 +35,7 @@ import ctypes
 
 # Determine whether or not the user would like to prevent stretching
 if os.path.basename(sys.executable) == "pythonw.exe":
-    selection = "y"
+    selection: Optional[str] = "y"
 else:
     selection = None
     while selection not in ("y", "n"):
@@ -47,7 +48,7 @@ else:
 
 # Prevent stretching
 if selection == "y":
-    user32 = ctypes.windll.user32
+    user32 = ctypes.windll.user32  # type: ignore[attr-defined]
     user32.SetProcessDPIAware()
 
 # Show screen

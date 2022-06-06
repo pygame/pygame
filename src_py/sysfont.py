@@ -24,11 +24,12 @@ import subprocess
 import sys
 import warnings
 from os.path import basename, dirname, exists, join, splitext
+from typing import Dict
 
 from pygame.font import Font
 
 OpenType_extensions = frozenset((".ttf", ".ttc", ".otf"))
-Sysfonts = {}
+Sysfonts: Dict[str, str] = {}
 Sysalias = {}
 
 is_init = False

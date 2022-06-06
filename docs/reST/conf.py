@@ -10,7 +10,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import os
+import sys
+from typing import List
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -67,7 +69,7 @@ deprecated_format = 'Deprecated since pygame %s'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = []
+unused_docs: List[str] = []
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.

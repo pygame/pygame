@@ -6,6 +6,7 @@ A little "console" where you can write in text.
 Shows how to use the TEXTEDITING and TEXTINPUT events.
 """
 import sys
+from typing import List
 
 import pygame
 import pygame as pg
@@ -49,12 +50,12 @@ class TextInput:
         self._ime_text_pos = 0
         self._ime_editing_text = ""
         self._ime_editing_pos = 0
-        self.chat_list = []
+        self.chat_list: List[str] = []
 
         # Freetype
         # The font name can be a comma separated list
         # of font names to search for.
-        self.FONT_NAMES = ",".join(str(x) for x in self.FONT_NAMES)
+        self.FONT_NAMES = ",".join(str(x) for x in self.FONT_NAMES)  # type: ignore[assignment]
         self.font = freetype.SysFont(self.FONT_NAMES, 24)
         self.font_small = freetype.SysFont(self.FONT_NAMES, 16)
         self.text_color = text_color

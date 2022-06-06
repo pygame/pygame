@@ -12,6 +12,7 @@ python -m pygame.examples.midi --input
 
 import sys
 import os
+from typing import Optional, Set
 
 import pygame as pg
 import pygame.midi
@@ -639,7 +640,7 @@ class Keyboard:
     white_key_width, white_key_height = _rects["white none"].size
     black_key_width, black_key_height = _rects["black none"].size
 
-    _updates = set()
+    _updates: Set = set()
 
     # There are five key classes, representing key shape:
     # black key (BlackKey), plain white key (WhiteKey), white key to the left
@@ -859,7 +860,7 @@ def main(mode="output", device_id=None):
 if __name__ == "__main__":
 
     try:
-        device_id = int(sys.argv[-1])
+        device_id: Optional[int] = int(sys.argv[-1])
     except ValueError:
         device_id = None
 

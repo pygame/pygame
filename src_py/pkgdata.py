@@ -25,7 +25,7 @@ try:
     from pkg_resources import resource_stream, resource_exists
 except ImportError:
 
-    def resource_exists(_package_or_requirement, _resource_name):
+    def resource_exists(_package_or_requirement, _resource_name):  # type: ignore[misc]
         """
         A stub for when we fail to import this function.
 
@@ -33,7 +33,7 @@ except ImportError:
         """
         return False
 
-    def resource_stream(_package_of_requirement, _resource_name):
+    def resource_stream(_package_of_requirement, _resource_name):  # type: ignore[misc]
         """
         A stub for when we fail to import this function.
 

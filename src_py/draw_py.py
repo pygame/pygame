@@ -290,7 +290,7 @@ def _draw_aaline(surf, color, start, end, blend):
     else:
         slope = d_x / d_y
 
-        def draw_two_pixel(float_x, in_y, factor):
+        def draw_two_pixel(float_x, in_y, factor):  # type: ignore[misc]
             fl_x = floor(float_x)
             draw_pixel(surf, (fl_x, in_y), color, factor * inv_frac(float_x), blend)
             draw_pixel(surf, (fl_x + 1, in_y), color, factor * frac(float_x), blend)

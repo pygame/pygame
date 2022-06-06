@@ -16,6 +16,7 @@ to quit.
 """
 import sys
 import os
+from typing import Optional
 
 import pygame as pg
 from pygame.transform import scale
@@ -186,7 +187,7 @@ def main(image_file=None):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        image_file = sys.argv[1]
+        image_file: Optional[str] = sys.argv[1]
     else:
         image_file = None
     main(image_file)

@@ -44,7 +44,6 @@ def main(fin, fout, w, h):
 if __name__ == "__main__":
     if "-scale" in sys.argv:
         fin, fout, w, h = sys.argv[2:]
-        w, h = map(int, [w, h])
-        main(fin, fout, w, h)
+        main(fin, fout, int(w), int(h))
     else:
         print(usage)

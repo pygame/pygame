@@ -6,8 +6,10 @@ A pygame 2 experiment.
 * record sound from a microphone
 * play back the recorded sound
 """
-import pygame as pg
 import time
+from typing import List
+
+import pygame as pg
 
 from pygame._sdl2 import (
     get_audio_device_names,
@@ -25,7 +27,7 @@ pg.init()
 names = get_audio_device_names(True)
 print(names)
 
-sounds = []
+sounds: List = []
 sound_chunks = []
 
 
