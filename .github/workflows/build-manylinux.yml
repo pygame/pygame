@@ -46,7 +46,7 @@ jobs:
           # The * here essentially tells cibuildwheel to follow its default behaviour 
           # of building all possible build configurations the particular cibuildwheel
           # version supports. Unless cibuildwheel itself is bumped to the next version,
-          # this will stay constant and do the same set of builds everytime.
+          # this will stay constant and do the same set of builds every time.
           - { image: manylinux2014, arch: x86_64, pyversions: "*" }
           - { image: manylinux2014, arch: i686, pyversions: "*" }
 

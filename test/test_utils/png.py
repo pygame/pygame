@@ -799,7 +799,7 @@ class Writer:
                     # print(len(data), len(compressed), file= >> sys.stderr)
                     write_chunk(outfile, "IDAT", compressed)
                 # Because of our very witty definition of ``extend``,
-                # above, we must re-use the same ``data`` object.  Hence
+                # above, we must reuse the same ``data`` object.  Hence
                 # we use ``del`` to empty this one, rather than create a
                 # fresh one (which would be my natural FP instinct).
                 del data[:]

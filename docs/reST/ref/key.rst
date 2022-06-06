@@ -269,7 +269,7 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    
    .. versionadded:: 2.2.0
       The collection of bools returned by ``get_pressed`` can not be iterated
-      over because the indexes of the internal tuple does not correpsond to the 
+      over because the indexes of the internal tuple does not correspond to the 
       keycodes.
 
    .. versionadded:: 2.5.0
@@ -352,7 +352,7 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    corresponding key constant exists and is unique). If the return value is
    passed to the ``key_code`` function, the original constant will be returned.
 
-   **Experimental:** ``use_compat`` paramater still in development for testing and feedback. It may change.
+   **Experimental:** ``use_compat`` parameter still in development for testing and feedback. It may change.
    `Please leave use_compat feedback with authors <https://github.com/pygame/pygame/pull/3312>`_
 
    If this argument is ``False``, the returned name may be prettier to display

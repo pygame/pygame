@@ -281,7 +281,7 @@ class FontTypeTest(unittest.TestCase):
         f = pygame_font.Font()
 
     def test_get_ascent(self):
-        # Ckecking ascent would need a custom test font to do properly.
+        # Checking ascent would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         ascent = f.get_ascent()
         self.assertTrue(isinstance(ascent, int))
@@ -290,14 +290,14 @@ class FontTypeTest(unittest.TestCase):
         self.assertTrue(s.get_size()[1] > ascent)
 
     def test_get_descent(self):
-        # Ckecking descent would need a custom test font to do properly.
+        # Checking descent would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         descent = f.get_descent()
         self.assertTrue(isinstance(descent, int))
         self.assertTrue(descent < 0)
 
     def test_get_height(self):
-        # Ckecking height would need a custom test font to do properly.
+        # Checking height would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         height = f.get_height()
         self.assertTrue(isinstance(height, int))
@@ -306,7 +306,7 @@ class FontTypeTest(unittest.TestCase):
         self.assertTrue(s.get_size()[1] == height)
 
     def test_get_linesize(self):
-        # Ckecking linesize would need a custom test font to do properly.
+        # Checking linesize would need a custom test font to do properly.
         # Questions: How do linesize, height and descent relate?
         f = pygame_font.Font(None, 20)
         linesize = f.get_linesize()

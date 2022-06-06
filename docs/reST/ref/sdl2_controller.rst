@@ -225,7 +225,7 @@ events related to controllers.
 
       .. versionchanged:: 2.0.2: Return type changed from ``str`` to ``dict``
 
-      .. ## Contorller.get_mapping ##
+      .. ## Controller.get_mapping ##
 
    .. method:: set_mapping
 
@@ -255,7 +255,7 @@ events related to controllers.
       .. versionchanged:: 2.0.2: Renamed from ``add_mapping`` to ``set_mapping``
       .. versionchanged:: 2.0.2: Argument type changed from ``str`` to ``dict``
 
-      .. ## Contorller.set_mapping ##
+      .. ## Controller.set_mapping ##
 
    .. method:: rumble
 
@@ -273,7 +273,7 @@ events related to controllers.
 
       .. versionadded:: 2.0.2
 
-      .. ## Contorller.rumble ##
+      .. ## Controller.rumble ##
 
    .. method:: stop_rumble
 
@@ -285,6 +285,6 @@ events related to controllers.
 
       .. versionadded:: 2.0.2
 
-      .. ## Contorller.stop_rumble ##
+      .. ## Controller.stop_rumble ##
 
 .. ## pygame._sdl2.controller ##

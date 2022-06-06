@@ -38,15 +38,15 @@ is written in rst files, which stands for "ReStructured Text." We use Sphinx
 ([Sphinx Documentation](https://www.sphinx-doc.org/en/master/)) to convert
 these rst files into html, which are then hosted on the pygame website.
 
-Sphinx has a good ReStructed Text primer to learn the basics:
+Sphinx has a good ReStructured Text primer to learn the basics:
 https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
 Contributing steps:
-- Have an idea to improve the docs, perhaps create an issue on Github
+- Have an idea to improve the docs, perhaps create an issue on GitHub
 - Find the file you want to edit: it will most likely be in `docs/reST/ref`.
 OR
-- Pygame docs pages have an "Edit on Github" button, which will show you the file
-- Download the pygame source from Github locally.  
+- Pygame docs pages have an "Edit on GitHub" button, which will show you the file
+- Download the pygame source from GitHub locally.  
      ^ One way to do this is to fork and use a Git client to make that a local repository
 - Implement your idea.
 - Follow the steps in "Generating the Documentation"

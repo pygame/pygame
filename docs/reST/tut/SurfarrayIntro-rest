@@ -29,7 +29,7 @@ Transparency
 
 .. comment out
    The surfarray module has several methods for accessing a Surface's alpha/colorkey
-   values. None of the alpha functions are effected by overal transparency of a
+   values. None of the alpha functions are effected by overall transparency of a
    Surface, just the pixel alpha values. Here's the list of those functions.
    <dl>
    <dt>``surfarray.pixels_alpha(surface)``</dt><dd>Creates a 2D array *(integer pixel values)* that references the original surface alpha data. This will only

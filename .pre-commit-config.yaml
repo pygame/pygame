@@ -36,6 +36,14 @@ repos:
                 | src_c/sdlmain_osx.m
             )$
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+    - id: codespell
+      args: ["--skip=docs/es/*,src_c/*,setup.py,*.json"]
+      additional_dependencies:
+        - tomli
+
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.3.7
     hooks:
