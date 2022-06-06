@@ -1019,7 +1019,7 @@ cdef class LayeredDirty(LayeredUpdates):
         _use_update: True/False   (default is False)
         _default_layer: default layer where the sprites without a layer are
             added
-        _time_threshold: treshold time for switching between dirty rect mode
+        _time_threshold: threshold time for switching between dirty rect mode
             and fullscreen mode; defaults to updating at 80 frames per second,
             which is equal to 1000.0 / 80.0
 
@@ -1041,7 +1041,7 @@ cdef class LayeredDirty(LayeredUpdates):
             _use_update: True/False   (default is False)
             _default_layer: default layer where the sprites without a layer are
                 added
-            _time_threshold: treshold time for switching between dirty rect
+            _time_threshold: threshold time for switching between dirty rect
                 mode and fullscreen mode; defaults to updating at 80 frames per
                 second, which is equal to 1000.0 / 80.0
 
@@ -1276,7 +1276,7 @@ cdef class LayeredDirty(LayeredUpdates):
             sprite.dirty = 1
 
     def set_timing_treshold(self, time_ms):
-        """set the treshold in milliseconds
+        """set the threshold in milliseconds
 
         DEPRECATED: misspelled 'threshold'
 

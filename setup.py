@@ -140,10 +140,8 @@ def compilation_help():
     if the_system == 'Linux':
         if hasattr(platform, 'linux_distribution'):
             distro = platform.linux_distribution()
-            if distro[0].lower() == 'ubuntu':
-                the_system = 'Ubuntu'
-            elif distro[0].lower() == 'debian':
-                the_system = 'Debian'
+            if distro[0].lower() in ('debian', 'ubuntu'):
+                the_system = distro[0].title()
 
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
@@ -259,10 +257,7 @@ if consume_arg('cython'):
             else:
                 dep_timestamp, dep = deps.newest_dependency(pyx_file)
                 priority = 2 - (dep in deps.immediate_dependencies(pyx_file))
-            if dep_timestamp > c_timestamp:
-                outdated = True
-            else:
-                outdated = False
+            outdated = dep_timestamp > c_timestamp
         else:
             outdated = True
             priority = 0
@@ -407,7 +402,7 @@ else:
     # get compile info for all extensions
     try:
         extensions = read_setup_file('Setup')
-    except:
+    except Exception:
         print("""Error with the "Setup" file,
     perhaps make a clean copy from "Setup.in".""")
         compilation_help()
@@ -450,13 +445,8 @@ alternate_font = os.path.join('src_py', 'font.py')
 if os.path.exists(alternate_font):
     os.remove(alternate_font)
 
-have_font = False
-have_freetype = False
-for e in extensions:
-    if e.name == 'font':
-        have_font = True
-    if e.name == '_freetype':
-        have_freetype = True
+have_font = any(e.name == 'font' for e in extensions)
+have_freetype = any(e.name == '_freetype' for e in extensions)
 if not have_font and have_freetype:
     shutil.copyfile(os.path.join('src_py', 'ftfont.py'), alternate_font)
 
@@ -577,9 +567,9 @@ def write_version_module(pygame_version, revision):
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
-        version_file.write('ver = "' + pygame_version + '"  # pylint: disable=invalid-name\n')
+        version_file.write(f'ver = "{pygame_version}"  # pylint: disable=invalid-name\n')
         version_file.write(f'vernum = PygameVersion({vernum})\n')
-        version_file.write('rev = "' + revision + '"  # pylint: disable=invalid-name\n')
+        version_file.write(f'rev = "{revision}"  # pylint: disable=invalid-name\n')
         version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
 
@@ -760,7 +750,7 @@ for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
         extensions.remove(e)  # don't compile the COPYLIBs, just clean them
     else:
-        e.name = 'pygame.' + e.name  # prepend package name on modules
+        e.name = f'pygame.{e.name}'  # prepend package name on modules
 
 
 # data installer with improved intelligence over distutils
@@ -904,6 +894,7 @@ class LintFormatCommand(Command):
             commands = {
                 "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
                 "black": ["--check", "--diff"] + python_directories,
+                "codespell": [],  # Codespell configuration is in setup.cfg 
                 # Test directory has too much pylint warning for now
                 "pylint": ["src_py"],
             }
@@ -913,7 +904,7 @@ class LintFormatCommand(Command):
                 "black": python_directories,
             }
 
-        formatters = ["black", "clang-format"]
+        formatters = ["black", "clang-format", "codespell"]
         for linter, option in commands.items():
             print(" ".join([linter] + option))
             check_linter_exists(linter)

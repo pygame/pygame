@@ -1537,7 +1537,7 @@ vector_slerp(pgVector *self, PyObject *args)
     tmp = (tmp < -1 ? -1 : (tmp > 1 ? 1 : tmp));
     angle = acos(tmp);
 
-    /* if t < 0 we take the long arch of the greate circle to the destiny */
+    /* if t < 0 we take the long arch of the great circle to the destiny */
     if (t < 0) {
         angle -= 2 * M_PI;
         t = -t;

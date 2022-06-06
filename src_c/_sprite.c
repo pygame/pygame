@@ -15606,7 +15606,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_14LayeredUpdates_42__setstate_cython_
 
 /* Python wrapper */
 static int __pyx_pw_6pygame_7_sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygame_7_sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: treshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
+static char __pyx_doc_6pygame_7_sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: threshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
 #if CYTHON_UPDATE_DESCRIPTOR_DOC
 struct wrapperbase __pyx_wrapperbase_6pygame_7_sprite_12LayeredDirty___init__;
 #endif
@@ -19158,13 +19158,13 @@ static PyObject *__pyx_pf_6pygame_7_sprite_12LayeredDirty_14change_layer(struct 
  *             sprite.dirty = 1
  * 
  *     def set_timing_treshold(self, time_ms):             # <<<<<<<<<<<<<<
- *         """set the treshold in milliseconds
+ *         """set the threshold in milliseconds
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6pygame_7_sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms); /*proto*/
-static char __pyx_doc_6pygame_7_sprite_12LayeredDirty_16set_timing_treshold[] = "set the treshold in milliseconds\n\n        DEPRECATED: misspelled 'threshold'\n\n        set_timing_treshold(time_ms): return None\n\n        Defaults to 1000.0 / 80.0. This means that the screen will be painted\n        using the flip method rather than the update method if the update\n        method is taking so long to update the screen that the frame rate falls\n        below 80 frames per second.\n\n        ";
+static char __pyx_doc_6pygame_7_sprite_12LayeredDirty_16set_timing_treshold[] = "set the threshold in milliseconds\n\n        DEPRECATED: misspelled 'threshold'\n\n        set_timing_treshold(time_ms): return None\n\n        Defaults to 1000.0 / 80.0. This means that the screen will be painted\n        using the flip method rather than the update method if the update\n        method is taking so long to update the screen that the frame rate falls\n        below 80 frames per second.\n\n        ";
 static PyObject *__pyx_pw_6pygame_7_sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -19199,7 +19199,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_12LayeredDirty_16set_timing_treshold(
  *             sprite.dirty = 1
  * 
  *     def set_timing_treshold(self, time_ms):             # <<<<<<<<<<<<<<
- *         """set the treshold in milliseconds
+ *         """set the threshold in milliseconds
  * 
  */
 
@@ -26217,7 +26217,7 @@ static PyTypeObject __pyx_type_6pygame_7_sprite_LayeredDirty = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates\n\n    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n    This group requires pygame.sprite.DirtySprite or any sprite that\n    has the following attributes:\n        image, rect, dirty, visible, blendmode (see doc of DirtySprite).\n\n    It uses the dirty flag technique and is therefore faster than\n    pygame.sprite.RenderUpdates if you have many static sprites.  It\n    also switches automatically between dirty rect updating and full\n    screen drawing, so you do no have to worry which would be faster.\n\n    As with the pygame.sprite.Group, you can specify some additional attributes\n    through kwargs:\n        _use_update: True/False   (default is False)\n        _default_layer: default layer where the sprites without a layer are\n            added\n        _time_threshold: treshold time for switching between dirty rect mode\n            and fullscreen mode; defaults to updating at 80 frames per second,\n            which is equal to 1000.0 / 80.0\n\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
+  "LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates\n\n    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n    This group requires pygame.sprite.DirtySprite or any sprite that\n    has the following attributes:\n        image, rect, dirty, visible, blendmode (see doc of DirtySprite).\n\n    It uses the dirty flag technique and is therefore faster than\n    pygame.sprite.RenderUpdates if you have many static sprites.  It\n    also switches automatically between dirty rect updating and full\n    screen drawing, so you do no have to worry which would be faster.\n\n    As with the pygame.sprite.Group, you can specify some additional attributes\n    through kwargs:\n        _use_update: True/False   (default is False)\n        _default_layer: default layer where the sprites without a layer are\n            added\n        _time_threshold: threshold time for switching between dirty rect mode\n            and fullscreen mode; defaults to updating at 80 frames per second,\n            which is equal to 1000.0 / 80.0\n\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
   __pyx_tp_traverse_6pygame_7_sprite_LayeredDirty, /*tp_traverse*/
   __pyx_tp_clear_6pygame_7_sprite_LayeredDirty, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -32599,7 +32599,7 @@ static int __Pyx_check_binary_version(void) {
             rtversion[i] = rt_from_call[i];
         }
         PyOS_snprintf(message, sizeof(message),
-                      "compiletime version %s of module '%.100s' "
+                      "compile time version %s of module '%.100s' "
                       "does not match runtime version %s",
                       ctversion, __Pyx_MODULE_NAME, rtversion);
         return PyErr_WarnEx(NULL, message, 1);
