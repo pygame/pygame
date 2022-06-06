@@ -474,7 +474,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # test for invalid string
         self.assertRaises(TypeError, font.get_metrics, 24, 24)
 
-        # raises exception when uninitalized
+        # raises exception when uninitialized
         self.assertRaises(RuntimeError, nullfont().get_metrics, "a", size=24)
 
     def test_freetype_Font_get_rect(self):
@@ -813,10 +813,10 @@ class FreeTypeFontTest(unittest.TestCase):
             UnicodeEncodeError, font.render, "\uD80C\uE000", color, size=24
         )
 
-        # raises exception when uninitalized
+        # raises exception when uninitialized
         self.assertRaises(RuntimeError, nullfont().render, "a", (0, 0, 0), size=24)
 
-        # Confirm the correct glpyhs are returned for a couple of
+        # Confirm the correct glyphs are returned for a couple of
         # unicode code points, 'A' and '\U00023079'. For each code point
         # the rendered glyph is compared with an image of glyph bitmap
         # as exported by FontForge.
@@ -1322,7 +1322,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # make assure no assignments happened
         self.assertEqual(ft.STYLE_NORMAL, font.style)
 
-        # test assignement
+        # test assignment
         font.style = ft.STYLE_UNDERLINE
         self.assertEqual(ft.STYLE_UNDERLINE, font.style)
 

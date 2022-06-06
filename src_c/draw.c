@@ -1207,7 +1207,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     }
 
     if (to_x <= clip_left || from_x >= clip_right) {
-        /* The line is completly to the side of the surface */
+        /* The line is completely to the side of the surface */
         return;
     }
 
@@ -1257,12 +1257,12 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
         }
     }
     /* By moving the points one pixel down, we can assume y is never negative.
-     * That permit us to use (int)y to round down intead of having to use
+     * That permit us to use (int)y to round down instead of having to use
      * floor(y). We then draw the pixels one higher.*/
     from_y += 1.0f;
     to_y += 1.0f;
 
-    /* Handle endpoints separatly.
+    /* Handle endpoints separately.
      * The line is not a mathematical line of thickness zero. The same
      * goes for the endpoints. The have a height and width of one pixel. */
     /* First endpoint */

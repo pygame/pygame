@@ -138,8 +138,8 @@ _pg_repeat_callback(Uint32 interval, void *param)
 }
 
 /* This function attempts to determine the unicode attribute from
- * the keydown/keyup event. This is used as a last-resort, incase we
- * could not determine the unicode from TEXTINPUT feild. Why?
+ * the keydown/keyup event. This is used as a last-resort, in case we
+ * could not determine the unicode from TEXTINPUT field. Why?
  * Because this function is really basic and cannot determine the
  * fancy unicode characters, just the basic ones
  *
@@ -156,7 +156,7 @@ _pg_unicode_from_event(SDL_Event *event)
     SDL_Keycode key = event->key.keysym.sym;
 
     if (event->key.keysym.mod & KMOD_CTRL) {
-        /* Contol Key held, send control-key related unicode. */
+        /* Control Key held, send control-key related unicode. */
         if (key >= SDLK_a && key <= SDLK_z)
             return key - SDLK_a + 1;
         else {
@@ -211,7 +211,7 @@ _pg_unicode_from_event(SDL_Event *event)
 
 /* Strip a utf-8 encoded string to contain only first character. Also
  * ensure that character can be represented within 3 bytes, because SDL1
- * did not support unicode characters that took up 4 bytes. Incase this
+ * did not support unicode characters that took up 4 bytes. In case this
  * bit of code is not clear, here is a python equivalent
 def _pg_strip_utf8(string):
     if chr(string[0]) <= 0xFFFF:
@@ -303,7 +303,7 @@ _pg_get_event_unicode(SDL_Event *event)
  * Some SDL1 events (SDL_ACTIVEEVENT, SDL_VIDEORESIZE and SDL_VIDEOEXPOSE)
  * are redefined with SDL2, they HAVE to be proxied.
  *
- * SDL_USEREVENT is not proxied, because with SDL2, pygame assignes a
+ * SDL_USEREVENT is not proxied, because with SDL2, pygame assigns a
  * different event in place of SDL_USEREVENT, and users use PGE_USEREVENT
  *
  * Each WINDOW_* event must be defined twice, once as an event, and also

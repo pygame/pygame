@@ -88,7 +88,7 @@ opt_parser.add_option(
     "-p",
     "--python",
     metavar="PYTHON",
-    help="path to python excutable to run subproccesed tests\n"
+    help="path to python executable to run subproccesed tests\n"
     "default (sys.executable): %s" % sys.executable,
 )
 
@@ -102,7 +102,7 @@ opt_parser.add_option(
 opt_parser.add_option("-S", "--seed", type="int", help="Randomisation seed")
 
 ###########################################################################
-# Set run() keyword arguements according to command line arguemnts.
+# Set run() keyword arguments according to command line arguments.
 # args will be the test module list, passed as positional argumemts.
 
 options, args = opt_parser.parse_args()

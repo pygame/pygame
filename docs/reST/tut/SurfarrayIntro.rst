@@ -85,7 +85,7 @@ Here are some more examples of working with arrays. ::
     File "<stdin>", line 1, in <module>
   ValueError: operands could not be broadcast together with shapes (3,) (2,)
 
-We get an error on the last commend, because we try add together two arrays
+We get an error on the last command, because we try add together two arrays
 that are different sizes. In order for two arrays two operate with each other,
 including comparisons and assignment, they must have the same dimensions. It is
 very important to know that the new arrays created from slicing the original all

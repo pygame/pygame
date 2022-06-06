@@ -1046,7 +1046,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     view_p->len = 0;
 
 #ifndef NDEBUG
-    /* Allow a callback to assert that it recieved a pg_buffer,
+    /* Allow a callback to assert that it received a pg_buffer,
        not a Py_buffer */
     flags |= PyBUF_PYGAME;
 #endif
@@ -1190,7 +1190,7 @@ _pg_release_buffer_generic(Py_buffer *view_p)
 static void
 _pg_release_buffer_array(Py_buffer *view_p)
 {
-    /* This is deliberately made safe for use on an unitialized *view_p */
+    /* This is deliberately made safe for use on an uninitialized *view_p */
     if (view_p->internal) {
         PyMem_Free(view_p->internal);
         view_p->internal = 0;
@@ -2191,7 +2191,7 @@ MODINIT_DEFINE(base)
         goto error;
     }
 
-    /*some intialization*/
+    /*some initialization*/
     PyObject *quit = PyObject_GetAttrString(module, "quit");
     PyObject *rval;
 

@@ -2341,13 +2341,13 @@ static PyObject *__pyx_codeobj__37;
  * # https://wiki.libsdl.org/SDL_GetNumAudioDevices
  * # https://wiki.libsdl.org/SDL_GetAudioDeviceName
  * def get_audio_device_names(iscapture = False):             # <<<<<<<<<<<<<<
- *     """ Returns a list of unique devicenames for each avaialable audio device.
+ *     """ Returns a list of unique devicenames for each available audio device.
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6pygame_5_sdl2_5audio_1get_audio_device_names(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygame_5_sdl2_5audio_get_audio_device_names[] = " Returns a list of unique devicenames for each avaialable audio device.\n\n    :param bool iscapture: If False return devices available for playback.\n                           If True return devices available for capture.\n\n    :return: list of devicenames.\n    :rtype: List[string]\n    ";
+static char __pyx_doc_6pygame_5_sdl2_5audio_get_audio_device_names[] = " Returns a list of unique devicenames for each available audio device.\n\n    :param bool iscapture: If False return devices available for playback.\n                           If True return devices available for capture.\n\n    :return: list of devicenames.\n    :rtype: List[string]\n    ";
 static PyMethodDef __pyx_mdef_6pygame_5_sdl2_5audio_1get_audio_device_names = {"get_audio_device_names", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pygame_5_sdl2_5audio_1get_audio_device_names, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygame_5_sdl2_5audio_get_audio_device_names};
 static PyObject *__pyx_pw_6pygame_5_sdl2_5audio_1get_audio_device_names(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_iscapture = 0;
@@ -2594,7 +2594,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5audio_get_audio_device_names(CYTHON_UN
  * # https://wiki.libsdl.org/SDL_GetNumAudioDevices
  * # https://wiki.libsdl.org/SDL_GetAudioDeviceName
  * def get_audio_device_names(iscapture = False):             # <<<<<<<<<<<<<<
- *     """ Returns a list of unique devicenames for each avaialable audio device.
+ *     """ Returns a list of unique devicenames for each available audio device.
  * 
  */
 
@@ -19163,7 +19163,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * # https://wiki.libsdl.org/SDL_GetNumAudioDevices
  * # https://wiki.libsdl.org/SDL_GetAudioDeviceName
  * def get_audio_device_names(iscapture = False):             # <<<<<<<<<<<<<<
- *     """ Returns a list of unique devicenames for each avaialable audio device.
+ *     """ Returns a list of unique devicenames for each available audio device.
  * 
  */
   __pyx_tuple__29 = PyTuple_Pack(5, __pyx_n_s_iscapture, __pyx_n_s_count, __pyx_n_s_names, __pyx_n_s_i, __pyx_n_s_name); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 46, __pyx_L1_error)
@@ -20014,7 +20014,7 @@ if (!__Pyx_RefNanny) {
  * # https://wiki.libsdl.org/SDL_GetNumAudioDevices
  * # https://wiki.libsdl.org/SDL_GetAudioDeviceName
  * def get_audio_device_names(iscapture = False):             # <<<<<<<<<<<<<<
- *     """ Returns a list of unique devicenames for each avaialable audio device.
+ *     """ Returns a list of unique devicenames for each available audio device.
  * 
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pygame_5_sdl2_5audio_1get_audio_device_names, NULL, __pyx_n_s_pygame__sdl2_audio); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)

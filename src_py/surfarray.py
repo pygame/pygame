@@ -165,7 +165,7 @@ def pixels2d(surface):
     access method).
     """
     if surface.get_bitsize() not in _pixel2d_bitdepths:
-        raise ValueError("unsupport bit depth for 2D reference array")
+        raise ValueError("unsupported bit depth for 2D reference array")
     try:
         return numpy_array(surface.get_view("2"), copy=False)
     except (ValueError, TypeError):
@@ -362,7 +362,7 @@ def array_colorkey(surface):
 
     Create a new array with the colorkey transparency value from each
     pixel. If the pixel matches the colorkey it will be fully
-    tranparent; otherwise it will be fully opaque.
+    transparent; otherwise it will be fully opaque.
 
     This will work on any type of Surface format. If the image has no
     colorkey a solid opaque array will be returned.

@@ -40,7 +40,7 @@ giving objects some motion and interactive capabilities. So your game, in pseudo
           ball.update()
 
 This is, of course, a very simple example, and you'd need to put in all the code, instead of those little bracketed comments. But
-you should get the basic idea. You crate a class, into which you put all the functions for a ball, including ``__init__``,
+you should get the basic idea. You create a class, into which you put all the functions for a ball, including ``__init__``,
 which would create all the ball's attributes, and ``update``, which would move the ball to its new position, before blitting
 it onto the screen in this position.
 

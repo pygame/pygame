@@ -253,7 +253,7 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
             raise Exception("buggy threadmap")
         # if we created a worker queue, we need to stop it.
         if not worker_queue and not _wq:
-            # print("stoping")
+            # print("stopping")
             wq.stop()
             if wq.queue.qsize():
                 um = wq.queue.get()

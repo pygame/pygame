@@ -23,7 +23,7 @@
 
 /*
  *  extended image module for pygame, note this only has
- *  the extended load and save functions, which are autmatically used
+ *  the extended load and save functions, which are automatically used
  *  by the normal pygame.image module if it is available.
  */
 #include "pygame.h"
@@ -206,7 +206,7 @@ write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows,
                  PNG_FILTER_TYPE_BASE);
 
     if (palette) {
-        doing = "set pallete";
+        doing = "set palette";
         const int ncolors = palette->ncolors;
         int i;
         if (!(color_ptr =
@@ -317,7 +317,7 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     SDL_BlitSurface(surface, &ss_rect, ss_surface, NULL);
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to supress
+    /* Make MSVC static analyzer happy by assuring ss_size >= 2 to suppress
      * a false analyzer report */
     __analysis_assume(ss_size >= 2);
 #endif

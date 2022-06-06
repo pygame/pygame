@@ -1134,9 +1134,9 @@ chan_set_volume(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
     if ((stereovolume <= -1.10f) && (stereovolume >= -1.12f)) {
-        /* The normal volume will be used.  No panning.  so panning is
-         * set to full.  this is incase it was set previously to
-         * something else.  NOTE: there is no way to GetPanning
+        /* The normal volume will be used. No panning. so panning is
+         * set to full. this is in case it was set previously to
+         * something else. NOTE: there is no way to GetPanning
          * variables.
          */
         left = 255;
@@ -1580,7 +1580,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
      */
     if (step1 == (Py_ssize_t)itemsize * channels && step2 == itemsize) {
         /*OPTIMIZATION: in these cases, we don't need to loop through
-         *the samples individually, because the bytes are already layed
+         *the samples individually, because the bytes are already laid
          *out correctly*/
         memcpy(dst, buf, memsize);
     }

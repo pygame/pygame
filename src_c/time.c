@@ -177,7 +177,7 @@ timer_callback(Uint32 interval, void *param)
     if (!evtimer)
         return 0;
 
-    /* This function runs in a seperate thread, so we acquire the GIL,
+    /* This function runs in a separate thread, so we acquire the GIL,
      * pgEvent_FillUserEvent and _pg_remove_event_timer do python API calls */
     gstate = PyGILState_Ensure();
 

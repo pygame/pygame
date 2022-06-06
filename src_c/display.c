@@ -1155,7 +1155,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                buffering, triple buffering, render-offloading where the driver
                for the on-board graphics *doesn't* have vsync enabled, or cases
                where the driver lies to us because the user has configured
-               vsync to be aways on or always off, or vsync is on by default
+               vsync to be always on or always off, or vsync is on by default
                for the whole desktop because of wayland GL compositing. */
             if (vsync) {
                 if (SDL_GL_SetSwapInterval(-1) != 0) {
@@ -1738,7 +1738,7 @@ pg_set_palette(PyObject *self, PyObject *args)
     }
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring len >= 2 to supress
+    /* Make MSVC static analyzer happy by assuring len >= 2 to suppress
      * a false analyzer report */
     __analysis_assume(len >= 2);
 #endif

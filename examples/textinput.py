@@ -35,9 +35,9 @@ class TextInput:
     ]
 
     def __init__(
-        self, promt: str, pos, screen_dimensions, print_event: bool, text_color="white"
+        self, prompt: str, pos, screen_dimensions, print_event: bool, text_color="white"
     ) -> None:
-        self.promt = promt
+        self.prompt = prompt
         self.print_event = print_event
         # position of chatlist and chatbox
         self.CHAT_LIST_POS = pg.Rect((pos[0], pos[1] + 50), (screen_dimensions[0], 400))
@@ -143,7 +143,7 @@ class TextInput:
 
         # Chat box updates
         start_pos = self.CHAT_BOX_POS.copy()
-        ime_text_l = self.promt + self._ime_text[0 : self._ime_text_pos]
+        ime_text_l = self.prompt + self._ime_text[0 : self._ime_text_pos]
         ime_text_m = (
             self._ime_editing_text[0 : self._ime_editing_pos]
             + "|"
@@ -182,7 +182,7 @@ class Game:
     BG_COLOR = "black"
 
     def __init__(self, caption: str) -> None:
-        # Initalize
+        # Initialize
         pg.init()
         self.screen = pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pg.display.set_caption(caption)
@@ -192,7 +192,7 @@ class Game:
         # Set to true or add 'showevent' in argv to see IME and KEYDOWN events
         self.print_event = "showevent" in sys.argv
         self.text_input = TextInput(
-            promt="> ",
+            prompt="> ",
             pos=(0, 20),
             screen_dimensions=(self.SCREEN_WIDTH, self.SCREEN_HEIGHT),
             print_event=self.print_event,

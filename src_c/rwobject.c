@@ -204,7 +204,7 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
             return NULL;
         }
         else if (eclass != NULL) {
-            /* Foward as eclass error */
+            /* Forward as eclass error */
             PyErr_Fetch(&exc_type, &exc_value, &exc_trace);
             Py_DECREF(exc_type);
             Py_XDECREF(exc_trace);
@@ -771,7 +771,7 @@ again:
 
 fail:
     if (retry)
-        return RAISE(PyExc_RuntimeError, "can't access ressource on platform");
+        return RAISE(PyExc_RuntimeError, "can't access resource on platform");
 
     retry = 1;
     PyObject *name = PyObject_GetAttrString(obj, "name");
