@@ -27,8 +27,7 @@ pg.init()
 names = get_audio_device_names(True)
 print(names)
 
-sounds: List = []
-sound_chunks = []
+sound_chunks: List[bytes] = []
 
 
 def callback(audiodevice, audiomemoryview):
