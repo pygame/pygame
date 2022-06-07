@@ -640,7 +640,7 @@ class Keyboard:
     white_key_width, white_key_height = _rects["white none"].size
     black_key_width, black_key_height = _rects["black none"].size
 
-    _updates: Set = set()
+    _updates: Set[key_class.Key] = set()
 
     # There are five key classes, representing key shape:
     # black key (BlackKey), plain white key (WhiteKey), white key to the left
