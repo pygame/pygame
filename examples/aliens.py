@@ -187,7 +187,7 @@ class Bomb(pg.sprite.Sprite):
     """A bomb the aliens drop."""
 
     speed = 9
-    images: List = []
+    images: List[pg.Surface] = []
 
     def __init__(self, alien):
         pg.sprite.Sprite.__init__(self, self.containers)
