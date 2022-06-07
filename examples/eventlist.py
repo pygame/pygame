@@ -39,7 +39,7 @@ try:
 except ImportError:
     SDL2 = False
 
-img_on_off: List = []
+img_on_off: List[pg.Surface] = []
 font = None
 last_key = None
 

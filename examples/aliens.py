@@ -83,7 +83,7 @@ class Player(pg.sprite.Sprite):
     speed = 10
     bounce = 24
     gun_offset = -11
-    images: List = []
+    images: List[pg.Surface] = []
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -114,7 +114,7 @@ class Alien(pg.sprite.Sprite):
 
     speed = 13
     animcycle = 12
-    images: List = []
+    images: List[pg.Surface] = []
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -140,7 +140,7 @@ class Explosion(pg.sprite.Sprite):
 
     defaultlife = 12
     animcycle = 3
-    images: List = []
+    images: List[pg.Surface] = []
 
     def __init__(self, actor):
         pg.sprite.Sprite.__init__(self, self.containers)
@@ -166,7 +166,7 @@ class Shot(pg.sprite.Sprite):
     """a bullet the Player sprite fires."""
 
     speed = -11
-    images: List = []
+    images: List[pg.Surface] = []
 
     def __init__(self, pos):
         pg.sprite.Sprite.__init__(self, self.containers)
