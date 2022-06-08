@@ -109,11 +109,11 @@ check if text will be rendered with an underline
 
 pygame.font.Font.set_strikethrough
  set_strikethrough(bool) -> None
-control if text is rendered with an strikethrough
+control if text is rendered with a strikethrough
 
 pygame.font.Font.get_strikethrough
  get_strikethrough() -> bool
-check if text will be rendered with an strikethrough
+check if text will be rendered with a strikethrough
 
 pygame.font.Font.set_bold
  set_bold(bool) -> None
