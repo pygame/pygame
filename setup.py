@@ -68,8 +68,8 @@ import sys
 import os
 
 # just import these always and fail early if not present
-import distutils
 from setuptools import setup
+import distutils
 
 import distutils.ccompiler
 
