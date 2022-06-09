@@ -1,4 +1,4 @@
-name: Build WASM
+name: Build WASM (Emscripten)
 
 # Run CI only on changes to main branch, or any PR to main. Do not run CI on 
 # any other branch. Also, skip any non-source changes from running on CI
@@ -29,15 +29,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       # pin SDK version to the latest, update manually
-      SDK_VERSION: 0.0.2
+      SDK_VERSION: 0.2.0
       SDK_ARCHIVE: python-wasm-sdk-stable.tar.bz2
 
       # use the most recent cython from github, but pin on a commit for CI
       # stability. This is also needed to benefit from caching cython installs
-      LATEST_CYTHON_COMMIT: 6ac2422b48b689b021a48dff9ee14095232baafe
+      LATEST_CYTHON_COMMIT: 8e29b6d47f6f5b10ec1a37f06db440156ac2ac2e
 
     steps:
     - uses: actions/checkout@v3.0.2
@@ -51,27 +51,27 @@ jobs:
     - name: Install latest cython and regen
       run: |
         pip install git+https://github.com/cython/cython.git@${{ env.LATEST_CYTHON_COMMIT }}
-        touch $(find |grep pxd$)
+        touch $(find | grep pxd$)
         python3 setup.py cython_only
 
     - name: Install python-wasm-sdk
       run: |
-        mkdir python-wasm-sdk
-        cd python-wasm-sdk
-        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvj
-        mkdir src
-        ln -s $GITHUB_WORKSPACE src/pygame-wasm
-        ls -A
+        mkdir python-wasm-sdk && cd python-wasm-sdk
+        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvPj
       working-directory: /opt
 
-    - name: Run config
-      run: ./config
-      working-directory: /opt/python-wasm-sdk
-
-    - name: Building WASM with emsdk
+    - name: Build WASM with emsdk
       run: |
-        python3-wasm setup.py -config -auto -sdl2
-        CC=emcc CFLAGS="-DBUILD_STATIC -DSDL_NO_COMPAT -ferror-limit=1 -Wno-unused-command-line-argument -Wno-unreachable-code-fallthrough -fPIC" \
-        EMCC_CFLAGS="-I$PREFIX/include/SDL2 -s USE_SDL=2 -sUSE_SDL_TTF=2 -sUSE_LIBPNG -sUSE_LIBJPEG" \
-        python3-wasm setup.py build
-      working-directory: /opt/python-wasm-sdk/src/pygame-wasm
+        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build
+    
+    - name: Generate libpygame.a static binaries archive
+      run: |
+        mkdir -p dist && cd dist
+        SYS_PYTHON=python3 /opt/python-wasm-sdk/emsdk/upstream/emscripten/emar rcs libpygame.a $(find build/lib.wasm32-*/ | grep o$)
+
+    # Upload the generated files under github actions assets section
+    - name: Upload dist
+      uses: actions/upload-artifact@v3
+      with:
+        name: pygame-wasm-dist
+        path: ./dist/*
