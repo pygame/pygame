@@ -6,7 +6,7 @@ from typing_extensions import Protocol
 
 from pygame.color import Color
 from pygame.math import Vector2
-from pygame.rect import Rect
+from pygame.rect import Rect, FRect
 
 # For functions that take a file name
 AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
@@ -23,9 +23,12 @@ ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[i
 
 _CanBeRect = Union[
     Rect,
+    FRect,
     Tuple[int, int, int, int],
+    Tuple[float, float, float, float],
     Tuple[Coordinate, Coordinate],
     Sequence[int],
+    Sequence[float],
     Sequence[Coordinate],
 ]
 

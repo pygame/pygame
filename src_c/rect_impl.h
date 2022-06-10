@@ -2396,4 +2396,8 @@ RectExport_iterator(RectObject *self)
 #undef RectOptional_FreelistlimitNumber
 #undef RectOptional_FreelistFreelistName
 #undef RectOptional_Freelist_Num
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> e24eff4930cf9b4d0a8650e94f683fe5b47d3a20
