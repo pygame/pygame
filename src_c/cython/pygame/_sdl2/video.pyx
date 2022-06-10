@@ -1,6 +1,6 @@
 from cpython cimport PyObject
-from . import error
-from . import error as errorfnc
+from pygame._sdl2.sdl2 import error
+from pygame._sdl2.sdl2 import error as errorfnc
 from libc.stdlib cimport free, malloc
 
 
@@ -79,7 +79,7 @@ def get_drivers():
     for ind from 0 <= ind < num:
         SDL_GetRenderDriverInfo(ind, &info)
         ret = RendererDriverInfo()
-        ret.name = info.name
+        ret.name = info.name.decode("utf-8")
         ret.flags = info.flags
         ret.num_texture_formats = info.num_texture_formats
         ret.max_texture_width = info.max_texture_width

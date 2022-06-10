@@ -92,7 +92,7 @@ def drawstatus(win):
     pos = showtext(win, (330, 90), "Virtual Mouse", (255, 255, 255), bgcolor)
     win.blit(img_on_off[is_virtual_mouse], pos)
     if is_virtual_mouse:
-        p = "%s, %s" % (virtual_x, virtual_y)
+        p = f"{virtual_x}, {virtual_y}"
         showtext(win, (pos[0] + 50, pos[1]), p, bgcolor, (255, 255, 55))
 
 
@@ -171,7 +171,7 @@ def main():
                 pg.mouse.set_visible(not pg.mouse.get_visible())
 
             if e.type != pg.MOUSEMOTION:
-                txt = "%s: %s" % (pg.event.event_name(e.type), e.dict)
+                txt = f"{pg.event.event_name(e.type)}: {e.dict}"
                 img = font.render(txt, 1, (50, 200, 50), (0, 0, 0))
                 history.append(img)
                 history = history[-13:]

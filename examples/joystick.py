@@ -56,11 +56,7 @@ def main():
                 if event.button == 0:
                     joystick = joysticks[event.instance_id]
                     if joystick.rumble(0, 0.7, 500):
-                        print(
-                            "Rumble effect played on joystick {}".format(
-                                event.instance_id
-                            )
-                        )
+                        print(f"Rumble effect played on joystick {event.instance_id}")
 
             if event.type == pygame.JOYBUTTONUP:
                 print("Joystick button released.")
@@ -71,11 +67,11 @@ def main():
                 # joystick, filling up the list without needing to create them manually.
                 joy = pygame.joystick.Joystick(event.device_index)
                 joysticks[joy.get_instance_id()] = joy
-                print("Joystick {} connencted".format(joy.get_instance_id()))
+                print(f"Joystick {joy.get_instance_id()} connencted")
 
             if event.type == pygame.JOYDEVICEREMOVED:
                 del joysticks[event.instance_id]
-                print("Joystick {} disconnected".format(event.instance_id))
+                print(f"Joystick {event.instance_id} disconnected")
 
         # Drawing step
         # First, clear the screen to white. Don't put other drawing commands
@@ -83,54 +79,54 @@ def main():
         screen.fill("white")
         text_print.reset()
 
-        text_print.tprint(screen, "Number of joysticks: {}".format(len(joysticks)))
+        text_print.tprint(screen, f"Number of joysticks: {len(joysticks)}")
         text_print.indent()
 
         # For each joystick:
         for joystick in joysticks.values():
             jid = joystick.get_instance_id()
-            text_print.tprint(screen, "Joystick {}".format(jid))
+            text_print.tprint(screen, f"Joystick {jid}")
             text_print.indent()
 
             # Get the name from the OS for the joystick.
             name = joystick.get_name()
-            text_print.tprint(screen, "Joystick name: {}".format(name))
+            text_print.tprint(screen, f"Joystick name: {name}")
 
             guid = joystick.get_guid()
-            text_print.tprint(screen, "GUID: {}".format(guid))
+            text_print.tprint(screen, f"GUID: {guid}")
 
             power_level = joystick.get_power_level()
-            text_print.tprint(screen, "Joystick's power level: {}".format(power_level))
+            text_print.tprint(screen, f"Joystick's power level: {power_level}")
 
             # Usually axis run in pairs, up/down for one, and left/right for
             # the other. Triggers count as axes.
             axes = joystick.get_numaxes()
-            text_print.tprint(screen, "Number of axes: {}".format(axes))
+            text_print.tprint(screen, f"Number of axes: {axes}")
             text_print.indent()
 
             for i in range(axes):
                 axis = joystick.get_axis(i)
-                text_print.tprint(screen, "Axis {} value: {:>6.3f}".format(i, axis))
+                text_print.tprint(screen, f"Axis {i} value: {axis:>6.3f}")
             text_print.unindent()
 
             buttons = joystick.get_numbuttons()
-            text_print.tprint(screen, "Number of buttons: {}".format(buttons))
+            text_print.tprint(screen, f"Number of buttons: {buttons}")
             text_print.indent()
 
             for i in range(buttons):
                 button = joystick.get_button(i)
-                text_print.tprint(screen, "Button {:>2} value: {}".format(i, button))
+                text_print.tprint(screen, f"Button {i:>2} value: {button}")
             text_print.unindent()
 
             hats = joystick.get_numhats()
-            text_print.tprint(screen, "Number of hats: {}".format(hats))
+            text_print.tprint(screen, f"Number of hats: {hats}")
             text_print.indent()
 
             # Hat position. All or nothing for direction, not a float like
             # get_axis(). Position is a tuple of int values (x, y).
             for i in range(hats):
                 hat = joystick.get_hat(i)
-                text_print.tprint(screen, "Hat {} value: {}".format(i, str(hat)))
+                text_print.tprint(screen, f"Hat {i} value: {str(hat)}")
             text_print.unindent()
 
             text_print.unindent()

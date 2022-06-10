@@ -106,7 +106,7 @@ typedef struct {
     PyObject_HEAD pgVector *vec;
 } vector_elementwiseproxy;
 
-/* further forward declerations */
+/* further forward declarations */
 /* generic helper functions */
 static int
 RealNumber_Check(PyObject *obj);
@@ -133,6 +133,8 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance);
 
 /* generic vector functions */
+static pgVector *
+_vector_subtype_new(pgVector *base);
 static PyObject *
 pgVector_NEW(Py_ssize_t dim);
 static void
@@ -506,7 +508,7 @@ _vector_find_string_helper(PyObject *str_obj, const char *substr,
  * return
  *    0 on success.
  *   -1 if conversion was unsuccessful
- *   -2 if an internal error occured and an exception was set
+ *   -2 if an internal error occurred and an exception was set
  */
 static Py_ssize_t
 _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,
@@ -553,6 +555,28 @@ static PyMemberDef vector_members[] = {
      "small value used in comparisons"},
     {NULL} /* Sentinel */
 };
+
+static pgVector *
+_vector_subtype_new(pgVector *base)
+{
+    pgVector *vec;
+    PyTypeObject *type = Py_TYPE(base);
+    Py_ssize_t dim = base->dim;
+
+    vec = (pgVector *)(type->tp_new(type, NULL, NULL));
+
+    if (vec) {
+        vec->dim = dim;
+        vec->epsilon = VECTOR_EPSILON;
+        vec->coords = PyMem_New(double, dim);
+
+        if (vec->coords == NULL) {
+            Py_DECREF(vec);
+            return (pgVector *)PyErr_NoMemory();
+        }
+    }
+    return vec;
+}
 
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
@@ -643,7 +667,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     }
     else if (op != (OP_MUL | OP_ARG_VECTOR) &&
              op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
-        ret = (pgVector *)pgVector_NEW(dim);
+        ret = _vector_subtype_new(vec);
         if (ret == NULL)
             return NULL;
     }
@@ -764,8 +788,9 @@ vector_inplace_floor_div(pgVector *o1, PyObject *o2)
 static PyObject *
 vector_neg(pgVector *self)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret != NULL) {
+    pgVector *ret = _vector_subtype_new(self);
+
+    if (ret) {
         Py_ssize_t i;
 
         for (i = 0; i < self->dim; i++) {
@@ -778,8 +803,9 @@ vector_neg(pgVector *self)
 static PyObject *
 vector_pos(pgVector *self)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
-    if (ret != NULL) {
+    pgVector *ret = _vector_subtype_new(self);
+
+    if (ret) {
         memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
     }
     return (PyObject *)ret;
@@ -800,8 +826,13 @@ vector_nonzero(pgVector *self)
 static PyObject *
 vector_copy(pgVector *self, PyObject *_null)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
     Py_ssize_t i;
+    pgVector *ret = _vector_subtype_new(self);
+
+    if (!ret) {
+        return NULL;
+    }
+
     for (i = 0; i < self->dim; i++) {
         ret->coords[i] = self->coords[i];
     }
@@ -820,7 +851,7 @@ vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t i;
     pgVector *ret;
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL)
         return NULL;
 
@@ -840,19 +871,33 @@ static PyObject *
 vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
 {
     Py_ssize_t i;
-    double min_length = 0; /* Default minimum. */
+    double arg0;
+    double arg1 = 0; /*
+    Default value, if arg1 is set to a different value,
+    then it will clamp to the minimum and maximum.
+    */
     double max_length;
+    double min_length;
     double old_length_sq;
     double fraction;
 
     int length_greater;
     int length_less;
 
-    static char *keywords[] = {"max_length", "min_length", NULL};
+    static char *keywords[] = {"arg0", "arg1", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords,
-                                     &max_length, &min_length)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords, &arg0,
+                                     &arg1)) {
         return NULL;
+    }
+
+    if (arg1 != 0) {
+        min_length = arg0;
+        max_length = arg1;
+    }
+    else if (arg1 == 0) {
+        max_length = arg0;
+        min_length = arg1;
     }
 
     /* Get magnitude of Vector */
@@ -1290,9 +1335,7 @@ vector_length_squared(pgVector *self, PyObject *_null)
 static PyObject *
 vector_normalize(pgVector *self, PyObject *_null)
 {
-    pgVector *ret;
-
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    pgVector *ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -1428,7 +1471,7 @@ vector_move_towards(pgVector *self, PyObject *args)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL)
         return NULL;
 
@@ -1510,7 +1553,7 @@ vector_slerp(pgVector *self, PyObject *args)
     if (self->coords[0] * other_coords[1] < self->coords[1] * other_coords[0])
         angle *= -1;
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -1562,7 +1605,7 @@ vector_lerp(pgVector *self, PyObject *args)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -1607,7 +1650,8 @@ _vector_reflect_helper(double *dst_coords, const double *src_coords,
 static PyObject *
 vector_reflect(pgVector *self, PyObject *normal)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
+    pgVector *ret = _vector_subtype_new(self);
+
     if (ret == NULL) {
         return NULL;
     }
@@ -1762,7 +1806,7 @@ vector_project_onto(pgVector *self, PyObject *other)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -2210,7 +2254,7 @@ vector2_rotate_rad(pgVector *self, PyObject *angleObject)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL || !_vector2_rotate_helper(ret->coords, self->coords,
                                                angle, self->epsilon)) {
         Py_XDECREF(ret);
@@ -2263,7 +2307,7 @@ vector2_rotate(pgVector *self, PyObject *angleObject)
     }
     angle = DEG2RAD(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL || !_vector2_rotate_helper(ret->coords, self->coords,
                                                angle, self->epsilon)) {
         Py_XDECREF(ret);
@@ -2718,7 +2762,7 @@ vector3_rotate_rad(pgVector *self, PyObject *args)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL ||
         !_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
                                 self->epsilon)) {
@@ -2788,7 +2832,7 @@ vector3_rotate(pgVector *self, PyObject *args)
         return NULL;
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL ||
         !_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
                                 self->epsilon)) {
@@ -2840,7 +2884,7 @@ vector3_rotate_x_rad(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -2899,7 +2943,7 @@ vector3_rotate_x(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -2944,7 +2988,7 @@ vector3_rotate_y_rad(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -3004,7 +3048,7 @@ vector3_rotate_y(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -3050,7 +3094,7 @@ vector3_rotate_z_rad(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -3110,7 +3154,7 @@ vector3_rotate_z(pgVector *self, PyObject *angleObject)
     sinValue = sin(angle);
     cosValue = cos(angle);
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         return NULL;
     }
@@ -3171,7 +3215,7 @@ vector3_cross(pgVector *self, PyObject *other)
         }
     }
 
-    ret = (pgVector *)pgVector_NEW(self->dim);
+    ret = _vector_subtype_new(self);
     if (ret == NULL) {
         if (!pgVector_Check(other))
             PyMem_Free(other_coords);
@@ -3683,7 +3727,8 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
     else
         op |= OP_ARG_UNKNOWN;
 
-    ret = (pgVector *)pgVector_NEW(dim);
+    ret = _vector_subtype_new(vec);
+
     if (ret == NULL) {
         return NULL;
     }
@@ -3693,8 +3738,9 @@ vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
     switch (op) {
         case OP_ADD | OP_ARG_NUMBER:
         case OP_ADD | OP_ARG_NUMBER | OP_ARG_REVERSE:
-            for (i = 0; i < dim; i++)
+            for (i = 0; i < dim; i++) {
                 ret->coords[i] = vec->coords[i] + other_value;
+            }
             break;
         case OP_SUB | OP_ARG_NUMBER:
             for (i = 0; i < dim; i++)
@@ -3882,6 +3928,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
                             PyObject *mod)
 {
     Py_ssize_t i, dim;
+    pgVector *vec;
     double *tmp;
     PyObject *bases[VECTOR_MAX_SIZE] = {NULL};
     PyObject *expos[VECTOR_MAX_SIZE] = {NULL};
@@ -3894,8 +3941,9 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
     }
 
     if (vector_elementwiseproxy_Check(baseObj)) {
-        dim = ((vector_elementwiseproxy *)baseObj)->vec->dim;
-        tmp = ((vector_elementwiseproxy *)baseObj)->vec->coords;
+        vec = ((vector_elementwiseproxy *)baseObj)->vec;
+        dim = vec->dim;
+        tmp = vec->coords;
         for (i = 0; i < dim; ++i)
             bases[i] = PyFloat_FromDouble(tmp[i]);
         if (vector_elementwiseproxy_Check(expoObj)) {
@@ -3921,8 +3969,9 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
         }
     }
     else {
-        dim = ((vector_elementwiseproxy *)expoObj)->vec->dim;
-        tmp = ((vector_elementwiseproxy *)expoObj)->vec->coords;
+        vec = ((vector_elementwiseproxy *)expoObj)->vec;
+        dim = vec->dim;
+        tmp = vec->coords;
         for (i = 0; i < dim; ++i)
             expos[i] = PyFloat_FromDouble(tmp[i]);
         if (pgVectorCompatible_Check(baseObj, dim)) {
@@ -3947,7 +3996,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
         goto clean_up;
     }
 
-    ret = pgVector_NEW(dim);
+    ret = (PyObject *)_vector_subtype_new(vec);
     if (ret == NULL)
         goto clean_up;
     /* there are many special cases so we let python do the work for us */
@@ -3980,8 +4029,8 @@ clean_up:
 static PyObject *
 vector_elementwiseproxy_abs(vector_elementwiseproxy *self)
 {
-    pgVector *ret = (pgVector *)pgVector_NEW(self->vec->dim);
-    if (ret != NULL) {
+    pgVector *ret = _vector_subtype_new(self->vec);
+    if (ret) {
         Py_ssize_t i;
 
         for (i = 0; i < self->vec->dim; i++) {
@@ -4049,6 +4098,7 @@ vector_elementwise(pgVector *vec, PyObject *_null)
         return NULL;
     Py_INCREF(vec);
     proxy->vec = (pgVector *)vec;
+
     return (PyObject *)proxy;
 }
 
@@ -4089,7 +4139,12 @@ static PyMethodDef _math_methods[] = {
  * Module init function
  ****************************/
 
+#if defined(BUILD_STATIC)
+// prevent name collision with CPython builtin PyInit_math from math module
+MODINIT_DEFINE(pg_math)
+#else
 MODINIT_DEFINE(math)
+#endif
 {
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];

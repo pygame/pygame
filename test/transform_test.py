@@ -76,7 +76,7 @@ def threshold(
                     return_surf.set_at((x, y), c1)
                 similar += 1
             # else:
-            #    print c1, c2
+            #    print(c1, c2)
 
     return similar
 

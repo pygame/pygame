@@ -57,7 +57,7 @@ in the game.
 Sprites and Groups manage their relationships with the add() and remove()
 methods. These methods can accept a single or multiple group arguments for
 membership.  The default initializers for these classes also take a
-single group or list of groups as argments for initial membership. It is safe
+single group or list of groups as arguments for initial membership. It is safe
 to repeatedly add and remove the same Sprite from a Group.
 
 While it is possible to design sprite and group classes that don't derive
@@ -91,7 +91,6 @@ Sprites are not thread safe, so lock them yourself if using threads.
 import pygame
 from pygame import Rect
 from pygame.time import get_ticks
-from operator import truth
 
 from cpython cimport PyObject_CallFunctionObjArgs, PyDict_SetItem, \
     PyObject, PyList_SetSlice
@@ -242,7 +241,7 @@ cdef class Sprite:
 
         Returns True when the Sprite belongs to one or more Groups.
         """
-        return truth(self.__g)
+        return bool(self.__g)
 
     def __repr__(self):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
@@ -421,8 +420,8 @@ cdef class AbstractGroup:
         """
         # This function behaves essentially the same as Group.add. It first
         # tries to handle each argument as an instance of the Sprite class. If
-        # that failes, then it tries to handle the argument as an iterable
-        # object. If that failes, then it tries to handle the argument as an
+        # that fails, then it tries to handle the argument as an iterable
+        # object. If that fails, then it tries to handle the argument as an
         # old-style sprite group. Lastly, if that fails, it assumes that the
         # normal Sprite methods should be used.
         for sprite in sprites:
@@ -559,8 +558,8 @@ cdef class AbstractGroup:
             self.remove_internal(<Sprite>s)
             s.remove_internal(self)
 
-    def __nonzero__(self):
-        return truth(self.sprites())
+    def __bool__(self):
+        return bool(self.sprites())
 
     def __len__(self):
         """return number of sprites in group
@@ -1214,7 +1213,7 @@ cdef class LayeredDirty(LayeredUpdates):
 ##        # debug
 ##        print "               check: using dirty rects:", self._use_update
 
-        # emtpy dirty rects list
+        # empty dirty rects list
         _update[:] = []
 
         # -------
@@ -1279,7 +1278,22 @@ cdef class LayeredDirty(LayeredUpdates):
     def set_timing_treshold(self, time_ms):
         """set the treshold in milliseconds
 
+        DEPRECATED: misspelled 'threshold'
+
         set_timing_treshold(time_ms): return None
+
+        Defaults to 1000.0 / 80.0. This means that the screen will be painted
+        using the flip method rather than the update method if the update
+        method is taking so long to update the screen that the frame rate falls
+        below 80 frames per second.
+
+        """
+        self._time_threshold = time_ms
+
+    def set_timing_threshold(self, time_ms):
+        """set the threshold in milliseconds
+
+        (time_ms): return None
 
         Defaults to 1000.0 / 80.0. This means that the screen will be painted
         using the flip method rather than the update method if the update
@@ -1325,7 +1339,7 @@ cdef class GroupSingle(AbstractGroup):
             self.remove_internal(<Sprite>self.__sprite)
         self.__sprite = sprite
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.__sprite is not None
 
     def _get_sprite(self):
@@ -1479,7 +1493,7 @@ class collide_circle_ratio(object):
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
 
-        When the ratio is ratio=1.0, then it behaves exactly like the 
+        When the ratio is ratio=1.0, then it behaves exactly like the
         collide_circle method.
 
         """

@@ -1,3 +1,10 @@
+# this workflow tests sdist builds and also doubles as a way to test that
+# pygame compiles on all ubuntu LTS versions
+# the main difference between this and the manylinux builds is that this runs
+# directly under ubuntu and uses apt installed dependencies, while the
+# manylinux workflow runs with centos docker and self-compiled dependencies
+# IMPORTANT: binaries are not to be uploaded from this workflow!
+
 name: Ubuntu sdist
 
 # Run CI only when a release is created, on changes to main branch, or any PR 
@@ -16,7 +23,7 @@ on:
       - '*.md'
       - '.github/workflows/*.yml'
       # re-include current file to not be excluded
-      - '!.github/workflows/ubuntu-sdist.yml'
+      - '!.github/workflows/build-ubuntu-sdist.yml'
 
   pull_request:
     branches: main
@@ -28,7 +35,7 @@ on:
       - '*.md'
       - '.github/workflows/*.yml'
       # re-include current file to not be excluded
-      - '!.github/workflows/ubuntu-sdist.yml'
+      - '!.github/workflows/build-ubuntu-sdist.yml'
 
 jobs:
   build:
@@ -36,10 +43,10 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
 
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v3.0.2
 
     - name: Install deps
       # install numpy from pip and not apt because the one from pip is newer,
@@ -48,7 +55,7 @@ jobs:
         sudo apt-get update --fix-missing
         sudo apt-get upgrade
         sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg8-dev python3-setuptools python3-dev
-        pip3 install sphinx mypy numpy>=1.21.0
+        pip3 install sphinx numpy>=1.21.0
 
     - name: Make sdist and install it
       run: |
@@ -63,21 +70,22 @@ jobs:
       run: python3 -m pygame.tests -v --exclude opengl,timing --time_out 300
     
     - name: Test typestubs
-      if: matrix.os == 'ubuntu-20.04' # run stubest only once
+      if: matrix.os == 'ubuntu-22.04' # run stubest only once
       run: |
         cd buildconfig/stubs
+        pip3 install mypy
         python3 -m mypy.stubtest pygame --allowlist mypy_allow_list.txt
 
     # We upload the generated files under github actions assets
     - name: Upload sdist
       if: matrix.os == 'ubuntu-20.04' # upload sdist only once
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pygame-sdist
         path: dist/*.tar.gz
 
 #   - name: Upload binaries to Github Releases
-#     if: github.event_name == 'release' && matrix.os == 'ubuntu-18.04' # upload sdist only once
+#     if: github.event_name == 'release' && matrix.os == 'ubuntu-20.04' # upload sdist only once
 #     uses: svenstaro/upload-release-action@v2
 #     with:
 #       repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -85,7 +93,7 @@ jobs:
 #       tag: ${{ github.ref }}
 #
 #   - name: Upload binaries to PyPI
-#     if: github.event_name == 'release' && matrix.os == 'ubuntu-18.04' # upload sdist only once
+#     if: github.event_name == 'release' && matrix.os == 'ubuntu-20.04' # upload sdist only once
 #     env:
 #      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
 #      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

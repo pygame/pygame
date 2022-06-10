@@ -9,7 +9,7 @@ desktop Linux distros have.
 To ensure that our libraries are ABI-compatible with these core libraries, we
 build on an old Linux distribution in a docker container.
 
-manylinux is an older linux with a fairly compatable ABI, so you can make linux binary
+manylinux is an older linux with a fairly compatible ABI, so you can make linux binary
 wheels that run on many different linux distros.
 
 * https://bitbucket.org/pygame/pygame/issues/295/build-linux-wheels-with-manylinux

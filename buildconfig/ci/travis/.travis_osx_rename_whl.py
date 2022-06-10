@@ -21,7 +21,7 @@ if len(filenames) < 1:
 elif len(filenames) > 1:
     print("Multiple wheels found:")
     for f in filenames:
-        print("  {}".format(f))
+        print(f"  {f}")
 
 for path in filenames:
     new_path = path.replace('_x86_64', '_intel')
