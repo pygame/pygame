@@ -48,10 +48,6 @@ static int
 four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4);
 static int
 four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float *val4);
-static int
-_PG_IntersectFRectAndLine_ComputeOutCode(const SDL_FRect *rect, float x, float y);
-static SDL_bool
-PG_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float *Y2);
 
 #define RectExport_init pg_rect_init
 #define RectExport_subtypeNew4 _pg_rect_subtype_new4
