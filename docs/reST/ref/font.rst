@@ -338,6 +338,8 @@ solves no longer exists, it will likely be removed in the future.
       This can be mixed with the bold, italic and underline modes.
 
       .. note:: This is the same as the :attr:`strikethrough` attribute.
+      
+      .. versionadded:: 2.1.3
 
       .. ## Font.set_strikethrough ##
 
@@ -349,6 +351,8 @@ solves no longer exists, it will likely be removed in the future.
       Return True when the font strikethrough is enabled.
 
        .. note:: This is the same as the :attr:`strikethrough` attribute.
+       
+       .. versionadded:: 2.1.3
 
       .. ## Font.get_strikethrough ##
 
