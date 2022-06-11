@@ -1011,8 +1011,20 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
-                    else if (!center_window) {
-                        SDL_GetWindowPosition(win, &x, &y);
+                    else {
+                        int old_w, old_h;
+                        SDL_GetWindowSize(win, &old_w, &old_h);
+
+                        /* Emulate SDL1 behaviour: When the window is to be
+                         * centred, the window shifts to the new centred
+                         * location only when resolution changes and previous
+                         * position is retained when the dimensions don't
+                         * change.
+                         * When the window is not to be centred, previous
+                         * position is retained unconditionally */
+                        if (!center_window || (w == old_w && h == old_h)) {
+                            SDL_GetWindowPosition(win, &x, &y);
+                        }
                     }
                 }
                 if (!(flags & PGS_OPENGL) !=
