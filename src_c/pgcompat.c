@@ -77,7 +77,7 @@ ComputeOutCodeF(const SDL_FRect *rect, float x, float y)
     return code;
 }
 
-static SDL_bool
+SDL_bool
 SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2,
                           float *Y2)
 {
