@@ -42,6 +42,8 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
     return NULL;
 }
 
+#endif /*if !(SDL_VERSION_ATLEAST(2, 0, 5))*/
+
 /* SDL 2.0.22 provides some utility functions for FRects */
 #if !(SDL_VERSION_ATLEAST(2, 0, 22))
 
@@ -220,4 +222,3 @@ SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2,
 }
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 22)) */
 
-#endif /*if !(SDL_VERSION_ATLEAST(2, 0, 5))*/
