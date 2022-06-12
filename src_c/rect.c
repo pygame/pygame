@@ -39,11 +39,6 @@ static PyTypeObject pgFRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
 #define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
 
-/* encase it is defined in the future by Python.h */
-#ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double)x))
-#endif
-
 static int
 four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4);
 static int
