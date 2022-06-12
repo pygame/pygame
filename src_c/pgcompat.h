@@ -50,7 +50,7 @@ typedef struct SDL_FRect {
     float x, y;
     float w, h;
 } SDL_FRect;
-#endif !(SDL_VERSION_ATLEAST(2, 0, 10))
+#endif /* !(SDL_VERSION_ATLEAST(2, 0, 10)) */
 
 /* SDL 2.0.22 provides some utility functions for FRects */
 #if !(SDL_VERSION_ATLEAST(2, 0, 22))
