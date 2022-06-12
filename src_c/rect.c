@@ -689,51 +689,39 @@ static PyGetSetDef pg_rect_getsets[] = {
 };
 
 static PyTypeObject pgRect_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name="pygame.Rect",
-    .tp_basicsize=sizeof(pgRectObject),          
-    .tp_itemsize=0,            
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Rect",
+    .tp_basicsize = sizeof(pgRectObject), .tp_itemsize = 0,
     /* methods */
-    .tp_dealloc=(destructor)pg_rect_dealloc, 
-    .tp_repr=(reprfunc)pg_rect_repr,     
-    .tp_as_number=&pg_rect_as_number,    
-    .tp_as_sequence=&pg_rect_as_sequence,
-    .tp_as_mapping=&pg_rect_as_mapping,  
-    .tp_str=(reprfunc)pg_rect_str,       
+    .tp_dealloc = (destructor)pg_rect_dealloc,
+    .tp_repr = (reprfunc)pg_rect_repr, .tp_as_number = &pg_rect_as_number,
+    .tp_as_sequence = &pg_rect_as_sequence,
+    .tp_as_mapping = &pg_rect_as_mapping, .tp_str = (reprfunc)pg_rect_str,
     /* Space for future expansion */
-    .tp_flags=Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, 
-    .tp_doc=DOC_PYGAMERECT,          
-    .tp_richcompare=(richcmpfunc)pg_rect_richcompare,
-    .tp_weaklistoffset=offsetof(pgRectObject, weakreflist),
-    .tp_iter=(getiterfunc)pg_rect_iterator,
-    .tp_methods=pg_rect_methods,
-    .tp_getset=pg_rect_getsets,
-    .tp_init=(initproc)pg_rect_init,
-    .tp_new=pg_rect_new
-};
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = DOC_PYGAMERECT,
+    .tp_richcompare = (richcmpfunc)pg_rect_richcompare,
+    .tp_weaklistoffset = offsetof(pgRectObject, weakreflist),
+    .tp_iter = (getiterfunc)pg_rect_iterator, .tp_methods = pg_rect_methods,
+    .tp_getset = pg_rect_getsets, .tp_init = (initproc)pg_rect_init,
+    .tp_new = pg_rect_new};
 
 // FRECT_TYPE
 static PyTypeObject pgFRect_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name="pygame.FRect",
-    .tp_basicsize=sizeof(pgFRectObject),          
-    .tp_itemsize=0,            
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.FRect",
+    .tp_basicsize = sizeof(pgFRectObject), .tp_itemsize = 0,
     /* methods */
-    .tp_dealloc=(destructor)pg_frect_dealloc, 
-    .tp_repr=(reprfunc)pg_frect_repr,     
-    .tp_as_number=&pg_frect_as_number,    
-    .tp_as_sequence=&pg_frect_as_sequence,
-    .tp_as_mapping=&pg_frect_as_mapping,  
-    .tp_str=(reprfunc)pg_frect_str,       
+    .tp_dealloc = (destructor)pg_frect_dealloc,
+    .tp_repr = (reprfunc)pg_frect_repr, .tp_as_number = &pg_frect_as_number,
+    .tp_as_sequence = &pg_frect_as_sequence,
+    .tp_as_mapping = &pg_frect_as_mapping, .tp_str = (reprfunc)pg_frect_str,
     /* Space for future expansion */
-    .tp_flags=Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, 
-    .tp_doc=NULL/*DOC_PYGAMERECT*/,          
-    .tp_richcompare=(richcmpfunc)pg_frect_richcompare,
-    .tp_weaklistoffset=offsetof(pgFRectObject, weakreflist),
-    .tp_iter=(getiterfunc)pg_frect_iterator,
-    .tp_methods=pg_frect_methods,
-    .tp_getset=pg_frect_getsets,
-    .tp_init=(initproc)pg_frect_init,
-    .tp_new=pg_frect_new
-};
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = NULL /*DOC_PYGAMERECT*/,
+    .tp_richcompare = (richcmpfunc)pg_frect_richcompare,
+    .tp_weaklistoffset = offsetof(pgFRectObject, weakreflist),
+    .tp_iter = (getiterfunc)pg_frect_iterator, .tp_methods = pg_frect_methods,
+    .tp_getset = pg_frect_getsets, .tp_init = (initproc)pg_frect_init,
+    .tp_new = pg_frect_new};
 
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
