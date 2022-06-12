@@ -82,7 +82,8 @@ compat_ComputeOutCodeF(const SDL_FRect *rect, float x, float y)
 }
 
 static SDL_bool
-SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, float *Y2)
+SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2,
+                          float *Y2)
 {
     float x = 0;
     float y = 0;
@@ -226,7 +227,8 @@ SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2, floa
 
 /* incase it is defined in the future by Python.h */
 #ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double) (round((x)*100000)/100000)))
+#define PyFloat_FromFloat(x) \
+    (PyFloat_FromDouble((double)(round((x)*100000) / 100000)))
 #endif /* PyFloat_FromFloat */
 
 #endif /* ~PGCOMPAT_INTERNAL_H */

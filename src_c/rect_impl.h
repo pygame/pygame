@@ -22,7 +22,8 @@
 
 /*
  *  Python Rect Object -- useful 2d rectangle class
- *  a template like file that works with defines and it implements the Rect object
+ *  a template like file that works with defines and it implements the Rect
+ * object
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
@@ -35,247 +36,247 @@
 
 //#region RectExport
 #ifndef RectExport_init
-#  error RectExport_init needs to be defined
+#error RectExport_init needs to be defined
 #endif
 #ifndef RectExport_subtypeNew4
-#  error RectExport_subtypeNew4 needs to be defined
+#error RectExport_subtypeNew4 needs to be defined
 #endif
 #ifndef RectExport_new
-#  error RectExport_new needs to be defined
+#error RectExport_new needs to be defined
 #endif
 #ifndef RectExport_dealloc
-#  error RectExport_dealloc needs to be defined
+#error RectExport_dealloc needs to be defined
 #endif
 #ifndef RectExport_normalize
-#  error RectExport_normalize needs to be defined
+#error RectExport_normalize needs to be defined
 #endif
 #ifndef RectExport_move
-#  error RectExport_move needs to be defined
+#error RectExport_move needs to be defined
 #endif
 #ifndef RectExport_moveIp
-#  error RectExport_moveIp needs to be defined
+#error RectExport_moveIp needs to be defined
 #endif
 #ifndef RectExport_inflate
-#  error RectExport_inflate needs to be defined
+#error RectExport_inflate needs to be defined
 #endif
 #ifndef RectExport_inflateIp
-#  error RectExport_inflateIp needs to be defined
+#error RectExport_inflateIp needs to be defined
 #endif
 #ifndef RectExport_update
-#  error RectExport_update needs to be defined
+#error RectExport_update needs to be defined
 #endif
 #ifndef RectExport_union
-#  error RectExport_union needs to be defined
+#error RectExport_union needs to be defined
 #endif
 #ifndef RectExport_unionIp
-#  error RectExport_unionIp needs to be defined
+#error RectExport_unionIp needs to be defined
 #endif
 #ifndef RectExport_unionall
-#  error RectExport_unionall needs to be defined
+#error RectExport_unionall needs to be defined
 #endif
 #ifndef RectExport_unionallIp
-#  error RectExport_unionallIp needs to be defined
+#error RectExport_unionallIp needs to be defined
 #endif
 #ifndef RectExport_collidepoint
-#  error RectExport_collidepoint needs to be defined
+#error RectExport_collidepoint needs to be defined
 #endif
 #ifndef RectExport_colliderect
-#  error RectExport_colliderect needs to be defined
+#error RectExport_colliderect needs to be defined
 #endif
 #ifndef RectExport_collidelist
-#  error RectExport_collidelist needs to be defined
+#error RectExport_collidelist needs to be defined
 #endif
 #ifndef RectExport_collidelistall
-#  error RectExport_collidelistall needs to be defined
+#error RectExport_collidelistall needs to be defined
 #endif
 #ifndef RectExport_collideobjectsall
-#  error RectExport_collideobjectsall needs to be defined
-#endif 
+#error RectExport_collideobjectsall needs to be defined
+#endif
 #ifndef RectExport_collideobjects
-#  error RectExport_collideobjects needs to be defined
-#endif 
+#error RectExport_collideobjects needs to be defined
+#endif
 #ifndef RectExport_RectFromObjectAndKeyFunc
-#  error RectExport_RectFromObjectAndKeyFunc needs to ne defined
+#error RectExport_RectFromObjectAndKeyFunc needs to ne defined
 #endif
 #ifndef RectExport_collidedict
-#  error RectExport_collidedict needs to be defined
+#error RectExport_collidedict needs to be defined
 #endif
 #ifndef RectExport_collidedictall
-#  error RectExport_collidedictall needs to be defined
+#error RectExport_collidedictall needs to be defined
 #endif
 #ifndef RectExport_clip
-#  error RectExport_clip needs to be defined
+#error RectExport_clip needs to be defined
 #endif
 #ifndef RectExport_clipline
-#  error RectExport_clipline needs to be defined
+#error RectExport_clipline needs to be defined
 #endif
 #ifndef RectExport_RectFromObject
-#  error RectExport_RectFromObject needs to be defined
+#error RectExport_RectFromObject needs to be defined
 #endif
 #ifndef RectExport_RectNew
-#  error RectExport_RectNew needs to be defined
+#error RectExport_RectNew needs to be defined
 #endif
 #ifndef RectExport_do_rects_intresect
-#  error RectExport_do_rects_intresect needs to be Defined
+#error RectExport_do_rects_intresect needs to be Defined
 #endif
 #ifndef RectExport_RectNew4
-#  error RectExport_RectNew4 needs to be defined
+#error RectExport_RectNew4 needs to be defined
 #endif
 #ifndef RectExport_Normalize
-#  error RectExport_Normalize needs to be defined
+#error RectExport_Normalize needs to be defined
 #endif
 #ifndef RectExport_contains_internal
-#  error RectExport_contains_internal needs to be defined
+#error RectExport_contains_internal needs to be defined
 #endif
 #ifndef RectExport_contains
-#  error RectExport_contains needs to be defined
+#error RectExport_contains needs to be defined
 #endif
 #ifndef RectExport_containsSeq
-#  error RectExport_containsSeq needs to be defined
+#error RectExport_containsSeq needs to be defined
 #endif
 #ifndef RectExport_clamp
-#  error RectExport_clamp needs to be defined
+#error RectExport_clamp needs to be defined
 #endif
 #ifndef RectExport_fit
-#  error RectExport_fit needs to be defined
+#error RectExport_fit needs to be defined
 #endif
 #ifndef RectExport_clampIp
-#  error RectExport_clampIp needs to be defined
+#error RectExport_clampIp needs to be defined
 #endif
 #ifndef RectExport_reduce
-#  error RectExport_reduce needs to be defined
+#error RectExport_reduce needs to be defined
 #endif
 #ifndef RectExport_copy
-#  error RectExport_copy needs to be defined
+#error RectExport_copy needs to be defined
 #endif
 #ifndef RectExport_item
-#  error RectExport_item needs to be defined
+#error RectExport_item needs to be defined
 #endif
 #ifndef RectExport_assItem
-#  error RectExport_assItem needs to be defined
+#error RectExport_assItem needs to be defined
 #endif
 #ifndef RectExport_subscript
-#  error RectExport_subscript needs to be defined
+#error RectExport_subscript needs to be defined
 #endif
 #ifndef RectExport_assSubscript
-#  error RectExport_assSubscript needs to be defined
+#error RectExport_assSubscript needs to be defined
 #endif
 #ifndef RectExport_bool
-#  error RectExport_bool needs to be defined
+#error RectExport_bool needs to be defined
 #endif
 #ifndef RectExport_richcompare
-#  error RectExport_richcompare needs to be defined
+#error RectExport_richcompare needs to be defined
 #endif
 #ifndef RectExport_getwidth
-#  error RectExport_getwidth needs to be defined
+#error RectExport_getwidth needs to be defined
 #endif
 #ifndef RectExport_setwidth
-#  error RectExport_setwidth needs to be defined
+#error RectExport_setwidth needs to be defined
 #endif
 #ifndef RectExport_getheight
-#  error RectExport_getheight needs to be defined
+#error RectExport_getheight needs to be defined
 #endif
 #ifndef RectExport_setheight
-#  error RectExport_setheight needs to be defined
+#error RectExport_setheight needs to be defined
 #endif
 #ifndef RectExport_gettop
-#  error RectExport_gettop needs to be defined
+#error RectExport_gettop needs to be defined
 #endif
 #ifndef RectExport_settop
-#  error RectExport_settop needs to be defined
+#error RectExport_settop needs to be defined
 #endif
 #ifndef RectExport_getleft
-#  error RectExport_getleft needs to be defined
+#error RectExport_getleft needs to be defined
 #endif
 #ifndef RectExport_setleft
-#  error RectExport_setleft needs to be defined
+#error RectExport_setleft needs to be defined
 #endif
 #ifndef RectExport_getright
-#  error RectExport_getright needs to be defined
+#error RectExport_getright needs to be defined
 #endif
 #ifndef RectExport_setright
-#  error RectExport_setright needs to be defined
+#error RectExport_setright needs to be defined
 #endif
 #ifndef RectExport_getbottom
-#  error RectExport_getbottom needs to be defined
+#error RectExport_getbottom needs to be defined
 #endif
 #ifndef RectExport_setbottom
-#  error RectExport_setbottom needs to be defined
+#error RectExport_setbottom needs to be defined
 #endif
 #ifndef RectExport_getcenterx
-#  error RectExport_getcenterx needs to be defined
+#error RectExport_getcenterx needs to be defined
 #endif
 #ifndef RectExport_setcenterx
-#  error RectExport_setcenterx needs to be defined
+#error RectExport_setcenterx needs to be defined
 #endif
 #ifndef RectExport_getcentery
-#  error RectExport_getcentery needs to be defined
+#error RectExport_getcentery needs to be defined
 #endif
 #ifndef RectExport_setcentery
-#  error RectExport_setcentery needs to be defined
+#error RectExport_setcentery needs to be defined
 #endif
 #ifndef RectExport_gettopleft
-#  error RectExport_gettopleft needs to be defined
+#error RectExport_gettopleft needs to be defined
 #endif
 #ifndef RectExport_settopleft
-#  error RectExport_settopleft needs to be defined
+#error RectExport_settopleft needs to be defined
 #endif
 #ifndef RectExport_gettopright
-#  error RectExport_gettopright needs to be defined
+#error RectExport_gettopright needs to be defined
 #endif
 #ifndef RectExport_settopright
-#  error RectExport_settopright needs to be defined
+#error RectExport_settopright needs to be defined
 #endif
 #ifndef RectExport_getbottomleft
-#  error RectExport_getbottomleft needs to be defined
+#error RectExport_getbottomleft needs to be defined
 #endif
 #ifndef RectExport_setbottomleft
-#  error RectExport_setbottomleft needs to be defined
+#error RectExport_setbottomleft needs to be defined
 #endif
 #ifndef RectExport_getbottomright
-#  error RectExport_getbottomright needs to be defined
+#error RectExport_getbottomright needs to be defined
 #endif
 #ifndef RectExport_setbottomright
-#  error RectExport_setbottomright needs to be defined
+#error RectExport_setbottomright needs to be defined
 #endif
 #ifndef RectExport_getmidtop
-#  error RectExport_getmidtop needs to be defined
+#error RectExport_getmidtop needs to be defined
 #endif
 #ifndef RectExport_setmidtop
-#  error RectExport_setmidtop needs to be defined
+#error RectExport_setmidtop needs to be defined
 #endif
 #ifndef RectExport_getmidleft
-#  error RectExport_getmidleft needs to be defined
+#error RectExport_getmidleft needs to be defined
 #endif
 #ifndef RectExport_setmidleft
-#  error RectExport_setmidleft needs to be defined
+#error RectExport_setmidleft needs to be defined
 #endif
 #ifndef RectExport_getmidbottom
-#  error RectExport_getmidbottom needs to be defined
+#error RectExport_getmidbottom needs to be defined
 #endif
 #ifndef RectExport_setmidbottom
-#  error RectExport_setmidbottom needs to be defined
+#error RectExport_setmidbottom needs to be defined
 #endif
 #ifndef RectExport_getmidright
-#  error RectExport_getmidright needs to be defined
+#error RectExport_getmidright needs to be defined
 #endif
 #ifndef RectExport_setmidright
-#  error RectExport_setmidright needs to be defined
+#error RectExport_setmidright needs to be defined
 #endif
 #ifndef RectExport_getcenter
-#  error RectExport_getcenter needs to be defined
+#error RectExport_getcenter needs to be defined
 #endif
 #ifndef RectExport_setcenter
-#  error RectExport_setcenter needs to be defined
+#error RectExport_setcenter needs to be defined
 #endif
 #ifndef RectExport_getsize
-#  error RectExport_getsize needs to be defined
+#error RectExport_getsize needs to be defined
 #endif
 #ifndef RectExport_setsize
-#  error RectExport_setsize needs to be defined
+#error RectExport_setsize needs to be defined
 #endif
 #ifndef RectExport_iterator
-#  error RectExpor_iterator needs to be defined
+#error RectExpor_iterator needs to be defined
 #endif
 //#endregion
 
@@ -289,70 +290,70 @@ RectImport_TypeObject:           pgRect_Type/pgFRect_Type
 
 //#region RectImport
 #ifndef RectImport_PythonNumberCheck
-#  error RectImport_PythonNumberCheck
+#error RectImport_PythonNumberCheck
 #endif
 #ifndef RectImport_PythonNumberAsPrimitiveType
-#  error RectImport_PythonNumberAsPrimitiveType
+#error RectImport_PythonNumberAsPrimitiveType
 #endif
 #ifndef RectImport_PrimitiveTypeAsPythonNumber
-#  error RectImport_PrimitiveTypeAsPythonNumber
+#error RectImport_PrimitiveTypeAsPythonNumber
 #endif
 #ifndef RectImport_ObjectName
-#  error RectImport_ObjectName needs to be defined
+#error RectImport_ObjectName needs to be defined
 #endif
 #ifndef RectImport_IntersectRectAndLine
-#  error RectImport_IntersectRectAndLine needs to be defined 
+#error RectImport_IntersectRectAndLine needs to be defined
 #endif
 #ifndef RectImport_RectCheck
-#  error RectImport_RectCheck needs to be Defined
+#error RectImport_RectCheck needs to be Defined
 #endif
 #ifndef RectImport_primitiveType
-#  error RectImport_primitiveType needs to be defined
+#error RectImport_primitiveType needs to be defined
 #endif
 #ifndef RectImport_innerRectStruct
-#  error RectImport_innerRectStruct needs to be defined
+#error RectImport_innerRectStruct needs to be defined
 #endif
 #ifndef RectImport_fourPrimiviteFromObj
-#  error RectImport_fourPrimiviteFromObj needs to be defined
+#error RectImport_fourPrimiviteFromObj needs to be defined
 #endif
 #ifndef RectImport_RectObject
-#  error RectImport_RectObject needs to be defined
+#error RectImport_RectObject needs to be defined
 #endif
 #ifndef RectImport_TypeObject
-#  error RectImport_TypeObject needs to be Defined
+#error RectImport_TypeObject needs to be Defined
 #endif
 #ifndef RectImport_primitiveFromObjIndex
-#  error RectImport_primitiveFromObjIndex needs to be defined
+#error RectImport_primitiveFromObjIndex needs to be defined
 #endif
 #ifndef RectImport_twoPrimitivesFromObj
-#  error RectImport_twoPrimitivesFromObj needs to be Defined
+#error RectImport_twoPrimitivesFromObj needs to be Defined
 #endif
 #ifndef RectImport_PrimitiveFromObj
-#  error RectImport_PrimitiveFromObj needs to be defined
+#error RectImport_PrimitiveFromObj needs to be defined
 #endif
 #ifndef RectImport_PyBuildValueFormat
-#  error RectImport_PyBuildValueFormat needs to be defined
+#error RectImport_PyBuildValueFormat needs to be defined
 #endif
 //#endregion
 
 //#region RectOptional
 #ifdef RectOptional_FREELIST
 #ifndef PYPY_VERSION
-#  error freelist is currently only supported for PyPy 
-#endif 
+#error freelist is currently only supported for PyPy
+#endif
 #ifndef RectOptional_FreelistlimitNumberName
-#  error RectOptional_FreelistlimitNumberName needs to be defined as RectOptional_FREELIST is defined
+#error RectOptional_FreelistlimitNumberName needs to be defined as RectOptional_FREELIST is defined
 #endif
 #ifndef RectOptional_FreelistlimitNumber
-#  error RectOptional_FreelistlimitNumber needs to be defined as RectOptional_FREELIST is defined
+#error RectOptional_FreelistlimitNumber needs to be defined as RectOptional_FREELIST is defined
 #endif
 #ifndef RectOptional_FreelistFreelistName
-#  error RectOptional_FreelistFreelistName needs to be defined as RectOptional_FREELIST is defined
+#error RectOptional_FreelistFreelistName needs to be defined as RectOptional_FREELIST is defined
 #endif
 #ifndef RectOptional_Freelist_Num
-#  error RectOptional_Freelist_Num needs to be defined as RectOptional_FREELIST is defined
+#error RectOptional_Freelist_Num needs to be defined as RectOptional_FREELIST is defined
 #endif
-#endif // RectOptional_FREELIST
+#endif  // RectOptional_FREELIST
 //#endregion RectOptional
 
 #define PrimitiveType RectImport_primitiveType
@@ -363,7 +364,7 @@ RectImport_TypeObject:           pgRect_Type/pgFRect_Type
 #define RectFromObject RectExport_RectFromObject
 #define subtype_new4 RectExport_subtypeNew4
 #define primitiveFromObjIndex RectImport_primitiveFromObjIndex
-#define twoPrimitivesFromObj  RectImport_twoPrimitivesFromObj
+#define twoPrimitivesFromObj RectImport_twoPrimitivesFromObj
 #define fourPrimivitesFromObj RectImport_fourPrimiviteFromObj
 #define PrimitiveFromObj RectImport_PrimitiveFromObj
 #define TypeFMT RectImport_PyBuildValueFormat
@@ -395,23 +396,25 @@ RectExport_do_rects_intresect(InnerRect *A, InnerRect *B)
 
 #define _pg_do_rects_intersect RectExport_do_rects_intresect
 
-static InnerRect* 
+static InnerRect *
 RectExport_RectFromObject(PyObject *obj, InnerRect *temp);
-static PyObject*
-RectExport_subtypeNew4(PyTypeObject *type, PrimitiveType x, PrimitiveType y, PrimitiveType w, PrimitiveType h);
-static PyObject*
+static PyObject *
+RectExport_subtypeNew4(PyTypeObject *type, PrimitiveType x, PrimitiveType y,
+                       PrimitiveType w, PrimitiveType h);
+static PyObject *
 RectExport_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void
 RectExport_dealloc(RectObject *self);
 static int
 RectExport_init(RectObject *self, PyObject *args, PyObject *kwds);
-static PyObject*
-RectExport_RectNew(InnerRect* r);
-static PyObject*
-RectExport_RectNew4(PrimitiveType x, PrimitiveType y, PrimitiveType w, PrimitiveType h);
+static PyObject *
+RectExport_RectNew(InnerRect *r);
+static PyObject *
+RectExport_RectNew4(PrimitiveType x, PrimitiveType y, PrimitiveType w,
+                    PrimitiveType h);
 static void
 RectExport_Normalize(InnerRect *rect);
-static PyObject*
+static PyObject *
 RectExport_normalize(RectObject *self, PyObject *args);
 static PyObject *
 RectExport_move(RectObject *self, PyObject *args);
@@ -434,7 +437,8 @@ RectExport_unionallIp(RectObject *self, PyObject *args);
 static PyObject *
 RectExport_collidepoint(RectObject *self, PyObject *args);
 static InnerRect *
-RectExport_RectFromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc, InnerRect *temp);
+RectExport_RectFromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc,
+                                    InnerRect *temp);
 static PyObject *
 RectExport_colliderect(RectObject *self, PyObject *args);
 static PyObject *
@@ -442,7 +446,8 @@ RectExport_collidelist(RectObject *self, PyObject *args);
 static PyObject *
 RectExport_collidelistall(RectObject *self, PyObject *args);
 static PyObject *
-RectExport_collideobjectsall(RectObject *self, PyObject *args, PyObject *kwargs);
+RectExport_collideobjectsall(RectObject *self, PyObject *args,
+                             PyObject *kwargs);
 static PyObject *
 RectExport_collideobjects(RectObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
@@ -451,7 +456,7 @@ static PyObject *
 RectExport_collidedictall(RectObject *self, PyObject *args);
 static PyObject *
 RectExport_clip(RectObject *self, PyObject *args);
-static int 
+static int
 RectExport_contains_internal(RectObject *self, PyObject *arg);
 static PyObject *
 RectExport_contains(RectObject *self, PyObject *arg);
@@ -554,14 +559,15 @@ RectExport_setsize(RectObject *self, PyObject *value, void *closure);
 static PyObject *
 RectExport_iterator(RectObject *self);
 
-
 #ifdef RectOptional_FREELIST
-const int RectOptional_FreelistlimitNumberName = RectOptional_FreelistlimitNumber;
-static RectObject *RectOptional_FreelistFreelistName[RectOptional_FreelistlimitNumber];
+const int RectOptional_FreelistlimitNumberName =
+    RectOptional_FreelistlimitNumber;
+static RectObject
+    *RectOptional_FreelistFreelistName[RectOptional_FreelistlimitNumber];
 int RectOptional_Freelist_Num = -1;
 #endif
 
-static InnerRect* 
+static InnerRect *
 RectExport_RectFromObject(PyObject *obj, InnerRect *temp)
 {
     PrimitiveType val;
@@ -662,8 +668,9 @@ RectExport_RectFromObject(PyObject *obj, InnerRect *temp)
     return NULL;
 }
 
-static PyObject*
-RectExport_subtypeNew4(PyTypeObject *type, PrimitiveType x, PrimitiveType y, PrimitiveType w, PrimitiveType h)
+static PyObject *
+RectExport_subtypeNew4(PyTypeObject *type, PrimitiveType x, PrimitiveType y,
+                       PrimitiveType w, PrimitiveType h)
 {
     RectObject *rect;
     rect = (RectObject *)TypeObject.tp_new(type, NULL, NULL);
@@ -677,7 +684,7 @@ RectExport_subtypeNew4(PyTypeObject *type, PrimitiveType x, PrimitiveType y, Pri
     return (PyObject *)rect;
 }
 
-static PyObject*
+static PyObject *
 RectExport_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     RectObject *self;
@@ -701,10 +708,10 @@ RectExport_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 #endif
 
     if (self != NULL) {
-        self->r.x = (PrimitiveType) 0;
-        self->r.y = (PrimitiveType) 0;
-        self->r.w = (PrimitiveType) 0;
-        self->r.h = (PrimitiveType) 0;
+        self->r.x = (PrimitiveType)0;
+        self->r.y = (PrimitiveType)0;
+        self->r.w = (PrimitiveType)0;
+        self->r.h = (PrimitiveType)0;
         self->weakreflist = NULL;
     }
     return (PyObject *)self;
@@ -716,7 +723,7 @@ RectExport_dealloc(RectObject *self)
     if (self->weakreflist != NULL) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
-    
+
 #ifdef RectOptional_FREELIST
     if (RectOptional_Freelist_Num < RectOptional_FreelistlimitNumberName) {
         RectOptional_Freelist_Num++;
@@ -735,7 +742,7 @@ static int
 RectExport_init(RectObject *self, PyObject *args, PyObject *kwds)
 {
     InnerRect temp;
-    InnerRect* argrect = RectFromObject(args, &temp);
+    InnerRect *argrect = RectFromObject(args, &temp);
 
     if (argrect == NULL) {
         PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
@@ -748,14 +755,15 @@ RectExport_init(RectObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyObject*
-RectExport_RectNew(InnerRect* r)
+static PyObject *
+RectExport_RectNew(InnerRect *r)
 {
     return subtype_new4(&TypeObject, r->x, r->y, r->w, r->h);
 }
 
-static PyObject*
-RectExport_RectNew4(PrimitiveType x, PrimitiveType y, PrimitiveType w, PrimitiveType h)
+static PyObject *
+RectExport_RectNew4(PrimitiveType x, PrimitiveType y, PrimitiveType w,
+                    PrimitiveType h)
 {
     return subtype_new4(&TypeObject, x, y, w, h);
 }
@@ -774,7 +782,7 @@ RectExport_Normalize(InnerRect *rect)
     }
 }
 
-static PyObject*
+static PyObject *
 RectExport_normalize(RectObject *self, PyObject *args)
 {
     RectExport_Normalize(&pgRectAsRect(self));
@@ -791,7 +799,7 @@ RectExport_move(RectObject *self, PyObject *args)
     }
 
     return RectExport_subtypeNew4(Py_TYPE(self), self->r.x + x, self->r.y + y,
-                                                 self->r.w, self->r.h);
+                                  self->r.w, self->r.h);
 }
 
 static PyObject *
@@ -818,8 +826,8 @@ RectExport_inflate(RectObject *self, PyObject *args)
     }
 
     return RectExport_subtypeNew4(Py_TYPE(self), self->r.x - x / 2,
-                                 self->r.y - y / 2, self->r.w + x,
-                                 self->r.h + y);
+                                  self->r.y - y / 2, self->r.w + x,
+                                  self->r.h + y);
 }
 
 static PyObject *
@@ -1112,7 +1120,8 @@ RectExport_collidelistall(RectObject *self, PyObject *args)
 }
 
 static InnerRect *
-RectExport_RectFromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc, InnerRect *temp)
+RectExport_RectFromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc,
+                                    InnerRect *temp)
 {
     if (keyfunc) {
         PyObject *obj_with_rect =
@@ -1143,7 +1152,8 @@ RectExport_RectFromObjectAndKeyFunc(PyObject *obj, PyObject *keyfunc, InnerRect 
 }
 
 static PyObject *
-RectExport_collideobjectsall(RectObject *self, PyObject *args, PyObject *kwargs)
+RectExport_collideobjectsall(RectObject *self, PyObject *args,
+                             PyObject *kwargs)
 {
     InnerRect *argrect;
     InnerRect temp;
@@ -1192,7 +1202,8 @@ RectExport_collideobjectsall(RectObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        if (!(argrect = RectExport_RectFromObjectAndKeyFunc(obj, keyfunc, &temp))) {
+        if (!(argrect =
+                  RectExport_RectFromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return NULL;
@@ -1253,7 +1264,8 @@ RectExport_collideobjects(RectObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        if (!(argrect = RectExport_RectFromObjectAndKeyFunc(obj, keyfunc, &temp))) {
+        if (!(argrect =
+                  RectExport_RectFromObjectAndKeyFunc(obj, keyfunc, &temp))) {
             Py_XDECREF(obj);
             return NULL;
         }
@@ -1520,10 +1532,11 @@ RectExport_clipline(RectObject *self, PyObject *args)
     }
 
     Py_XDECREF(rect_copy);
-    return Py_BuildValue("(("TypeFMT""TypeFMT")("TypeFMT""TypeFMT"))", x1, y1, x2, y2);
+    return Py_BuildValue("((" TypeFMT "" TypeFMT ")(" TypeFMT "" TypeFMT "))",
+                         x1, y1, x2, y2);
 }
 
-static int 
+static int
 RectExport_contains_internal(RectObject *self, PyObject *arg)
 {
     InnerRect *argrect, temp_arg;
@@ -1531,10 +1544,10 @@ RectExport_contains_internal(RectObject *self, PyObject *arg)
         return -1;
     }
     return (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
-        (self->r.x + self->r.w >= argrect->x + argrect->w) &&
-        (self->r.y + self->r.h >= argrect->y + argrect->h) &&
-        (self->r.x + self->r.w > argrect->x) &&
-        (self->r.y + self->r.h > argrect->y);
+           (self->r.x + self->r.w >= argrect->x + argrect->w) &&
+           (self->r.y + self->r.h >= argrect->y + argrect->h) &&
+           (self->r.x + self->r.w > argrect->x) &&
+           (self->r.y + self->r.h > argrect->y);
 }
 
 static PyObject *
@@ -1557,9 +1570,9 @@ RectExport_containsSeq(RectObject *self, PyObject *arg)
     }
     int ret = RectExport_contains_internal(self, arg);
     if (ret < 0) {
-        PyErr_SetString(PyExc_TypeError,
-                        "'in <"ObjectName">' requires rect style object"
-                        " or int as left operand");
+        PyErr_SetString(PyExc_TypeError, "'in <" ObjectName
+                                         ">' requires rect style object"
+                                         " or int as left operand");
     }
     return ret;
 }
@@ -1660,8 +1673,10 @@ RectExport_clampIp(RectObject *self, PyObject *args)
 static PyObject *
 RectExport_reduce(RectObject *self, PyObject *args)
 {
-    return Py_BuildValue("(O("TypeFMT""TypeFMT""TypeFMT""TypeFMT"))", Py_TYPE(self), (PrimitiveType)self->r.x,
-                         (PrimitiveType)self->r.y, (PrimitiveType)self->r.w, (PrimitiveType)self->r.h);
+    return Py_BuildValue("(O(" TypeFMT "" TypeFMT "" TypeFMT "" TypeFMT "))",
+                         Py_TYPE(self), (PrimitiveType)self->r.x,
+                         (PrimitiveType)self->r.y, (PrimitiveType)self->r.w,
+                         (PrimitiveType)self->r.h);
 }
 
 /* for copy module */
@@ -1669,9 +1684,8 @@ static PyObject *
 RectExport_copy(RectObject *self, PyObject *args)
 {
     return RectExport_subtypeNew4(Py_TYPE(self), self->r.x, self->r.y,
-                                 self->r.w, self->r.h);
+                                  self->r.w, self->r.h);
 }
-
 
 /* sequence methods */
 static PyObject *
@@ -1713,7 +1727,6 @@ RectExport_assItem(RectObject *self, Py_ssize_t i, PyObject *v)
     return 0;
 }
 
-
 static PyObject *
 RectExport_subscript(RectObject *self, PyObject *op)
 {
@@ -1731,7 +1744,8 @@ RectExport_subscript(RectObject *self, PyObject *op)
         return RectExport_item(self, i);
     }
     else if (op == Py_Ellipsis) {
-        return Py_BuildValue("["TypeFMT""TypeFMT""TypeFMT""TypeFMT"]", data[0], data[1], data[2], data[3]);
+        return Py_BuildValue("[" TypeFMT "" TypeFMT "" TypeFMT "" TypeFMT "]",
+                             data[0], data[1], data[2], data[3]);
     }
     else if (PySlice_Check(op)) {
         PyObject *slice;
@@ -1751,7 +1765,7 @@ RectExport_subscript(RectObject *self, PyObject *op)
             return NULL;
         }
         for (i = 0; i < slicelen; ++i) {
-            n = PyLong_FromSsize_t((Py_ssize_t) data[start + (step * i)]);
+            n = PyLong_FromSsize_t((Py_ssize_t)data[start + (step * i)]);
             if (n == NULL) {
                 Py_DECREF(slice);
                 return NULL;
@@ -1884,7 +1898,6 @@ RectExport_bool(RectObject *self)
     return self->r.w != 0 && self->r.h != 0;
 }
 
-
 static PyObject *
 RectExport_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
@@ -1937,7 +1950,6 @@ Unimplemented:
     Py_INCREF(Py_NotImplemented);
     return Py_NotImplemented;
 }
-
 
 /*width*/
 static PyObject *
@@ -2151,7 +2163,7 @@ RectExport_setcentery(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_gettopleft(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x, self->r.y);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x, self->r.y);
 }
 
 static int
@@ -2178,7 +2190,8 @@ RectExport_settopleft(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_gettopright(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + self->r.w, self->r.y);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x + self->r.w,
+                         self->r.y);
 }
 
 static int
@@ -2201,12 +2214,12 @@ RectExport_settopright(RectObject *self, PyObject *value, void *closure)
     return 0;
 }
 
-
 /*bottomleft*/
 static PyObject *
 RectExport_getbottomleft(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x, self->r.y + self->r.h);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x,
+                         self->r.y + self->r.h);
 }
 
 static int
@@ -2233,7 +2246,8 @@ RectExport_setbottomleft(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getbottomright(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + self->r.w, self->r.y + self->r.h);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x + self->r.w,
+                         self->r.y + self->r.h);
 }
 
 static int
@@ -2260,7 +2274,8 @@ RectExport_setbottomright(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getmidtop(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + (self->r.w / 2), self->r.y);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")",
+                         self->r.x + (self->r.w / 2), self->r.y);
 }
 
 static int
@@ -2287,7 +2302,8 @@ RectExport_setmidtop(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getmidleft(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x, self->r.y + (self->r.h / 2));
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x,
+                         self->r.y + (self->r.h / 2));
 }
 
 static int
@@ -2314,8 +2330,8 @@ RectExport_setmidleft(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getmidbottom(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + (self->r.w / 2),
-                         self->r.y + self->r.h);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")",
+                         self->r.x + (self->r.w / 2), self->r.y + self->r.h);
 }
 
 static int
@@ -2342,7 +2358,7 @@ RectExport_setmidbottom(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getmidright(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + self->r.w,
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.x + self->r.w,
                          self->r.y + (self->r.h / 2));
 }
 
@@ -2370,7 +2386,8 @@ RectExport_setmidright(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getcenter(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.x + (self->r.w / 2),
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")",
+                         self->r.x + (self->r.w / 2),
                          self->r.y + (self->r.h / 2));
 }
 
@@ -2398,7 +2415,7 @@ RectExport_setcenter(RectObject *self, PyObject *value, void *closure)
 static PyObject *
 RectExport_getsize(RectObject *self, void *closure)
 {
-    return Py_BuildValue("("TypeFMT""TypeFMT")", self->r.w, self->r.h);
+    return Py_BuildValue("(" TypeFMT "" TypeFMT ")", self->r.w, self->r.h);
 }
 
 static int
@@ -2420,7 +2437,6 @@ RectExport_setsize(RectObject *self, PyObject *value, void *closure)
     self->r.h = val2;
     return 0;
 }
-
 
 static PyObject *
 RectExport_iterator(RectObject *self)
@@ -2444,7 +2460,6 @@ RectExport_iterator(RectObject *self)
     Py_DECREF(tup);
     return iter;
 }
-
 
 #undef RectExport_init
 #undef RectExport_subtypeNew4

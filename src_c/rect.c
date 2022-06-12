@@ -47,7 +47,8 @@ static PyTypeObject pgFRect_Type;
 static int
 four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4);
 static int
-four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float *val4);
+four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3,
+                     float *val4);
 
 #define RectExport_init pg_rect_init
 #define RectExport_subtypeNew4 _pg_rect_subtype_new4
@@ -146,11 +147,11 @@ four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float
 #define RectImport_PythonNumberAsPrimitiveType PyLong_AsLong
 #define RectImport_PrimitiveTypeAsPythonNumber PyLong_FromLong
 #ifdef PYPY_VERSION
-#  define RectOptional_FREELIST
-#  define RectOptional_FreelistlimitNumberName PG_RECT_FREELIST_MAX
-#  define RectOptional_FreelistlimitNumber 49152
-#  define RectOptional_FreelistFreelistName pg_rect_freelist
-#  define RectOptional_Freelist_Num pg_rect_freelist_num
+#define RectOptional_FREELIST
+#define RectOptional_FreelistlimitNumberName PG_RECT_FREELIST_MAX
+#define RectOptional_FreelistlimitNumber 49152
+#define RectOptional_FreelistFreelistName pg_rect_freelist
+#define RectOptional_Freelist_Num pg_rect_freelist_num
 #endif /* PYPY_VERSION */
 #include "rect_impl.h"
 
@@ -251,11 +252,11 @@ four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float
 #define RectImport_PythonNumberAsPrimitiveType PyFloat_AsDouble
 #define RectImport_PrimitiveTypeAsPythonNumber PyFloat_FromFloat
 #ifdef PYPY_VERSION
-#  define RectOptional_FREELIST
-#  define RectOptional_FreelistlimitNumberName PG_FRECT_FREELIST_MAX
-#  define RectOptional_FreelistlimitNumber 49152
-#  define RectOptional_FreelistFreelistName pg_frect_freelist
-#  define RectOptional_Freelist_Num pg_frect_freelist_num
+#define RectOptional_FREELIST
+#define RectOptional_FreelistlimitNumberName PG_FRECT_FREELIST_MAX
+#define RectOptional_FreelistlimitNumber 49152
+#define RectOptional_FreelistFreelistName pg_frect_freelist
+#define RectOptional_Freelist_Num pg_frect_freelist_num
 #endif /* PYPY_VERSION */
 #include "rect_impl.h"
 
@@ -356,7 +357,8 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
 }
 
 static int
-four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float *val4)
+four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3,
+                     float *val4)
 {
     Py_ssize_t length = PySequence_Length(obj);
 
@@ -433,7 +435,6 @@ four_floats_from_obj(PyObject *obj, float *val1, float *val2, float *val3, float
     return 1;
 }
 
-
 static struct PyMethodDef pg_rect_methods[] = {
     {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
      DOC_RECTNORMALIZE},
@@ -485,7 +486,8 @@ static struct PyMethodDef pg_frect_methods[] = {
     {"clipline", (PyCFunction)pg_frect_clipline, METH_VARARGS,
      DOC_RECTCLIPLINE},
     {"clamp", (PyCFunction)pg_frect_clamp, METH_VARARGS, DOC_RECTCLAMP},
-    {"clamp_ip", (PyCFunction)pg_frect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
+    {"clamp_ip", (PyCFunction)pg_frect_clamp_ip, METH_VARARGS,
+     DOC_RECTCLAMPIP},
     {"copy", (PyCFunction)pg_frect_copy, METH_NOARGS, DOC_RECTCOPY},
     {"fit", (PyCFunction)pg_frect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_frect_move, METH_VARARGS, DOC_RECTMOVE},
@@ -497,7 +499,8 @@ static struct PyMethodDef pg_frect_methods[] = {
     {"move_ip", (PyCFunction)pg_frect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_frect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"union_ip", (PyCFunction)pg_frect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
+    {"union_ip", (PyCFunction)pg_frect_union_ip, METH_VARARGS,
+     DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_frect_unionall_ip, METH_VARARGS,
      DOC_RECTUNIONALLIP},
     {"collidepoint", (PyCFunction)pg_frect_collidepoint, METH_VARARGS,
@@ -526,7 +529,10 @@ static struct PyMethodDef pg_frect_methods[] = {
 
 /* common method for both objects */
 static Py_ssize_t
-pg_rect_length(PyObject *_self) { return 4; }
+pg_rect_length(PyObject *_self)
+{
+    return 4;
+}
 
 static PySequenceMethods pg_rect_as_sequence = {
     .sq_length = pg_rect_length,
@@ -562,7 +568,8 @@ static PyNumberMethods pg_frect_as_number = {
     .nb_bool = (inquiry)pg_frect_bool,
 };
 
-/* the functions below are just not worth putting in teh template system (-_-) */
+/* the functions below are just not worth putting in teh template system (-_-)
+ */
 static PyObject *
 pg_rect_repr(pgRectObject *self)
 {
@@ -573,24 +580,32 @@ pg_rect_repr(pgRectObject *self)
 static PyObject *
 pg_frect_repr(pgFRectObject *self)
 {
-    /* kinda weird workaround/hack to format floats with `PyUnicode_FromFormat` */
-   return PyUnicode_FromFormat("<frect(%S, %S, %S, %S)>", 
-        PyFloat_FromFloat(self->r.x), 
-        PyFloat_FromFloat(self->r.y),
-        PyFloat_FromFloat(self->r.w),
-        PyFloat_FromFloat(self->r.h)
-   );
+    /* kinda weird workaround/hack to format floats with `PyUnicode_FromFormat`
+     */
+    return PyUnicode_FromFormat(
+        "<frect(%S, %S, %S, %S)>", PyFloat_FromFloat(self->r.x),
+        PyFloat_FromFloat(self->r.y), PyFloat_FromFloat(self->r.w),
+        PyFloat_FromFloat(self->r.h));
 }
 
 static PyObject *
-pg_rect_str(pgRectObject *self) { return pg_rect_repr(self); }
+pg_rect_str(pgRectObject *self)
+{
+    return pg_rect_repr(self);
+}
 
 static PyObject *
-pg_frect_str(pgFRectObject *self) { return pg_frect_repr(self); }
+pg_frect_str(pgFRectObject *self)
+{
+    return pg_frect_repr(self);
+}
 
 /* True for both types of rects */
 static PyObject *
-pg_rect_getsafepickle(pgRectObject *self, void *closure) { Py_RETURN_TRUE; }
+pg_rect_getsafepickle(pgRectObject *self, void *closure)
+{
+    Py_RETURN_TRUE;
+}
 
 static PyGetSetDef pg_frect_getsets[] = {
     {"x", (getter)pg_frect_getleft, (setter)pg_frect_setleft, NULL, NULL},
@@ -730,7 +745,7 @@ static PyTypeObject pgFRect_Type = {
     NULL,                         /*setattr*/
     NULL,                         /*compare/reserved*/
     (reprfunc)pg_frect_repr,      /*repr*/
-    &pg_frect_as_number,           /*as_number*/
+    &pg_frect_as_number,          /*as_number*/
     &pg_frect_as_sequence,        /*as_sequence*/
     &pg_frect_as_mapping,         /*as_mapping*/
     (hashfunc)NULL,               /*hash*/

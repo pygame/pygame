@@ -191,7 +191,8 @@ typedef struct {
 #define pgFRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 5))
 
 #define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
-#define pgFRect_New (*(PyObject * (*)(SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 6))
+#define pgFRect_New \
+    (*(PyObject * (*)(SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 6))
 
 #define pgFRect_New4 \
     (*(PyObject * (*)(float, float, float, float)) PYGAMEAPI_GET_SLOT(rect, 7))
