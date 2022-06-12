@@ -221,4 +221,3 @@ SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2,
     return SDL_TRUE;
 }
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 22)) */
-
