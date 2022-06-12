@@ -367,6 +367,53 @@ font_set_underline(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+/* Implements getter for the strikethrough attribute */
+static PyObject *
+font_getter_strikethrough(PyObject *self, void *closure)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_STRIKETHROUGH);
+}
+
+/* Implements setter for the strikethrough attribute */
+static int
+font_setter_strikethrough(PyObject *self, PyObject *value, void *closure)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("strikethrough", value);
+
+    val = PyObject_IsTrue(value);
+    if (val == -1) {
+        return -1;
+    }
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_STRIKETHROUGH, val);
+    return 0;
+}
+
+/* Implements get_strikethrough() */
+static PyObject *
+font_get_strikethrough(PyObject *self, PyObject *args)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_STRIKETHROUGH);
+}
+
+/* Implements set_strikethrough(bool) */
+static PyObject *
+font_set_strikethrough(PyObject *self, PyObject *args)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    if (!PyArg_ParseTuple(args, "p", &val))
+        return NULL;
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_STRIKETHROUGH, val);
+
+    Py_RETURN_NONE;
+}
+
 static PyObject *
 font_render(PyObject *self, PyObject *args)
 {
@@ -645,6 +692,8 @@ static PyGetSetDef font_getsets[] = {
      DOC_FONTITALIC, NULL},
     {"underline", (getter)font_getter_underline, (setter)font_setter_underline,
      DOC_FONTUNDERLINE, NULL},
+    {"strikethrough", (getter)font_getter_strikethrough,
+     (setter)font_setter_strikethrough, DOC_FONTSTRIKETHROUGH, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
@@ -659,6 +708,10 @@ static PyMethodDef font_methods[] = {
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
     {"get_underline", font_get_underline, METH_NOARGS, DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
+    {"get_strikethrough", font_get_strikethrough, METH_NOARGS,
+     DOC_FONTGETSTRIKETHROUGH},
+    {"set_strikethrough", font_set_strikethrough, METH_VARARGS,
+     DOC_FONTSETSTRIKETHROUGH},
 
     {"metrics", font_metrics, METH_VARARGS, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
