@@ -694,7 +694,7 @@ static PyTypeObject pgRect_Type = {
     0,                                            /*itemsize*/
     /* methods */
     (destructor)pg_rect_dealloc, /*dealloc*/
-    (printfunc)NULL,             /*print*/
+    (printfunc)0,                /*print*/
     NULL,                        /*getattr*/
     NULL,                        /*setattr*/
     NULL,                        /*compare/reserved*/
@@ -735,7 +735,7 @@ static PyTypeObject pgFRect_Type = {
     0,                                             /*itemsize*/
     /* methods */
     (destructor)pg_frect_dealloc, /*dealloc*/
-    (printfunc)NULL,              /*print*/
+    (printfunc)0,                 /*print*/
     NULL,                         /*getattr*/
     NULL,                         /*setattr*/
     NULL,                         /*compare/reserved*/
