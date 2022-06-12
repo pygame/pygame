@@ -1,5 +1,5 @@
 #include <SDL.h>
-#include <pgcompat.h>
+#include "pgcompat.h"
 
 #if !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.
