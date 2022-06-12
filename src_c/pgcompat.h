@@ -45,6 +45,13 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format);
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
 
+#if !(SDL_VERSION_ATLEAST(2, 0, 10))
+typedef struct SDL_FRect {
+    float x, y;
+    float w, h;
+} SDL_FRect;
+#endif !(SDL_VERSION_ATLEAST(2, 0, 10))
+
 /* SDL 2.0.22 provides some utility functions for FRects */
 #if !(SDL_VERSION_ATLEAST(2, 0, 22))
 
