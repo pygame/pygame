@@ -321,7 +321,6 @@ struct pgColorObject {
     Uint8 len;
 };
 
-
 /* Slot counts.
  * Remember to keep these constants up to date.
  */
