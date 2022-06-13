@@ -32,8 +32,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       # pin SDK version to the latest, update manually
-      SDK_VERSION: 0.2.0
-      SDK_ARCHIVE: python-wasm-sdk-stable.tar.bz2
+      SDK_VERSION: 0.3.3
+      SDK_ARCHIVE: python-wasm-sdk-ubuntu-22.04.tar.lz4
 
       # use the most recent cython from github, but pin on a commit for CI
       # stability. This is also needed to benefit from caching cython installs
@@ -66,13 +66,14 @@ jobs:
 
     - name: Install python-wasm-sdk
       run: |
+        sudo apt-get install lz4
         mkdir python-wasm-sdk && cd python-wasm-sdk
-        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvPj
+        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvP --use-compress-program=lz4
       working-directory: /opt
 
     - name: Build WASM with emsdk
       run: |
-        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build -j3
+        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build -j$(nproc)
     
     - name: Generate libpygame.a static binaries archive
       run: |
