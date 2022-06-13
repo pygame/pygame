@@ -23,12 +23,6 @@
 /* This will use PYGAMEAPI_EXTERN_SLOTS instead
  * of PYGAMEAPI_DEFINE_SLOTS for base modules.
  */
-
-/*
- * include public API
- */
-#include "include/_pygame.h"
-
 #ifndef _PYGAME_INTERNAL_H
 #define _PYGAME_INTERNAL_H
 
@@ -320,6 +314,11 @@ struct pgColorObject {
     PyObject_HEAD Uint8 data[4];
     Uint8 len;
 };
+
+/*
+ * include public API
+ */
+#include "include/_pygame.h"
 
 /* Slot counts.
  * Remember to keep these constants up to date.
