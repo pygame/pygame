@@ -169,7 +169,7 @@ typedef struct {
 } pgRectObject;
 
 typedef struct {
-    PyObject_HEAD SDL_FRect r;
+    PyObject_HEAD struct {float x, y, w, h; } r;
     PyObject *weakreflist;
 } pgFRectObject;
 
