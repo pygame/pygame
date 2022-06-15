@@ -64,7 +64,7 @@
     (PG_VERSIONNUM(PG_MAJOR_VERSION, PG_MINOR_VERSION, PG_PATCH_VERSION) >= \
      PG_VERSIONNUM(MAJOR, MINOR, PATCH))
 
-#include "pgcompat.h"
+#include "../pgcompat.h"
 
 /* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
@@ -166,10 +166,6 @@ typedef struct {
     PyObject_HEAD SDL_Rect r;
     PyObject *weakreflist;
 } pgRectObject;
-
-#if (!SDL_VERSION_ATLEAST(2, 0, 10))
-typedef struct FRect FRect;
-#endif /* (!SDL_VERSION_ATLEAST(2, 0, 10)) */
 
 typedef struct {
     PyObject_HEAD SDL_FRect r;
