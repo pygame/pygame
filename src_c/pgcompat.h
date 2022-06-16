@@ -1,9 +1,9 @@
 /* Python 2.x/3.x compatibility tools (internal)
  */
+#include "include/pgcompat.h"
+
 #ifndef PGCOMPAT_INTERNAL_H
 #define PGCOMPAT_INTERNAL_H
-
-#include "include/pgcompat.h"
 
 /* Module init function returns new module instance. */
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name(void)

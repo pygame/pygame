@@ -280,14 +280,6 @@
 #endif
 //#endregion
 
-/*
-RectImport_primitiveType:        int/float
-REctImport_innerRectStruct:      SDL_Rect/SDL_FRect
-RectImport_fourPrimiviteFromObj: four_ints_from_obj/four_floats_from_obj
-RectImport_RectObject:           pgRectObject/pgfRectObject
-RectImport_TypeObject:           pgRect_Type/pgFRect_Type
-*/
-
 //#region RectImport
 #ifndef RectImport_PythonNumberCheck
 #error RectImport_PythonNumberCheck
