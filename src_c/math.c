@@ -557,58 +557,26 @@ static PyMemberDef vector_members[] = {
 static pgVector *
 _vector_subtype_new(pgVector *base)
 {
-    pgVector *vec;
-    PyTypeObject *type = Py_TYPE(base);
-    Py_ssize_t dim = base->dim;
-
-    vec = (pgVector *)type->tp_alloc(type, 0);
-
-    if (vec) {
-        vec->dim = dim;
-        vec->epsilon = VECTOR_EPSILON;
-        vec->coords = PyMem_New(double, dim);
-
-        if (vec->coords == NULL) {
-            Py_DECREF(vec);
-            return (pgVector *)PyErr_NoMemory();
-        }
-    }
-    return vec;
+    return (pgVector *)(Py_TYPE(base)->tp_new(Py_TYPE(base), NULL, NULL));
 }
 
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
 {
-    pgVector *vec;
     switch (dim) {
         case 2:
-            vec = PyObject_New(pgVector, &pgVector2_Type);
-            break;
+            return vector2_new(&pgVector2_Type, NULL, NULL);
         case 3:
-            vec = PyObject_New(pgVector, &pgVector3_Type);
-            break;
+            return vector3_new(&pgVector3_Type, NULL, NULL);
             /*
                 case 4:
-                    vec = PyObject_New(pgVector, &pgVector4_Type);
-                    break;
+                    return vector4_new(&pgVector4_Type, NULL, NULL);
             */
         default:
             PyErr_SetString(PyExc_SystemError,
                             "Wrong internal call to pgVector_NEW.\n");
             return NULL;
     }
-
-    if (vec != NULL) {
-        vec->dim = dim;
-        vec->epsilon = VECTOR_EPSILON;
-        vec->coords = PyMem_New(double, dim);
-        if (vec->coords == NULL) {
-            Py_DECREF(vec);
-            return PyErr_NoMemory();
-        }
-    }
-
-    return (PyObject *)vec;
 }
 
 static void
