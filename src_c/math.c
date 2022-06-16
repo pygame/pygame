@@ -561,7 +561,7 @@ _vector_subtype_new(pgVector *base)
     PyTypeObject *type = Py_TYPE(base);
     Py_ssize_t dim = base->dim;
 
-    vec = (pgVector *)(type->tp_new(type, NULL, NULL));
+    vec = (pgVector *)type->tp_alloc(type, 0);
 
     if (vec) {
         vec->dim = dim;
