@@ -1,6 +1,7 @@
 /* Python 2.x/3.x compatibility tools (internal)
  */
 #include "include/pgcompat.h"
+#include <SDL.h>
 
 #ifndef PGCOMPAT_INTERNAL_H
 #define PGCOMPAT_INTERNAL_H
