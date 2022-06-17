@@ -87,7 +87,8 @@ static PyTypeObject pgVectorIter_Type;
 #define pgVector_Check(x) (pgVector2_Check(x) || pgVector3_Check(x))
 #define vector_elementwiseproxy_Check(x) \
     (Py_TYPE(x) == &pgVectorElementwiseProxy_Type)
-#define _vector_subtype_new(x) ((pgVector *)(Py_TYPE(x)->tp_new(Py_TYPE(x), NULL, NULL)))
+#define _vector_subtype_new(x) \
+    ((pgVector *)(Py_TYPE(x)->tp_new(Py_TYPE(x), NULL, NULL)))
 
 #define DEG2RAD(angle) ((angle)*M_PI / 180.)
 #define RAD2DEG(angle) ((angle)*180. / M_PI)
