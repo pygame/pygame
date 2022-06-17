@@ -1,10 +1,10 @@
 /* Python 2.x/3.x compatibility tools (internal)
  */
-#include "include/pgcompat.h"
-#include <SDL.h>
-
 #ifndef PGCOMPAT_INTERNAL_H
 #define PGCOMPAT_INTERNAL_H
+
+#include <SDL.h>
+#include "include/pgcompat.h"
 
 /* Module init function returns new module instance. */
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name(void)
@@ -25,7 +25,6 @@
 #define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
     PySlice_GetIndicesEx(slice, length, start, stop, step, slicelength)
 
-#if defined(SDL_VERSION_ATLEAST)
 #if !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.
 
@@ -60,7 +59,6 @@ SDL_bool
 SDL_IntersectFRectAndLine(SDL_FRect *rect, float *X1, float *Y1, float *X2,
                           float *Y2);
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 22)) */
-#endif /* defined(SDL_VERSION_ATLEAST) */
 
 /* incase it is defined in the future by Python.h */
 #ifndef PyFloat_FromFloat

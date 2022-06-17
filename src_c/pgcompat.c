@@ -1,4 +1,3 @@
-#include <SDL.h>
 #include "pgcompat.h"
 
 #if !(SDL_VERSION_ATLEAST(2, 0, 5))
