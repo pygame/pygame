@@ -474,10 +474,11 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-
+#if SDL_VERSION_ATLEAST(2, 0, 6)
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
+#endif
 #endif
 #if defined(SDL_VIDEO_DRIVER_WINRT)
     tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
@@ -2107,28 +2108,22 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         case SDL_SYSWM_WINDOWS:
         case SDL_SYSWM_X11:
         case SDL_SYSWM_COCOA:
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_WAYLAND:
-#endif
             break;
 
             // These probably have fullscreen/windowed, but not tested yet.
             // before merge, this section should be handled by moving items
             // into the "supported" category, or returning early.
 
-#if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
-#endif
             return PyLong_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
         // In the future, add consoles like xbone/switch here
         case SDL_SYSWM_DIRECTFB:
-        case SDL_SYSWM_UIKIT:  // iOS currently not supported by pygame
-#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_SYSWM_UIKIT:    // iOS currently not supported by pygame
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
-#endif
             if (PyErr_WarnEx(PyExc_Warning,
                              "cannot leave FULLSCREEN on this platform",
                              1) != 0) {
@@ -2137,9 +2132,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
 #endif

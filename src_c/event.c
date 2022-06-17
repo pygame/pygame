@@ -362,9 +362,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(FINGERUP);
         _PG_HANDLE_PROXIFY(KEYDOWN);
         _PG_HANDLE_PROXIFY(KEYUP);
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
-#endif
         _PG_HANDLE_PROXIFY(JOYAXISMOTION);
         _PG_HANDLE_PROXIFY(JOYBALLMOTION);
         _PG_HANDLE_PROXIFY(JOYHATMOTION);
@@ -382,12 +380,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(MULTIGESTURE);
         _PG_HANDLE_PROXIFY(NOEVENT);
         _PG_HANDLE_PROXIFY(QUIT);
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
-#endif
         _PG_HANDLE_PROXIFY(SYSWMEVENT);
         _PG_HANDLE_PROXIFY(TEXTEDITING);
         _PG_HANDLE_PROXIFY(TEXTINPUT);
@@ -706,10 +700,8 @@ _pg_name_from_eventtype(int type)
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_KEYMAPCHANGED:
             return "KeyMapChanged";
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 14)
         case SDL_LOCALECHANGED:
             return "LocaleChanged";
@@ -800,14 +792,10 @@ _pg_name_from_eventtype(int type)
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_RENDER_TARGETS_RESET:
             return "RenderTargetsReset";
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_RENDER_DEVICE_RESET:
             return "RenderDeviceReset";
-#endif
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
