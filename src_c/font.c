@@ -416,7 +416,7 @@ font_render(PyObject *self, PyObject *args)
         }
     }
 
-    if (PyBytes_Check(text)) {
+    else if (PyBytes_Check(text)) {
         /* Bytes_AsStringAndSize with NULL arg for length emits
            ValueError if internal NULL bytes are present */
         if (PyBytes_AsStringAndSize(text, (char **)&astring, NULL) == -1) {
