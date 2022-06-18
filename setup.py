@@ -9,6 +9,8 @@
 import io
 import platform
 
+from buildconfig.config import is_msys2
+
 with open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
 
@@ -433,7 +435,7 @@ for e in extensions:
     e.extra_compile_args.extend(
         # some warnings are skipped here
         ("/W3", "/wd4142", "/wd4996")
-        if sys.platform == "win32"
+        if (sys.platform == "win32" and (not is_msys2()))
         else ("-Wall", "-Wno-error=unknown-pragmas")
     )
 
