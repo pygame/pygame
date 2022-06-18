@@ -447,7 +447,7 @@ for e in extensions:
         # TODO: fix freetype issues here
         e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
 
-    if "mask" in e.name and sys.platform == "win32":
+    if "mask" in e.name and sys.platform == "win32" and (not is_msys2()):
         # skip analyze warnings that pop up a lot in mask for now. TODO fix
         e.extra_compile_args.extend(("/wd6385", "/wd6386"))
 
@@ -457,7 +457,7 @@ for e in extensions:
             and e.name not in ("pypm", "_sprite", "gfxdraw")
     ):
         # Do -Werror only on CI, and exclude -Werror on Cython C files and gfxdraw
-        e.extra_compile_args.append("/WX" if sys.platform == "win32" else "-Werror")
+        e.extra_compile_args.append("/WX" if (sys.platform == "win32" and (not is_msys2())) else "-Werror")
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
