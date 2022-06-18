@@ -69,6 +69,7 @@ def install_prebuilts(MINGW_ARCH):
 
 def update(MINGW_ARCH=None):
     if MINGW_ARCH:
+        print("The MSYS2 environment is now set to \"{}\"".format(MINGW_ARCH))
         install_prebuilts(MINGW_ARCH)
     else:
         # Set fallback MSYS2 environment
@@ -79,6 +80,7 @@ def update(MINGW_ARCH=None):
                 MINGW_ARCH = "mingw32"
         else:
             MINGW_ARCH = os.environ["MINGW_ARCH"]
+        print("The MSYS2 environment is now set to \"{}\"".format(MINGW_ARCH))
         install_prebuilts(MINGW_ARCH)
 
 
