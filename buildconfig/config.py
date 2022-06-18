@@ -35,8 +35,7 @@ def print_(*args, **kwds):
 
 def is_msys2():
     """Return true if this in an MSYS2 build"""
-    return ('MSYSTEM' in os.environ and
-            re.match(r'MSYS|MINGW.*|CLANG.*|UCRT.*', os.environ['MSYSTEM']))
+    return (sysconfig.get_platform().startswith("mingw"))
 
 
 def is_msys_mingw():

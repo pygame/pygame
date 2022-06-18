@@ -8,6 +8,7 @@
 
 import io
 import platform
+import sysconfig
 
 from buildconfig.config import is_msys2
 
@@ -729,7 +730,7 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
 
     # Only on win32, not MSYS2
-    if 'MSYSTEM' not in os.environ:
+    if not sysconfig.get_platform().startswith("mingw"):
         @add_command('build_ext')
         class WinBuildExt(build_ext):
             """This build_ext sets necessary environment variables for MinGW"""
