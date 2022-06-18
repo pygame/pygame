@@ -485,6 +485,7 @@ def main(auto_config=False):
         MINGW_ARCH = "mingw32"
     else:
         MINGW_ARCH = "mingw64"
+    print("The MSYS2 environment is now set to \"{}\"".format(MINGW_ARCH))
 
     if download_prebuilt:
         download_msys2_prebuilt.update(MINGW_ARCH)
