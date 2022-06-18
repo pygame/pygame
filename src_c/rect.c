@@ -472,7 +472,7 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTCONTAINS},
     {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
-    {NULL, NULL, 0, NULL}};
+    {NULL, NULL, 0, NULL}}; 
 
 static struct PyMethodDef pg_frect_methods[] = {
     {"normalize", (PyCFunction)pg_frect_normalize, METH_NOARGS,
@@ -698,7 +698,7 @@ static PyTypeObject pgRect_Type = {
     .tp_as_mapping = &pg_rect_as_mapping, .tp_str = (reprfunc)pg_rect_str,
     /* Space for future expansion */
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = DOC_PYGAMERECT,
+    .tp_doc = DOC_PYGAMERECTRECT,
     .tp_richcompare = (richcmpfunc)pg_rect_richcompare,
     .tp_weaklistoffset = offsetof(pgRectObject, weakreflist),
     .tp_iter = (getiterfunc)pg_rect_iterator, .tp_methods = pg_rect_methods,
@@ -716,7 +716,7 @@ static PyTypeObject pgFRect_Type = {
     .tp_as_mapping = &pg_frect_as_mapping, .tp_str = (reprfunc)pg_frect_str,
     /* Space for future expansion */
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = NULL /*DOC_PYGAMERECT*/,
+    .tp_doc = DOC_PYGAMERECTRECT,
     .tp_richcompare = (richcmpfunc)pg_frect_richcompare,
     .tp_weaklistoffset = offsetof(pgFRectObject, weakreflist),
     .tp_iter = (getiterfunc)pg_frect_iterator, .tp_methods = pg_frect_methods,

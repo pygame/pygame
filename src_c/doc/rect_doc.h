@@ -1,5 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMERECT "Rect(left, top, width, height) -> Rect\nRect((left, top), (width, height)) -> Rect\nRect(object) -> Rect\npygame object for storing rectangular coordinates"
+#define DOC_PYGAMERECT "pygame module for rect classes"
+#define DOC_PYGAMERECTRECT "Rect(left, top, width, height) -> Rect\nRect((left, top), (width, height)) -> Rect\nRect(object) -> Rect\npygame object for storing rectangular coordinates"
 #define DOC_RECTCOPY "copy() -> Rect\ncopy the rectangle"
 #define DOC_RECTMOVE "move(x, y) -> Rect\nmoves the rectangle"
 #define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
@@ -31,51 +32,54 @@
 
 /*
 
-pygame.Rect
+pygame.rect
+pygame module for rect classes
+
+pygame.rect.Rect
  Rect(left, top, width, height) -> Rect
  Rect((left, top), (width, height)) -> Rect
  Rect(object) -> Rect
 pygame object for storing rectangular coordinates
 
-pygame.Rect.copy
+pygame.rect.Rect.copy
  copy() -> Rect
 copy the rectangle
 
-pygame.Rect.move
+pygame.rect.Rect.move
  move(x, y) -> Rect
 moves the rectangle
 
-pygame.Rect.move_ip
+pygame.rect.Rect.move_ip
  move_ip(x, y) -> None
 moves the rectangle, in place
 
-pygame.Rect.inflate
+pygame.rect.Rect.inflate
  inflate(x, y) -> Rect
 grow or shrink the rectangle size
 
-pygame.Rect.inflate_ip
+pygame.rect.Rect.inflate_ip
  inflate_ip(x, y) -> None
 grow or shrink the rectangle size, in place
 
-pygame.Rect.update
+pygame.rect.Rect.update
  update(left, top, width, height) -> None
  update((left, top), (width, height)) -> None
  update(object) -> None
 sets the position and size of the rectangle
 
-pygame.Rect.clamp
+pygame.rect.Rect.clamp
  clamp(Rect) -> Rect
 moves the rectangle inside another
 
-pygame.Rect.clamp_ip
+pygame.rect.Rect.clamp_ip
  clamp_ip(Rect) -> None
 moves the rectangle inside another, in place
 
-pygame.Rect.clip
+pygame.rect.Rect.clip
  clip(Rect) -> Rect
 crops a rectangle inside another
 
-pygame.Rect.clipline
+pygame.rect.Rect.clipline
  clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))
  clipline(x1, y1, x2, y2) -> ()
  clipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))
@@ -86,69 +90,69 @@ pygame.Rect.clipline
  clipline(((x1, y1), (x2, y2))) -> ()
 crops a line inside a rectangle
 
-pygame.Rect.union
+pygame.rect.Rect.union
  union(Rect) -> Rect
 joins two rectangles into one
 
-pygame.Rect.union_ip
+pygame.rect.Rect.union_ip
  union_ip(Rect) -> None
 joins two rectangles into one, in place
 
-pygame.Rect.unionall
+pygame.rect.Rect.unionall
  unionall(Rect_sequence) -> Rect
 the union of many rectangles
 
-pygame.Rect.unionall_ip
+pygame.rect.Rect.unionall_ip
  unionall_ip(Rect_sequence) -> None
 the union of many rectangles, in place
 
-pygame.Rect.fit
+pygame.rect.Rect.fit
  fit(Rect) -> Rect
 resize and move a rectangle with aspect ratio
 
-pygame.Rect.normalize
+pygame.rect.Rect.normalize
  normalize() -> None
 correct negative sizes
 
-pygame.Rect.contains
+pygame.rect.Rect.contains
  contains(Rect) -> bool
 test if one rectangle is inside another
 
-pygame.Rect.collidepoint
+pygame.rect.Rect.collidepoint
  collidepoint(x, y) -> bool
  collidepoint((x,y)) -> bool
 test if a point is inside a rectangle
 
-pygame.Rect.colliderect
+pygame.rect.Rect.colliderect
  colliderect(Rect) -> bool
 test if two rectangles overlap
 
-pygame.Rect.collidelist
+pygame.rect.Rect.collidelist
  collidelist(list) -> index
 test if one rectangle in a list intersects
 
-pygame.Rect.collidelistall
+pygame.rect.Rect.collidelistall
  collidelistall(list) -> indices
 test if all rectangles in a list intersect
 
-pygame.Rect.collideobjects
+pygame.rect.Rect.collideobjects
  collideobjects(rect_list) -> object
  collideobjects(obj_list, key=func) -> object
 test if any object in a list intersects
 
-pygame.Rect.collideobjectsall
+pygame.rect.Rect.collideobjectsall
  collideobjectsall(rect_list) -> objects
  collideobjectsall(obj_list, key=func) -> objects
 test if all objects in a list intersect
 
-pygame.Rect.collidedict
+pygame.rect.Rect.collidedict
  collidedict(dict) -> (key, value)
  collidedict(dict) -> None
  collidedict(dict, use_values=0) -> (key, value)
  collidedict(dict, use_values=0) -> None
 test if one rectangle in a dictionary intersects
 
-pygame.Rect.collidedictall
+pygame.rect.Rect.collidedictall
  collidedictall(dict) -> [(key, value), ...]
  collidedictall(dict, use_values=0) -> [(key, value), ...]
 test if all rectangles in a dictionary intersect
