@@ -146,6 +146,9 @@ PyInit_video(void);
 PyMODINIT_FUNC
 PyInit__sprite(void);
 
+PyMODINIT_FUNC
+PyInit_pixelcopy(void);
+
 void
 PyGame_static_init()
 {
@@ -158,6 +161,7 @@ PyGame_static_init()
     PyImport_AppendInittab("pygame_bufferproxy", PyInit_bufferproxy);
     PyImport_AppendInittab("pygame_math", PyInit_pg_math);
     PyImport_AppendInittab("pygame_surface", PyInit_surface);
+    PyImport_AppendInittab("pygame_pixelcopy", PyInit_pixelcopy);    
     PyImport_AppendInittab("pygame_transform", PyInit_transform);
     PyImport_AppendInittab("pygame_display", PyInit_display);
     PyImport_AppendInittab("pygame__freetype", PyInit__freetype);
