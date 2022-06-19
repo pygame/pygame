@@ -384,6 +384,8 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
     DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
+    DEPS.add_dll(r'(png|libpng)[-0-9]*\.dll$', 'png', ['libpng-[1-9].*'], ['z'])
+    DEPS.add_dll(r'(lib){0,1}jpeg-9\.dll$', 'jpeg', ['jpeg-9*'])
 
 
 def setup_prebuilt_sdl2(prebuilt_dir):
@@ -421,17 +423,6 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     ]
     ftDep.inc_dir.append(f'{ftDep.inc_dir[0]}/freetype2')
     ftDep.found = True
-
-    png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-                   find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.dll\.a')
-    png.path = imageDep.path
-    png.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
-    png.found = True
-    jpeg = DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg(-8*)?'], r'(lib){0,1}jpeg-8\.dll$',
-                   find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg(-8)?\.dll\.a')
-    jpeg.path = imageDep.path
-    jpeg.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
-    jpeg.found = True
 
     dllPaths = {
         'png': imageDep.path,

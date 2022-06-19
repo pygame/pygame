@@ -4,9 +4,7 @@
 #FONT = -lSDL2_ttf
 #IMAGE = -lSDL2_image
 #MIXER = -lSDL2_mixer
-#JPEG = -ljpeg
 #SCRAP =
-#PNG = -lpng
 #FREETYPE = -lfreetype -lharfbuzz
 
 DEBUG =
@@ -32,7 +30,7 @@ math src_c/math.c $(SDL) $(DEBUG)
 GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
 
 
-static src_c/static.c $(SDL) $(FREETYPE) $(FONT) $(MIXER) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+static src_c/static.c $(SDL) $(FREETYPE) $(FONT) $(MIXER) $(IMAGE) $(DEBUG)
 
 # these should not be altered they already are in static.c merging file above
 time src_c/void.c

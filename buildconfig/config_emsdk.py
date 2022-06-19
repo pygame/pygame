@@ -25,7 +25,7 @@ if not is_wasm:
 # which is SDL1 from ./emscripten/tools/ports/__init__.py
 
 EMCC_CFLAGS = os.environ.get("EMCC_CFLAGS","")
-EMCC_CFLAGS += " -s USE_SDL=2 -s USE_LIBPNG=1 -s USE_LIBJPEG=1"
+EMCC_CFLAGS += " -s USE_SDL=2"
 os.environ["EMCC_CFLAGS"]=EMCC_CFLAGS.strip()
 
 CC=os.environ.get("CC","emcc")
@@ -119,7 +119,7 @@ class Dependency:
             self.found = 1
         else:
 
-            if self.name in ["FONT","IMAGE","MIXER","PNG","JPEG","FREETYPE"]:
+            if self.name in ["FONT","IMAGE","MIXER","FREETYPE"]:
                 self.found = 1
                 print(self.name + '        '[len(self.name):] + ': FORCED (via emsdk builtins)')
                 return
@@ -176,12 +176,6 @@ def main(auto_config=False):
         Dependency('FREETYPE', 'ft2build.h', 'libfreetype.a', []),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL2_gfx.a', ['SDL2_gfx']),
     ]
-    DEPS.extend([
-        Dependency('PNG', 'png.h', 'libpng', ['png']),
-        Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
-        #Dependency('SCRAP', '', 'libX11', ['X11']),
-        #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.a', ['SDL_gfx']),
-    ])
 
     if not DEPS[0].found:
         raise RuntimeError('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
