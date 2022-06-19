@@ -384,7 +384,7 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
     DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
-    DEPS.add_dll(r'(png|libpng)[-0-9]*\.dll$', 'png', ['libpng-[1-9].*'], ['z'])
+    DEPS.add_dll(r'(png|libpng)[-0-9]*\.dll$', 'png', ['libpng-[1-9].*'], ['z'], 'z')
     DEPS.add_dll(r'(lib){0,1}jpeg-9\.dll$', 'jpeg', ['jpeg-9*'])
 
 
