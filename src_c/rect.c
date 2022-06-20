@@ -472,7 +472,7 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTCONTAINS},
     {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
-    {NULL, NULL, 0, NULL}}; 
+    {NULL, NULL, 0, NULL}};
 
 static struct PyMethodDef pg_frect_methods[] = {
     {"normalize", (PyCFunction)pg_frect_normalize, METH_NOARGS,
