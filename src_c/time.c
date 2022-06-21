@@ -45,7 +45,9 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
      * needs to run */
-    SDL_LockMutex(timermutex);
+    if (timermutex) {
+        SDL_LockMutex(timermutex);
+    }
     if (pg_event_timer) {
         hunt = pg_event_timer;
         while (hunt) {
@@ -57,23 +59,20 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
         pg_event_timer = NULL;
         pg_timer_id = 0;
     }
-    SDL_UnlockMutex(timermutex);
-    /* After we are done, we can destroy the mutex as well */
-    SDL_DestroyMutex(timermutex);
-    timermutex = NULL;
+    if (timermutex) {
+        SDL_UnlockMutex(timermutex);
+        /* After we are done, we can destroy the mutex as well */
+        SDL_DestroyMutex(timermutex);
+        timermutex = NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_time_autoinit(PyObject *self, PyObject *_null)
 {
-#if defined(__EMSCRIPTEN__)
-    puts(__FILE__
-         ":71+308 TODO: SDL_CreateMutex() is invalid on __EMSCRIPTEN__ sdl2 "
-         "port");
-#else
+#ifndef __EMSCRIPTEN__
     /* allocate a mutex for timer data holding struct*/
-
     if (!timermutex) {
         timermutex = SDL_CreateMutex();
         if (!timermutex)
@@ -301,13 +300,20 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 
     static char *kwids[] = {"event", "millis", "loops", NULL};
 
+    /* do not allow set_timer to work on WASM for now... this needs some more
+     * testing and fixes that are WIP on other PRs */
+#ifdef __EMSCRIPTEN__
+    return RAISE(PyExc_NotImplementedError,
+                 "set_timer is not implemented on WASM yet");
+#endif
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids, &obj, &ticks,
                                      &loops))
         return NULL;
-#if !defined(__EMSCRIPTEN__)
+
     if (!timermutex)
         return RAISE(pgExc_SDLError, "pygame is not initialized");
-#endif
+
     if (PyLong_Check(obj)) {
         e = (pgEventObject *)pgEvent_New2(PyLong_AsLong(obj), NULL);
         if (!e)
