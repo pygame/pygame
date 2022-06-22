@@ -23,12 +23,12 @@ ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[i
 
 _CanBeRect = Union[
     Rect,
-    FRect,
+    # FRect,
     Tuple[int, int, int, int],
-    Tuple[float, float, float, float],
+    # Tuple[float, float, float, float],
     Tuple[Coordinate, Coordinate],
     Sequence[int],
-    Sequence[float],
+    # Sequence[float],
     Sequence[Coordinate],
 ]
 
