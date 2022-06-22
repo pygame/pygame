@@ -389,7 +389,7 @@ font_render(PyObject *self, PyObject *args)
     }
 
     SDL_Color foreg = {rgba[0], rgba[1], rgba[2], SDL_ALPHA_OPAQUE};
-    /* might be overriden right below, with an explicit background color */
+    /* might be overridden right below, with an explicit background color */
     SDL_Color backg = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
     if (bg_rgba_obj != Py_None) {
