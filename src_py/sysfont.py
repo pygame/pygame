@@ -95,7 +95,7 @@ def _parse_font_entry_win(name, font, fonts):
     :return: Tuple of (bold, italic, name)
     """
     true_type_suffix = "(TrueType)"
-    mods = ("demibold", "narrow", "light", "unicode", "bt", "mt")
+    mods = ("demibold", "narrow", "light", "unicode", "bt", "mt", "regular")
     if name.endswith(true_type_suffix):
         name = name.rstrip(true_type_suffix).rstrip()
     name = name.lower().split()
