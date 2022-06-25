@@ -1284,14 +1284,21 @@ pg_event_dealloc(PyObject *self)
 }
 
 #ifdef PYPY_VERSION
-/* Because pypy does not work with the __dict__ tp_dictoffset. */
+/* Because in pypy PyObject_GenericGetAttr and PyObject_GenericSetAttr does
+ * not work with the __dict__ tp_dictoffset. */
 PyObject *
 pg_EventGetAttr(PyObject *o, PyObject *attr_name)
 {
-    /* Try e->dict first, if not try the generic attribute. */
-    PyObject *result = PyDict_GetItem(((pgEventObject *)o)->dict, attr_name);
+    /* check attribute first and if it cannot find it, check event.dict */
+    PyObject *result = PyObject_GenericGetAttr(o, attr_name);
+
     if (!result) {
-        return PyObject_GenericGetAttr(o, attr_name);
+        result = PyDict_GetItem(((pgEventObject *)o)->dict, attr_name);
+
+        if (!result) {
+            return NULL; /* error is set by GenericGetAttr already */
+        }
+        PyErr_Clear();
     }
     return result;
 }
@@ -1365,9 +1372,6 @@ pg_event_joy_get(pgEventObject *self, void *closure)
 {
     PyObject *joy = PyDict_GetItemString(self->dict, "joy");
     if (!joy) {
-        if (PyErr_Occurred()) {
-            return NULL;
-        }
         return RAISE(PyExc_AttributeError,
                      "'Event' object has no attribute 'joy'");
     }
