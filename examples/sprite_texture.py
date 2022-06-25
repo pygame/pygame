@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ pygame.examples.sprite_texture
 
-Experimental! Uses APIs which may disapear in the next release (_sdl2 is private).
+Experimental! Uses APIs which may disappear in the next release (_sdl2 is private).
 
 
 Hardware accelerated Image objects with pygame.sprite.
@@ -99,6 +99,6 @@ while running:
     renderer.present()
 
     clock.tick(60)
-    win.title = str("FPS: {}".format(clock.get_fps()))
+    win.title = str(f"FPS: {clock.get_fps()}")
 
 pg.quit()

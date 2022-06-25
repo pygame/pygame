@@ -7,7 +7,7 @@
 #define DOC_PYGAMESDL2CONTROLLERGETEVENTSTATE "get_eventstate() -> bool\nGets the current state of events related to controllers"
 #define DOC_PYGAMESDL2CONTROLLERGETCOUNT "get_count() -> int\nGet the number of joysticks connected"
 #define DOC_PYGAMESDL2CONTROLLERISCONTROLLER "is_controller(index) -> bool\nCheck if the given joystick is supported by the game controller interface"
-#define DOC_PYGAMESDL2CONTROLLERNAMEFORINDEX "name_forindex(index) -> name or None\nGet the name of the contoller"
+#define DOC_PYGAMESDL2CONTROLLERNAMEFORINDEX "name_forindex(index) -> name or None\nGet the name of the controller"
 #define DOC_PYGAMESDL2CONTROLLERCONTROLLER "Controller(index) -> Controller\nCreate a new Controller object."
 #define DOC_CONTROLLERQUIT "quit() -> None\nuninitialize the Controller"
 #define DOC_CONTROLLERGETINIT "get_init() -> bool\ncheck if the Controller is initialized"
@@ -59,7 +59,7 @@ Check if the given joystick is supported by the game controller interface
 
 pygame._sdl2.controller.name_forindex
  name_forindex(index) -> name or None
-Get the name of the contoller
+Get the name of the controller
 
 pygame._sdl2.controller.Controller
  Controller(index) -> Controller

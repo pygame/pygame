@@ -1,6 +1,6 @@
 from . import error
 
-cdef extern from "pygame.h" nogil:
+cdef extern from "../pygame.h" nogil:
     int pgJoystick_Check(object joy)
     object pgJoystick_New(int);
     void import_pygame_joystick()
@@ -254,8 +254,9 @@ cdef class Controller:
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
 
-        res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
-        return bool(res)
+        return not SDL_GameControllerRumble(
+            self._controller, low * 0xFFFF, high * 0xFFFF, duration
+        )
 
     def stop_rumble(self):
         """

@@ -24,7 +24,7 @@ def as_machine_type(size):
         return "x86"
     if size == 64:
         return "x64"
-    raise BuildError("Unknown pointer size {}".format(size))
+    raise ValueError("Unknown pointer size {}".format(size))
 
 def get_machine_type():
     return as_machine_type(get_ptr_size())
@@ -78,24 +78,24 @@ class Dependency:
                 self.libs[0] = os.path.splitext(self.fallback_lib[2])[0]
             if self.inc_dir and self.lib_dir:
                 if print_result:
-                    print ("Path for %s found." % self.name)
+                    print(f"Path for {self.name} found.")
                 return True
             if print_result:
-                print ("Path for %s not found." % self.name)
+                print(f"Path for {self.name} not found.")
                 for info in self.prune_info:
                     print(info)
                 if self.required:
-                    print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                    print('Too bad that is a requirement! Hand-fix the "Setup"')
             return False
         elif len(self.paths) == 1:
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print(f"Path for {self.name}: {self.path}")
         else:
             logging.warning("Multiple paths to choose from:%s", self.paths)
             self.path = self.paths[0]
             if print_result:
-                print ("Path for %s: %s" % (self.name, self.path))
+                print(f"Path for {self.name}: {self.path}")
         return True
 
     def matchfile(self, path, match):
@@ -167,8 +167,8 @@ class Dependency:
                 if lib_info[2]:
                     self.libs[0] = os.path.splitext(lib_info[2])[0]
         if self.lib_dir and self.inc_dir:
-            print("...Library directory for %s: %s" % (self.name, self.lib_dir))
-            print("...Include directory for %s: %s" % (self.name, self.inc_dir))
+            print(f"...Library directory for {self.name}: {self.lib_dir}")
+            print(f"...Include directory for {self.name}: {self.inc_dir}")
             self.found = True
 
 class DependencyPython:
@@ -197,9 +197,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print ("%-8.8s: found %s" % (self.name, self.ver))
+            print("%-8.8s: found %s" % (self.name, self.ver))
         else:
-            print ("%-8.8s: not found" % self.name)
+            print("%-8.8s: not found" % self.name)
 
 class DependencyDLL(Dependency):
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
@@ -224,12 +224,12 @@ class DependencyDLL(Dependency):
             self.check_roots()
 
         if self.lib_dir != '_':
-            print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+            print(f"DLL for {self.lib_name}: {self.lib_dir}")
             self.found = True
         else:
-            print ("No DLL for %s: not found!" % (self.lib_name))
+            print(f"No DLL for {self.lib_name}: not found!")
             if self.required:
-                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+                print('Too bad that is a requirement! Hand-fix the "Setup"')
 
     def check_roots(self):
         for p in self.huntpaths:
@@ -307,7 +307,7 @@ class DependencyGroup:
                     link = d
                     break
             else:
-                raise KeyError("Link lib %s not found" % link_lib)
+                raise KeyError(f"Link lib {link_lib} not found")
         dep = DependencyDLL(dll_regex, lib, wildcards, libs, link)
         self.dlls.append(dep)
         return dep
@@ -338,9 +338,9 @@ class DependencyGroup:
                         from buildconfig import vstools
                     from os.path import splitext
                     nonext_name = splitext(d.lib_dir)[0]
-                    def_file = '%s.def' % nonext_name
+                    def_file = f'{nonext_name}.def'
                     basename = os.path.basename(nonext_name)
-                    print('Building lib from %s: %s.lib...' % (
+                    print('Building lib from {}: {}.lib...'.format(
                         os.path.basename(d.lib_dir),
                         basename
                     ))
@@ -351,10 +351,8 @@ class DependencyGroup:
                     d.link.configure()
 
     def __iter__(self):
-        for d in self.dependencies:
-            yield d
-        for d in self.dlls:
-            yield d
+        yield from self.dependencies
+        yield from self.dlls
 
 def _add_sdl2_dll_deps(DEPS):
     # MIXER
@@ -462,9 +460,9 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.configure()
     return list(DEPS)
 
-def main():
+def main(auto_config=False):
     machine_type = get_machine_type()
-    prebuilt_dir = 'prebuilt-%s' % machine_type
+    prebuilt_dir = f'prebuilt-{machine_type}'
     use_prebuilt = '-prebuilt' in sys.argv
 
     auto_download = 'PYGAME_DOWNLOAD_PREBUILT' in os.environ
@@ -495,13 +493,13 @@ def main():
             if 'PYGAME_USE_PREBUILT' in os.environ:
                 use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
             else:
-                logging.warning('Using the SDL libraries in "%s".' % prebuilt_dir)
+                logging.warning(f'Using the SDL libraries in "{prebuilt_dir}".')
                 use_prebuilt = True
 
         if use_prebuilt:
             return setup_prebuilt_sdl2(prebuilt_dir)
     else:
-        print("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
+        print(f"Note: cannot find directory \"{prebuilt_dir}\"; do not use prebuilts.")
     return setup()
 
 if __name__ == '__main__':

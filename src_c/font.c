@@ -60,11 +60,17 @@ static PyObject *
 PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
-static int font_initialized = 0;
 static unsigned int current_ttf_generation = 0;
-static const char font_defaultname[] = "freesansbold.ttf";
+#if defined(BUILD_STATIC)
+// SDL_Init + TTF_Init()  are made in main before CPython process the module
+// inittab so the emscripten handler knows it will use SDL2 next cycle.
+static int font_initialized = 1;
+#else
+static int font_initialized = 0;
 static const char pkgdatamodule_name[] = "pygame.pkgdata";
 static const char resourcefunc_name[] = "getResource";
+#endif
+static const char font_defaultname[] = "freesansbold.ttf";
 
 /*
  */
@@ -169,7 +175,7 @@ fontmodule_quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-get_init(PyObject *self, PyObject *_null)
+pg_font_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(font_initialized);
 }
@@ -361,19 +367,65 @@ font_set_underline(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+/* Implements getter for the strikethrough attribute */
+static PyObject *
+font_getter_strikethrough(PyObject *self, void *closure)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_STRIKETHROUGH);
+}
+
+/* Implements setter for the strikethrough attribute */
+static int
+font_setter_strikethrough(PyObject *self, PyObject *value, void *closure)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("strikethrough", value);
+
+    val = PyObject_IsTrue(value);
+    if (val == -1) {
+        return -1;
+    }
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_STRIKETHROUGH, val);
+    return 0;
+}
+
+/* Implements get_strikethrough() */
+static PyObject *
+font_get_strikethrough(PyObject *self, PyObject *args)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_STRIKETHROUGH);
+}
+
+/* Implements set_strikethrough(bool) */
+static PyObject *
+font_set_strikethrough(PyObject *self, PyObject *args)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    if (!PyArg_ParseTuple(args, "p", &val))
+        return NULL;
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_STRIKETHROUGH, val);
+
+    Py_RETURN_NONE;
+}
+
 static PyObject *
 font_render(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int aa;
+    int antialias;
     PyObject *text, *final;
-    PyObject *fg_rgba_obj, *bg_rgba_obj = NULL;
+    PyObject *fg_rgba_obj, *bg_rgba_obj = Py_None;
     Uint8 rgba[] = {0, 0, 0, 0};
     SDL_Surface *surf;
-    SDL_Color foreg, backg;
-    int just_return;
+    const char *astring = "";
 
-    if (!PyArg_ParseTuple(args, "OpO|O", &text, &aa, &fg_rgba_obj,
+    if (!PyArg_ParseTuple(args, "OpO|O", &text, &antialias, &fg_rgba_obj,
                           &bg_rgba_obj)) {
         return NULL;
     }
@@ -382,121 +434,83 @@ font_render(PyObject *self, PyObject *args)
         /* Exception already set for us */
         return NULL;
     }
-    foreg.r = rgba[0];
-    foreg.g = rgba[1];
-    foreg.b = rgba[2];
-    foreg.a = SDL_ALPHA_OPAQUE;
-    if (bg_rgba_obj == Py_None) {
-        /* Explicit None is the same as not passing a color for us */
-        bg_rgba_obj = NULL;
-    }
-    if (bg_rgba_obj != NULL) {
+
+    SDL_Color foreg = {rgba[0], rgba[1], rgba[2], SDL_ALPHA_OPAQUE};
+    /* might be overridden right below, with an explicit background color */
+    SDL_Color backg = {0, 0, 0, SDL_ALPHA_OPAQUE};
+
+    if (bg_rgba_obj != Py_None) {
         if (!pg_RGBAFromFuzzyColorObj(bg_rgba_obj, rgba)) {
             /* Exception already set for us */
             return NULL;
         }
-        else {
-            backg.r = rgba[0];
-            backg.g = rgba[1];
-            backg.b = rgba[2];
-            backg.a = SDL_ALPHA_OPAQUE;
-        }
-    }
-    else {
-        backg.r = 0;
-        backg.g = 0;
-        backg.b = 0;
-        backg.a = SDL_ALPHA_OPAQUE;
+        backg = (SDL_Color){rgba[0], rgba[1], rgba[2], SDL_ALPHA_OPAQUE};
     }
 
-    just_return = PyObject_Not(text);
-    if (just_return) {
-        int height = TTF_FontHeight(font);
-
-        if (just_return == -1 || !(PyUnicode_Check(text) ||
-                                   PyBytes_Check(text) || text == Py_None)) {
-            PyErr_Clear();
-            return RAISE_TEXT_TYPE_ERROR();
-        }
-        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, height, 32, 0xff << 16,
-                                    0xff << 8, 0xff, 0);
-        if (surf == NULL) {
-            return RAISE(pgExc_SDLError, SDL_GetError());
-        }
-        if (bg_rgba_obj != NULL) {
-            Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
-            SDL_FillRect(surf, NULL, c);
-        }
-        else {
-            SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0);
-        }
+    if (!PyUnicode_Check(text) && !PyBytes_Check(text) && text != Py_None) {
+        return RAISE_TEXT_TYPE_ERROR();
     }
-    else if (PyUnicode_Check(text)) {
-        PyObject *bytes = PyUnicode_AsEncodedString(text, "utf-8", "replace");
-        const char *astring = NULL;
 
-        if (!bytes) {
+    if (PyUnicode_Check(text)) {
+        Py_ssize_t _size = -1;
+        astring = PyUnicode_AsUTF8AndSize(text, &_size);
+        if (astring == NULL) { /* exception already set */
             return NULL;
         }
-        astring = PyBytes_AsString(bytes);
-        if (strlen(astring) != (size_t)PyBytes_GET_SIZE(bytes)) {
-            Py_DECREF(bytes);
+        if (strlen(astring) != (size_t)_size) {
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
+    }
+
+    else if (PyBytes_Check(text)) {
+        /* Bytes_AsStringAndSize with NULL arg for length emits
+           ValueError if internal NULL bytes are present */
+        if (PyBytes_AsStringAndSize(text, (char **)&astring, NULL) == -1) {
+            return NULL; /* exception already set */
+        }
+    }
+
+    /* if text is Py_None, leave astring as a null byte to represent 0
+       length string */
+
+    if (strlen(astring) == 0) { /* special 0 string case */
+        int height = TTF_FontHeight(font);
+        surf = SDL_CreateRGBSurface(0, 0, height, 32, 0xff << 16, 0xff << 8,
+                                    0xff, 0);
+    }
+    else { /* normal case */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
         if (utf_8_needs_UCS_4(astring)) {
-            Py_DECREF(bytes);
             return RAISE(PyExc_UnicodeError,
                          "A Unicode character above '\\uFFFF' was found;"
                          " not supported with SDL_ttf version below 2.0.15");
         }
 #endif
-        if (aa) {
-            if (bg_rgba_obj == NULL) {
-                surf = TTF_RenderUTF8_Blended(font, astring, foreg);
-            }
-            else {
-                surf = TTF_RenderUTF8_Shaded(font, astring, foreg, backg);
-            }
+
+        if (antialias && bg_rgba_obj == Py_None) {
+            surf = TTF_RenderUTF8_Blended(font, astring, foreg);
+        }
+        else if (antialias) {
+            surf = TTF_RenderUTF8_Shaded(font, astring, foreg, backg);
         }
         else {
             surf = TTF_RenderUTF8_Solid(font, astring, foreg);
+            /* If an explicit background was provided and the rendering options
+            resolve to Render_Solid, that needs to be explicitly handled. */
+            if (surf != NULL && bg_rgba_obj != Py_None) {
+                SDL_SetColorKey(surf, 0, 0);
+                surf->format->palette->colors[0].r = backg.r;
+                surf->format->palette->colors[0].g = backg.g;
+                surf->format->palette->colors[0].b = backg.b;
+            }
         }
-        Py_DECREF(bytes);
     }
-    else if (PyBytes_Check(text)) {
-        const char *astring = PyBytes_AsString(text);
 
-        if (strlen(astring) != (size_t)PyBytes_GET_SIZE(text)) {
-            return RAISE(PyExc_ValueError,
-                         "A null character was found in the text");
-        }
-        if (aa) {
-            if (bg_rgba_obj == NULL) {
-                surf = TTF_RenderText_Blended(font, astring, foreg);
-            }
-            else {
-                surf = TTF_RenderText_Shaded(font, astring, foreg, backg);
-            }
-        }
-        else {
-            surf = TTF_RenderText_Solid(font, astring, foreg);
-        }
-    }
-    else {
-        return RAISE_TEXT_TYPE_ERROR();
-    }
     if (surf == NULL) {
         return RAISE(pgExc_SDLError, TTF_GetError());
     }
-    if (!aa && (bg_rgba_obj != NULL) && !just_return) {
-        /* turn off transparency */
-        SDL_SetColorKey(surf, 0, 0);
-        surf->format->palette->colors[0].r = backg.r;
-        surf->format->palette->colors[0].g = backg.g;
-        surf->format->palette->colors[0].b = backg.b;
-    }
+
     final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
@@ -639,6 +653,8 @@ static PyGetSetDef font_getsets[] = {
      DOC_FONTITALIC, NULL},
     {"underline", (getter)font_getter_underline, (setter)font_setter_underline,
      DOC_FONTUNDERLINE, NULL},
+    {"strikethrough", (getter)font_getter_strikethrough,
+     (setter)font_setter_strikethrough, DOC_FONTSTRIKETHROUGH, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
@@ -653,6 +669,10 @@ static PyMethodDef font_methods[] = {
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
     {"get_underline", font_get_underline, METH_NOARGS, DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
+    {"get_strikethrough", font_get_strikethrough, METH_NOARGS,
+     DOC_FONTGETSTRIKETHROUGH},
+    {"set_strikethrough", font_set_strikethrough, METH_VARARGS,
+     DOC_FONTSETSTRIKETHROUGH},
 
     {"metrics", font_metrics, METH_VARARGS, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
@@ -792,22 +812,12 @@ get_default_font(PyObject *self, PyObject *_null)
 static PyObject *
 get_ttf_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *linkedobj = NULL;
     int linked = 1; /* Default is linked version. */
 
     static char *keywords[] = {"linked", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
-                                     &linkedobj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
         return NULL; /* Exception already set. */
-    }
-
-    if (NULL != linkedobj) {
-        linked = PyObject_IsTrue(linkedobj);
-
-        if (-1 == linked) {
-            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
-        }
     }
 
     if (linked) {
@@ -825,7 +835,8 @@ get_ttf_version(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyMethodDef _font_methods[] = {
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
     {"quit", (PyCFunction)fontmodule_quit, METH_NOARGS, DOC_PYGAMEFONTQUIT},
-    {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},
+    {"get_init", (PyCFunction)pg_font_get_init, METH_NOARGS,
+     DOC_PYGAMEFONTGETINIT},
     {"get_default_font", (PyCFunction)get_default_font, METH_NOARGS,
      DOC_PYGAMEFONTGETDEFAULTFONT},
     {"get_sdl_ttf_version", (PyCFunction)get_ttf_version,

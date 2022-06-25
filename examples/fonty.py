@@ -31,11 +31,11 @@ def main():
     text = "Fonty"
     size = font.size(text)
 
-    # no AA, no transparancy, normal
+    # no AA, no transparency, normal
     ren = font.render(text, 0, fg, bg)
     screen.blit(ren, (10, 10))
 
-    # no AA, transparancy, underline
+    # no AA, transparency, underline
     font.set_underline(1)
     ren = font.render(text, 0, fg)
     screen.blit(ren, (10, 40 + size[1]))
@@ -43,28 +43,28 @@ def main():
 
     a_sys_font = pg.font.SysFont("Arial", 60)
 
-    # AA, no transparancy, bold
+    # AA, no transparency, bold
     a_sys_font.set_bold(1)
     ren = a_sys_font.render(text, 1, fg, bg)
     screen.blit(ren, (30 + size[0], 10))
     a_sys_font.set_bold(0)
 
-    # AA, transparancy, italic
+    # AA, transparency, italic
     a_sys_font.set_italic(1)
     ren = a_sys_font.render(text, 1, fg)
     screen.blit(ren, (30 + size[0], 40 + size[1]))
     a_sys_font.set_italic(0)
 
     # Get some metrics.
-    print("Font metrics for 'Fonty':  %s" % a_sys_font.metrics(text))
+    print(f"Font metrics for 'Fonty':  {a_sys_font.metrics(text)}")
     ch = "\u3060"
-    msg = "Font metrics for '%s':  %s" % (ch, a_sys_font.metrics(ch))
+    msg = f"Font metrics for '{ch}':  {a_sys_font.metrics(ch)}"
     print(msg)
 
     ## #some_japanese_unicode = u"\u304b\u3070\u306b"
     ##some_japanese_unicode = unicode_('%c%c%c') % (0x304b, 0x3070, 0x306b)
 
-    # AA, transparancy, italic
+    # AA, transparency, italic
     ##ren = a_sys_font.render(some_japanese_unicode, 1, fg)
     ##screen.blit(ren, (30 + size[0], 40 + size[1]))
 

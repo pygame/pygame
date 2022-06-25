@@ -289,7 +289,7 @@ class Input:
 
             elif is_output:
                 raise MidiException(
-                    "Device id given is not a valid" " input id, it is an output id."
+                    "Device id given is not a valid input id, it is an output id."
                 )
             else:
                 raise MidiException("Device id given is not a valid input id.")
@@ -428,10 +428,10 @@ class Output:
 
             elif is_input:
                 raise MidiException(
-                    "Device id given is not a valid output " "id, it is an input id."
+                    "Device id given is not a valid output id, it is an input id."
                 )
             else:
-                raise MidiException("Device id given is not a" " valid output id.")
+                raise MidiException("Device id given is not a valid output id.")
         else:
             raise MidiException("Device id invalid, out of range.")
 
@@ -521,7 +521,7 @@ class Output:
         Output.write_sys_ex(when, msg)
 
         msg - can be a *list* or a *string*
-        when - a timestamp in miliseconds
+        when - a timestamp in milliseconds
         example:
           (assuming o is an onput MIDI stream)
             o.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
@@ -660,7 +660,7 @@ class MidiException(Exception):
     """
 
     def __init__(self, value):
-        super(MidiException, self).__init__(value)
+        super().__init__(value)
         self.parameter = value
 
     def __str__(self):
@@ -713,6 +713,6 @@ def midi_to_ansi_note(midi_note):
     """
     notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
     num_notes = 12
-    note_name = notes[int(((midi_note - 21) % num_notes))]
+    note_name = notes[int((midi_note - 21) % num_notes)]
     note_number = (midi_note - 12) // num_notes
     return f"{note_name}{note_number}"

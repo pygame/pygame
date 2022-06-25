@@ -27,12 +27,12 @@
 #include "doc/pixelarray_doc.h"
 
 #include "surface.h"
-
+#if !defined(BUILD_STATIC)
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
 static char FormatUint24[] = "3x";
 static char FormatUint32[] = "=I";
-
+#endif
 struct _pixelarray_t;
 
 /* The array, like its surface, is in column-major (FORTRAN) order.
@@ -356,7 +356,7 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pixels = surf->pixels;
     if (stride0 < 1 || stride0 > 4) {
         return RAISE(PyExc_ValueError,
-                     "unsupport bit depth for reference array");
+                     "unsupported bit depth for reference array");
     }
 
     return (PyObject *)_pxarray_new_internal(type, surfobj, 0, pixels, dim0,

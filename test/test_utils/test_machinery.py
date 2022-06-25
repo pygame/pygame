@@ -15,7 +15,7 @@ class PygameTestLoader(unittest.TestLoader):
     def __init__(
         self, randomize_tests=False, include_incomplete=False, exclude=("interactive",)
     ):
-        super(PygameTestLoader, self).__init__()
+        super().__init__()
         self.randomize_tests = randomize_tests
 
         if exclude is None:
@@ -28,7 +28,7 @@ class PygameTestLoader(unittest.TestLoader):
 
     def getTestCaseNames(self, testCaseClass):
         res = []
-        for name in super(PygameTestLoader, self).getTestCaseNames(testCaseClass):
+        for name in super().getTestCaseNames(testCaseClass):
             tags = get_tags(testCaseClass, getattr(testCaseClass, name))
             if self.exclude.isdisjoint(tags):
                 res.append(name)
@@ -73,8 +73,8 @@ class TestTags:
                 if not tags:
                     continue
 
-                add = set([t for t in tags if not t.startswith("-")])
-                remove = set([t[1:] for t in tags if t not in add])
+                add = {t for t in tags if not t.startswith("-")}
+                remove = {t[1:] for t in tags if t not in add}
 
                 if add:
                     combined.update(add)

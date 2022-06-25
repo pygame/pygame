@@ -99,7 +99,7 @@ def main():
                 im1.blit(img_to_blit, (0, 0), None, blits[event.key])
                 t2 = time.time()
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
-                print("time to do:%s:" % (t2 - t1))
+                print(f"time to do:{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_t]:
 
@@ -113,7 +113,7 @@ def main():
 
                     # show which key we're doing...
                     onedoing = blitsn[bkey]
-                    print("time to do :%s: is :%s:" % (onedoing, t2 - t1))
+                    print(f"time to do :{onedoing}: is :{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_o]:
                 t1 = time.time()
@@ -121,7 +121,7 @@ def main():
                 im1.blit(iaa, (0, 0))
                 t2 = time.time()
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
-                print("time to do:%s:" % (t2 - t1))
+                print(f"time to do:{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # this additive blend without clamp two surfaces.
@@ -137,7 +137,7 @@ def main():
                 del im2p
                 t2 = time.time()
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
-                print("time to do:%s:" % (t2 - t1))
+                print(f"time to do:{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_z]:
                 t1 = time.time()
@@ -153,7 +153,7 @@ def main():
                 del im2p
                 t2 = time.time()
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
-                print("time to do:%s:" % (t2 - t1))
+                print(f"time to do:{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_r, pg.K_g, pg.K_b]:
                 # this adds one to each pixel.
@@ -179,7 +179,7 @@ def main():
 
                 t2 = time.time()
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
-                print("time to do:%s:" % (t2 - t1))
+                print(f"time to do:{t2 - t1}:")
 
         screen.blit(im1, (0, 0))
         pg.display.flip()

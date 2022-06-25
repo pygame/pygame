@@ -21,14 +21,14 @@
  * Camera - webcam support for pygame
  * Author: Nirav Patel
  *
- * This module allows for use of v4l2 webcams in pygame.  The code is written
+ * This module allows for use of v4l2 webcams in pygame. The code is written
  * such that adding support for vfw cameras should be possible without
- * much modification of existing functions.  v4l2 functions are kept seperate
+ * much modification of existing functions. v4l2 functions are kept separate
  * from functions available to pygame users and generic functions like
  * colorspace conversion.
  *
  * There is currently support for cameras that support MMAP and use
- * pixelformats of RGB24, RGB444, YUYV, SBGGR8, and YUV420.  To add support for
+ * pixelformats of RGB24, RGB444, YUYV, SBGGR8, and YUV420. To add support for
  * additional pixelformats, add them to v4l2_init_device and
  * v4l2_process_image, and add functions to convert the format to packed RGB,
  * YUV, and HSV.

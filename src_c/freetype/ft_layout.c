@@ -359,7 +359,7 @@ position_glyphs(Layout *ftext)
      *
      * In determining the bounding box of the text, the above loop omits
      * the advance of the last character from the calculation. This is
-     * intensional. For a printing character with a bitmap, it avoids
+     * intentional. For a printing character with a bitmap, it avoids
      * padding of the boundary. But a space is nothing but padding, so
      * a trailing space gets left out. This adds it in.
      */

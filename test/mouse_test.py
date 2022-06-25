@@ -63,7 +63,7 @@ class MouseModuleTest(MouseTests):
     def test_get_cursor(self):
         """Ensures get_cursor works correctly."""
 
-        # error should be raised when the display is unintialized
+        # error should be raised when the display is uninitialized
         with self.assertRaises(pygame.error):
             pygame.display.quit()
             pygame.mouse.get_cursor()

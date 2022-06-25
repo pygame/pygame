@@ -56,7 +56,8 @@ def main():
     from numpy import int32, uint8, uint
 
     pg.init()
-    print("Using %s" % surfarray.get_arraytype().capitalize())
+
+    print(f"Using {surfarray.get_arraytype().capitalize()}")
     print("Press the left mouse button to advance image.")
     print('Press the "s" key to save the current image.')
 

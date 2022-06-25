@@ -20,6 +20,7 @@ try:
 except ImportError:
     import buildconfig.msysio as msysio
 import sys, os, shutil, logging
+import sysconfig
 import re
 
 BASE_PATH = '.'
@@ -100,8 +101,8 @@ def writesetupfile(deps, basepath, additional_lines):
     """create a modified copy of Setup.SDLx.in"""
     sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
                                           'Setup.SDL2.in')
-    
-    with open(sdl_setup_filename, 'r') as origsetup, \
+
+    with open(sdl_setup_filename) as origsetup, \
             open(os.path.join(BASE_PATH, 'Setup'), 'w') as newsetup:
         line = ''
         while line.find('#--StartConfig') == -1:
@@ -126,7 +127,7 @@ def writesetupfile(deps, basepath, additional_lines):
                 aparts = al.split()
                 if aparts and parts:
                     if aparts[0] == parts[0]:
-                        #print ('the same!' + repr(aparts) + repr(parts))
+                        #print('the same!' + repr(aparts) + repr(parts))
                         #the same, we should not add the old one.
                         #It will be overwritten by the new one.
                         addit = 0
@@ -135,7 +136,7 @@ def writesetupfile(deps, basepath, additional_lines):
 
         new_lines.extend(additional_lines)
         lines = new_lines
-        legalVars = set(d.varname for d in deps)
+        legalVars = {d.varname for d in deps}
         legalVars.add('$(DEBUG)')
 
         for line in lines:
@@ -152,7 +153,7 @@ def writesetupfile(deps, basepath, additional_lines):
                             newsetup.write('#'+line)
                             break
                 if useit:
-                    legalVars.add('$(%s)' % line.split('=')[0].strip())
+                    legalVars.add(f"$({line.split('=')[0].strip()})")
             if useit:
                 newsetup.write(line)
 
@@ -194,6 +195,12 @@ Only SDL2 is supported now.""")
             import config_darwin as CFG
         except ImportError:
             import buildconfig.config_darwin as CFG
+    elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
+        print_('Using Emscripten configuration...\n')
+        try:
+            import config_emsdk as CFG
+        except ImportError:
+            import buildconfig.config_emsdk as CFG
     else:
         print_('Using UNIX configuration...\n')
         try:
@@ -204,16 +211,16 @@ Only SDL2 is supported now.""")
 
     if sys.platform == 'win32':
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in")).readlines()
     elif sys.platform == 'darwin':
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in")).readlines()
+    elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup.Emscripten.SDL2.in")).readlines()
     else:
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r"
-        ).readlines()
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in")).readlines()
 
 
     if os.path.isfile('Setup'):
@@ -221,7 +228,7 @@ Only SDL2 is supported now.""")
             logging.info('Backing up existing "Setup" file into Setup.bak')
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
 
-    deps = CFG.main(**kwds)
+    deps = CFG.main(**kwds, auto_config=auto)
     if '-conan' in sys.argv:
         sys.argv.remove('-conan')
 

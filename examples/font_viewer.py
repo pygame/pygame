@@ -104,7 +104,7 @@ class FontViewer:
             "to scroll up and down.",
             "Fonts that don't use the Latin Alphabet",
             "might render incorrectly.",
-            "Here are your {} fonts!".format(len(fonts)),
+            f"Here are your {len(fonts)} fonts",
             "",
         )
         for line in lines:
@@ -117,7 +117,7 @@ class FontViewer:
         for name in sorted(fonts):
             try:
                 font = load_font(path + name, font_size)
-            except IOError:
+            except OSError:
                 continue
             line = text.replace("&N", name)
             try:
@@ -230,7 +230,7 @@ class FontViewer:
     def save_png(self, name="font_viewer.png"):
         pg.image.save(self.surface, name)
         file_size = os.path.getsize(name) // 1024
-        print("font surface saved to {}\nsize: {:,}Kb".format(name, file_size))
+        print(f"font surface saved to {name}\nsize: {file_size:,}Kb")
 
     def handle_events(self):
         """

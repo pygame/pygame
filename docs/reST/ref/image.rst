@@ -280,7 +280,7 @@ following formats.
 
    In case the image is being saved to a file-like object, this function
    uses the namehint argument to determine the format of the file being
-   saved. Saves to ``JPEG`` incase the namehint was not specified while
+   saved. Saves to ``JPEG`` in case the namehint was not specified while
    saving to a file-like object.
 
    .. versionchanged:: 2.0.1

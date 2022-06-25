@@ -100,8 +100,8 @@ struct ChannelData {
 static struct ChannelData *channeldata = NULL;
 static int numchanneldata = 0;
 
-Mix_Music **current_music;
-Mix_Music **queue_music;
+Mix_Music **mx_current_music;
+Mix_Music **mx_queue_music;
 
 static int
 _format_itemsize(Uint16 format)
@@ -454,19 +454,19 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
         Mix_VolumeMusic(127);
     }
 
-    current_music = NULL;
-    queue_music = NULL;
+    mx_current_music = NULL;
+    mx_queue_music = NULL;
 
     music = import_music();
     if (music) {
         PyObject *ptr;
         ptr = PyObject_GetAttrString(music, "_MUSIC_POINTER");
         if (ptr) {
-            current_music =
+            mx_current_music =
                 (Mix_Music **)PyCapsule_GetPointer(ptr,
                                                    "pygame.music_mixer."
                                                    "_MUSIC_POINTER");
-            if (!current_music) {
+            if (!mx_current_music) {
                 PyErr_Clear();
             }
         }
@@ -476,11 +476,11 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
 
         ptr = PyObject_GetAttrString(music, "_QUEUE_POINTER");
         if (ptr) {
-            queue_music =
+            mx_queue_music =
                 (Mix_Music **)PyCapsule_GetPointer(ptr,
                                                    "pygame.music_mixer."
                                                    "_QUEUE_POINTER");
-            if (!queue_music) {
+            if (!mx_queue_music) {
                 PyErr_Clear();
             }
         }
@@ -504,7 +504,7 @@ pgMixer_AutoInit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-quit(PyObject *self, PyObject *_null)
+mixer_quit(PyObject *self, PyObject *_null)
 {
     int i;
     if (SDL_WasInit(SDL_INIT_AUDIO)) {
@@ -522,23 +522,23 @@ quit(PyObject *self, PyObject *_null)
             numchanneldata = 0;
         }
 
-        if (current_music) {
-            if (*current_music) {
+        if (mx_current_music) {
+            if (*mx_current_music) {
                 Py_BEGIN_ALLOW_THREADS;
-                Mix_FreeMusic(*current_music);
+                Mix_FreeMusic(*mx_current_music);
                 Py_END_ALLOW_THREADS;
-                *current_music = NULL;
+                *mx_current_music = NULL;
             }
-            current_music = NULL;
+            mx_current_music = NULL;
         }
-        if (queue_music) {
-            if (*queue_music) {
+        if (mx_queue_music) {
+            if (*mx_queue_music) {
                 Py_BEGIN_ALLOW_THREADS;
-                Mix_FreeMusic(*queue_music);
+                Mix_FreeMusic(*mx_queue_music);
                 Py_END_ALLOW_THREADS;
-                *queue_music = NULL;
+                *mx_queue_music = NULL;
             }
-            queue_music = NULL;
+            mx_queue_music = NULL;
         }
 
         Py_BEGIN_ALLOW_THREADS;
@@ -550,7 +550,7 @@ quit(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-init(PyObject *self, PyObject *args, PyObject *keywds)
+pg_mixer_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     int freq = 0, size = 0, channels = 0, chunk = 0, allowedchanges = -1;
     char *devicename = NULL;
@@ -567,7 +567,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-get_init(PyObject *self, PyObject *_null)
+pg_mixer_get_init(PyObject *self, PyObject *_null)
 {
     int freq, channels, realform;
     Uint16 format;
@@ -1134,9 +1134,9 @@ chan_set_volume(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
     if ((stereovolume <= -1.10f) && (stereovolume >= -1.12f)) {
-        /* The normal volume will be used.  No panning.  so panning is
-         * set to full.  this is incase it was set previously to
-         * something else.  NOTE: there is no way to GetPanning
+        /* The normal volume will be used. No panning. so panning is
+         * set to full. this is in case it was set previously to
+         * something else. NOTE: there is no way to GetPanning
          * variables.
          */
         left = 255;
@@ -1443,22 +1443,12 @@ mixer_unpause(PyObject *self, PyObject *_null)
 static PyObject *
 mixer_get_sdl_mixer_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *linkedobj = NULL;
     int linked = 1; /* Default is linked version. */
 
     static char *keywords[] = {"linked", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
-                                     &linkedobj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
         return NULL; /* Exception already set. */
-    }
-
-    if (NULL != linkedobj) {
-        linked = PyObject_IsTrue(linkedobj);
-
-        if (-1 == linked) {
-            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
-        }
     }
 
     /* MIXER_INIT_CHECK() is not required for these methods. */
@@ -1590,7 +1580,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
      */
     if (step1 == (Py_ssize_t)itemsize * channels && step2 == itemsize) {
         /*OPTIMIZATION: in these cases, we don't need to loop through
-         *the samples individually, because the bytes are already layed
+         *the samples individually, because the bytes are already laid
          *out correctly*/
         memcpy(dst, buf, memsize);
     }
@@ -1742,20 +1732,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         chunk = Mix_LoadWAV_RW(rw, 1);
         Py_END_ALLOW_THREADS;
         if (chunk == NULL) {
-            if (obj) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                return -1;
-            }
-
-            obj = pg_EncodeString(file, NULL, NULL, NULL);
-            if (obj == Py_None) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            }
-            else {
-                PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
-                             PyBytes_AS_STRING(obj));
-            }
-            Py_XDECREF(obj);
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
             return -1;
         }
     }
@@ -1831,10 +1808,11 @@ LOAD_BUFFER:
 static PyMethodDef _mixer_methods[] = {
     {"_internal_mod_init", (PyCFunction)pgMixer_AutoInit, METH_NOARGS,
      "auto initialize for mixer"},
-    {"init", (PyCFunction)init, METH_VARARGS | METH_KEYWORDS,
+    {"init", (PyCFunction)pg_mixer_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
-    {"quit", (PyCFunction)quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT},
-    {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT},
+    {"quit", (PyCFunction)mixer_quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT},
+    {"get_init", (PyCFunction)pg_mixer_get_init, METH_NOARGS,
+     DOC_PYGAMEMIXERGETINIT},
     {"pre_init", (PyCFunction)pre_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERPREINIT},
     {"get_num_channels", (PyCFunction)get_num_channels, METH_NOARGS,
@@ -1889,7 +1867,12 @@ pgChannel_New(int channelnum)
     return (PyObject *)chanobj;
 }
 
+#if BUILD_STATIC
+// avoid conflict with PyInit_mixer in _sdl2/mixer.c
+MODINIT_DEFINE(pg_mixer)
+#else
 MODINIT_DEFINE(mixer)
+#endif
 {
     PyObject *module, *apiobj, *music = NULL;
     static void *c_api[PYGAMEAPI_MIXER_NUMSLOTS];

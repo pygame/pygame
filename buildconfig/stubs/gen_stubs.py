@@ -75,7 +75,7 @@ def get_all(mod: Any):
     First try to use '__all__' if it is defined, else fallback to 'dir'
     """
     if hasattr(mod, "__all__") and isinstance(mod.__all__, list):
-        return sorted(set(str(i) for i in mod.__all__))
+        return sorted({str(i) for i in mod.__all__})
 
     return [i for i in dir(mod) if not i.startswith("_")]
 
