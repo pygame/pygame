@@ -2370,6 +2370,18 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface((2, 2), 0, 32)
         self.assertRaises(pygame.error, surf.set_palette, palette)
 
+    def test_set_palette__set_at(self):
+        surf = pygame.Surface((2, 2), depth=8)
+        palette = 256 * [(10, 20, 30)]
+        palette[1] = (50, 40, 30)
+        surf.set_palette(palette)
+
+        # calling set_at on a palettized surface should set the pixel to
+        # the closest color in the palette.
+        surf.set_at((0, 0), (60, 50, 40))
+        self.assertEqual(surf.get_at((0, 0)), (50, 40, 30, 255))
+        self.assertEqual(surf.get_at((1, 0)), (10, 20, 30, 255))
+
     def test_set_palette_at(self):
         surf = pygame.Surface((2, 2), 0, 8)
         original = surf.get_palette_at(10)
