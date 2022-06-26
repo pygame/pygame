@@ -342,6 +342,8 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
+    {"ublits", (PyCFunction)surf_ublits, METH_VARARGS | METH_KEYWORDS,
+            DOC_SURFACEUBLITS},
 
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
@@ -2083,6 +2085,192 @@ bliterror:
             return RAISE(
                 PyExc_ValueError,
                 "blit_sequence should be iterator of (Surface, dest)");
+        case BLITS_ERR_DISPLAY_SURF_QUIT:
+            return RAISE(pgExc_SDLError, "display Surface quit");
+        case BLITS_ERR_SEQUENCE_SURF:
+            return RAISE(PyExc_TypeError,
+                         "First element of blit_list needs to be Surface.");
+        case BLITS_ERR_INVALID_DESTINATION:
+            return RAISE(PyExc_TypeError,
+                         "invalid destination position for blit");
+        case BLITS_ERR_INVALID_RECT_STYLE:
+            return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
+        case BLITS_ERR_MUST_ASSIGN_NUMERIC:
+            return RAISE(PyExc_TypeError, "Must assign numeric values");
+        case BLITS_ERR_BLIT_FAIL:
+            return RAISE(PyExc_TypeError, "Blit failed");
+        case BLITS_ERR_PY_EXCEPTION_RAISED:
+            return NULL; /* Raising a previously set exception */
+        case BLITS_ERR_SOURCE_NOT_SURFACE:
+            return RAISE(PyExc_TypeError, "Source objects must be a surface");
+    }
+    return RAISE(PyExc_TypeError, "Unknown error");
+}
+
+static PyObject *
+surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
+{
+    SDL_Surface *src, *dest = pgSurface_AsSurface(self);
+    SDL_Rect *src_rect, temp;
+    temp.x = 0;
+    temp.y = 0;
+    PyObject *srcobject = NULL, *argpos = NULL;
+    int result;
+    SDL_Rect dest_rect;
+    int sx, sy;
+    int the_args = 0;
+
+    PyObject *blitsequence;
+    PyObject *iterator = NULL;
+    PyObject *item = NULL;
+    PyObject *special_flags = NULL;
+    PyObject *ret = NULL;
+    PyObject *retrect = NULL;
+    Py_ssize_t itemlength;
+    int doreturn = 1;
+    int bliterrornum = 0;
+    static char *kwids[] = {"blit_sequence", "special_flags", "doreturn", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids, &blitsequence, &special_flags, &doreturn))
+        return NULL;
+
+    if (doreturn) {
+        ret = PyList_New(0);
+        if (!ret)
+            return NULL;
+    }
+
+    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
+        bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto bliterror;
+    }
+
+    if (special_flags) {
+        if (!pg_IntFromObj(special_flags, &the_args)) {
+            bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
+            goto bliterror;
+        }
+    }
+
+    iterator = PyObject_GetIter(blitsequence);
+    if (!iterator) {
+        Py_XDECREF(ret);
+        return NULL;
+    }
+
+    while ((item = PyIter_Next(iterator))) {
+        if (PySequence_Check(item)) {
+            itemlength = PySequence_Length(item);
+            if (itemlength != 2) {
+                bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+                goto bliterror;
+            }
+        }
+        else {
+            bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+            goto bliterror;
+        }
+
+        /* We know that there will be at least two items due to the
+           conditional at the start of the loop */
+        assert(itemlength == 2);
+
+        /* (Surface, dest) */
+        srcobject = PySequence_GetItem(item, 0);
+        argpos = PySequence_GetItem(item, 1);
+
+        Py_DECREF(item);
+        /* Clear item to avoid double deref on errors */
+        item = NULL;
+
+        if (!pgSurface_Check(srcobject)) {
+            bliterrornum = BLITS_ERR_SOURCE_NOT_SURFACE;
+            goto bliterror;
+        }
+
+        src = pgSurface_AsSurface(srcobject);
+        if (!dest) {
+            bliterrornum = BLITS_ERR_DISPLAY_SURF_QUIT;
+            goto bliterror;
+        }
+        if (!src) {
+            bliterrornum = BLITS_ERR_SEQUENCE_SURF;
+            goto bliterror;
+        }
+
+        if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+            dest_rect.x = src_rect->x;
+            dest_rect.y = src_rect->y;
+        }
+        else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
+            dest_rect.x = sx;
+            dest_rect.y = sy;
+        }
+        else {
+            bliterrornum = BLITS_ERR_INVALID_DESTINATION;
+            goto bliterror;
+        }
+
+        temp.w = src->w;
+        temp.h = src->h;
+
+        src_rect = &temp;
+
+        dest_rect.w = src_rect->w;
+        dest_rect.h = src_rect->h;
+
+        result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
+                                src_rect, the_args);
+
+        if (result != 0) {
+            bliterrornum = BLITS_ERR_BLIT_FAIL;
+            goto bliterror;
+        }
+        if (doreturn) {
+            retrect = NULL;
+            retrect = pgRect_New(&dest_rect);
+            if (PyList_Append(ret, retrect) != 0) {
+                bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                goto bliterror;
+            }
+            Py_DECREF(retrect);
+            retrect = NULL; /* Clear to avoid double deref on errors */
+        }
+
+        Py_DECREF(srcobject);
+        Py_DECREF(argpos);
+        /* Clear to avoid double deref on errors */
+        srcobject = NULL;
+        argpos = NULL;
+
+    }
+
+    Py_DECREF(iterator);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(ret);
+        return NULL;
+    }
+
+    if (doreturn) {
+        return ret;
+    }
+    else {
+        Py_RETURN_NONE;
+    }
+
+    bliterror:
+    Py_XDECREF(srcobject);
+    Py_XDECREF(argpos);
+    Py_XDECREF(retrect);
+    Py_XDECREF(special_flags);
+    Py_XDECREF(iterator);
+    Py_XDECREF(item);
+    Py_XDECREF(ret);
+
+    switch (bliterrornum) {
+        case BLITS_ERR_SEQUENCE_REQUIRED:
+            return RAISE(
+                    PyExc_ValueError,
+                    "blit_sequence should be iterator of (Surface, dest)");
         case BLITS_ERR_DISPLAY_SURF_QUIT:
             return RAISE(pgExc_SDLError, "display Surface quit");
         case BLITS_ERR_SEQUENCE_SURF:

@@ -70,6 +70,11 @@ class Surface:
         ],
         doreturn: Union[int, bool] = 1,
     ) -> Union[List[Rect], None]: ...
+    def ublits(
+            self,
+            blit_sequence: Sequence[Tuple[Surface, Union[Coordinate, RectValue]]],
+            special_flags: int = 0, doreturn: Union[int, bool] = 1,
+    ) -> Union[List[Rect], None]: ...
     @overload
     def convert(self, surface: Surface) -> Surface: ...
     @overload
