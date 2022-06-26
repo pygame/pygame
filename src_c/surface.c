@@ -2109,6 +2109,8 @@ bliterror:
     return RAISE(PyExc_TypeError, "Unknown error");
 }
 
+#define UBLITS_ERR_TUPLE_REQUIRED 11
+
 static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
@@ -2160,15 +2162,15 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     }
 
     while ((item = PyIter_Next(iterator))) {
-        if (PySequence_Check(item)) {
-            itemlength = PySequence_Length(item);
+        if (PyTuple_Check(item)) {
+            itemlength = PyTuple_GET_SIZE(item);
             if (itemlength != 2) {
-                bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+                bliterrornum = UBLITS_ERR_TUPLE_REQUIRED;
                 goto bliterror;
             }
         }
         else {
-            bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+            bliterrornum = UBLITS_ERR_TUPLE_REQUIRED;
             goto bliterror;
         }
 
@@ -2285,6 +2287,10 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             return NULL; /* Raising a previously set exception */
         case BLITS_ERR_SOURCE_NOT_SURFACE:
             return RAISE(PyExc_TypeError, "Source objects must be a surface");
+        case UBLITS_ERR_TUPLE_REQUIRED:
+            return RAISE(
+                    PyExc_ValueError,
+                    "blit_sequence item should be a tuple of (Surface, dest)");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
