@@ -20,21 +20,23 @@
 """sysfont, used in the font module to find system fonts"""
 
 import os
-import subprocess
 import sys
 import warnings
 from os.path import basename, dirname, exists, join, splitext
 
 from pygame.font import Font
 
+if sys.platform != "emscripten":
+    if os.name == "nt":
+        import winreg as _winreg
+    import subprocess
+
+
 OpenType_extensions = frozenset((".ttf", ".ttc", ".otf"))
 Sysfonts = {}
 Sysalias = {}
 
 is_init = False
-
-if os.name == "nt":
-    import winreg as _winreg
 
 
 def _simplename(name):
@@ -195,6 +197,9 @@ def initsysfonts_darwin():
 def initsysfonts_unix(path="fc-list"):
     """use the fc-list from fontconfig to get a list of fonts"""
     fonts = {}
+
+    if sys.platform == "emscripten":
+        return fonts
 
     try:
         proc = subprocess.run(
