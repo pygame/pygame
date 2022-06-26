@@ -2126,38 +2126,28 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
             pygame.display.quit()
 
     def test_get_palette(self):
-        pygame.display.init()
-        try:
-            palette = [Color(i, i, i) for i in range(256)]
-            pygame.display.set_mode((100, 50))
-            surf = pygame.Surface((2, 2), 0, 8)
-            surf.set_palette(palette)
-            palette2 = surf.get_palette()
-            r, g, b = palette2[0]
+        palette = [Color(i, i, i) for i in range(256)]
+        surf = pygame.Surface((2, 2), 0, 8)
+        surf.set_palette(palette)
+        palette2 = surf.get_palette()
+        r, g, b = palette2[0]
 
-            self.assertEqual(len(palette2), len(palette))
-            for c2, c in zip(palette2, palette):
-                self.assertEqual(c2, c)
-            for c in palette2:
-                self.assertIsInstance(c, pygame.Color)
-        finally:
-            pygame.display.quit()
+        self.assertEqual(len(palette2), len(palette))
+        for c2, c in zip(palette2, palette):
+            self.assertEqual(c2, c)
+        for c in palette2:
+            self.assertIsInstance(c, pygame.Color)
 
     def test_get_palette_at(self):
         # See also test_get_palette
-        pygame.display.init()
-        try:
-            pygame.display.set_mode((100, 50))
-            surf = pygame.Surface((2, 2), 0, 8)
-            color = pygame.Color(1, 2, 3, 255)
-            surf.set_palette_at(0, color)
-            color2 = surf.get_palette_at(0)
-            self.assertIsInstance(color2, pygame.Color)
-            self.assertEqual(color2, color)
-            self.assertRaises(IndexError, surf.get_palette_at, -1)
-            self.assertRaises(IndexError, surf.get_palette_at, 256)
-        finally:
-            pygame.display.quit()
+        surf = pygame.Surface((2, 2), 0, 8)
+        color = pygame.Color(1, 2, 3, 255)
+        surf.set_palette_at(0, color)
+        color2 = surf.get_palette_at(0)
+        self.assertIsInstance(color2, pygame.Color)
+        self.assertEqual(color2, color)
+        self.assertRaises(IndexError, surf.get_palette_at, -1)
+        self.assertRaises(IndexError, surf.get_palette_at, 256)
 
     def test_get_pitch(self):
         # Test get_pitch() on several surfaces of varying size/depth
@@ -2358,56 +2348,44 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         palette[11] = tuple(palette[11])[0:3]  # 3 element tuple
 
         surf = pygame.Surface((2, 2), 0, 8)
-        pygame.display.init()
-        try:
-            pygame.display.set_mode((100, 50))
-            surf.set_palette(palette)
-            for i in range(256):
-                self.assertEqual(surf.map_rgb(palette[i]), i, "palette color %i" % (i,))
-                c = palette[i]
-                surf.fill(c)
-                self.assertEqual(surf.get_at((0, 0)), c, "palette color %i" % (i,))
-            for i in range(10):
-                palette[i] = pygame.Color(255 - i, 0, 0)
-            surf.set_palette(palette[0:10])
-            for i in range(256):
-                self.assertEqual(surf.map_rgb(palette[i]), i, "palette color %i" % (i,))
-                c = palette[i]
-                surf.fill(c)
-                self.assertEqual(surf.get_at((0, 0)), c, "palette color %i" % (i,))
-            self.assertRaises(ValueError, surf.set_palette, [Color(1, 2, 3, 254)])
-            self.assertRaises(ValueError, surf.set_palette, (1, 2, 3, 254))
-        finally:
-            pygame.display.quit()
+        surf.set_palette(palette)
+        for i in range(256):
+            self.assertEqual(surf.map_rgb(palette[i]), i, "palette color %i" % (i,))
+            c = palette[i]
+            surf.fill(c)
+            self.assertEqual(surf.get_at((0, 0)), c, "palette color %i" % (i,))
+        for i in range(10):
+            palette[i] = pygame.Color(255 - i, 0, 0)
+        surf.set_palette(palette[0:10])
+        for i in range(256):
+            self.assertEqual(surf.map_rgb(palette[i]), i, "palette color %i" % (i,))
+            c = palette[i]
+            surf.fill(c)
+            self.assertEqual(surf.get_at((0, 0)), c, "palette color %i" % (i,))
+        self.assertRaises(ValueError, surf.set_palette, [Color(1, 2, 3, 254)])
+        self.assertRaises(ValueError, surf.set_palette, (1, 2, 3, 254))
 
     def test_set_palette__fail(self):
-        pygame.init()
         palette = 256 * [(10, 20, 30)]
         surf = pygame.Surface((2, 2), 0, 32)
         self.assertRaises(pygame.error, surf.set_palette, palette)
-        pygame.quit()
 
     def test_set_palette_at(self):
-        pygame.display.init()
-        try:
-            pygame.display.set_mode((100, 50))
-            surf = pygame.Surface((2, 2), 0, 8)
-            original = surf.get_palette_at(10)
-            replacement = Color(1, 1, 1, 255)
-            if replacement == original:
-                replacement = Color(2, 2, 2, 255)
-            surf.set_palette_at(10, replacement)
-            self.assertEqual(surf.get_palette_at(10), replacement)
-            next = tuple(original)
-            surf.set_palette_at(10, next)
-            self.assertEqual(surf.get_palette_at(10), next)
-            next = tuple(original)[0:3]
-            surf.set_palette_at(10, next)
-            self.assertEqual(surf.get_palette_at(10), next)
-            self.assertRaises(IndexError, surf.set_palette_at, 256, replacement)
-            self.assertRaises(IndexError, surf.set_palette_at, -1, replacement)
-        finally:
-            pygame.display.quit()
+        surf = pygame.Surface((2, 2), 0, 8)
+        original = surf.get_palette_at(10)
+        replacement = Color(1, 1, 1, 255)
+        if replacement == original:
+            replacement = Color(2, 2, 2, 255)
+        surf.set_palette_at(10, replacement)
+        self.assertEqual(surf.get_palette_at(10), replacement)
+        next = tuple(original)
+        surf.set_palette_at(10, next)
+        self.assertEqual(surf.get_palette_at(10), next)
+        next = tuple(original)[0:3]
+        surf.set_palette_at(10, next)
+        self.assertEqual(surf.get_palette_at(10), next)
+        self.assertRaises(IndexError, surf.set_palette_at, 256, replacement)
+        self.assertRaises(IndexError, surf.set_palette_at, -1, replacement)
 
     def test_subsurface(self):
 
@@ -2487,16 +2465,11 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface((2, 2), 0, 8)
         c = (1, 1, 1)  # Unlikely to be in a default palette.
         i = 67
-        pygame.display.init()
-        try:
-            pygame.display.set_mode((100, 50))
-            surf.set_palette_at(i, c)
-            unmapped_c = surf.unmap_rgb(i)
-            self.assertEqual(unmapped_c, c)
-            # Confirm it is a Color instance
-            self.assertIsInstance(unmapped_c, pygame.Color)
-        finally:
-            pygame.display.quit()
+        surf.set_palette_at(i, c)
+        unmapped_c = surf.unmap_rgb(i)
+        self.assertEqual(unmapped_c, c)
+        # Confirm it is a Color instance
+        self.assertIsInstance(unmapped_c, pygame.Color)
 
         # Remaining, non-pallete, cases.
         c = (128, 64, 12, 255)
