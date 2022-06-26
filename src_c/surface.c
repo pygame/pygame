@@ -2176,9 +2176,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
            conditional at the start of the loop */
         assert(itemlength == 2);
 
-        /* (Surface, dest) */
-        srcobject = PySequence_GetItem(item, 0);
-        argpos = PySequence_GetItem(item, 1);
+        /* (Surface, dest)
+         * using PyTuple_GET_ITEM for better perf
+         * because the docs say it must be a tuple */
+        srcobject = PyTuple_GET_ITEM(item, 0);
+        argpos = PyTuple_GET_ITEM(item, 1);
 
         Py_DECREF(item);
         /* Clear item to avoid double deref on errors */
@@ -2238,12 +2240,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             retrect = NULL; /* Clear to avoid double deref on errors */
         }
 
-        Py_DECREF(srcobject);
-        Py_DECREF(argpos);
-        /* Clear to avoid double deref on errors */
-        srcobject = NULL;
-        argpos = NULL;
-
     }
 
     Py_DECREF(iterator);
@@ -2260,8 +2256,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     }
 
     bliterror:
-    Py_XDECREF(srcobject);
-    Py_XDECREF(argpos);
     Py_XDECREF(retrect);
     Py_XDECREF(special_flags);
     Py_XDECREF(iterator);
