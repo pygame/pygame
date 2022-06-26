@@ -345,7 +345,7 @@ static struct PyMethodDef surface_methods[] = {
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
     {"ublits", (PyCFunction)surf_ublits, METH_VARARGS | METH_KEYWORDS,
-            DOC_SURFACEUBLITS},
+     DOC_SURFACEUBLITS},
 
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
@@ -2133,8 +2133,10 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     Py_ssize_t itemlength;
     int doreturn = 1;
     int bliterrornum = 0;
-    static char *kwids[] = {"blit_sequence", "special_flags", "doreturn", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids, &blitsequence, &special_flags, &doreturn))
+    static char *kwids[] = {"blit_sequence", "special_flags", "doreturn",
+                            NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids,
+                                     &blitsequence, &special_flags, &doreturn))
         return NULL;
 
     if (doreturn) {
@@ -2241,7 +2243,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             Py_DECREF(retrect);
             retrect = NULL; /* Clear to avoid double deref on errors */
         }
-
     }
 
     Py_DECREF(iterator);
@@ -2257,7 +2258,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         Py_RETURN_NONE;
     }
 
-    bliterror:
+bliterror:
     Py_XDECREF(retrect);
     Py_XDECREF(special_flags);
     Py_XDECREF(iterator);
@@ -2267,8 +2268,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     switch (bliterrornum) {
         case BLITS_ERR_SEQUENCE_REQUIRED:
             return RAISE(
-                    PyExc_ValueError,
-                    "blit_sequence should be iterator of (Surface, dest)");
+                PyExc_ValueError,
+                "blit_sequence should be iterator of (Surface, dest)");
         case BLITS_ERR_DISPLAY_SURF_QUIT:
             return RAISE(pgExc_SDLError, "display Surface quit");
         case BLITS_ERR_SEQUENCE_SURF:
@@ -2289,8 +2290,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             return RAISE(PyExc_TypeError, "Source objects must be a surface");
         case UBLITS_ERR_TUPLE_REQUIRED:
             return RAISE(
-                    PyExc_ValueError,
-                    "blit_sequence item should be a tuple of (Surface, dest)");
+                PyExc_ValueError,
+                "blit_sequence item should be a tuple of (Surface, dest)");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
