@@ -154,6 +154,28 @@
 
       .. ## Surface.blits ##
 
+   .. method:: ublits
+
+      | :sl:`draw many images onto another, with the full rect and same special_flags`
+      | :sg:`ublits(blit_sequence=((source, dest), ...), special_flags=0, doreturn=1) -> [Rect, ...] or None`
+      | :sg:`blits(((source, dest), ...)) -> [Rect, ...]`
+
+      Draws many surfaces onto this Surface. It takes a sequence of tuples (source, dest) as input,
+      and a special_flags parameter that applies to every surface being drawn.
+      It needs at minimum a sequence of (source, dest).
+
+      :param blit_sequence: a sequence of surfaces and arguments to blit them,
+         they correspond to the :meth:`blit()` arguments
+      :param special_flags: the special flag(s) representing the blend mode used
+      :param doreturn: if ``True``, return a list of rects of the areas changed,
+         otherwise return ``None``
+
+      :returns: a list of rects of the areas changed if ``doreturn`` is
+         ``True``, otherwise ``None``
+      :rtype: list or None
+
+      .. ## Surface.ublits ##
+
 
    .. method:: convert
 
