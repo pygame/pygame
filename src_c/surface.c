@@ -174,6 +174,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
+surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
+static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds);
