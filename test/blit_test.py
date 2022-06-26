@@ -130,6 +130,93 @@ class BlitTest(unittest.TestCase):
         if PRINT_TIMING:
             print(f"Surface.blits generator: {t1 - t0}")
 
+    def test_ublits(self):
+        import sys
+
+        if sys.version_info < (3, 7):
+            return
+
+        NUM_SURFS = 255
+        PRINT_TIMING = 0
+        dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
+        dst.fill((230, 230, 230))
+        blit_list = self.make_blit_list(NUM_SURFS)
+
+        def blits(blit_list):
+            for surface, dest in blit_list:
+                dst.blit(surface, dest)
+
+        from time import time
+
+        # tests for number of parameters
+        self.assertRaises(ValueError, dst.ublits)  # no params
+        self.assertRaises(ValueError, dst.ublits, blit_list)  # 1 param
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0)  # 2 params
+
+        # tests for the blit_sequence parameter
+        self.assertRaises(ValueError, dst.ublits, [-1])
+        self.assertRaises(ValueError, dst.ublits, (-1,))
+        self.assertRaises(ValueError, dst.ublits, "str")
+        self.assertRaises(ValueError, dst.ublits, 1)
+
+        # tests for the special_flags parameter
+        self.assertRaises(
+            TypeError, dst.ublits, blit_list, -999, True
+        )  # not impl. flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, 12.332, True)  # float flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, None, True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, [], True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, (), True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+
+        # tests for the doreturn parameter
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, "str")
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [1])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, ())
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, (1,))
+
+        # tests for return value
+        self.assertEqual(dst.ublits(blit_list, 0, False), None)
+        self.assertEqual(dst.ublits(blit_list, 0, True), dst.blits(blit_list))
+        l1, l2 = len(dst.ublits(blit_list, 0, True)), len(dst.blits(blit_list))
+        self.assertEqual(l1, l2)
+
+        t0 = time()
+        results = blits(blit_list)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"python blits: {t1 - t0}")
+
+        dst.fill((230, 230, 230))
+        t0 = time()
+        results = dst.ublits(blit_list, 0, 1)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.ublits :{t1 - t0}")
+
+        # check if we blit all the different colors in the correct spots.
+        for i in range(NUM_SURFS):
+            color = (i * 1, i * 1, i * 1)
+            self.assertEqual(dst.get_at((i * 10, 0)), color)
+            self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
+
+        self.assertEqual(len(results), NUM_SURFS)
+
+        t0 = time()
+        results = dst.ublits(blit_list, 0, 0)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.ublits doreturn=0: {t1 - t0}")
+        self.assertEqual(results, None)
+
+        t0 = time()
+        results = dst.ublits(((surf, dest) for surf, dest in blit_list), 0, 1)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.ublits generator: {t1 - t0}")
+
     def test_blits_not_sequence(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
         self.assertRaises(ValueError, dst.blits, None)
