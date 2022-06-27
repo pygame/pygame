@@ -2136,7 +2136,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     blitsequence = args[0];
 
     if (!pg_IntFromObj(args[1], &flags_numeric) ||
-            !pg_IntFromObj(args[2], &doreturn);) {
+        !pg_IntFromObj(args[2], &doreturn)) {
         bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
         goto bliterror;
     }
