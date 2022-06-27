@@ -152,7 +152,7 @@ class BlitTest(unittest.TestCase):
 
         dst.fill((230, 230, 230))
         t0 = time()
-        results = dst.ublits(blit_list)
+        results = dst.ublits(blit_list, 0, 1)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits :{t1 - t0}")
@@ -166,14 +166,14 @@ class BlitTest(unittest.TestCase):
         self.assertEqual(len(results), NUM_SURFS)
 
         t0 = time()
-        results = dst.ublits(blit_list, doreturn=0)
+        results = dst.ublits(blit_list, 0, 0)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits doreturn=0: {t1 - t0}")
         self.assertEqual(results, None)
 
         t0 = time()
-        results = dst.ublits(((surf, dest) for surf, dest in blit_list))
+        results = dst.ublits(((surf, dest) for surf, dest in blit_list), 0, 1)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits generator: {t1 - t0}")
