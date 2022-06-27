@@ -174,7 +174,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
+surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
@@ -344,7 +344,7 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-    {"ublits", (PyCFunction)surf_ublits, METH_VARARGS | METH_KEYWORDS,
+    {"ublits", (_PyCFunctionFast)surf_ublits, METH_FASTCALL,
      DOC_SURFACEUBLITS},
 
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
@@ -2112,7 +2112,7 @@ bliterror:
 #define UBLITS_ERR_TUPLE_REQUIRED 11
 
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
+surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp;
@@ -2122,22 +2122,24 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0;
+    int flags_numeric;
 
     PyObject *blitsequence;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
-    PyObject *special_flags = NULL;
     PyObject *ret = NULL;
     PyObject *retrect = NULL;
     Py_ssize_t itemlength;
     int doreturn = 1;
     int bliterrornum = 0;
-    static char *kwids[] = {"blit_sequence", "special_flags", "doreturn",
-                            NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids,
-                                     &blitsequence, &special_flags, &doreturn))
-        return NULL;
+
+    blitsequence = args[0];
+
+    if (!pg_IntFromObj(args[1], &flags_numeric) ||
+            !pg_IntFromObj(args[2], &doreturn);) {
+        bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
+        goto bliterror;
+    }
 
     if (doreturn) {
         ret = PyList_New(0);
@@ -2148,13 +2150,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
         bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
         goto bliterror;
-    }
-
-    if (special_flags) {
-        if (!pg_IntFromObj(special_flags, &the_args)) {
-            bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
-            goto bliterror;
-        }
     }
 
     iterator = PyObject_GetIter(blitsequence);
@@ -2227,7 +2222,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dest_rect.h = src_rect->h;
 
         result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
-                                src_rect, the_args);
+                                src_rect, flags_numeric);
 
         if (result != 0) {
             bliterrornum = BLITS_ERR_BLIT_FAIL;
@@ -2260,7 +2255,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 
 bliterror:
     Py_XDECREF(retrect);
-    Py_XDECREF(special_flags);
     Py_XDECREF(iterator);
     Py_XDECREF(item);
     Py_XDECREF(ret);

@@ -157,8 +157,7 @@
    .. method:: ublits
 
       | :sl:`draw many images onto another, with the full rect and same special_flags`
-      | :sg:`ublits(blit_sequence=((source, dest), ...), special_flags=0, doreturn=1) -> [Rect, ...] or None`
-      | :sg:`blits(((source, dest), ...)) -> [Rect, ...]`
+      | :sg:`ublits(blit_sequence=((source, dest), ...), special_flags, doreturn) -> [Rect, ...] or None`
 
       Draws many surfaces onto this Surface. It takes a sequence of tuples (source, dest) as input,
       and a special_flags parameter that applies to every surface being drawn.
