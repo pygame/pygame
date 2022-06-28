@@ -2137,18 +2137,18 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     if (nargs < 3) {
         bliterrornum = UBLITS_ERR_INSUFFICIENT_ARGS;
-        goto bliterror;
+        goto on_error;
     }
 
     blitsequence = args[0];
     if (!PyLong_Check(args[1]) || !pg_IntFromObj(args[1], &flags_numeric)) {
         bliterrornum = UBLITS_ERR_FLAG_NOT_NUMERIC;
-        goto bliterror;
+        goto on_error;
     }
 
     if (!pg_IntFromObj(args[2], &doreturn)) {
         bliterrornum = UBLITS_ERR_DORETURN_NOT_NUMERIC;
-        goto bliterror;
+        goto on_error;
     }
 
     if (doreturn) {
@@ -2159,7 +2159,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
         bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
-        goto bliterror;
+        goto on_error;
     }
 
     iterator = PyObject_GetIter(blitsequence);
@@ -2173,12 +2173,12 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             itemlength = PyTuple_GET_SIZE(item);
             if (itemlength != 2) {
                 bliterrornum = UBLITS_ERR_TUPLE_REQUIRED;
-                goto bliterror;
+                goto on_error;
             }
         }
         else {
             bliterrornum = UBLITS_ERR_TUPLE_REQUIRED;
-            goto bliterror;
+            goto on_error;
         }
 
         /* We know that there will be at least two items due to the
@@ -2197,17 +2197,17 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
         if (!pgSurface_Check(srcobject)) {
             bliterrornum = BLITS_ERR_SOURCE_NOT_SURFACE;
-            goto bliterror;
+            goto on_error;
         }
 
         src = pgSurface_AsSurface(srcobject);
         if (!dest) {
             bliterrornum = BLITS_ERR_DISPLAY_SURF_QUIT;
-            goto bliterror;
+            goto on_error;
         }
         if (!src) {
             bliterrornum = BLITS_ERR_SEQUENCE_SURF;
-            goto bliterror;
+            goto on_error;
         }
 
         if ((src_rect = pgRect_FromObject(argpos, &temp))) {
@@ -2220,7 +2220,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
         else {
             bliterrornum = BLITS_ERR_INVALID_DESTINATION;
-            goto bliterror;
+            goto on_error;
         }
 
         temp.w = src->w;
@@ -2236,14 +2236,14 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
         if (result != 0) {
             bliterrornum = BLITS_ERR_BLIT_FAIL;
-            goto bliterror;
+            goto on_error;
         }
         if (doreturn) {
             retrect = NULL;
             retrect = pgRect_New(&dest_rect);
             if (PyList_Append(ret, retrect) != 0) {
                 bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
-                goto bliterror;
+                goto on_error;
             }
             Py_DECREF(retrect);
             retrect = NULL; /* Clear to avoid double deref on errors */
@@ -2263,7 +2263,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         Py_RETURN_NONE;
     }
 
-bliterror:
+on_error:
     Py_XDECREF(retrect);
     Py_XDECREF(iterator);
     Py_XDECREF(item);
