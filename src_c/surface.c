@@ -2277,9 +2277,10 @@ bliterror:
         case BLITS_ERR_DISPLAY_SURF_QUIT:
             return RAISE(pgExc_SDLError, "display Surface quit");
         case BLITS_ERR_SEQUENCE_SURF:
-            return RAISE(PyExc_TypeError,
-                         "First element of pairs (Surface, dest) in blit_sequence "
-                         "must be a Surface.");
+            return RAISE(
+                PyExc_TypeError,
+                "First element of pairs (Surface, dest) in blit_sequence "
+                "must be a Surface.");
         case BLITS_ERR_INVALID_DESTINATION:
             return RAISE(PyExc_TypeError,
                          "invalid destination position for blit");
