@@ -344,8 +344,7 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-    {"ublits", (_PyCFunctionFast)surf_ublits, METH_FASTCALL,
-     DOC_SURFACEUBLITS},
+    {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
 
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
