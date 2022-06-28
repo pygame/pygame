@@ -144,6 +144,37 @@ class BlitTest(unittest.TestCase):
 
         from time import time
 
+        # tests for number of parameters
+        self.assertRaises(ValueError, dst.ublits)  # no params
+        self.assertRaises(ValueError, dst.ublits, blit_list)  # 1 param
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0)  # 2 params
+
+        # tests for the blit_sequence parameter
+        self.assertRaises(ValueError, dst.ublits, [-1])
+        self.assertRaises(ValueError, dst.ublits, (-1,))
+        self.assertRaises(ValueError, dst.ublits, "str")
+        self.assertRaises(ValueError, dst.ublits, 1)
+
+        # tests for the special_flags parameter
+        self.assertRaises(TypeError, dst.ublits, blit_list, -999, True)  # not impl. flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, 12.332, True)  # float flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, None, True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, [], True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, (), True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+
+        # tests for the doreturn parameter
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, "str")
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [1])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, ())
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, (1,))
+
+        # tests for return value
+        self.assertEqual(dst.ublits(blit_list, 0, False), None)
+        self.assertEqual(dst.ublits(blit_list, 0, True), dst.blits(blit_list))
+
         t0 = time()
         results = blits(blit_list)
         t1 = time()
