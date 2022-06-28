@@ -2109,20 +2109,17 @@ bliterror:
 }
 
 #define UBLITS_ERR_TUPLE_REQUIRED 11
+#define UBLITS_ERR_INSUFFICIENT_ARGS 12
+#define UBLITS_ERR_FLAG_NOT_NUMERIC 13
+#define UBLITS_ERR_DORETURN_NOT_NUMERIC 14
 
 static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
-    SDL_Rect *src_rect, temp;
-    temp.x = 0;
-    temp.y = 0;
-    PyObject *srcobject = NULL, *argpos = NULL;
-    int result;
-    SDL_Rect dest_rect;
-    int sx, sy;
-    int flags_numeric;
+    SDL_Rect *src_rect, temp, dest_rect;
 
+    PyObject *srcobject = NULL, *argpos = NULL;
     PyObject *blitsequence;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
@@ -2131,12 +2128,26 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     Py_ssize_t itemlength;
     int doreturn = 1;
     int bliterrornum = 0;
+    int result;
+    int sx, sy;
+    int flags_numeric;
+
+    temp.x = 0;
+    temp.y = 0;
+
+    if (nargs < 3) {
+        bliterrornum = UBLITS_ERR_INSUFFICIENT_ARGS;
+        goto bliterror;
+    }
 
     blitsequence = args[0];
+    if (!PyLong_Check(args[1]) || !pg_IntFromObj(args[1], &flags_numeric)) {
+        bliterrornum = UBLITS_ERR_FLAG_NOT_NUMERIC;
+        goto bliterror;
+    }
 
-    if (!pg_IntFromObj(args[1], &flags_numeric) ||
-        !pg_IntFromObj(args[2], &doreturn)) {
-        bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
+    if (!pg_IntFromObj(args[2], &doreturn)) {
+        bliterrornum = UBLITS_ERR_DORETURN_NOT_NUMERIC;
         goto bliterror;
     }
 
@@ -2267,7 +2278,8 @@ bliterror:
             return RAISE(pgExc_SDLError, "display Surface quit");
         case BLITS_ERR_SEQUENCE_SURF:
             return RAISE(PyExc_TypeError,
-                         "First element of blit_list needs to be Surface.");
+                         "First element of pairs (Surface, dest) in blit_sequence "
+                         "must be a Surface.");
         case BLITS_ERR_INVALID_DESTINATION:
             return RAISE(PyExc_TypeError,
                          "invalid destination position for blit");
@@ -2276,15 +2288,28 @@ bliterror:
         case BLITS_ERR_MUST_ASSIGN_NUMERIC:
             return RAISE(PyExc_TypeError, "Must assign numeric values");
         case BLITS_ERR_BLIT_FAIL:
-            return RAISE(PyExc_TypeError, "Blit failed");
+            return RAISE(
+                PyExc_TypeError,
+                "Blit failed (probably the flag used does not exist)");
         case BLITS_ERR_PY_EXCEPTION_RAISED:
             return NULL; /* Raising a previously set exception */
         case BLITS_ERR_SOURCE_NOT_SURFACE:
-            return RAISE(PyExc_TypeError, "Source objects must be a surface");
+            return RAISE(PyExc_TypeError, "Source objects must be a Surface");
         case UBLITS_ERR_TUPLE_REQUIRED:
             return RAISE(
                 PyExc_ValueError,
-                "blit_sequence item should be a tuple of (Surface, dest)");
+                "Blit_sequence item should be a tuple of (Surface, dest)");
+        case UBLITS_ERR_INSUFFICIENT_ARGS:
+            return RAISE(PyExc_ValueError,
+                         "Function requires positional arguments in the "
+                         "order: blit_sequence, special_flags, doreturn");
+        case UBLITS_ERR_FLAG_NOT_NUMERIC:
+            return RAISE(PyExc_ValueError,
+                         "The special_flags parameter must be an int");
+        case UBLITS_ERR_DORETURN_NOT_NUMERIC:
+            return RAISE(
+                PyExc_ValueError,
+                "The doreturn parameter must either be a bool or numeric");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
