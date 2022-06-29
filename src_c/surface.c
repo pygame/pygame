@@ -2112,7 +2112,8 @@ bliterror:
 #define UBLITS_ERR_INSUFFICIENT_ARGS 12
 #define UBLITS_ERR_FLAG_NOT_NUMERIC 13
 #define UBLITS_ERR_DORETURN_NOT_NUMERIC 14
-
+#define UBLITS_SERR_LISTORTUPLE_REQUIRED \
+    "blit_sequence can only be a list or a tuple"
 static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
@@ -2120,12 +2121,13 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     SDL_Rect *src_rect, temp, dest_rect;
 
     PyObject *srcobject = NULL, *argpos = NULL;
-    PyObject *blitsequence;
+    PyObject *blitsequence, *tmpblitseq;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
     PyObject *ret = NULL;
     PyObject *retrect = NULL;
-    Py_ssize_t itemlength;
+    PyObject **f_blitsequence;
+    Py_ssize_t itemlength, sequencelength, seq_counter;
     int doreturn = 1;
     int errornum = 0;
     int result;
@@ -2157,103 +2159,191 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             return NULL;
     }
 
-    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
-        errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+    if (!dest) {
+        errornum = BLITS_ERR_DISPLAY_SURF_QUIT;
         goto on_error;
     }
 
-    iterator = PyObject_GetIter(blitsequence);
-    if (!iterator) {
-        Py_XDECREF(ret);
-        return NULL;
-    }
+    /* Generator */
+    if (!PyList_Check(blitsequence) && !PyTuple_Check(blitsequence) &&
+        PyIter_Check(blitsequence)) {
+        iterator = PyObject_GetIter(blitsequence);
+        if (!iterator) {
+            Py_XDECREF(ret);
+            return NULL;
+        }
 
-    while ((item = PyIter_Next(iterator))) {
-        if (PyTuple_Check(item)) {
-            itemlength = PyTuple_GET_SIZE(item);
-            if (itemlength != 2) {
+        while ((item = PyIter_Next(iterator))) {
+            if (PyTuple_Check(item)) {
+                itemlength = PyTuple_GET_SIZE(item);
+                if (itemlength != 2) {
+                    errornum = UBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
                 errornum = UBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
-        }
-        else {
-            errornum = UBLITS_ERR_TUPLE_REQUIRED;
-            goto on_error;
-        }
 
-        /* We know that there will be at least two items due to the
-           conditional at the start of the loop */
-        assert(itemlength == 2);
+            /* We know that there will be at least two items due to the
+               conditional at the start of the loop */
+            assert(itemlength == 2);
 
-        /* (Surface, dest)
-         * using PyTuple_GET_ITEM for better perf
-         * because the docs say it must be a tuple */
-        srcobject = PyTuple_GET_ITEM(item, 0);
-        argpos = PyTuple_GET_ITEM(item, 1);
+            /* (Surface, dest)
+             * using PyTuple_GET_ITEM for better perf
+             * because the docs say it must be a tuple */
+            srcobject = PyTuple_GET_ITEM(item, 0);
+            argpos = PyTuple_GET_ITEM(item, 1);
 
-        Py_DECREF(item);
-        /* Clear item to avoid double deref on errors */
-        item = NULL;
+            Py_DECREF(item);
+            /* Clear item to avoid double deref on errors */
+            item = NULL;
 
-        if (!pgSurface_Check(srcobject)) {
-            errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
-            goto on_error;
-        }
-
-        src = pgSurface_AsSurface(srcobject);
-        if (!dest) {
-            errornum = BLITS_ERR_DISPLAY_SURF_QUIT;
-            goto on_error;
-        }
-        if (!src) {
-            errornum = BLITS_ERR_SEQUENCE_SURF;
-            goto on_error;
-        }
-
-        if ((src_rect = pgRect_FromObject(argpos, &temp))) {
-            dest_rect.x = src_rect->x;
-            dest_rect.y = src_rect->y;
-        }
-        else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
-            dest_rect.x = sx;
-            dest_rect.y = sy;
-        }
-        else {
-            errornum = BLITS_ERR_INVALID_DESTINATION;
-            goto on_error;
-        }
-
-        temp.w = src->w;
-        temp.h = src->h;
-
-        src_rect = &temp;
-
-        dest_rect.w = src_rect->w;
-        dest_rect.h = src_rect->h;
-
-        result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
-                                src_rect, flags_numeric);
-
-        if (result != 0) {
-            errornum = BLITS_ERR_BLIT_FAIL;
-            goto on_error;
-        }
-        if (doreturn) {
-            retrect = NULL;
-            retrect = pgRect_New(&dest_rect);
-            if (PyList_Append(ret, retrect) != 0) {
-                errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+            if (!pgSurface_Check(srcobject)) {
+                errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
                 goto on_error;
             }
-            Py_DECREF(retrect);
-            retrect = NULL; /* Clear to avoid double deref on errors */
+
+            src = pgSurface_AsSurface(srcobject);
+
+            if (!src) {
+                errornum = BLITS_ERR_SEQUENCE_SURF;
+                goto on_error;
+            }
+
+            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+                dest_rect.x = src_rect->x;
+                dest_rect.y = src_rect->y;
+            }
+            else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
+                dest_rect.x = sx;
+                dest_rect.y = sy;
+            }
+            else {
+                errornum = BLITS_ERR_INVALID_DESTINATION;
+                goto on_error;
+            }
+
+            temp.w = src->w;
+            temp.h = src->h;
+
+            src_rect = &temp;
+
+            dest_rect.w = src_rect->w;
+            dest_rect.h = src_rect->h;
+
+            result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
+                                    &dest_rect, src_rect, flags_numeric);
+
+            if (result != 0) {
+                errornum = BLITS_ERR_BLIT_FAIL;
+                goto on_error;
+            }
+            if (doreturn) {
+                retrect = NULL;
+                retrect = pgRect_New(&dest_rect);
+                if (PyList_Append(ret, retrect) != 0) {
+                    errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                    goto on_error;
+                }
+                Py_DECREF(retrect);
+                retrect = NULL; /* Clear to avoid double deref on errors */
+            }
+        }
+
+        Py_DECREF(iterator);
+        if (PyErr_Occurred()) {
+            Py_XDECREF(ret);
+            return NULL;
         }
     }
+    /* List or Tuple */
+    else if (PySequence_Check(blitsequence)) {
+        tmpblitseq =
+            PySequence_Fast(args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED);
+        f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
+        sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
+        Py_DECREF(tmpblitseq);
+        tmpblitseq = NULL;
+        for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
+            item = f_blitsequence[seq_counter];
+            if (PyTuple_Check(item)) {
+                itemlength = PyTuple_GET_SIZE(item);
+                if (itemlength != 2) {
+                    errornum = UBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
+                errornum = UBLITS_ERR_TUPLE_REQUIRED;
+                goto on_error;
+            }
 
-    Py_DECREF(iterator);
-    if (PyErr_Occurred()) {
-        Py_XDECREF(ret);
-        return NULL;
+            /* We know that there will be at least two items due to the
+               conditional at the start of the loop */
+            assert(itemlength == 2);
+
+            /* (Surface, dest)
+             * using PyTuple_GET_ITEM for better perf
+             * because the docs say it must be a tuple */
+            srcobject = PyTuple_GET_ITEM(item, 0);
+            argpos = PyTuple_GET_ITEM(item, 1);
+
+            if (!pgSurface_Check(srcobject)) {
+                errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
+                goto on_error;
+            }
+
+            src = pgSurface_AsSurface(srcobject);
+            if (!src) {
+                errornum = BLITS_ERR_SEQUENCE_SURF;
+                goto on_error;
+            }
+
+            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+                dest_rect.x = src_rect->x;
+                dest_rect.y = src_rect->y;
+            }
+            else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
+                dest_rect.x = sx;
+                dest_rect.y = sy;
+            }
+            else {
+                errornum = BLITS_ERR_INVALID_DESTINATION;
+                goto on_error;
+            }
+
+            temp.w = src->w;
+            temp.h = src->h;
+
+            src_rect = &temp;
+
+            dest_rect.w = src_rect->w;
+            dest_rect.h = src_rect->h;
+
+            result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
+                                    &dest_rect, src_rect, flags_numeric);
+
+            if (result != 0) {
+                errornum = BLITS_ERR_BLIT_FAIL;
+                goto on_error;
+            }
+            if (doreturn) {
+                retrect = NULL;
+                retrect = pgRect_New(&dest_rect);
+                if (PyList_Append(ret, retrect) != 0) {
+                    errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                    goto on_error;
+                }
+                Py_DECREF(retrect);
+                retrect = NULL; /* Clear to avoid double deref on errors */
+            }
+        }
+    }
+    else {
+        errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto on_error;
     }
 
     if (doreturn) {
