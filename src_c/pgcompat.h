@@ -44,6 +44,12 @@ SDL_Surface *
 SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format);
 #endif /* !(SDL_VERSION_ATLEAST(2, 0, 5)) */
+
+#if !(SDL_VERSION_ATLEAST(2, 0, 9))
+int
+SDL_GameControllerRumble(void *gamecontroller, Uint16 low_frequency_rumble,
+                         Uint16 high_frequency_rumble, Uint32 duration_ms);
+#endif /* !(SDL_VERSION_ATLEAST(2, 0, 9)) */
 #endif /* defined(SDL_VERSION_ATLEAST) */
 
 #endif /* ~PGCOMPAT_INTERNAL_H */
