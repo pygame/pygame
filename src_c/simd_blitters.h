@@ -29,6 +29,8 @@ void
 blit_blend_rgba_min_sse2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_sse2(SDL_BlitInfo *info);
+void
+blit_blend_premultiplied_sse2(SDL_BlitInfo *info);
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 void
@@ -51,3 +53,5 @@ void
 blit_blend_rgba_min_avx2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_avx2(SDL_BlitInfo *info);
+void
+blit_blend_premultiplied_avx2(SDL_BlitInfo *info);

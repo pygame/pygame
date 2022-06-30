@@ -96,11 +96,6 @@ blit_blend_premultiplied(SDL_BlitInfo *info);
 static void
 blit_blend_premultiplied_mmx(SDL_BlitInfo *info);
 #endif /*  __MMX__ */
-#if defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-static void
-blit_blend_premultiplied_sse2(SDL_BlitInfo *info);
-#endif /*defined(__MMX__) || defined(__SSE2__) || \
-          defined(PG_ENABLE_ARM_NEON)*/
 
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
@@ -701,6 +696,18 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_PREMULTIPLIED: {
+#if !defined(__EMSCRIPTEN__)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    if (src->format->BytesPerPixel == 4 &&
+                        dst->format->BytesPerPixel == 4 &&
+                        src->format->Rmask == dst->format->Rmask &&
+                        src->format->Gmask == dst->format->Gmask &&
+                        src->format->Bmask == dst->format->Bmask &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
+                        SDL_HasAVX2() && (src != dst)) {
+                        blit_blend_premultiplied_avx2(&info);
+                        break;
+                    }
                     if (src->format->BytesPerPixel == 4 &&
                         dst->format->BytesPerPixel == 4 &&
                         src->format->Rmask == dst->format->Rmask &&
@@ -727,6 +734,8 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         }
 #endif /*__MMX__*/
 #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
+#endif /* __EMSCRIPTEN__ */
                     }
 
                     blit_blend_premultiplied(&info);
@@ -1401,85 +1410,6 @@ blit_blend_rgba_max(SDL_BlitInfo *info)
         }
     }
 }
-
-#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-static void
-blit_blend_premultiplied_sse2(SDL_BlitInfo *info)
-{
-    int n;
-    int width = info->width;
-    int height = info->height;
-    Uint32 *srcp = (Uint32 *)info->s_pixels;
-    int srcskip = info->s_skip >> 2;
-    Uint32 *dstp = (Uint32 *)info->d_pixels;
-    int dstskip = info->d_skip >> 2;
-    SDL_PixelFormat *srcfmt = info->src;
-    Uint32 amask = srcfmt->Amask;
-    // Uint64 multmask;
-    Uint64 ones;
-
-    // __m128i multmask_128;
-    __m128i src1, dst1, sub_dst, mm_alpha, mm_zero, ones_128;
-
-    mm_zero = _mm_setzero_si128();
-    // multmask = 0x00FF00FF00FF00FF;  // 0F0F0F0F
-    // multmask_128 = _mm_loadl_epi64((const __m128i *)&multmask);
-    ones = 0x0001000100010001;
-    ones_128 = _mm_loadl_epi64((const __m128i *)&ones);
-
-    while (height--) {
-        /* *INDENT-OFF* */
-        LOOP_UNROLLED4(
-            {
-                Uint32 alpha = *srcp & amask;
-                if (alpha == 0) {
-                    /* do nothing */
-                }
-                else if (alpha == amask) {
-                    *dstp = *srcp;
-                }
-                else {
-                    src1 = _mm_cvtsi32_si128(
-                        *srcp); /* src(ARGB) -> src1 (000000000000ARGB) */
-                    src1 = _mm_unpacklo_epi8(
-                        src1, mm_zero); /* 000000000A0R0G0B -> src1 */
-
-                    dst1 = _mm_cvtsi32_si128(
-                        *dstp); /* dst(ARGB) -> dst1 (000000000000ARGB) */
-                    dst1 = _mm_unpacklo_epi8(
-                        dst1, mm_zero); /* 000000000A0R0G0B -> dst1 */
-
-                    mm_alpha = _mm_cvtsi32_si128(
-                        alpha); /* alpha -> mm_alpha (000000000000A000) */
-                    mm_alpha = _mm_srli_si128(
-                        mm_alpha, 3); /* mm_alpha >> ashift ->
-                                         mm_alpha(000000000000000A) */
-                    mm_alpha = _mm_unpacklo_epi16(
-                        mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
-                    mm_alpha = _mm_unpacklo_epi32(
-                        mm_alpha,
-                        mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
-
-                    /* pre-multiplied alpha blend */
-                    sub_dst = _mm_add_epi16(dst1, ones_128);
-                    sub_dst = _mm_mullo_epi16(sub_dst, mm_alpha);
-                    sub_dst = _mm_srli_epi16(sub_dst, 8);
-                    dst1 = _mm_add_epi16(src1, dst1);
-                    dst1 = _mm_sub_epi16(dst1, sub_dst);
-                    dst1 = _mm_packus_epi16(dst1, mm_zero);
-
-                    *dstp = _mm_cvtsi128_si32(dst1);
-                }
-                ++srcp;
-                ++dstp;
-            },
-            n, width);
-        /* *INDENT-ON* */
-        srcp += srcskip;
-        dstp += dstskip;
-    }
-}
-#endif /*__SSE2__ || PG_ENABLE_ARM_NEON*/
 
 #ifdef __MMX__
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
