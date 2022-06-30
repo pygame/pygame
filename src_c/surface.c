@@ -2159,7 +2159,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
 
     /* Generator */
-    if (!PyList_Check(blitsequence) && !PyTuple_Check(blitsequence)) {
+    if (PyGen_Check(blitsequence)) {
         if (doreturn) {
             ret = PyList_New(0);
             if (!ret)
@@ -2260,8 +2260,12 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
     /* List or Tuple */
     else if (PySequence_Check(blitsequence)) {
-        tmpblitseq =
-            PySequence_Fast(args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED);
+        if (!(tmpblitseq =
+                PySequence_Fast(args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
+            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+            goto on_error;
+        }
+
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
         if (doreturn) {

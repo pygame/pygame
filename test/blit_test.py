@@ -176,6 +176,8 @@ class BlitTest(unittest.TestCase):
         # tests for return value
         self.assertEqual(dst.ublits(blit_list, 0, False), None)
         self.assertEqual(dst.ublits(blit_list, 0, True), dst.blits(blit_list))
+        l1, l2 = len(dst.ublits(blit_list, 0, True)), len(dst.blits(blit_list))
+        self.assertEqual(l1, l2)
 
         t0 = time()
         results = blits(blit_list)
