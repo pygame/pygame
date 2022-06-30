@@ -2153,12 +2153,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto on_error;
     }
 
-    if (doreturn) {
-        ret = PyList_New(0);
-        if (!ret)
-            return NULL;
-    }
-
     if (!dest) {
         errornum = BLITS_ERR_DISPLAY_SURF_QUIT;
         goto on_error;
@@ -2166,6 +2160,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     /* Generator */
     if (!PyList_Check(blitsequence) && !PyTuple_Check(blitsequence)) {
+        if (doreturn) {
+            ret = PyList_New(0);
+            if (!ret)
+                return NULL;
+        }
         if (!(PyIter_Check(blitsequence))) {
             errornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto on_error;
@@ -2194,9 +2193,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                    conditional at the start of the loop */
             assert(itemlength == 2);
 
-            /* (Surface, dest)
-             * using PyTuple_GET_ITEM for better perf
-             * because the docs say it must be a tuple */
+            /* (Surface, dest) */
             srcobject = PySequence_ITEM(item, 0);
             argpos = PySequence_ITEM(item, 1);
 
@@ -2220,9 +2217,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
             }
-            else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
-                dest_rect.x = sx;
-                dest_rect.y = sy;
+            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
+                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
@@ -2268,6 +2264,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             PySequence_Fast(args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED);
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
+        if (doreturn) {
+            ret = PyList_New(sequencelength);
+            if (!ret)
+                return NULL;
+        }
         Py_DECREF(tmpblitseq);
         tmpblitseq = NULL;
         for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
@@ -2309,9 +2310,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
             }
-            else if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
-                dest_rect.x = sx;
-                dest_rect.y = sy;
+            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
+                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
@@ -2334,14 +2334,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 goto on_error;
             }
             if (doreturn) {
-                retrect = NULL;
-                retrect = pgRect_New(&dest_rect);
-                if (PyList_Append(ret, retrect) != 0) {
-                    errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
-                    goto on_error;
-                }
-                Py_DECREF(retrect);
-                retrect = NULL; /* Clear to avoid double deref on errors */
+                PyList_SET_ITEM(ret, seq_counter, pgRect_New(&dest_rect));
             }
         }
     }
