@@ -2165,36 +2165,40 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
 
     /* Generator */
-    if (!PyList_Check(blitsequence) && !PyTuple_Check(blitsequence) &&
-        PyIter_Check(blitsequence)) {
+    if (!PyList_Check(blitsequence) && !PyTuple_Check(blitsequence)) {
+        if (!(PyIter_Check(blitsequence))) {
+            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+            goto on_error;
+        }
         iterator = PyObject_GetIter(blitsequence);
         if (!iterator) {
             Py_XDECREF(ret);
             return NULL;
         }
 
-        while ((item = PyIter_Next(iterator))) {
-            if (PyTuple_Check(item)) {
-                itemlength = PyTuple_GET_SIZE(item);
-                if (itemlength != 2) {
-                    errornum = UBLITS_ERR_TUPLE_REQUIRED;
-                    goto on_error;
-                }
-            }
-            else {
+        item = PyIter_Next(iterator);
+        if (PySequence_Check(item)) {
+            itemlength = PySequence_Size(item);
+            if (itemlength != 2) {
                 errornum = UBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
+        }
+        else {
+            errornum = UBLITS_ERR_TUPLE_REQUIRED;
+            goto on_error;
+        }
 
+        do {
             /* We know that there will be at least two items due to the
-               conditional at the start of the loop */
+                   conditional at the start of the loop */
             assert(itemlength == 2);
 
             /* (Surface, dest)
              * using PyTuple_GET_ITEM for better perf
              * because the docs say it must be a tuple */
-            srcobject = PyTuple_GET_ITEM(item, 0);
-            argpos = PyTuple_GET_ITEM(item, 1);
+            srcobject = PySequence_GetItem(item, 0);
+            argpos = PySequence_GetItem(item, 1);
 
             Py_DECREF(item);
             /* Clear item to avoid double deref on errors */
@@ -2250,7 +2254,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 Py_DECREF(retrect);
                 retrect = NULL; /* Clear to avoid double deref on errors */
             }
-        }
+        } while (item = PyIter_Next(iterator));
 
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
