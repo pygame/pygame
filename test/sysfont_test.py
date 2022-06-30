@@ -1,5 +1,6 @@
 import unittest
 import platform
+import os
 
 
 class SysfontModuleTest(unittest.TestCase):
@@ -28,6 +29,19 @@ class SysfontModuleTest(unittest.TestCase):
         pygame.font.init()
         arial = pygame.font.SysFont("Arial", 40)
         self.assertTrue(isinstance(arial, pygame.font.Font))
+
+    def test_match_font(self):
+        import pygame.font
+
+        pygame.font.init()
+        for font in pygame.font.get_fonts():
+            font_path = pygame.font.match_font(font)
+
+            self.assertTrue(
+                os.path.isabs(font_path) and
+                os.path.isfile(font_path)
+            )
+
 
     @unittest.skipIf(
         ("Darwin" in platform.platform() or "Windows" in platform.platform()),
