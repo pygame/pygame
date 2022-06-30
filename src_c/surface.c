@@ -2197,8 +2197,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             /* (Surface, dest)
              * using PyTuple_GET_ITEM for better perf
              * because the docs say it must be a tuple */
-            srcobject = PySequence_GetItem(item, 0);
-            argpos = PySequence_GetItem(item, 1);
+            srcobject = PySequence_ITEM(item, 0);
+            argpos = PySequence_ITEM(item, 1);
 
             Py_DECREF(item);
             /* Clear item to avoid double deref on errors */
