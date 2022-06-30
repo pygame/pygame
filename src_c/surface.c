@@ -2260,8 +2260,8 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
     /* List or Tuple */
     else if (PySequence_Check(blitsequence)) {
-        if (!(tmpblitseq =
-                PySequence_Fast(args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
+        if (!(tmpblitseq = PySequence_Fast(
+                  args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
             errornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto on_error;
         }
