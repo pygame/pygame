@@ -42,7 +42,6 @@ class SysfontModuleTest(unittest.TestCase):
                 os.path.isfile(font_path)
             )
 
-
     @unittest.skipIf(
         ("Darwin" in platform.platform() or "Windows" in platform.platform()),
         "Not unix we skip.",
