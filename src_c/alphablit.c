@@ -734,9 +734,9 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         }
 #endif /*__MMX__*/
 #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+                    }
 #endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
 #endif /* __EMSCRIPTEN__ */
-                    }
 
                     blit_blend_premultiplied(&info);
                     break;
