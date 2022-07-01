@@ -1680,7 +1680,7 @@ def spritecollide(sprite, group, dokill, collided=None):
         append = crashed.append
 
         for group_sprite in group.sprites():
-            if collided:
+            if collided is not None:
                 if collided(sprite, group_sprite):
                     group_sprite.kill()
                     append(group_sprite)
@@ -1691,7 +1691,7 @@ def spritecollide(sprite, group, dokill, collided=None):
 
         return crashed
 
-    if collided:
+    if collided is not None:
         return [
             group_sprite for group_sprite in group if collided(sprite, group_sprite)
         ]
