@@ -6,6 +6,10 @@ cdef extern from "../pygame.h" nogil:
     void import_pygame_joystick()
     void pg_RegisterQuit(object)
     void JOYSTICK_INIT_CHECK()
+    int PG_GameControllerRumble(SDL_GameController *gamecontroller,
+                                Uint16 low_frequency_rumble,
+                                Uint16 high_frequency_rumble,
+                                Uint32 duration_ms)
 
 cdef extern from "SDL.h" nogil:
     void SDL_free(void *mem)
@@ -247,14 +251,12 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        if not SDL_VERSION_ATLEAST(2, 0, 9):
-            return False
-
+        
         duration = max(duration, 0)
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
 
-        res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
+        res = PG_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
         return bool(res)
 
     def stop_rumble(self):
@@ -263,5 +265,4 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        if SDL_VERSION_ATLEAST(2, 0, 9):
-            SDL_GameControllerRumble(self._controller, 0, 0, 1)
+        PG_GameControllerRumble(self._controller, 0, 0, 1)
