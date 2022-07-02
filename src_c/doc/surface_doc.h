@@ -2,7 +2,7 @@
 #define DOC_PYGAMESURFACE "Surface((width, height), flags=0, depth=0, masks=None) -> Surface\nSurface((width, height), flags=0, Surface) -> Surface\npygame object for representing images"
 #define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags=0) -> Rect\ndraw one image onto another"
 #define DOC_SURFACEBLITS "blits(blit_sequence=((source, dest), ...), doreturn=1) -> [Rect, ...] or None\nblits(((source, dest, area), ...)) -> [Rect, ...]\nblits(((source, dest, area, special_flags), ...)) -> [Rect, ...]\ndraw many images onto another"
-#define DOC_SURFACEUBLITS "ublits(blit_sequence=((source, dest), ...), special_flags, doreturn) -> [Rect, ...] or None\ndraw many images onto another, with the full rect and same special_flags"
+#define DOC_SURFACEUBLITS "ublits(blit_sequence=((source, dest), ...), blend_flags, return_rects) -> [Rect, ...] or None\ndraw many images onto another, all with the full rect and same blend_flag"
 #define DOC_SURFACECONVERT "convert(Surface=None) -> Surface\nconvert(depth, flags=0) -> Surface\nconvert(masks, flags=0) -> Surface\nchange the pixel format of an image"
 #define DOC_SURFACECONVERTALPHA "convert_alpha(Surface) -> Surface\nconvert_alpha() -> Surface\nchange the pixel format of an image including per pixel alphas"
 #define DOC_SURFACECOPY "copy() -> Surface\ncreate a new copy of a Surface"
@@ -72,8 +72,8 @@ pygame.Surface.blits
 draw many images onto another
 
 pygame.Surface.ublits
- ublits(blit_sequence=((source, dest), ...), special_flags, doreturn) -> [Rect, ...] or None
-draw many images onto another, with the full rect and same special_flags
+ ublits(blit_sequence=((source, dest), ...), blend_flags, return_rects) -> [Rect, ...] or None
+draw many images onto another, all with the full rect and same blend_flag
 
 pygame.Surface.convert
  convert(Surface=None) -> Surface

@@ -2131,7 +2131,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     int doreturn = 1;
     int errornum = 0;
     int result;
-    int sx, sy;
     int flags_numeric;
 
     temp.x = 0;
@@ -2357,7 +2356,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 on_error:
     Py_XDECREF(retrect);
     Py_XDECREF(iterator);
-    Py_XDECREF(item);
     Py_XDECREF(ret);
 
     switch (errornum) {
