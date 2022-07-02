@@ -2249,7 +2249,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 Py_DECREF(retrect);
                 retrect = NULL; /* Clear to avoid double deref on errors */
             }
-        } while (item = PyIter_Next(iterator));
+        } while ((item = PyIter_Next(iterator)));
 
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
