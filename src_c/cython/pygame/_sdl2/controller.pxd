@@ -95,6 +95,12 @@ cdef extern from "SDL.h" nogil:
     SDL_bool SDL_IsGameController(int joystick_index)
     SDL_JoystickGUID SDL_JoystickGetGUID(SDL_Joystick* joystick)
 
+cdef extern from "../controllercompat.c" nogil:
+    int PG_GameControllerRumble(SDL_GameController *gamecontroller,
+                                Uint16 low_frequency_rumble,
+                                Uint16 high_frequency_rumble,
+                                Uint32 duration_ms)
+
 cdef bint _controller_autoinit()
 cdef void _controller_autoquit()
 

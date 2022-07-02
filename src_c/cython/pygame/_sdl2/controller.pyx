@@ -6,10 +6,6 @@ cdef extern from "../pygame.h" nogil:
     void import_pygame_joystick()
     void pg_RegisterQuit(object)
     void JOYSTICK_INIT_CHECK()
-    int PG_GameControllerRumble(SDL_GameController *gamecontroller,
-                                Uint16 low_frequency_rumble,
-                                Uint16 high_frequency_rumble,
-                                Uint32 duration_ms)
 
 cdef extern from "SDL.h" nogil:
     void SDL_free(void *mem)
