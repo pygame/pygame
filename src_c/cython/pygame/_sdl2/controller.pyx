@@ -256,8 +256,9 @@ cdef class Controller:
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
 
-        res = PG_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
-        return bool(res)
+        return not PG_GameControllerRumble(
+            self._controller, low * 0xFFFF, high * 0xFFFF, duration
+        )
 
     def stop_rumble(self):
         """

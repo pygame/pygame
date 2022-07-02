@@ -64,9 +64,11 @@
 
 #define JPEG_QUALITY 85
 
+/*
 #ifdef WITH_THREAD
 static SDL_mutex *_pg_img_mutex = 0;
-#endif /* WITH_THREAD */
+#endif
+*/
 
 #ifdef WIN32
 #include <windows.h>
@@ -447,16 +449,18 @@ imageext_get_sdl_image_version(PyObject *self, PyObject *_null)
                          SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
 }
 
-#ifdef WITH_THREAD
+/*
 static void
 _imageext_free(void *ptr)
 {
+#ifdef WITH_THREAD
     if (_pg_img_mutex) {
         SDL_DestroyMutex(_pg_img_mutex);
         _pg_img_mutex = 0;
     }
+#endif
 }
-#endif /* WITH_THREAD */
+*/
 
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
@@ -471,14 +475,15 @@ static PyMethodDef _imageext_methods[] = {
 
 MODINIT_DEFINE(imageext)
 {
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "imageext", _imageext_doc, -1,
-        _imageext_methods,     NULL,       NULL,          NULL,
-#ifdef WITH_THREAD
-        _imageext_free};
-#else  /* ~WITH_THREAD */
-                                         0};
-#endif /* ~WITH_THREAD */
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "imageext",
+                                         _imageext_doc,
+                                         -1,
+                                         _imageext_methods,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL}; /* _imageext_free commented */
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -497,13 +502,15 @@ MODINIT_DEFINE(imageext)
         return NULL;
     }
 
-#ifdef WITH_THREAD
-    _pg_img_mutex = SDL_CreateMutex();
-    if (!_pg_img_mutex) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        return NULL;
-    }
-#endif /* WITH_THREAD */
+    /*
+    #ifdef WITH_THREAD
+        _pg_img_mutex = SDL_CreateMutex();
+        if (!_pg_img_mutex) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            return NULL;
+        }
+    #endif
+    */
 
     /* create the module */
     return PyModule_Create(&_module);

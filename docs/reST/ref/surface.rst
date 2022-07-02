@@ -443,6 +443,9 @@
 
       This function will temporarily lock and unlock the Surface as needed.
 
+      .. note:: If the surface is palettized, the pixel color will be set to the
+                most similar color in the palette.
+
       .. ## Surface.set_at ##
 
    .. method:: get_at_mapped

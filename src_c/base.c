@@ -2097,7 +2097,7 @@ MODINIT_DEFINE(base)
 {
     PyObject *module, *apiobj, *atexit;
     PyObject *atexit_register;
-#if !defined(BUILD_STATIC) || defined(NO_PYGAME_C_API)
+#if !(defined(BUILD_STATIC) && defined(NO_PYGAME_C_API))
     // only pointer via C-api will be used, no need to keep global.
     PyObject *pgExc_SDLError;
 #endif
