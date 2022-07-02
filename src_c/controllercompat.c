@@ -6,7 +6,7 @@
 #include <SDL.h>
 
 /*
- * Compat thing for controller (see https://github.com/pygame/pygame/pull/3270)
+ * Compat thing for controller (see https://github.com/pygame/pygame/pull/3272)
  */
 int
 PG_GameControllerRumble(SDL_GameController *gamecontroller,
