@@ -131,6 +131,9 @@ class BlitTest(unittest.TestCase):
             print(f"Surface.blits generator: {t1 - t0}")
 
     def test_ublits(self):
+        import sys
+        if sys.version_info < (3, 7):
+            return
 
         NUM_SURFS = 255
         PRINT_TIMING = 0
