@@ -132,6 +132,7 @@ class BlitTest(unittest.TestCase):
 
     def test_ublits(self):
         import sys
+
         if sys.version_info < (3, 7):
             return
 
