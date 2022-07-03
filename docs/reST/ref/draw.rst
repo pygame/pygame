@@ -148,6 +148,40 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    .. ## pygame.draw.polygon ##
 
+.. function:: polygons
+
+   | :sl:`draw a sequence of polygons on a surface`
+   | :sg:`polygons(surface, draw_sequence) -> None`
+
+   Draws a sequence of polygons on the given surface.
+
+   :param surface: the surface to draw the polygons on
+   :param draw_sequence: a sequence of (points, color, width) where:
+
+        - points: a sequence of 3 or more (x, y) coordinates that make up the vertices
+                  of the polygon, each *coordinate* in the sequence must be a
+                  tuple/list/:class:`pygame.math.Vector2` of 2 ints/floats,
+                  e.g. ``[(x1, y1), (x2, y2), (x3, y3)]``
+
+        - color: the color to draw the polygon with, the alpha value is optional if
+                 using a tuple ``(RGB[A])``
+
+        - width(optional): indicates the thickness of the polygon (default=0)
+                           | if width == 0, fill the polygon
+                           | if width > 0, used for line thickness
+                           | if width < 0, nothing will be drawn
+
+   :returns: always returns `None`
+   :rtype: None
+
+   .. note:: Takes positional only arguments in the order: surface, draw_sequence
+
+   :raises ValueError: if ``len(points) < 3`` (must have at least 3 points)
+   :raises TypeError: if ``points`` is not a sequence or ``points`` does not
+      contain number pairs
+
+   .. ## pygame.draw.polygons ##
+
 .. function:: circle
 
    | :sl:`draw a circle`

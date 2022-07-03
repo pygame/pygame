@@ -10,7 +10,6 @@ from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
 from pygame.math import Vector2
 
-
 RED = BG_RED = pygame.Color("red")
 GREEN = FG_GREEN = pygame.Color("green")
 
@@ -167,6 +166,7 @@ class DrawTestCase(unittest.TestCase):
 
     draw_rect = staticmethod(draw.rect)
     draw_polygon = staticmethod(draw.polygon)
+    draw_polygons = staticmethod(draw.polygons)
     draw_circle = staticmethod(draw.circle)
     draw_ellipse = staticmethod(draw.ellipse)
     draw_arc = staticmethod(draw.arc)
@@ -182,6 +182,7 @@ class PythonDrawTestCase(unittest.TestCase):
     # draw_py is currently missing some functions.
     # draw_rect    = staticmethod(draw_py.draw_rect)
     draw_polygon = staticmethod(draw_py.draw_polygon)
+    draw_polygons = staticmethod(draw.polygons)
     # draw_circle  = staticmethod(draw_py.draw_circle)
     # draw_ellipse = staticmethod(draw_py.draw_ellipse)
     # draw_arc     = staticmethod(draw_py.draw_arc)
@@ -4403,6 +4404,191 @@ class DrawPolygonMixin:
                     self.assertEqual(surface.get_at(pt), expected_color, pt)
 
                 surface.unlock()
+
+    def test_polygons__args(self):
+        """Ensures draw polygons accepts the correct args."""
+        ret = self.draw_polygons(
+            pygame.Surface((3, 3)), [((0, 10, 0, 50), ((0, 0), (1, 1), (2, 2)), 1)]
+        )
+
+        self.assertIsInstance(ret, type(None))
+
+    def test_polygons__nargs(self):
+        """Ensures draw polygons accepts the correct number of args."""
+        self.assertRaises(ValueError, self.draw_polygons)
+        self.assertRaises(
+            ValueError, lambda: self.draw_polygons(pygame.Surface((3, 3)))
+        )
+        # args number > 2 are ignored
+
+    def test_polygons__arg_invalid_types(self):
+        """Ensures draw polygons detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color("blue")
+        points = ((0, 1), (1, 2), (1, 3))
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            self.draw_polygons(surface, [(color, points, "1")])
+
+        with self.assertRaises(TypeError):
+            # Invalid points.
+            self.draw_polygons(surface, [(color, (1, 2, 3))])
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            self.draw_polygons(surface, [(2.3, points)])
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            self.draw_polygons((1, 2, 3, 4), [(color, points)])
+
+    def test_polygons__args_without_width(self):
+        """Ensures draw polygons accepts the args without a width."""
+        ret = self.draw_polygons(
+            pygame.Surface((2, 2)), [((0, 0, 0, 50), ((0, 0), (1, 1), (2, 2)))]
+        )
+
+        self.assertIsInstance(ret, type(None))
+
+    def test_polygons__surface_clip(self):
+        """Ensures draw polygons respects a surface's clip area.
+
+        Tests drawing the polygon filled and unfilled.
+        """
+        surfw = surfh = 30
+        polygon_color = pygame.Color("red")
+        surface_color = pygame.Color("green")
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (8, 10))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy()  # Manages the polygon's pos.
+
+        for width in (0, 1):  # Filled and unfilled.
+            # Test centering the polygon along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the polygon without the
+                # clip area set.
+                pos_rect.center = center
+                vertices = (
+                    pos_rect.topleft,
+                    pos_rect.topright,
+                    pos_rect.bottomright,
+                    pos_rect.bottomleft,
+                )
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_polygons(surface, [(polygon_color, vertices, width)])
+                expected_pts = get_color_points(surface, polygon_color, clip_rect)
+
+                # Clear the surface and set the clip area. Redraw the polygon
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
+
+                self.draw_polygons(surface, [(polygon_color, vertices, width)])
+
+                surface.lock()  # For possible speed up.
+
+                # Check all the surface points to ensure only the expected_pts
+                # are the polygon_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = polygon_color
+                    else:
+                        expected_color = surface_color
+
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+                surface.unlock()
+
+    def test_draw_polygons_square(self):
+        self.draw_polygons(self.surface, [(RED, SQUARE, 0)])
+        # note : there is a discussion (#234) if draw.polygon should include or
+        # not the right or lower border; here we stick with current behavior,
+        # eg include those borders ...
+        for x in range(4):
+            for y in range(4):
+                self.assertEqual(self.surface.get_at((x, y)), RED)
+
+    def test_draw_polygons_diamond(self):
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        self.draw_polygons(self.surface, [(GREEN, DIAMOND, 0)])
+        # this diamond shape is equivalent to its four corners, plus inner square
+        for x, y in DIAMOND:
+            self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
+        for x in range(2, 5):
+            for y in range(2, 5):
+                self.assertEqual(self.surface.get_at((x, y)), GREEN)
+
+    def test_polygons_illumine_shape(self):
+        """non-regression on issue #313"""
+        rect = pygame.Rect((0, 0, 20, 20))
+        path_data = [
+            (0, 0),
+            (rect.width - 1, 0),  # upper border
+            (rect.width - 5, 5 - 1),
+            (5 - 1, 5 - 1),  # upper inner
+            (5 - 1, rect.height - 5),
+            (0, rect.height - 1),
+        ]  # lower diagonal
+        # The shape looks like this (the numbers are the indices of path_data)
+
+        # 0**********************1              <-- upper border
+        # ***********************
+        # **********************
+        # *********************
+        # ****3**************2                  <-- upper inner border
+        # *****
+        # *****                   (more lines here)
+        # *****
+        # ****4
+        # ****
+        # ***
+        # **
+        # 5
+        #
+
+        # the current bug is that the "upper inner" line is not drawn, but only
+        # if 4 or some lower corner exists
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+
+        # 1. First without the corners 4 & 5
+        self.draw_polygons(self.surface, [(GREEN, path_data[:4], 0)])
+        for x in range(20):
+            self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
+        for x in range(4, rect.width - 5 + 1):
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
+
+        # 2. with the corners 4 & 5
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+        self.draw_polygons(self.surface, [(GREEN, path_data, 0)])
+        for x in range(4, rect.width - 5 + 1):
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
+
+    def test_polygons__invalid_points_formats(self):
+        """Ensures draw polygons handles invalid points formats correctly."""
+
+        color = pygame.Color("red")
+        width = 0
+
+        points_fmts = (
+            ((1, 1), (2, 1), (2,)),  # Too few coords.
+            ((1, 1), (2, 1), (2, 2, 2)),  # Too many coords.
+            ((1, 1), (2, 1), (2, "2")),  # Wrong type.
+            ((1, 1), (2, 1), {2, 3}),  # Wrong type.
+            ((1, 1), (2, 1), dict(((2, 2), (3, 3)))),  # Wrong type.
+            {(1, 1), (2, 1), (2, 2), (1, 2)},  # Wrong type.
+            dict(((1, 1), (2, 2), (3, 3), (4, 4))),
+        )  # Wrong type.
+
+        for points in points_fmts:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygons(
+                    pygame.Surface((4, 4)), [(color, points, width)]
+                )
 
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):

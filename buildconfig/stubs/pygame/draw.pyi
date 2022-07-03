@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from pygame.rect import Rect
 from pygame.surface import Surface
@@ -22,6 +22,10 @@ def polygon(
     points: Sequence[Coordinate],
     width: int = 0,
 ) -> Rect: ...
+def polygons(
+        surface: Surface,
+        draw_sequence: Sequence[Tuple[Sequence[Coordinate], ColorValue, Optional[int]]]
+) -> None: ...
 def circle(
     surface: Surface,
     color: ColorValue,
