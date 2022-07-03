@@ -2108,6 +2108,8 @@ bliterror:
     return RAISE(PyExc_TypeError, "Unknown error");
 }
 
+#if PY_VERSION_HEX >= 0x03070000
+
 #define UBLITS_ERR_TUPLE_REQUIRED 11
 #define UBLITS_ERR_INSUFFICIENT_ARGS 12
 #define UBLITS_ERR_FLAG_NOT_NUMERIC 13
@@ -2403,6 +2405,16 @@ on_error:
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
+#else
+
+static PyObject *
+surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    return RAISE(PyExc_NotImplementedError,
+                 "ublits is not compatible with Python 3.6 or older");
+}
+
+#endif
 
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
