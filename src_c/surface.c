@@ -173,8 +173,13 @@ static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
+#if PY_VERSION_HEX >= 0x03070000
 static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
+#else
+static PyObject *
+surf_ublits(pgSurfaceObject *self, PyObject *args);
+#endif
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
@@ -344,8 +349,11 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
+#if PY_VERSION_HEX >= 0x03070000
     {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
-
+#else
+    {"ublits", (PyCFunction)surf_ublits, METH_NOARGS, DOC_SURFACEUBLITS},
+#endif
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
 
@@ -2109,7 +2117,6 @@ bliterror:
 }
 
 #if PY_VERSION_HEX >= 0x03070000
-
 #define UBLITS_ERR_TUPLE_REQUIRED 11
 #define UBLITS_ERR_INSUFFICIENT_ARGS 12
 #define UBLITS_ERR_FLAG_NOT_NUMERIC 13
@@ -2408,7 +2415,7 @@ on_error:
 #else
 
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+surf_ublits(pgSurfaceObject *self, PyObject *args)
 {
     return RAISE(PyExc_NotImplementedError,
                  "ublits is not compatible with Python 3.6 or older");
