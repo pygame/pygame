@@ -178,7 +178,7 @@ static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
 #else
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *args);
+surf_ublits(pgSurfaceObject *self, PyObject *_null);
 #endif
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
@@ -2415,7 +2415,7 @@ on_error:
 #else
 
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *args)
+surf_ublits(pgSurfaceObject *self, PyObject *_null)
 {
     return RAISE(PyExc_NotImplementedError,
                  "ublits is not compatible with Python 3.6 or older");
