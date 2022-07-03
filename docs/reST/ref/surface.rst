@@ -173,6 +173,12 @@
          ``True``, otherwise ``None``
       :rtype: list or None
 
+      .. note:: This function only accepts a sequence of (surf, dest) pairs and a single blend_flag.
+                This knowledge is used to achieve faster iteration over the sequence and
+                therefore better performance whereas blits() simply cannot. Further
+                optimizations are applied if the blit_sequence parameter is a list or a tuple
+                (using one of them is recommended).
+
       .. ## Surface.ublits ##
 
 
