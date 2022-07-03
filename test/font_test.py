@@ -118,7 +118,7 @@ class FontModuleTest(unittest.TestCase):
         for font in fonts:
             path = pygame_font.match_font(font)
             self.assertFalse(path is None)
-            self.assertTrue(os.path.isabs(path))
+            self.assertTrue(os.path.isabs(path) and os.path.isfile(path))
 
     def test_match_font_name(self):
         """That match_font accepts names of various types"""
