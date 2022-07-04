@@ -150,8 +150,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     int src_locked = 0;
     int dst_locked = 0;
 
-    //printf("src=%p, dst=%p\n", src, dst);
-
     /* Lock the destination if it's in hardware */
     if (SDL_MUSTLOCK(dst)) {
         if (SDL_LockSurface(dst) < 0)
@@ -203,16 +201,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         bottomdstrect.w = dstrect->w;
         bottomdstrect.h = dstrect->h - dstmedian;
 
-        // PRINT_RECT("topsrcrect", topsrcrect)
-        // PRINT_RECT("bottomsrcrect", bottomsrcrect)
-        // PRINT_RECT("topdstrect", topdstrect)
-        // PRINT_RECT("bottomdstrect", bottomdstrect)
-
-        // okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
-
-        // okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect,
-        // the_args);
-
         _ThreadBlitState.src = src;
         _ThreadBlitState.srcrect = &bottomsrcrect;
         _ThreadBlitState.dst = dst;
@@ -229,9 +217,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             okay = 0;
         }
     }
-
-    // okay |= _SoftBlitInternal(src, &bottomsrcrect, dst, &bottomdstrect,
-    // the_args);
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
