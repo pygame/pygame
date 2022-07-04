@@ -150,6 +150,8 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     int src_locked = 0;
     int dst_locked = 0;
 
+    //printf("src=%p, dst=%p\n", src, dst);
+
     /* Lock the destination if it's in hardware */
     if (SDL_MUSTLOCK(dst)) {
         if (SDL_LockSurface(dst) < 0)
@@ -165,42 +167,47 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             src_locked = 1;
     }
 
-    SDL_Rect topsrcrect = {0};
-    SDL_Rect bottomsrcrect = {0};
+    /* Don't even try to thread a self blit. Seems like a recipe for trouble */
+    if (okay && src == dst) {
+        okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
+    }
 
-    int srcmedian = srcrect->h / 2;
+    else if (okay) {
+        SDL_Rect topsrcrect = {0};
+        SDL_Rect bottomsrcrect = {0};
 
-    topsrcrect.x = srcrect->x;
-    topsrcrect.y = srcrect->y;
-    topsrcrect.w = srcrect->w;
-    topsrcrect.h = srcmedian;
+        int srcmedian = srcrect->h / 2;
 
-    bottomsrcrect.x = srcrect->x;
-    bottomsrcrect.y = srcrect->y + srcmedian;
-    bottomsrcrect.w = srcrect->w;
-    bottomsrcrect.h = srcrect->h - srcmedian;
+        topsrcrect.x = srcrect->x;
+        topsrcrect.y = srcrect->y;
+        topsrcrect.w = srcrect->w;
+        topsrcrect.h = srcmedian;
 
-    SDL_Rect topdstrect = {0};
-    SDL_Rect bottomdstrect = {0};
+        bottomsrcrect.x = srcrect->x;
+        bottomsrcrect.y = srcrect->y + srcmedian;
+        bottomsrcrect.w = srcrect->w;
+        bottomsrcrect.h = srcrect->h - srcmedian;
 
-    int dstmedian = srcrect->h / 2;
+        SDL_Rect topdstrect = {0};
+        SDL_Rect bottomdstrect = {0};
 
-    topdstrect.x = dstrect->x;
-    topdstrect.y = dstrect->y;
-    topdstrect.w = dstrect->w;
-    topdstrect.h = dstmedian;
+        int dstmedian = srcrect->h / 2;
 
-    bottomdstrect.x = dstrect->x;
-    bottomdstrect.y = dstrect->y + srcmedian;
-    bottomdstrect.w = dstrect->w;
-    bottomdstrect.h = dstrect->h - dstmedian;
+        topdstrect.x = dstrect->x;
+        topdstrect.y = dstrect->y;
+        topdstrect.w = dstrect->w;
+        topdstrect.h = dstmedian;
 
-    // PRINT_RECT("topsrcrect", topsrcrect)
-    // PRINT_RECT("bottomsrcrect", bottomsrcrect)
-    // PRINT_RECT("topdstrect", topdstrect)
-    // PRINT_RECT("bottomdstrect", bottomdstrect)
+        bottomdstrect.x = dstrect->x;
+        bottomdstrect.y = dstrect->y + srcmedian;
+        bottomdstrect.w = dstrect->w;
+        bottomdstrect.h = dstrect->h - dstmedian;
 
-    if (okay) {
+        // PRINT_RECT("topsrcrect", topsrcrect)
+        // PRINT_RECT("bottomsrcrect", bottomsrcrect)
+        // PRINT_RECT("topdstrect", topdstrect)
+        // PRINT_RECT("bottomdstrect", bottomdstrect)
+
         // okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
 
         // okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect,
@@ -221,10 +228,10 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         if (!_ThreadBlitState.exit_code) {
             okay = 0;
         }
-
-        // okay |= _SoftBlitInternal(src, &bottomsrcrect, dst, &bottomdstrect,
-        // the_args);
     }
+
+    // okay |= _SoftBlitInternal(src, &bottomsrcrect, dst, &bottomdstrect,
+    // the_args);
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
