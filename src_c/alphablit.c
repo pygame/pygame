@@ -105,24 +105,37 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo *info);
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                SDL_Rect *dstrect, int the_args);
+static int
+_SoftBlitInternal(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                  SDL_Rect *dstrect, int the_args);
+
+struct _ThreadBlitArg {
+    SDL_Surface *src;
+    SDL_Rect *srcrect;
+    SDL_Surface *dst;
+    SDL_Rect *dstrect;
+    int the_args;
+};
+
+static int 
+_ThreadBlitFunc(void* arg);
+
 extern int
 SDL_RLESurface(SDL_Surface *surface);
 extern void
 SDL_UnRLESurface(SDL_Surface *surface, int recode);
 
+#define PRINT_RECT(name, rect) printf("%s = <x=%i, y=%i, w=%i, h=%i>\n", name, rect->x, rect->y, rect->w, rect->h);
+
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                SDL_Rect *dstrect, int the_args)
 {
-    int okay;
-    int src_locked;
-    int dst_locked;
-
-    /* Everything is okay at the beginning...  */
-    okay = 1;
+    int okay = 1; /* Everything is okay at the beginning...  */
+    int src_locked = 0;
+    int dst_locked = 0;
 
     /* Lock the destination if it's in hardware */
-    dst_locked = 0;
     if (SDL_MUSTLOCK(dst)) {
         if (SDL_LockSurface(dst) < 0)
             okay = 0;
@@ -130,13 +143,90 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             dst_locked = 1;
     }
     /* Lock the source if it's in hardware */
-    src_locked = 0;
     if (SDL_MUSTLOCK(src)) {
         if (SDL_LockSurface(src) < 0)
             okay = 0;
         else
             src_locked = 1;
     }
+
+    SDL_Rect topsrcrect = {0};
+    SDL_Rect bottomsrcrect = {0};
+
+    int srcmedian = srcrect->h / 2;
+
+    topsrcrect.x = srcrect->x;
+    topsrcrect.y = srcrect->y;
+    topsrcrect.w = srcrect->w;
+    topsrcrect.h = srcmedian;
+
+    bottomsrcrect.x = srcrect->x;
+    bottomsrcrect.y = srcmedian;
+    bottomsrcrect.w = srcrect->w;
+    bottomsrcrect.h = srcrect->h - srcmedian;
+
+    SDL_Rect topdstrect = {0};
+    SDL_Rect bottomdstrect = {0};
+
+    int dstmedian = srcrect->h / 2;
+
+    topdstrect.x = dstrect->x;
+    topdstrect.y = dstrect->y;
+    topdstrect.w = dstrect->w;
+    topdstrect.h = dstmedian;
+
+    bottomdstrect.x = dstrect->x;
+    bottomdstrect.y = srcmedian;
+    bottomdstrect.w = dstrect->w;
+    bottomdstrect.h = dstrect->h - dstmedian;
+
+    //PRINT_RECT("topsrcrect", topsrcrect)
+    //PRINT_RECT("topsrcrect", topsrcrect)
+    //PRINT_RECT("topsrcrect", topsrcrect)
+    //PRINT_RECT("topsrcrect", topsrcrect)
+
+    if (okay) {
+        // okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
+        okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
+
+        struct _ThreadBlitArg blitargs = {0};
+        blitargs.src = src;
+        blitargs.srcrect = &bottomsrcrect;
+        blitargs.dst = dst;
+        blitargs.dstrect = &bottomdstrect;
+        blitargs.the_args = the_args;
+
+        SDL_Thread* thread = SDL_CreateThread(_ThreadBlitFunc, "pygame auxilary blit thread", &blitargs);
+        int okay2;
+        SDL_WaitThread(thread, &okay2);
+        if (!okay2) {
+            okay = 0;
+        }
+
+        //okay |= _SoftBlitInternal(src, &bottomsrcrect, dst, &bottomdstrect, the_args);
+    }
+
+    /* We need to unlock the surfaces if they're locked */
+    if (dst_locked)
+        SDL_UnlockSurface(dst);
+    if (src_locked)
+        SDL_UnlockSurface(src);
+
+    /* Blit is done! */
+    return (okay ? 0 : -1);
+}
+
+static int 
+_ThreadBlitFunc(void* arg) {
+    struct _ThreadBlitArg* blitargs = (struct _ThreadBlitArg*) arg;
+    return _SoftBlitInternal(blitargs->src, blitargs->srcrect, blitargs->dst, blitargs->dstrect, blitargs->the_args);
+}
+
+static int
+_SoftBlitInternal(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                  SDL_Rect *dstrect, int the_args)
+{
+    int okay = 1; /* everything is okay at the beginning */
 
     /* Set up source and destination buffer pointers, and BLIT! */
     if (okay && srcrect->w && srcrect->h) {
@@ -740,14 +830,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             }
         }
     }
-
-    /* We need to unlock the surfaces if they're locked */
-    if (dst_locked)
-        SDL_UnlockSurface(dst);
-    if (src_locked)
-        SDL_UnlockSurface(src);
-    /* Blit is done! */
-    return (okay ? 0 : -1);
+    return okay;
 }
 
 /* --------------------------------------------------------- */
