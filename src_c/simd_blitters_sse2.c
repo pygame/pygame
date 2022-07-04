@@ -19,6 +19,14 @@
 #endif
 #endif
 
+#define RAISE_SSE2_RUNTIME_NOSSE2_COMPILED_WARNING()         \
+    char warning[128];                                       \
+    PyOS_snprintf(warning, sizeof(warning),                  \
+                  "Blitting with Non-SIMD blitter on"        \
+                  "SSE2/Neon capable system. Pygame may"     \
+                  "be compiled without SSE2/Neon support."); \
+    PyErr_WarnEx(PyExc_RuntimeWarning, warning, 0)
+
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 #if defined(ENV64BIT)
 void
@@ -897,3 +905,76 @@ blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
     }
 }
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+void
+premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
+{
+    int n;
+    int width = src->w;
+    int height = src->h;
+    Uint32 *srcp = (Uint32 *)src->pixels;
+    Uint32 *dstp = (Uint32 *)dst->pixels;
+
+    SDL_PixelFormat *srcfmt = src->format;
+    Uint32 amask = srcfmt->Amask;
+    Uint64 multmask;
+    Uint64 ones;
+
+    __m128i src1, dst1, rgb_mul_src, mm_alpha, mm_alpha_in, mm_zero, ones_128;
+
+    mm_zero = _mm_setzero_si128();
+    ones = 0x0001000100010001;
+    ones_128 = _mm_loadl_epi64((const __m128i *)&ones);
+
+    while (height--) {
+        /* *INDENT-OFF* */
+        LOOP_UNROLLED4(
+            {
+                Uint32 alpha = *srcp & amask;
+                if (alpha == amask) {
+                    *dstp = *srcp;
+                }
+                else {
+                    /* extract source pixels */
+                    src1 = _mm_cvtsi32_si128(
+                        *srcp); /* src(ARGB) -> src1 (000000000000ARGB) */
+                    src1 = _mm_unpacklo_epi8(
+                        src1, mm_zero); /* 000000000A0R0G0B -> src1 */
+
+                    /* extract source alpha and copy to r, g, b channels */
+                    mm_alpha_in = _mm_cvtsi32_si128(
+                        alpha); /* alpha -> mm_alpha (000000000000A000) */
+                    mm_alpha = _mm_srli_si128(
+                        mm_alpha_in, 3); /* mm_alpha >> ashift ->
+                                            mm_alpha(000000000000000A) */
+                    mm_alpha = _mm_unpacklo_epi16(
+                        mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
+                    mm_alpha = _mm_unpacklo_epi32(
+                        mm_alpha,
+                        mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
+
+                    /* rgb alpha multiply */
+                    rgb_mul_src = _mm_add_epi16(src1, ones_128);
+                    rgb_mul_src = _mm_mullo_epi16(rgb_mul_src, mm_alpha);
+                    rgb_mul_src = _mm_srli_epi16(rgb_mul_src, 8);
+                    dst1 = _mm_packus_epi16(rgb_mul_src, mm_zero);
+                    dst1 = _mm_max_epu8(mm_alpha_in,
+                                        dst1); /* restore original alpha */
+
+                    *dstp = _mm_cvtsi128_si32(dst1);
+                }
+                ++srcp;
+                ++dstp;
+            },
+            n, width);
+    }
+}
+#else
+void
+premul_surf_color_by_alpha_sse2(SDL_BlitInfo *info)
+{
+    RAISE_SSE2_RUNTIME_NOSSE2_COMPILED_WARNING();
+    premul_surf_color_by_alpha_non_simd(info);
+}
+#endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/

@@ -3926,3 +3926,62 @@ pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 {
     return pygame_Blit(src, srcrect, dst, dstrect, the_args);
 }
+
+int
+premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst)
+{
+    SDL_BlendMode src_blend;
+    SDL_GetSurfaceBlendMode(src, &src_blend);
+    if (src_blend == SDL_BLENDMODE_NONE && !(src->format->Amask != 0))
+        return -1;
+    // since we know dst is a copy of src we can simplify the normal checks
+    if ((src->format->BytesPerPixel == 4) &&
+        (SDL_HasSSE2() || SDL_HasNEON())) {
+        premul_surf_color_by_alpha_sse2(src, dst);
+    }
+    else {
+        premul_surf_color_by_alpha_non_simd(src, dst);
+    }
+
+    return 0;
+}
+
+void
+premul_surf_color_by_alpha_non_simd(SDL_Surface *src, SDL_Surface *dst)
+{
+    SDL_PixelFormat *srcfmt = src->format;
+    SDL_PixelFormat *dstfmt = dst->format;
+    int width = src->w;
+    int height = src->h;
+    int srcbpp = srcfmt->BytesPerPixel;
+    int dstbpp = dstfmt->BytesPerPixel;
+    Uint8 *src_pixels = (Uint8 *)src->pixels;
+    Uint8 *dst_pixels = (Uint8 *)dst->pixels;
+
+    int srcpxskip = src->format->BytesPerPixel;
+    int dstpxskip = dst->format->BytesPerPixel;
+
+    int srcppa = SDL_TRUE;
+
+    int n;
+    int pixel;
+    Uint8 dR, dG, dB, dA, sR, sG, sB, sA;
+    double alpha;
+
+    while (height--) {
+        LOOP_UNROLLED4(
+            {
+                GET_PIXEL(pixel, srcbpp, src_pixels);
+                GET_PIXELVALS(sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                alpha = sA / 255.0;
+                dR = (Uint8)(((sR + 1) * sA) >> 8);
+                dG = (Uint8)(((sG + 1) * sA) >> 8);
+                dB = (Uint8)(((sB + 1) * sA) >> 8);
+                dA = sA;
+                CREATE_PIXEL(dst_pixels, dR, dG, dB, dA, dstbpp, dstfmt);
+                src_pixels += srcpxskip;
+                dst_pixels += dstpxskip;
+            },
+            n, width);
+    }
+}

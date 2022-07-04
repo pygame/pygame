@@ -352,4 +352,7 @@ int
 pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             SDL_Rect *dstrect, int the_args);
 
+int
+premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst);
+
 #endif /* SURFACE_H */

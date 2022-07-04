@@ -49,6 +49,7 @@
 #define DOC_SURFACEGETVIEW "get_view(<kind>='2') -> BufferProxy\nreturn a buffer view of the Surface's pixels."
 #define DOC_SURFACEGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the pixels of the Surface."
 #define DOC_SURFACEPIXELSADDRESS "_pixels_address -> int\npixel buffer address"
+#define DOC_SURFACEPREMULALPHA "premul_alpha() -> Surface\nreturns a copy of the surface with the RGB channels pre-multiplied by the alpha channel."
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -263,5 +264,9 @@ acquires a buffer object for the pixels of the Surface.
 pygame.Surface._pixels_address
  _pixels_address -> int
 pixel buffer address
+
+pygame.Surface.premul_alpha
+ premul_alpha() -> Surface
+returns a copy of the surface with the RGB channels pre-multiplied by the alpha channel.
 
 */

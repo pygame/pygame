@@ -902,4 +902,26 @@
 
       .. versionadded:: 1.9.2
 
+   .. method:: premul_alpha
+
+      | :sl:`returns a copy of the surface with the RGB channels pre-multiplied by the alpha channel.`
+      | :sg:`premul_alpha() -> Surface`
+
+      Returns a copy of the initial surface with the Red, Green and Blue color channels multiplied
+      by the alpha channel. This is intended to make it easier to work with the BLEND_PREMULTIPLED
+      blend mode flag of the blit() method.
+
+      Surfaces without an alpha channel cannot use this method and will return an error if you use
+      it on them. It is best used on 32 bit surfaces (the default on most platforms) as the blitting
+      on these surfaces can be accelerated by SIMD versions of the pre-multiplied blitter.
+
+      In general pre-multiplied alpha blitting is faster then 'straight alpha' blitting and produces
+      superior results when blitting an alpha surface onto another surface with alpha.
+
+      .. versionadded:: 2.1.4
+
+      .. ## Surface.premul_alpha ##
+
    .. ## pygame.Surface ##
+
+
