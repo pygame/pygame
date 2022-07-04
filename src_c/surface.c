@@ -2159,10 +2159,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     /* Generator */
     if (PyGen_Check(blitsequence)) {
-        if (!(PyIter_Check(blitsequence))) {
-            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
-            goto on_error;
-        }
         iterator = PyObject_GetIter(blitsequence);
         if (!iterator) {
             return NULL;
@@ -2182,9 +2178,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
 
         do {
-            /* We know that there will be at least two items due to the
-                   conditional at the start of the loop */
-            assert(itemlength == 2);
 
             /* (Surface, dest) */
             srcobject = PySequence_ITEM(item, 0);
@@ -2265,10 +2258,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 errornum = UBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
-
-            /* We know that there will be at least two items due to the
-               conditional at the start of the loop */
-            assert(itemlength == 2);
 
             /* (Surface, dest)
              * using PyTuple_GET_ITEM for better perf
