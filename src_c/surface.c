@@ -2120,6 +2120,7 @@ bliterror:
 #define UBLITS_ERR_TUPLE_REQUIRED 11
 #define UBLITS_ERR_INSUFFICIENT_ARGS 12
 #define UBLITS_ERR_FLAG_NOT_NUMERIC 13
+#define UBLITS_ERR_DORETURN_NOT_NUMERIC 14
 #define UBLITS_SERR_LISTORTUPLE_REQUIRED \
     "blit_sequence can only be a list or a tuple"
 static PyObject *
@@ -2132,8 +2133,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     PyObject *blitsequence, *tmpblitseq;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
+    PyObject *ret = NULL;
+    PyObject *retrect = NULL;
     PyObject **f_blitsequence;
     Py_ssize_t itemlength, sequencelength, seq_counter;
+    int doreturn = 1;
     int errornum = 0;
     int result;
     int flags_numeric;
@@ -2141,7 +2145,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     temp.x = 0;
     temp.y = 0;
 
-    if (nargs != 2) {
+    if (nargs < 3) {
         errornum = UBLITS_ERR_INSUFFICIENT_ARGS;
         goto on_error;
     }
@@ -2152,6 +2156,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto on_error;
     }
 
+    if (!pg_IntFromObj(args[2], &doreturn)) {
+        errornum = UBLITS_ERR_DORETURN_NOT_NUMERIC;
+        goto on_error;
+    }
+
     if (!dest) {
         errornum = BLITS_ERR_DISPLAY_SURF_QUIT;
         goto on_error;
@@ -2159,12 +2168,18 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     /* Generator */
     if (PyGen_Check(blitsequence)) {
+        if (doreturn) {
+            ret = PyList_New(0);
+            if (!ret)
+                return NULL;
+        }
         if (!(PyIter_Check(blitsequence))) {
             errornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto on_error;
         }
         iterator = PyObject_GetIter(blitsequence);
         if (!iterator) {
+            Py_XDECREF(ret);
             return NULL;
         }
 
@@ -2233,10 +2248,21 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 errornum = BLITS_ERR_BLIT_FAIL;
                 goto on_error;
             }
+            if (doreturn) {
+                retrect = NULL;
+                retrect = pgRect_New(&dest_rect);
+                if (PyList_Append(ret, retrect) != 0) {
+                    errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                    goto on_error;
+                }
+                Py_DECREF(retrect);
+                retrect = NULL; /* Clear to avoid double deref on errors */
+            }
         } while ((item = PyIter_Next(iterator)));
 
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
+            Py_XDECREF(ret);
             return NULL;
         }
     }
@@ -2250,6 +2276,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
+        if (doreturn) {
+            ret = PyList_New(sequencelength);
+            if (!ret)
+                return NULL;
+        }
         Py_DECREF(tmpblitseq);
         tmpblitseq = NULL;
         for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
@@ -2314,6 +2345,9 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 errornum = BLITS_ERR_BLIT_FAIL;
                 goto on_error;
             }
+            if (doreturn) {
+                PyList_SET_ITEM(ret, seq_counter, pgRect_New(&dest_rect));
+            }
         }
     }
     else {
@@ -2321,10 +2355,17 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto on_error;
     }
 
-    Py_RETURN_NONE;
+    if (doreturn) {
+        return ret;
+    }
+    else {
+        Py_RETURN_NONE;
+    }
 
 on_error:
+    Py_XDECREF(retrect);
     Py_XDECREF(iterator);
+    Py_XDECREF(ret);
 
     switch (errornum) {
         case BLITS_ERR_SEQUENCE_REQUIRED:
@@ -2360,10 +2401,14 @@ on_error:
         case UBLITS_ERR_INSUFFICIENT_ARGS:
             return RAISE(PyExc_ValueError,
                          "Function requires positional arguments in the "
-                         "order: blit_sequence, special_flags");
+                         "order: blit_sequence, special_flags, doreturn");
         case UBLITS_ERR_FLAG_NOT_NUMERIC:
             return RAISE(PyExc_ValueError,
                          "The special_flags parameter must be an int");
+        case UBLITS_ERR_DORETURN_NOT_NUMERIC:
+            return RAISE(
+                PyExc_ValueError,
+                "The doreturn parameter must either be a bool or numeric");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }

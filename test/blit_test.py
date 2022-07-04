@@ -151,6 +151,7 @@ class BlitTest(unittest.TestCase):
         # tests for number of parameters
         self.assertRaises(ValueError, dst.ublits)  # no params
         self.assertRaises(ValueError, dst.ublits, blit_list)  # 1 param
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0)  # 2 params
 
         # tests for the blit_sequence parameter
         self.assertRaises(ValueError, dst.ublits, [-1])
@@ -159,17 +160,28 @@ class BlitTest(unittest.TestCase):
         self.assertRaises(ValueError, dst.ublits, 1)
 
         # tests for the special_flags parameter
-        self.assertRaises(TypeError, dst.ublits, blit_list, -999)  # not impl. flag
-        self.assertRaises(ValueError, dst.ublits, blit_list, 12.332)  # float flag
-        self.assertRaises(ValueError, dst.ublits, blit_list, None)
-        self.assertRaises(ValueError, dst.ublits, blit_list, [])
-        self.assertRaises(ValueError, dst.ublits, blit_list, ())
-        self.assertRaises(ValueError, dst.ublits, blit_list, "str")
-        self.assertRaises(ValueError, dst.ublits, blit_list, "str")
+        self.assertRaises(
+            TypeError, dst.ublits, blit_list, -999, True
+        )  # not impl. flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, 12.332, True)  # float flag
+        self.assertRaises(ValueError, dst.ublits, blit_list, None, True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, [], True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, (), True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+        self.assertRaises(ValueError, dst.ublits, blit_list, "str", True)
+
+        # tests for the doreturn parameter
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, "str")
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, [1])
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, ())
+        self.assertRaises(ValueError, dst.ublits, blit_list, 0, (1,))
 
         # tests for return value
-        self.assertEqual(dst.ublits(blit_list, 0), None)
-        self.assertEqual(dst.ublits(blit_list, 1), dst.blits(blit_list, doreturn=0))
+        self.assertEqual(dst.ublits(blit_list, 0, False), None)
+        self.assertEqual(dst.ublits(blit_list, 0, True), dst.blits(blit_list))
+        l1, l2 = len(dst.ublits(blit_list, 0, True)), len(dst.blits(blit_list))
+        self.assertEqual(l1, l2)
 
         t0 = time()
         results = blits(blit_list)
@@ -179,7 +191,7 @@ class BlitTest(unittest.TestCase):
 
         dst.fill((230, 230, 230))
         t0 = time()
-        results = dst.ublits(blit_list, 0)
+        results = dst.ublits(blit_list, 0, 1)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits :{t1 - t0}")
@@ -190,15 +202,17 @@ class BlitTest(unittest.TestCase):
             self.assertEqual(dst.get_at((i * 10, 0)), color)
             self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
 
+        self.assertEqual(len(results), NUM_SURFS)
+
         t0 = time()
-        results = dst.ublits(blit_list, 0)
+        results = dst.ublits(blit_list, 0, 0)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits doreturn=0: {t1 - t0}")
         self.assertEqual(results, None)
 
         t0 = time()
-        results = dst.ublits(((surf, dest) for surf, dest in blit_list), 0)
+        results = dst.ublits(((surf, dest) for surf, dest in blit_list), 0, 1)
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.ublits generator: {t1 - t0}")
