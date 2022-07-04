@@ -918,7 +918,6 @@ premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
 
     SDL_PixelFormat *srcfmt = src->format;
     Uint32 amask = srcfmt->Amask;
-    Uint64 multmask;
     Uint64 ones;
 
     __m128i src1, dst1, rgb_mul_src, mm_alpha, mm_alpha_in, mm_zero, ones_128;
