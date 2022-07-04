@@ -3966,14 +3966,12 @@ premul_surf_color_by_alpha_non_simd(SDL_Surface *src, SDL_Surface *dst)
     int n;
     int pixel;
     Uint8 dR, dG, dB, dA, sR, sG, sB, sA;
-    double alpha;
 
     while (height--) {
         LOOP_UNROLLED4(
             {
                 GET_PIXEL(pixel, srcbpp, src_pixels);
                 GET_PIXELVALS(sR, sG, sB, sA, pixel, srcfmt, srcppa);
-                alpha = sA / 255.0;
                 dR = (Uint8)(((sR + 1) * sA) >> 8);
                 dG = (Uint8)(((sG + 1) * sA) >> 8);
                 dB = (Uint8)(((sB + 1) * sA) >> 8);
