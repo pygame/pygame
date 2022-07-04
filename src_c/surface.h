@@ -352,4 +352,7 @@ int
 pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             SDL_Rect *dstrect, int the_args);
 
+void
+_SetupThread();
+
 #endif /* SURFACE_H */
