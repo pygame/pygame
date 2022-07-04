@@ -971,9 +971,9 @@ premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
 }
 #else
 void
-premul_surf_color_by_alpha_sse2(SDL_BlitInfo *info)
+premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
 {
     RAISE_SSE2_RUNTIME_NOSSE2_COMPILED_WARNING();
-    premul_surf_color_by_alpha_non_simd(info);
+    premul_surf_color_by_alpha_non_simd(src, dst);
 }
 #endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/
