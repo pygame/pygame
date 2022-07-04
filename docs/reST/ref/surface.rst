@@ -157,21 +157,17 @@
    .. method:: ublits
 
       | :sl:`draw many images onto another, all with the full rect and same blend_flag`
-      | :sg:`ublits(blit_sequence=((source, dest), ...), blend_flags, return_rects) -> [Rect, ...] or None`
+      | :sg:`ublits(blit_sequence=((source, dest), ...), blend_flags) -> None`
 
       Draws many surfaces onto this Surface. It takes a sequence of tuples (source, dest) as input,
       and a blend_flags parameter that applies to every surface being drawn. All surfaces are fully drawn.
       It needs at minimum a sequence of (source, dest).
 
-      :param blit_sequence: a sequence of surfaces and arguments to blit them,
-         they correspond to the :meth:`blit()` arguments
+      :param blit_sequence: a sequence of (Surface, dest)
       :param blend_flags: the flag(s) representing the blend mode used for each surface
-      :param return_rects: if ``True``, return a list of rects of the areas changed,
-         otherwise return ``None``
 
-      :returns: a list of rects of the areas changed if ``return_rects`` is
-         ``True``, otherwise ``None``
-      :rtype: list or None
+      :returns: always returns ``None``
+      :rtype: None
 
       .. note:: ublits is compatible only with Python 3.7 and above
 
