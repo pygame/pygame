@@ -173,12 +173,11 @@ static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
-#if PY_VERSION_HEX >= 0x03070000
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
-#else
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
+#if PY_VERSION_HEX < 0x03070000
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *_null);
+surf_fblits_wrapper(pgSurfaceObject *self, PyObject *args);
 #endif
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
@@ -349,10 +348,11 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-#if PY_VERSION_HEX >= 0x03070000
-    {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
+#if PY_VERSION_HEX < 0x03070000
+    {"fblits", (PyCFunction)surf_fblits_wrapper, METH_VARARGS,
+     DOC_SURFACEFBLITS},
 #else
-    {"ublits", (PyCFunction)surf_ublits, METH_NOARGS, DOC_SURFACEUBLITS},
+    {"fblits", (PyCFunction)surf_fblits, METH_FASTCALL, DOC_SURFACEFBLITS},
 #endif
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
@@ -2116,15 +2116,13 @@ bliterror:
     return RAISE(PyExc_TypeError, "Unknown error");
 }
 
-#if PY_VERSION_HEX >= 0x03070000
-#define UBLITS_ERR_TUPLE_REQUIRED 11
-#define UBLITS_ERR_INSUFFICIENT_ARGS 12
-#define UBLITS_ERR_FLAG_NOT_NUMERIC 13
-#define UBLITS_ERR_DORETURN_NOT_NUMERIC 14
-#define UBLITS_SERR_LISTORTUPLE_REQUIRED \
+#define FBLITS_ERR_TUPLE_REQUIRED 11
+#define FBLITS_ERR_INCORRECT_ARGS_NUM 12
+#define FBLITS_ERR_FLAG_NOT_NUMERIC 13
+#define FBLITS_SERR_LISTORTUPLE_REQUIRED \
     "blit_sequence can only be a list or a tuple"
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp, dest_rect;
@@ -2133,31 +2131,32 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     PyObject *blitsequence, *tmpblitseq;
     PyObject *iterator = NULL;
     PyObject *item = NULL;
-    PyObject *ret = NULL;
-    PyObject *retrect = NULL;
     PyObject **f_blitsequence;
     Py_ssize_t itemlength, sequencelength, seq_counter;
-    int doreturn = 1;
     int errornum = 0;
     int result;
-    int flags_numeric;
+    int flags_numeric = 0;
 
-    temp.x = 0;
-    temp.y = 0;
-
-    if (nargs < 3) {
-        errornum = UBLITS_ERR_INSUFFICIENT_ARGS;
+    if (nargs == 0 || nargs > 2) {
+        errornum = FBLITS_ERR_INCORRECT_ARGS_NUM;
         goto on_error;
+    }
+    else if (nargs == 2) {
+        if (PyLong_Check(args[1])) {
+            flags_numeric = PyLong_AsLong(args[1]);
+            if (flags_numeric == -1 && PyErr_Occurred()) {
+                return NULL;
+            }
+        }
+        else {
+            errornum = FBLITS_ERR_FLAG_NOT_NUMERIC;
+            goto on_error;
+        }
     }
 
     blitsequence = args[0];
-    if (!PyLong_Check(args[1]) || !pg_IntFromObj(args[1], &flags_numeric)) {
-        errornum = UBLITS_ERR_FLAG_NOT_NUMERIC;
-        goto on_error;
-    }
-
-    if (!pg_IntFromObj(args[2], &doreturn)) {
-        errornum = UBLITS_ERR_DORETURN_NOT_NUMERIC;
+    if (PyUnicode_Check(blitsequence)) {
+        errornum = BLITS_ERR_SEQUENCE_REQUIRED;
         goto on_error;
     }
 
@@ -2168,38 +2167,23 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     /* Generator */
     if (PyGen_Check(blitsequence)) {
-        if (doreturn) {
-            ret = PyList_New(0);
-            if (!ret)
-                return NULL;
-        }
-        if (!(PyIter_Check(blitsequence))) {
-            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
-            goto on_error;
-        }
         iterator = PyObject_GetIter(blitsequence);
         if (!iterator) {
-            Py_XDECREF(ret);
             return NULL;
         }
 
-        item = PyIter_Next(iterator);
-        if (PySequence_Check(item)) {
-            itemlength = PySequence_Size(item);
-            if (itemlength != 2) {
-                errornum = UBLITS_ERR_TUPLE_REQUIRED;
+        while ((item = PyIter_Next(iterator))) {
+            if (PySequence_Check(item)) {
+                itemlength = PySequence_Size(item);
+                if (itemlength != 2) {
+                    errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
+                errornum = FBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
-        }
-        else {
-            errornum = UBLITS_ERR_TUPLE_REQUIRED;
-            goto on_error;
-        }
-
-        do {
-            /* We know that there will be at least two items due to the
-                   conditional at the start of the loop */
-            assert(itemlength == 2);
 
             /* (Surface, dest) */
             srcobject = PySequence_ITEM(item, 0);
@@ -2221,66 +2205,39 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 goto on_error;
             }
 
-            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
-            }
-            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
-                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
                 goto on_error;
             }
 
-            temp.w = src->w;
-            temp.h = src->h;
-
-            src_rect = &temp;
-
-            dest_rect.w = src_rect->w;
-            dest_rect.h = src_rect->h;
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
 
             result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
-                                    &dest_rect, src_rect, flags_numeric);
+                                    &dest_rect, NULL, flags_numeric);
 
             if (result != 0) {
                 errornum = BLITS_ERR_BLIT_FAIL;
                 goto on_error;
             }
-            if (doreturn) {
-                retrect = NULL;
-                retrect = pgRect_New(&dest_rect);
-                if (PyList_Append(ret, retrect) != 0) {
-                    errornum = BLITS_ERR_PY_EXCEPTION_RAISED;
-                    goto on_error;
-                }
-                Py_DECREF(retrect);
-                retrect = NULL; /* Clear to avoid double deref on errors */
-            }
-        } while ((item = PyIter_Next(iterator)));
+        }
 
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
-            Py_XDECREF(ret);
             return NULL;
         }
     }
     /* List or Tuple */
-    else if (PySequence_Check(blitsequence)) {
-        if (!(tmpblitseq = PySequence_Fast(
-                  args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
-            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
-            goto on_error;
-        }
-
+    else if ((tmpblitseq = PySequence_Fast(
+                  blitsequence, FBLITS_SERR_LISTORTUPLE_REQUIRED))) {
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
-        if (doreturn) {
-            ret = PyList_New(sequencelength);
-            if (!ret)
-                return NULL;
-        }
         Py_DECREF(tmpblitseq);
         tmpblitseq = NULL;
         for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
@@ -2288,18 +2245,14 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             if (PyTuple_Check(item)) {
                 itemlength = PyTuple_GET_SIZE(item);
                 if (itemlength != 2) {
-                    errornum = UBLITS_ERR_TUPLE_REQUIRED;
+                    errornum = FBLITS_ERR_TUPLE_REQUIRED;
                     goto on_error;
                 }
             }
             else {
-                errornum = UBLITS_ERR_TUPLE_REQUIRED;
+                errornum = FBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
-
-            /* We know that there will be at least two items due to the
-               conditional at the start of the loop */
-            assert(itemlength == 2);
 
             /* (Surface, dest)
              * using PyTuple_GET_ITEM for better perf
@@ -2318,35 +2271,26 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 goto on_error;
             }
 
-            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
-            }
-            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
-                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
                 goto on_error;
             }
 
-            temp.w = src->w;
-            temp.h = src->h;
-
-            src_rect = &temp;
-
-            dest_rect.w = src_rect->w;
-            dest_rect.h = src_rect->h;
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
 
             result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
-                                    &dest_rect, src_rect, flags_numeric);
+                                    &dest_rect, NULL, flags_numeric);
 
             if (result != 0) {
                 errornum = BLITS_ERR_BLIT_FAIL;
                 goto on_error;
-            }
-            if (doreturn) {
-                PyList_SET_ITEM(ret, seq_counter, pgRect_New(&dest_rect));
             }
         }
     }
@@ -2355,17 +2299,10 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto on_error;
     }
 
-    if (doreturn) {
-        return ret;
-    }
-    else {
-        Py_RETURN_NONE;
-    }
+    Py_RETURN_NONE;
 
 on_error:
-    Py_XDECREF(retrect);
     Py_XDECREF(iterator);
-    Py_XDECREF(ret);
 
     switch (errornum) {
         case BLITS_ERR_SEQUENCE_REQUIRED:
@@ -2394,33 +2331,43 @@ on_error:
             return NULL; /* Raising a previously set exception */
         case BLITS_ERR_SOURCE_NOT_SURFACE:
             return RAISE(PyExc_TypeError, "Source objects must be a Surface");
-        case UBLITS_ERR_TUPLE_REQUIRED:
+        case FBLITS_ERR_TUPLE_REQUIRED:
             return RAISE(
                 PyExc_ValueError,
                 "Blit_sequence item should be a tuple of (Surface, dest)");
-        case UBLITS_ERR_INSUFFICIENT_ARGS:
+        case FBLITS_ERR_INCORRECT_ARGS_NUM:
             return RAISE(PyExc_ValueError,
-                         "Function requires positional arguments in the "
-                         "order: blit_sequence, special_flags, doreturn");
-        case UBLITS_ERR_FLAG_NOT_NUMERIC:
-            return RAISE(PyExc_ValueError,
+                         "Incorrect number of parameters passed: need at "
+                         "least one, 2 at max");
+        case FBLITS_ERR_FLAG_NOT_NUMERIC:
+            return RAISE(PyExc_TypeError,
                          "The special_flags parameter must be an int");
-        case UBLITS_ERR_DORETURN_NOT_NUMERIC:
-            return RAISE(
-                PyExc_ValueError,
-                "The doreturn parameter must either be a bool or numeric");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
-#else
 
+#if PY_VERSION_HEX < 0x03070000
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *_null)
+surf_fblits_wrapper(pgSurfaceObject *self, PyObject *args)
 {
-    return RAISE(PyExc_NotImplementedError,
-                 "ublits is not compatible with Python 3.6 or older");
-}
+    Py_ssize_t i, nargs = PyTuple_GET_SIZE(args);
+    PyObject **vector_args = PyMem_New(PyObject *, nargs);
+    if (!vector_args) {
+        return PyErr_NoMemory();
+    }
 
+    for (i = 0; i < nargs; i++) {
+        vector_args[i] = PyTuple_GetItem(args, i);
+        if (!vector_args[i]) {
+            PyMem_Free(vector_args);
+            return NULL;
+        }
+    }
+
+    PyObject *ret = surf_fblits(self, (PyObject *const *)vector_args, nargs);
+    PyMem_Free(vector_args);
+    return ret;
+}
 #endif
 
 static PyObject *
@@ -3970,7 +3917,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             subsurface cannot be blitted to its owner because the
             owner is locked.
             */
-         dst->pixels == src->pixels &&
+         dst->pixels == src->pixels && srcrect != NULL &&
          surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
