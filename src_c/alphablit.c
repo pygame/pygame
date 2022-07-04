@@ -125,7 +125,7 @@ SDL_RLESurface(SDL_Surface *surface);
 extern void
 SDL_UnRLESurface(SDL_Surface *surface, int recode);
 
-#define PRINT_RECT(name, rect) printf("%s = <x=%i, y=%i, w=%i, h=%i>\n", name, rect->x, rect->y, rect->w, rect->h);
+#define PRINT_RECT(name, rect) printf("%s = <x=%i, y=%i, w=%i, h=%i>\n", name, rect.x, rect.y, rect.w, rect.h);
 
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
@@ -161,7 +161,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     topsrcrect.h = srcmedian;
 
     bottomsrcrect.x = srcrect->x;
-    bottomsrcrect.y = srcmedian;
+    bottomsrcrect.y = srcrect->y + srcmedian;
     bottomsrcrect.w = srcrect->w;
     bottomsrcrect.h = srcrect->h - srcmedian;
 
@@ -176,18 +176,19 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     topdstrect.h = dstmedian;
 
     bottomdstrect.x = dstrect->x;
-    bottomdstrect.y = srcmedian;
+    bottomdstrect.y = dstrect->y + srcmedian;
     bottomdstrect.w = dstrect->w;
     bottomdstrect.h = dstrect->h - dstmedian;
 
     //PRINT_RECT("topsrcrect", topsrcrect)
-    //PRINT_RECT("topsrcrect", topsrcrect)
-    //PRINT_RECT("topsrcrect", topsrcrect)
-    //PRINT_RECT("topsrcrect", topsrcrect)
+    //PRINT_RECT("bottomsrcrect", bottomsrcrect)
+    //PRINT_RECT("topdstrect", topdstrect)
+    //PRINT_RECT("bottomdstrect", bottomdstrect)
 
     if (okay) {
-        // okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
-        okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
+        //okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
+        
+        //okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
 
         struct _ThreadBlitArg blitargs = {0};
         blitargs.src = src;
@@ -197,7 +198,9 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         blitargs.the_args = the_args;
 
         SDL_Thread* thread = SDL_CreateThread(_ThreadBlitFunc, "pygame auxilary blit thread", &blitargs);
-        int okay2;
+        okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
+
+        int okay2 = 1;
         SDL_WaitThread(thread, &okay2);
         if (!okay2) {
             okay = 0;
