@@ -2147,7 +2147,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
 
     blitsequence = args[0];
-    if (!PyLong_Check(args[1]) || !pg_IntFromObj(args[1], &flags_numeric)) {
+    if (!pg_IntFromObj(args[1], &flags_numeric)) {
         errornum = UBLITS_ERR_FLAG_NOT_NUMERIC;
         goto on_error;
     }
@@ -2234,13 +2234,9 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
     }
     /* List or Tuple */
-    else if (PySequence_Check(blitsequence)) {
-        if (!(tmpblitseq = PySequence_Fast(
-                  args[0], UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
-            errornum = BLITS_ERR_SEQUENCE_REQUIRED;
-            goto on_error;
-        }
-
+    else if (!PyUnicode_Check(blitsequence) &&
+             (tmpblitseq = PySequence_Fast(
+                  blitsequence, UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
         Py_DECREF(tmpblitseq);
@@ -2351,7 +2347,7 @@ on_error:
                          "Function requires positional arguments in the "
                          "order: blit_sequence, special_flags");
         case UBLITS_ERR_FLAG_NOT_NUMERIC:
-            return RAISE(PyExc_ValueError,
+            return RAISE(PyExc_TypeError,
                          "The special_flags parameter must be an int");
     }
     return RAISE(PyExc_TypeError, "Unknown error");
