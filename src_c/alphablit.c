@@ -310,7 +310,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                     break;
                 }
                 case PYGAME_BLEND_SUB: {
-#if !defined(__EMSCRIPTEN__)  && !defined(_M_ARM64)
+#if !defined(__EMSCRIPTEN__) && !defined(_M_ARM64)
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     if (src->format->BytesPerPixel == 4 &&
                         dst->format->BytesPerPixel == 4 &&
