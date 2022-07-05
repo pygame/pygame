@@ -77,7 +77,7 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
 def get_urls(x86=True, x64=True, ARM64=True):
     url_sha1 = []
     if ARM64:
-        url_sha1 = [['https://github.com/pygame/pygame/releases/download/2.1.3.dev4/prebuilt-ARM64-pygame.zip',
+        url_sha1 = [['https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev4/prebuilt-ARM64-pygame.zip',
                      '3215f506018debe5ac501543ef059590b06a668d']
                 ]
         return url_sha1
