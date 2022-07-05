@@ -1291,7 +1291,7 @@ smoothscale_init(struct _module_state *st)
         return;
     }
 
-#ifdef SCALE_MMX_SUPPORT
+#if defined(SCALE_MMX_SUPPORT) && !defined(_M_ARM64)
     if (SDL_HasSSE()) {
         st->filter_type = "SSE";
         st->filter_shrink_X = filter_shrink_X_SSE;
@@ -1605,8 +1605,13 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", keywords, &type))
         return NULL;
-
-#if defined(SCALE_MMX_SUPPORT)
+#if defined(_M_ARM64)
+    st->filter_type = "GENERIC";
+    st->filter_shrink_X = filter_shrink_X_ONLYC;
+    st->filter_shrink_Y = filter_shrink_Y_ONLYC;
+    st->filter_expand_X = filter_expand_X_ONLYC;
+    st->filter_expand_Y = filter_expand_Y_ONLYC;
+#elif defined(SCALE_MMX_SUPPORT)
     if (strcmp(type, "GENERIC") == 0) {
         st->filter_type = "GENERIC";
         st->filter_shrink_X = filter_shrink_X_ONLYC;

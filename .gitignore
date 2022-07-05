@@ -6,6 +6,7 @@
 
 # Windows prebuilt external libraries
 /prebuilt-x??
+/prebuilt-ARM64
 /prebuilt_downloads
 
 # macOS generated files

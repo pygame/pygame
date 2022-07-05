@@ -764,8 +764,8 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                             del e.sources[i]
                             return
 
-
-        replace_scale_mmx()
+        if platform.system() != 'Windows' or platform.machine() != 'ARM64':
+            replace_scale_mmx()
 
 # clean up the list of extensions
 for e in extensions[:]:

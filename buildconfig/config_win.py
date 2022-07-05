@@ -11,6 +11,7 @@ except ImportError:
 import os, sys
 import re
 import logging
+import platform
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
@@ -20,6 +21,8 @@ def get_ptr_size():
 
 def as_machine_type(size):
     """Return pointer bit size as a Windows machine type"""
+    if platform.system() == 'Windows' and platform.machine() == 'ARM64':
+        return "ARM64"
     if size == 32:
         return "x86"
     if size == 64:
@@ -477,9 +480,9 @@ def main(auto_config=False):
     download_kwargs = {
         'x86': False,
         'x64': False,
+        'ARM64' : False,
     }
     download_kwargs[machine_type] = True
-
     if not auto_download:
         if (not download_win_prebuilt.cached(**download_kwargs) or\
             not os.path.isdir(prebuilt_dir))\
@@ -497,6 +500,103 @@ def main(auto_config=False):
                 use_prebuilt = True
 
         if use_prebuilt:
+            if machine_type == "ARM64":
+                setup_file = open("Setup","w")
+                setup_file.write("""
+#This Setup file is used by the setup.py script to configure the
+#python extensions. You will likely use the "config.py" which will
+#build a correct Setup file for you based on your system settings.
+#If not, the format is simple enough to edit by hand. First change
+#the needed commandline flags for each dependency, then comment out
+#any unavailable optional modules in the first optional section.
+
+
+SDL = -Iprebuilt-ARM64/SDL2_2.23.1/include -Lprebuilt-ARM64/SDL2_2.23.1/lib/ARM64  -lSDL2
+FONT = -Iprebuilt-ARM64/SDL2_ttf-2.19.3/include -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64  -lSDL2_ttf
+IMAGE = -Iprebuilt-ARM64/SDL2_image-2.5.2/include -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64  -lSDL2_image
+MIXER = -Iprebuilt-ARM64/SDL2_mixer-2.5.2/include -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64  -lSDL2_mixer
+PORTMIDI = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -lportmidi
+PORTTIME = 
+FREETYPE = -Iprebuilt-ARM64/include -Iprebuilt-ARM64/include/freetype2 -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64  -lfreetype
+PNG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -lpng
+JPEG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -ljpeg
+SCRAP = -luser32 -lgdi32
+COPYLIB_SDL2 -Lprebuilt-ARM64/SDL2_2.23.1/lib/ARM64/SDL2.dll
+COPYLIB_SDL2_ttf -lSDL -lz -lfreetype -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64/SDL2_ttf.dll
+COPYLIB_SDL2_image -lSDL -ljpeg -lpng -ltiff -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/SDL2_image.dll
+COPYLIB_SDL2_mixer -lSDL -lvorbisfile -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/SDL2_mixer.dll
+COPYLIB_portmidi -Lprebuilt-ARM64/lib/portmidi.dll
+COPYLIB_freetype -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64/freetype.dll
+COPYLIB_png -lz -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/libpng16.dll
+COPYLIB_jpeg -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/jpeg.dll
+COPYLIB_vorbis -logg -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/vorbis.dll
+COPYLIB_vorbisfile -lvorbis -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/vorbisfile.dll
+COPYLIB_ogg -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/ogg.dll
+COPYLIB_modplug -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/modplug.dll
+COPYLIB_opus -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/opus.dll
+COPYLIB_opusfile -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/opusfile.dll
+COPYLIB_tiff -ljpeg -lz -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/tiff.dll
+COPYLIB_z -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/zlib1.dll
+COPYLIB_webp -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/webp.dll
+
+DEBUG =
+
+#the following modules are optional. you will want to compile
+#everything you can, but you can ignore ones you don't have
+#dependencies for, just comment them out
+
+imageext src_c/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+font src_c/font.c $(SDL) $(FONT) $(DEBUG)
+mixer src_c/mixer.c $(SDL) $(MIXER) $(DEBUG)
+mixer_music src_c/music.c $(SDL) $(MIXER) $(DEBUG)
+scrap src_c/scrap.c $(SDL) $(SCRAP) $(DEBUG)
+pypm src_c/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
+
+_sdl2.sdl2 src_c/_sdl2/sdl2.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.audio src_c/_sdl2/audio.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.video src_c/_sdl2/video.c src_c/pgcompat.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG) -Isrc_c
+_sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c
+
+GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
+#GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
+gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
+
+#optional freetype module (do not break in multiple lines
+#or the configuration script will choke!)
+_freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_render.c  src_c/freetype/ft_render_cb.c src_c/freetype/ft_layout.c src_c/freetype/ft_unicode.c src_c/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
+
+_sprite src_c/_sprite.c $(SDL) $(DEBUG)
+
+#these modules are required for pygame to run. they only require
+#SDL as a dependency. these should not be altered
+
+base src_c/base.c $(SDL) $(DEBUG)
+color src_c/color.c $(SDL) $(DEBUG)
+constants src_c/constants.c $(SDL) $(DEBUG)
+display src_c/display.c $(SDL) $(DEBUG)
+event src_c/event.c $(SDL) $(DEBUG)
+key src_c/key.c $(SDL) $(DEBUG)
+mouse src_c/mouse.c $(SDL) $(DEBUG)
+rect src_c/rect.c $(SDL) $(DEBUG)
+rwobject src_c/rwobject.c $(SDL) $(DEBUG)
+surface src_c/surface.c src_c/alphablit.c src_c/surface_fill.c $(SDL) $(DEBUG)
+surflock src_c/surflock.c $(SDL) $(DEBUG)
+time src_c/time.c $(SDL) $(DEBUG)
+joystick src_c/joystick.c $(SDL) $(DEBUG)
+draw src_c/draw.c $(SDL) $(DEBUG)
+image src_c/image.c $(SDL) $(DEBUG)
+transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c $(SDL) $(DEBUG)
+mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
+bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
+pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
+math src_c/math.c $(SDL) $(DEBUG)
+pixelcopy src_c/pixelcopy.c $(SDL) $(DEBUG)
+newbuffer src_c/newbuffer.c $(SDL) $(DEBUG)
+_camera src_c/_camera.c src_c/camera_windows.c -lMfplat -lMf -lMfuuid -lMfreadwrite -lOle32 $(SDL) $(DEBUG)
+                """)
+                return
             return setup_prebuilt_sdl2(prebuilt_dir)
     else:
         print(f"Note: cannot find directory \"{prebuilt_dir}\"; do not use prebuilts.")
