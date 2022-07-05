@@ -2178,7 +2178,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
 
         do {
-
             /* (Surface, dest) */
             srcobject = PySequence_ITEM(item, 0);
             argpos = PySequence_ITEM(item, 1);
