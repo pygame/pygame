@@ -348,10 +348,11 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-    {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
 #if PY_VERSION_HEX < 0x03070000
-    {"ublits_wrapper", (PyCFunction)surf_ublits_wrapper, METH_VARARGS,
+    {"ublits", (PyCFunction)surf_ublits_wrapper, METH_VARARGS,
      DOC_SURFACEUBLITS},
+#else
+    {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
 #endif
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
@@ -2359,13 +2360,10 @@ static PyObject *
 surf_ublits_wrapper(pgSurfaceObject *self, PyObject *args)
 {
     Py_ssize_t nargs = PyTuple_GET_SIZE(args);
-    Py_ssize_t i;
-    PyObject *const *vector_args = PyMem_New(PyObject *, nargs);
+    PyObject *const *vector_args = PyMem_New(PyObject *const *, nargs);
     if (!vector_args) {
         return PyErr_NoMemory();
     }
-    for (i = 0; i < nargs; i++)
-        vector_args[i] = PyTuple_GetItem(args, i);
 
     PyObject *ret = surf_ublits(self, vector_args, nargs);
     PyMem_Free(vector_args);
