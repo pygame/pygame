@@ -173,12 +173,11 @@ static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
-#if PY_VERSION_HEX >= 0x03070000
 static PyObject *
 surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
-#else
+#if PY_VERSION_HEX < 0x03070000
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *_null);
+surf_ublits_wrapper(pgSurfaceObject *self, PyObject *args);
 #endif
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
@@ -349,10 +348,10 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-#if PY_VERSION_HEX >= 0x03070000
     {"ublits", (PyCFunction)surf_ublits, METH_FASTCALL, DOC_SURFACEUBLITS},
-#else
-    {"ublits", (PyCFunction)surf_ublits, METH_NOARGS, DOC_SURFACEUBLITS},
+#if PY_VERSION_HEX < 0x03070000
+    {"ublits_wrapper", (PyCFunction)surf_ublits_wrapper, METH_VARARGS,
+     DOC_SURFACEUBLITS},
 #endif
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
@@ -2116,7 +2115,6 @@ bliterror:
     return RAISE(PyExc_TypeError, "Unknown error");
 }
 
-#if PY_VERSION_HEX >= 0x03070000
 #define UBLITS_ERR_TUPLE_REQUIRED 11
 #define UBLITS_ERR_INSUFFICIENT_ARGS 12
 #define UBLITS_ERR_FLAG_NOT_NUMERIC 13
@@ -2351,15 +2349,21 @@ on_error:
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
-#else
 
+#if PY_VERSION_HEX < 0x03070000
 static PyObject *
-surf_ublits(pgSurfaceObject *self, PyObject *_null)
+surf_ublits_wrapper(PyObject *self, PyObject *args)
 {
-    return RAISE(PyExc_NotImplementedError,
-                 "ublits is not compatible with Python 3.6 or older");
-}
+    Py_ssize_t nargs = PyTuple_GET_SIZE(args);
+    PyObject *const *vector_args = PyMem_New(PyObject *const *, nargs);
+    if (!vector_args) {
+        return PyErr_NoMemory();
+    }
 
+    PyObject *ret = surf_ublits(self, vector_args, nargs);
+    PyMem_Free(vector_args);
+    return ret;
+}
 #endif
 
 static PyObject *
