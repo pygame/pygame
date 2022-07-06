@@ -2359,13 +2359,21 @@ on_error:
 static PyObject *
 surf_ublits_wrapper(pgSurfaceObject *self, PyObject *args)
 {
-    Py_ssize_t nargs = PyTuple_GET_SIZE(args);
-    PyObject *const *vector_args = PyMem_New(PyObject *const *, nargs);
+    Py_ssize_t i, nargs = PyTuple_GET_SIZE(args);
+    PyObject **vector_args = PyMem_New(PyObject **, nargs);
     if (!vector_args) {
         return PyErr_NoMemory();
     }
 
-    PyObject *ret = surf_ublits(self, vector_args, nargs);
+    for (i = 0; i < nargs; i++) {
+        vector_args[i] = PyTuple_GetItem(args, i);
+        if (!vector_args[i]) {
+            PyMem_Free(vector_args);
+            return NULL;
+        }
+    }
+
+    PyObject *ret = surf_ublits(self, (PyObject *const *)vector_args, nargs);
     PyMem_Free(vector_args);
     return ret;
 }
