@@ -401,7 +401,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a straight antialiased line`
    | :sg:`aaline(surface, color, start_pos, end_pos) -> Rect`
-   | :sg:`aaline(surface, color, start_pos, end_pos, blend=1) -> Rect`
 
    Draws a straight antialiased line on the given surface.
 
@@ -489,8 +488,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param end_pos: end position of the line, (x, y)
    :type end_pos: tuple(int or float, int or float) or
       list(int or float, int or float) or Vector2(int or float, int or float)
-   :param int blend: (optional) if non-zero (default) the line will be blended
-      with the surface's existing pixel shades, otherwise it will overwrite them
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the ``start_pos`` parameter value (float
@@ -508,7 +505,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw multiple contiguous straight antialiased line segments`
    | :sg:`aalines(surface, color, closed, points) -> Rect`
-   | :sg:`aalines(surface, color, closed, points, blend=1) -> Rect`
 
    Draws a sequence of contiguous straight antialiased lines on the given
    surface.
@@ -528,9 +524,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       additionally if the ``closed`` parameter is ``True`` another line segment
       will be drawn from ``(x3, y3)`` to ``(x1, y1)``
    :type points: tuple(coordinate) or list(coordinate)
-   :param int blend: (optional) if non-zero (default) each line will be blended
-      with the surface's existing pixel shades, otherwise the pixels will be
-      overwritten
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the first point in the
