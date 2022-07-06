@@ -2145,6 +2145,11 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
 
     blitsequence = args[0];
+    if (PyUnicode_Check(blitsequence)) {
+        errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto on_error;
+    }
+
     if (!pg_IntFromObj(args[1], &flags_numeric)) {
         errornum = UBLITS_ERR_FLAG_NOT_NUMERIC;
         goto on_error;
@@ -2231,8 +2236,7 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
     }
     /* List or Tuple */
-    else if (!PyUnicode_Check(blitsequence) &&
-             (tmpblitseq = PySequence_Fast(
+    else if ((tmpblitseq = PySequence_Fast(
                   blitsequence, UBLITS_SERR_LISTORTUPLE_REQUIRED))) {
         f_blitsequence = PySequence_Fast_ITEMS(tmpblitseq);
         sequencelength = PySequence_Fast_GET_SIZE(tmpblitseq);
@@ -2352,13 +2356,16 @@ on_error:
 
 #if PY_VERSION_HEX < 0x03070000
 static PyObject *
-surf_ublits_wrapper(PyObject *self, PyObject *args)
+surf_ublits_wrapper(pgSurfaceObject *self, PyObject *args)
 {
     Py_ssize_t nargs = PyTuple_GET_SIZE(args);
-    PyObject *const *vector_args = PyMem_New(PyObject *const *, nargs);
+    Py_ssize_t i;
+    PyObject *const *vector_args = PyMem_New(PyObject *, nargs);
     if (!vector_args) {
         return PyErr_NoMemory();
     }
+    for (i = 0; i < nargs; i++)
+        vector_args[i] = PyTuple_GetItem(args, i);
 
     PyObject *ret = surf_ublits(self, vector_args, nargs);
     PyMem_Free(vector_args);
