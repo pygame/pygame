@@ -2360,7 +2360,7 @@ static PyObject *
 surf_ublits_wrapper(pgSurfaceObject *self, PyObject *args)
 {
     Py_ssize_t i, nargs = PyTuple_GET_SIZE(args);
-    PyObject **vector_args = PyMem_New(PyObject **, nargs);
+    PyObject **vector_args = PyMem_New(PyObject *, nargs);
     if (!vector_args) {
         return PyErr_NoMemory();
     }
