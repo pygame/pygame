@@ -109,28 +109,42 @@ static int
 _SoftBlitInternal(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                   SDL_Rect *dstrect, int the_args);
 
-struct {
+struct _ThreadBlitCmd {
     SDL_Surface *src;
-    SDL_Rect *srcrect;
+    SDL_Rect srcrect;
     SDL_Surface *dst;
-    SDL_Rect *dstrect;
+    SDL_Rect dstrect;
     int the_args;
     int exit_code;
     SDL_sem *sem_enter;
     SDL_sem *sem_exit;
     SDL_Thread *thread;
-} _ThreadBlitState;
+};
+
+static struct _ThreadBlitCmd **_ThreadBlitState;
 
 static int
 _ThreadBlitFunc(void *arg);
 
 void
-_SetupThread()
+_SetupThreads(int count)
 {
-    _ThreadBlitState.sem_enter = SDL_CreateSemaphore(0);
-    _ThreadBlitState.sem_exit = SDL_CreateSemaphore(0);
-    _ThreadBlitState.thread =
-        SDL_CreateThread(_ThreadBlitFunc, "pygame auxilary blit thread", NULL);
+    _ThreadBlitState = PyMem_New(struct _ThreadBlitCmd*, count);
+    char name_buffer[50];
+    struct _ThreadBlitCmd *cmd;
+
+    for (int i = 0; i < count; i++) {
+        cmd = PyMem_New(struct _ThreadBlitCmd, 1);
+        _ThreadBlitState[i] = cmd;
+
+        cmd->sem_enter = SDL_CreateSemaphore(0);
+        cmd->sem_exit = SDL_CreateSemaphore(0);
+
+        SDL_snprintf(name_buffer, 50, "pygame auxilary blit thread (%i/%i)",
+                     i + 1, count);
+        cmd->thread = SDL_CreateThread(_ThreadBlitFunc, name_buffer, cmd);
+    }
+    printf("finished thread setup\n");
 }
 
 extern int
@@ -141,6 +155,66 @@ SDL_UnRLESurface(SDL_Surface *surface, int recode);
 #define PRINT_RECT(name, rect)                                              \
     printf("%s = <x=%i, y=%i, w=%i, h=%i>\n", name, rect.x, rect.y, rect.w, \
            rect.h);
+
+//#define printf(arg) {}
+
+/* Turns srcrect and dstrect into horizontal slices for threaded blit
+ * int available: max number of slices (max threads)
+ * OUT int used: threads used */
+static void
+_AllocateRects(SDL_Rect *srcrect, SDL_Rect *dstrect, int available, int* used)
+{
+    assert(srcrect->h == dstrect->h);
+
+    int height = srcrect->h;
+    
+    if (height < available) {
+        available = height;
+    }
+
+    //_ThreadBlitState[0]->dstrect = dstrect;
+    //_ThreadBlitState[0]->srcrect = srcrect;
+    //*used = 1;
+    //return;
+
+    int minimum_height = height / available;
+
+    /* same as the maximum thread number who should get 1 more than minimum height */
+    int remaining_height = height % available;
+
+    int y_offset = 0;
+    int r_h = 0;
+
+    printf("about to enter allocation loop\n");
+
+    struct _ThreadBlitCmd* cmd;
+    for (int i=0; i<available; i++) {
+        printf("inside allocation loop 1\n");
+        cmd = _ThreadBlitState[i];
+        printf("inside allocation loop 2\n");
+
+        r_h = minimum_height + (i < remaining_height)? 1 : 0;
+
+        cmd->srcrect.x = srcrect->x;
+        cmd->srcrect.y = srcrect->y + y_offset;
+        cmd->srcrect.w = srcrect->w;
+        cmd->srcrect.h = r_h;
+        printf("inside allocation loop 3\n");
+
+        cmd->dstrect.x = dstrect->x;
+        printf("inside allocation loop 3.1\n");
+        cmd->dstrect.y = dstrect->y + y_offset;
+        printf("inside allocation loop 3.2\n");
+        cmd->dstrect.w = dstrect->w;
+        printf("inside allocation loop 3.3\n");
+        cmd->dstrect.h = r_h;
+        printf("inside allocation loop 4\n");
+
+        y_offset = r_h;
+    }
+
+    *used = available;
+}
 
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
@@ -170,6 +244,34 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         okay = _SoftBlitInternal(src, srcrect, dst, dstrect, the_args);
     }
 
+    else if (okay) {
+        printf("about to allocate rects\n");
+        int used;
+        _AllocateRects(srcrect, dstrect, 4, &used);
+        printf("allocation finished\n");
+
+        printf("hard coded command finished\n");
+
+        for (int i=0; i<used; i++) {
+            printf("setting up thread args\n");
+            _ThreadBlitState[i]->src = src;
+            _ThreadBlitState[i]->dst = dst;
+            _ThreadBlitState[i]->the_args = the_args;
+
+            printf("posting a thread\n");
+            SDL_SemPost(_ThreadBlitState[i]->sem_enter);
+        }
+
+        printf("finished posting\n");
+
+        for (int i=0; i<used; i++) {
+            printf("waiting a thread\n");
+            SDL_SemWait(_ThreadBlitState[i]->sem_exit);
+        }
+        printf("finished waiting\n");
+    }
+
+    /*
     else if (okay) {
         SDL_Rect topsrcrect = {0};
         SDL_Rect bottomsrcrect = {0};
@@ -201,22 +303,23 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         bottomdstrect.w = dstrect->w;
         bottomdstrect.h = dstrect->h - dstmedian;
 
-        _ThreadBlitState.src = src;
-        _ThreadBlitState.srcrect = &bottomsrcrect;
-        _ThreadBlitState.dst = dst;
-        _ThreadBlitState.dstrect = &bottomdstrect;
-        _ThreadBlitState.the_args = the_args;
-        SDL_SemPost(_ThreadBlitState.sem_enter);
+        _ThreadBlitState[0]->src = src;
+        _ThreadBlitState[0]->srcrect = &bottomsrcrect;
+        _ThreadBlitState[0]->dst = dst;
+        _ThreadBlitState[0]->dstrect = &bottomdstrect;
+        _ThreadBlitState[0]->the_args = the_args;
+        SDL_SemPost(_ThreadBlitState[0]->sem_enter);
 
         okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
 
-        SDL_SemWait(_ThreadBlitState.sem_exit);
+        SDL_SemWait(_ThreadBlitState[0]->sem_exit);
 
         int okay2 = 1;
-        if (!_ThreadBlitState.exit_code) {
+        if (!_ThreadBlitState[0]->exit_code) {
             okay = 0;
         }
     }
+    */
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
@@ -229,17 +332,21 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 }
 
 static int
-_ThreadBlitFunc(void *_null)
+_ThreadBlitFunc(void *arg)
 {
+    struct _ThreadBlitCmd *cmd = arg;
+
     while (1) {
-        SDL_SemWait(_ThreadBlitState.sem_enter);
+        SDL_SemWait(cmd->sem_enter);
 
-        _ThreadBlitState.exit_code =
-            _SoftBlitInternal(_ThreadBlitState.src, _ThreadBlitState.srcrect,
-                              _ThreadBlitState.dst, _ThreadBlitState.dstrect,
-                              _ThreadBlitState.the_args);
+        printf("running thread code\n");
 
-        SDL_SemPost(_ThreadBlitState.sem_exit);
+        cmd->exit_code = _SoftBlitInternal(cmd->src, &cmd->srcrect, cmd->dst,
+                                           &cmd->dstrect, cmd->the_args);
+
+        printf("posting out\n");
+
+        SDL_SemPost(cmd->sem_exit);
     }
 }
 

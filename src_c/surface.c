@@ -3766,7 +3766,8 @@ MODINIT_DEFINE(surface)
         return NULL;
     }
 
-    _SetupThread();
+    printf("running PyInit_surface\n");
+    _SetupThreads(4);
 
     /* type preparation */
     if (PyType_Ready(&pgSurface_Type) < 0) {
