@@ -169,8 +169,6 @@
       :returns: always returns ``None``
       :rtype: None
 
-      .. note:: ublits is compatible only with Python 3.7 and above
-
       .. note:: This function only accepts a sequence of (surf, dest) pairs and a single blend_flag.
                 This knowledge is used to achieve faster iteration over the sequence and
                 therefore better performance whereas blits() simply cannot. Further

@@ -72,10 +72,8 @@ class Surface:
     ) -> Union[List[Rect], None]: ...
     def ublits(
             self,
-            blit_sequence: Union[
-                Sequence[Tuple[Surface, Union[Coordinate, RectValue]]],
-                List[Tuple[Surface, Union[Coordinate, RectValue]]]],
-            blend_flags: int
+            blit_sequence: Sequence[Tuple[Surface, Union[Coordinate, RectValue]]],
+            blend_flags: int,
     ) -> None: ...
     @overload
     def convert(self, surface: Surface) -> Surface: ...
