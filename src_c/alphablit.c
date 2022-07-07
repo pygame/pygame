@@ -122,6 +122,7 @@ struct _ThreadBlitCmd {
 };
 
 static struct _ThreadBlitCmd **_ThreadBlitState;
+static int _ThreadCount;
 
 static int
 _ThreadBlitFunc(void *arg);
@@ -144,6 +145,7 @@ _SetupThreads(int count)
                      i + 1, count);
         cmd->thread = SDL_CreateThread(_ThreadBlitFunc, name_buffer, cmd);
     }
+    _ThreadCount = count;
     printf("finished thread setup\n");
 }
 
@@ -156,7 +158,7 @@ SDL_UnRLESurface(SDL_Surface *surface, int recode);
     printf("%s = <x=%i, y=%i, w=%i, h=%i>\n", name, rect.x, rect.y, rect.w, \
            rect.h);
 
-//#define printf(arg) {}
+#define printf(arg) {}
 
 /* Turns srcrect and dstrect into horizontal slices for threaded blit
  * int available: max number of slices (max threads)
@@ -172,8 +174,8 @@ _AllocateRects(SDL_Rect *srcrect, SDL_Rect *dstrect, int available, int* used)
         available = height;
     }
 
-    //_ThreadBlitState[0]->dstrect = dstrect;
-    //_ThreadBlitState[0]->srcrect = srcrect;
+    //_ThreadBlitState[0]->dstrect = *dstrect;
+    //_ThreadBlitState[0]->srcrect = *srcrect;
     //*used = 1;
     //return;
 
@@ -185,32 +187,30 @@ _AllocateRects(SDL_Rect *srcrect, SDL_Rect *dstrect, int available, int* used)
     int y_offset = 0;
     int r_h = 0;
 
+    printf("minimum_height=%i\n", minimum_height);
+    PRINT_RECT("srcrect", (*srcrect));
+    PRINT_RECT("dstrect", (*dstrect));
+
     printf("about to enter allocation loop\n");
 
     struct _ThreadBlitCmd* cmd;
     for (int i=0; i<available; i++) {
-        printf("inside allocation loop 1\n");
         cmd = _ThreadBlitState[i];
-        printf("inside allocation loop 2\n");
-
-        r_h = minimum_height + (i < remaining_height)? 1 : 0;
+        r_h = minimum_height + ((i < remaining_height)? 1 : 0);
 
         cmd->srcrect.x = srcrect->x;
         cmd->srcrect.y = srcrect->y + y_offset;
         cmd->srcrect.w = srcrect->w;
         cmd->srcrect.h = r_h;
-        printf("inside allocation loop 3\n");
+        PRINT_RECT("allocated srcrect", cmd->srcrect);
 
         cmd->dstrect.x = dstrect->x;
-        printf("inside allocation loop 3.1\n");
         cmd->dstrect.y = dstrect->y + y_offset;
-        printf("inside allocation loop 3.2\n");
         cmd->dstrect.w = dstrect->w;
-        printf("inside allocation loop 3.3\n");
         cmd->dstrect.h = r_h;
-        printf("inside allocation loop 4\n");
+        PRINT_RECT("allocated dstrect", cmd->dstrect);
 
-        y_offset = r_h;
+        y_offset += r_h;
     }
 
     *used = available;
@@ -247,10 +247,8 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     else if (okay) {
         printf("about to allocate rects\n");
         int used;
-        _AllocateRects(srcrect, dstrect, 4, &used);
+        _AllocateRects(srcrect, dstrect, _ThreadCount, &used);
         printf("allocation finished\n");
-
-        printf("hard coded command finished\n");
 
         for (int i=0; i<used; i++) {
             printf("setting up thread args\n");
