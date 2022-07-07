@@ -2202,28 +2202,22 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 goto on_error;
             }
 
-            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
-            }
-            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
-                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
                 goto on_error;
             }
 
-            temp.w = src->w;
-            temp.h = src->h;
-
-            src_rect = &temp;
-
-            dest_rect.w = src_rect->w;
-            dest_rect.h = src_rect->h;
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
 
             result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
-                                    &dest_rect, src_rect, flags_numeric);
+                                    &dest_rect, NULL, flags_numeric);
 
             if (result != 0) {
                 errornum = BLITS_ERR_BLIT_FAIL;
@@ -2274,28 +2268,22 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 goto on_error;
             }
 
-            if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
                 dest_rect.x = src_rect->x;
                 dest_rect.y = src_rect->y;
-            }
-            else if (pg_TwoIntsFromObj(argpos, &(dest_rect.x),
-                                       &(dest_rect.y))) {
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
                 goto on_error;
             }
 
-            temp.w = src->w;
-            temp.h = src->h;
-
-            src_rect = &temp;
-
-            dest_rect.w = src_rect->w;
-            dest_rect.h = src_rect->h;
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
 
             result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
-                                    &dest_rect, src_rect, flags_numeric);
+                                    &dest_rect, NULL, flags_numeric);
 
             if (result != 0) {
                 errornum = BLITS_ERR_BLIT_FAIL;
