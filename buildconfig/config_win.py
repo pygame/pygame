@@ -503,6 +503,7 @@ def main(auto_config=False):
             if machine_type == "ARM64":
                 setup_file = open("Setup","w")
                 setup_file.write("""
+
 #This Setup file is used by the setup.py script to configure the
 #python extensions. You will likely use the "config.py" which will
 #build a correct Setup file for you based on your system settings.
@@ -511,33 +512,33 @@ def main(auto_config=False):
 #any unavailable optional modules in the first optional section.
 
 
-SDL = -Iprebuilt-ARM64/SDL2_2.23.1/include -Lprebuilt-ARM64/SDL2_2.23.1/lib/ARM64  -lSDL2
+SDL = -Iprebuilt-ARM64/SDL2-2.23.1/include -Lprebuilt-ARM64/SDL2-2.23.1/lib/ARM64  -lSDL2
 FONT = -Iprebuilt-ARM64/SDL2_ttf-2.19.3/include -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64  -lSDL2_ttf
 IMAGE = -Iprebuilt-ARM64/SDL2_image-2.5.2/include -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64  -lSDL2_image
 MIXER = -Iprebuilt-ARM64/SDL2_mixer-2.5.2/include -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64  -lSDL2_mixer
 PORTMIDI = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -lportmidi
 PORTTIME = 
-FREETYPE = -Iprebuilt-ARM64/include -Iprebuilt-ARM64/include/freetype2 -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64  -lfreetype
-PNG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -lpng
-JPEG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib  -ljpeg
+FREETYPE = -Iprebuilt-ARM64/include -Iprebuilt-ARM64/include/freetype2 -Lprebuilt-ARM64/lib  -lfreetype
+PNG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib -lpng
+JPEG = -Iprebuilt-ARM64/include -Lprebuilt-ARM64/lib -ljpeg
 SCRAP = -luser32 -lgdi32
-COPYLIB_SDL2 -Lprebuilt-ARM64/SDL2_2.23.1/lib/ARM64/SDL2.dll
+COPYLIB_SDL2 -Lprebuilt-ARM64/SDL2-2.23.1/lib/ARM64/SDL2.dll
 COPYLIB_SDL2_ttf -lSDL -lz -lfreetype -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64/SDL2_ttf.dll
 COPYLIB_SDL2_image -lSDL -ljpeg -lpng -ltiff -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/SDL2_image.dll
 COPYLIB_SDL2_mixer -lSDL -lvorbisfile -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/SDL2_mixer.dll
 COPYLIB_portmidi -Lprebuilt-ARM64/lib/portmidi.dll
-COPYLIB_freetype -Lprebuilt-ARM64/SDL2_ttf-2.19.3/lib/ARM64/freetype.dll
-COPYLIB_png -lz -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/libpng16.dll
-COPYLIB_jpeg -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/jpeg.dll
-COPYLIB_vorbis -logg -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/vorbis.dll
-COPYLIB_vorbisfile -lvorbis -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/vorbisfile.dll
+COPYLIB_freetype -Lprebuilt-ARM64/lib/freetype.dll
+COPYLIB_png -lz -Lprebuilt-ARM64/lib/libpng16.dll
+COPYLIB_jpeg -Lprebuilt-ARM64/lib/jpeg.dll
+COPYLIB_vorbis -logg -Lprebuilt-ARM64/lib/vorbis.dll
+COPYLIB_vorbisfile -lvorbis -Lprebuilt-ARM64/lib/vorbisfile.dll
 COPYLIB_ogg -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/ogg.dll
 COPYLIB_modplug -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/modplug.dll
 COPYLIB_opus -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/opus.dll
 COPYLIB_opusfile -Lprebuilt-ARM64/SDL2_mixer-2.5.2/lib/ARM64/opusfile.dll
-COPYLIB_tiff -ljpeg -lz -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/tiff.dll
-COPYLIB_z -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/zlib1.dll
-COPYLIB_webp -Lprebuilt-ARM64/SDL2_image-2.5.2/lib/ARM64/webp.dll
+COPYLIB_tiff -ljpeg -lz -Lprebuilt-ARM64/lib/tiff.dll
+COPYLIB_z -Lprebuilt-ARM64/lib/zlib1.dll
+COPYLIB_webp -Lprebuilt-ARM64/lib/webp.dll
 
 DEBUG =
 
