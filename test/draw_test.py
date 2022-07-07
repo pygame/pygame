@@ -3229,8 +3229,7 @@ class AALinesMixin(BaseLineMixin):
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
 
     def test_aalines__kwargs(self):
-        """Ensures draw aalines accepts the correct kwargs
-        with and without a blend arg.
+        """Ensures draw aalines accepts the correct kwargs.
         """
         surface = pygame.Surface((4, 4))
         color = pygame.Color("yellow")
@@ -3240,10 +3239,8 @@ class AALinesMixin(BaseLineMixin):
                 "surface": surface,
                 "color": color,
                 "closed": False,
-                "points": points,
-                "blend": 1,
+                "points": points
             },
-            {"surface": surface, "color": color, "closed": False, "points": points},
         ]
 
         for kwargs in kwargs_list:
@@ -3286,7 +3283,6 @@ class AALinesMixin(BaseLineMixin):
             "color": pygame.Color("red"),
             "closed": 1,
             "points": ((2, 2), (1, 1)),
-            "blend": 1,
         }
 
         for name in ("points", "closed", "color", "surface"):
@@ -3330,7 +3326,6 @@ class AALinesMixin(BaseLineMixin):
             "color": pygame.Color("green"),
             "closed": False,
             "points": ((1, 2), (2, 1)),
-            "blend": 1,
         }
 
         invalid_kwargs = {
@@ -3338,10 +3333,9 @@ class AALinesMixin(BaseLineMixin):
             "color": 2.3,
             "closed": InvalidBool(),
             "points": (0, 0, 0),
-            "blend": 1.2,
         }
 
-        for kwarg in ("surface", "color", "closed", "points", "blend"):
+        for kwarg in ("surface", "color", "closed", "points"):
             kwargs = dict(valid_kwargs)
             kwargs[kwarg] = invalid_kwargs[kwarg]
 
