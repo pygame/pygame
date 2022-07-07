@@ -59,6 +59,12 @@ class Surface:
         area: Optional[RectValue] = None,
         special_flags: int = 0,
     ) -> Rect: ...
+    def rblit(
+            self,
+            source: Surface,
+            dest: Union[Coordinate, RectValue],
+            special_flags: int=0, /
+    ) -> None: ...
     def blits(
         self,
         blit_sequence: Sequence[

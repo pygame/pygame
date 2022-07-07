@@ -130,6 +130,33 @@
 
       .. ## Surface.blit ##
 
+   .. method:: rblit
+
+      | :sl:`draw one full image onto another, with no rect being returned`
+      | :sg:`rblit(source, dest, special_flags=0) -> None`
+
+      Draws a source Surface onto this Surface. The draw can be positioned with
+      the dest argument. The dest argument can either be a pair of coordinates representing the position of
+      the upper left corner of the blit or a Rect, where the upper left corner of the rectangle will be used as the
+      position for the blit. The size of the destination rectangle does not
+      effect the blit.
+
+      Pixel alphas will be ignored when blitting to an 8 bit Surface.
+
+      For a surface with colorkey or blanket alpha, a blit to self may give
+      slightly different colors than a non self-blit.
+
+      :returns: always returns ``None``
+      :rtype: None
+
+      .. note:: Takes positional only arguments, with special_flags being optional.
+                rblit is a raw blit function with the intended use of the "blit" alone.
+                Use this whenever you have to draw the entire surface at a position without
+                needing a return rectangle of the area changed. Grants increased performance
+                compared to blit() depending on the surface size.
+
+      .. ## Surface.rblit ##
+
    .. method:: blits
 
       | :sl:`draw many images onto another`

@@ -172,6 +172,9 @@ surf_get_clip(PyObject *self, PyObject *args);
 static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
+surf_rblit(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(surf_rblit, pgSurfaceObject);
+static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
@@ -340,6 +343,8 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEFILL},
     {"blit", (PyCFunction)surf_blit, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLIT},
+    {"rblit", (PyCFunction)PG_FASTCALL_NAME(surf_rblit), PG_FASTCALL,
+     DOC_SURFACERBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
 
@@ -1878,6 +1883,66 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 
     return pgRect_New(&dest_rect);
 }
+
+static PyObject *
+surf_rblit(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    SDL_Surface *src, *dest = pgSurface_AsSurface(self);
+    SDL_Rect dest_rect, temp;
+    SDL_Rect *src_rect;
+    PyObject *argpos;
+    PyObject *srcobject;
+    int result, flags_numeric = 0;
+
+    if (nargs < 2 || nargs > 3)
+        return RAISE(
+            PyExc_ValueError,
+            "Function requires at least 2 positional arguments in the order: "
+            "source, dest, (special_flags optional)");
+    else if (nargs == 3) {
+        if (PyLong_Check(args[2])) {
+            flags_numeric = PyLong_AsLong(args[2]);
+            if (flags_numeric == -1 && PyErr_Occurred()) {
+                return NULL;
+            }
+        }
+        else {
+            return RAISE(PyExc_TypeError,
+                         "special_flags parameter must be numeric");
+        }
+    }
+
+    srcobject = args[0];
+    src = pgSurface_AsSurface(srcobject);
+    if (!dest || !src)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
+    argpos = args[1];
+
+    /* Setup the destination rect, src rect is NULL */
+    if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+    }
+    else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+        dest_rect.x = src_rect->x;
+        dest_rect.y = src_rect->y;
+    }
+    else {
+        return RAISE(PyExc_TypeError, "invalid destination position for blit");
+    }
+
+    dest_rect.w = src->w;
+    dest_rect.h = src->h;
+
+    result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
+                            NULL, flags_numeric);
+
+    if (result != 0)
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+PG_WRAP_FASTCALL_FUNC(surf_rblit, pgSurfaceObject)
 
 #define BLITS_ERR_SEQUENCE_REQUIRED 1
 #define BLITS_ERR_DISPLAY_SURF_QUIT 2
