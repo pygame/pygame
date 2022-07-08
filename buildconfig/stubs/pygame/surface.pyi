@@ -70,7 +70,7 @@ class Surface:
         ],
         doreturn: Union[int, bool] = 1,
     ) -> Union[List[Rect], None]: ...
-    def ublits(
+    def fblits(
             self,
             blit_sequence: Sequence[Tuple[Surface, Union[Coordinate, RectValue]]],
             blend_flags: int, /

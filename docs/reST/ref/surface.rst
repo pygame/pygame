@@ -154,10 +154,10 @@
 
       .. ## Surface.blits ##
 
-   .. method:: ublits
+   .. method:: fblits
 
       | :sl:`draw many images onto another, all with the full rect and same blend_flag`
-      | :sg:`ublits(blit_sequence=((source, dest), ...), blend_flags) -> None`
+      | :sg:`fblits(blit_sequence=((source, dest), ...), blend_flags) -> None`
 
       Draws many surfaces onto this Surface. It takes a sequence of tuples (source, dest) as input,
       and a blend_flags parameter that applies to every surface being drawn. All surfaces are fully drawn.
@@ -171,11 +171,11 @@
 
       .. note:: This function only accepts a sequence of (surf, dest) pairs and a single blend_flag.
                 This knowledge is used to achieve faster iteration over the sequence and
-                therefore better performance whereas blits() simply cannot. Further
+                therefore better performance where blits() cannot. Further
                 optimizations are applied if the blit_sequence parameter is a list or a tuple
                 (using one of them is recommended).
 
-      .. ## Surface.ublits ##
+      .. ## Surface.fblits ##
 
 
    .. method:: convert
