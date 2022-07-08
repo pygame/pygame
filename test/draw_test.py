@@ -2879,8 +2879,6 @@ class AALineMixin(BaseLineMixin):
                 surface, aaline_color, pos_rect.midtop, pos_rect.midbottom
             )
 
-            # Need to get the points that are NOT surface_color due to the
-            # way blend=0 uses the color black to antialias.
             expected_pts = get_color_points(
                 surface, surface_color, clip_rect, False
             )
@@ -3652,9 +3650,6 @@ class AALinesMixin(BaseLineMixin):
                 surface.fill(surface_color)
                 self.draw_aalines(surface, aaline_color, closed, pts)
     
-
-                # Need to get the points that are NOT surface_color due to
-                # the way blend=0 uses the color black to antialias.
                 expected_pts = get_color_points(
                     surface, surface_color, clip_rect, False
                 )
