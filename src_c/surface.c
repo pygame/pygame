@@ -2137,9 +2137,6 @@ surf_ublits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     int result;
     int flags_numeric;
 
-    temp.x = 0;
-    temp.y = 0;
-
     if (nargs != 2) {
         errornum = UBLITS_ERR_INSUFFICIENT_ARGS;
         goto on_error;
