@@ -2462,8 +2462,7 @@ class AALineMixin(BaseLineMixin):
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
 
     def test_aaline__kwargs(self):
-        """Ensures draw aaline accepts the correct kwargs
-        """
+        """Ensures draw aaline accepts the correct kwargs"""
         surface = pygame.Surface((4, 4))
         color = pygame.Color("yellow")
         start_pos = (1, 1)
@@ -2844,9 +2843,7 @@ class AALineMixin(BaseLineMixin):
                 for start, end in self._rect_lines(helper_rect):
                     surface.fill(surf_color)  # Clear for each test.
 
-                    bounding_rect = self.draw_aaline(
-                        surface, line_color, start, end
-                    )
+                    bounding_rect = self.draw_aaline(surface, line_color, start, end)
 
                     # Calculating the expected_rect after the line is
                     # drawn (it uses what is actually drawn).
@@ -2875,22 +2872,16 @@ class AALineMixin(BaseLineMixin):
             # clip area set.
             surface.set_clip(None)
             surface.fill(surface_color)
-            self.draw_aaline(
-                surface, aaline_color, pos_rect.midtop, pos_rect.midbottom
-            )
+            self.draw_aaline(surface, aaline_color, pos_rect.midtop, pos_rect.midbottom)
 
-            expected_pts = get_color_points(
-                surface, surface_color, clip_rect, False
-            )
+            expected_pts = get_color_points(surface, surface_color, clip_rect, False)
 
             # Clear the surface and set the clip area. Redraw the aaline
             # and check that only the clip area is modified.
             surface.fill(surface_color)
             surface.set_clip(clip_rect)
 
-            self.draw_aaline(
-                surface, aaline_color, pos_rect.midtop, pos_rect.midbottom
-            )
+            self.draw_aaline(surface, aaline_color, pos_rect.midtop, pos_rect.midbottom)
 
             surface.lock()  # For possible speed up.
 
@@ -3227,18 +3218,12 @@ class AALinesMixin(BaseLineMixin):
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
 
     def test_aalines__kwargs(self):
-        """Ensures draw aalines accepts the correct kwargs.
-        """
+        """Ensures draw aalines accepts the correct kwargs."""
         surface = pygame.Surface((4, 4))
         color = pygame.Color("yellow")
         points = ((0, 0), (1, 1), (2, 2))
         kwargs_list = [
-            {
-                "surface": surface,
-                "color": color,
-                "closed": False,
-                "points": points
-            },
+            {"surface": surface, "color": color, "closed": False, "points": points},
         ]
 
         for kwargs in kwargs_list:
@@ -3399,7 +3384,6 @@ class AALinesMixin(BaseLineMixin):
                 )
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
-
 
     def test_aalines__valid_points_format(self):
         """Ensures draw aalines accepts different points formats."""
@@ -3616,9 +3600,7 @@ class AALinesMixin(BaseLineMixin):
                 for closed in (True, False):
                     surface.fill(surf_color)  # Clear for each test.
 
-                    bounding_rect = self.draw_aalines(
-                        surface, line_color, closed, pts
-                    )
+                    bounding_rect = self.draw_aalines(surface, line_color, closed, pts)
 
                     # Calculating the expected_rect after the lines are
                     # drawn (it uses what is actually drawn).
@@ -3649,7 +3631,7 @@ class AALinesMixin(BaseLineMixin):
                 surface.set_clip(None)
                 surface.fill(surface_color)
                 self.draw_aalines(surface, aaline_color, closed, pts)
-    
+
                 expected_pts = get_color_points(
                     surface, surface_color, clip_rect, False
                 )
