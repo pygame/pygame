@@ -269,56 +269,6 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         printf("finished waiting\n");
     }
 
-    /*
-    else if (okay) {
-        SDL_Rect topsrcrect = {0};
-        SDL_Rect bottomsrcrect = {0};
-
-        int srcmedian = srcrect->h / 2;
-
-        topsrcrect.x = srcrect->x;
-        topsrcrect.y = srcrect->y;
-        topsrcrect.w = srcrect->w;
-        topsrcrect.h = srcmedian;
-
-        bottomsrcrect.x = srcrect->x;
-        bottomsrcrect.y = srcrect->y + srcmedian;
-        bottomsrcrect.w = srcrect->w;
-        bottomsrcrect.h = srcrect->h - srcmedian;
-
-        SDL_Rect topdstrect = {0};
-        SDL_Rect bottomdstrect = {0};
-
-        int dstmedian = srcrect->h / 2;
-
-        topdstrect.x = dstrect->x;
-        topdstrect.y = dstrect->y;
-        topdstrect.w = dstrect->w;
-        topdstrect.h = dstmedian;
-
-        bottomdstrect.x = dstrect->x;
-        bottomdstrect.y = dstrect->y + srcmedian;
-        bottomdstrect.w = dstrect->w;
-        bottomdstrect.h = dstrect->h - dstmedian;
-
-        _ThreadBlitState[0]->src = src;
-        _ThreadBlitState[0]->srcrect = &bottomsrcrect;
-        _ThreadBlitState[0]->dst = dst;
-        _ThreadBlitState[0]->dstrect = &bottomdstrect;
-        _ThreadBlitState[0]->the_args = the_args;
-        SDL_SemPost(_ThreadBlitState[0]->sem_enter);
-
-        okay = _SoftBlitInternal(src, &topsrcrect, dst, &topdstrect, the_args);
-
-        SDL_SemWait(_ThreadBlitState[0]->sem_exit);
-
-        int okay2 = 1;
-        if (!_ThreadBlitState[0]->exit_code) {
-            okay = 0;
-        }
-    }
-    */
-
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
         SDL_UnlockSurface(dst);
@@ -333,6 +283,7 @@ static int
 _ThreadBlitFunc(void *arg)
 {
     struct _ThreadBlitCmd *cmd = arg;
+    SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
     while (1) {
         SDL_SemWait(cmd->sem_enter);
