@@ -73,7 +73,7 @@ class Surface:
     def ublits(
             self,
             blit_sequence: Sequence[Tuple[Surface, Union[Coordinate, RectValue]]],
-            blend_flags: int,
+            blend_flags: int, /
     ) -> None: ...
     @overload
     def convert(self, surface: Surface) -> Surface: ...
