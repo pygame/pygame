@@ -2,7 +2,7 @@
 #define DOC_PYGAMEMATH "pygame module for vector classes"
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
-#define DOC_VECTOR2CROSS "cross(Vector2) -> Vector2\ncalculates the cross- or vector-product"
+#define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
 #define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
 #define DOC_VECTOR2MAGNITUDESQUARED "magnitude_squared() -> float\nreturns the squared magnitude of the vector."
 #define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidean length of the vector."
@@ -104,7 +104,7 @@ pygame.math.Vector2.dot
 calculates the dot- or scalar-product with the other vector
 
 pygame.math.Vector2.cross
- cross(Vector2) -> Vector2
+ cross(Vector2) -> float
 calculates the cross- or vector-product
 
 pygame.math.Vector2.magnitude
