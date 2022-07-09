@@ -1,13 +1,11 @@
 /*
- * This file should not exist. If you exist in the future and are wondering if
- * this file is cool, it is not.
+ * Compat file specifically for controller (see https://github.com/pygame/pygame/pull/3272)
+ * we had trouble using pgcompat.c, because it would be included twice, or it would lead to
+ * flakiness on compilers, because of threads...
  */
 
 #include <SDL.h>
 
-/*
- * Compat thing for controller (see https://github.com/pygame/pygame/pull/3272)
- */
 int
 PG_GameControllerRumble(SDL_GameController *gamecontroller,
                         Uint16 low_frequency_rumble,
@@ -17,6 +15,7 @@ PG_GameControllerRumble(SDL_GameController *gamecontroller,
     return SDL_GameControllerRumble(gamecontroller, low_frequency_rumble,
                                     high_frequency_rumble, duration_ms);
 #else
+    SDL_SetError("pygame built without controller rumble support");
     return -1;
 #endif
 }
