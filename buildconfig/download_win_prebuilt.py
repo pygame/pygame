@@ -90,8 +90,8 @@ def get_urls(x86=True, x64=True):
         'e510b670cfde1d621ccccdb3d91cac493affb993'
         ],
         [
-        'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
-        '9097148f4529cf19f805ccd007618dec280f0ecc',
+        'https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.0/SDL2_mixer-devel-2.6.0-VC.zip',
+        'f70b5ad1c7ae4b62ae9e8c2a6f8885917d483fe3',
         ],
     ])
     if x86:
@@ -212,12 +212,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_mixer-devel-2.0.4-VC/SDL2_mixer-2.0.4'
+                'SDL2_mixer-devel-2.6.0-VC/SDL2_mixer-2.6.0'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_mixer-2.0.4'
+                'SDL2_mixer-2.6.0'
             )
         )
         copy(
