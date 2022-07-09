@@ -483,7 +483,7 @@ def main(auto_config=False):
         'ARM64' : False,
     }
     download_kwargs[machine_type] = True
-    
+
     if not auto_download:
         if (not download_win_prebuilt.cached(**download_kwargs) or\
             not os.path.isdir(prebuilt_dir))\
