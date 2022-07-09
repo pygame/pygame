@@ -146,7 +146,6 @@ class BlitTest(unittest.TestCase):
 
         # tests for number of parameters
         self.assertRaises(ValueError, dst.fblits)  # no params
-        self.assertRaises(ValueError, dst.fblits, blit_list)  # 1 param
 
         # tests for the blit_sequence parameter
         self.assertRaises(ValueError, dst.fblits, [-1])

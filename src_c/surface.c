@@ -2117,7 +2117,7 @@ bliterror:
 }
 
 #define FBLITS_ERR_TUPLE_REQUIRED 11
-#define FBLITS_ERR_INSUFFICIENT_ARGS 12
+#define FBLITS_ERR_INCORRECT_ARGS_NUM 12
 #define FBLITS_ERR_FLAG_NOT_NUMERIC 13
 #define FBLITS_SERR_LISTORTUPLE_REQUIRED \
     "blit_sequence can only be a list or a tuple"
@@ -2135,21 +2135,21 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     Py_ssize_t itemlength, sequencelength, seq_counter;
     int errornum = 0;
     int result;
-    int flags_numeric;
+    int flags_numeric = 0;
 
-    if (nargs != 2) {
-        errornum = FBLITS_ERR_INSUFFICIENT_ARGS;
+    if (nargs == 0 || nargs > 2) {
+        errornum = FBLITS_ERR_INCORRECT_ARGS_NUM;
         goto on_error;
     }
+    else if (nargs == 2)
+        if (!pg_IntFromObj(args[1], &flags_numeric)) {
+            errornum = FBLITS_ERR_FLAG_NOT_NUMERIC;
+            goto on_error;
+        }
 
     blitsequence = args[0];
     if (PyUnicode_Check(blitsequence)) {
         errornum = BLITS_ERR_SEQUENCE_REQUIRED;
-        goto on_error;
-    }
-
-    if (!pg_IntFromObj(args[1], &flags_numeric)) {
-        errornum = FBLITS_ERR_FLAG_NOT_NUMERIC;
         goto on_error;
     }
 
@@ -2329,10 +2329,10 @@ on_error:
             return RAISE(
                 PyExc_ValueError,
                 "Blit_sequence item should be a tuple of (Surface, dest)");
-        case FBLITS_ERR_INSUFFICIENT_ARGS:
+        case FBLITS_ERR_INCORRECT_ARGS_NUM:
             return RAISE(PyExc_ValueError,
-                         "Function requires positional arguments in the "
-                         "order: blit_sequence, special_flags");
+                         "Incorrect number of parameters passed: need at "
+                         "least one, 2 at max");
         case FBLITS_ERR_FLAG_NOT_NUMERIC:
             return RAISE(PyExc_TypeError,
                          "The special_flags parameter must be an int");
