@@ -2165,20 +2165,19 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             return NULL;
         }
 
-        item = PyIter_Next(iterator);
-        if (PySequence_Check(item)) {
-            itemlength = PySequence_Size(item);
-            if (itemlength != 2) {
+        while ((item = PyIter_Next(iterator))) {
+            if (PySequence_Check(item)) {
+                itemlength = PySequence_Size(item);
+                if (itemlength != 2) {
+                    errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
                 errornum = FBLITS_ERR_TUPLE_REQUIRED;
                 goto on_error;
             }
-        }
-        else {
-            errornum = FBLITS_ERR_TUPLE_REQUIRED;
-            goto on_error;
-        }
 
-        do {
             /* (Surface, dest) */
             srcobject = PySequence_ITEM(item, 0);
             argpos = PySequence_ITEM(item, 1);
@@ -2220,7 +2219,7 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 errornum = BLITS_ERR_BLIT_FAIL;
                 goto on_error;
             }
-        } while ((item = PyIter_Next(iterator)));
+        }
 
         Py_DECREF(iterator);
         if (PyErr_Occurred()) {
