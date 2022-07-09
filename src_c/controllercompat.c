@@ -1,7 +1,8 @@
 /*
- * Compat file specifically for controller (see https://github.com/pygame/pygame/pull/3272)
- * we had trouble using pgcompat.c, because it would be included twice, or it would lead to
- * flakiness on compilers, because of threads...
+ * Compat file specifically for controller (see
+ * https://github.com/pygame/pygame/pull/3272) we had trouble using pgcompat.c,
+ * because it would be included twice, or it would lead to flakiness on
+ * compilers, because of threads...
  */
 
 #include <SDL.h>
