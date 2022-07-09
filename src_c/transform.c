@@ -1291,7 +1291,7 @@ smoothscale_init(struct _module_state *st)
         return;
     }
 
-#if defined(SCALE_MMX_SUPPORT)
+#ifdef SCALE_MMX_SUPPORT
     if (SDL_HasSSE()) {
         st->filter_type = "SSE";
         st->filter_shrink_X = filter_shrink_X_SSE;
