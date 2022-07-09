@@ -104,6 +104,8 @@ solves no longer exists, it will likely be removed in the future.
    works on most systems, but some will return an empty list if they cannot
    find fonts.
 
+   .. versionchanged:: 2.1.3 Checks through user fonts instead of just global fonts for Windows.
+
    .. ## pygame.font.get_fonts ##
 
 .. function:: match_font
@@ -120,6 +122,8 @@ solves no longer exists, it will likely be removed in the future.
    If none of the given names are found, None is returned.
 
    .. versionadded:: 2.0.1 Accept an iterable of font names.
+
+   .. versionchanged:: 2.1.3 Checks through user fonts instead of just global fonts for Windows.
 
    Example:
 
@@ -147,6 +151,8 @@ solves no longer exists, it will likely be removed in the future.
    which case the set of names will be searched in order.
 
    .. versionadded:: 2.0.1 Accept an iterable of font names.
+
+   .. versionchanged:: 2.1.3 Checks through user fonts instead of just global fonts for Windows.
 
    .. ## pygame.font.SysFont ##
 

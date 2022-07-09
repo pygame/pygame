@@ -1125,10 +1125,6 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
     old_colors = pal->colors;
 
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
-        return RAISE(pgExc_SDLError,
-                     "cannot set palette without pygame.display initialized");
-
     len = (int)MIN(pal->ncolors, PySequence_Length(list));
 
     for (i = 0; i < len; i++) {
@@ -1193,10 +1189,6 @@ surf_set_palette_at(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_IndexError, "index out of bounds");
         return NULL;
     }
-
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
-        return RAISE(pgExc_SDLError,
-                     "cannot set palette without pygame.display initialized");
 
     color.r = rgba[0];
     color.g = rgba[1];
