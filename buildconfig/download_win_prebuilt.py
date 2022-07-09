@@ -80,24 +80,24 @@ def get_urls(x86=True, x64=True, ARM64=True):
         url_sha1.extend([
             [
             'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.23.1-VC.zip',
-            '6b7dfa014337534ad14a7cc80503fcb94f731c7c',
+            'c6996acb84ec09a7af94157670bb0491f45f8940',
             ],
             [
             'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.5.2-VC.zip',
-            '6c93d002378461cf1c70c62aeafcab9dbe5d1279',
+            '56083c958e0f002e3bda9e734e2806c50bfde341',
             ],
             [
             'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_ttf-devel-2.19.3-VC.zip',
-            '945cea2fefd683d6376077aef7a3646f0eb720f0'
+            '76fdfeecbd5077833340359afdd9d7f4f1680ef1'
             ],
             [
             'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.5.2-VC.zip',
-            '0834b9e869b53fdd4b464b0683ec2e13bc9a0127',
+            '337d548b8acf8c8a8ed8784da13e5c85365ee39b',
             ],
         ])
         url_sha1.append([
             'https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev4/prebuilt-ARM64-pygame.zip',
-            'a54c01bd9afdd70045fe9421966268ff56973dbd'
+            'dca6a038c60ee98da79b10a8146b5862585fbbb3'
         ])
         return url_sha1
     url_sha1.extend([
