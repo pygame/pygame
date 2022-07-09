@@ -74,7 +74,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method:: cross
 
       | :sl:`calculates the cross- or vector-product`
-      | :sg:`cross(Vector2) -> Vector2`
+      | :sg:`cross(Vector2) -> float`
 
       calculates the third component of the cross-product.
 
