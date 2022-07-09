@@ -8,6 +8,7 @@
 #define PG_ENABLE_ARM_NEON 1
 #endif
 
+#if !defined(_M_ARM64)
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 void
 blit_blend_rgba_mul_sse2(SDL_BlitInfo *info);
@@ -51,3 +52,4 @@ void
 blit_blend_rgba_min_avx2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_avx2(SDL_BlitInfo *info);
+#endif /* !defined(_M_ARM64) */

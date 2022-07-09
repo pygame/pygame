@@ -1,5 +1,7 @@
 #include "simd_blitters.h"
 
+#if !defined(_M_ARM64)
+
 #if defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H)
 #include <immintrin.h>
 #endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
@@ -928,3 +930,4 @@ blit_blend_rgb_min_avx2(SDL_BlitInfo *info)
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
           !defined(SDL_DISABLE_IMMINTRIN_H) */
+#endif /* !defined(_M_ARM64) */
