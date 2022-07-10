@@ -110,6 +110,7 @@ def main():
         screen.blit(p.image, p.pos)
         clock.tick(60)
         pg.display.update()
+        pg.time.delay(100)
 
 
 if __name__ == "__main__":
