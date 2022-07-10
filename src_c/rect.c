@@ -438,12 +438,12 @@ pg_rect_update(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_union(pgRectObject *self, PyObject *rect)
+pg_rect_union(pgRectObject *self, PyObject *args)
 {
     SDL_Rect *argrect, temp;
     int x, y, w, h;
 
-    if (!(argrect = pgRect_FromObject(rect, &temp))) {
+    if (!(argrect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
     x = MIN(self->r.x, argrect->x);
@@ -454,12 +454,12 @@ pg_rect_union(pgRectObject *self, PyObject *rect)
 }
 
 static PyObject *
-pg_rect_union_ip(pgRectObject *self, PyObject *rect)
+pg_rect_union_ip(pgRectObject *self, PyObject *args)
 {
     SDL_Rect *argrect, temp;
     int x, y, w, h;
 
-    if (!(argrect = pgRect_FromObject(rect, &temp)))
+    if (!(argrect = pgRect_FromObject(args, &temp)))
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
     x = MIN(self->r.x, argrect->x);
@@ -588,11 +588,11 @@ pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_colliderect(pgRectObject *self, PyObject *rect)
+pg_rect_colliderect(pgRectObject *self, PyObject *args)
 {
     SDL_Rect *argrect, temp;
 
-    if (!(argrect = pgRect_FromObject(rect, &temp))) {
+    if (!(argrect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
     return PyBool_FromLong(_pg_do_rects_intersect(&self->r, argrect));
@@ -618,8 +618,9 @@ pg_rect_collidelist(pgRectObject *self, PyObject *list)
     f_list = PySequence_Fast_ITEMS(tmpseq);
     for (loop = 0; loop < size; ++loop) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
-            return RAISE(PyExc_TypeError,
-                         "Argument must be a sequence of rectstyle objects.");
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Argument must be a sequence of rectstyle objects.");
             break;
         }
         if (_pg_do_rects_intersect(&self->r, argrect)) {
@@ -933,18 +934,17 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
             Py_DECREF(num);
         }
     }
-
     return ret;
 }
 
 static PyObject *
-pg_rect_clip(pgRectObject *self, PyObject *rect)
+pg_rect_clip(pgRectObject *self, PyObject *args)
 {
     SDL_Rect *A, *B, temp;
     int x, y, w, h;
 
     A = &self->r;
-    if (!(B = pgRect_FromObject(rect, &temp))) {
+    if (!(B = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
 
@@ -1098,10 +1098,10 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
 }
 
 static int
-_pg_rect_contains(pgRectObject *self, PyObject *rect)
+_pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
     SDL_Rect *argrect, temp_arg;
-    if (!(argrect = pgRect_FromObject(rect, &temp_arg))) {
+    if (!(argrect = pgRect_FromObject(arg, &temp_arg))) {
         return -1;
     }
     return (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
@@ -1112,9 +1112,9 @@ _pg_rect_contains(pgRectObject *self, PyObject *rect)
 }
 
 static PyObject *
-pg_rect_contains(pgRectObject *self, PyObject *rect)
+pg_rect_contains(pgRectObject *self, PyObject *arg)
 {
-    int ret = _pg_rect_contains(self, rect);
+    int ret = _pg_rect_contains(self, arg);
     if (ret < 0) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
@@ -1249,27 +1249,27 @@ pg_rect_copy(pgRectObject *self, PyObject *_null)
 static struct PyMethodDef pg_rect_methods[] = {
     {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
      DOC_RECTNORMALIZE},
-    {"clip", (PyCFunction)pg_rect_clip, METH_O, DOC_RECTCLIP},
+    {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
     {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS,
      DOC_RECTCLIPLINE},
-    {"clamp", (PyCFunction)pg_rect_clamp, METH_O, DOC_RECTCLAMP},
-    {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_O, DOC_RECTCLAMPIP},
+    {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
+    {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
     {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
-    {"fit", (PyCFunction)pg_rect_fit, METH_O, DOC_RECTFIT},
+    {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
     {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
-    {"union", (PyCFunction)pg_rect_union, METH_O, DOC_RECTUNION},
+    {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_O, DOC_RECTUNIONALL},
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"union_ip", (PyCFunction)pg_rect_union_ip, METH_O, DOC_RECTUNIONIP},
+    {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_O,
      DOC_RECTUNIONALLIP},
     {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
      DOC_RECTCOLLIDEPOINT},
-    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_O,
+    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
      DOC_RECTCOLLIDERECT},
     {"collidelist", (PyCFunction)pg_rect_collidelist, METH_O,
      DOC_RECTCOLLIDELIST},
@@ -1283,7 +1283,8 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTCOLLIDEDICT},
     {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
      DOC_RECTCOLLIDEDICTALL},
-    {"contains", (PyCFunction)pg_rect_contains, METH_O, DOC_RECTCONTAINS},
+    {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
+     DOC_RECTCONTAINS},
     {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
