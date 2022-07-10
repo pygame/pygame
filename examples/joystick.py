@@ -31,7 +31,6 @@ def main():
     screen = pygame.display.set_mode((500, 700))
     pygame.display.set_caption("Joystick example")
 
-    # Loop until the user clicks the close button.
     # Used to manage how fast the screen updates.
     clock = pygame.time.Clock()
 
