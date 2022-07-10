@@ -909,14 +909,22 @@
 
       Returns a copy of the initial surface with the Red, Green and Blue color channels multiplied
       by the alpha channel. This is intended to make it easier to work with the BLEND_PREMULTIPLED
-      blend mode flag of the blit() method.
+      blend mode flag of the blit() method. Surfaces which have called this method will only look
+      correct after blitting if the BLEND_PREMULTIPLED special flag is used.
+
+      It is worth noting that after calling this method, methods that return the colour of a pixel
+      such as get_at() will return the alpha multiplied colour values. It is not possible to fully
+      reverse an alpha multiplication of the colours in a surface as integer colour channel data
+      is generally reduced by the operation (e.g. 255 x 0 = 0 and it is not possible to reconstruct
+      the original 255 from just the two remaining zeros).
 
       Surfaces without an alpha channel cannot use this method and will return an error if you use
       it on them. It is best used on 32 bit surfaces (the default on most platforms) as the blitting
       on these surfaces can be accelerated by SIMD versions of the pre-multiplied blitter.
 
       In general pre-multiplied alpha blitting is faster then 'straight alpha' blitting and produces
-      superior results when blitting an alpha surface onto another surface with alpha.
+      superior results when blitting an alpha surface onto another surface with alpha - assuming both
+      surfaces contain pre-multiplied alpha colours.
 
       .. versionadded:: 2.1.4
 
