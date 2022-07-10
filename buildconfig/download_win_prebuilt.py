@@ -76,22 +76,46 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
 
 def get_urls(x86=True, x64=True, ARM64=True):
     url_sha1 = []
+    if ARM64:
+        url_sha1.extend([
+            [
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.23.1-VC.zip',
+            'c6996acb84ec09a7af94157670bb0491f45f8940',
+            ],
+            [
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.5.2-VC.zip',
+            '56083c958e0f002e3bda9e734e2806c50bfde341',
+            ],
+            [
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_ttf-devel-2.19.3-VC.zip',
+            '76fdfeecbd5077833340359afdd9d7f4f1680ef1'
+            ],
+            [
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.5.2-VC.zip',
+            '337d548b8acf8c8a8ed8784da13e5c85365ee39b',
+            ],
+        ])
+        url_sha1.append([
+            'https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev4/prebuilt-ARM64-pygame.zip',
+            'dca6a038c60ee98da79b10a8146b5862585fbbb3'
+        ])
+        return url_sha1
     url_sha1.extend([
         [
-        'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.0.22-VC.zip',
-        '5e03be0064000dc4558b67a2f86dd940abbce22a',
+        'https://www.libsdl.org/release/SDL2-devel-2.0.22-VC.zip',
+        'efa040633c4faf8b006c0c1e552456ca4e5a3a53',
         ],
         [
-        'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.6.0-VC.zip',
-        'b50d010966356bb77bc37c39ee55203cd74d777d',
+        'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
+        '137f86474691f4e12e76e07d58d5920c8d844d5b',
         ],
         [
-        'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_ttf-devel-2.20.0-VC.zip',
-        'e906c030dfbf27ef7f0fe0d0fa5b86dab4888269'
+        'https://github.com/pygame/pygame/releases/download/2.1.3.dev4/SDL2_ttf-devel-2.0.19-VC.zip',
+        'e01f7a1f7ce1039729ffbaa621a2a2973b6c0469'
         ],
         [
-        'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.6.0-VC.zip',
-        '9e92fe7dc9832e4d8d859e36642d9d9f7186fb19',
+        'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
+        '9097148f4529cf19f805ccd007618dec280f0ecc',
         ],
     ])
     if x86:
@@ -103,11 +127,6 @@ def get_urls(x86=True, x64=True, ARM64=True):
         url_sha1.append([
          'https://github.com/pygame/pygame/releases/download/2.1.3.dev4/prebuilt-x64-pygame-2.1.4-20220319.zip',
          '16b46596744ce9ef80e7e40fa72ddbafef1cf586'
-        ])
-    if ARM64:
-        url_sha1.append([
-         'https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev5/prebuilt-ARM64-pygame.zip',
-         '408ac3205e63c8c701e9544ce4dd2d21c18cd08f'
         ])
     return url_sha1
 
@@ -207,6 +226,21 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, ARM64=
     if ARM64:
         prebuilt_dirs.append('prebuilt-ARM64')
 
+    if ARM64:
+        SDL_version = {
+            'SDL2_image' : '2.5.2',
+            'SDL2_mixer' : '2.5.2',
+            'SDL2_ttf' : '2.19.3',
+            'SDL2' : '2.23.1',
+        }
+    else:
+        SDL_version = {
+            'SDL2_image' : '2.0.5',
+            'SDL2_mixer' : '2.0.4',
+            'SDL2_ttf' : '2.0.19',
+            'SDL2' : '2.0.22',
+        }
+
     for prebuilt_dir in prebuilt_dirs:
         path = os.path.join(move_to_dir, prebuilt_dir)
         print(f"copying into {path}")
@@ -214,45 +248,45 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, ARM64=
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_image-devel-2.6.0-VC/SDL2_image-2.6.0'
+                f'SDL2_image-devel-{SDL_version["SDL2_image"]}-VC/SDL2_image-{SDL_version["SDL2_image"]}'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_image-2.6.0'
+                f'SDL2_image-{SDL_version["SDL2_image"]}'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_mixer-devel-2.6.0-VC/SDL2_mixer-2.6.0'
+                f'SDL2_mixer-devel-{SDL_version["SDL2_mixer"]}-VC/SDL2_mixer-{SDL_version["SDL2_mixer"]}'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_mixer-2.6.0'
+                f'SDL2_mixer-{SDL_version["SDL2_mixer"]}'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                f'SDL2_ttf-devel-2.20.0-VC/SDL2_ttf-2.20.0'
+                f'SDL2_ttf-devel-{SDL_version["SDL2_ttf"]}-VC/SDL2_ttf-{SDL_version["SDL2_ttf"]}'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                f'SDL2_ttf-2.20.0'
+                f'SDL2_ttf-{SDL_version["SDL2_ttf"]}'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                f'SDL2-devel-2.0.22-VC/SDL2-2.0.22'
+                f'SDL2-devel-{SDL_version["SDL2"]}-VC/SDL2-{SDL_version["SDL2"]}'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                f'SDL2-2.0.22'
+                f'SDL2-{SDL_version["SDL2"]}'
             )
         )
 
