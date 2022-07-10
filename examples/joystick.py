@@ -7,7 +7,7 @@ pygame.init()
 class TextPrint:
     def __init__(self):
         self.reset()
-        self.font = pygame.font.Font(None, 20)
+        self.font = pygame.font.Font(None, 25)
 
     def tprint(self, screen, text):
         text_bitmap = self.font.render(text, True, (0, 0, 0))
