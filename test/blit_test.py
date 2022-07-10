@@ -44,13 +44,13 @@ class BlitTest(unittest.TestCase):
 
         s.blit(d, (0, 0), None, BLEND_ADD)
 
-        # print "d %s" % (d.get_at((0,0)),)
-        # print s.get_at((0,0))
+        # print("d %s" % (d.get_at((0,0)),))
+        # print(s.get_at((0,0)))
         # self.assertEqual(s.get_at((0,0))[2], 255 )
         # self.assertEqual(s.get_at((0,0))[3], 0 )
 
         s.blit(d, (0, 0), None, BLEND_RGBA_ADD)
-        # print s.get_at((0,0))
+        # print(s.get_at((0,0)))
         self.assertEqual(s.get_at((0, 0))[3], 255)
 
         # test adding works.
@@ -100,14 +100,14 @@ class BlitTest(unittest.TestCase):
         results = blits(blit_list)
         t1 = time()
         if PRINT_TIMING:
-            print("python blits: %s" % (t1 - t0))
+            print(f"python blits: {t1 - t0}")
 
         dst.fill((230, 230, 230))
         t0 = time()
         results = dst.blits(blit_list)
         t1 = time()
         if PRINT_TIMING:
-            print("Surface.blits :%s" % (t1 - t0))
+            print(f"Surface.blits :{t1 - t0}")
 
         # check if we blit all the different colors in the correct spots.
         for i in range(NUM_SURFS):
@@ -121,14 +121,14 @@ class BlitTest(unittest.TestCase):
         results = dst.blits(blit_list, doreturn=0)
         t1 = time()
         if PRINT_TIMING:
-            print("Surface.blits doreturn=0: %s" % (t1 - t0))
+            print(f"Surface.blits doreturn=0: {t1 - t0}")
         self.assertEqual(results, None)
 
         t0 = time()
         results = dst.blits(((surf, dest) for surf, dest in blit_list))
         t1 = time()
         if PRINT_TIMING:
-            print("Surface.blits generator: %s" % (t1 - t0))
+            print(f"Surface.blits generator: {t1 - t0}")
 
     def test_blits_not_sequence(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)

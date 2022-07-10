@@ -76,6 +76,17 @@ static int _pg_event_is_init = 0;
  * arbitrary number you like ;) */
 #define MAX_SCAN_UNICODE 15
 
+/* SDL mutex to be held in the event filter when global state is modified.
+ * This mutex is intentionally immortalised (never freed during the entire
+ * duration of the program) because its cleanup can be messy with multiple
+ * threads trying to use it. Since it's a singleton we don't need to worry
+ * about memory leaks */
+#ifndef __EMSCRIPTEN__
+/* emscripten does not allow multithreading for now and SDL_CreateMutex fails.
+ * Don't bother with mutexes on emscripten for now */
+static SDL_mutex *pg_evfilter_mutex = NULL;
+#endif
+
 static struct ScanAndUnicode {
     SDL_Scancode key;
     char unicode[UNICODE_LEN];
@@ -86,20 +97,60 @@ static int pg_key_repeat_interval = 0;
 
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
+static SDL_Event _pg_last_keydown_event = {0};
+
+#ifdef __EMSCRIPTEN__
+/* these macros are no-op here */
+#define PG_LOCK_EVFILTER_MUTEX
+#define PG_UNLOCK_EVFILTER_MUTEX
+#else /* not on emscripten */
+
+#define PG_LOCK_EVFILTER_MUTEX                                             \
+    if (pg_evfilter_mutex) {                                               \
+        if (SDL_LockMutex(pg_evfilter_mutex) < 0) {                        \
+            /* TODO: better error handling with future error-event API */  \
+            /* since this error is very rare, we can completely give up if \
+             * this happens for now */                                     \
+            printf("Fatal pygame error in SDL_LockMutex: %s",              \
+                   SDL_GetError());                                        \
+            PG_EXIT(1);                                                    \
+        }                                                                  \
+    }
+
+#define PG_UNLOCK_EVFILTER_MUTEX                                           \
+    if (pg_evfilter_mutex) {                                               \
+        if (SDL_UnlockMutex(pg_evfilter_mutex) < 0) {                      \
+            /* TODO: handle errors with future error-event API */          \
+            /* since this error is very rare, we can completely give up if \
+             * this happens for now */                                     \
+            printf("Fatal pygame error in SDL_UnlockMutex: %s",            \
+                   SDL_GetError());                                        \
+            PG_EXIT(1);                                                    \
+        }                                                                  \
+    }
+#endif /* not on emscripten */
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
 {
-    _pg_repeat_event.type = PGE_KEYREPEAT;
-    _pg_repeat_event.key.state = SDL_PRESSED;
-    _pg_repeat_event.key.repeat = 1;
-    SDL_PushEvent(&_pg_repeat_event);
-    return pg_key_repeat_interval;
+    /* This function is called in a SDL Timer thread */
+    PG_LOCK_EVFILTER_MUTEX
+    /* This assignment only shallow-copies, but SDL_KeyboardEvent does not have
+     * any pointer values so it's safe to do */
+    SDL_Event repeat_event_copy = _pg_repeat_event;
+    int repeat_interval_copy = pg_key_repeat_interval;
+    PG_UNLOCK_EVFILTER_MUTEX
+
+    repeat_event_copy.type = PGE_KEYREPEAT;
+    repeat_event_copy.key.state = SDL_PRESSED;
+    repeat_event_copy.key.repeat = 1;
+    SDL_PushEvent(&repeat_event_copy);
+    return repeat_interval_copy;
 }
 
 /* This function attempts to determine the unicode attribute from
- * the keydown/keyup event. This is used as a last-resort, incase we
- * could not determine the unicode from TEXTINPUT feild. Why?
+ * the keydown/keyup event. This is used as a last-resort, in case we
+ * could not determine the unicode from TEXTINPUT field. Why?
  * Because this function is really basic and cannot determine the
  * fancy unicode characters, just the basic ones
  *
@@ -116,7 +167,7 @@ _pg_unicode_from_event(SDL_Event *event)
     SDL_Keycode key = event->key.keysym.sym;
 
     if (event->key.keysym.mod & KMOD_CTRL) {
-        /* Contol Key held, send control-key related unicode. */
+        /* Control Key held, send control-key related unicode. */
         if (key >= SDLK_a && key <= SDLK_z)
             return key - SDLK_a + 1;
         else {
@@ -171,7 +222,7 @@ _pg_unicode_from_event(SDL_Event *event)
 
 /* Strip a utf-8 encoded string to contain only first character. Also
  * ensure that character can be represented within 3 bytes, because SDL1
- * did not support unicode characters that took up 4 bytes. Incase this
+ * did not support unicode characters that took up 4 bytes. In case this
  * bit of code is not clear, here is a python equivalent
 def _pg_strip_utf8(string):
     if chr(string[0]) <= 0xFFFF:
@@ -263,7 +314,7 @@ _pg_get_event_unicode(SDL_Event *event)
  * Some SDL1 events (SDL_ACTIVEEVENT, SDL_VIDEORESIZE and SDL_VIDEOEXPOSE)
  * are redefined with SDL2, they HAVE to be proxied.
  *
- * SDL_USEREVENT is not proxied, because with SDL2, pygame assignes a
+ * SDL_USEREVENT is not proxied, because with SDL2, pygame assigns a
  * different event in place of SDL_USEREVENT, and users use PGE_USEREVENT
  *
  * Each WINDOW_* event must be defined twice, once as an event, and also
@@ -379,8 +430,6 @@ _pg_pgevent_deproxify(Uint32 type)
     return _pg_pgevent_proxify_helper(type, 0);
 }
 
-static SDL_Event *_pg_last_keydown_event = NULL;
-
 static int
 _pg_translate_windowevent(void *_, SDL_Event *event)
 {
@@ -418,7 +467,10 @@ _pg_remove_pending_VIDEOEXPOSE(void *userdata, SDL_Event *event)
 }
 
 /* SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation,
- * this can alter events in-place */
+ * this can alter events in-place.
+ * This function can be called from multiple threads, so a mutex must be held
+ * when this function tries to modify any global state (the mutex is not needed
+ * on all branches of this function) */
 static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
 {
@@ -456,27 +508,28 @@ pg_event_filter(void *_, SDL_Event *event)
         if (event->key.repeat)
             return 0;
 
+        PG_LOCK_EVFILTER_MUTEX
         if (pg_key_repeat_delay > 0) {
             if (_pg_repeat_timer)
                 SDL_RemoveTimer(_pg_repeat_timer);
 
-            memcpy(&_pg_repeat_event, event, sizeof(SDL_Event));
+            _pg_repeat_event = *event;
             _pg_repeat_timer =
                 SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback, NULL);
         }
 
         /* store the keydown event for later in the SDL_TEXTINPUT */
-        if (!_pg_last_keydown_event)
-            _pg_last_keydown_event = PyMem_New(SDL_Event, 1);
-        memcpy(_pg_last_keydown_event, event, sizeof(SDL_Event));
+        _pg_last_keydown_event = *event;
+        PG_UNLOCK_EVFILTER_MUTEX
     }
 
     else if (event->type == SDL_TEXTINPUT) {
-        if (_pg_last_keydown_event) {
-            _pg_put_event_unicode(_pg_last_keydown_event, event->text.text);
-            PyMem_Free(_pg_last_keydown_event);
-            _pg_last_keydown_event = NULL;
+        PG_LOCK_EVFILTER_MUTEX
+        if (_pg_last_keydown_event.type) {
+            _pg_put_event_unicode(&_pg_last_keydown_event, event->text.text);
+            _pg_last_keydown_event.type = 0;
         }
+        PG_UNLOCK_EVFILTER_MUTEX
     }
 
     else if (event->type == PGE_KEYREPEAT) {
@@ -484,11 +537,13 @@ pg_event_filter(void *_, SDL_Event *event)
     }
 
     else if (event->type == SDL_KEYUP) {
+        PG_LOCK_EVFILTER_MUTEX
         if (_pg_repeat_timer && _pg_repeat_event.key.keysym.scancode ==
                                     event->key.keysym.scancode) {
             SDL_RemoveTimer(_pg_repeat_timer);
             _pg_repeat_timer = 0;
         }
+        PG_UNLOCK_EVFILTER_MUTEX
     }
 
     else if (event->type == SDL_MOUSEBUTTONDOWN ||
@@ -546,6 +601,8 @@ pg_event_filter(void *_, SDL_Event *event)
     return SDL_EventState(_pg_pgevent_proxify(event->type), SDL_QUERY);
 }
 
+/* The two keyrepeat functions below modify state accessed by the event filter,
+ * so they too need to hold the safety mutex */
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
@@ -554,26 +611,32 @@ pg_EnableKeyRepeat(int delay, int interval)
                         "delay and interval must equal at least 0");
         return -1;
     }
+    PG_LOCK_EVFILTER_MUTEX
     pg_key_repeat_delay = delay;
     pg_key_repeat_interval = interval;
+    PG_UNLOCK_EVFILTER_MUTEX
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
+    PG_LOCK_EVFILTER_MUTEX
     *delay = pg_key_repeat_delay;
     *interval = pg_key_repeat_interval;
+    PG_UNLOCK_EVFILTER_MUTEX
 }
 
 static PyObject *
 pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
     if (_pg_event_is_init) {
+        PG_LOCK_EVFILTER_MUTEX
         if (_pg_repeat_timer) {
             SDL_RemoveTimer(_pg_repeat_timer);
             _pg_repeat_timer = 0;
         }
+        PG_UNLOCK_EVFILTER_MUTEX
         /* The main reason for _custom_event to be reset here is so we
          * can have a unit test that checks if pygame.event.custom_type()
          * stops returning new types when they are finished, without that
@@ -590,6 +653,14 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
+#ifndef __EMSCRIPTEN__
+        if (!pg_evfilter_mutex) {
+            /* Create mutex only if it has not been created already */
+            pg_evfilter_mutex = SDL_CreateMutex();
+            if (!pg_evfilter_mutex)
+                return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+#endif
         SDL_SetEventFilter(pg_event_filter, NULL);
     }
     _pg_event_is_init = 1;
@@ -905,7 +976,10 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_KEYDOWN:
         case SDL_KEYUP:
+            PG_LOCK_EVFILTER_MUTEX
+            /* this accesses state also accessed the event filter, so lock */
             _pg_insobj(dict, "unicode", _pg_get_event_unicode(event));
+            PG_UNLOCK_EVFILTER_MUTEX
             _pg_insobj(dict, "key", PyLong_FromLong(event->key.keysym.sym));
             _pg_insobj(dict, "mod", PyLong_FromLong(event->key.keysym.mod));
             _pg_insobj(dict, "scancode",

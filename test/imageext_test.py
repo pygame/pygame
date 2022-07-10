@@ -1,4 +1,3 @@
-# -*- coding: utf8 -*-
 import os
 import os.path
 import sys
@@ -67,7 +66,7 @@ class ImageextModuleTest(unittest.TestCase):
             with open(temp_file, "w") as f:
                 pass
             os.remove(temp_file)
-        except IOError:
+        except OSError:
             raise unittest.SkipTest("the path cannot be opened")
 
         self.assertFalse(os.path.exists(temp_file))
@@ -79,7 +78,7 @@ class ImageextModuleTest(unittest.TestCase):
         finally:
             try:
                 os.remove(temp_file)
-            except EnvironmentError:
+            except OSError:
                 pass
 
     def test_save_unicode_path_0(self):

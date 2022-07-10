@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 # module setup_win_common.py
 
 """A module for reading the information common to all Windows setups.

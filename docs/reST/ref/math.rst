@@ -60,6 +60,10 @@ Multiple coordinates can be set using slices or swizzling
 
    Some general information about the ``Vector2`` class.
 
+   .. versionchanged:: 2.1.3 
+      Inherited methods of vector subclasses now correctly return an instance of the 
+      subclass instead of the superclass
+
    .. method:: dot
 
       | :sl:`calculates the dot- or scalar-product with the other vector`
@@ -70,7 +74,7 @@ Multiple coordinates can be set using slices or swizzling
    .. method:: cross
 
       | :sl:`calculates the cross- or vector-product`
-      | :sg:`cross(Vector2) -> Vector2`
+      | :sg:`cross(Vector2) -> float`
 
       calculates the third component of the cross-product.
 
@@ -434,6 +438,10 @@ Multiple coordinates can be set using slices or swizzling
    | :sg:`Vector3((x, y, z)) -> Vector3`
 
    Some general information about the Vector3 class.
+
+   .. versionchanged:: 2.1.3 
+      Inherited methods of vector subclasses now correctly return an instance of the 
+      subclass instead of the superclass
 
    .. method:: dot
 

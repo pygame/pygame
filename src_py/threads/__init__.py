@@ -103,7 +103,7 @@ def benchmark_workers(a_bench_func=None, the_data=None):
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for _ in range(20):
-            print(f"active count:{threading.activeCount()}")
+            print(f"active count:{threading.active_count()}")
             tmap(doit, thedata, worker_queue=wq)
         t2 = time.time()
 
@@ -231,7 +231,7 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
     if len(wq.pool) == 0:
         return map(f, seq_args)
 
-    # print ("queue size:%s" % wq.queue.qsize())
+    # print("queue size:%s" % wq.queue.qsize())
 
     # TODO: divide the data (seq_args) into even chunks and
     #       then pass each thread a map(f, equal_part(seq_args))
@@ -245,15 +245,15 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
     # wq.stop()
 
     if wait:
-        # print ("wait")
+        # print("wait")
         wq.wait()
-        # print ("after wait")
-        # print ("queue size:%s" % wq.queue.qsize())
+        # print("after wait")
+        # print("queue size:%s" % wq.queue.qsize())
         if wq.queue.qsize():
             raise Exception("buggy threadmap")
         # if we created a worker queue, we need to stop it.
         if not worker_queue and not _wq:
-            # print ("stoping")
+            # print("stopping")
             wq.stop()
             if wq.queue.qsize():
                 um = wq.queue.get()

@@ -630,7 +630,7 @@ class GfxdrawDefaultTest(unittest.TestCase):
                 self.assertEqual(
                     expected_surface.get_at((x, y)),
                     surface.get_at((x, y)),
-                    "pos=({}, {})".format(x, y),
+                    f"pos=({x}, {y})",
                 )
 
         surface.unlock()
@@ -763,7 +763,7 @@ class GfxdrawDefaultTest(unittest.TestCase):
                 self.assertEqual(
                     expected_surface.get_at((x, y)),
                     surface.get_at((x, y)),
-                    "pos=({}, {})".format(x, y),
+                    f"pos=({x}, {y})",
                 )
 
         surface.unlock()

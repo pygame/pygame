@@ -48,14 +48,14 @@ class SndarrayTest(unittest.TestCase):
     def test_get_arraytype(self):
         array_type = pygame.sndarray.get_arraytype()
 
-        self.assertEqual(array_type, "numpy", "unknown array type %s" % array_type)
+        self.assertEqual(array_type, "numpy", f"unknown array type {array_type}")
 
     def test_get_arraytypes(self):
         arraytypes = pygame.sndarray.get_arraytypes()
         self.assertIn("numpy", arraytypes)
 
         for atype in arraytypes:
-            self.assertEqual(atype, "numpy", "unknown array type %s" % atype)
+            self.assertEqual(atype, "numpy", f"unknown array type {atype}")
 
     def test_make_sound(self):
         def check_sound(size, channels, test_data):
@@ -106,8 +106,8 @@ class SndarrayTest(unittest.TestCase):
                     snd = pygame.mixer.Sound(buffer=zeroed)
                     samples = pygame.sndarray.samples(snd)
                     self._assert_compatible(samples, size)
-                    ##print ('X %s' % (samples.shape,))
-                    ##print ('Y %s' % (test_data,))
+                    ##print('X %s' % (samples.shape,))
+                    ##print('Y %s' % (test_data,))
                     samples[...] = test_data
                     arr = pygame.sndarray.array(snd)
                     self.assertTrue(

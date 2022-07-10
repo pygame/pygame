@@ -322,7 +322,7 @@ bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset,
             }
         }
         else /* xoffset is a multiple of the stripe width, and the above
-                routines wont work */
+                routines won't work */
         {
             astripes = (MIN(b->w, a->w - xoffset) - 1) / BITMASK_W_LEN + 1;
             for (i = 0; i < astripes; i++) {
@@ -537,7 +537,7 @@ bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset,
             }
         }
         else /* xoffset is a multiple of the stripe width, and the above
-                routines wont work */
+                routines won't work */
         {
             astripes = (MIN(b->w, a->w - xoffset) - 1) / BITMASK_W_LEN + 1;
             for (i = 0; i < astripes; i++) {

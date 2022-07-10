@@ -500,7 +500,7 @@ class SurfarrayModuleTest(unittest.TestCase):
     def test_get_arraytype(self):
         array_type = pygame.surfarray.get_arraytype()
 
-        self.assertEqual(array_type, "numpy", "unknown array type %s" % array_type)
+        self.assertEqual(array_type, "numpy", f"unknown array type {array_type}")
 
     # this test should be removed soon, when the function is deleted
     def test_get_arraytypes(self):
@@ -509,7 +509,7 @@ class SurfarrayModuleTest(unittest.TestCase):
         self.assertIn("numpy", arraytypes)
 
         for atype in arraytypes:
-            self.assertEqual(atype, "numpy", "unknown array type %s" % atype)
+            self.assertEqual(atype, "numpy", f"unknown array type {atype}")
 
     def test_make_surface(self):
 

@@ -22,7 +22,6 @@
 
 #include "../doc/touch_doc.h"
 
-
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *_null)
 {
@@ -59,14 +58,13 @@ pg_touch_num_fingers(PyObject *self, PyObject *device_id)
 
     VIDEO_INIT_CHECK();
 
-    fingercount =
-        SDL_GetNumTouchFingers(PyLong_AsLongLong(device_id));
+    fingercount = SDL_GetNumTouchFingers(PyLong_AsLongLong(device_id));
     if (fingercount == 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
     return PyLong_FromLong(fingercount);
 }
-
+#if !defined(BUILD_STATIC)
 /* Helper for adding objects to dictionaries. Check for errors with
    PyErr_Occurred() */
 static void
@@ -77,20 +75,22 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
         Py_DECREF(v);
     }
 }
+#else
+extern void
+_pg_insobj(PyObject *dict, char *name, PyObject *v);
+#endif
 
 static PyObject *
 pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    char* keywords[] = {"touchid", "index", NULL};
+    char *keywords[] = {"touchid", "index", NULL};
     SDL_TouchID touchid;
     int index;
     SDL_Finger *finger;
     PyObject *fingerobj;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs,
-                                     "Li", keywords,
-                                     &touchid, &index))
-    {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Li", keywords, &touchid,
+                                     &index)) {
         return NULL;
     }
 
@@ -118,11 +118,14 @@ pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyMethodDef _touch_methods[] = {
-    {"get_num_devices", pg_touch_num_devices, METH_NOARGS, DOC_PYGAMESDL2TOUCHGETNUMDEVICES},
+    {"get_num_devices", pg_touch_num_devices, METH_NOARGS,
+     DOC_PYGAMESDL2TOUCHGETNUMDEVICES},
     {"get_device", pg_touch_get_device, METH_O, DOC_PYGAMESDL2TOUCHGETDEVICE},
 
-    {"get_num_fingers", pg_touch_num_fingers, METH_O, DOC_PYGAMESDL2TOUCHGETNUMFINGERS},
-    {"get_finger", (PyCFunction)pg_touch_get_finger, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMESDL2TOUCHGETFINGER},
+    {"get_num_fingers", pg_touch_num_fingers, METH_O,
+     DOC_PYGAMESDL2TOUCHGETNUMFINGERS},
+    {"get_finger", (PyCFunction)pg_touch_get_finger,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMESDL2TOUCHGETFINGER},
 
     {NULL, NULL, 0, NULL}};
 

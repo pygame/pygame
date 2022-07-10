@@ -240,7 +240,7 @@ struct CursorData {
 Since cursor_data type and constant both initialize to zero,
 When get_cursor() is called before set_cursor() has set something,
 it sees a type 0 (system cursor) cursor with the constant 0.
-The SDL2 constant SDL_SYSTEM_CURSOR_ARROW is 0, so it wil return the
+The SDL2 constant SDL_SYSTEM_CURSOR_ARROW is 0, so it will return the
 default cursor.*/
 
 static PyObject *

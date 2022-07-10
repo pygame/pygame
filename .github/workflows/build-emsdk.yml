@@ -1,0 +1,88 @@
+name: Build WASM (Emscripten)
+
+# Run CI only on changes to main branch, or any PR to main. Do not run CI on 
+# any other branch. Also, skip any non-source changes from running on CI
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-emsdk.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-emsdk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      # pin SDK version to the latest, update manually
+      SDK_VERSION: 0.3.3
+      SDK_ARCHIVE: python-wasm-sdk-ubuntu-22.04.tar.lz4
+
+      # use the most recent cython from github, but pin on a commit for CI
+      # stability. This is also needed to benefit from caching cython installs
+      LATEST_CYTHON_COMMIT: 8e29b6d47f6f5b10ec1a37f06db440156ac2ac2e
+
+      WHEELHOUSE_CYTHON: /tmp/wheelhouse/cython
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Cache Cython
+      id: cache-cython
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.WHEELHOUSE_CYTHON }}
+        key: wasm-ubuntu-cython-${{ env.LATEST_CYTHON_COMMIT }}-path-${{ env.WHEELHOUSE_CYTHON }}
+
+    # This builds the cython wheel and stores it in cache too
+    - name: Download and build cython on cache miss
+      if: steps.cache-cython.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p $WHEELHOUSE_CYTHON
+        pip wheel --wheel-dir $WHEELHOUSE_CYTHON git+https://github.com/cython/cython.git@$LATEST_CYTHON_COMMIT
+
+    - name: Install latest cython and regen
+      run: |
+        pip install --no-index --find-links $WHEELHOUSE_CYTHON --pre cython
+        touch $(find | grep pxd$)
+        python3 setup.py cython_only
+
+    - name: Install python-wasm-sdk
+      run: |
+        sudo apt-get install lz4
+        mkdir python-wasm-sdk && cd python-wasm-sdk
+        curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvP --use-compress-program=lz4
+      working-directory: /opt
+
+    - name: Build WASM with emsdk
+      run: |
+        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build -j$(nproc)
+    
+    - name: Generate libpygame.a static binaries archive
+      run: |
+        mkdir -p dist
+        SYS_PYTHON=python3 /opt/python-wasm-sdk/emsdk/upstream/emscripten/emar rcs dist/libpygame.a $(find build/temp.wasm32-*/ | grep o$)
+
+    # Upload the generated files under github actions assets section
+    - name: Upload dist
+      uses: actions/upload-artifact@v3
+      with:
+        name: pygame-wasm-dist
+        path: ./dist/*

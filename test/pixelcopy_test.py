@@ -319,10 +319,10 @@ class PixelCopyTestWithArray(unittest.TestCase):
         ((5, 6), 4),
     ]
 
-    pixels2d = set([8, 16, 32])
-    pixels3d = set([24, 32])
-    array2d = set([8, 16, 24, 32])
-    array3d = set([24, 32])
+    pixels2d = {8, 16, 32}
+    pixels3d = {24, 32}
+    array2d = {8, 16, 24, 32}
+    array3d = {24, 32}
 
     def __init__(self, *args, **kwds):
         import numpy
@@ -606,7 +606,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                 from ctypes import cast, POINTER, c_uint32
 
                 Array2D = PixelCopyTestWithArray.Array2D
-                super(Array2D, self).__init__((3, 5), format="=I", strides=(20, 4))
+                super().__init__((3, 5), format="=I", strides=(20, 4))
                 self.content = cast(self.buf, POINTER(c_uint32))
                 for i, v in enumerate(initializer):
                     self.content[i] = v
@@ -622,7 +622,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                 from ctypes import cast, POINTER, c_uint8
 
                 Array3D = PixelCopyTestWithArray.Array3D
-                super(Array3D, self).__init__((3, 5, 3), format="B", strides=(20, 4, 1))
+                super().__init__((3, 5, 3), format="B", strides=(20, 4, 1))
                 self.content = cast(self.buf, POINTER(c_uint8))
                 for i, v in enumerate(initializer):
                     self.content[i] = v

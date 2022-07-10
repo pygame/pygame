@@ -386,7 +386,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. function:: OrderedUpdates
 
    | :sl:`RenderUpdates sub-class that draws Sprites in order of addition.`
-   | :sg:`OrderedUpdates(*spites) -> OrderedUpdates`
+   | :sg:`OrderedUpdates(*sprites) -> OrderedUpdates`
 
    This class derives from ``pygame.sprite.RenderUpdates()``. It maintains the
    order in which the Sprites were added to the Group for rendering. This makes
@@ -398,7 +398,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. class:: LayeredUpdates
 
    | :sl:`LayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates.`
-   | :sg:`LayeredUpdates(*spites, **kwargs) -> LayeredUpdates`
+   | :sg:`LayeredUpdates(*sprites, **kwargs) -> LayeredUpdates`
 
    This group is fully compatible with :class:`pygame.sprite.Sprite`.
 
@@ -554,7 +554,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. class:: LayeredDirty
 
    | :sl:`LayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates.`
-   | :sg:`LayeredDirty(*spites, **kwargs) -> LayeredDirty`
+   | :sg:`LayeredDirty(*sprites, **kwargs) -> LayeredDirty`
 
    This group requires :class:`pygame.sprite.DirtySprite` or any sprite that
    has the following attributes:
@@ -810,7 +810,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    :meth:`groupcollide`, :meth:`spritecollideany`).
 
    .. note::
-      To increase performance, create and set a ``mask`` attibute for all
+      To increase performance, create and set a ``mask`` attribute for all
       sprites that will use this function to check for collisions. Otherwise,
       each time this function is called it will create new masks.
 

@@ -3,7 +3,7 @@
 from ext.utils import Visitor, get_name, GetError, get_refid, as_refid, as_refuri
 from ext.indexer import get_descinfo, get_descinfo_refid
 
-from sphinx.addnodes import desc, desc_signature, desc_content
+from sphinx.addnodes import desc, desc_content, desc_classname, desc_name, desc_signature
 from sphinx.addnodes import index as section_prelude_end_class
 from sphinx.domains.python import PyClasslike
 
@@ -92,7 +92,7 @@ def visit_toc_ref_html(self, node):
     refid = as_refid(refuri)
     docname = get_descinfo_refid(refid, self.settings.env)["docname"]
     link_suffix = self.builder.link_suffix
-    node["refuri"] = "%s%s%s" % (os.path.basename(docname), link_suffix, refuri)
+    node["refuri"] = f"{os.path.basename(docname)}{link_suffix}{refuri}"
     visit_toc_ref(self, node)
 
 
@@ -142,7 +142,7 @@ class DocumentTransformer(Visitor):
     key_pat = re.compile(_key_re)
 
     def __init__(self, app, document_node):
-        super(DocumentTransformer, self).__init__(app, document_node)
+        super().__init__(app, document_node)
         self.module_stack = deque()
         self.title_stack = deque()
 
@@ -299,10 +299,8 @@ def toc_ref(fullname, refid):
 def decorate_signatures(desc, classname):
     prefix = classname + "."
     for child in desc.children:
-        if isinstance(child, sphinx.addnodes.desc_signature) and isinstance(
-            child[0], sphinx.addnodes.desc_name
-        ):
-            new_desc_classname = sphinx.addnodes.desc_classname("", prefix)
+        if isinstance(child, desc_signature) and isinstance(child[0], desc_name):
+            new_desc_classname = desc_classname("", prefix)
             child.insert(0, new_desc_classname)
 
 
@@ -355,7 +353,7 @@ def inject_template_globals(app, pagename, templatename, context, doctree):
     def sort_by_order(sequence, existing_order):
         return existing_order + [x for x in sequence if x not in existing_order]
 
-    full_name_section = dict([(x["fullname"], x) for x in sections])
+    full_name_section = {x["fullname"]: x for x in sections}
     full_names = [x["fullname"] for x in sections]
     sorted_names = sort_by_order(full_names, existing_order)
 

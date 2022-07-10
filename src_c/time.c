@@ -45,7 +45,9 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
      * needs to run */
-    SDL_LockMutex(timermutex);
+    if (timermutex) {
+        SDL_LockMutex(timermutex);
+    }
     if (pg_event_timer) {
         hunt = pg_event_timer;
         while (hunt) {
@@ -57,22 +59,26 @@ pg_time_autoquit(PyObject *self, PyObject *_null)
         pg_event_timer = NULL;
         pg_timer_id = 0;
     }
-    SDL_UnlockMutex(timermutex);
-    /* After we are done, we can destroy the mutex as well */
-    SDL_DestroyMutex(timermutex);
-    timermutex = NULL;
+    if (timermutex) {
+        SDL_UnlockMutex(timermutex);
+        /* After we are done, we can destroy the mutex as well */
+        SDL_DestroyMutex(timermutex);
+        timermutex = NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_time_autoinit(PyObject *self, PyObject *_null)
 {
+#ifndef __EMSCRIPTEN__
     /* allocate a mutex for timer data holding struct*/
     if (!timermutex) {
         timermutex = SDL_CreateMutex();
         if (!timermutex)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
+#endif
     Py_RETURN_NONE;
 }
 
@@ -170,7 +176,7 @@ timer_callback(Uint32 interval, void *param)
     if (!evtimer)
         return 0;
 
-    /* This function runs in a seperate thread, so we acquire the GIL,
+    /* This function runs in a separate thread, so we acquire the GIL,
      * pgEvent_FillUserEvent and _pg_remove_event_timer do python API calls */
     gstate = PyGILState_Ensure();
 
@@ -293,6 +299,13 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     pgEventObject *e;
 
     static char *kwids[] = {"event", "millis", "loops", NULL};
+
+    /* do not allow set_timer to work on WASM for now... this needs some more
+     * testing and fixes that are WIP on other PRs */
+#ifdef __EMSCRIPTEN__
+    return RAISE(PyExc_NotImplementedError,
+                 "set_timer is not implemented on WASM yet");
+#endif
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids, &obj, &ticks,
                                      &loops))
@@ -539,8 +552,13 @@ PYGAME_EXPORT
 void
 initpygame_time(void)
 #else
+#if defined(BUILD_STATIC)
+// avoid PyInit_time conflict with static builtin
+MODINIT_DEFINE(pg_time)
+#else
 MODINIT_DEFINE(time)
-#endif
+#endif  // BUILD_STATIC
+#endif  //__SYMBIAN32__
 {
     PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,

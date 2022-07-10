@@ -964,7 +964,7 @@ int pixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, 
 \brief Draw horizontal line without blending;
 
 Just stores the color value (including the alpha component) without blending.
-Only the same number of bits of the destination surface are transfered
+Only the same number of bits of the destination surface are transferred
 from the input color value.
 
 \param dst The surface to draw on.
@@ -2512,7 +2512,7 @@ This implementation of the Wu antialiasing code is based on Mike Abrash's
 DDJ article which was reprinted as Chapter 42 of his Graphics Programming
 Black Book, but has been optimized to work with SDL and utilizes 32-bit
 fixed-point arithmetic by A. Schiffler. The endpoint control allows the
-supression to draw the last pixel useful for rendering continuous aa-lines
+suppression to draw the last pixel useful for rendering continuous aa-lines
 with alpha<255.
 
 \param dst The surface to draw on.
@@ -5510,7 +5510,7 @@ The last two parameters are optional, but required for multithreaded operation. 
 \param n the amount of vectors in the vx and vy array
 \param texture the sdl surface to use to fill the polygon
 \param texture_dx the offset of the texture relative to the screeen. if you move the polygon 10 pixels 
-to the left and want the texture to apear the same you need to increase the texture_dx value
+to the left and want the texture to appear the same you need to increase the texture_dx value
 \param texture_dy see texture_dx
 \param polyInts preallocated temp array storage for vertex sorting (used for multi-threaded operation)
 \param polyAllocated flag indicating oif the temp array was allocated (used for multi-threaded operation)
@@ -5679,7 +5679,7 @@ This standard version is calling multithreaded versions with NULL cache paramete
 \param n the amount of vectors in the vx and vy array
 \param texture the sdl surface to use to fill the polygon
 \param texture_dx the offset of the texture relative to the screeen. if you move the polygon 10 pixels 
-to the left and want the texture to apear the same you need to increase the texture_dx value
+to the left and want the texture to appear the same you need to increase the texture_dx value
 \param texture_dy see texture_dx
 
 \returns Returns 0 on success, -1 on failure.

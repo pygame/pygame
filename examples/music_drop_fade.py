@@ -31,7 +31,7 @@ def add_file(filename):
     It looks in the file directory and its data subdirectory
     """
     if filename.rpartition(".")[2].lower() not in music_file_types:
-        print("{} not added to file list".format(filename))
+        print(f"{filename} not added to file list")
         print("only these files types are allowed: ", music_file_types)
         return False
     elif os.path.exists(filename):
@@ -43,7 +43,7 @@ def add_file(filename):
     else:
         print("file not found")
         return False
-    print("{} added to file list".format(filename))
+    print(f"{filename} added to file list")
     return True
 
 
@@ -63,7 +63,7 @@ def play_file(filename):
             print(e)  # print description such as 'Not an Ogg Vorbis audio stream'
             if filename in music_file_list:
                 music_file_list.remove(filename)
-                print("{} removed from file list".format(filename))
+                print(f"{filename} removed from file list")
             return
         pg.mixer.music.play(fade_ms=4000)
         pg.mixer.music.set_volume(volume)
@@ -92,7 +92,7 @@ def play_next():
             pg.mixer.music.load(nxt)
         except pg.error as e:
             print(e)
-            print("{} removed from file list".format(nxt))
+            print(f"{nxt} removed from file list")
 
         music_file_list.append(nxt)
         print("starting next song: ", nxt)
@@ -111,7 +111,7 @@ def play_next():
 def draw_text_line(text, y=0):
     """
     Draws a line of text onto the display surface
-    The text will be centered horizontally at the given y postition
+    The text will be centered horizontally at the given y position
     The text's height is added to y and returned to the caller
     """
     screen = pg.display.get_surface()
@@ -122,12 +122,12 @@ def draw_text_line(text, y=0):
     return y
 
 
-def change_music_postion(amount):
+def change_music_position(amount):
     """
-    Changes current playback postition by amount seconds.
+    Changes current playback position by amount seconds.
     This only works with OGG and MP3 files.
     music.get_pos() returns how many milliseconds the song has played, not
-    the current postion in the file. We must track the starting postion
+    the current position in the file. We must track the starting position
     ourselves. music.set_pos() will set the position in seconds.
     """
     global starting_pos
@@ -137,7 +137,7 @@ def change_music_postion(amount):
         old_pos = starting_pos + played_for
         starting_pos = old_pos + amount
         pg.mixer.music.play(start=starting_pos)
-        print("jumped from {} to {}".format(old_pos, starting_pos))
+        print(f"jumped from {old_pos} to {starting_pos}")
 
 
 MUSIC_DONE = pg.event.custom_type()  # event to be set as mixer.music.set_endevent()
@@ -215,9 +215,9 @@ def main():
                 elif ev.key == pg.K_DOWN:
                     change_volume = -VOLUME_CHANGE_AMOUNT
                 elif ev.key == pg.K_RIGHT:
-                    change_music_postion(+5)
+                    change_music_position(+5)
                 elif ev.key == pg.K_LEFT:
-                    change_music_postion(-5)
+                    change_music_position(-5)
 
                 else:
                     play_next()

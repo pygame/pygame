@@ -1,14 +1,10 @@
-import sys
-import platform
-
-try:
-    reduce
-except NameError:
-    from functools import reduce
-import operator
-import weakref
 import gc
+import operator
+import platform
+import sys
 import unittest
+import weakref
+from functools import reduce
 
 from pygame.tests.test_utils import SurfaceSubclass
 
@@ -30,15 +26,15 @@ class TestMixin:
 
         self.assertTupleEqual((w, h), s2.get_size(), msg)
 
-        msg = "" if msg is None else "{}, ".format(msg)
-        msg += "size: ({}, {})".format(w, h)
+        msg = "" if msg is None else f"{msg}, "
+        msg += f"size: ({w}, {h})"
 
         for x in range(w):
             for y in range(h):
                 self.assertEqual(
                     s1.get_at((x, y)),
                     s2.get_at((x, y)),
-                    "{}, position: ({}, {})".format(msg, x, y),
+                    f"{msg}, position: ({x}, {y})",
                 )
 
     def assert_surface_filled(self, surface, expected_color, msg=None):
@@ -1011,7 +1007,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(iterations, 5)
 
     def test_replace(self):
-        # print "replace start"
+        # print("replace start")
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface((10, 10), 0, bpp)
             sf.fill((255, 0, 0))
@@ -1032,10 +1028,10 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar[3][6], oval)
             self.assertEqual(ar[8][9], oval)
             self.assertEqual(ar[9][9], oval)
-        # print "replace end"
+        # print("replace end")
 
     def test_extract(self):
-        # print "extract start"
+        # print("extract start")
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface((10, 10), 0, bpp)
             sf.fill((0, 0, 255))
@@ -1061,7 +1057,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(newar[3][6], white)
             self.assertEqual(newar[8][9], black)
             self.assertEqual(newar[9][9], black)
-        # print "extract end"
+        # print("extract end")
 
     def test_2dslice_assignment(self):
         w = 2 * 5 * 8

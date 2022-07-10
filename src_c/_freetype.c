@@ -189,7 +189,7 @@ static void
 free_string(PGFT_String *);
 
 /*
- * Auxiliar defines
+ * Auxiliary defines
  */
 #define ASSERT_SELF_IS_ALIVE(s)                                          \
     if (!pgFont_IS_ALIVE(s)) {                                           \

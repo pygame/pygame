@@ -85,7 +85,6 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
 
-from operator import truth
 from warnings import warn
 
 import pygame
@@ -213,7 +212,7 @@ class Sprite:
 
         Returns True when the Sprite belongs to one or more Groups.
         """
-        return truth(self.__g)
+        return bool(self.__g)
 
     def __repr__(self):
         return f"<{self.__class__.__name__} Sprite(in {len(self.__g)} groups)>"
@@ -596,10 +595,8 @@ class AbstractGroup:
             self.remove_internal(sprite)
             sprite.remove_internal(self)
 
-    def __nonzero__(self):
-        return truth(self.sprites())
-
-    __bool__ = __nonzero__
+    def __bool__(self):
+        return bool(self.sprites())
 
     def __len__(self):
         """return number of sprites in group
@@ -677,7 +674,7 @@ class RenderUpdates(Group):
 class OrderedUpdates(RenderUpdates):
     """RenderUpdates class that draws Sprites in order of addition
 
-    pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates
+    pygame.sprite.OrderedUpdates(*sprites): return OrderedUpdates
 
     This class derives from pygame.sprite.RenderUpdates().  It maintains
     the order in which the Sprites were added to the Group for rendering.
@@ -705,7 +702,7 @@ class OrderedUpdates(RenderUpdates):
 class LayeredUpdates(AbstractGroup):
     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
 
-    pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates
+    pygame.sprite.LayeredUpdates(*sprites, **kwargs): return LayeredUpdates
 
     This group is fully compatible with pygame.sprite.Sprite.
     New in pygame 1.8.0
@@ -1038,7 +1035,7 @@ class LayeredUpdates(AbstractGroup):
 class LayeredDirty(LayeredUpdates):
     """LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates
 
-    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
+    pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty
 
     This group requires pygame.sprite.DirtySprite or any sprite that
     has the following attributes:
@@ -1065,7 +1062,7 @@ class LayeredDirty(LayeredUpdates):
     def __init__(self, *sprites, **kwargs):
         """initialize group.
 
-        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
+        pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty
 
         You can specify some additional attributes through kwargs:
             _use_update: True/False   (default is False)
@@ -1187,7 +1184,7 @@ class LayeredDirty(LayeredUpdates):
         else:
             self._use_update = True
 
-        # emtpy dirty rects list
+        # empty dirty rects list
         local_update[:] = []
 
         # -------
@@ -1393,10 +1390,8 @@ class GroupSingle(AbstractGroup):
             self.remove_internal(self.__sprite)
         self.__sprite = sprite
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.__sprite is not None
-
-    __bool__ = __nonzero__
 
     def _get_sprite(self):
         return self.__sprite
@@ -1479,7 +1474,7 @@ class collide_rect_ratio:  # noqa pylint: disable=invalid-name; this is a functi
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
-            attrs=" ".join("{}={!r}".format(k, v) for k, v in self.__dict__.items()),
+            attrs=" ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
         )
 
     def __call__(self, left, right):
@@ -1551,9 +1546,7 @@ def collide_circle(left, right):
     return distancesquared <= (leftradius + rightradius) ** 2
 
 
-class collide_circle_ratio(
-    object
-):  # noqa pylint: disable=invalid-name; this is a function-like class
+class collide_circle_ratio:  # noqa pylint: disable=invalid-name; this is a function-like class
     """detect collision between two sprites using scaled circles
 
     This callable class checks for collisions between two sprites using a
@@ -1585,7 +1578,7 @@ class collide_circle_ratio(
         return "<{klass} @{id:x} {attrs}>".format(
             klass=self.__class__.__name__,
             id=id(self) & 0xFFFFFF,
-            attrs=" ".join("{}={!r}".format(k, v) for k, v in self.__dict__.items()),
+            attrs=" ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
         )
 
     def __call__(self, left, right):
@@ -1687,7 +1680,7 @@ def spritecollide(sprite, group, dokill, collided=None):
         append = crashed.append
 
         for group_sprite in group.sprites():
-            if collided:
+            if collided is not None:
                 if collided(sprite, group_sprite):
                     group_sprite.kill()
                     append(group_sprite)
@@ -1698,7 +1691,7 @@ def spritecollide(sprite, group, dokill, collided=None):
 
         return crashed
 
-    if collided:
+    if collided is not None:
         return [
             group_sprite for group_sprite in group if collided(sprite, group_sprite)
         ]

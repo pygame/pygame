@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import os
+import sys
 import time
 
 import pygame, pygame.transform
@@ -334,7 +333,14 @@ class DisplayModuleTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             pygame.display.gl_get_attribute("DUMMY")
 
-    def todo_test_gl_set_attribute(self):
+    @unittest.skipIf(
+        (
+            "skipping for all because some failures on rasppi and maybe other platforms"
+            or os.environ.get("SDL_VIDEODRIVER") == "dummy"
+        ),
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+    def test_gl_set_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_set_attribute:
 
@@ -353,7 +359,47 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
-        self.fail()
+        screen = display.set_mode((0, 0), pygame.OPENGL)
+
+        # We create a list where we store the values that we set each flag to
+        set_values = [8, 24, 8, 16, 16, 16, 16, 1, 1, 0]
+
+        # Setting the flags with values supposedly different from the original values
+
+        # assign SDL1-supported values with gl_set_attribute
+        pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE, set_values[0])
+        pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, set_values[1])
+        pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, set_values[2])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE, set_values[3])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE, set_values[4])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE, set_values[5])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE, set_values[6])
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, set_values[7])
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, set_values[8])
+        pygame.display.gl_set_attribute(pygame.GL_STEREO, set_values[9])
+
+        # We create a list where we store the values after getting them
+        get_values = []
+
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
+
+        # We check to see if the values that we get correspond to the values that we set
+        # them to or to the original values.
+        for i in range(len(set_values)):
+            self.assertTrue(get_values[i] == set_values[i])
+
+        # test using non-flag argument
+        with self.assertRaises(TypeError):
+            pygame.display.gl_get_attribute("DUMMY")
 
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
@@ -781,6 +827,71 @@ class DisplayInteractiveTest(unittest.TestCase):
             pygame.display.set_gamma_ramp(normal_ramp, normal_ramp, normal_ramp)
 
         pygame.display.quit()
+
+
+class FullscreenToggleTests(unittest.TestCase):
+    __tags__ = ["interactive"]
+
+    screen = None
+    font = None
+    isfullscreen = False
+
+    WIDTH = 800
+    HEIGHT = 600
+
+    def setUp(self):
+        pygame.init()
+        if sys.platform == "win32":
+            # known issue with windows, must have mode from pygame.display.list_modes()
+            # or window created with flag pygame.SCALED
+            self.screen = pygame.display.set_mode(
+                (self.WIDTH, self.HEIGHT), flags=pygame.SCALED
+            )
+        else:
+            self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        pygame.display.set_caption("Fullscreen Tests")
+        self.screen.fill((255, 255, 255))
+        pygame.display.flip()
+        self.font = pygame.font.Font(None, 32)
+
+    def tearDown(self):
+        if self.isfullscreen:
+            pygame.display.toggle_fullscreen()
+        pygame.quit()
+
+    def visual_test(self, fullscreen=False):
+        text = ""
+        if fullscreen:
+            if not self.isfullscreen:
+                pygame.display.toggle_fullscreen()
+                self.isfullscreen = True
+            text = "Is this in fullscreen? [y/n]"
+        else:
+            if self.isfullscreen:
+                pygame.display.toggle_fullscreen()
+                self.isfullscreen = False
+            text = "Is this not in fullscreen [y/n]"
+        s = self.font.render(text, False, (0, 0, 0))
+        self.screen.blit(s, (self.WIDTH / 2 - self.font.size(text)[0] / 2, 100))
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return False
+                    if event.key == pygame.K_y:
+                        return True
+                    if event.key == pygame.K_n:
+                        return False
+                if event.type == pygame.QUIT:
+                    return False
+
+    def test_fullscreen_true(self):
+        self.assertTrue(self.visual_test(fullscreen=True))
+
+    def test_fullscreen_false(self):
+        self.assertTrue(self.visual_test(fullscreen=False))
 
 
 @unittest.skipIf(

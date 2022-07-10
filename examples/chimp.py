@@ -87,7 +87,7 @@ class Chimp(pg.sprite.Sprite):
     monkey when it is punched."""
 
     def __init__(self):
-        pg.sprite.Sprite.__init__(self)  # call Sprite intializer
+        pg.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.image, self.rect = load_image("chimp.png", -1, 4)
         screen = pg.display.get_surface()
         self.area = screen.get_rect()
@@ -141,7 +141,7 @@ def main():
     pg.display.set_caption("Monkey Fever")
     pg.mouse.set_visible(False)
 
-    # Create The Backgound
+    # Create The Background
     background = pg.Surface(screen.get_size())
     background = background.convert()
     background.fill((170, 238, 187))

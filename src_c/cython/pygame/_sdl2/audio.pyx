@@ -44,7 +44,7 @@ AUDIO_ALLOW_ANY_CHANGE = _SDL_AUDIO_ALLOW_ANY_CHANGE
 # https://wiki.libsdl.org/SDL_GetNumAudioDevices
 # https://wiki.libsdl.org/SDL_GetAudioDeviceName
 def get_audio_device_names(iscapture = False):
-    """ Returns a list of unique devicenames for each avaialable audio device.
+    """ Returns a list of unique devicenames for each available audio device.
 
     :param bool iscapture: If False return devices available for playback.
                            If True return devices available for capture.

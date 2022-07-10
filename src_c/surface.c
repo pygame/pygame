@@ -103,7 +103,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
                SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args);
 
 /* statics */
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *info, int owner);
 static PyObject *
 surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner);
@@ -393,10 +393,10 @@ static PyTypeObject pgSurface_Type = {
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
-static PyObject *
+static pgSurfaceObject *
 pgSurface_New2(SDL_Surface *s, int owner)
 {
-    return surf_subtype_new(&pgSurface_Type, s, owner);
+    return (pgSurfaceObject *)surf_subtype_new(&pgSurface_Type, s, owner);
 }
 
 static int
@@ -1125,10 +1125,6 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
     old_colors = pal->colors;
 
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
-        return RAISE(pgExc_SDLError,
-                     "cannot set palette without pygame.display initialized");
-
     len = (int)MIN(pal->ncolors, PySequence_Length(list));
 
     for (i = 0; i < len; i++) {
@@ -1193,10 +1189,6 @@ surf_set_palette_at(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_IndexError, "index out of bounds");
         return NULL;
     }
-
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
-        return RAISE(pgExc_SDLError,
-                     "cannot set palette without pygame.display initialized");
 
     color.r = rgba[0];
     color.g = rgba[1];
@@ -2810,7 +2802,7 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind)
             name = "contiguous bytes";
             break;
         case VIEWKIND_1D:
-            name = "contigous pixels";
+            name = "contiguous pixels";
             break;
         case VIEWKIND_2D:
             name = "2D";
@@ -2897,7 +2889,7 @@ surf_get_view(PyObject *self, PyObject *args)
             if (format->Gmask != 0x00ff00 &&
                 (format->BytesPerPixel != 4 || format->Gmask != 0xff0000)) {
                 return RAISE(PyExc_ValueError,
-                             "unsupport colormasks for 3D reference array");
+                             "unsupported colormasks for 3D reference array");
             }
             get_buffer = _get_buffer_3D;
             break;

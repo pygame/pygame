@@ -465,6 +465,7 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     if (!SDL_GetWindowWMInfo(win, &info))
         return dict;
 
+    (void)tmp;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
     tmp = PyLong_FromLongLong((long long)info.info.win.window);
     PyDict_SetItemString(dict, "window", tmp);
@@ -605,7 +606,7 @@ pg_get_surface(PyObject *self, PyObject *_null)
         pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
         if (sdl_surface != old_surface->surf) {
             pgSurfaceObject *new_surface =
-                pgSurface_New2(sdl_surface, SDL_FALSE);
+                (pgSurfaceObject *)pgSurface_New2(sdl_surface, SDL_FALSE);
             if (!new_surface)
                 return NULL;
             pg_SetDefaultWindowSurface(new_surface);
@@ -1012,7 +1013,19 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
-                        SDL_GetWindowPosition(win, &x, &y);
+                        int old_w, old_h;
+                        SDL_GetWindowSize(win, &old_w, &old_h);
+
+                        /* Emulate SDL1 behaviour: When the window is to be
+                         * centred, the window shifts to the new centred
+                         * location only when resolution changes and previous
+                         * position is retained when the dimensions don't
+                         * change.
+                         * When the window is not to be centred, previous
+                         * position is retained unconditionally */
+                        if (!center_window || (w == old_w && h == old_h)) {
+                            SDL_GetWindowPosition(win, &x, &y);
+                        }
                     }
                 }
                 if (!(flags & PGS_OPENGL) !=
@@ -1154,7 +1167,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                buffering, triple buffering, render-offloading where the driver
                for the on-board graphics *doesn't* have vsync enabled, or cases
                where the driver lies to us because the user has configured
-               vsync to be aways on or always off, or vsync is on by default
+               vsync to be always on or always off, or vsync is on by default
                for the whole desktop because of wayland GL compositing. */
             if (vsync) {
                 if (SDL_GL_SetSwapInterval(-1) != 0) {
@@ -1737,7 +1750,7 @@ pg_set_palette(PyObject *self, PyObject *args)
     }
 
 #ifdef _MSC_VER
-    /* Make MSVC static analyzer happy by assuring len >= 2 to supress
+    /* Make MSVC static analyzer happy by assuring len >= 2 to suppress
      * a false analyzer report */
     __analysis_assume(len >= 2);
 #endif

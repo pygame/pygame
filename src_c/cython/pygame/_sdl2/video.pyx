@@ -1,6 +1,6 @@
 from cpython cimport PyObject
-from . import error
-from . import error as errorfnc
+from pygame._sdl2.sdl2 import error
+from pygame._sdl2.sdl2 import error as errorfnc
 from libc.stdlib cimport free, malloc
 
 

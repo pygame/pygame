@@ -7,7 +7,7 @@ Thumbnail generation with scaling is an example of what you can do with pygame.
 NOTE: the pygame scale function uses mmx/sse if available, and can be run
   in multiple threads.
 """
-useage = """-scale inputimage outputimage new_width new_height
+usage = """-scale inputimage outputimage new_width new_height
 eg.  -scale in.png out.png 50 50
 
 """
@@ -47,4 +47,4 @@ if __name__ == "__main__":
         w, h = map(int, [w, h])
         main(fin, fout, w, h)
     else:
-        print(useage)
+        print(usage)

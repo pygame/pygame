@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Pygame Drawing algorithms written in Python. (Work in Progress)
 
 Implement Pygame's Drawing Algorithms in a Python version for testing

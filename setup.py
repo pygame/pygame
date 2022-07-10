@@ -9,7 +9,7 @@
 import io
 import platform
 
-with io.open('README.rst', encoding='utf-8') as readme:
+with open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
 
 EXTRAS = {}
@@ -85,8 +85,7 @@ def spawn(self, cmd, **kwargs):
     should_use_avx2 = False
     # try to be thorough in detecting that we are on a platform that potentially supports AVX2
     machine_name = platform.machine()
-    if ((machine_name.startswith("x86") or
-        machine_name.startswith("i686") or
+    if ((machine_name.startswith(("x86", "i686")) or
         machine_name.lower() == "amd64") and
             os.environ.get("MAC_ARCH") != "arm64"):
         should_use_avx2 = True
@@ -167,13 +166,13 @@ def compilation_help():
 
     print('\n---')
     print('For help with compilation see:')
-    print('    %s' % url)
+    print(f'    {url}')
     print('To contribute to pygame development see:')
     print('    https://www.pygame.org/contribute.html')
     print('---\n')
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
     compilation_help()
     raise SystemExit("Pygame requires Python3 version 3.6 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
@@ -210,7 +209,16 @@ if consume_arg('-enable-arm-neon'):
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
 
+compile_cython = False
+cython_only = False
 if consume_arg('cython'):
+    compile_cython = True
+
+if consume_arg('cython_only'):
+    compile_cython = True
+    cython_only = True
+
+if compile_cython:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
@@ -268,7 +276,7 @@ if consume_arg('cython'):
             outdated = True
             priority = 0
         if outdated:
-            print('Compiling {} because it changed.'.format(pyx_file))
+            print(f'Compiling {pyx_file} because it changed.')
             queue.append((priority, dict(pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
                                          options=c_options, full_module_name=ext.name,
                                          embedded_metadata=pyx_meta.get(ext.name))))
@@ -279,8 +287,11 @@ if consume_arg('cython'):
 
     count = len(queue)
     for i, kwargs in enumerate(queue):
-        kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
+        kwargs['progress'] = f'[{i + 1}/{count}] '
         cythonize_one(**kwargs)
+    
+    if cython_only:
+        sys.exit(0)
 
 no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
 AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
@@ -375,10 +386,7 @@ if consume_arg("-noheaders"):
 
 # sanity check for any arguments
 if len(sys.argv) == 1 and sys.stdout.isatty():
-    if sys.version_info[0] >= 3:
-        reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
-    else:
-        reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     if not reply or reply[0].lower() != 'n':
         sys.argv.append('install')
 
@@ -577,12 +585,12 @@ def write_version_module(pygame_version, revision):
     if vernum != ', '.join(str(e) for e in src_vernum):
         raise SystemExit("_pygame.h version differs from 'METADATA' version"
                          ": %s vs %s" % (vernum, src_vernum))
-    with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
+    with open(os.path.join('buildconfig', 'version.py.in')) as header_file:
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"  # pylint: disable=invalid-name\n')
-        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
+        version_file.write(f'vernum = PygameVersion({vernum})\n')
         version_file.write('rev = "' + revision + '"  # pylint: disable=invalid-name\n')
         version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
@@ -649,7 +657,7 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         # next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
         if f == '_':
-            print("WARNING, DLL for %s library not found." % lib)
+            print(f"WARNING, DLL for {lib} library not found.")
         else:
             pygame_data_files.append(f)
 
@@ -815,7 +823,7 @@ if "bdist_msi" in sys.argv:
             # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
             installer_name = self.get_installer_filename(fullname)
-            print("changing %s to overwrite files on install" % installer_name)
+            print(f"changing {installer_name} to overwrite files on install")
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
 
@@ -863,6 +871,7 @@ class LintFormatCommand(Command):
         import subprocess
         import sys
         import warnings
+        import pathlib
 
         def check_linter_exists(linter):
             if shutil.which(linter) is None:
@@ -870,9 +879,36 @@ class LintFormatCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        c_files_unfiltered = glob.glob("src_c/**/*.[ch]", recursive=True)
-        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/", "_sprite.c"]
-        c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+        def filter_files(path_obj, all_files, allowed_files, disallowed_files):
+            files = []
+            for file in all_files:
+                for disallowed in disallowed_files:
+                    if file.match(str(path_obj / disallowed)):
+                        break
+                else:  # no-break
+                    files.append(str(file))
+                    continue
+
+                for allowed in allowed_files:
+                    if file.match(str(path_obj / allowed)):
+                        files.append(str(file))
+                        break
+
+            return files
+
+        path_obj = pathlib.Path(path, "src_c")
+        c_files_unfiltered = path_obj.glob("**/*.[ch]")
+        c_file_disallow = [
+            "_sdl2/**",
+            "pypm.c",
+            "SDL_gfx/**",
+            "**/sse2neon.h",
+            "doc/**",
+            "_sprite.c",
+        ]
+        c_file_allow = ["_sdl2/touch.c"]
+        c_files = filter_files(path_obj, c_files_unfiltered, c_file_allow, c_file_disallow)
+
 
         # Other files have too many issues for now. setup.py, buildconfig, etc
         python_directories = ["src_py", "test", "examples"]

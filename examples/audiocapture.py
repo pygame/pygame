@@ -65,7 +65,7 @@ audio.pause(0)
 
 print(audio)
 
-print("recording with '%s'" % names[0])
+print(f"recording with '{names[0]}'")
 time.sleep(5)
 
 

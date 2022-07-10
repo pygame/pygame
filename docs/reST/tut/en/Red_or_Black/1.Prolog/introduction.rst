@@ -44,7 +44,7 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
        screen.blit(ball, ballrect)
        pygame.display.flip()
 
-(Exmaple of C console game - PuyoPuyo)
+(Example of C console game - PuyoPuyo)
 
 
 .. image:: introduction-TPS.png
@@ -79,7 +79,7 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
        screen.blit(ball, ballrect)
        pygame.display.flip()
 
-(Exmaple of Unity Engine game - TPS)
+(Example of Unity Engine game - TPS)
 
 Yes. Pygame can solve that. Pygame is an external library of **Python** which enables you to make a **game**. Pygame has advantages of console environment. For example, single pygame project nearly equals single source code, so we have to focus on writing source code only. (with some sound file or some image file in the same directory). Because Pygame is not a tool but a library, single command “import pygame” makes current source code to use pygame’s everything. That is, Pygame is simple to access. Pygame has advantages of game engine, too. For example, Pygame provide input functions (which check every possible state of keyboard, mouse and even files) and output functions (drawing geometry, fill certain colors or set display) to user. That is, user can run the program on the GUI environment if it based on Pygame. Because Pygame is based on Python, functions in Pygame project can be executed selectively, even almost simultaneously. That is, Pygame is event-driven.
 

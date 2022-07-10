@@ -229,7 +229,7 @@ is colliding with the given target sprite. ::
         monkey when it is punched."""
 
         def __init__(self):
-            pg.sprite.Sprite.__init__(self)  # call Sprite intializer
+            pg.sprite.Sprite.__init__(self)  # call Sprite initializer
             self.image, self.rect = load_image("chimp.png", -1, 4)
             screen = pg.display.get_surface()
             self.area = screen.get_rect()
@@ -408,7 +408,7 @@ We still have a black window on the screen. Lets show our background
 while we wait for the other resources to load. ::
 
   screen.blit(background, (0, 0))
-  pygame.display.flip()
+  pg.display.flip()
 
 This will blit our entire background onto the display window. The
 blit is self explanatory, but what about this flip routine?
@@ -518,7 +518,7 @@ Now that all the objects are in the right place, time to draw them. ::
 
   screen.blit(background, (0, 0))
   allsprites.draw(screen)
-  pygame.display.flip()
+  pg.display.flip()
 
 The first blit call will draw the background onto the entire screen. This
 erases everything we saw from the previous frame (slightly inefficient, but
