@@ -359,7 +359,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
    Example code for joystick module.
 
-.. literalinclude:: code_examples/joystick_calls.py
+.. literalinclude:: ../../../examples/joystick.py
 
 .. _controller-mappings:
 
