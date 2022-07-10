@@ -418,13 +418,14 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &loops))
         return NULL;
 
-    if (!pg_timer_mutex)
-        return RAISE(pgExc_SDLError, "pygame is not initialized");
-
     if (PyLong_Check(obj)) {
         ev_type = (int)PyLong_AsLong(obj);
-        if (ev_type == -1 && PyErr_Occurred()) {
-            return NULL;
+        if (ev_type < 0 || ev_type >= PG_NUMEVENTS) {
+            if (PyErr_Occurred()) {
+                /* happens if PyLong_AsLong overflows, error is already set */
+                return NULL;
+            }
+            return RAISE(PyExc_ValueError, "event type out of range");
         }
     }
     else if (pgEvent_Check(obj)) {
@@ -432,9 +433,15 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
         ev_type = e->type;
         ev_dict = e->dict;
     }
-    else
+    else {
         return RAISE(PyExc_TypeError,
                      "first argument must be an event type or event object");
+    }
+
+#ifndef __EMSCRIPTEN__
+    if (!pg_timer_mutex)
+        return RAISE(pgExc_SDLError, "pygame is not initialized");
+#endif /* emscripten */
 
     /* release GIL because python GIL and pg_timer_mutex should not
      * deadlock waiting for each other */

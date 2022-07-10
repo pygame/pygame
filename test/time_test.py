@@ -317,6 +317,19 @@ class TimeModuleTest(unittest.TestCase):
 
         pygame.quit()
 
+    def test_timer_wrong_args(self):
+        for out_of_range_val in (-1, -10, pygame.NUMEVENTS, pygame.NUMEVENTS + 1):
+            self.assertRaises(ValueError, pygame.time.set_timer, out_of_range_val, 10)
+            self.assertRaises(
+                ValueError, pygame.time.set_timer, event=out_of_range_val, millis=10
+            )
+
+        for incorrect_type in ("string", 4 + 3j, [1, 2, 3], {"a": "b"}):
+            self.assertRaises(TypeError, pygame.time.set_timer, incorrect_type, 15)
+            self.assertRaises(
+                TypeError, pygame.time.set_timer, event=incorrect_type, millis=15
+            )
+
     def test_delay(self):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration

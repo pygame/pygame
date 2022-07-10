@@ -1477,29 +1477,6 @@ Unimplemented:
 }
 
 static int
-_pg_event_populate(pgEventObject *event, int type, PyObject *dict)
-{
-    event->type = _pg_pgevent_deproxify(type);
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict) {
-            PyErr_NoMemory();
-            return -1;
-        }
-    }
-    else {
-        if (PyDict_GetItemString(dict, "type")) {
-            PyErr_SetString(PyExc_ValueError,
-                            "redundant type field in event dict");
-            return -1;
-        }
-        Py_INCREF(dict);
-    }
-    event->dict = dict;
-    return 0;
-}
-
-static int
 pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 {
     int type;
@@ -1509,33 +1486,43 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
         return -1;
     }
 
-    if (!dict) {
-        dict = PyDict_New();
-        if (!dict) {
-            PyErr_NoMemory();
-            return -1;
-        }
-    }
-    else {
-        Py_INCREF(dict);
+    if (type < 0 || type >= PG_NUMEVENTS) {
+        PyErr_SetString(PyExc_ValueError, "event type out of range");
+        return -1;
     }
 
-    if (kwargs) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(kwargs, &pos, &key, &value)) {
-            if (PyDict_SetItem(dict, key, value) < 0) {
-                Py_DECREF(dict);
+    if (!dict) {
+        if (kwargs) {
+            dict = kwargs;
+            Py_INCREF(dict);
+        }
+        else {
+            dict = PyDict_New();
+            if (!dict) {
+                PyErr_NoMemory();
                 return -1;
             }
         }
     }
+    else {
+        if (kwargs) {
+            if (PyDict_Update(dict, kwargs) == -1) {
+                return -1;
+            }
+        }
+        /* So that dict is a new reference */
+        Py_INCREF(dict);
+    }
 
-    if (_pg_event_populate(self, type, dict) == -1) {
+    if (PyDict_GetItemString(dict, "type")) {
+        PyErr_SetString(PyExc_ValueError,
+                        "redundant type field in event dict");
+        Py_DECREF(dict);
         return -1;
     }
 
-    Py_DECREF(dict);
+    self->type = _pg_pgevent_deproxify(type);
+    self->dict = dict;
     return 0;
 }
 
