@@ -79,25 +79,25 @@ def get_urls(x86=True, x64=True, ARM64=True):
     if ARM64:
         url_sha1.extend([
             [
-            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.23.1-VC.zip',
-            'c6996acb84ec09a7af94157670bb0491f45f8940',
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.0.22-VC.zip',
+            '5e03be0064000dc4558b67a2f86dd940abbce22a',
             ],
             [
-            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.5.2-VC.zip',
-            '56083c958e0f002e3bda9e734e2806c50bfde341',
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.6.0-VC.zip',
+            'b50d010966356bb77bc37c39ee55203cd74d777d',
             ],
             [
-            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_ttf-devel-2.19.3-VC.zip',
-            '76fdfeecbd5077833340359afdd9d7f4f1680ef1'
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_ttf-devel-2.20.0-VC.zip',
+            'e906c030dfbf27ef7f0fe0d0fa5b86dab4888269'
             ],
             [
-            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.5.2-VC.zip',
-            '337d548b8acf8c8a8ed8784da13e5c85365ee39b',
+            'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.6.0-VC.zip',
+            '9e92fe7dc9832e4d8d859e36642d9d9f7186fb19',
             ],
         ])
         url_sha1.append([
-            'https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev4/prebuilt-ARM64-pygame.zip',
-            'dca6a038c60ee98da79b10a8146b5862585fbbb3'
+            'https://github.com/RockLakeGrass/pygame/releases/download/2.1.3.dev5/prebuilt-ARM64-pygame.zip',
+            '408ac3205e63c8c701e9544ce4dd2d21c18cd08f'
         ])
         return url_sha1
     url_sha1.extend([
@@ -228,10 +228,10 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, ARM64=
 
     if ARM64:
         SDL_version = {
-            'SDL2_image' : '2.5.2',
-            'SDL2_mixer' : '2.5.2',
-            'SDL2_ttf' : '2.19.3',
-            'SDL2' : '2.23.1',
+            'SDL2_image' : '2.6.0',
+            'SDL2_mixer' : '2.6.0',
+            'SDL2_ttf' : '2.20.0',
+            'SDL2' : '2.0.22',
         }
     else:
         SDL_version = {
