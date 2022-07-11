@@ -614,9 +614,9 @@ static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
-    Py_ssize_t loop, size;
+    Py_ssize_t size;
     PyObject *ret = NULL, *tmpseq, **f_list;
-
+    int loop;
     if (!PySequence_Check(list) ||
         !(tmpseq = PySequence_Fast(
               list, "Error, could not convert to a Sequence"))) {
@@ -658,9 +658,10 @@ static PyObject *
 pg_rect_collidelistall(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
-    Py_ssize_t loop, size;
+    Py_ssize_t size;
     PyObject **f_list;
     PyObject *ret = NULL, *tmpseq;
+    int loop;
 
     if (!PySequence_Check(list) ||
         !(tmpseq = PySequence_Fast(
