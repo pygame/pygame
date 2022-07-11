@@ -941,12 +941,10 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
     Uint32 *srcp = (Uint32 *)info->s_pixels;
     int srcskip = info->s_skip >> 2;
     int srcpxskip = info->s_pxskip >> 2;
-    int srceightpxskip = 8 * srcpxskip;
 
     Uint32 *dstp = (Uint32 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-    int dsteightpxskip = 8 * dstpxskip;
 
     int pre_8_width = width % 8;
     int post_8_width = (width - pre_8_width) / 8;
@@ -1032,8 +1030,8 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
                         *dstp = _mm_cvtsi128_si32(mm_dst);
                     }
 
-                    srcp += srcpxskip;
-                    dstp += dstpxskip;
+                    srcp = (Uint32 *)srcp256 + srcskip;
+                    dstp = (Uint32 *)dstp256 + dstskip;
                 },
                 n, pre_8_width);
         }
@@ -1085,8 +1083,6 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
 
                     srcp256++;
                     dstp256++;
-                    srcp += srceightpxskip;
-                    dstp += dsteightpxskip;
                 },
                 n, post_8_width);
         }
