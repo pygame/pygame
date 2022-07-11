@@ -332,10 +332,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
         _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
         _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
         _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
         _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
         _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
@@ -786,12 +784,10 @@ _pg_name_from_eventtype(int type)
         case SDL_CONTROLLERSENSORUPDATE:
             return "ControllerSensorUpdate";
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_RENDER_TARGETS_RESET:
             return "RenderTargetsReset";
         case SDL_RENDER_DEVICE_RESET:
@@ -1053,7 +1049,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "x", PyLong_FromLong(event->window.data1));
             _pg_insobj(dict, "y", PyLong_FromLong(event->window.data2));
             break;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
             _pg_insobj(
@@ -1067,7 +1062,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "iscapture",
                        PyLong_FromLong(event->adevice.iscapture));
             break;
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP:
