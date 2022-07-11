@@ -482,8 +482,8 @@ blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
             n, aligned_8_length);
     }
 
-    srcp = srcp256;
-    dstp = dstp256;
+    srcp = (Uint32 *)srcp256;
+    dstp = (Uint32 *)dstp256;
 
     if (after_8_length > 0) {
         LOOP_UNROLLED4(
