@@ -357,6 +357,18 @@ _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
             MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
 }
 
+static int
+_pg_do_normalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
+{
+    // A.left   < B.right  &&
+    // A.top    < B.bottom &&
+    // A.right  > B.left   &&
+    // A.bottom > B.top
+
+    return B->x < A->x + A->w && B->x + B->w > A->x && B->y < A->y + A->h &&
+           B->y + B->h > A->y;
+}
+
 static PyObject *
 pg_rect_normalize(pgRectObject *self, PyObject *_null)
 {
@@ -602,8 +614,7 @@ static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
-    Py_ssize_t size;
-    int loop;
+    Py_ssize_t loop, size;
     PyObject *ret = NULL, *tmpseq, **f_list;
 
     if (!PySequence_Check(list) ||
@@ -616,6 +627,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject *list)
     size = PySequence_Fast_GET_SIZE(
         tmpseq); /*warning, size could be -1 on error?*/
     f_list = PySequence_Fast_ITEMS(tmpseq);
+
     for (loop = 0; loop < size; ++loop) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
             PyErr_SetString(
@@ -623,7 +635,14 @@ pg_rect_collidelist(pgRectObject *self, PyObject *list)
                 "Argument must be a sequence of rectstyle objects.");
             break;
         }
-        if (_pg_do_rects_intersect(&self->r, argrect)) {
+        if (self->r.w > 0 && self->r.h > 0 && argrect->w > 0 &&
+            argrect->h > 0) {
+            if (_pg_do_normalized_rects_intersect(&self->r, argrect)) {
+                ret = PyLong_FromLong(loop);
+                break;
+            }
+        }
+        else if (_pg_do_rects_intersect(&self->r, argrect)) {
             ret = PyLong_FromLong(loop);
             break;
         }
@@ -639,8 +658,7 @@ static PyObject *
 pg_rect_collidelistall(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
-    Py_ssize_t size;
-    int loop;
+    Py_ssize_t loop, size;
     PyObject **f_list;
     PyObject *ret = NULL, *tmpseq;
 
@@ -665,8 +683,25 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *list)
             return RAISE(PyExc_TypeError,
                          "Argument must be a sequence of rectstyle objects.");
         }
-
-        if (_pg_do_rects_intersect(&self->r, argrect)) {
+        if (self->r.w > 0 && self->r.h > 0 && argrect->w > 0 &&
+            argrect->h > 0) {
+            if (_pg_do_normalized_rects_intersect(&self->r, argrect)) {
+                PyObject *num = PyLong_FromLong(loop);
+                if (!num) {
+                    Py_DECREF(tmpseq);
+                    Py_DECREF(ret);
+                    return NULL;
+                }
+                if (0 != PyList_Append(ret, num)) {
+                    Py_DECREF(tmpseq);
+                    Py_DECREF(ret);
+                    Py_DECREF(num);
+                    return NULL; /* Exception already set. */
+                }
+                Py_DECREF(num);
+            }
+        }
+        else if (_pg_do_rects_intersect(&self->r, argrect)) {
             PyObject *num = PyLong_FromLong(loop);
             if (!num) {
                 Py_DECREF(tmpseq);
