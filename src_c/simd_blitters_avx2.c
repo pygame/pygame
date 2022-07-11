@@ -4,8 +4,6 @@
 #include <immintrin.h>
 #endif /* defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H) */
 
-#define __AVX2__
-
 #define RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING()     \
     char warning[128];                                 \
     PyOS_snprintf(warning, sizeof(warning),            \
