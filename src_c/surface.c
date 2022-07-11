@@ -2141,11 +2141,18 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
         errornum = FBLITS_ERR_INCORRECT_ARGS_NUM;
         goto on_error;
     }
-    else if (nargs == 2)
-        if (!pg_IntFromObj(args[1], &flags_numeric)) {
+    else if (nargs == 2) {
+        if (PyLong_Check(args[1])) {
+            flags_numeric = PyLong_AsLong(args[1]);
+            if (flags_numeric == -1 && PyErr_Occurred()) {
+                return NULL;
+            }
+        }
+        else {
             errornum = FBLITS_ERR_FLAG_NOT_NUMERIC;
             goto on_error;
         }
+    }
 
     blitsequence = args[0];
     if (PyUnicode_Check(blitsequence)) {

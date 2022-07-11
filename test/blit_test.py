@@ -155,6 +155,7 @@ class BlitTest(unittest.TestCase):
 
         # tests for the special_flags parameter
         self.assertRaises(TypeError, dst.fblits, blit_list, -999)  # not impl. flag
+        self.assertRaises(TypeError, dst.fblits, blit_list, 12.245)  # float flag
         self.assertRaises(TypeError, dst.fblits, blit_list, None)
         self.assertRaises(TypeError, dst.fblits, blit_list, [])
         self.assertRaises(TypeError, dst.fblits, blit_list, ())
