@@ -446,21 +446,19 @@ void
 blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
 {
     int n;
-    int width = info->width;
-    int height = info->height;
+
+    /* using long rather than int out of abundance of caution */
+    long length = info->width * info->height;
+    int after_8_length = length % 8;
+    int aligned_8_length = length / 8;
 
     Uint32 *srcp = (Uint32 *)info->s_pixels;
-    int srcskip = info->s_skip >> 2;
     int srcpxskip = info->s_pxskip >> 2;
     int srceightpxskip = 8 * srcpxskip;
 
     Uint32 *dstp = (Uint32 *)info->d_pixels;
-    int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
     int dsteightpxskip = 8 * dstpxskip;
-
-    int pre_8_width = width % 8;
-    int post_8_width = (width - pre_8_width) / 8;
 
     __m256i *srcp256 = (__m256i *)info->s_pixels;
     __m256i *dstp256 = (__m256i *)info->d_pixels;
@@ -468,43 +466,39 @@ blit_blend_rgba_sub_avx2(SDL_BlitInfo *info)
     __m128i mm_src, mm_dst;
     __m256i mm256_src, mm256_dst;
 
-    while (height--) {
-        if (pre_8_width > 0) {
-            LOOP_UNROLLED4(
-                {
-                    mm_src = _mm_cvtsi32_si128(*srcp);
-                    mm_dst = _mm_cvtsi32_si128(*dstp);
+    if (aligned_8_length > 0) {
+        LOOP_UNROLLED4(
+            {
+                mm256_src = _mm256_loadu_si256(srcp256);
+                mm256_dst = _mm256_loadu_si256(dstp256);
 
-                    mm_dst = _mm_subs_epu8(mm_dst, mm_src);
+                mm256_dst = _mm256_subs_epu8(mm256_dst, mm256_src);
 
-                    *dstp = _mm_cvtsi128_si32(mm_dst);
+                _mm256_storeu_si256(dstp256, mm256_dst);
 
-                    srcp += srcpxskip;
-                    dstp += dstpxskip;
-                },
-                n, pre_8_width);
-        }
-        srcp256 = (__m256i *)srcp;
-        dstp256 = (__m256i *)dstp;
-        if (post_8_width > 0) {
-            LOOP_UNROLLED4(
-                {
-                    mm256_src = _mm256_loadu_si256(srcp256);
-                    mm256_dst = _mm256_loadu_si256(dstp256);
+                srcp256++;
+                dstp256++;
+            },
+            n, aligned_8_length);
+    }
 
-                    mm256_dst = _mm256_subs_epu8(mm256_dst, mm256_src);
+    srcp = srcp256;
+    dstp = dstp256;
 
-                    _mm256_storeu_si256(dstp256, mm256_dst);
+    if (after_8_length > 0) {
+        LOOP_UNROLLED4(
+            {
+                mm_src = _mm_cvtsi32_si128(*srcp);
+                mm_dst = _mm_cvtsi32_si128(*dstp);
 
-                    srcp256++;
-                    dstp256++;
-                    srcp += srceightpxskip;
-                    dstp += dsteightpxskip;
-                },
-                n, post_8_width);
-        }
-        srcp += srcskip;
-        dstp += dstskip;
+                mm_dst = _mm_subs_epu8(mm_dst, mm_src);
+
+                *dstp = _mm_cvtsi128_si32(mm_dst);
+
+                srcp += srcpxskip;
+                dstp += dstpxskip;
+            },
+            n, after_8_length);
     }
 }
 #else
