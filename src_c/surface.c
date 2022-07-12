@@ -174,6 +174,9 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(surf_fblits, pgSurfaceObject);
+static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds);
@@ -344,7 +347,8 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACEBLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEBLITS},
-
+    {"fblits", (PyCFunction)PG_FASTCALL_NAME(surf_fblits), PG_FASTCALL,
+     DOC_SURFACEFBLITS},
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
 
@@ -2128,6 +2132,215 @@ bliterror:
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }
+
+#define FBLITS_ERR_TUPLE_REQUIRED 11
+#define FBLITS_ERR_INCORRECT_ARGS_NUM 12
+#define FBLITS_ERR_FLAG_NOT_NUMERIC 13
+static PyObject *
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    SDL_Surface *src, *dest = pgSurface_AsSurface(self);
+    SDL_Rect *src_rect, temp, dest_rect;
+
+    PyObject *srcobject = NULL, *argpos = NULL;
+    PyObject *blitsequence;
+    PyObject *item = NULL;
+    PyObject **f_blitsequence;
+    Py_ssize_t itemlength, sequencelength, seq_counter;
+    int errornum = 0;
+    int result;
+    int flags_numeric = 0;
+
+    if (nargs == 0 || nargs > 2) {
+        errornum = FBLITS_ERR_INCORRECT_ARGS_NUM;
+        goto on_error;
+    }
+    else if (nargs == 2) {
+        if (PyLong_Check(args[1])) {
+            flags_numeric = PyLong_AsLong(args[1]);
+            if (flags_numeric == -1 && PyErr_Occurred()) {
+                return NULL;
+            }
+        }
+        else {
+            errornum = FBLITS_ERR_FLAG_NOT_NUMERIC;
+            goto on_error;
+        }
+    }
+
+    blitsequence = args[0];
+
+    if (!dest) {
+        errornum = BLITS_ERR_DISPLAY_SURF_QUIT;
+        goto on_error;
+    }
+
+    /* List or Tuple */
+    if (PyList_Check(blitsequence) || PyTuple_Check(blitsequence)) {
+        f_blitsequence = PySequence_Fast_ITEMS(blitsequence);
+        sequencelength = PySequence_Fast_GET_SIZE(blitsequence);
+        for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
+            item = f_blitsequence[seq_counter];
+            if (PyTuple_Check(item)) {
+                itemlength = PySequence_Fast_GET_SIZE(item);
+                if (itemlength != 2) {
+                    errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
+                errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                goto on_error;
+            }
+
+            /* (Surface, dest)
+             * using PyTuple_GET_ITEM for better perf
+             * because the docs say it must be a tuple */
+            srcobject = PySequence_Fast_GET_ITEM(item, 0);
+            argpos = PySequence_Fast_GET_ITEM(item, 1);
+
+            if (!pgSurface_Check(srcobject)) {
+                errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
+                goto on_error;
+            }
+
+            src = pgSurface_AsSurface(srcobject);
+            if (!src) {
+                errornum = BLITS_ERR_SEQUENCE_SURF;
+                goto on_error;
+            }
+
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+                dest_rect.x = src_rect->x;
+                dest_rect.y = src_rect->y;
+            }
+            else {
+                errornum = BLITS_ERR_INVALID_DESTINATION;
+                goto on_error;
+            }
+
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
+
+            result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
+                                    &dest_rect, NULL, flags_numeric);
+
+            if (result != 0) {
+                errornum = BLITS_ERR_BLIT_FAIL;
+                goto on_error;
+            }
+        }
+    }
+    /* Generator */
+    else if (PyIter_Check(blitsequence)) {
+        while ((item = PyIter_Next(blitsequence))) {
+            if (PySequence_Check(item)) {
+                itemlength = PySequence_Size(item);
+                if (itemlength != 2) {
+                    errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                    goto on_error;
+                }
+            }
+            else {
+                errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                goto on_error;
+            }
+
+            /* (Surface, dest) */
+            srcobject = PySequence_ITEM(item, 0);
+            argpos = PySequence_ITEM(item, 1);
+
+            Py_DECREF(item);
+            /* Clear item to avoid double deref on errors */
+            item = NULL;
+
+            if (!pgSurface_Check(srcobject)) {
+                errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
+                goto on_error;
+            }
+
+            src = pgSurface_AsSurface(srcobject);
+
+            if (!src) {
+                errornum = BLITS_ERR_SEQUENCE_SURF;
+                goto on_error;
+            }
+
+            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            }
+            else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+                dest_rect.x = src_rect->x;
+                dest_rect.y = src_rect->y;
+            }
+            else {
+                errornum = BLITS_ERR_INVALID_DESTINATION;
+                goto on_error;
+            }
+
+            dest_rect.w = src->w;
+            dest_rect.h = src->h;
+
+            result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject,
+                                    &dest_rect, NULL, flags_numeric);
+
+            if (result != 0) {
+                errornum = BLITS_ERR_BLIT_FAIL;
+                goto on_error;
+            }
+        }
+    }
+    else {
+        errornum = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto on_error;
+    }
+
+    Py_RETURN_NONE;
+
+on_error:
+    switch (errornum) {
+        case BLITS_ERR_SEQUENCE_REQUIRED:
+            return RAISE(
+                PyExc_ValueError,
+                "blit_sequence should be iterator of (Surface, dest)");
+        case BLITS_ERR_DISPLAY_SURF_QUIT:
+            return RAISE(pgExc_SDLError, "display Surface quit");
+        case BLITS_ERR_SEQUENCE_SURF:
+            return RAISE(
+                PyExc_TypeError,
+                "First element of pairs (Surface, dest) in blit_sequence "
+                "must be a Surface.");
+        case BLITS_ERR_INVALID_DESTINATION:
+            return RAISE(PyExc_TypeError,
+                         "invalid destination position for blit");
+        case BLITS_ERR_INVALID_RECT_STYLE:
+            return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
+        case BLITS_ERR_MUST_ASSIGN_NUMERIC:
+            return RAISE(PyExc_TypeError, "Must assign numeric values");
+        case BLITS_ERR_BLIT_FAIL:
+            return RAISE(
+                PyExc_TypeError,
+                "Blit failed (probably the flag used does not exist)");
+        case BLITS_ERR_PY_EXCEPTION_RAISED:
+            return NULL; /* Raising a previously set exception */
+        case BLITS_ERR_SOURCE_NOT_SURFACE:
+            return RAISE(PyExc_TypeError, "Source objects must be a Surface");
+        case FBLITS_ERR_TUPLE_REQUIRED:
+            return RAISE(
+                PyExc_ValueError,
+                "Blit_sequence item should be a tuple of (Surface, dest)");
+        case FBLITS_ERR_INCORRECT_ARGS_NUM:
+            return RAISE(PyExc_ValueError,
+                         "Incorrect number of parameters passed: need at "
+                         "least one, 2 at max");
+        case FBLITS_ERR_FLAG_NOT_NUMERIC:
+            return RAISE(PyExc_TypeError,
+                         "The special_flags parameter must be an int");
+    }
+    return RAISE(PyExc_TypeError, "Unknown error");
+}
+PG_WRAP_FASTCALL_FUNC(surf_fblits, pgSurfaceObject)
 
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
