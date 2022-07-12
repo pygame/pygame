@@ -362,11 +362,11 @@ _pg_do_normalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
 {
     // A.left   < B.right  &&
     // A.top    < B.bottom &&
-    // A.right  > B.left   &&
-    // A.bottom > B.top
+    // B.left   < A.right  &&
+    // B.top    < A.bottom
 
-    return B->x < A->x + A->w && B->x + B->w > A->x && B->y < A->y + A->h &&
-           B->y + B->h > A->y;
+    return (A->x < B->x + B->w && A->y < B->y + B->h && B->x < A->x + A->w &&
+            B->y < A->y + A->h);
 }
 
 static PyObject *
