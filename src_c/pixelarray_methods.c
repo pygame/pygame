@@ -293,6 +293,10 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 
         for (i = 0; i < 3; ++i) {
             item = PySequence_GetItem(weights, i);
+            if (!item) {
+                success = 0;
+                break;
+            }
             if (PyNumber_Check(item)) {
                 PyObject *num;
 

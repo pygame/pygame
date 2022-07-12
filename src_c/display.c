@@ -1862,14 +1862,29 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
         return 0;
     }
     for (i = 0; i < 256; i++) {
+        long ret;
         item = PySequence_GetItem(python_array, i);
+        if (!item) {
+            return 0;
+        }
         if (!PyLong_Check(item)) {
             PyErr_SetString(PyExc_ValueError,
                             "gamma ramp must contain integer elements");
             return 0;
         }
-        c_uint16_array[i] = (Uint16)PyLong_AsLong(item);
+        ret = PyLong_AsLong(item);
         Py_XDECREF(item);
+        if (ret < 0 || ret >= 0xFFFF) {
+            if (PyErr_Occurred()) {
+                /* Happens when PyLong_AsLong overflows */
+                return 0;
+            }
+            PyErr_SetString(
+                PyExc_ValueError,
+                "integers in gamma ramp must be between 0 and 0xFFFF");
+            return 0;
+        }
+        c_uint16_array[i] = (Uint16)ret;
     }
     return 1;
 }
