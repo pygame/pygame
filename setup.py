@@ -662,6 +662,10 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
             os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
 
         for e in extensions:
+            # Skip static analyzer on Cython C files
+            if e.name.startswith("_sdl2") or e.name in ("pypm", "_sprite"):
+                continue
+
             e.extra_compile_args.extend(
                 (
                     "/analyze",
