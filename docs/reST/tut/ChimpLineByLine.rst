@@ -523,7 +523,7 @@ Now that all the objects are in the right place, time to draw them. ::
 The first blit call will draw the background onto the entire screen. This
 erases everything we saw from the previous frame (slightly inefficient, but
 good enough for this game). Next we call the `draw()` method of the sprite
-container. Since this sprite container is really an instance of the "DrawPlain"
+container. Since this sprite container is really an instance of the "RenderPlain"
 sprite group, it knows how to draw our sprites. Lastly, we `flip()` the contents
 of pygame's software double buffer to the screen. This makes everything we've
 drawn visible all at once.
