@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from pygame.rect import Rect
 from pygame.surface import Surface
@@ -33,6 +33,10 @@ def circle(
     draw_bottom_left: bool = False,
     draw_bottom_right: bool = False,
 ) -> Rect: ...
+def circles(
+        surface: Surface,
+        draw_sequence: Sequence[Tuple[ColorValue, Coordinate, int, Optional[int]]], /
+) -> None: ...
 def ellipse(
     surface: Surface, color: ColorValue, rect: RectValue, width: int = 0
 ) -> Rect: ...

@@ -731,6 +731,141 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
+circles(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    pgSurfaceObject *surfobj;
+    SDL_Surface *surf = NULL;
+    Uint8 rgba[4];
+    Uint32 color;
+    PyObject *colorobj, *cirlce_repr;
+    PyObject **f_drawsequence, *draw_sequence;
+    Py_ssize_t itemlength, sequencelength, seq_counter;
+    int posx, posy, radius;
+    int width = 0; /* Default values. */
+    int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
+                         INT_MIN}; /* Used to store bounding box values */
+
+    if (nargs < 2) {
+        return RAISE(PyExc_ValueError,
+                     "function needs 2 positional arguments in the order: "
+                     "surf, draw_sequence");
+    }
+
+    /* Destination Surface*/
+    surfobj = (pgSurfaceObject *)args[0];
+    surf = pgSurface_AsSurface(surfobj);
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
+
+    /* draw_sequence preparations */
+    if (!PySequence_Check(args[1])) {
+        return RAISE(
+            PyExc_TypeError,
+            "draw_sequence parameter must be a List/Tuple of "
+            "(color, center, radius, width) or (color, center, radius)");
+    }
+    if (!(draw_sequence =
+              PySequence_Fast(args[1], "Error converting to sequence"))) {
+        return RAISE(
+            PyExc_TypeError,
+            "draw_sequence parameter must be a List/Tuple of "
+            "(color, center, radius, width) or (color, center, radius)");
+    }
+    sequencelength = PySequence_Fast_GET_SIZE(draw_sequence);
+    if (sequencelength == 0) {
+        /* if length is 0 don't raise and return None */
+        Py_DECREF(draw_sequence);
+        Py_RETURN_NONE;
+    }
+    f_drawsequence = PySequence_Fast_ITEMS(draw_sequence);
+    Py_DECREF(draw_sequence);
+    draw_sequence = NULL;
+
+    /* lock surface for drawing */
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
+
+    /* Drawing loop */
+    for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
+        cirlce_repr = f_drawsequence[seq_counter];
+
+        if (PyTuple_Check(cirlce_repr)) {
+            itemlength = PyTuple_Size(cirlce_repr);
+            if (itemlength < 3 || itemlength > 4) {
+                pgSurface_Unlock(surfobj);
+                return PyErr_Format(PyExc_ValueError,
+                                    "too many/too little elements per circle "
+                                    "draw(must either be 3 or 4): currently ",
+                                    itemlength);
+            }
+        }
+        else {
+            pgSurface_Unlock(surfobj);
+            return RAISE(PyExc_ValueError,
+                         "draw sequence item must be a tuple object");
+        }
+
+        colorobj = PyTuple_GET_ITEM(cirlce_repr, 0);
+        CHECK_LOAD_COLOR(colorobj)
+
+        if (!pg_TwoIntsFromObj(PyTuple_GET_ITEM(cirlce_repr, 1), &posx,
+                               &posy)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "center argument must be a pair of numbers");
+            return NULL;
+        }
+
+        if (!pg_IntFromObj(PyTuple_GET_ITEM(cirlce_repr, 2), &radius)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "radius argument must be a number");
+            return NULL;
+        }
+
+        width = 0;
+        if (itemlength == 4) {
+            if (!pg_IntFromObj(PyTuple_GET_ITEM(cirlce_repr, 3), &width)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "width argument must be a number");
+                return NULL;
+            }
+        }
+
+        if (radius < 1 || width < 0) {
+            return RAISE(PyExc_TypeError,
+                         "invalid width or radius for cirlce item in "
+                         "draw_sequence, width must be >= 0, radius >=1");
+        }
+        if (width >= radius) {
+            width = 0;
+        }
+
+        if (!width) {
+            draw_circle_filled(surf, posx, posy, radius, color, drawn_area);
+        }
+        else if (width == 1) {
+            draw_circle_bresenham_thin(surf, posx, posy, radius, color,
+                                       drawn_area);
+        }
+        else {
+            draw_circle_bresenham(surf, posx, posy, radius, width, color,
+                                  drawn_area);
+        }
+    }
+
+    /* unlock surface for finished drawing */
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    Py_RETURN_NONE;
+}
+PG_WRAP_FASTCALL_FUNC(circles, PyObject)
+
+static PyObject *
 polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
@@ -2460,11 +2595,12 @@ static PyMethodDef _draw_methods[] = {
     {"arc", (PyCFunction)arc, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDRAWARC},
     {"circle", (PyCFunction)circle, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWCIRCLE},
+    {"circles", (PyCFunction)PG_FASTCALL_NAME(circles), PG_FASTCALL,
+     DOC_PYGAMEDRAWCIRCLES},
     {"polygon", (PyCFunction)polygon, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
-
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(draw)

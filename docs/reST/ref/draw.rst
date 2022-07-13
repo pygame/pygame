@@ -207,6 +207,41 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    .. ## pygame.draw.circle ##
 
+.. function:: circles
+
+   | :sl:`draws circles on a surface`
+   | :sg:`circles(surface, draw_sequence) -> None`
+
+   Draws a sequence of circles on the given surface.
+
+   :param surface: the surface to draw on
+   :param draw_sequence: a sequence composed of (color, center, radius, width) where:
+
+      - color: color to draw with, the alpha value is optional if using a tuple ``(RGB[A])``,
+
+      - center: center point of the circle as a sequence of 2 ints/floats, e.g. ``(x, y)``
+
+      - radius: radius of the circle, measured from the ``center`` parameter, nothing will
+              be drawn if the ``radius`` is less than 1
+
+      - width(optional): indicates the thickness of the circle (default=0)
+                         | if ``width == 0``, (default) fill the circle
+                         | if ``width > 0``, used for line thickness
+                         | if ``width < 0``, nothing will be drawn
+            .. note::
+               When using ``width`` values ``> 1``, the edge lines will only grow
+               inward.
+
+   :returns: always returns `None`
+   :rtype: None
+
+   .. note:: Takes positional only arguments in the order: surface, draw_sequence
+
+   :raises TypeError: if ``center`` is not a sequence of two numbers
+   :raises TypeError: if ``radius`` is not a number
+
+   .. ## pygame.draw.circles ##
+
 .. function:: ellipse
 
    | :sl:`draw an ellipse`
