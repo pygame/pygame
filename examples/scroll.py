@@ -104,6 +104,7 @@ def main(image_file=None):
     background_color = pg.Color("beige")
 
     pg.init()
+    pg.display.set_caption("Scroll Example")
 
     # set up key repeating so we can hold down the key to scroll.
     old_k_delay, old_k_interval = pg.key.get_repeat()
@@ -151,25 +152,29 @@ def main(image_file=None):
         clock.tick()
 
         going = True
+
         while going:
             # wait for events before doing anything.
             # events = [pg.event.wait()] + pg.event.get()
             events = pg.event.get()
 
+            # During the loop, if a key is held, scroll the view.
+            keys = pg.key.get_pressed()
+            if keys[pg.K_UP]:
+                scroll_view(screen, image, DIR_UP, view_rect)
+            if keys[pg.K_DOWN]:
+                scroll_view(screen, image, DIR_DOWN, view_rect)
+            if keys[pg.K_LEFT]:
+                scroll_view(screen, image, DIR_LEFT, view_rect)
+            if keys[pg.K_RIGHT]:
+                scroll_view(screen, image, DIR_RIGHT, view_rect)
+
             for e in events:
-                if e.type == pg.KEYDOWN:
-                    if e.key == pg.K_ESCAPE:
-                        going = False
-                    elif e.key == pg.K_DOWN:
-                        scroll_view(screen, image, DIR_DOWN, view_rect)
-                    elif e.key == pg.K_UP:
-                        scroll_view(screen, image, DIR_UP, view_rect)
-                    elif e.key == pg.K_LEFT:
-                        scroll_view(screen, image, DIR_LEFT, view_rect)
-                    elif e.key == pg.K_RIGHT:
-                        scroll_view(screen, image, DIR_RIGHT, view_rect)
-                elif e.type == pg.QUIT:
+                # quit if the event is quit.
+                if e.type == pg.QUIT:
                     going = False
+
+                # handle mouse button presses on arrows.
                 elif e.type == pg.MOUSEBUTTONDOWN:
                     direction = regions.get_at(e.pos)[0]
                 elif e.type == pg.MOUSEBUTTONUP:

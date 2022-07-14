@@ -1,17 +1,16 @@
 import pygame
 
 pygame.init()
-
 # This is a simple class that will help us print to the screen.
 # It has nothing to do with the joysticks, just outputting the
 # information.
 class TextPrint:
     def __init__(self):
         self.reset()
-        self.font = pygame.font.Font(None, 20)
+        self.font = pygame.font.Font(None, 25)
 
     def tprint(self, screen, text):
-        text_bitmap = self.font.render(text, True, "black")
+        text_bitmap = self.font.render(text, True, (0, 0, 0))
         screen.blit(text_bitmap, (self.x, self.y))
         self.y += self.line_height
 
@@ -32,6 +31,7 @@ def main():
     screen = pygame.display.set_mode((500, 700))
     pygame.display.set_caption("Joystick example")
 
+    # Used to manage how fast the screen updates.
     clock = pygame.time.Clock()
 
     # Get ready to print.
@@ -76,19 +76,23 @@ def main():
         # Drawing step
         # First, clear the screen to white. Don't put other drawing commands
         # above this, or they will be erased with this command.
-        screen.fill("white")
+        screen.fill((255, 255, 255))
         text_print.reset()
 
-        text_print.tprint(screen, f"Number of joysticks: {len(joysticks)}")
+        # Get count of joysticks.
+        joystick_count = pygame.joystick.get_count()
+
+        text_print.tprint(screen, f"Number of joysticks: {joystick_count}")
         text_print.indent()
 
         # For each joystick:
         for joystick in joysticks.values():
             jid = joystick.get_instance_id()
+
             text_print.tprint(screen, f"Joystick {jid}")
             text_print.indent()
 
-            # Get the name from the OS for the joystick.
+            # Get the name from the OS for the controller/joystick.
             name = joystick.get_name()
             text_print.tprint(screen, f"Joystick name: {name}")
 

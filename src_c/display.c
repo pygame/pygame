@@ -1013,7 +1013,19 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
-                        SDL_GetWindowPosition(win, &x, &y);
+                        int old_w, old_h;
+                        SDL_GetWindowSize(win, &old_w, &old_h);
+
+                        /* Emulate SDL1 behaviour: When the window is to be
+                         * centred, the window shifts to the new centred
+                         * location only when resolution changes and previous
+                         * position is retained when the dimensions don't
+                         * change.
+                         * When the window is not to be centred, previous
+                         * position is retained unconditionally */
+                        if (!center_window || (w == old_w && h == old_h)) {
+                            SDL_GetWindowPosition(win, &x, &y);
+                        }
                     }
                 }
                 if (!(flags & PGS_OPENGL) !=
@@ -1850,14 +1862,29 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
         return 0;
     }
     for (i = 0; i < 256; i++) {
+        long ret;
         item = PySequence_GetItem(python_array, i);
+        if (!item) {
+            return 0;
+        }
         if (!PyLong_Check(item)) {
             PyErr_SetString(PyExc_ValueError,
                             "gamma ramp must contain integer elements");
             return 0;
         }
-        c_uint16_array[i] = (Uint16)PyLong_AsLong(item);
+        ret = PyLong_AsLong(item);
         Py_XDECREF(item);
+        if (ret < 0 || ret >= 0xFFFF) {
+            if (PyErr_Occurred()) {
+                /* Happens when PyLong_AsLong overflows */
+                return 0;
+            }
+            PyErr_SetString(
+                PyExc_ValueError,
+                "integers in gamma ramp must be between 0 and 0xFFFF");
+            return 0;
+        }
+        c_uint16_array[i] = (Uint16)ret;
     }
     return 1;
 }

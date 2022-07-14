@@ -5,6 +5,8 @@ import os
 import sys
 from glob import glob
 
+from distutils.sysconfig import get_python_inc
+
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
@@ -187,8 +189,8 @@ def main(auto_config=False):
     incdirs = []
     libdirs = []
 
-    incdirs += [os.environ.get("PREFIX") + d for d in origincdirs]
-    libdirs += [os.environ.get("PREFIX") + d for d in origlibdirs]
+    incdirs += [os.environ.get("PREFIX", "") + d for d in origincdirs]
+    libdirs += [os.environ.get("PREFIX", "") + d for d in origlibdirs]
 
     incdirs += [EMSDK + '/upstream/emscripten/cache/sysroot'+ d for d in origincdirs]
 

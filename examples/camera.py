@@ -31,11 +31,12 @@ class VideoCapturePlayer:
 
         # gets a list of available cameras.
         self.clist = pygame.camera.list_cameras()
-        print(self.clist)
 
+        # ensure a camera exists
         if not self.clist:
             raise ValueError("Sorry, no cameras detected.")
 
+        # check to see if the camera id exists. If not, default to the first one in the list.
         try:
             cam_id = self.clist[which_cam_idx]
         except IndexError:
@@ -52,6 +53,8 @@ class VideoCapturePlayer:
         # create a surface to capture to.  for performance purposes, you want the
         # bit depth to be the same as that of the display surface.
         self.snapshot = pg.surface.Surface(self.size, 0, self.display)
+        # return the name of the camera being used, to be included in the window name
+        return cam_id
 
     def get_and_flip(self):
         # if you don't want to tie the framerate to the camera, you can check and
@@ -79,6 +82,21 @@ class VideoCapturePlayer:
         pg.display.flip()
 
     def main(self):
+        # get the camera list. If there are no cameras, raise a value error.
+        clist = pygame.camera.list_cameras()
+        if not clist:
+            raise ValueError("Sorry, no cameras detected.")
+        # get the first camera, as this is the default. We want the display to contain the name of the camera.
+        camera = clist[0]
+
+        # create a list of options for the user to easily understand.
+        print(
+            "\nPress the associated number for the desired camera to see that display!"
+        )
+        print("(Selecting a camera that does not exist will default to camera 0)")
+        for index, cam in enumerate(clist):
+            print("[" + str(index) + "]: " + cam)
+
         going = True
         while going:
             events = pg.event.get()
@@ -87,11 +105,11 @@ class VideoCapturePlayer:
                     going = False
                 if e.type == pg.KEYDOWN:
                     if e.key in range(pg.K_0, pg.K_0 + 10):
-                        self.init_cams(e.key - pg.K_0)
+                        camera = self.init_cams(e.key - pg.K_0)
 
             self.get_and_flip()
             self.clock.tick()
-            pygame.display.set_caption(f"CAMERA! ({self.clock.get_fps():.2f} FPS)")
+            pygame.display.set_caption(f"{camera} ({self.clock.get_fps():.2f} FPS)")
 
 
 def main():

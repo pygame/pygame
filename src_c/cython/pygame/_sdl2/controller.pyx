@@ -247,15 +247,14 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        if not SDL_VERSION_ATLEAST(2, 0, 9):
-            return False
-
+        
         duration = max(duration, 0)
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
 
-        res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
-        return bool(res)
+        return not PG_GameControllerRumble(
+            self._controller, low * 0xFFFF, high * 0xFFFF, duration
+        )
 
     def stop_rumble(self):
         """
@@ -263,5 +262,4 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        if SDL_VERSION_ATLEAST(2, 0, 9):
-            SDL_GameControllerRumble(self._controller, 0, 0, 1)
+        PG_GameControllerRumble(self._controller, 0, 0, 1)

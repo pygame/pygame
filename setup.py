@@ -209,7 +209,16 @@ if consume_arg('-enable-arm-neon'):
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
 
+compile_cython = False
+cython_only = False
 if consume_arg('cython'):
+    compile_cython = True
+
+if consume_arg('cython_only'):
+    compile_cython = True
+    cython_only = True
+
+if compile_cython:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
@@ -280,6 +289,9 @@ if consume_arg('cython'):
     for i, kwargs in enumerate(queue):
         kwargs['progress'] = f'[{i + 1}/{count}] '
         cythonize_one(**kwargs)
+    
+    if cython_only:
+        sys.exit(0)
 
 no_compilation = any(x in ['lint', 'format', 'docs'] for x in sys.argv)
 AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
