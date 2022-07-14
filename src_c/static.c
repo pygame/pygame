@@ -152,7 +152,6 @@ PyInit_pixelcopy(void);
 PyMODINIT_FUNC
 PyInit_gfxdraw(void);
 
-
 void
 PyGame_static_init()
 {
