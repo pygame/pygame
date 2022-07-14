@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union, Tuple
 
 from pygame.rect import Rect
 from pygame.surface import Surface
@@ -58,6 +58,10 @@ def lines(
     points: Sequence[Coordinate],
     width: int = 1,
 ) -> Rect: ...
+def nclines(
+        surface: Surface,
+        draw_sequence: Sequence[Tuple[ColorValue, Coordinate, Coordinate, int]], /
+) -> None: ...
 def aaline(
     surface: Surface,
     color: ColorValue,

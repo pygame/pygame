@@ -397,6 +397,33 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    .. ## pygame.draw.lines ##
 
+.. function:: nclines
+
+   | :sl:`draw multiple line segments on a surface`
+   | :sg:`nclines(surface, draw_sequence) -> None`
+
+   Draws a sequence of straight line segments on the given surface. There are
+   no endcaps or miter joints. For thick lines the ends are squared off.
+
+   :param Surface surface: the surface to draw the lines on
+   :param draw_sequence: a sequence composed of (color, pos1, pos2, width) where:
+
+      - color: color to draw with, the alpha value is optional if using a tuple ``(RGB[A])``,
+
+      - pos1, pos2: two (x, y) pairs that indicate the line segment's start and end positions
+
+      - width(optional): indicates the thickness of the circle (default=1)
+                         | if ``width >= 1``, used for line thickness
+                         | if ``width <= 0``, nothing will be drawn
+
+   :returns: always returns `None`
+   :rtype: None
+
+   .. note:: Takes positional only arguments in the order: surface, draw_sequence
+             ``width`` for each line must be >= 1 and pos1 must be different from pos2.
+
+   .. ## pygame.draw.nclines ##
+
 .. function:: aaline
 
    | :sl:`draw a straight antialiased line`

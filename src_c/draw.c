@@ -491,6 +491,131 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 }
 
 static PyObject *
+nclines(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    pgSurfaceObject *surfobj;
+    SDL_Surface *surf = NULL;
+    Uint32 color;
+    Uint8 rgba[4];
+    PyObject *colorobj;
+    PyObject *line_repr;
+    PyObject *draw_sequence = NULL, **f_drawsequence;
+    Py_ssize_t itemlength, sequencelength, seq_counter;
+    int x1, y1, x2, y2;
+    int width = 1; /* Default width. */
+    /* Used to store bounding box values */
+    int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN, INT_MIN};
+
+    if (nargs != 2) {
+        return RAISE(PyExc_ValueError,
+                     "function requires exactly 2 arguments");
+    }
+
+    /* Destination Surface*/
+    surfobj = (pgSurfaceObject *)args[0];
+    surf = pgSurface_AsSurface(surfobj);
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
+
+    /* draw_sequence preparations */
+    if (!PySequence_Check(args[1]) ||
+        !(draw_sequence = PySequence_Fast(
+              args[1], "Error, could not convert to a sequence"))) {
+        Py_XDECREF(draw_sequence);
+        return RAISE(PyExc_TypeError,
+                     "draw_sequence parameter must be a List/Tuple of "
+                     "(color, pos1, pos2, width) or (color, pos1, pos2)");
+    }
+    sequencelength = PySequence_Fast_GET_SIZE(draw_sequence);
+    if (!sequencelength) {
+        /* if length is 0 don't raise and return None */
+        Py_DECREF(draw_sequence);
+        Py_RETURN_NONE;
+    }
+    f_drawsequence = PySequence_Fast_ITEMS(draw_sequence);
+    Py_DECREF(draw_sequence);
+    draw_sequence = NULL;
+
+    /* lock surface for drawing */
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
+
+    /* Draw loop */
+    for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
+        line_repr = f_drawsequence[seq_counter];
+        if (PyTuple_Check(line_repr)) {
+            itemlength = PyTuple_Size(line_repr);
+            if (itemlength < 3 || itemlength > 4) {
+                pgSurface_Unlock(surfobj);
+                return PyErr_Format(PyExc_ValueError,
+                                    "too many/too little elements per line "
+                                    "draw(must either be 3 or 4): currently ",
+                                    itemlength);
+            }
+        }
+        else {
+            pgSurface_Unlock(surfobj);
+            return RAISE(PyExc_ValueError,
+                         "draw sequence item must be a tuple object");
+        }
+
+        colorobj = PyTuple_GET_ITEM(line_repr, 0);
+        CHECK_LOAD_COLOR(colorobj)
+
+        if (!pg_TwoIntsFromObj(PyTuple_GET_ITEM(line_repr, 1), &x1, &y1)) {
+            pgSurface_Unlock(surfobj);
+            PyErr_SetString(PyExc_TypeError,
+                            "pos1 argument must be a pair of numbers");
+            return NULL;
+        }
+        if (!pg_TwoIntsFromObj(PyTuple_GET_ITEM(line_repr, 2), &x2, &y2)) {
+            pgSurface_Unlock(surfobj);
+            PyErr_SetString(PyExc_TypeError,
+                            "pos2 argument must be a pair of numbers");
+            return NULL;
+        }
+
+        width = 1;
+        if (itemlength == 4) {
+            if (!pg_IntFromObj(PyTuple_GET_ITEM(line_repr, 3), &width)) {
+                pgSurface_Unlock(surfobj);
+                PyErr_SetString(PyExc_TypeError,
+                                "width argument must be a number");
+                return NULL;
+            }
+        }
+
+        if (width < 1) {
+            pgSurface_Unlock(surfobj);
+            return RAISE(
+                PyExc_ValueError,
+                "specified width value must be greater or equal to 1");
+        }
+        if (x1 == x2 && y1 == y2) {
+            pgSurface_Unlock(surfobj);
+            return RAISE(PyExc_ValueError, "pos1 and pos2 must be different");
+        }
+
+        if (width == 1)
+            draw_line(surf, x1, y1, x2, y2, color, drawn_area);
+        else
+            draw_line_width(surf, color, x1, y1, x2, y2, width, drawn_area);
+    }
+
+    /* unlock surface for finished drawing */
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    Py_RETURN_NONE;
+}
+PG_WRAP_FASTCALL_FUNC(nclines, PyObject)
+
+static PyObject *
 arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
@@ -2455,6 +2580,8 @@ static PyMethodDef _draw_methods[] = {
      DOC_PYGAMEDRAWAALINES},
     {"lines", (PyCFunction)lines, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWLINES},
+    {"nclines", (PyCFunction)PG_FASTCALL_NAME(nclines), PG_FASTCALL,
+     DOC_PYGAMEDRAWNCLINES},
     {"ellipse", (PyCFunction)ellipse, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWELLIPSE},
     {"arc", (PyCFunction)arc, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDRAWARC},
