@@ -243,8 +243,8 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
 static PyObject *
 pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-    PyObject *result = pg_EncodeString(obj, Py_FileSystemDefaultEncoding,
-                                       UNICODE_DEF_FS_ERROR, eclass);
+    PyObject *result = PyUnicode_EncodeFSDefault(obj);
+
     if (result == NULL || result == Py_None) {
         return result;
     }
