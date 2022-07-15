@@ -100,6 +100,45 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    .. ## pygame.draw.rect ##
 
+.. function:: rects
+
+   | :sl:`draw a sequence of rectangles`
+   | :sg:`rects(surface, draw_sequence) -> None`
+
+   Draws a sequence of rectangles on the given surface.
+
+   :param surface: the surface to draw the rectangles on
+   :param draw_sequence: a sequence composed of (color, rect, width, radius) where:
+
+      - color: color to draw with, the alpha value is optional if using a tuple ``(RGB[A])``
+
+      - rect: the rectangle to draw, with its position and dimensions
+
+      - width (optional): used for line thickness or to indicate that the rectangle is to be
+         filled (not to be confused with the width value of the ``rect`` parameter)
+
+                          | if ``width == 0``, (default) fill the rectangle
+                          | if ``width > 0``, used for line thickness
+                          | if ``width < 0``, nothing will be drawn
+
+      - border_radius (optional): used for drawing rectangle with rounded corners.
+         The supported range is [0, min(height, width) / 2], with 0 representing a rectangle
+         without rounded corners.
+
+               | if ``border_radius < 1`` it will draw rectangle without rounded corners
+               | if any of border radii has the value ``< 0`` it will use value of the border_radius
+               | If sum of radii on the same side of the rectangle is greater than the rect size the radii
+               | will get scaled
+
+   :returns: always returns ``None``
+   :rtype: None
+
+   .. note::
+      The :func:`pygame.Surface.fill()` method works just as well for drawing
+      filled rectangles and can be hardware accelerated on some platforms.
+
+   .. ## pygame.draw.rects ##
+
 .. function:: polygon
 
    | :sl:`draw a polygon`

@@ -967,7 +967,178 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         return pgRect_New4(rect->x, rect->y, 0, 0);
 }
 
+static PyObject *
+rects(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    pgSurfaceObject *surfobj;
+    SDL_Surface *surf = NULL;
+    Uint8 rgba[4];
+    Uint32 color;
+    PyObject *colorobj;
+    SDL_Rect *rect = NULL, temp;
+    SDL_Rect cliprect;
+    SDL_Rect clipped;
+    PyObject *rect_repr;
+    PyObject **f_drawsequence, *draw_sequence;
+    Py_ssize_t itemlength, sequencelength, seq_counter;
+    int result;
+    int width = 0, radius = 0; /* Default values. */
+
+    /* Used to store bounding box values */
+    int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN, INT_MIN};
+
+    if (nargs < 2) {
+        return RAISE(PyExc_ValueError,
+                     "function needs 2 positional arguments in the order: "
+                     "surface, draw_sequence");
+    }
+
+    /* Destination Surface*/
+    surfobj = (pgSurfaceObject *)args[0];
+    surf = pgSurface_AsSurface(surfobj);
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
+
+    /* draw_sequence preparations */
+    if (!PySequence_Check(args[1])) {
+        return RAISE(PyExc_TypeError,
+                     "draw_sequence parameter must be a List/Tuple of "
+                     "(color, rect) or (color, rect, width) or (color, rect, "
+                     "width, border_radius)");
+    }
+    if (!(draw_sequence = PySequence_Fast(args[1], "Error"))) {
+        return RAISE(PyExc_TypeError,
+                     "draw_sequence parameter must be a List/Tuple of "
+                     "(color, rect) or (color, rect, width) or (color, rect, "
+                     "width, border_radius)");
+    }
+    sequencelength = PySequence_Fast_GET_SIZE(draw_sequence);
+    if (!sequencelength) {
+        /* if length is 0 don't raise and return None */
+        Py_DECREF(draw_sequence);
+        Py_RETURN_NONE;
+    }
+    f_drawsequence = PySequence_Fast_ITEMS(draw_sequence);
+    Py_DECREF(draw_sequence);
+    draw_sequence = NULL;
+
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
+
+    /* Drawing loop */
+    for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
+        rect_repr = f_drawsequence[seq_counter];
+
+        if (PyTuple_Check(rect_repr)) {
+            itemlength = PyTuple_Size(rect_repr);
+            if (itemlength < 2 || itemlength > 4) {
+                return PyErr_Format(
+                    PyExc_ValueError,
+                    "too many/too little elements per circle "
+                    "draw(must be between 2 and 4): currently ",
+                    itemlength);
+            }
+        }
+        else {
+            return RAISE(PyExc_ValueError,
+                         "draw sequence item must be a tuple object");
+        }
+
+        colorobj = PyTuple_GET_ITEM(rect_repr, 0);
+        CHECK_LOAD_COLOR(colorobj)
+
+        if (!(rect =
+                  pgRect_FromObject(PyTuple_GET_ITEM(rect_repr, 1), &temp))) {
+            return RAISE(PyExc_TypeError, "rect argument is invalid");
+        }
+
+        width = 0;
+        if (itemlength >= 3)
+            if (!pg_IntFromObj(PyTuple_GET_ITEM(rect_repr, 2), &width))
+                return RAISE(PyExc_TypeError, "width argument is invalid");
+
+        radius = 0;
+        if (itemlength == 4)
+            if (!pg_IntFromObj(PyTuple_GET_ITEM(rect_repr, 3), &radius))
+                return RAISE(PyExc_TypeError, "radius must be a number");
+
+        if (radius <= 0 || abs(rect->w) < 2 || abs(rect->h) < 2) {
+            SDL_GetClipRect(surf, &cliprect);
+            /* SDL_FillRect respects the clip rect already, but in order to
+                return the drawn area, we need to do this here, and keep the
+                pointer to the result in clipped */
+            if (!SDL_IntersectRect(rect, &cliprect, &clipped)) {
+                continue;
+            }
+            if (width > 0 && (width * 2) < clipped.w &&
+                (width * 2) < clipped.h) {
+                draw_rect(surf, rect->x, rect->y, rect->x + rect->w - 1,
+                          rect->y + rect->h - 1, width, color);
+            }
+            else {
+                pgSurface_Prep(surfobj);
+                result = SDL_FillRect(surf, &clipped, color);
+                pgSurface_Unprep(surfobj);
+                if (result != 0)
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+        }
+        else {
+            /* Little bit to normalize the rect: this matters for the rounded
+               rects, despite not mattering for the normal rects. */
+            if (rect->w < 0) {
+                rect->x += rect->w;
+                rect->w = -rect->w;
+            }
+            if (rect->h < 0) {
+                rect->y += rect->h;
+                rect->h = -rect->h;
+            }
+
+            if (width > rect->w / 2 || width > rect->h / 2) {
+                width = MAX(rect->w / 2, rect->h / 2);
+            }
+
+            draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1,
+                            rect->y + rect->h - 1, radius, width, color, -1,
+                            -1, -1, -1, drawn_area);
+        }
+    }
+
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    Py_RETURN_NONE;
+}
+#if PY_VERSION_HEX < 0x03070000
+static PyObject *
+rects_wrapper(PyObject *self, PyObject *args)
+{
+    Py_ssize_t i, nargs = PyTuple_GET_SIZE(args);
+    PyObject **vector_args = PyMem_New(PyObject *, nargs);
+    if (!vector_args) {
+        return PyErr_NoMemory();
+    }
+
+    for (i = 0; i < nargs; i++) {
+        vector_args[i] = PyTuple_GetItem(args, i);
+        if (!vector_args[i]) {
+            PyMem_Free(vector_args);
+            return NULL;
+        }
+    }
+
+    PyObject *ret = rects(self, (PyObject *const *)vector_args, nargs);
+    PyMem_Free(vector_args);
+    return ret;
+}
 /* Functions used in drawing algorithms */
+#endif
 
 static void
 swap(float *a, float *b)
@@ -2464,7 +2635,11 @@ static PyMethodDef _draw_methods[] = {
      DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
-
+#if PY_VERSION_HEX < 0x03070000
+    {"rects", (PyCFunction)rects_wrapper, METH_VARARGS, DOC_PYGAMEDRAWRECTS},
+#else
+    {"rects", (PyCFunction)rects, METH_FASTCALL, DOC_PYGAMEDRAWRECTS},
+#endif
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(draw)
