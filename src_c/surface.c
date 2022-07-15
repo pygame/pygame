@@ -1858,8 +1858,12 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 
     if (keywds != NULL) {
         /* Non-position kwargs should go here. */
-        PyDict_DelItemString(keywds, "special_flags");
-        PyDict_DelItemString(keywds, "area");
+        if (PyDict_Contains(keywds, PyUnicode_FromString("special_flags")))
+            PyDict_DelItemString(keywds, "special_flags");
+        if (PyDict_Contains(keywds, PyUnicode_FromString("area")))
+            PyDict_DelItemString(keywds, "area");
+        if (PyDict_Contains(keywds, PyUnicode_FromString("source")))
+            PyDict_DelItemString(keywds, "source");
     }
 
     if (PyDict_Size(keywds) > 1) {
