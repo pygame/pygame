@@ -15,7 +15,7 @@ else:
     # FIXME : the import of the builtin math module is broken ...
     def floor(value):
         """
-        Get the floor int fro a float.
+        Get the floor int fromm a float.
 
         :param value:
         :return: an int
