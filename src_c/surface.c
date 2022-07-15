@@ -1846,14 +1846,14 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *center_pos = NULL;
 
     static char *kwids[] = {
-        "source",  "topleft",       "topright", "bottomleft", "bottomright",
-        "midleft", "midright",      "midtop",   "midbottom",  "center",
-        "area",    "special_flags", NULL};
+        "source",     "topleft",     "area",    "special_flags", "topright",
+        "bottomleft", "bottomright", "midleft", "midright",      "midtop",
+        "midbottom",  "center",      NULL};
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "O!|OOOOOOOOOOi", kwids, &pgSurface_Type, &srcobject,
-            &topleft_pos, &topright_pos, &bottomleft_pos, &bottomright_pos,
-            &midleft_pos, &midright_pos, &midtop_pos, &midbottom_pos,
-            &center_pos, &argrect, &the_args))
+            args, keywds, "O!|OOiOOOOOOOO", kwids, &pgSurface_Type, &srcobject,
+            &topleft_pos, &argrect, &the_args, &topright_pos, &bottomleft_pos,
+            &bottomright_pos, &midleft_pos, &midright_pos, &midtop_pos,
+            &midbottom_pos, &center_pos))
         return NULL;
 
     if (keywds != NULL) {
