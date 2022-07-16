@@ -610,7 +610,7 @@ static SDL_Keycode
 _get_key_from_name(const char *name)
 {
     int i;
-    for (i = 0; i < SDL_arraysize(SDL1_scancode_names); ++i) {
+    for (i = 0; i < SDL_NUM_SCANCODES; ++i) {
         if (!SDL1_scancode_names[i]) {
             continue;
         }
