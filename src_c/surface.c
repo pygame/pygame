@@ -1907,23 +1907,41 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *special_flags = NULL;
     PyObject *ret = NULL;
     PyObject *retrect = NULL;
-    Py_ssize_t itemlength;
+    Py_ssize_t itemlength, sequencelength, curriter = 0;
     int doreturn = 1;
     int bliterrornum = 0;
+    int issequence = 0;
     static char *kwids[] = {"blit_sequence", "doreturn", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwids, &blitsequence,
                                      &doreturn))
         return NULL;
 
-    if (doreturn) {
-        ret = PyList_New(0);
-        if (!ret)
-            return NULL;
-    }
-    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
+    if (!PyIter_Check(blitsequence) &&
+        !(issequence = PySequence_Check(blitsequence))) {
         bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
         goto bliterror;
     }
+
+    if (doreturn) {
+        /* If the sequence is countable, meaning not a generator, we can get
+         * faster rect appending to the list by pre allocating it
+         * to later call the more efficient SET_ITEM*/
+        if (issequence) {
+            sequencelength = PySequence_Size(blitsequence);
+            if (sequencelength == -1) {
+                bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                goto bliterror;
+            }
+
+            ret = PyList_New(sequencelength);
+        }
+        else {
+            ret = PyList_New(0);
+        }
+        if (!ret)
+            return NULL;
+    }
+
     iterator = PyObject_GetIter(blitsequence);
     if (!iterator) {
         Py_XDECREF(ret);
@@ -1951,16 +1969,16 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         assert(itemlength >= 2);
 
         /* (Surface, dest) */
-        srcobject = PySequence_GetItem(item, 0);
-        argpos = PySequence_GetItem(item, 1);
+        srcobject = PySequence_ITEM(item, 0);
+        argpos = PySequence_ITEM(item, 1);
 
         if (itemlength >= 3) {
             /* (Surface, dest, area) */
-            argrect = PySequence_GetItem(item, 2);
+            argrect = PySequence_ITEM(item, 2);
         }
         if (itemlength == 4) {
             /* (Surface, dest, area, special_flags) */
-            special_flags = PySequence_GetItem(item, 3);
+            special_flags = PySequence_ITEM(item, 3);
         }
         Py_DECREF(item);
         /* Clear item to avoid double deref on errors */
@@ -2029,11 +2047,22 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         if (doreturn) {
             retrect = NULL;
             retrect = pgRect_New(&dest_rect);
-            if (PyList_Append(ret, retrect) != 0) {
+
+            /* If the sequence is countable, we already pre allocated a list
+             * of matching size. Now we can use the efficient PyList_SET_ITEM
+             * to add elements to the list */
+            if (issequence) {
+                PyList_SET_ITEM(ret, curriter++, retrect);
+            }
+            else if (PyList_Append(ret, retrect) != -1) {
+                Py_DECREF(retrect);
+            }
+            else {
+                Py_DECREF(retrect);
+                retrect = NULL;
                 bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
                 goto bliterror;
             }
-            Py_DECREF(retrect);
             retrect = NULL; /* Clear to avoid double deref on errors */
         }
         Py_DECREF(srcobject);
