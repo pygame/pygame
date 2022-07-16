@@ -548,8 +548,9 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "break";
     SDL1_scancode_names[SDL_SCANCODE_MENU] = "menu";
     SDL1_scancode_names[SDL_SCANCODE_POWER] = "power";
-    /*SDL1_scancode_names[SDL_SCANCODE_EURO] = "euro"; */ /* changed to
-                                                             CurrencyUnit */
+    SDL1_scancode_names[SDL_SCANCODE_CURRENCYUNIT] =
+        "euro"; /* EURO (SDL1) is an alias for CURRENCYUNIT in SDL2. But we
+                need to retain the SDL1 name in compat mode */
     SDL1_scancode_names[SDL_SCANCODE_UNDO] = "undo";
 }
 
