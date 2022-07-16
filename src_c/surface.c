@@ -1830,6 +1830,9 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     SDL_Rect dest_rect;
     int sx, sy;
     int the_args = 0; /* Represents kwarg: "special_flags". */
+
+    int checks = 0;
+    Py_ssize_t loop;
     PyObject *origin_pos = NULL;
 
     /* 1 = 100% of the width/height, 2 = 50% of the width/height */
@@ -1846,27 +1849,27 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *center_pos = NULL;
 
     static char *kwids[] = {
-        "source",     "dest",     "area",    "special_flags", "topleft", "topright",
+        "source",     "topleft",     "area",    "special_flags", "topright",
         "bottomleft", "bottomright", "midleft", "midright",      "midtop",
-        "midbottom",  "center",    NULL};
+        "midbottom",  "center",      NULL};
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "O!|OOiOOOOOOOO", kwids, &pgSurface_Type, &srcobject,
-            &topleft_pos, &argrect, &the_args, &topleft_pos, &topright_pos, &bottomleft_pos,
+            args, keywds, "O!|OOiOOOOOOO", kwids, &pgSurface_Type, &srcobject,
+            &topleft_pos, &argrect, &the_args, &topright_pos, &bottomleft_pos,
             &bottomright_pos, &midleft_pos, &midright_pos, &midtop_pos,
             &midbottom_pos, &center_pos))
         return NULL;
 
-    if (keywds != NULL) {
-        /* Non-position kwargs should go here. */
-        if (PyDict_Contains(keywds, PyUnicode_FromString("special_flags")))
-            PyDict_DelItemString(keywds, "special_flags");
-        if (PyDict_Contains(keywds, PyUnicode_FromString("area")))
-            PyDict_DelItemString(keywds, "area");
-        if (PyDict_Contains(keywds, PyUnicode_FromString("source")))
-            PyDict_DelItemString(keywds, "source");
+    PyObject *pos_vars[] = {topleft_pos,     topright_pos,  bottomleft_pos,
+                            bottomright_pos, midleft_pos,   midright_pos,
+                            midtop_pos,      midbottom_pos, center_pos};
+
+    for (loop = 0; loop < sizeof(pos_vars) / sizeof(pos_vars[0]); loop++) {
+        if (pos_vars[loop] != NULL) {
+            checks += 1;
+        }
     }
 
-    if (PyDict_Size(keywds) > 1) {
+    if (checks > 1) {
         return RAISE(PyExc_ValueError,
                      "More than one position kwarg identified.");
     }
