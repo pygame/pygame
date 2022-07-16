@@ -1513,6 +1513,7 @@ static const char __pyx_k_set_eventstate[] = "set_eventstate";
 static const char __pyx_k_max_controllers[] = "max_controllers";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_internal_mod_init[] = "_internal_mod_init";
+static const char __pyx_k_pygame__sdl2_sdl2[] = "pygame._sdl2.sdl2";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_pygame__sdl2_controller[] = "pygame._sdl2.controller";
 static const char __pyx_k_gamecontroller_init_check[] = "_gamecontroller_init_check";
@@ -1567,6 +1568,7 @@ static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_forindex;
 static PyObject *__pyx_n_s_num;
 static PyObject *__pyx_n_s_pygame__sdl2_controller;
+static PyObject *__pyx_n_s_pygame__sdl2_sdl2;
 static PyObject *__pyx_n_s_quit;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
@@ -6243,6 +6245,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_name_forindex, __pyx_k_name_forindex, sizeof(__pyx_k_name_forindex), 0, 0, 1, 1},
   {&__pyx_n_s_num, __pyx_k_num, sizeof(__pyx_k_num), 0, 0, 1, 1},
   {&__pyx_n_s_pygame__sdl2_controller, __pyx_k_pygame__sdl2_controller, sizeof(__pyx_k_pygame__sdl2_controller), 0, 0, 1, 1},
+  {&__pyx_n_s_pygame__sdl2_sdl2, __pyx_k_pygame__sdl2_sdl2, sizeof(__pyx_k_pygame__sdl2_sdl2), 0, 0, 1, 1},
   {&__pyx_n_s_quit, __pyx_k_quit, sizeof(__pyx_k_quit), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
@@ -6763,7 +6766,7 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "pygame/_sdl2/controller.pyx":1
- * from . import error             # <<<<<<<<<<<<<<
+ * from pygame._sdl2.sdl2 import error             # <<<<<<<<<<<<<<
  * 
  * cdef extern from "../pygame.h" nogil:
  */
@@ -6772,7 +6775,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_error);
   __Pyx_GIVEREF(__pyx_n_s_error);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_error);
-  __pyx_t_2 = __Pyx_Import(__pyx_kp_s__5, __pyx_t_1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_pygame__sdl2_sdl2, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -6965,7 +6968,7 @@ if (!__Pyx_RefNanny) {
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_10controller_Controller);
 
   /* "pygame/_sdl2/controller.pyx":1
- * from . import error             # <<<<<<<<<<<<<<
+ * from pygame._sdl2.sdl2 import error             # <<<<<<<<<<<<<<
  * 
  * cdef extern from "../pygame.h" nogil:
  */
