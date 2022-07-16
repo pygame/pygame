@@ -1,4 +1,4 @@
-from .sdl2 import error
+from pygame._sdl2.sdl2 import error
 
 cdef extern from "../pygame.h" nogil:
     int pgJoystick_Check(object joy)
