@@ -1,4 +1,4 @@
-from .sdl2 import error
+from pygame._sdl2.sdl2 import error
 
 
 # expose constants to python.
