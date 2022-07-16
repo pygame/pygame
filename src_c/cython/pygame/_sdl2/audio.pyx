@@ -1,4 +1,4 @@
-from . import error
+from .sdl2 import error
 
 
 # expose constants to python.
