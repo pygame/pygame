@@ -6,7 +6,7 @@
         "depends": [],
         "name": "pygame._sdl2.controller",
         "sources": [
-            "src_c\\cython\\pygame\\_sdl2\\controller.pyx"
+            "src_c/cython/pygame/_sdl2/controller.pyx"
         ]
     },
     "module_name": "pygame._sdl2.controller"
@@ -920,7 +920,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c\\cython\\pygame\\_sdl2\\controller.pyx",
+  "src_c/cython/pygame/_sdl2/controller.pyx",
   "stringsource",
 };
 
@@ -1522,7 +1522,7 @@ static const char __pyx_k_Index_is_invalid_or_not_a_suppor[] = "Index is invalid
 static const char __pyx_k_gamecontroller_system_not_initia[] = "gamecontroller system not initialized";
 static const char __pyx_k_self__controller_cannot_be_conve[] = "self._controller cannot be converted to a Python object for pickling";
 static const char __pyx_k_should_be_a_pygame_joystick_Joys[] = "should be a pygame.joystick.Joystick object.";
-static const char __pyx_k_src_c_cython_pygame__sdl2_contro[] = "src_c\\cython\\pygame\\_sdl2\\controller.pyx";
+static const char __pyx_k_src_c_cython_pygame__sdl2_contro[] = "src_c/cython/pygame/_sdl2/controller.pyx";
 static PyObject *__pyx_n_s_CLOSEDCHECK;
 static PyObject *__pyx_n_s_Controller;
 static PyObject *__pyx_kp_s_Could_not_open_controller_d;
