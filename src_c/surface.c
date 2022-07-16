@@ -1832,7 +1832,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int the_args = 0; /* Represents kwarg: "special_flags". */
 
     int checks = 0;
-    Py_ssize_t loop;
+    int loop;
     PyObject *origin_pos = NULL;
 
     /* 1 = 100% of the width/height, 2 = 50% of the width/height */
