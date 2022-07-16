@@ -1847,21 +1847,24 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *midtop_pos = NULL;
     PyObject *midbottom_pos = NULL;
     PyObject *center_pos = NULL;
+    PyObject *legacy_pos = NULL;
 
-    static char *kwids[] = {
-        "source",     "topleft",     "area",    "special_flags", "topright",
-        "bottomleft", "bottomright", "midleft", "midright",      "midtop",
-        "midbottom",  "center",      NULL};
+    static char *kwids[] = {"source",        "topleft",   "area",
+                            "special_flags", "topright",  "bottomleft",
+                            "bottomright",   "midleft",   "midright",
+                            "midtop",        "midbottom", "center",
+                            "dest",          NULL};
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "O!|OOiOOOOOOOO", kwids, &pgSurface_Type, &srcobject,
-            &topleft_pos, &argrect, &the_args, &topright_pos, &bottomleft_pos,
-            &bottomright_pos, &midleft_pos, &midright_pos, &midtop_pos,
-            &midbottom_pos, &center_pos))
+            args, keywds, "O!|OOiOOOOOOOOO", kwids, &pgSurface_Type,
+            &srcobject, &topleft_pos, &argrect, &the_args, &topright_pos,
+            &bottomleft_pos, &bottomright_pos, &midleft_pos, &midright_pos,
+            &midtop_pos, &midbottom_pos, &center_pos, &legacy_pos))
         return NULL;
 
     PyObject *pos_vars[] = {topleft_pos,     topright_pos,  bottomleft_pos,
                             bottomright_pos, midleft_pos,   midright_pos,
-                            midtop_pos,      midbottom_pos, center_pos};
+                            midtop_pos,      midbottom_pos, center_pos,
+                            legacy_pos};
 
     for (loop = 0; loop < sizeof(pos_vars) / sizeof(pos_vars[0]); loop++) {
         if (pos_vars[loop] != NULL) {
@@ -1874,7 +1877,10 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
                      "More than one position kwarg identified.");
     }
 
-    if (topleft_pos != NULL) {
+    if (legacy_pos != NULL) {
+        origin_pos = legacy_pos;
+    }
+    else if (topleft_pos != NULL) {
         origin_pos = topleft_pos;
     }
     else if (topright_pos != NULL) {
