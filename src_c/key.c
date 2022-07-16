@@ -145,7 +145,10 @@ key_get_pressed(PyObject *self, PyObject *_null)
     return ret_obj;
 }
 
-/* keep our own table for backward compatibility */
+/* Keep our own table for backwards compatibility. This table is directly taken
+ * from SDL2 source (but some SDL1 names are patched in it at runtime).
+ * This has to be kept updated (only new things can be added, existing names in
+ * this must not be changed) */
 static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     NULL,
     NULL,
@@ -436,82 +439,53 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "AudioFastForward",
 };
 
+/* Taken from SDL_iconv() */
+char *
+SDL_UCS4ToUTF8(Uint32 ch, char *dst)
+{
+    Uint8 *p = (Uint8 *)dst;
+    if (ch <= 0x7F) {
+        *p = (Uint8)ch;
+        ++dst;
+    }
+    else if (ch <= 0x7FF) {
+        p[0] = 0xC0 | (Uint8)((ch >> 6) & 0x1F);
+        p[1] = 0x80 | (Uint8)(ch & 0x3F);
+        dst += 2;
+    }
+    else if (ch <= 0xFFFF) {
+        p[0] = 0xE0 | (Uint8)((ch >> 12) & 0x0F);
+        p[1] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[2] = 0x80 | (Uint8)(ch & 0x3F);
+        dst += 3;
+    }
+    else {
+        p[0] = 0xF0 | (Uint8)((ch >> 18) & 0x07);
+        p[1] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
+        p[2] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
+        p[3] = 0x80 | (Uint8)(ch & 0x3F);
+        dst += 4;
+    }
+    return dst;
+}
+
+/* Patch in pygame 1 compat names in our key name compat table */
 static void
 _use_sdl1_key_names(void)
 {
-    /* mostly copied from SDL_keyboard.c */
+    /* mostly copied from SDL_keyboard.c
+     * ASCII keys are already handled correctly, it does not break anything
+     * if some of these keys have missing keycodes */
+
+    /* These are specialcases in the _get_keycode_name implementation */
     SDL1_scancode_names[SDL_SCANCODE_BACKSPACE] = "backspace";
     SDL1_scancode_names[SDL_SCANCODE_TAB] = "tab";
-    SDL1_scancode_names[SDL_SCANCODE_CLEAR] = "clear";
     SDL1_scancode_names[SDL_SCANCODE_RETURN] = "return";
     SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "pause";
     SDL1_scancode_names[SDL_SCANCODE_ESCAPE] = "escape";
     SDL1_scancode_names[SDL_SCANCODE_SPACE] = "space";
-    /*SDL1_scancode_names[SDL_SCANCODE_EXCLAIM] = "!";
-    SDL1_scancode_names[SDL_SCANCODE_QUOTEDBL] = "\"";
-    SDL1_scancode_names[SDL_SCANCODE_HASH] = "#";
-    SDL1_scancode_names[SDL_SCANCODE_DOLLAR] = "$";
-    SDL1_scancode_names[SDL_SCANCODE_AMPERSAND] = "&";
-    SDL1_scancode_names[SDL_SCANCODE_QUOTE] = "'";
-    SDL1_scancode_names[SDL_SCANCODE_LEFTPAREN] = "(";
-    SDL1_scancode_names[SDL_SCANCODE_RIGHTPAREN] = ")";
-    SDL1_scancode_names[SDL_SCANCODE_ASTERISK] = "*";
-    SDL1_scancode_names[SDL_SCANCODE_PLUS] = "+";*/ /* these have no scancode */
-    SDL1_scancode_names[SDL_SCANCODE_COMMA] = ",";
-    SDL1_scancode_names[SDL_SCANCODE_MINUS] = "-";
-    SDL1_scancode_names[SDL_SCANCODE_PERIOD] = ".";
-    SDL1_scancode_names[SDL_SCANCODE_SLASH] = "/";
-    SDL1_scancode_names[SDL_SCANCODE_0] = "0";
-    SDL1_scancode_names[SDL_SCANCODE_1] = "1";
-    SDL1_scancode_names[SDL_SCANCODE_2] = "2";
-    SDL1_scancode_names[SDL_SCANCODE_3] = "3";
-    SDL1_scancode_names[SDL_SCANCODE_4] = "4";
-    SDL1_scancode_names[SDL_SCANCODE_5] = "5";
-    SDL1_scancode_names[SDL_SCANCODE_6] = "6";
-    SDL1_scancode_names[SDL_SCANCODE_7] = "7";
-    SDL1_scancode_names[SDL_SCANCODE_8] = "8";
-    SDL1_scancode_names[SDL_SCANCODE_9] = "9";
-    /*SDL1_scancode_names[SDL_SCANCODE_COLON] = ":";*/ /* no scancode */
-    SDL1_scancode_names[SDL_SCANCODE_SEMICOLON] = ";";
-    /*SDL1_scancode_names[SDL_SCANCODE_LESS] = "<";*/ /* no scancode */
-    SDL1_scancode_names[SDL_SCANCODE_EQUALS] = "=";
-    /*SDL1_scancode_names[SDL_SCANCODE_GREATER] = ">";
-    SDL1_scancode_names[SDL_SCANCODE_QUESTION] = "?";
-    SDL1_scancode_names[SDL_SCANCODE_AT] = "@";*/ /* no scancode */
-    SDL1_scancode_names[SDL_SCANCODE_LEFTBRACKET] = "[";
-    SDL1_scancode_names[SDL_SCANCODE_BACKSLASH] = "\\";
-    SDL1_scancode_names[SDL_SCANCODE_RIGHTBRACKET] = "]";
-    /*SDL1_scancode_names[SDL_SCANCODE_CARET] = "^";
-    SDL1_scancode_names[SDL_SCANCODE_UNDERSCORE] = "_";
-    SDL1_scancode_names[SDL_SCANCODE_BACKQUOTE] = "`";*/ /* no scancode */
-    SDL1_scancode_names[SDL_SCANCODE_A] = "a";
-    SDL1_scancode_names[SDL_SCANCODE_B] = "b";
-    SDL1_scancode_names[SDL_SCANCODE_C] = "c";
-    SDL1_scancode_names[SDL_SCANCODE_D] = "d";
-    SDL1_scancode_names[SDL_SCANCODE_E] = "e";
-    SDL1_scancode_names[SDL_SCANCODE_F] = "f";
-    SDL1_scancode_names[SDL_SCANCODE_G] = "g";
-    SDL1_scancode_names[SDL_SCANCODE_H] = "h";
-    SDL1_scancode_names[SDL_SCANCODE_I] = "i";
-    SDL1_scancode_names[SDL_SCANCODE_J] = "j";
-    SDL1_scancode_names[SDL_SCANCODE_K] = "k";
-    SDL1_scancode_names[SDL_SCANCODE_L] = "l";
-    SDL1_scancode_names[SDL_SCANCODE_M] = "m";
-    SDL1_scancode_names[SDL_SCANCODE_N] = "n";
-    SDL1_scancode_names[SDL_SCANCODE_O] = "o";
-    SDL1_scancode_names[SDL_SCANCODE_P] = "p";
-    SDL1_scancode_names[SDL_SCANCODE_Q] = "q";
-    SDL1_scancode_names[SDL_SCANCODE_R] = "r";
-    SDL1_scancode_names[SDL_SCANCODE_S] = "s";
-    SDL1_scancode_names[SDL_SCANCODE_T] = "t";
-    SDL1_scancode_names[SDL_SCANCODE_U] = "u";
-    SDL1_scancode_names[SDL_SCANCODE_V] = "v";
-    SDL1_scancode_names[SDL_SCANCODE_W] = "w";
-    SDL1_scancode_names[SDL_SCANCODE_X] = "x";
-    SDL1_scancode_names[SDL_SCANCODE_Y] = "y";
-    SDL1_scancode_names[SDL_SCANCODE_Z] = "z";
+    SDL1_scancode_names[SDL_SCANCODE_CLEAR] = "clear";
     SDL1_scancode_names[SDL_SCANCODE_DELETE] = "delete";
-
     SDL1_scancode_names[SDL_SCANCODE_KP_0] = "[0]";
     SDL1_scancode_names[SDL_SCANCODE_KP_1] = "[1]";
     SDL1_scancode_names[SDL_SCANCODE_KP_2] = "[2]";
@@ -529,7 +503,6 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_KP_PLUS] = "[+]";
     SDL1_scancode_names[SDL_SCANCODE_KP_ENTER] = "enter";
     SDL1_scancode_names[SDL_SCANCODE_KP_EQUALS] = "equals";
-
     SDL1_scancode_names[SDL_SCANCODE_UP] = "up";
     SDL1_scancode_names[SDL_SCANCODE_DOWN] = "down";
     SDL1_scancode_names[SDL_SCANCODE_RIGHT] = "right";
@@ -540,7 +513,6 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_END] = "end";
     SDL1_scancode_names[SDL_SCANCODE_PAGEUP] = "page up";
     SDL1_scancode_names[SDL_SCANCODE_PAGEDOWN] = "page down";
-
     SDL1_scancode_names[SDL_SCANCODE_F1] = "f1";
     SDL1_scancode_names[SDL_SCANCODE_F2] = "f2";
     SDL1_scancode_names[SDL_SCANCODE_F3] = "f3";
@@ -556,7 +528,6 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_F13] = "f13";
     SDL1_scancode_names[SDL_SCANCODE_F14] = "f14";
     SDL1_scancode_names[SDL_SCANCODE_F15] = "f15";
-
     SDL1_scancode_names[SDL_SCANCODE_NUMLOCKCLEAR] = "numlock";
     SDL1_scancode_names[SDL_SCANCODE_CAPSLOCK] = "caps lock";
     SDL1_scancode_names[SDL_SCANCODE_SCROLLLOCK] = "scroll lock";
@@ -568,12 +539,9 @@ _use_sdl1_key_names(void)
     SDL1_scancode_names[SDL_SCANCODE_LALT] = "left alt";
     SDL1_scancode_names[SDL_SCANCODE_RGUI] = "right meta";
     SDL1_scancode_names[SDL_SCANCODE_LGUI] = "left meta";
-    /*SDL1_scancode_names[SDL_SCANCODE_LSUPER] = "left super";
-    SDL1_scancode_names[SDL_SCANCODE_RSUPER] = "right super"; */ /* same as "meta" now? */
     SDL1_scancode_names[SDL_SCANCODE_MODE] = "alt gr";
     SDL1_scancode_names[SDL_SCANCODE_APPLICATION] =
         "compose"; /*  Application / Compose / Context Menu (Windows) key */
-
     SDL1_scancode_names[SDL_SCANCODE_HELP] = "help";
     SDL1_scancode_names[SDL_SCANCODE_PRINTSCREEN] = "print screen";
     SDL1_scancode_names[SDL_SCANCODE_SYSREQ] = "sys req";
@@ -604,58 +572,9 @@ _get_scancode_name(SDL_Scancode scancode)
         return "";
 }
 
-/* copied from SDL */
-static char *
-SDL_UCS4ToUTF8(Uint32 ch, char *dst)
-{
-    Uint8 *p = (Uint8 *)dst;
-    if (ch <= 0x7F) {
-        *p = (Uint8)ch;
-        ++dst;
-    }
-    else if (ch <= 0x7FF) {
-        p[0] = 0xC0 | (Uint8)((ch >> 6) & 0x1F);
-        p[1] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 2;
-    }
-    else if (ch <= 0xFFFF) {
-        p[0] = 0xE0 | (Uint8)((ch >> 12) & 0x0F);
-        p[1] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[2] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 3;
-    }
-    else if (ch <= 0x1FFFFF) {
-        p[0] = 0xF0 | (Uint8)((ch >> 18) & 0x07);
-        p[1] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
-        p[2] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[3] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 4;
-    }
-    else if (ch <= 0x3FFFFFF) {
-        p[0] = 0xF8 | (Uint8)((ch >> 24) & 0x03);
-        p[1] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
-        p[2] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
-        p[3] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[4] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 5;
-    }
-    else {
-        p[0] = 0xFC | (Uint8)((ch >> 30) & 0x01);
-        p[1] = 0x80 | (Uint8)((ch >> 24) & 0x3F);
-        p[2] = 0x80 | (Uint8)((ch >> 18) & 0x3F);
-        p[3] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
-        p[4] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[5] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 6;
-    }
-    return dst;
-}
-
 static const char *
 _get_keycode_name(SDL_Keycode key)
 {
-#pragma PG_WARN(Add missing keycode names here ?)
-
     static char name[8];
     char *end;
 
@@ -677,21 +596,54 @@ _get_keycode_name(SDL_Keycode key)
         case SDLK_DELETE:
             return _get_scancode_name(SDL_SCANCODE_DELETE);
         default:
+            /* SDL2 converts lowercase letters to uppercase here, but we don't
+             * for pygame 1 compatibility */
             end = SDL_UCS4ToUTF8((Uint32)key, name);
             *end = '\0';
             return name;
     }
 }
 
-static PyObject *
-key_name(PyObject *self, PyObject *args)
+/* Lighter version of SDL_GetKeyFromName, uses custom compat table first */
+static SDL_Keycode
+_get_key_from_name(const char *name)
 {
-    int key;
+    int i;
+    for (i = 0; i < SDL_arraysize(SDL1_scancode_names); ++i) {
+        if (!SDL1_scancode_names[i]) {
+            continue;
+        }
+        if (!SDL_strcasecmp(name, SDL1_scancode_names[i])) {
+            return SDL_GetKeyFromScancode((SDL_Scancode)i);
+        }
+    }
 
-    if (!PyArg_ParseTuple(args, "i", &key))
+    /* fallback to SDL function here */
+    return SDL_GetKeyFromName(name);
+}
+
+static PyObject *
+key_name(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    int key, use_compat = 1;
+    static char *kwids[] = {"key", "use_compat", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i|p", kwids, &key,
+                                     &use_compat))
         return NULL;
 
-    return PyUnicode_FromString(_get_keycode_name(key));
+    if (use_compat) {
+        /* Use our backcompat function, that has names hardcoded in pygame
+         * source */
+        return PyUnicode_FromString(_get_keycode_name(key));
+    }
+
+    /* This check only needs to run when use_compat=False because SDL API calls
+     * only happen in this case.
+     * This is not checked at the top of this function to not break compat with
+     * older API usage that does not expect this function to need init */
+    VIDEO_INIT_CHECK();
+    return PyUnicode_FromString(SDL_GetKeyName(key));
 }
 
 static PyObject *
@@ -705,15 +657,22 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
         return NULL;
 
-    code = SDL_GetKeyFromName(name);
-    if (code != SDLK_UNKNOWN) {
-        return PyLong_FromLong(code);
+    /* in the future, this should be an error. For now it's a warning to not
+     * break existing code */
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        if (PyErr_WarnEx(PyExc_Warning,
+                         "pygame.init() has not been called. This function "
+                         "may return incorrect results",
+                         1) != 0) {
+            return NULL;
+        }
     }
-    else {
-        // Raise an unknown key name error?
-        PyErr_SetString(PyExc_ValueError, "unknown key name");
-        return 0;
+
+    code = _get_key_from_name(name);
+    if (code == SDLK_UNKNOWN) {
+        return RAISE(PyExc_ValueError, "unknown key name");
     }
+    return PyLong_FromLong(code);
 }
 
 static PyObject *
@@ -803,9 +762,10 @@ static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
     {"get_pressed", key_get_pressed, METH_NOARGS, DOC_PYGAMEKEYGETPRESSED},
-    {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
-    {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
+    {"name", (PyCFunction)key_name, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEKEYNAME},
+    {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEKEYKEYCODE},
     {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
     {"get_focused", key_get_focused, METH_NOARGS, DOC_PYGAMEKEYGETFOCUSED},
