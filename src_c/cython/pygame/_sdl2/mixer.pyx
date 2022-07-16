@@ -1,4 +1,4 @@
-from . import error
+from .sdl2 import error
 import traceback
 
 #https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer.html#SEC79
