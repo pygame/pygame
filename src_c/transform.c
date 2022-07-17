@@ -578,7 +578,7 @@ static PyObject *
 surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *surfobj2 = NULL;
+    pgSurfaceObject *surfobj2 = NULL;
     PyObject *size;
     SDL_Surface *newsurf;
     int width, height;
@@ -598,7 +598,7 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
-        return surfobj2;
+        return (PyObject *)surfobj2;
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
@@ -607,8 +607,8 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj;
-    PyObject *surfobj2 = NULL;
+    pgSurfaceObject *surfobj;
+    pgSurfaceObject *surfobj2 = NULL;
     PyObject *factorobj = NULL;
     float scalex, scaley;
     SDL_Surface *surf, *newsurf;
@@ -631,7 +631,7 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
-        return surfobj2;
+        return (PyObject *)surfobj2;
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
@@ -1550,7 +1550,7 @@ static PyObject *
 surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *surfobj2 = NULL;
+    pgSurfaceObject *surfobj2 = NULL;
     PyObject *size;
     SDL_Surface *newsurf;
     int width, height;
@@ -1569,7 +1569,7 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
-        return surfobj2;
+        return (PyObject *)surfobj2;
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
@@ -1578,9 +1578,8 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj;
-    PyObject *surfobj2 = NULL;
-    PyObject *new_args = NULL;
+    pgSurfaceObject *surfobj;
+    pgSurfaceObject *surfobj2 = NULL;
     PyObject *factorobj = NULL;
     float scale, scaley;
     SDL_Surface *surf, *newsurf;
@@ -1603,7 +1602,7 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
-        return surfobj2;
+        return (PyObject *)surfobj2;
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
