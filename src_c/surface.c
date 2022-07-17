@@ -1866,7 +1866,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
                             midtop_pos,      midbottom_pos, center_pos,
                             legacy_pos};
 
-    for (loop = 0; loop < sizeof(pos_vars) / sizeof(pos_vars[0]); loop++) {
+    for (loop = 0; loop < (int)(sizeof(pos_vars) / sizeof(pos_vars[0]));
+         loop++) {
         if (pos_vars[loop] != NULL) {
             checks += 1;
         }
