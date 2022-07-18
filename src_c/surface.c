@@ -1838,6 +1838,9 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     /* 1 = 100% of the width/height, 2 = 50% of the width/height */
     int x_mod = 0;
     int y_mod = 0;
+    int x_offset = 0;
+    int y_offset = 0;
+
     PyObject *topleft_pos = NULL;
     PyObject *topright_pos = NULL;
     PyObject *bottomleft_pos = NULL;
@@ -1887,13 +1890,19 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     else if (topright_pos != NULL) {
         origin_pos = topright_pos;
         x_mod = 1;
+        x_offset = 1;
     }
     else if (bottomleft_pos != NULL) {
         origin_pos = bottomleft_pos;
         y_mod = 1;
+        y_offset = 1;
     }
     else if (bottomright_pos != NULL) {
         origin_pos = bottomright_pos;
+        x_mod = 1;
+        y_mod = 1;
+        x_offset = 1;
+        y_offset = 1;
     }
     else if (midleft_pos != NULL) {
         origin_pos = midleft_pos;
@@ -1903,6 +1912,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         origin_pos = midright_pos;
         x_mod = 1;
         y_mod = 2;
+        x_offset = 1;
     }
     else if (midtop_pos != NULL) {
         origin_pos = midtop_pos;
@@ -1912,6 +1922,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         origin_pos = midbottom_pos;
         x_mod = 2;
         y_mod = 1;
+        y_offset = 1;
     }
     else if (center_pos != NULL) {
         origin_pos = center_pos;
@@ -1938,11 +1949,11 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         return RAISE(PyExc_TypeError, "invalid destination position for blit");
 
     if (x_mod != 0) {
-        dx = dx - (int)(src->w / x_mod);
+        dx = dx - (int)(src->w / x_mod) + x_offset;
     }
 
     if (y_mod != 0) {
-        dy = dy - (int)(src->h / y_mod);
+        dy = dy - (int)(src->h / y_mod) + y_offset;
     }
 
     if (argrect && argrect != Py_None) {
