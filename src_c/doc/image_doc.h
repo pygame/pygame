@@ -5,7 +5,9 @@
 #define DOC_PYGAMEIMAGEGETSDLIMAGEVERSION "get_sdl_image_version() -> None\nget_sdl_image_version() -> (major, minor, patch)\nget version number of the SDL_Image library being used"
 #define DOC_PYGAMEIMAGEGETEXTENDED "get_extended() -> bool\ntest if extended image formats can be loaded"
 #define DOC_PYGAMEIMAGETOSTRING "tostring(Surface, format, flipped=False) -> bytes\ntransfer image to string buffer"
+#define DOC_PYGAMEIMAGETOBYTES "tobytes(Surface, format, flipped=False) -> bytes\ntransfer image to string buffer"
 #define DOC_PYGAMEIMAGEFROMSTRING "fromstring(bytes, size, format, flipped=False) -> Surface\ncreate new Surface from a string buffer"
+#define DOC_PYGAMEIMAGEFROMBYTES "frombytes(bytes, size, format, flipped=False) -> Surface\ncreate new Surface from a string buffer"
 #define DOC_PYGAMEIMAGEFROMBUFFER "frombuffer(buffer, size, format) -> Surface\ncreate a new Surface that shares data inside a bytes buffer"
 #define DOC_PYGAMEIMAGELOADBASIC "load_basic(file) -> Surface\nload new BMP image from a file (or file-like object)"
 #define DOC_PYGAMEIMAGELOADEXTENDED "load_extended(filename) -> Surface\nload_extended(fileobj, namehint="") -> Surface\nload an image from a file (or file-like object)"
@@ -42,8 +44,16 @@ pygame.image.tostring
  tostring(Surface, format, flipped=False) -> bytes
 transfer image to string buffer
 
+pygame.image.tobytes
+ tobytes(Surface, format, flipped=False) -> bytes
+transfer image to string buffer
+
 pygame.image.fromstring
  fromstring(bytes, size, format, flipped=False) -> Surface
+create new Surface from a string buffer
+
+pygame.image.frombytes
+ frombytes(bytes, size, format, flipped=False) -> Surface
 create new Surface from a string buffer
 
 pygame.image.frombuffer

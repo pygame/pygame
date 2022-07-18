@@ -184,6 +184,16 @@ following formats.
 
    .. ## pygame.image.tostring ##
 
+.. function:: tobytes
+
+   | :sl:`transfer image to string buffer`
+   | :sg:`tobytes(Surface, format, flipped=False) -> bytes`
+
+   since version 2.1.3 it is recommended that `tobytes` is used instead of `tostring` 
+
+   .. ## pygame.image.tobytes ##
+
+
 .. function:: fromstring
 
    | :sl:`create new Surface from a string buffer`
@@ -202,9 +212,20 @@ following formats.
 
    .. note:: :func:`fromstring` and :func:`tostring` are named with "string,"
              but they deal in bytes. In Python 2, str = bytes, so this is
-             "from string" as in a Python 2 string.
+             "from string" as in a Python 2 string. The use of :func:`frombytes`/
+             :func:`tobytes` is preferred over :func:`fromstring`/:func:`tostring`
+             as of pygame 2.1.3.
 
    .. ## pygame.image.fromstring ##
+
+.. function:: frombytes
+
+   | :sl:`create new Surface from a string buffer`
+   | :sg:`frombytes(bytes, size, format, flipped=False) -> Surface`
+
+   since version 2.1.3 it is recommended that `frombytes` is used instead of `fromstring` 
+
+   .. ## pygame.image.frombytes ##
 
 .. function:: frombuffer
 
