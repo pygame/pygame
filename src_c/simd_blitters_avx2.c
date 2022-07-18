@@ -1030,8 +1030,8 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
                         *dstp = _mm_cvtsi128_si32(mm_dst);
                     }
 
-                    srcp = (Uint32 *)srcp256 + srcskip;
-                    dstp = (Uint32 *)dstp256 + dstskip;
+                    srcp += srcpxskip;
+                    dstp += dstpxskip;
                 },
                 n, pre_8_width);
         }
@@ -1086,8 +1086,8 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
                 },
                 n, post_8_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp256 + srcskip;
+        dstp = (Uint32 *)dstp256 + dstskip;
     }
 }
 #else
