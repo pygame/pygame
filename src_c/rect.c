@@ -572,21 +572,35 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_collidepoint(pgRectObject *self, PyObject *args)
+pg_rect_collidepoint(pgRectObject *self, PyObject *const *args,
+                     Py_ssize_t nargs)
 {
-    int x = 0, y = 0;
-    int inside;
+    SDL_Rect srect = self->r;
+    SDL_Point p;
 
-    if (!pg_TwoIntsFromObj(args, &x, &y)) {
-        return RAISE(PyExc_TypeError, "argument must contain two numbers");
+    if (nargs == 1) {
+        if (!pg_TwoIntsFromObjEx(args[0], &(p.x), &(p.y),
+                                 "Invalid position. Must be a two-element "
+                                 "sequence of numbers")) {
+            return NULL;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_IntFromObjEx(args[0], &(p.x), "x must be a numeric value")) {
+            return NULL;
+        }
+        if (!pg_IntFromObjEx(args[1], &(p.y), "y must be a numeric value")) {
+            return NULL;
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid arguments number, must either be 1 or 2");
     }
 
-    inside = x >= self->r.x && x < self->r.x + self->r.w && y >= self->r.y &&
-             y < self->r.y + self->r.h;
-
-    return PyBool_FromLong(inside);
+    return PyBool_FromLong(SDL_PointInRect(&p, &srect));
 }
-
+PG_WRAP_FASTCALL_FUNC(pg_rect_collidepoint, pgRectObject)
 static PyObject *
 pg_rect_colliderect(pgRectObject *self, PyObject *args)
 {
@@ -1278,8 +1292,8 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
      DOC_RECTUNIONALLIP},
-    {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
-     DOC_RECTCOLLIDEPOINT},
+    {"collidepoint", (PyCFunction)PG_FASTCALL_NAME(pg_rect_collidepoint),
+     PG_FASTCALL, DOC_RECTCOLLIDEPOINT},
     {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
      DOC_RECTCOLLIDERECT},
     {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
@@ -2213,6 +2227,11 @@ MODINIT_DEFINE(rect)
        the module is not loaded.
     */
     import_pygame_base();
+    if (PyErr_Occurred()) {
+        return NULL;
+    }
+
+    import_pygame_math();
     if (PyErr_Occurred()) {
         return NULL;
     }
