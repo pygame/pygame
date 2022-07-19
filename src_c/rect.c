@@ -357,6 +357,48 @@ _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
             MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
 }
 
+static int
+_pg_do_normalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
+{
+    // A.left   < B.right  &&
+    // A.top    < B.bottom &&
+    // B.left   < A.right  &&
+    // B.top    < A.bottom
+
+    return (A->x < B->x + B->w && A->y < B->y + B->h && B->x < A->x + A->w &&
+            B->y < A->y + A->h);
+}
+
+static int
+_pg_do_notnormalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
+{
+    int x1 = A->x, y1 = A->y, w1 = A->w, h1 = A->h;
+    int x2 = B->x, y2 = B->y, w2 = B->w, h2 = B->h;
+
+    if (!w1 || !h1 || !w2 || !h2) /* 0 width or height rects don't collide */
+        return 0;
+
+    if (w1 < 0) {
+        x1 += w1;
+        w1 = -w1;
+    }
+    if (h1 < 0) {
+        y1 += h1;
+        h1 = -h1;
+    }
+
+    if (w2 < 0) {
+        x2 += w2;
+        w2 = -w2;
+    }
+    if (h2 < 0) {
+        y2 += h2;
+        h2 = -h2;
+    }
+
+    return (x1 < x2 + w2 && y1 < y2 + h2 && x2 < x1 + w1 && y2 < y1 + h1);
+}
+
 static PyObject *
 pg_rect_normalize(pgRectObject *self, PyObject *_null)
 {
@@ -588,16 +630,81 @@ pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_colliderect(pgRectObject *self, PyObject *args)
+pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
+                    Py_ssize_t nargs)
 {
-    SDL_Rect *argrect, temp;
+    int result = 0;
+    SDL_Rect srect = self->r;
+    SDL_Rect temp, *tmp;
 
-    if (!(argrect = pgRect_FromObject(args, &temp))) {
-        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    if (nargs == 1) {
+        if (!(tmp = pgRect_FromObject(args[0], &temp))) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+
+        result = _pg_do_rects_intersect(&srect, tmp);
     }
-    return PyBool_FromLong(_pg_do_rects_intersect(&self->r, argrect));
-}
+    else if (nargs == 2) {
+        if (!pg_TwoIntsFromObj(args[0], &(temp.x), &(temp.y)) ||
+            !pg_TwoIntsFromObj(args[1], &(temp.w), &(temp.h))) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+        if (temp.w > 0 && temp.h > 0 && srect.w > 0 && srect.h > 0)
+            result = _pg_do_normalized_rects_intersect(&srect, &temp);
+        else
+            result = _pg_do_notnormalized_rects_intersect(&srect, &temp);
+    }
+    else if (nargs == 4) {
+        temp.x = PyLong_AsLong(args[0]);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            temp.x = (int)PyFloat_AsDouble(args[0]);
+            if (PyErr_Occurred())
+                return NULL;
+        }
+        temp.y = PyLong_AsLong(args[1]);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            temp.y = (int)PyFloat_AsDouble(args[1]);
+            if (PyErr_Occurred())
+                return NULL;
+        }
+        temp.w = PyLong_AsLong(args[2]);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            temp.w = (int)PyFloat_AsDouble(args[2]);
+            if (PyErr_Occurred())
+                return NULL;
+        }
+        temp.h = PyLong_AsLong(args[3]);
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            temp.h = (int)PyFloat_AsDouble(args[3]);
+            if (PyErr_Occurred())
+                return NULL;
+        }
 
+        if (temp.w > 0 && temp.h > 0 && srect.w > 0 && srect.h > 0)
+            result = _pg_do_normalized_rects_intersect(&srect, &temp);
+        else
+            result = _pg_do_notnormalized_rects_intersect(&srect, &temp);
+    }
+    else {
+        return RAISE(PyExc_ValueError,
+                     "Incorrect arguments number, must be either 1, 2 or 4");
+    }
+
+    return PyBool_FromLong(result);
+}
+PG_WRAP_FASTCALL_FUNC(pg_rect_colliderect, pgRectObject)
 static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *args)
 {
@@ -1280,8 +1387,8 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTUNIONALLIP},
     {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
      DOC_RECTCOLLIDEPOINT},
-    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
-     DOC_RECTCOLLIDERECT},
+    {"colliderect", (PyCFunction)PG_FASTCALL_NAME(pg_rect_colliderect),
+     PG_FASTCALL, DOC_RECTCOLLIDERECT},
     {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
      DOC_RECTCOLLIDELIST},
     {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
