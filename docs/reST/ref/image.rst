@@ -189,7 +189,8 @@ following formats.
    | :sl:`transfer image to string buffer`
    | :sg:`tobytes(Surface, format, flipped=False) -> bytes`
 
-   since version 2.1.3 it is recommended that `tobytes` is used instead of `tostring` 
+   .. versionadded:: 2.1.3 added :func:`tobytes` as an alias for :func:`tostring`,
+                     the use of :func:`tobytes` is recommended over :func:`tostring`.
 
    .. ## pygame.image.tobytes ##
 
@@ -223,7 +224,8 @@ following formats.
    | :sl:`create new Surface from a string buffer`
    | :sg:`frombytes(bytes, size, format, flipped=False) -> Surface`
 
-   since version 2.1.3 it is recommended that `frombytes` is used instead of `fromstring` 
+   .. versionadded:: 2.1.3 added :func:`frombytes` as an alias for :func:`fromstring`,
+                     the use of :func:`frombytes` is recommended over :func:`fromstring`.
 
    .. ## pygame.image.frombytes ##
 
