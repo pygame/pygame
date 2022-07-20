@@ -4066,6 +4066,13 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     return PyFloat_FromDouble(result);
 }
 
+#if PY_VERSION_HEX < 0x03070000
+static PyObject *
+math_clamp_wrapper(PyObject *self, PyObject *args) {
+    return math_clamp(self, (PyObject *const *)PySequence_Fast_ITEMS(args), PyTuple_GET_SIZE(args));
+}
+#endif
+
 static PyObject *
 math_enable_swizzling(pgVector *self, PyObject *_null)
 {
@@ -4093,7 +4100,11 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 }
 
 static PyMethodDef _math_methods[] = {
+#if PY_VERSION_HEX < 0x03070000
+    {"clamp", math_clamp_wrapper, METH_VARARGS, DOC_PYGAMEMATHCLAMP},
+#else
     {"clamp", math_clamp, METH_FASTCALL, DOC_PYGAMEMATHCLAMP},
+#endif
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
