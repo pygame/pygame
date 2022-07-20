@@ -1,5 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
+#define DOC_PYGAMEMATHCLAMP "clamp(value, min, max) -> float\nreturns value clamped to min and max."
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"

@@ -4048,6 +4048,33 @@ vector_elementwise(pgVector *vec, PyObject *_null)
 }
 
 static PyObject *
+math_clamp(PyObject *self, PyObject *arg)
+{
+    if (PyTuple_Size(arg) != 3)
+        return RAISE(PyExc_ValueError, "clamp requires 3 float arguments");
+
+    // Parse val argument
+    PyObject *val = PyTuple_GET_ITEM(arg, 0);
+    double cval = PyFloat_AsDouble(val);
+
+    // Parse minval argument
+    PyObject *minval = PyTuple_GET_ITEM(arg, 1);
+    double cminval = PyFloat_AsDouble(minval);
+
+    // Parse maxval argument
+    PyObject *maxval = PyTuple_GET_ITEM(arg, 2);
+    double cmaxval = PyFloat_AsDouble(maxval);
+
+    if (PyErr_Occurred()) {
+        return RAISE(PyExc_TypeError, "clamp requires 3 float arguments");
+    }
+
+    double result = fmin(cmaxval, fmax(cminval, cval));
+
+    return PyFloat_FromDouble(result);
+}
+
+static PyObject *
 math_enable_swizzling(pgVector *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
@@ -4074,6 +4101,7 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 }
 
 static PyMethodDef _math_methods[] = {
+    {"clamp", math_clamp, METH_VARARGS, DOC_PYGAMEMATHCLAMP},
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
