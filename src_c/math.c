@@ -4104,9 +4104,9 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 
 static PyMethodDef _math_methods[] = {
 #if PY_VERSION_HEX < 0x03070000
-    {"clamp", (PyCFunction)math_clamp_wrapper, METH_VARARGS, DOC_PYGAMEMATHCLAMP},
+    {"clamp", math_clamp_wrapper, METH_VARARGS, DOC_PYGAMEMATHCLAMP},
 #else
-    {"clamp", (_PyCFunctionFast)math_clamp, METH_FASTCALL, DOC_PYGAMEMATHCLAMP},
+    {"clamp", math_clamp, METH_FASTCALL, DOC_PYGAMEMATHCLAMP},
 #endif
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
