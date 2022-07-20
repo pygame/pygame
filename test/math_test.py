@@ -8,6 +8,22 @@ from pygame.math import Vector2, Vector3
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
+class MathModuleTest(unittest.TestCase):
+    """Math module tests."""
+    def test_clamp(self):
+        """Test clamp function."""
+        result = pygame.math.clamp(10, 1, 5)
+        self.assertAlmostEqual(result, 5)
+
+        result = pygame.math.clamp(-10, 1, 5)
+        self.assertAlmostEqual(result, 1)
+
+        result = pygame.math.clamp(5, 1, 5)
+        self.assertAlmostEqual(result, 5)
+
+        result = pygame.math.clamp(1, 1, 5)
+        self.assertAlmostEqual(result, 1)
+
 
 class Vector2TypeTest(unittest.TestCase):
     def setUp(self):
