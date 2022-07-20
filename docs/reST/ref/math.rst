@@ -48,6 +48,13 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
+.. function:: clamp
+
+   | :sl:`returns value clamped to min and max.`
+   | :sg:`clamp(value, min, max) -> float`
+
+   .. ## math.clamp ##
+
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
