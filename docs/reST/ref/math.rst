@@ -53,6 +53,8 @@ Multiple coordinates can be set using slices or swizzling
    | :sl:`returns value clamped to min and max.`
    | :sg:`clamp(value, min, max) -> float`
 
+   .. versionadded:: 2.1.3
+
    .. ## math.clamp ##
 
 .. class:: Vector2
