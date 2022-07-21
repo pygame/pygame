@@ -4062,7 +4062,6 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     double max = PyFloat_AsDouble(args[2]);
     if (PyErr_Occurred())
         return RAISE(PyExc_TypeError, "clamp requires 3 float arguments");
-    
 
     double result = fmin(max, fmax(min, value));
 
@@ -4071,8 +4070,10 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 
 #if PY_VERSION_HEX < 0x03070000
 static PyObject *
-math_clamp_wrapper(PyObject *self, PyObject *args) {
-    return math_clamp(self, (PyObject *const *)PySequence_Fast_ITEMS(args), PyTuple_GET_SIZE(args));
+math_clamp_wrapper(PyObject *self, PyObject *args)
+{
+    return math_clamp(self, (PyObject *const *)PySequence_Fast_ITEMS(args),
+                      PyTuple_GET_SIZE(args));
 }
 #endif
 
@@ -4104,7 +4105,8 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 
 static PyMethodDef _math_methods[] = {
 #if PY_VERSION_HEX < 0x03070000
-    {"clamp", (PyCFunction)math_clamp_wrapper, METH_VARARGS, DOC_PYGAMEMATHCLAMP},
+    {"clamp", (PyCFunction)math_clamp_wrapper, METH_VARARGS,
+     DOC_PYGAMEMATHCLAMP},
 #else
     {"clamp", (PyCFunction)math_clamp, METH_FASTCALL, DOC_PYGAMEMATHCLAMP},
 #endif

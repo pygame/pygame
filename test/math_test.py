@@ -8,8 +8,10 @@ from pygame.math import Vector2, Vector3
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
+
 class MathModuleTest(unittest.TestCase):
     """Math module tests."""
+
     def test_clamp(self):
         """Test clamp function."""
         result = pygame.math.clamp(10, 1, 5)
