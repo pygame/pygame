@@ -369,6 +369,35 @@ _pg_do_normalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
             B->y < A->y + A->h);
 }
 
+static int
+_pg_do_notnormalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
+{
+    int x1 = A->x, y1 = A->y, w1 = A->w, h1 = A->h;
+    int x2 = B->x, y2 = B->y, w2 = B->w, h2 = B->h;
+
+    if (!w1 || !h1 || !w2 || !h2) /* 0 width or height rects don't collide */
+        return 0;
+
+    if (w1 < 0) {
+        x1 += w1;
+        w1 = -w1;
+    }
+    if (h1 < 0) {
+        y1 += h1;
+        h1 = -h1;
+    }
+
+    if (w2 < 0) {
+        x2 += w2;
+        w2 = -w2;
+    }
+    if (h2 < 0) {
+        y2 += h2;
+        h2 = -h2;
+    }
+
+    return (x1 < x2 + w2 && y1 < y2 + h2 && x2 < x1 + w1 && y2 < y1 + h1);
+}
 static PyObject *
 pg_rect_normalize(pgRectObject *self, PyObject *_null)
 {
@@ -490,11 +519,10 @@ pg_rect_unionall(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop, size;
-    PyObject *tmpseq, **f_list;
+    PyObject **f_list;
     int t, l, b, r;
 
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(list, "Error"))) {
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of rectstyle objects.");
     }
@@ -503,20 +531,18 @@ pg_rect_unionall(pgRectObject *self, PyObject *list)
     t = self->r.y;
     r = self->r.x + self->r.w;
     b = self->r.y + self->r.h;
-    size = PySequence_Fast_GET_SIZE(
-        tmpseq); /*warning, size could be -1 on error?*/
+    size = PySequence_Fast_GET_SIZE(list);
+
     if (size < 1) {
         if (size < 0) {
             /*Error.*/
-            Py_DECREF(tmpseq);
             return NULL;
         }
         /*Empty list: nothing to be done.*/
-        Py_DECREF(tmpseq);
         return _pg_rect_subtype_new4(Py_TYPE(self), l, t, r - l, b - t);
     }
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
+    f_list = PySequence_Fast_ITEMS(list);
+
     for (loop = 0; loop < size; ++loop) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
             return RAISE(PyExc_TypeError,
@@ -536,11 +562,10 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop, size;
-    PyObject *tmpseq, **f_list;
+    PyObject **f_list;
     int t, l, b, r;
 
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(list, "Error"))) {
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of rectstyle objects.");
     }
@@ -550,20 +575,17 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *list)
     r = self->r.x + self->r.w;
     b = self->r.y + self->r.h;
 
-    size = PySequence_Fast_GET_SIZE(
-        tmpseq); /*warning, size could be -1 on error?*/
+    size = PySequence_Fast_GET_SIZE(list);
     if (size < 1) {
         if (size < 0) {
             /*Error.*/
-            Py_DECREF(tmpseq);
             return NULL;
         }
         /*Empty list: nothing to be done.*/
-        Py_DECREF(tmpseq);
         Py_RETURN_NONE;
     }
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
+    f_list = PySequence_Fast_ITEMS(list);
+
     for (loop = 0; loop < size; ++loop) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
             return RAISE(PyExc_TypeError,
@@ -614,19 +636,18 @@ static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *list)
 {
     SDL_Rect *argrect, temp;
+    SDL_Rect srect = self->r;
     Py_ssize_t size;
-    PyObject *tmpseq, **f_list;
+    PyObject **f_list;
     int loop;
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(
-              list, "Error, could not convert to a Sequence"))) {
+
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of rectstyle objects.");
     }
 
-    size = PySequence_Fast_GET_SIZE(tmpseq);
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
+    size = PySequence_Fast_GET_SIZE(list);
+    f_list = PySequence_Fast_ITEMS(list);
     for (loop = 0; loop < size; ++loop) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
             PyErr_SetString(
@@ -634,12 +655,12 @@ pg_rect_collidelist(pgRectObject *self, PyObject *list)
                 "Argument must be a sequence of rectstyle objects.");
             break;
         }
-        if (self->r.w || self->r.h || argrect->w || argrect->h) {
-            if (_pg_do_rects_intersect(&self->r, argrect)) {
+        if (srect.w > 0 && srect.h > 0 && argrect->w > 0 && argrect->h > 0) {
+            if (_pg_do_normalized_rects_intersect(&srect, argrect)) {
                 return PyLong_FromLong(loop);
             }
         }
-        else if (_pg_do_normalized_rects_intersect(&self->r, argrect)) {
+        else if (_pg_do_notnormalized_rects_intersect(&srect, argrect)) {
             return PyLong_FromLong(loop);
         }
     }
@@ -650,36 +671,36 @@ pg_rect_collidelist(pgRectObject *self, PyObject *list)
 static PyObject *
 pg_rect_collidelistall(pgRectObject *self, PyObject *list)
 {
+    SDL_Rect srect = self->r;
     SDL_Rect *argrect, temp;
     Py_ssize_t size;
     PyObject **f_list;
-    PyObject *ret = NULL, *tmpseq;
-    PyObject *num;
+    PyObject *ret = NULL, *num = NULL;
     int loop;
 
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(
-              list, "Error, could not convert to a Sequence"))) {
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of rectstyle objects.");
     }
+
+    size = PySequence_Fast_GET_SIZE(list); /*warning, size could be -1?*/
+    if (size < 1)
+        return RAISE(PyExc_ValueError, "Invalid sequence size");
 
     ret = PyList_New(0);
     if (!ret) {
         return NULL;
     }
 
-    size = PySequence_Fast_GET_SIZE(tmpseq); /*warning, size could be -1?*/
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
-    for (loop = 0; loop < size; ++loop) {
+    f_list = PySequence_Fast_ITEMS(list);
+    for (loop = 0; loop < size; loop++) {
         if (!(argrect = pgRect_FromObject(f_list[loop], &temp))) {
             Py_DECREF(ret);
             return RAISE(PyExc_TypeError,
                          "Argument must be a sequence of rectstyle objects.");
         }
-        if (self->r.w || self->r.h || argrect->w || argrect->h) {
-            if (_pg_do_rects_intersect(&self->r, argrect)) {
+        if (srect.w > 0 && srect.h > 0 && argrect->w > 0 && argrect->h > 0) {
+            if (_pg_do_normalized_rects_intersect(&srect, argrect)) {
                 num = PyLong_FromLong(loop);
                 if (0 != PyList_Append(ret, num)) {
                     Py_DECREF(ret);
@@ -687,10 +708,10 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *list)
                     return NULL; /* Exception already set. */
                 }
                 Py_DECREF(num);
-                num=NULL;
+                num = NULL;
             }
         }
-        else if (_pg_do_normalized_rects_intersect(&self->r, argrect)) {
+        else if (_pg_do_notnormalized_rects_intersect(&srect, argrect)) {
             num = PyLong_FromLong(loop);
             if (0 != PyList_Append(ret, num)) {
                 Py_DECREF(ret);
@@ -698,7 +719,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *list)
                 return NULL; /* Exception already set. */
             }
             Py_DECREF(num);
-            num=NULL;
+            num = NULL;
         }
     }
     return ret;
@@ -743,19 +764,27 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t size;
     int loop;
     PyObject **f_list;
-    PyObject *list, *obj, *tmpseq;
+    PyObject *list, *obj;
     PyObject *keyfunc = NULL;
     PyObject *ret = NULL;
-    static char *keywords[] = {"list", "key", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjectsall",
-                                     keywords, &list, &keyfunc)) {
-        return NULL;
+    if (PyTuple_Size(args) != 1) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid number of positional arguments passed (max 1)");
+    }
+    list = PyTuple_GET_ITEM(args, 0);
+
+    if (kwargs) {
+        if (PyDict_Size(kwargs) != 1)
+            return RAISE(PyExc_TypeError,
+                         "Invalid number of keyword arguments passed (max 1)");
+        if (!(keyfunc = PyDict_GetItemString(kwargs, "key")))
+            return RAISE(
+                PyExc_TypeError,
+                "Only keyword argument can be 'key' but couldn't find it");
     }
 
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(
-              list, "Error, could not convert to a Sequence"))) {
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of objects.");
     }
@@ -774,9 +803,9 @@ pg_rect_collideobjectsall(pgRectObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    size = PySequence_Fast_GET_SIZE(tmpseq);
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
+    size = PySequence_Fast_GET_SIZE(list);
+    f_list = PySequence_Fast_ITEMS(list);
+
     if (size == -1) {
         Py_DECREF(ret);
         return NULL;
@@ -815,18 +844,26 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t size;
     int loop;
     PyObject **f_list;
-    PyObject *list, *obj, *tmpseq;
+    PyObject *list, *obj;
     PyObject *keyfunc = NULL;
-    static char *keywords[] = {"list", "key", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|$O:collideobjects",
-                                     keywords, &list, &keyfunc)) {
-        return NULL;
+    if (PyTuple_Size(args) != 1) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid number of positional arguments passed (max 1)");
+    }
+    list = PyTuple_GET_ITEM(args, 0);
+
+    if (kwargs) {
+        if (PyDict_Size(kwargs) != 1)
+            return RAISE(PyExc_TypeError,
+                         "Invalid number of keyword arguments passed (max 1)");
+        if (!(keyfunc = PyDict_GetItemString(kwargs, "key")))
+            return RAISE(
+                PyExc_TypeError,
+                "Only keyword argument can be 'key' but couldn't find it");
     }
 
-    if (!PySequence_Check(list) ||
-        !(tmpseq = PySequence_Fast(
-              list, "Error, could not convert to a Sequence"))) {
+    if (!(PyTuple_Check(list) || PyList_Check(list))) {
         return RAISE(PyExc_TypeError,
                      "Argument must be a sequence of objects.");
     }
@@ -840,9 +877,9 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
                      "Key function must be callable with one argument.");
     }
 
-    size = PySequence_Fast_GET_SIZE(tmpseq);
-    f_list = PySequence_Fast_ITEMS(tmpseq);
-    Py_DECREF(tmpseq);
+    size = PySequence_Fast_GET_SIZE(list);
+    f_list = PySequence_Fast_ITEMS(list);
+
     if (size == -1) {
         return NULL;
     }
