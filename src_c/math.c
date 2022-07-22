@@ -4050,22 +4050,20 @@ vector_elementwise(pgVector *vec, PyObject *_null)
 static PyObject *
 math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    const char *err_msg = "clamp requires 3 float arguments";
-
     if (nargs != 3)
-        return RAISE(PyExc_ValueError, err_msg);
+        return RAISE(PyExc_ValueError, "clamp requires 3 float arguments");
 
     double value = PyFloat_AsDouble(args[0]);
     if (PyErr_Occurred())
-        return RAISE(PyExc_TypeError, err_msg);
+        return NULL;
 
     double min = PyFloat_AsDouble(args[1]);
     if (PyErr_Occurred())
-        return RAISE(PyExc_TypeError, err_msg);
+        return NULL;
 
     double max = PyFloat_AsDouble(args[2]);
     if (PyErr_Occurred())
-        return RAISE(PyExc_TypeError, err_msg);
+        return NULL;
 
     double result = fmin(max, fmax(min, value));
 
