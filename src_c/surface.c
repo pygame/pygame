@@ -1833,128 +1833,52 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 
     int checks = 0;
     int loop;
-    PyObject *origin_pos = NULL;
-
-    /* 1 = 100% of the width/height, 2 = 50% of the width/height */
-    int x_mod = 0;
-    int y_mod = 0;
-    int x_offset = 0;
-    int y_offset = 0;
 
     PyObject *topleft_pos = NULL;
-    PyObject *topright_pos = NULL;
-    PyObject *bottomleft_pos = NULL;
-    PyObject *bottomright_pos = NULL;
-    PyObject *midleft_pos = NULL;
-    PyObject *midright_pos = NULL;
-    PyObject *midtop_pos = NULL;
-    PyObject *midbottom_pos = NULL;
-    PyObject *center_pos = NULL;
-    PyObject *legacy_pos = NULL;
+    PyObject *rect;
 
-    static char *kwids[] = {"source",        "topleft",   "area",
-                            "special_flags", "topright",  "bottomleft",
-                            "bottomright",   "midleft",   "midright",
-                            "midtop",        "midbottom", "center",
-                            "dest",          NULL};
-    if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "O!|OOiOOOOOOOOO", kwids, &pgSurface_Type,
-            &srcobject, &topleft_pos, &argrect, &the_args, &topright_pos,
-            &bottomleft_pos, &bottomright_pos, &midleft_pos, &midright_pos,
-            &midtop_pos, &midbottom_pos, &center_pos, &legacy_pos))
+    if (!PyArg_ParseTuple(args, "O!|O", &pgSurface_Type, &srcobject,
+                          &topleft_pos))
         return NULL;
 
-    PyObject *pos_vars[] = {topleft_pos,     topright_pos,  bottomleft_pos,
-                            bottomright_pos, midleft_pos,   midright_pos,
-                            midtop_pos,      midbottom_pos, center_pos,
-                            legacy_pos};
-
-    for (loop = 0; loop < (int)(sizeof(pos_vars) / sizeof(pos_vars[0]));
-         loop++) {
-        if (pos_vars[loop] != NULL) {
-            checks += 1;
-        }
-    }
-
-    if (checks > 1) {
-        return RAISE(PyExc_ValueError,
-                     "More than one position kwarg identified.");
-    }
-
-    if (legacy_pos != NULL) {
-        origin_pos = legacy_pos;
-    }
-    else if (topleft_pos != NULL) {
-        origin_pos = topleft_pos;
-    }
-    else if (topright_pos != NULL) {
-        origin_pos = topright_pos;
-        x_mod = 1;
-        x_offset = 1;
-    }
-    else if (bottomleft_pos != NULL) {
-        origin_pos = bottomleft_pos;
-        y_mod = 1;
-        y_offset = 1;
-    }
-    else if (bottomright_pos != NULL) {
-        origin_pos = bottomright_pos;
-        x_mod = 1;
-        y_mod = 1;
-        x_offset = 1;
-        y_offset = 1;
-    }
-    else if (midleft_pos != NULL) {
-        origin_pos = midleft_pos;
-        y_mod = 2;
-    }
-    else if (midright_pos != NULL) {
-        origin_pos = midright_pos;
-        x_mod = 1;
-        y_mod = 2;
-        x_offset = 1;
-    }
-    else if (midtop_pos != NULL) {
-        origin_pos = midtop_pos;
-        x_mod = 2;
-    }
-    else if (midbottom_pos != NULL) {
-        origin_pos = midbottom_pos;
-        x_mod = 2;
-        y_mod = 1;
-        y_offset = 1;
-    }
-    else if (center_pos != NULL) {
-        origin_pos = center_pos;
-        x_mod = 2;
-        y_mod = 2;
-    }
-    else {
-        return RAISE(PyExc_ValueError, "missing position parameter");
-    }
-
     src = pgSurface_AsSurface(srcobject);
+
     if (!dest || !src)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    if ((src_rect = pgRect_FromObject(origin_pos, &temp))) {
+    rect = pgRect_New4(0, 0, src->w, src->h);
+
+    if (topleft_pos && (src_rect = pgRect_FromObject(topleft_pos, &temp))) {
         dx = src_rect->x;
         dy = src_rect->y;
     }
-    else if (pg_TwoIntsFromObj(origin_pos, &sx, &sy)) {
+    else if (topleft_pos && pg_TwoIntsFromObj(topleft_pos, &sx, &sy)) {
         dx = sx;
         dy = sy;
     }
+    else if (rect && keywds) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+
+        while (PyDict_Next(keywds, &pos, &key, &value)) {
+            if (PyObject_HasAttr(rect, key)) {
+                if ((PyObject_SetAttr(rect, key, value) == -1)) {
+                    Py_DECREF(rect);
+                    return NULL;
+                }
+            }
+            else if (PyLong_Check(value)) {
+                // if it's a number then it must be "special_flags"
+                if (!pg_IntFromObj(value, &the_args))
+                    return RAISE(PyExc_TypeError,
+                                 "special_flags parameter must be numeric");
+            }
+        }
+        dx = PyLong_AsLong(PyObject_GetAttrString(rect, "x"));
+        dy = PyLong_AsLong(PyObject_GetAttrString(rect, "y"));
+    }
     else
         return RAISE(PyExc_TypeError, "invalid destination position for blit");
-
-    if (x_mod != 0) {
-        dx = dx - (int)(src->w / x_mod) + x_offset;
-    }
-
-    if (y_mod != 0) {
-        dy = dy - (int)(src->h / y_mod) + y_offset;
-    }
 
     if (argrect && argrect != Py_None) {
         if (!(src_rect = pgRect_FromObject(argrect, &temp)))
@@ -1967,10 +1891,13 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         src_rect = &temp;
     }
 
+    if (!dest || !src)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     dest_rect.x = dx;
     dest_rect.y = dy;
-    dest_rect.w = src_rect->w;
-    dest_rect.h = src_rect->h;
+    dest_rect.w = src->w;
+    dest_rect.h = src->h;
 
     if (!the_args) {
         the_args = 0;
