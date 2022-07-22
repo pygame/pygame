@@ -74,7 +74,7 @@ jobs:
       run: |
         cd buildconfig/stubs
         pip3 install mypy
-        python3 -m mypy.stubtest pygame --allowlist mypy_allow_list.txt
+        python3 -m mypy.stubtest pygame --allowlist mypy_allow_list.txt --mypy-config-file mypy_stubtest.ini
 
     # We upload the generated files under github actions assets
     - name: Upload sdist
