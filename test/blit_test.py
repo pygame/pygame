@@ -167,36 +167,36 @@ class BlitTest(unittest.TestCase):
         square.fill((255, 0, 0))
         dst = pygame.Surface((100, 100))
         result = dst.blit(square, topright=(50, 50))
-        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
 
         self.assertEqual(dst.get_at((43, 57)), (255, 0, 0))
-        self.assertEqual(dst.get_at((36, 64)), (255, 0, 0))
+        self.assertEqual(dst.get_at((35, 64)), (255, 0, 0))
 
-        self.assertEqual(result, pygame.Rect(36, 50, 15, 15))
+        self.assertEqual(result, pygame.Rect(35, 50, 15, 15))
 
     def test_bottomleft_pos(self):
         square = pygame.Surface((15, 15))
         square.fill((255, 0, 0))
         dst = pygame.Surface((100, 100))
         result = dst.blit(square, bottomleft=(50, 50))
-        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
 
-        self.assertEqual(dst.get_at((64, 36)), (255, 0, 0))
+        self.assertEqual(dst.get_at((64, 35)), (255, 0, 0))
         self.assertEqual(dst.get_at((57, 43)), (255, 0, 0))
 
-        self.assertEqual(result, pygame.Rect(50, 36, 15, 15))
+        self.assertEqual(result, pygame.Rect(50, 35, 15, 15))
 
     def test_bottomright_pos(self):
         square = pygame.Surface((15, 15))
         square.fill((255, 0, 0))
         dst = pygame.Surface((100, 100))
         result = dst.blit(square, bottomright=(50, 50))
-        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
 
         self.assertEqual(dst.get_at((36, 36)), (255, 0, 0))
         self.assertEqual(dst.get_at((43, 43)), (255, 0, 0))
 
-        self.assertEqual(result, pygame.Rect(36, 36, 15, 15))
+        self.assertEqual(result, pygame.Rect(35, 35, 15, 15))
 
     def test_midleft_pos(self):
         square = pygame.Surface((15, 15))
@@ -215,12 +215,12 @@ class BlitTest(unittest.TestCase):
         square.fill((255, 0, 0))
         dst = pygame.Surface((100, 100))
         result = dst.blit(square, midright=(50, 50))
-        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
 
         self.assertEqual(dst.get_at((36, 43)), (255, 0, 0))
         self.assertEqual(dst.get_at((49, 57)), (255, 0, 0))
 
-        self.assertEqual(result, pygame.Rect(36, 43, 15, 15))
+        self.assertEqual(result, pygame.Rect(35, 43, 15, 15))
 
     def test_midtop_pos(self):
         square = pygame.Surface((15, 15))
@@ -239,12 +239,12 @@ class BlitTest(unittest.TestCase):
         square.fill((255, 0, 0))
         dst = pygame.Surface((100, 100))
         result = dst.blit(square, midbottom=(50, 50))
-        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
 
-        self.assertEqual(dst.get_at((43, 36)), (255, 0, 0))
-        self.assertEqual(dst.get_at((57, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((43, 35)), (255, 0, 0))
+        self.assertEqual(dst.get_at((57, 50)), (0, 0, 0))
 
-        self.assertEqual(result, pygame.Rect(43, 36, 15, 15))
+        self.assertEqual(result, pygame.Rect(43, 35, 15, 15))
 
     def test_center_pos(self):
         square = pygame.Surface((15, 15))
