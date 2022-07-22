@@ -1873,6 +1873,9 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
                     return RAISE(PyExc_TypeError,
                                  "special_flags parameter must be numeric");
             }
+            else if (pgRect_Check(value)) {
+                argrect = value;
+            }
         }
         dx = PyLong_AsLong(PyObject_GetAttrString(rect, "x"));
         dy = PyLong_AsLong(PyObject_GetAttrString(rect, "y"));
