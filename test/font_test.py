@@ -582,6 +582,21 @@ class FontTypeTest(unittest.TestCase):
             font = pygame_font.Font(fpath, size)
             font.render("WHERE", True, "black")
 
+    def test_font_set_script(self):
+        font = pygame.font.Font(None, 16)
+
+        self.assertRaises(TypeError, pygame.font.Font.set_script)
+        self.assertRaises(TypeError, pygame.font.Font.set_script, font)
+        self.assertRaises(TypeError, pygame.font.Font.set_script, "hey", "Deva")
+        self.assertRaises(TypeError, font.set_script, 1)
+        self.assertRaises(TypeError, font.set_script, ["D", "e", "v", "a"])
+
+        self.assertRaises(ValueError, font.set_script, "too long by far")
+        self.assertRaises(ValueError, font.set_script, "")
+        self.assertRaises(ValueError, font.set_script, "a")
+
+        font.set_script("Deva")
+
 
 @unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class VisualTests(unittest.TestCase):
