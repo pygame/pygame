@@ -472,6 +472,24 @@ solves no longer exists, it will likely be removed in the future.
 
       .. ## Font.get_descent ##
 
+   .. method:: set_script
+
+      | :sl:`set the script code for text shaping`
+      | :sg:`set_script(str) -> None`
+
+      Sets the script used by harfbuzz text shaping, taking a 4 character
+      script code as input. For example, Hindi is written in the Devanagari
+      script, for which the script code is `"Deva"`. See the full list of
+      script codes in `ISO 15924 <https://www.unicode.org/iso15924/iso15924-codes.html>`_.
+
+      .. warning:: This function will currently only work on Windows prebuilts.
+         Support will improve in time, but right now our Mac and Linux configurations
+         do not use a new enough version of SDL_ttf (2.20.0) to use this feature.
+
+      .. versionadded:: 2.1.3
+
+      .. ## Font.set_script ## 
+
    .. ## pygame.font.Font ##
 
 .. ## pygame.font ##
