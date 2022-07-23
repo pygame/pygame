@@ -1831,9 +1831,6 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int sx, sy;
     int the_args = 0; /* Represents kwarg: "special_flags". */
 
-    int checks = 0;
-    int loop;
-
     PyObject *topleft_pos = NULL;
     PyObject *rect;
 
@@ -1846,8 +1843,6 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     if (!dest || !src)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    rect = pgRect_New4(0, 0, src->w, src->h);
-
     if (topleft_pos && (src_rect = pgRect_FromObject(topleft_pos, &temp))) {
         dx = src_rect->x;
         dy = src_rect->y;
@@ -1856,9 +1851,11 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dx = sx;
         dy = sy;
     }
-    else if (rect && keywds) {
+    else if (keywds) {
         PyObject *key, *value;
         Py_ssize_t pos = 0;
+
+        rect = pgRect_New4(0, 0, src->w, src->h);
 
         while (PyDict_Next(keywds, &pos, &key, &value)) {
             if (PyObject_HasAttr(rect, key)) {
