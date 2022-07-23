@@ -138,7 +138,7 @@ class Renderer:
     def set_viewport(self, area: Optional[RectValue]) -> None: ...
     logical_size: Iterable[int]
     scale: Iterable[float]
-    target: Union[Texture, None]
+    target: Optional[Texture]
     def blit(
         self,
         source: Union[Texture, Image],
