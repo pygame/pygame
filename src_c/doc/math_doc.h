@@ -1,7 +1,5 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
-#define DOC_PYGAMEMATHDISTANCE "distance(p1, p2) -> float\ndistance(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
-#define DOC_PYGAMEMATHDISTANCESQUARED "distance_squared(p1, p2) -> float\ndistance_squared(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
@@ -83,6 +81,8 @@
 #define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector3\nclamp_magnitude(min_length, max_length) -> Vector3\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
 #define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(min_length, max_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
+#define DOC_PYGAMEMATHDISTANCE "distance(p1, p2) -> float\ndistance(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
+#define DOC_PYGAMEMATHDISTANCESQUARED "distance_squared(p1, p2) -> float\ndistance_squared(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -91,16 +91,6 @@
 
 pygame.math
 pygame module for vector classes
-
-pygame.math.distance
- distance(p1, p2) -> float
- distance(x1, y1, x2, y2) -> float
-returns the float distance between two points
-
-pygame.math.distance_squared
- distance_squared(p1, p2) -> float
- distance_squared(x1, y1, x2, y2) -> float
-returns the float distance between two points
 
 pygame.math.Vector2
  Vector2() -> Vector2
@@ -449,5 +439,15 @@ pygame.math.Vector3.update
  update(x, y, z) -> None
  update((x, y, z)) -> None
 Sets the coordinates of the vector.
+
+pygame.math.distance
+ distance(p1, p2) -> float
+ distance(x1, y1, x2, y2) -> float
+returns the float distance between two points
+
+pygame.math.distance_squared
+ distance_squared(p1, p2) -> float
+ distance_squared(x1, y1, x2, y2) -> float
+returns the float distance between two points
 
 */

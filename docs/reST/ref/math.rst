@@ -48,22 +48,6 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
-.. function:: distance
-
-   | :sl:`returns the float distance between two points`
-   | :sg:`distance(p1, p2) -> float`
-   | :sg:`distance(x1, y1, x2, y2) -> float`
-
-   .. ## math.distance ##
-
-.. function:: distance_squared
-
-   | :sl:`returns the float distance between two points`
-   | :sg:`distance_squared(p1, p2) -> float`
-   | :sg:`distance_squared(x1, y1, x2, y2) -> float`
-
-   .. ## math.distance_squared ##
-
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
@@ -1016,5 +1000,34 @@ Multiple coordinates can be set using slices or swizzling
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
+
+The following are useful mathematical functions unrelated to the Vector type
+
+.. function:: distance
+
+   | :sl:`returns the float distance between two points`
+   | :sg:`distance(p1, p2) -> float`
+   | :sg:`distance(x1, y1, x2, y2) -> float`
+
+   Calculates the Euclidean distance between two points in two dimensions.
+
+   .. note:: This functions takes positional only arguments
+
+   .. versionadded:: 2.1.3
+
+   .. ## math.distance ##
+
+.. function:: distance_squared
+
+   | :sl:`returns the float distance between two points`
+   | :sg:`distance_squared(p1, p2) -> float`
+   | :sg:`distance_squared(x1, y1, x2, y2) -> float`
+
+   Calculates the squared Euclidean distance between two points in two dimensions.
+
+   .. note:: This functions takes positional only arguments
+
+   .. versionadded:: 2.1.3
+   .. ## math.distance_squared ##
 
 .. ## pygame.math ##
