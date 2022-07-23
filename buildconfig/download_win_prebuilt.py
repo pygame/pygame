@@ -87,7 +87,7 @@ def get_urls(x86=True, x64=True):
         ],
         [
         'https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.0/SDL2_ttf-devel-2.20.0-VC.zip',
-        'e510b670cfde1d621ccccdb3d91cac493affb993'
+        'd5f6c8bc8084b3fd1decd4e7d2e43ad3f38d4cf4'
         ],
         [
         'https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.0/SDL2_mixer-devel-2.6.0-VC.zip',
