@@ -28,14 +28,17 @@ import os
 
 # Choose Windows display driver
 if os.name == "nt":
-    _pygame_dir = os.path.split(__file__)[0]
+    pygame_dir = os.path.split(__file__)[0]
 
     # pypy does not find the dlls, so we add package folder to PATH.
-    os.environ["PATH"] = os.environ["PATH"] + ";" + _pygame_dir
+    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
 
     # windows store python does not find the dlls, so we run this
     if sys.version_info > (3, 8):
-        os.add_dll_directory(_pygame_dir)  # only available in 3.8+
+        os.add_dll_directory(pygame_dir)  # only available in 3.8+
+
+    # cleanup namespace
+    del pygame_dir
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
