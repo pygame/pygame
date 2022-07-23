@@ -1,11 +1,12 @@
 from typing import Sequence, Tuple, Union, overload
-
+from typing_extensions import Literal
 from pygame.cursors import Cursor
 from pygame.surface import Surface
 
-def get_pressed(
-    num_buttons: int = 3,
-) -> Union[Tuple[bool, bool, bool], Tuple[bool, bool, bool, bool, bool]]: ...
+@overload
+def get_pressed(num_buttons: Literal[3] = 3) -> Tuple[bool, bool, bool]: ...
+@overload
+def get_pressed(num_buttons: Literal[5]) -> Tuple[bool, bool, bool, bool, bool]: ...
 def get_pos() -> Tuple[int, int]: ...
 def get_rel() -> Tuple[int, int]: ...
 @overload
