@@ -1633,18 +1633,52 @@ vector_reflect_ip(pgVector *self, PyObject *normal)
 static double
 _vector_distance_helper(pgVector *self, PyObject *other)
 {
-    Py_ssize_t i;
-    double distance_squared, tmp;
+    Py_ssize_t i, dim = self->dim;
+    double distance_squared = 0;
 
-    distance_squared = 0;
-    for (i = 0; i < self->dim; ++i) {
-        tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
-        distance_squared += tmp * tmp;
+    /* Specialised fastpath for Vector-Vector distance calculation*/
+    if (pgVector_Check(other)) {
+        pgVector *otherv = (pgVector *)other;
+        double dx, dy;
+
+        if (dim != otherv->dim) {
+            PyErr_SetString(PyExc_TypeError, "Vectors must be the same size");
+            return -1;
+        }
+
+        dx = otherv->coords[0] - self->coords[0];
+        dy = otherv->coords[1] - self->coords[1];
+
+        distance_squared = dx * dx + dy * dy;
+
+        if (dim == 3) {
+            double dz;
+            dz = otherv->coords[2] - self->coords[2];
+            distance_squared += dz * dz;
+        }
     }
-    /* PySequence_GetItem_AsDouble can fail in which case it will set an Err */
-    if (PyErr_Occurred())
-        return -1;
+    /* Vector-Sequence distance calculation*/
+    else {
+        double tmp;
+        PyObject *fast_seq = PySequence_Fast(other, "A sequence was expected");
+        if (!fast_seq) {
+            return -1;
+        }
 
+        if (PySequence_Fast_GET_SIZE(fast_seq) != dim) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Vector and sequence must be the same size");
+            return -1;
+        }
+
+        for (i = 0; i < dim; ++i) {
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fast_seq, i)) -
+                  self->coords[i];
+            if (PyErr_Occurred())
+                return -1;
+            distance_squared += tmp * tmp;
+        }
+    }
     return distance_squared;
 }
 
