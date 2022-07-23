@@ -1,5 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
+#define DOC_PYGAMEMATHDISTANCE "distance(p1, p2) -> float\ndistance(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
+#define DOC_PYGAMEMATHDISTANCESQUARED "distance_squared(p1, p2) -> float\ndistance_squared(x1, y1, x2, y2) -> float\nreturns the float distance between two points"
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
@@ -89,6 +91,16 @@
 
 pygame.math
 pygame module for vector classes
+
+pygame.math.distance
+ distance(p1, p2) -> float
+ distance(x1, y1, x2, y2) -> float
+returns the float distance between two points
+
+pygame.math.distance_squared
+ distance_squared(p1, p2) -> float
+ distance_squared(x1, y1, x2, y2) -> float
+returns the float distance between two points
 
 pygame.math.Vector2
  Vector2() -> Vector2

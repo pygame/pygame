@@ -4073,7 +4073,127 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+distance(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double dx = 0, dy = 0;
+
+    if (nargs == 2) {
+        if (!(PyTuple_Check(args[0]) || PyList_Check(args[0])) ||
+            !(PyTuple_Check(args[1]) || PyList_Check(args[1]))) {
+            return RAISE(PyExc_TypeError, "Positions must be sequences");
+        }
+        if (PySequence_Fast_GET_SIZE(args[0]) != 2 ||
+            PySequence_Fast_GET_SIZE(args[1]) != 2) {
+            return RAISE(PyExc_TypeError, "Position must be of length 2");
+        }
+
+        dx -= PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[0], 0));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy -= PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[0], 1));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dx += PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[1], 0));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy += PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[1], 1));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+    else if (nargs == 4) {
+        dx -= PyFloat_AsDouble(args[0]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy -= PyFloat_AsDouble(args[1]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dx += PyFloat_AsDouble(args[2]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy += PyFloat_AsDouble(args[3]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError, "distance need 2 or 4 arguments");
+    }
+
+    return PyFloat_FromDouble(sqrt(dx * dx + dy * dy));
+}
+PG_WRAP_FASTCALL_FUNC(distance, PyObject)
+static PyObject *
+distance_squared(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double dx = 0, dy = 0;
+
+    if (nargs == 2) {
+        if (!(PyTuple_Check(args[0]) || PyList_Check(args[0])) ||
+            !(PyTuple_Check(args[1]) || PyList_Check(args[1]))) {
+            return RAISE(PyExc_TypeError, "Positions must be sequences");
+        }
+        if (PySequence_Fast_GET_SIZE(args[0]) != 2 ||
+            PySequence_Fast_GET_SIZE(args[1]) != 2) {
+            return RAISE(PyExc_TypeError, "Position must be of length 2");
+        }
+
+        dx -= PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[0], 0));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy -= PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[0], 1));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dx += PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[1], 0));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy += PyFloat_AsDouble(PySequence_Fast_GET_ITEM(args[1], 1));
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+    else if (nargs == 4) {
+        dx -= PyFloat_AsDouble(args[0]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy -= PyFloat_AsDouble(args[1]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dx += PyFloat_AsDouble(args[2]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        dy += PyFloat_AsDouble(args[3]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "distance_squared needs 2 or 4 arguments");
+    }
+
+    return PyFloat_FromDouble(dx * dx + dy * dy);
+}
+PG_WRAP_FASTCALL_FUNC(distance_squared, PyObject)
+
 static PyMethodDef _math_methods[] = {
+    {"distance", (PyCFunction)PG_FASTCALL_NAME(distance), PG_FASTCALL,
+     DOC_PYGAMEMATHDISTANCE},
+    {"distance_squared", (PyCFunction)PG_FASTCALL_NAME(distance_squared),
+     PG_FASTCALL, DOC_PYGAMEMATHDISTANCE},
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,

@@ -48,6 +48,22 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
+.. function:: distance
+
+   | :sl:`returns the float distance between two points`
+   | :sg:`distance(p1, p2) -> float`
+   | :sg:`distance(x1, y1, x2, y2) -> float`
+
+   .. ## math.distance ##
+
+.. function:: distance_squared
+
+   | :sl:`returns the float distance between two points`
+   | :sg:`distance_squared(p1, p2) -> float`
+   | :sg:`distance_squared(x1, y1, x2, y2) -> float`
+
+   .. ## math.distance_squared ##
+
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
