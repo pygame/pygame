@@ -1834,8 +1834,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *topleft_pos = NULL;
     PyObject *rect;
 
-    if (!PyArg_ParseTuple(args, "O!|O", &pgSurface_Type, &srcobject,
-                          &topleft_pos))
+    if (!PyArg_ParseTuple(args, "O!|OOi", &pgSurface_Type, &srcobject,
+                          &topleft_pos, &argrect, &the_args))
         return NULL;
 
     src = pgSurface_AsSurface(srcobject);
@@ -1852,6 +1852,13 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dy = sy;
     }
     else if (keywds) {
+        if (PyDict_Contains(keywds, PyUnicode_FromString("special_flags"))) {
+            PyDict_DelItemString(keywds, "special_flags");
+        }
+        if (PyDict_Contains(keywds, PyUnicode_FromString("rect"))) {
+            PyDict_DelItemString(keywds, "rect");
+        }
+
         PyObject *key, *value;
         Py_ssize_t pos = 0;
 
@@ -1863,15 +1870,6 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
                     Py_DECREF(rect);
                     return NULL;
                 }
-            }
-            else if (PyLong_Check(value)) {
-                // if it's a number then it must be "special_flags"
-                if (!pg_IntFromObj(value, &the_args))
-                    return RAISE(PyExc_TypeError,
-                                 "special_flags parameter must be numeric");
-            }
-            else if (pgRect_Check(value)) {
-                argrect = value;
             }
         }
         dx = PyLong_AsLong(PyObject_GetAttrString(rect, "x"));
