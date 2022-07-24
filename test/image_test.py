@@ -761,7 +761,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(bgr_surf.get_at((1, 1)), pygame.Color(255, 255, 255))
         self.assertEqual(bgr_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
         self.assertEqual(bgr_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
-        
+
     def test_frombuffer_BGRA(self):
         rgba_buffer = bytearray(
             [
