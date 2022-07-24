@@ -3644,7 +3644,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             subsurface cannot be blitted to its owner because the
             owner is locked.
             */
-         dst->pixels == src->pixels &&
+         dst->pixels == src->pixels && srcrect != NULL &&
          surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
