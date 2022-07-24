@@ -227,6 +227,8 @@ following formats.
       * ``RGB``, 24-bit image
 
       * ``BGR``, 24-bit image, red and blue channels swapped.
+      
+      * ``BGRA``, 32-bit image, red and blue channels swapped. Added in 2.1.3
 
       * ``RGBX``, 32-bit image with unused space
 
