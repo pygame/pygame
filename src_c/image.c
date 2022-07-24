@@ -1151,6 +1151,27 @@ image_frombuffer(PyObject *self, PyObject *arg)
                                         0xFF << 16, 0);
 #endif
     }
+    else if (!strcmp(format, "BGRA")) {
+        if (len != (Py_ssize_t)w * h * 4)
+            return RAISE(
+                PyExc_ValueError,
+                "Buffer length does not equal format and resolution size");
+        
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4,
+                                        0xFF << 16,
+                                        0xFF << 8,
+                                        0xFF,
+                                        0xFF << 24);
+
+#else
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4,
+                                        0xFF << 8,
+                                        0xFF << 16,
+                                        0xFF << 24,
+                                        0xFF );
+#endif
+    }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
         int alphamult = !strcmp(format, "RGBA");
         if (len != (Py_ssize_t)w * h * 4)
