@@ -10,6 +10,12 @@
 
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 void
+alphablit_alpha_sse2_argb_surf_alpha(SDL_BlitInfo *info);
+void
+alphablit_alpha_sse2_argb_no_surf_alpha(SDL_BlitInfo *info);
+void
+alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info);
+void
 blit_blend_rgba_mul_sse2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_mul_sse2(SDL_BlitInfo *info);
@@ -29,6 +35,8 @@ void
 blit_blend_rgba_min_sse2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_sse2(SDL_BlitInfo *info);
+void
+blit_blend_premultiplied_sse2(SDL_BlitInfo *info);
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 void
