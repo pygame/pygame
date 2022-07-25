@@ -4070,7 +4070,7 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     if (PyErr_Occurred())
         return NULL;
 
-    double result = fmin(max, fmax(min, value));
+    double result = MIN(max, MAX(min, value));
 
     return PyFloat_FromDouble(result);
 }
