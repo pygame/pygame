@@ -1642,7 +1642,7 @@ _vector_distance_helper(pgVector *self, PyObject *other)
         double dx, dy;
 
         if (dim != otherv->dim) {
-            PyErr_SetString(PyExc_TypeError, "Vectors must be the same size");
+            PyErr_SetString(PyExc_ValueError, "Vectors must be the same size");
             return -1;
         }
 
@@ -1666,7 +1666,7 @@ _vector_distance_helper(pgVector *self, PyObject *other)
         }
 
         if (PySequence_Fast_GET_SIZE(fast_seq) != dim) {
-            PyErr_SetString(PyExc_TypeError,
+            PyErr_SetString(PyExc_ValueError,
                             "Vector and sequence must be the same size");
             return -1;
         }

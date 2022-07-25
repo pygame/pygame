@@ -1902,6 +1902,95 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_to(self.v1), 0)
         self.assertEqual(self.v1.distance_to(self.v2), self.v2.distance_to(self.v1))
 
+    def test_distance_to_exceptions(self):
+        v2 = Vector2(10, 10)
+        v3 = Vector3(1, 1, 1)
+
+        # illegal distance Vector3-Vector2 / Vector2-Vector3
+        self.assertRaises(ValueError, v2.distance_to, v3)
+        self.assertRaises(ValueError, v3.distance_to, v2)
+
+        # distance to illegal tuple/list positions
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 1))
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 0))
+        self.assertRaises(ValueError, v2.distance_to, (1,))
+        self.assertRaises(ValueError, v2.distance_to, [1, 1, 1])
+        self.assertRaises(ValueError, v2.distance_to, [1, 1, 0])
+        self.assertRaises(
+            ValueError,
+            v2.distance_to,
+            [
+                1,
+            ],
+        )
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 1))
+        # vec3
+        self.assertRaises(ValueError, v3.distance_to, (1, 1))
+        self.assertRaises(ValueError, v3.distance_to, (1,))
+        self.assertRaises(ValueError, v3.distance_to, [1, 1])
+        self.assertRaises(
+            ValueError,
+            v3.distance_to,
+            [
+                1,
+            ],
+        )
+
+        # illegal types as positions
+        self.assertRaises(TypeError, v2.distance_to, (1, "hello"))
+        self.assertRaises(TypeError, v2.distance_to, ([], []))
+        self.assertRaises(TypeError, v2.distance_to, (1, ("hello",)))
+
+        # illegal args number
+        self.assertRaises(TypeError, v2.distance_to)
+        self.assertRaises(TypeError, v2.distance_to, (1, 1), (1, 2))
+        self.assertRaises(TypeError, v2.distance_to, (1, 1), (1, 2), 1)
+
+    def test_distance_squared_to_exceptions(self):
+        v2 = Vector2(10, 10)
+        v3 = Vector3(1, 1, 1)
+        dist_t = v2.distance_squared_to
+        dist_t3 = v3.distance_squared_to
+        # illegal distance Vector3-Vector2 / Vector2-Vector3
+        self.assertRaises(ValueError, dist_t, v3)
+        self.assertRaises(ValueError, dist_t3, v2)
+
+        # distance to illegal tuple/list positions
+        self.assertRaises(ValueError, dist_t, (1, 1, 1))
+        self.assertRaises(ValueError, dist_t, (1, 1, 0))
+        self.assertRaises(ValueError, dist_t, (1,))
+        self.assertRaises(ValueError, dist_t, [1, 1, 1])
+        self.assertRaises(ValueError, dist_t, [1, 1, 0])
+        self.assertRaises(
+            ValueError,
+            dist_t,
+            [
+                1,
+            ],
+        )
+        self.assertRaises(ValueError, dist_t, (1, 1, 1))
+        # vec3
+        self.assertRaises(ValueError, dist_t3, (1, 1))
+        self.assertRaises(ValueError, dist_t3, (1,))
+        self.assertRaises(ValueError, dist_t3, [1, 1])
+        self.assertRaises(
+            ValueError,
+            dist_t3,
+            [
+                1,
+            ],
+        )
+
+        # illegal types as positions
+        self.assertRaises(TypeError, dist_t, (1, "hello"))
+        self.assertRaises(TypeError, dist_t, ([], []))
+        self.assertRaises(TypeError, dist_t, (1, ("hello",)))
+
+        # illegal args number
+        self.assertRaises(TypeError, dist_t)
+        self.assertRaises(TypeError, dist_t, (1, 1), (1, 2))
+        self.assertRaises(TypeError, dist_t, (1, 1), (1, 2), 1)
+
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
