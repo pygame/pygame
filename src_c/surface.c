@@ -1851,32 +1851,61 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dx = sx;
         dy = sy;
     }
-    else if (keywds) {
-        if (PyDict_Contains(keywds, PyUnicode_FromString("special_flags"))) {
+    if (keywds) {
+        if (the_args != 0) {
+            if (!PyDict_Contains(keywds,
+                                 PyUnicode_FromString("special_flags"))) {
+                return RAISE(PyExc_KeyError, "invalid kwarg name");
+            }
             PyDict_DelItemString(keywds, "special_flags");
         }
-        if (PyDict_Contains(keywds, PyUnicode_FromString("rect"))) {
-            PyDict_DelItemString(keywds, "rect");
+        if (argrect != NULL) {
+            if (!PyDict_Contains(keywds, PyUnicode_FromString("area"))) {
+                return RAISE(PyExc_KeyError, "invalid kwarg name");
+            }
+            PyDict_DelItemString(keywds, "area");
         }
 
         PyObject *key, *value;
         Py_ssize_t pos = 0;
+        int assigned_pos = 0;
 
         rect = pgRect_New4(0, 0, src->w, src->h);
 
         while (PyDict_Next(keywds, &pos, &key, &value)) {
-            if (PyObject_HasAttr(rect, key)) {
-                if ((PyObject_SetAttr(rect, key, value) == -1)) {
-                    Py_DECREF(rect);
-                    return NULL;
+            if (PyUnicode_CompareWithASCIIString(key, "special_flags") == 0)
+                the_args = PyLong_AsLong(value);
+
+            if (PyUnicode_CompareWithASCIIString(key, "area") == 0)
+                argrect = value;
+
+            if (topleft_pos == NULL) {
+                if (PyUnicode_CompareWithASCIIString(key, "dest") == 0) {
+                    if (src_rect = pgRect_FromObject(value, &temp)) {
+                        dx = src_rect->x;
+                        dy = src_rect->y;
+                        assigned_pos = 1;
+                    }
+
+                    else if ((PyObject_SetAttrString(rect, "topleft", value) ==
+                              -1)) {
+                        Py_DECREF(rect);
+                        return NULL;
+                    }
+                }
+                else if (PyObject_HasAttr(rect, key)) {
+                    if ((PyObject_SetAttr(rect, key, value) == -1)) {
+                        Py_DECREF(rect);
+                        return NULL;
+                    }
+                }
+                if (assigned_pos == 0) {
+                    dx = PyLong_AsLong(PyObject_GetAttrString(rect, "x"));
+                    dy = PyLong_AsLong(PyObject_GetAttrString(rect, "y"));
                 }
             }
         }
-        dx = PyLong_AsLong(PyObject_GetAttrString(rect, "x"));
-        dy = PyLong_AsLong(PyObject_GetAttrString(rect, "y"));
     }
-    else
-        return RAISE(PyExc_TypeError, "invalid destination position for blit");
 
     if (argrect && argrect != Py_None) {
         if (!(src_rect = pgRect_FromObject(argrect, &temp)))
