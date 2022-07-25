@@ -4058,15 +4058,18 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     if (nargs != 3)
         return RAISE(PyExc_ValueError, "clamp requires 3 float arguments");
 
-    double value = PyFloat_AsDouble(args[0]);
+    double value = PyFloat_Check(args[0]) ? PyFloat_AS_DOUBLE(args[0])
+                                          : (double)PyLong_AsLong(args[0]);
     if (PyErr_Occurred())
         return NULL;
 
-    double min = PyFloat_AsDouble(args[1]);
+    double min = PyFloat_Check(args[1]) ? PyFloat_AS_DOUBLE(args[1])
+                                        : (double)PyLong_AsLong(args[1]);
     if (PyErr_Occurred())
         return NULL;
 
-    double max = PyFloat_AsDouble(args[2]);
+    double max = PyFloat_Check(args[2]) ? PyFloat_AS_DOUBLE(args[2])
+                                        : (double)PyLong_AsLong(args[2]);
     if (PyErr_Occurred())
         return NULL;
 
