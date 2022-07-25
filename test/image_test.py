@@ -523,28 +523,27 @@ class ImageModuleTest(unittest.TestCase):
     def test_fromstring__and_tostring(self):
         """Ensure methods tostring() and fromstring() are symmetric."""
 
-        ####################################################################
-        def RotateRGBAtoARGB(str_buf):
-            byte_buf = array.array("B", str_buf)
-            num_quads = len(byte_buf) // 4
-            for i in range(num_quads):
-                alpha = byte_buf[i * 4 + 3]
-                byte_buf[i * 4 + 3] = byte_buf[i * 4 + 2]
-                byte_buf[i * 4 + 2] = byte_buf[i * 4 + 1]
-                byte_buf[i * 4 + 1] = byte_buf[i * 4 + 0]
-                byte_buf[i * 4 + 0] = alpha
-            return tostring(byte_buf)
+        import itertools
 
-        ####################################################################
-        def RotateARGBtoRGBA(str_buf):
+        fmts = ("RGBA", "ARGB", "BGRA")
+        fmt_permutations = list(itertools.permutations(fmts, 2))
+        fmt_combinations = list(itertools.combinations(fmts, 2))
+
+        def convert(fmt1, fmt2, str_buf):
+            pos_fmt1 = {k: v for v, k in enumerate(fmt1)}
+            pos_fmt2 = {k: v for v, k in enumerate(fmt2)}
             byte_buf = array.array("B", str_buf)
             num_quads = len(byte_buf) // 4
             for i in range(num_quads):
-                alpha = byte_buf[i * 4 + 0]
-                byte_buf[i * 4 + 0] = byte_buf[i * 4 + 1]
-                byte_buf[i * 4 + 1] = byte_buf[i * 4 + 2]
-                byte_buf[i * 4 + 2] = byte_buf[i * 4 + 3]
-                byte_buf[i * 4 + 3] = alpha
+                i4 = i * 4
+                R = byte_buf[i4 + pos_fmt1["R"]]
+                G = byte_buf[i4 + pos_fmt1["G"]]
+                B = byte_buf[i4 + pos_fmt1["B"]]
+                A = byte_buf[i4 + pos_fmt1["A"]]
+                byte_buf[i4 + pos_fmt2["R"]] = R
+                byte_buf[i4 + pos_fmt2["G"]] = G
+                byte_buf[i4 + pos_fmt2["B"]] = B
+                byte_buf[i4 + pos_fmt2["A"]] = A
             return tostring(byte_buf)
 
         ####################################################################
@@ -561,37 +560,35 @@ class ImageModuleTest(unittest.TestCase):
             test_surface, test_surface, "failing with identical surfaces"
         )
 
-        rgba_buf = pygame.image.tostring(test_surface, "RGBA")
-        rgba_buf = RotateARGBtoRGBA(RotateRGBAtoARGB(rgba_buf))
-        test_rotate_functions = pygame.image.fromstring(
-            rgba_buf, test_surface.get_size(), "RGBA"
-        )
+        for pair in fmt_combinations:
+            rgba_buf = pygame.image.tostring(test_surface, pair[0])
+            rgba_buf = convert(pair[1], pair[0], convert(pair[0], pair[1], rgba_buf))
+            test_rotate_functions = pygame.image.fromstring(
+                rgba_buf, test_surface.get_size(), pair[0]
+            )
 
-        self._assertSurfaceEqual(
-            test_surface, test_rotate_functions, "rotate functions are not symmetric"
-        )
+            self._assertSurfaceEqual(
+                test_surface,
+                test_rotate_functions,
+                "converting {} to {} and back is not symmetric".format(
+                    pair[0], pair[1]
+                ),
+            )
 
-        rgba_buf = pygame.image.tostring(test_surface, "RGBA")
-        argb_buf = RotateRGBAtoARGB(rgba_buf)
-        test_from_argb_string = pygame.image.fromstring(
-            argb_buf, test_surface.get_size(), "ARGB"
-        )
+        for pair in fmt_permutations:
+            argb_buf = pygame.image.tostring(test_surface, pair[0])
+            rgba_buf = convert(pair[0], pair[1], argb_buf)
+            test_to_argb_string = pygame.image.fromstring(
+                rgba_buf, test_surface.get_size(), pair[1]
+            )
 
-        self._assertSurfaceEqual(
-            test_surface, test_from_argb_string, '"RGBA" rotated to "ARGB" failed'
-        )
+            self._assertSurfaceEqual(
+                test_surface,
+                test_to_argb_string,
+                "{} converted to {} failed".format(pair[0], pair[1]),
+            )
 
-        argb_buf = pygame.image.tostring(test_surface, "ARGB")
-        rgba_buf = RotateARGBtoRGBA(argb_buf)
-        test_to_argb_string = pygame.image.fromstring(
-            rgba_buf, test_surface.get_size(), "RGBA"
-        )
-
-        self._assertSurfaceEqual(
-            test_surface, test_to_argb_string, '"ARGB" rotated to "RGBA" failed'
-        )
-
-        for fmt in ("ARGB", "RGBA"):
+        for fmt in fmts:
             fmt_buf = pygame.image.tostring(test_surface, fmt)
             test_to_from_fmt_string = pygame.image.fromstring(
                 fmt_buf, test_surface.get_size(), fmt

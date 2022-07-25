@@ -177,11 +177,14 @@ following formats.
       * ``RGBA``, 32-bit image with an alpha channel
 
       * ``ARGB``, 32-bit image with alpha channel first
+      
+      * ``BGRA``, 32-bit image with alpha channel, red and blue channels swapped
 
       * ``RGBA_PREMULT``, 32-bit image with colors scaled by alpha channel
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
 
+   .. versionadded:: 2.1.3 BGRA format
    .. ## pygame.image.tostring ##
 
 .. function:: fromstring
@@ -227,8 +230,6 @@ following formats.
       * ``RGB``, 24-bit image
 
       * ``BGR``, 24-bit image, red and blue channels swapped.
-      
-      * ``BGRA``, 32-bit image, red and blue channels swapped. Added in 2.1.3
 
       * ``RGBX``, 32-bit image with unused space
 
@@ -236,6 +237,9 @@ following formats.
 
       * ``ARGB``, 32-bit image with alpha channel first
 
+      * ``BGRA``, 32-bit image with alpha channel, red and blue channels swapped
+  
+   .. versionadded:: 2.1.3 BGRA format
    .. ## pygame.image.frombuffer ##
 
 .. function:: load_basic
