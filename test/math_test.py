@@ -562,21 +562,49 @@ class Vector2TypeTest(unittest.TestCase):
     def test_distance_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to((0, 1)), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to([0, 1]), math.sqrt(2))
         self.assertAlmostEqual(
             self.v1.distance_to(self.v2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
         )
+        self.assertAlmostEqual(
+            self.v1.distance_to(self.t2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_to(self.l2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
+        )
         self.assertEqual(self.v1.distance_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_to(self.l1), 0)
+        self.assertEqual(self.v1.distance_to(self.t2), self.v2.distance_to(self.t1))
+        self.assertEqual(self.v1.distance_to(self.l2), self.v2.distance_to(self.l1))
         self.assertEqual(self.v1.distance_to(self.v2), self.v2.distance_to(self.v1))
 
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
+        self.assertEqual(self.e1.distance_squared_to((0, 1)), 2)
+        self.assertEqual(self.e1.distance_squared_to([0, 1]), 2)
         self.assertAlmostEqual(
             self.v1.distance_squared_to(self.v2), diff.x * diff.x + diff.y * diff.y
         )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.t2), diff.x * diff.x + diff.y * diff.y
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.l2), diff.x * diff.x + diff.y * diff.y
+        )
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.l1), 0)
         self.assertEqual(
             self.v1.distance_squared_to(self.v2), self.v2.distance_squared_to(self.v1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.t2), self.v2.distance_squared_to(self.t1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.l2), self.v2.distance_squared_to(self.l1)
         )
 
     def test_update(self):
@@ -1895,12 +1923,26 @@ class Vector3TypeTest(unittest.TestCase):
     def test_distance_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to((0, 1, 0)), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to([0, 1, 0]), math.sqrt(2))
         self.assertEqual(
             self.v1.distance_to(self.v2),
             math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
         )
+        self.assertEqual(
+            self.v1.distance_to(self.t2),
+            math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
+        )
+        self.assertEqual(
+            self.v1.distance_to(self.l2),
+            math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
+        )
         self.assertEqual(self.v1.distance_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_to(self.l1), 0)
         self.assertEqual(self.v1.distance_to(self.v2), self.v2.distance_to(self.v1))
+        self.assertEqual(self.v1.distance_to(self.t2), self.v2.distance_to(self.t1))
+        self.assertEqual(self.v1.distance_to(self.l2), self.v2.distance_to(self.l1))
 
     def test_distance_to_exceptions(self):
         v2 = Vector2(10, 10)
@@ -1994,13 +2036,31 @@ class Vector3TypeTest(unittest.TestCase):
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
+        self.assertEqual(self.e1.distance_squared_to((0, 1, 0)), 2)
+        self.assertEqual(self.e1.distance_squared_to([0, 1, 0]), 2)
         self.assertAlmostEqual(
             self.v1.distance_squared_to(self.v2),
             diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
         )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.t2),
+            diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.l2),
+            diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
+        )
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.l1), 0)
         self.assertEqual(
             self.v1.distance_squared_to(self.v2), self.v2.distance_squared_to(self.v1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.t2), self.v2.distance_squared_to(self.t1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.l2), self.v2.distance_squared_to(self.l1)
         )
 
     def test_swizzle(self):
