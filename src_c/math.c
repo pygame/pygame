@@ -215,9 +215,12 @@ vector_dot(pgVector *self, PyObject *other);
 static PyObject *
 vector_scale_to_length(pgVector *self, PyObject *length);
 static PyObject *
-vector_move_towards(pgVector *self, PyObject *args);
+vector_move_towards(pgVector *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(vector_move_towards, pgVector);
 static PyObject *
-vector_move_towards_ip(pgVector *self, PyObject *args);
+vector_move_towards_ip(pgVector *self, PyObject *const *args,
+                       Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(vector_move_towards_ip, pgVector);
 static PyObject *
 vector_slerp(pgVector *self, PyObject *args);
 static PyObject *
@@ -1403,68 +1406,134 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 }
 
 static PyObject *
-vector_move_towards(pgVector *self, PyObject *args)
+vector_move_towards(pgVector *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    Py_ssize_t i;
+    Py_ssize_t i, dim = self->dim;
     PyObject *target;
-    double target_coords[VECTOR_MAX_SIZE];
+
     double max_distance;
     pgVector *ret;
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards", &target, &max_distance))
-        return NULL;
-
-    if (!pgVectorCompatible_Check(target, self->dim)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Target Vector is not the same size as self");
-        return NULL;
+    if (nargs != 2) {
+        return RAISE(PyExc_TypeError,
+                     "move_towards requires 2 positional arguments");
     }
 
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+    target = args[0];
+    max_distance = PyFloat_AsDouble(args[1]);
+    if (PyErr_Occurred())
         return NULL;
-    }
 
     ret = _vector_subtype_new(self);
     if (ret == NULL)
         return NULL;
 
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i];
+    memcpy(ret->coords, self->coords, dim * sizeof(double));
 
-    _vector_move_towards_helper(self->dim, ret->coords, target_coords,
-                                max_distance);
+    /* Specialised fastpath for vector-vector movement*/
+    if (pgVector_Check(target)) {
+        pgVector *otherv = (pgVector *)target;
+
+        if (otherv->dim != dim) {
+            return RAISE(PyExc_TypeError,
+                         "Target Vector is not the same size as self");
+        }
+
+        _vector_move_towards_helper(dim, ret->coords, otherv->coords,
+                                    max_distance);
+    }
+    /* Vector-Sequence movement*/
+    else {
+        double target_coords[VECTOR_MAX_SIZE];
+        PyObject *fseq;
+
+        if (!(fseq = PySequence_Fast(target, "A sequence was expected"))) {
+            return NULL;
+        }
+        if (PySequence_Fast_GET_SIZE(fseq) != dim) {
+            Py_DECREF(fseq);
+            return RAISE(PyExc_TypeError,
+                         "Target Sequence is not the same size as self");
+        }
+
+        for (i = 0; i < dim; ++i) {
+            PyObject *tmp = PySequence_Fast_GET_ITEM(fseq, i);
+            target_coords[i] = PyFloat_Check(tmp) ? PyFloat_AS_DOUBLE(tmp)
+                                                  : (double)PyLong_AsLong(tmp);
+            if (PyErr_Occurred()) {
+                Py_DECREF(fseq);
+                return NULL;
+            }
+        }
+        Py_DECREF(fseq);
+
+        _vector_move_towards_helper(dim, ret->coords, target_coords,
+                                    max_distance);
+    }
 
     return (PyObject *)ret;
 }
-
+PG_WRAP_FASTCALL_FUNC(vector_move_towards, pgVector)
 static PyObject *
-vector_move_towards_ip(pgVector *self, PyObject *args)
+vector_move_towards_ip(pgVector *self, PyObject *const *args, Py_ssize_t nargs)
 {
+    Py_ssize_t dim = self->dim;
     PyObject *target;
-    double target_coords[VECTOR_MAX_SIZE];
     double max_distance;
 
-    if (!PyArg_ParseTuple(args, "Od:move_towards_ip", &target, &max_distance))
-        return NULL;
-
-    if (!pgVectorCompatible_Check(target, self->dim)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Target Vector is not the same size as self");
-        return NULL;
+    if (nargs != 2) {
+        return RAISE(PyExc_TypeError,
+                     "move_towards_ip requires 2 positional arguments");
     }
 
-    if (!PySequence_AsVectorCoords(target, target_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+    target = args[0];
+    max_distance = PyFloat_AsDouble(args[1]);
+    if (PyErr_Occurred())
         return NULL;
-    }
 
-    _vector_move_towards_helper(self->dim, self->coords, target_coords,
-                                max_distance);
+    /* Specialised fastpath for vector-vector movement*/
+    if (pgVector_Check(target)) {
+        pgVector *otherv = (pgVector *)target;
+
+        if (otherv->dim != dim) {
+            return RAISE(PyExc_TypeError,
+                         "Target Vector is not the same size as self");
+        }
+
+        _vector_move_towards_helper(dim, self->coords, otherv->coords,
+                                    max_distance);
+    }
+    /* Vector-Sequence movement*/
+    else {
+        double target_coords[VECTOR_MAX_SIZE];
+        Py_ssize_t i;
+        PyObject *fseq;
+        if (!(fseq = PySequence_Fast(target, "A sequence was expected"))) {
+            return NULL;
+        }
+        if (PySequence_Fast_GET_SIZE(fseq) != dim) {
+            Py_DECREF(fseq);
+            return RAISE(PyExc_TypeError,
+                         "Target Sequence is not the same size as self");
+        }
+
+        for (i = 0; i < dim; ++i) {
+            PyObject *tmp = PySequence_Fast_GET_ITEM(fseq, i);
+            target_coords[i] = PyFloat_Check(tmp) ? PyFloat_AS_DOUBLE(tmp)
+                                                  : (double)PyLong_AsLong(tmp);
+            if (PyErr_Occurred()) {
+                Py_DECREF(fseq);
+                return NULL;
+            }
+        }
+        Py_DECREF(fseq);
+        _vector_move_towards_helper(dim, self->coords, target_coords,
+                                    max_distance);
+    }
 
     Py_RETURN_NONE;
 }
-
+PG_WRAP_FASTCALL_FUNC(vector_move_towards_ip, pgVector)
 static PyObject *
 vector_slerp(pgVector *self, PyObject *args)
 {
@@ -2382,10 +2451,10 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ROTATERADIP},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
      DOC_VECTOR2ROTATEIPRAD},
-    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS,
-     DOC_VECTOR2MOVETOWARDS},
-    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS,
-     DOC_VECTOR2MOVETOWARDSIP},
+    {"move_towards", (PyCFunction)PG_FASTCALL_NAME(vector_move_towards),
+     PG_FASTCALL, DOC_VECTOR2MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)PG_FASTCALL_NAME(vector_move_towards_ip),
+     PG_FASTCALL, DOC_VECTOR2MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -3296,10 +3365,10 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3ROTATEZRADIP},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
      DOC_VECTOR3ROTATEZIPRAD},
-    {"move_towards", (PyCFunction)vector_move_towards, METH_VARARGS,
-     DOC_VECTOR3MOVETOWARDS},
-    {"move_towards_ip", (PyCFunction)vector_move_towards_ip, METH_VARARGS,
-     DOC_VECTOR3MOVETOWARDSIP},
+    {"move_towards", (PyCFunction)PG_FASTCALL_NAME(vector_move_towards),
+     PG_FASTCALL, DOC_VECTOR3MOVETOWARDS},
+    {"move_towards_ip", (PyCFunction)PG_FASTCALL_NAME(vector_move_towards_ip),
+     PG_FASTCALL, DOC_VECTOR3MOVETOWARDSIP},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
