@@ -1381,28 +1381,28 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 {
     Py_ssize_t i;
     double delta[VECTOR_MAX_SIZE];
-    double dist;
+    double dist, accum = 0;
 
     if (max_distance == 0)
         return;
 
-    for (i = 0; i < dim; ++i)
-        delta[i] = target_coords[i] - origin_coords[i];
+    for (i = 0; i < dim; ++i) {
+        double tmp = target_coords[i] - origin_coords[i];
+        accum += tmp * tmp;
+        delta[i] = tmp;
+    }
 
-    /* Get magnitude of Vector */
-    dist = sqrt(_scalar_product(delta, delta, dim));
-
+    dist = sqrt(accum);
     if (dist <= max_distance) {
         /* Return target Vector */
-        for (i = 0; i < dim; ++i)
-            origin_coords[i] = target_coords[i];
+        memcpy(origin_coords, target_coords, dim * sizeof(double));
         return;
     }
 
-    for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
+    double fac = max_distance / dist;
 
-    return;
+    for (i = 0; i < dim; ++i)
+        origin_coords[i] += delta[i] * fac;
 }
 
 static PyObject *
