@@ -18,7 +18,9 @@ if sys.version_info >= (3, 9):
 else:
     from typing import Collection
 
-def clamp(value: float, min: float, max: float, /) -> float: ...
+_T = TypeVar('_T')
+def clamp(value: _T, min: _T, max: _T, /) -> _T: ...
+
 
 _VectorTypeVar = TypeVar("_VectorTypeVar", Vector2, Vector3)
 

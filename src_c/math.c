@@ -4056,26 +4056,32 @@ static PyObject *
 math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs != 3)
-        return RAISE(PyExc_ValueError, "clamp requires 3 float arguments");
+        return RAISE(PyExc_ValueError, "clamp requires 3 arguments");
 
-    double value = PyFloat_Check(args[0]) ? PyFloat_AS_DOUBLE(args[0])
-                                          : (double)PyLong_AsLong(args[0]);
-    if (PyErr_Occurred())
+    PyObject *value = args[0];
+    PyObject *min = args[1];
+    PyObject *max = args[2];
+
+    // if value < min: return min
+    int result = PyObject_RichCompareBool(value, min, Py_LT);
+    if (result == 1) {
+        Py_INCREF(min);
+        return min;
+    }
+    else if (result == -1)
         return NULL;
 
-    double min = PyFloat_Check(args[1]) ? PyFloat_AS_DOUBLE(args[1])
-                                        : (double)PyLong_AsLong(args[1]);
-    if (PyErr_Occurred())
+    // if value > max: return max
+    result = PyObject_RichCompareBool(value, max, Py_GT);
+    if (result == 1) {
+        Py_INCREF(max);
+        return max;
+    }
+    else if (result == -1)
         return NULL;
 
-    double max = PyFloat_Check(args[2]) ? PyFloat_AS_DOUBLE(args[2])
-                                        : (double)PyLong_AsLong(args[2]);
-    if (PyErr_Occurred())
-        return NULL;
-
-    double result = MIN(max, MAX(min, value));
-
-    return PyFloat_FromDouble(result);
+    Py_INCREF(value);
+    return value;
 }
 
 PG_WRAP_FASTCALL_FUNC(math_clamp, PyObject);
