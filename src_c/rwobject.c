@@ -243,7 +243,7 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
 static PyObject *
 pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-#if PY_VERSION_HEX < 0x030c0000
+#if PY_VERSION_HEX >= 0x030c0000
     PyConfig config;
     _PyInterpreterState_GetConfigCopy(&config);
     PyObject *result =
