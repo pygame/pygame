@@ -342,11 +342,18 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
     }
 
     /*
-     * Setup target surface struct
+     * Setup target surface struct.
      */
+    SDL_Rect clip_rect;
+    SDL_GetClipRect(surface, &rect);
     font_surf.buffer = surface->pixels;
-    font_surf.width = surface->w;
-    font_surf.height = surface->h;
+    /*
+     * Previously clip size was not taken into account so
+     * to fix this the clip rect is only applied when it is
+     * smaller than the width of the surface.
+     */
+    font_surf.width = clip_rect.w < surface->w ? clip_rect.w : surface->w;
+    font_surf.height = clip_rect.h < surface->h ? clip_rect.h : surface->h;
     font_surf.pitch = surface->pitch;
     font_surf.format = surface->format;
     font_surf.render_gray = __SDLrenderFuncs[surface->format->BytesPerPixel];
