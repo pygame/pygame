@@ -19,15 +19,16 @@ def get_extended() -> bool: ...
 def tostring(
     surface: Surface, format: _to_string_format, flipped: bool = False
 ) -> bytes: ...
-def tobytes(
-    surface: Surface, format: _to_string_format, flipped: bool = False
-) -> bytes: ...
 def fromstring(
     bytes: bytes,
     size: Union[Sequence[int], Tuple[int, int]],
     format: _from_string_format,
     flipped: bool = False,
 ) -> Surface: ...
+# the use of tobytes/frombytes is preferred over tostring/fromstring
+def tobytes(
+    surface: Surface, format: _to_string_format, flipped: bool = False
+) -> bytes: ...
 def frombytes(
     bytes: bytes,
     size: Union[Sequence[int], Tuple[int, int]],

@@ -154,13 +154,13 @@ following formats.
 
 .. function:: tostring
 
-   | :sl:`transfer image to string buffer`
+   | :sl:`transfer image to byte buffer`
    | :sg:`tostring(Surface, format, flipped=False) -> bytes`
 
    Creates a string of bytes that can be transferred with the ``fromstring``
    or ``frombytes`` methods in other Python imaging packages. Some Python
    image packages prefer their images in bottom-to-top format (PyOpenGL for
-   example). If you pass ``True`` for the flipped argument, the string buffer
+   example). If you pass ``True`` for the flipped argument, the byte buffer
    will be vertically flipped.
 
    The format argument is a string of one of the following values. Note that
@@ -186,18 +186,20 @@ following formats.
 
 .. function:: tobytes
 
-   | :sl:`transfer image to string buffer`
+   | :sl:`transfer image to byte buffer`
    | :sg:`tobytes(Surface, format, flipped=False) -> bytes`
 
-   .. versionadded:: 2.1.3 added :func:`tobytes` as an alias for :func:`tostring`,
-                     the use of :func:`tobytes` is recommended over :func:`tostring`.
+   added :func:`tobytes` as an alias for :func:`tostring`,
+   the use of :func:`tobytes` is recommended over :func:`tostring`.
+
+   .. versionadded:: 2.1.3 
 
    .. ## pygame.image.tobytes ##
 
 
 .. function:: fromstring
 
-   | :sl:`create new Surface from a string buffer`
+   | :sl:`create new Surface from a byte buffer`
    | :sg:`fromstring(bytes, size, format, flipped=False) -> Surface`
 
    This function takes arguments similar to :func:`pygame.image.tostring()`.
@@ -221,11 +223,12 @@ following formats.
 
 .. function:: frombytes
 
-   | :sl:`create new Surface from a string buffer`
+   | :sl:`create new Surface from a byte buffer`
    | :sg:`frombytes(bytes, size, format, flipped=False) -> Surface`
 
-   .. versionadded:: 2.1.3 added :func:`frombytes` as an alias for :func:`fromstring`,
-                     the use of :func:`frombytes` is recommended over :func:`fromstring`.
+   added :func:`formbytes` as an alias for :func:`formstring`,
+   the use of :func:`formbytes` is recommended over :func:`formstring`.
+   .. versionadded:: 2.1.3 
 
    .. ## pygame.image.frombytes ##
 
