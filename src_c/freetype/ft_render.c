@@ -345,7 +345,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
      * Setup target surface struct.
      */
     SDL_Rect clip_rect;
-    SDL_GetClipRect(surface, &rect);
+    SDL_GetClipRect(surface, &clip_rect);
     font_surf.buffer = surface->pixels;
     /*
      * Previously clip size was not taken into account so
