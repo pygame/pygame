@@ -692,16 +692,14 @@ static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Window *pygame_window;
-    PyObject *self;
     _DisplayState *state;
     SDL_Window *window;
 
     if (event->type != SDL_WINDOWEVENT)
         return 0;
 
-    self = (PyObject *)userdata;
     pygame_window = pg_GetDefaultWindow();
-    state = DISPLAY_MOD_STATE(self);
+    state = DISPLAY_MOD_STATE((PyObject *)userdata);
 
     window = SDL_GetWindowFromID(event->window.windowID);
     if (window != pygame_window)
