@@ -434,6 +434,13 @@ def draw_aaline(surf, color, from_point, to_point, blend=True):
 def draw_line(surf, color, from_point, to_point, width=1):
     """draw anti-aliased line between two endpoints."""
     line = [from_point[0], from_point[1], to_point[0], to_point[1]]
+    if width!=1:
+        '''angle=math.atan2(*map(float.__sub__,destination,initial))%(math.pi/2)
+        angle=min(angle,math.pi/2-angle)
+        width=int(width/math.cos(angle))'''
+        displacement=sorted([(d-i)**2 for d,i in zip(destination,initial)]) #lap(float.__sub__,destination,initial)
+        if displacement[1]!=0.0:
+            width=int(width*(displacement[0]/displacement[1]+1)**0.5)
     return _clip_and_draw_line_width(surf, surf.get_clip(), color, line, width)
 
 
