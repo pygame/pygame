@@ -439,6 +439,7 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "AudioFastForward",
 };
 
+#if 0
 /* Taken from SDL_iconv() */
 char *
 SDL_UCS4ToUTF8(Uint32 ch, char *dst)
@@ -468,6 +469,11 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
     }
     return dst;
 }
+#else
+// from SDL_keyboard.c
+extern char *
+SDL_UCS4ToUTF8(Uint32 ch, char *dst);
+#endif
 
 /* Patch in pygame 1 compat names in our key name compat table */
 static void
