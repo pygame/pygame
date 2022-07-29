@@ -651,6 +651,54 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
     return 1;
 }
 
+static int
+pg_F_IntFromObj(PyObject *obj, int *val)
+{
+    if (PyFloat_Check(obj)) {
+        *val = (int)PyFloat_AS_DOUBLE(obj);
+        return 1;
+    }
+
+    *val = PyLong_AsLong(obj);
+    if (PyErr_Occurred())
+        return 0;
+    return 1;
+}
+
+static int
+pg_F_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
+{
+    PyObject *fseqence = NULL;
+    Py_ssize_t length = 0;
+
+    if (!(fseqence = PySequence_Fast(obj, "A sequence was expected")))
+        return 0;
+
+    length = PySequence_Fast_GET_SIZE(fseqence);
+
+    if (length == 2) {
+        if (!pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseqence, 0), val1) ||
+            !pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseqence, 1), val2)) {
+            Py_DECREF(fseqence);
+            return 0;
+        }
+    }
+    else if (length == 1) {
+        /* Handle case of ((x, y), ) 'sequence inside sequence' */
+        return pg_F_TwoIntsFromObj(PySequence_Fast_GET_ITEM(fseqence, 0), val1,
+                                   val2);
+    }
+    else {
+        Py_DECREF(fseqence);
+        PyErr_SetString(PyExc_ValueError,
+                        "Invalid sequence size, must be either 1 or 2");
+        return 0;
+    }
+
+    Py_DECREF(fseqence);
+    return 1;
+}
+
 static PyObject *
 pg_get_error(PyObject *self, PyObject *_null)
 {
@@ -2172,7 +2220,10 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-#define FILLED_SLOTS 24
+    c_api[24] = pg_F_IntFromObj;
+    c_api[25] = pg_F_TwoIntsFromObj;
+
+#define FILLED_SLOTS 26
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch

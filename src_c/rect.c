@@ -221,79 +221,61 @@ pg_rect_dealloc(pgRectObject *self)
 static SDL_Rect *
 pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
 {
-    int val;
     Py_ssize_t length;
+    PyObject *fseq = NULL;
 
     if (pgRect_Check(obj)) {
         return &((pgRectObject *)obj)->r;
     }
-    if (PySequence_Check(obj) && (length = PySequence_Length(obj)) > 0) {
-        if (length == 4) {
-            if (!pg_IntFromObjIndex(obj, 0, &val)) {
-                return NULL;
-            }
-            temp->x = val;
-            if (!pg_IntFromObjIndex(obj, 1, &val)) {
-                return NULL;
-            }
-            temp->y = val;
-            if (!pg_IntFromObjIndex(obj, 2, &val)) {
-                return NULL;
-            }
-            temp->w = val;
-            if (!pg_IntFromObjIndex(obj, 3, &val)) {
-                return NULL;
-            }
-            temp->h = val;
-            return temp;
-        }
-        if (length == 2) {
-            PyObject *sub = PySequence_GetItem(obj, 0);
-            if (!sub || !PySequence_Check(sub) ||
-                PySequence_Length(sub) != 2) {
-                PyErr_Clear();
-                Py_XDECREF(sub);
-                return NULL;
-            }
-            if (!pg_IntFromObjIndex(sub, 0, &val)) {
-                Py_DECREF(sub);
-                return NULL;
-            }
-            temp->x = val;
-            if (!pg_IntFromObjIndex(sub, 1, &val)) {
-                Py_DECREF(sub);
-                return NULL;
-            }
-            temp->y = val;
-            Py_DECREF(sub);
 
-            sub = PySequence_GetItem(obj, 1);
-            if (sub == NULL || !PySequence_Check(sub) ||
-                PySequence_Length(sub) != 2) {
+    if ((fseq = PySequence_Fast(obj, "A sequence was expected"))) {
+        length = PySequence_Fast_GET_SIZE(fseq);
+        if (length == 4) {
+            if (!pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseq, 0),
+                                 &(temp->x)) ||
+                !pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseq, 1),
+                                 &(temp->y)) ||
+                !pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseq, 2),
+                                 &(temp->w)) ||
+                !pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseq, 3),
+                                 &(temp->h))) {
                 PyErr_Clear();
-                Py_XDECREF(sub);
+                Py_DECREF(fseq);
                 return NULL;
             }
-            if (!pg_IntFromObjIndex(sub, 0, &val)) {
-                Py_DECREF(sub);
-                return NULL;
-            }
-            temp->w = val;
-            if (!pg_IntFromObjIndex(sub, 1, &val)) {
-                Py_DECREF(sub);
-                return NULL;
-            }
-            temp->h = val;
-            Py_DECREF(sub);
+            Py_DECREF(fseq);
             return temp;
         }
-        if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
-            PyObject *sub = PyTuple_GET_ITEM(obj, 0);
-            if (sub) {
-                return pgRect_FromObject(sub, temp);
+        else if (length == 2) {
+            if (!pg_F_TwoIntsFromObj(PySequence_Fast_GET_ITEM(fseq, 0),
+                                     &(temp->x), &(temp->y)) ||
+                !pg_F_TwoIntsFromObj(PySequence_Fast_GET_ITEM(fseq, 1),
+                                     &(temp->w), &(temp->h))) {
+                PyErr_Clear();
+                Py_DECREF(fseq);
+                return NULL;
+            }
+
+            Py_DECREF(fseq);
+            return temp;
+        }
+        /*looks like an arg?*/
+        else if (length == 1) {
+            if (!PyUnicode_Check(obj)) {
+                PyObject *val = PySequence_Fast_GET_ITEM(fseq, 0);
+                Py_DECREF(fseq);
+                return pgRect_FromObject(val, temp);
+            }
+            else {
+                Py_DECREF(fseq);
+                return NULL;
             }
         }
     }
+
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
     if (PyObject_HasAttrString(obj, "rect")) {
         PyObject *rectattr;
         SDL_Rect *returnrect;
