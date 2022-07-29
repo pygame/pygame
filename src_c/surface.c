@@ -1829,12 +1829,16 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int dx, dy, result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0;
+    int the_args = 0; /* Represents special_flags */
+    PyObject *anchor = PyUnicode_FromString("topleft");
+    PyObject *anchor_rect;
+    SDL_Rect *temp_anchor_rect;
 
-    static char *kwids[] = {"source", "dest", "area", "special_flags", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Oi", kwids,
+    static char *kwids[] = {"source",        "dest",   "area",
+                            "special_flags", "anchor", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|OiO", kwids,
                                      &pgSurface_Type, &srcobject, &argpos,
-                                     &argrect, &the_args))
+                                     &argrect, &the_args, &anchor))
         return NULL;
 
     src = pgSurface_AsSurface(srcobject);
@@ -1861,6 +1865,20 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         temp.w = src->w;
         temp.h = src->h;
         src_rect = &temp;
+    }
+
+    if (PyUnicode_CompareWithASCIIString(anchor, "topleft") != 0) {
+        anchor_rect = pgRect_New4(0, 0, src->w, src->h);
+
+        if (PyObject_HasAttr(anchor_rect, anchor)) {
+            if ((PyObject_SetAttr(anchor_rect, anchor, argpos) == -1)) {
+                Py_DECREF(anchor_rect);
+                return NULL;
+            }
+            temp_anchor_rect = pgRect_FromObject(anchor_rect, &temp);
+            dx = temp_anchor_rect->x;
+            dy = temp_anchor_rect->y;
+        }
     }
 
     dest_rect.x = dx;
