@@ -228,6 +228,7 @@ following formats.
 
    added :func:`formbytes` as an alias for :func:`formstring`,
    the use of :func:`formbytes` is recommended over :func:`formstring`.
+   
    .. versionadded:: 2.1.3 
 
    .. ## pygame.image.frombytes ##
