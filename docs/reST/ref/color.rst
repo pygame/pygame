@@ -214,6 +214,15 @@
       is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
       get the length of a Color do ``len(acolor)``.
 
+      .. note:: 
+         DEPRECATED: `set_length` will be deprecated from version 2.1.3
+         You may unpack the values you need like so, 
+         ``r, g, b, _ = pygame.Color(100, 100, 100)``
+         If you only want r, g and b
+         Or 
+         ``r, g, *_ = pygame.Color(100, 100, 100)`` 
+         if you only want r and g
+
       .. versionadded:: 1.9.0
 
       .. ## Color.set_length ##
