@@ -1794,6 +1794,75 @@ class FreeTypeTest(unittest.TestCase):
 
         self.assertIsNone(error_msg)
 
+class VisualTests(unittest.TestCase):
+
+    __tags__ = ["interactive"]
+
+    screen = None
+    aborted = False
+
+    def setUp(self):
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((600, 200))
+            self.screen.fill((255, 255, 255))
+            pygame.display.flip()
+            self.f = pygame.freetype.Font(None)
+
+    def tearDown(self):
+        pygame.quit()
+    
+    def query(self, clip_rect, is_clipped=False):
+        self.screen.fill((255, 255, 255))
+        question = ""
+        if is_clipped:
+            question = "Is the text clipped? y/n"
+        else:
+            question = "Can the full text be seen? y/n"
+
+        self.f.render_to(
+            self.screen,
+            (100, 100),
+            question,
+            size=20,
+            fgcolor=(0,0,0)
+        )
+
+        if is_clipped:
+            self.screen.set_clip(clip_rect)
+        else:
+            self.screen.set_clip(None)
+    
+        pygame.draw.rect(self.screen, (255, 0, 0), clip_rect)
+        self.f.render_to(
+            self.screen,
+            (0, 0),
+            'this text should be clipped inside the red box',
+            size=20,
+            fgcolor=(255, 255, 255)
+        )
+
+        pygame.display.flip()
+
+        while True:
+            for evt in pygame.event.get():
+                if evt.type == pygame.KEYDOWN:
+                    if evt.key == pygame.K_ESCAPE:
+                        self.abort()
+                        return False
+                    if evt.key == pygame.K_y:
+                        return True
+                    if evt.key == pygame.K_n:
+                        return False
+                if evt.type == pygame.QUIT:
+                    self.abort()
+                    return False
+    
+    def test_clipped(self):
+        self.assertTrue(self.query(pygame.Rect(0,0,100,20), True))
+    
+    def test_notclipped(self):
+        self.assertTrue(self.query(pygame.Rect(0,0,600,20), False))
 
 if __name__ == "__main__":
     unittest.main()
