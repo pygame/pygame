@@ -1679,10 +1679,9 @@ _color_set_length(pgColorObject *color, PyObject *args)
 {
     int clength;
 
-    if (PyErr_WarnEx(
-            PyExc_DeprecationWarning,
-            "pygame.Color.set_length deprecated since 2.1.3",
-            1) == -1) {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.Color.set_length deprecated since 2.1.3",
+                     1) == -1) {
         return NULL;
     }
 
