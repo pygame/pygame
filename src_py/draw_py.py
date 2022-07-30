@@ -446,7 +446,7 @@ def draw_line(surf, color, from_point, to_point, width=1):
             #width=int(width*(displacement[0]/displacement[1]+1)**0.5)
         #more optimised
         (x,y)=[(d-i)**2 for d,i in zip(to_point,from_point)]
-        if displacement!=[0,0]:
+        if x!=0 or y!=0:
             width=int(width*((x/y if x<y else y/x)+1)**0.5)
 
     return _clip_and_draw_line_width(surf, surf.get_clip(), color, line, width)
