@@ -1217,6 +1217,10 @@ class ImageModuleTest(unittest.TestCase):
     def test_load_gif_threads(self):
         self.threads_load(glob.glob(example_path("data/*.gif")))
 
+    def test_from_to_bytes_exists(self):
+        getattr(pygame.image, "frombytes")
+        getattr(pygame.image, "tobytes")
+
 
 if __name__ == "__main__":
     unittest.main()
