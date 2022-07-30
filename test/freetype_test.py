@@ -1794,6 +1794,7 @@ class FreeTypeTest(unittest.TestCase):
 
         self.assertIsNone(error_msg)
 
+
 class VisualTests(unittest.TestCase):
 
     __tags__ = ["interactive"]
@@ -1811,7 +1812,7 @@ class VisualTests(unittest.TestCase):
 
     def tearDown(self):
         pygame.quit()
-    
+
     def query(self, clip_rect, is_clipped=False):
         self.screen.fill((255, 255, 255))
         question = ""
@@ -1820,26 +1821,20 @@ class VisualTests(unittest.TestCase):
         else:
             question = "Can the full text be seen? y/n"
 
-        self.f.render_to(
-            self.screen,
-            (100, 100),
-            question,
-            size=20,
-            fgcolor=(0,0,0)
-        )
+        self.f.render_to(self.screen, (100, 100), question, size=20, fgcolor=(0, 0, 0))
 
         if is_clipped:
             self.screen.set_clip(clip_rect)
         else:
             self.screen.set_clip(None)
-    
+
         pygame.draw.rect(self.screen, (255, 0, 0), clip_rect)
         self.f.render_to(
             self.screen,
             (0, 0),
-            'this text should be clipped inside the red box',
+            "this text should be clipped inside the red box",
             size=20,
-            fgcolor=(255, 255, 255)
+            fgcolor=(255, 255, 255),
         )
 
         pygame.display.flip()
@@ -1857,12 +1852,13 @@ class VisualTests(unittest.TestCase):
                 if evt.type == pygame.QUIT:
                     self.abort()
                     return False
-    
+
     def test_clipped(self):
-        self.assertTrue(self.query(pygame.Rect(0,0,100,20), True))
-    
+        self.assertTrue(self.query(pygame.Rect(0, 0, 100, 20), True))
+
     def test_notclipped(self):
-        self.assertTrue(self.query(pygame.Rect(0,0,600,20), False))
+        self.assertTrue(self.query(pygame.Rect(0, 0, 600, 20), False))
+
 
 if __name__ == "__main__":
     unittest.main()
