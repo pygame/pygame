@@ -93,6 +93,11 @@ from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.rect import Rect
+from pygame.joystick import Joystick
+from pygame.font import Font
+from pygame.event import Event
+from pygame.mixer import Channel
+from pygame.time import Clock
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
