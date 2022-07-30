@@ -268,12 +268,11 @@ class ColorTypeTest(unittest.TestCase):
         r, g, b = c
         self.assertEqual((1, 2, 3), (r, g, b))
 
-        # Checking if DeprecationWarning is triggered 
-        # when function is called 
+        # Checking if DeprecationWarning is triggered
+        # when function is called
         for i in range(1, 5):
             with self.assertWarns(DeprecationWarning):
-                c.set_length(i) 
-
+                c.set_length(i)
 
     def test_length(self):
         # should be able to unpack to r,g,b,a and r,g,b
