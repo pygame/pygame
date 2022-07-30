@@ -228,7 +228,8 @@ pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
         return &((pgRectObject *)obj)->r;
     }
 
-    if ((fseq = PySequence_Fast(obj, "A sequence was expected"))) {
+    if (PySequence_Check(obj) &&
+        (fseq = PySequence_Fast(obj, "A sequence was expected"))) {
         length = PySequence_Fast_GET_SIZE(fseq);
         if (length == 4) {
             if (!pg_F_IntFromObj(PySequence_Fast_GET_ITEM(fseq, 0),
