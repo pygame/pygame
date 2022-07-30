@@ -182,6 +182,8 @@ following formats.
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
 
+   .. note:: it is preferred to use :func:`tobytes` as of pygame 2.1.3
+
    .. ## pygame.image.tostring ##
 
 .. function:: tobytes
@@ -189,8 +191,35 @@ following formats.
    | :sl:`transfer image to byte buffer`
    | :sg:`tobytes(Surface, format, flipped=False) -> bytes`
 
-   added :func:`tobytes` as an alias for :func:`tostring`,
-   the use of :func:`tobytes` is recommended over :func:`tostring`.
+   Creates a string of bytes that can be transferred with the ``fromstring``
+   or ``frombytes`` methods in other Python imaging packages. Some Python
+   image packages prefer their images in bottom-to-top format (PyOpenGL for
+   example). If you pass ``True`` for the flipped argument, the byte buffer
+   will be vertically flipped.
+
+   The format argument is a string of one of the following values. Note that
+   only 8-bit Surfaces can use the "P" format. The other formats will work for
+   any Surface. Also note that other Python image packages support more formats
+   than pygame.
+
+      * ``P``, 8-bit palettized Surfaces
+
+      * ``RGB``, 24-bit image
+
+      * ``RGBX``, 32-bit image with unused space
+
+      * ``RGBA``, 32-bit image with an alpha channel
+
+      * ``ARGB``, 32-bit image with alpha channel first
+
+      * ``RGBA_PREMULT``, 32-bit image with colors scaled by alpha channel
+
+      * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
+   
+   .. note:: this function is an alias for :func:`fromstring`. The use of this
+             function is recommended over :func:`fromstring` as of pygame 2.1.3.
+             This function was introduced so it matches nicely with other 
+             libraries (PIL, numpy, etc), and with people's expectations.
 
    .. versionadded:: 2.1.3 
 
@@ -213,11 +242,7 @@ following formats.
    See the :func:`pygame.image.frombuffer()` method for a potentially faster
    way to transfer images into pygame.
 
-   .. note:: :func:`fromstring` and :func:`tostring` are named with "string,"
-             but they deal in bytes. In Python 2, str = bytes, so this is
-             "from string" as in a Python 2 string. The use of :func:`frombytes`/
-             :func:`tobytes` is preferred over :func:`fromstring`/:func:`tostring`
-             as of pygame 2.1.3.
+   .. note:: it is preferred to use :func:`frombytes` as of pygame 2.1.3
 
    .. ## pygame.image.fromstring ##
 
@@ -226,9 +251,22 @@ following formats.
    | :sl:`create new Surface from a byte buffer`
    | :sg:`frombytes(bytes, size, format, flipped=False) -> Surface`
 
-   added :func:`formbytes` as an alias for :func:`formstring`,
-   the use of :func:`formbytes` is recommended over :func:`formstring`.
-   
+   This function takes arguments similar to :func:`pygame.image.tobytes()`.
+   The size argument is a pair of numbers representing the width and height.
+   Once the new Surface is created it is independent from the memory of the
+   bytes passed in.
+
+   The bytes and format passed must compute to the exact size of image
+   specified. Otherwise a ``ValueError`` will be raised.
+
+   See the :func:`pygame.image.frombuffer()` method for a potentially faster
+   way to transfer images into pygame.
+
+   .. note:: this function is an alias for :func:`fromstring`. The use of this
+             function is recommended over :func:`fromstring` as of pygame 2.1.3.
+             This function was introduced so it matches nicely with other 
+             libraries (PIL, numpy, etc), and with people's expectations.
+
    .. versionadded:: 2.1.3 
 
    .. ## pygame.image.frombytes ##
