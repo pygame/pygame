@@ -534,6 +534,124 @@ pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 }
 
 static int
+pg_IntFromObjEx(PyObject *obj, int *val, const char *msg)
+{
+    if (PyFloat_Check(obj)) {
+        *val = (int)PyFloat_AS_DOUBLE(obj);
+        return 1;
+    }
+
+    *val = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+        if (msg && PyErr_ExceptionMatches(PyExc_TypeError)) {
+            PyErr_SetString(PyExc_TypeError, msg);
+        }
+        return 0;
+    }
+    return 1;
+}
+
+/* internal API only, assumes obj is a Sequence*/
+static int
+_pg_IntFromSeqIndexEx(PyObject *obj, int index, int *val, const char *msg)
+
+{
+    int result = 0;
+
+    PyObject *item = PySequence_ITEM(obj, index);
+    if (!item) {
+        return 0;
+    }
+    result = pg_IntFromObjEx(item, val, msg);
+    Py_DECREF(item);
+
+    return result;
+}
+
+static int
+pg_IntFromSeqIndexEx(PyObject *obj, int index, int *val, const char *msg)
+
+{
+    int result = 0;
+
+    if (PySequence_Check(obj)) {
+        PyObject *item = PySequence_ITEM(obj, index);
+        if (!item) {
+            return 0;
+        }
+        result = pg_IntFromObjEx(item, val, msg);
+        Py_DECREF(item);
+    }
+
+    return result;
+}
+
+static int
+pg_TwoIntsFromObjEx(PyObject *obj, int *val1, int *val2, const char *msg)
+{
+    Py_ssize_t length;
+    /*Faster path for tuples and lists*/
+    if (PyTuple_Check(obj) || PyList_Check(obj)) {
+        length = PySequence_Fast_GET_SIZE(obj);
+        PyObject **f_arr = PySequence_Fast_ITEMS(obj);
+        if (length == 2) {
+            if (!pg_IntFromObjEx(f_arr[0], val1, msg) ||
+                !pg_IntFromObjEx(f_arr[1], val2, msg)) {
+                return 0;
+            }
+        }
+        else if (length == 1) {
+            /* Handle case of ((x, y), ) 'nested sequence' */
+            return pg_TwoIntsFromObjEx(f_arr[0], val1, val2, msg);
+        }
+        else {
+            PyErr_SetString(
+                PyExc_ValueError,
+                msg ? msg : "Invalid sequence size, must be either 1 or 2");
+            return 0;
+        }
+    }
+    /*This mainly accounts for vectors, as using PySequence_Fast on a vector is
+     * error-prone*/
+    else if (PySequence_Check(obj)) {
+        length = PySequence_Length(obj);
+        if (length == 2) {
+            if (!_pg_IntFromSeqIndexEx(obj, 0, val1, msg))
+                return 0;
+
+            if (!_pg_IntFromSeqIndexEx(obj, 1, val2, msg))
+                return 0;
+        }
+        else if (length == 1) {
+            /* Handle case of ((x, y), ) 'nested sequence' */
+            PyObject *tmp = PySequence_ITEM(obj, 0);
+            int ret = pg_TwoIntsFromObjEx(tmp, val1, val2, msg);
+            Py_DECREF(tmp);
+            return ret;
+        }
+        else {
+            if (PyErr_Occurred()) {
+                if (msg && PyErr_ExceptionMatches(PyExc_TypeError)) {
+                    PyErr_SetString(PyExc_TypeError, msg);
+                }
+                return 0;
+            }
+            PyErr_SetString(
+                PyExc_ValueError,
+                msg ? msg : "Invalid sequence size, must be either 1 or 2");
+            return 0;
+        }
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        msg ? msg : "Function expects a sequence like object");
+        return 0;
+    }
+
+    return 1;
+}
+
+static int
 pg_FloatFromObj(PyObject *obj, float *val)
 {
     float f = (float)PyFloat_AsDouble(obj);
@@ -2175,7 +2293,10 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-#define FILLED_SLOTS 24
+    c_api[24] = pg_IntFromObjEx;
+    c_api[25] = pg_TwoIntsFromObjEx;
+    c_api[26] = pg_IntFromSeqIndexEx;
+#define FILLED_SLOTS 27
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch

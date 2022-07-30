@@ -54,6 +54,62 @@ C header: src_c/include/pygame.h
    Return ``1`` on success, ``0`` on failure.
    No Python exceptions are raised.
 
+.. c:function:: int pg_IntFromObjEx(PyObject *obj, int *val, const char *msg)
+
+   Faster alternative to ``pg_IntFromObj`` as it uses faster numeric conversion
+   functions(in the case of doubles), uses simpler checking and does not clear errors.
+
+   Converts number like object *obj* to C int and places it in argument *val*.
+
+   If an error is set and *msg* is not ``NULL``, uses *msg* as error message.
+   Passing ``NULL`` as *msg* will preserve the original error messages. This can be
+   helpful, but has to be determined on a case-by-case basis.
+
+   - Returns ``1`` on success
+   - Sets ``TypeError`` and returns ``0`` if the value is not numeric
+
+   ..note:: Prefer to use this function over ``pg_IntFromObj``
+             eventually the latter will be substituted with this one
+
+.. c:function:: int pg_IntFromSeqIndexEx(PyObject *obj, int index, int *val, const char *msg)
+
+   Faster alternative to ``pg_IntFromObjIndex`` as it uses ``pg_IntFromObjEx`` for faster
+   item->int conversion and does not clear errors.
+
+   Converts number like object at position *index* in sequence *obj* to C int and
+   places in argument *val*.
+
+   If an error is set and *msg* is not ``NULL``, uses *msg* as error message.
+   Passing ``NULL`` as *msg* will preserve the original error messages. This can be
+   helpful, but has to be determined on a case-by-case basis.
+
+   - Returns ``1`` on success
+   - Sets ``TypeError`` and returns ``0`` if the value is not numeric
+
+   ..note:: Prefer to use this function over ``pg_IntFromObjIndex``
+             eventually the latter will be substituted with this one
+
+.. c:function:: int pg_TwoIntsFromObjEx(PyObject *obj, int *val1, int *v2, const char *msg)
+
+   Faster alternative to ``pg_TwoIntsFromObj`` as it uses ``PySequence_Fast`` for
+   faster item extraction, ``pg_IntFromObjEx`` for faster item->int conversion and does
+   not clear errors.
+
+   Converts two number like objects in sequence *obj* (must be of length 2) to C int
+   and places them in arguments *val1* and *val2* respectively.
+
+   If an error is set and *msg* is not ``NULL``, uses *msg* as error message.
+   Passing ``NULL`` as *msg* will preserve the original error messages. This can be
+   helpful, but has to be determined on a case-by-case basis.
+
+   - Returns ``1`` on success
+   - Sets ``TypeError`` and returns ``0`` if the values inside the sequence are not
+     numeric or could not convert *obj* to a sequence
+   - Sets ``ValueError`` and returns ``0`` if the sequence is not of size 2
+
+    ..note:: Prefer to use this function over ``pg_TwoIntsFromObj``
+             eventually the latter will be substituted with this one
+
 .. c:function:: int pg_FloatFromObj(PyObject *obj, float *val)
 
    Convert number like object *obj* to C float and place in argument *val*.
