@@ -1486,7 +1486,9 @@ static PyMethodDef _image_methods[] = {
      METH_NOARGS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
+    {"tobytes", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOBYTES},
     {"fromstring", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMSTRING},
+    {"frombytes", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMBYTES},
     {"frombuffer", image_frombuffer, METH_VARARGS, DOC_PYGAMEIMAGEFROMBUFFER},
     {NULL, NULL, 0, NULL}};
 

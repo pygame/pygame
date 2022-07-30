@@ -25,6 +25,16 @@ def fromstring(
     format: _from_string_format,
     flipped: bool = False,
 ) -> Surface: ...
+# the use of tobytes/frombytes is preferred over tostring/fromstring
+def tobytes(
+    surface: Surface, format: _to_string_format, flipped: bool = False
+) -> bytes: ...
+def frombytes(
+    bytes: bytes,
+    size: Union[Sequence[int], Tuple[int, int]],
+    format: _from_string_format,
+    flipped: bool = False,
+) -> Surface: ...
 def frombuffer(
     bytes: _BufferStyle,
     size: Union[Sequence[int], Tuple[int, int]],
