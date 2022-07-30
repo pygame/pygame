@@ -93,11 +93,7 @@ from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.rect import Rect
-from pygame.joystick import Joystick
-from pygame.font import Font
-from pygame.event import Event
-from pygame.mixer import Channel
-from pygame.time import Clock
+
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
@@ -134,6 +130,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.event
+    from pygame.event import Event
 except (ImportError, OSError):
     event = MissingModule("event", urgent=1)
 
@@ -144,6 +141,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.joystick
+    from pygame.joystick import Joystick
 except (ImportError, OSError):
     joystick = MissingModule("joystick", urgent=1)
 
@@ -273,6 +271,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.time
+    from pygame.time import Clock
 except (ImportError, OSError):
     time = MissingModule("time", urgent=1)
 
@@ -293,6 +292,8 @@ try:
     import pygame.font
     import pygame.sysfont
 
+    from pygame.font import Font
+
     pygame.font.SysFont = pygame.sysfont.SysFont
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
@@ -310,6 +311,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.mixer
+    from pygame.mixer import Channel
 except (ImportError, OSError):
     mixer = MissingModule("mixer", urgent=0)
 
