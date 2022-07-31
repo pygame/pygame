@@ -210,8 +210,7 @@
       | :sl:`Set the number of elements in the Color to 1,2,3, or 4.`
       | :sg:`set_length(len) -> None`
 
-      DEPRECATED: `set_length` will be deprecated from version 2.1.3
-      You may unpack the values you need like so, 
+      DEPRECATED: You may unpack the values you need like so, 
       ``r, g, b, _ = pygame.Color(100, 100, 100)``
       If you only want r, g and b
       Or 
