@@ -332,7 +332,14 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`calculates the angle to a given vector in degrees.`
       | :sg:`angle_to(Vector2) -> float`
 
-      Returns the angle between self and the given vector.
+      Returns the angle from self to the passed ``Vector2`` that would rotate self
+      to be aligned with the passed ``Vector2`` without crossing over the negative 
+      x-axis.
+
+      .. figure:: code_examples/angle_to.png
+         :alt: angle_to image
+
+         Example demonstrating the angle returned
 
       .. ## Vector2.angle_to ##
 
