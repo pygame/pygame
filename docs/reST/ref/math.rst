@@ -51,11 +51,10 @@ Multiple coordinates can be set using slices or swizzling
 .. function:: clamp
 
    | :sl:`returns value clamped to min and max.`
-   | :sg:`clamp(value, min, max) -> clamped_value`
+   | :sg:`clamp(value, min, max) -> float`
 
-   Takes ``value`` of any type defining ``__lt__`` and ``__gt__``, and clamps it
-   so it is no lower than ``min``, and no higher than ``max``. If it isn't lower
-   than ``min`` or higher than ``max``, ``value`` is returned un-clamped.
+   Clamps ``value`` so that it's no lower than ``min``, and no higher
+   than ``max``.
 
    .. versionadded:: 2.1.3
 

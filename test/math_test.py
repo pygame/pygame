@@ -49,42 +49,11 @@ class MathModuleTest(unittest.TestCase):
         result = pygame.math.clamp(2.5, 1.12, 5.0)
         self.assertAlmostEqual(result, 2.5)
 
-        # Point < and > are calculated based on the magnitude.
-        class Point:
-            def __init__(self, x, y):
-                self.x = x
-                self.y = y
-
-            def length(self):
-                return math.sqrt(self.x**2 + self.y**2)
-
-            def __lt__(self, other):
-                return self.length() < other.length()
-
-            def __gt__(self, other):
-                return self.length() > other.length()
-
-            def __eq__(self, other):
-                if isinstance(other, Point):
-                    return (self.x == other.x) and (self.y == other.y)
-                return False
-
-        # Point tests
-        # Test going above max
-        result = pygame.math.clamp(Point(100, 100), Point(2, 2), Point(40, 3))
-        self.assertTrue(result == Point(40, 3))
-        # Test going below min
-        result = pygame.math.clamp(Point(0, 0), Point(2, 2), Point(40, 3))
-        self.assertTrue(result == Point(2, 2))
-        # Test equal to max
-        result = pygame.math.clamp(Point(40, 3), Point(2, 2), Point(40, 3))
-        self.assertTrue(result == Point(40, 3))
-        # Test equal to min
-        result = pygame.math.clamp(Point(2, 2), Point(2, 2), Point(40, 3))
-        self.assertTrue(result == Point(2, 2))
-        # Test between min and max
-        result = pygame.math.clamp(Point(10, 10), Point(2, 2), Point(40, 3))
-        self.assertTrue(result == Point(10, 10))
+        # Error tests
+        # Not enough args
+        self.assertRaises(ValueError, pygame.math.clamp, 10)
+        # Non numeric args
+        self.assertRaises(TypeError, pygame.math.clamp, 'hello', 'py', 'thon')
 
 
 class Vector2TypeTest(unittest.TestCase):

@@ -4096,6 +4096,11 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     PyObject *min = args[1];
     PyObject *max = args[2];
 
+    if (PyNumber_Check(args[0]) != 1 || PyNumber_Check(args[1]) != 1 ||
+        PyNumber_Check(args[2]) != 1) {
+        return RAISE(PyExc_TypeError, "clamp requires 3 numeric arguments");
+    }
+
     // if value < min: return min
     int result = PyObject_RichCompareBool(value, min, Py_LT);
     if (result == 1) {
