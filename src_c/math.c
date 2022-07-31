@@ -109,6 +109,11 @@ typedef struct {
 } vector_elementwiseproxy;
 
 /* further forward declarations */
+/* math functions */
+static PyObject *
+math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(math_clamp, PyObject);
+
 /* generic helper functions */
 static int
 RealNumber_Check(PyObject *obj);
@@ -4082,6 +4087,40 @@ vector_elementwise(pgVector *vec, PyObject *_null)
 }
 
 static PyObject *
+math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (nargs != 3)
+        return RAISE(PyExc_ValueError, "clamp requires 3 arguments");
+
+    PyObject *value = args[0];
+    PyObject *min = args[1];
+    PyObject *max = args[2];
+
+    // if value < min: return min
+    int result = PyObject_RichCompareBool(value, min, Py_LT);
+    if (result == 1) {
+        Py_INCREF(min);
+        return min;
+    }
+    else if (result == -1)
+        return NULL;
+
+    // if value > max: return max
+    result = PyObject_RichCompareBool(value, max, Py_GT);
+    if (result == 1) {
+        Py_INCREF(max);
+        return max;
+    }
+    else if (result == -1)
+        return NULL;
+
+    Py_INCREF(value);
+    return value;
+}
+
+PG_WRAP_FASTCALL_FUNC(math_clamp, PyObject);
+
+static PyObject *
 math_enable_swizzling(pgVector *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
@@ -4108,6 +4147,8 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 }
 
 static PyMethodDef _math_methods[] = {
+    {"clamp", (PyCFunction)PG_FASTCALL_NAME(math_clamp), PG_FASTCALL,
+     DOC_PYGAMEMATHCLAMP},
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
