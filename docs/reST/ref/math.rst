@@ -61,6 +61,18 @@ Multiple coordinates can be set using slices or swizzling
 
    .. ## math.clamp ##
 
+.. function:: lerp
+
+   | :sl:`interpolates between two values by a percentage.`
+   | :sg:`lerp(a, b, percent) -> float`
+
+   Linearly interpolates between ``a`` and ``b`` by ``percent``. ``percent``
+   should be in the range of ``[0, 1]``.
+
+   .. versionadded:: 2.1.3
+
+   .. ## math.lerp ##
+
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`

@@ -12,6 +12,19 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 class MathModuleTest(unittest.TestCase):
     """Math module tests."""
 
+    def test_lerp(self):
+        result = pygame.math.lerp(10, 100, 0.5)  # 55.0
+        self.assertAlmostEqual(result, 55.0)
+
+        result = pygame.math.lerp(10, 100, 0.0)  # 10
+        self.assertAlmostEqual(result, 10.0)
+
+        result = pygame.math.lerp(10, 100, 1.0)  # 100
+        self.assertAlmostEqual(result, 100.0)
+
+        # TODO: Consider testing for percentage being less than 0 and greater
+        # than 1.
+
     def test_clamp(self):
         """Test clamp function."""
 
