@@ -1813,13 +1813,16 @@ class VisualTests(unittest.TestCase):
     def tearDown(self):
         pygame.quit()
 
-    def query(self, clip_rect, is_clipped=False):
+    def query(self, pos, clip_rect, is_clipped=False):
         self.screen.fill((255, 255, 255))
         question = ""
+        message = ""
         if is_clipped:
             question = "Is the text clipped? y/n"
+            message = "this text should be clipped inside the red box"
         else:
             question = "Can the full text be seen? y/n"
+            message = "this text shouldn't be clipped inside the red box"
 
         self.f.render_to(self.screen, (100, 100), question, size=20, fgcolor=(0, 0, 0))
 
@@ -1831,8 +1834,8 @@ class VisualTests(unittest.TestCase):
         pygame.draw.rect(self.screen, (255, 0, 0), clip_rect)
         self.f.render_to(
             self.screen,
-            (0, 0),
-            "this text should be clipped inside the red box",
+            pos,
+            message,
             size=20,
             fgcolor=(255, 255, 255),
         )
@@ -1854,10 +1857,14 @@ class VisualTests(unittest.TestCase):
                     return False
 
     def test_clipped(self):
-        self.assertTrue(self.query(pygame.Rect(0, 0, 100, 20), True))
+        self.assertTrue(self.query((0,0), pygame.Rect(0, 0, 100, 20), True))
+        self.assertTrue(self.query((75,60), pygame.Rect(50, 50, 100, 30), True))
+        self.assertTrue(self.query((25,60), pygame.Rect(50, 50, 100, 30), True))
 
-    def test_notclipped(self):
-        self.assertTrue(self.query(pygame.Rect(0, 0, 600, 20), False))
+    def test_not_clipped(self):
+        self.assertTrue(self.query((0,0), pygame.Rect(0, 0, 600, 20), False))
+        self.assertTrue(self.query((50,50), pygame.Rect(50, 50, 600, 20), False))
+        self.assertTrue(self.query((100,60), pygame.Rect(50, 50, 600, 30), False))
 
 
 if __name__ == "__main__":
