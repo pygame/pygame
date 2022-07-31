@@ -1814,7 +1814,7 @@ class VisualTests(unittest.TestCase):
         pygame.quit()
 
     def query(self, pos, clip_rect, is_clipped=False):
-        self.screen.fill((128, 128, 128))
+        self.screen.fill((128, 255, 255))
         question = ""
         message = ""
         if is_clipped:
@@ -1856,14 +1856,14 @@ class VisualTests(unittest.TestCase):
                     return False
 
     def test_clipped(self):
-        self.assertTrue(self.query((0,0), pygame.Rect(0, 0, 100, 20), True))
-        self.assertTrue(self.query((75,60), pygame.Rect(50, 50, 100, 30), True))
-        self.assertTrue(self.query((25,60), pygame.Rect(50, 50, 100, 30), True))
+        self.assertTrue(self.query((0, 0), pygame.Rect(0, 0, 100, 20), True))
+        self.assertTrue(self.query((75, 60), pygame.Rect(50, 50, 100, 30), True))
+        self.assertTrue(self.query((25, 60), pygame.Rect(50, 50, 100, 30), True))
 
     def test_not_clipped(self):
-        self.assertTrue(self.query((0,0), pygame.Rect(0, 0, 600, 20), False))
-        self.assertTrue(self.query((50,50), pygame.Rect(50, 50, 600, 20), False))
-        self.assertTrue(self.query((100,60), pygame.Rect(50, 50, 600, 30), False))
+        self.assertTrue(self.query((0, 0), pygame.Rect(0, 0, 600, 20), False))
+        self.assertTrue(self.query((50, 50), pygame.Rect(50, 50, 600, 20), False))
+        self.assertTrue(self.query((100, 60), pygame.Rect(50, 50, 600, 30), False))
 
 
 if __name__ == "__main__":
