@@ -110,12 +110,12 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param surface: the surface to draw the rectangles on
    :param draw_sequence: a sequence composed of (color, rect, width, radius) where:
 
-      - color: color to draw with, the alpha value is optional if using a tuple ``(RGB[A])``
+      - color: color to draw with, the alpha value is optional if using a tuple ``(RGB[A])``.
 
-      - rect: the rectangle to draw, with its position and dimensions
+      - rect: the rectangle to draw, with its position and dimensions.
 
       - width (optional): used for line thickness or to indicate that the rectangle is to be
-         filled (not to be confused with the width value of the ``rect`` parameter)
+         filled (not to be confused with the width value of the ``rect`` parameter).
 
                           | if ``width == 0``, (default) fill the rectangle
                           | if ``width > 0``, used for line thickness
