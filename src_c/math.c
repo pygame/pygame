@@ -4136,12 +4136,13 @@ math_lerp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     if (PyErr_Occurred())
         return NULL;
 
-    // Not sure about this. Most other frameworks/engines either automatically clamp it,
-    // or allow you to use values outside this range.
-    //if (percent < 0.0 || percent > 1.0)
-    //    return RAISE(PyExc_ValueError, "Percentage value must be between 0.0 and 1.0");
+    // Not sure about this. Most other frameworks/engines either automatically
+    // clamp it, or allow you to use values outside this range.
+    // if (percent < 0.0 || percent > 1.0)
+    //    return RAISE(PyExc_ValueError, "Percentage value must be between 0.0
+    //    and 1.0");
 
-    return PyFloat_FromDouble(a + (b-a) * percent);
+    return PyFloat_FromDouble(a + (b - a) * percent);
 }
 
 PG_WRAP_FASTCALL_FUNC(math_lerp, PyObject);
