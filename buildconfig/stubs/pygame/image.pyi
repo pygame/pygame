@@ -7,10 +7,10 @@ from ._common import FileArg, Literal
 
 _BufferStyle = Union[BufferProxy, bytes, bytearray, memoryview]
 _to_string_format = Literal[
-    "P", "RGB", "RGBX", "RGBA", "ARGB", "RGBA_PREMULT", "ARGB_PREMULT"
+    "P", "RGB", "RGBX", "RGBA", "ARGB", "BGRA", "RGBA_PREMULT", "ARGB_PREMULT"
 ]
 _from_buffer_format = Literal["P", "RGB", "BGR", "BGRA", "RGBX", "RGBA", "ARGB"]
-_from_string_format = Literal["P", "RGB", "RGBX", "RGBA", "ARGB"]
+_from_string_format = Literal["P", "RGB", "RGBX", "RGBA", "ARGB", "BGRA"]
 
 def load(filename: FileArg, namehint: str = "") -> Surface: ...
 def save(surface: Surface, filename: FileArg, namehint: str = "") -> None: ...
