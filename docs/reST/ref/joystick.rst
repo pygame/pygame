@@ -103,6 +103,9 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
    .. versionchanged:: 2.0.0 Joystick objects are now opened immediately on creation.
 
+   .. versionchanged:: 2.1.3 This class is also available through the ``pygame.Joystick`` 
+      alias.
+
    .. method:: init
 
       | :sl:`initialize the Joystick`

@@ -89,6 +89,9 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
    Creates a new Clock object that can be used to track an amount of time. The
    clock also provides several functions to help control a game's framerate.
 
+   .. versionchanged:: 2.1.3  This class is also available through the ``pygame.Clock``
+      alias.
+
    .. method:: tick
 
       | :sl:`update the clock`

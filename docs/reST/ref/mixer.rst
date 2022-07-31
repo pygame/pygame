@@ -416,6 +416,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    Sounds. A channel can only playback a single Sound at time. Using channels
    is entirely optional since pygame can manage them by default.
 
+   .. versionchanged:: 2.1.3 This class is also available through the ``pygame.Channel``
+      alias.
+
    .. method:: play
 
       | :sl:`play a Sound on a specific Channel`

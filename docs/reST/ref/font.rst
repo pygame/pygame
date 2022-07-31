@@ -173,6 +173,9 @@ solves no longer exists, it will likely be removed in the future.
    render can emulate bold or italic features, but it is better to load from a
    font with actual italic or bold glyphs.
 
+   .. versionchanged:: 2.1.3 This class is also available through the ``pygame.Font``
+      alias.
+
    .. attribute:: bold
 
       | :sl:`Gets or sets whether the font should be rendered in (faked) bold.`
