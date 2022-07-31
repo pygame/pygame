@@ -352,8 +352,8 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
      * to fix this the clip rect is only applied when it is
      * smaller than the width of the surface.
      */
-    font_surf.width = clip_rect.w < surface->w ? clip_rect.w : surface->w;
-    font_surf.height = clip_rect.h < surface->h ? clip_rect.h : surface->h;
+    font_surf.width = clip_rect.w + clip_rect.x;
+    font_surf.height = clip_rect.h + clip_rect.y;
     font_surf.pitch = surface->pitch;
     font_surf.format = surface->format;
     font_surf.render_gray = __SDLrenderFuncs[surface->format->BytesPerPixel];
