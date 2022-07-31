@@ -53,7 +53,7 @@ class MathModuleTest(unittest.TestCase):
         # Not enough args
         self.assertRaises(ValueError, pygame.math.clamp, 10)
         # Non numeric args
-        self.assertRaises(TypeError, pygame.math.clamp, 'hello', 'py', 'thon')
+        self.assertRaises(TypeError, pygame.math.clamp, "hello", "py", "thon")
 
 
 class Vector2TypeTest(unittest.TestCase):
