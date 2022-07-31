@@ -1814,7 +1814,7 @@ class VisualTests(unittest.TestCase):
         pygame.quit()
 
     def query(self, pos, clip_rect, is_clipped=False):
-        self.screen.fill((128, 255, 255))
+        self.screen.fill((128, 128, 128))
         question = ""
         message = ""
         if is_clipped:
