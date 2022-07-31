@@ -32,14 +32,12 @@ on:
 
 jobs:
   deps:
-    name: ${{ matrix.macarch }} deps (macos-${{ matrix.os }})
-    runs-on: macos-${{ matrix.os }}
+    name: ${{ matrix.macarch }} deps
+    runs-on: macos-12
     strategy:
       matrix:
         # make arm64 deps and x86_64 deps
-        include:
-          - { os: '11', macarch: arm64 }
-          - { os: '10.15' , macarch: x86_64 }
+        macarch: [arm64, x86_64]
 
     steps:
       - uses: actions/checkout@v3.0.2
@@ -72,7 +70,7 @@ jobs:
   build:
     name: ${{ matrix.name }}
     needs: deps
-    runs-on: macos-${{ matrix.os }}
+    runs-on: macos-12
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
@@ -81,35 +79,30 @@ jobs:
         include:
           - { 
             name: "x86_64 (cp36-cp310)",
-            os: '10.15',
             macarch: x86_64,
             pyversions: cp36-* cp310-*
           }
 
           - { 
             name: "x86_64 (cp37-pp37)",
-            os: '10.15',
             macarch: x86_64,
             pyversions: cp37-* pp37-*
           }
 
           - { 
             name: "x86_64 (cp38-pp38)",
-            os: '10.15',
             macarch: x86_64,
             pyversions: cp38-* pp38-*
           }
 
           - { 
             name: "x86_64 (cp39-pp39)",
-            os: '10.15',
             macarch: x86_64,
             pyversions: cp39-* pp39-*
           }
 
           - { 
             name: "arm64 (cp38-cp39-cp310)",
-            os: '11',
             macarch: arm64,
             pyversions: cp38-* cp39-* cp310-*
           }
