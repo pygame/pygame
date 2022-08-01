@@ -150,6 +150,114 @@ class BlitTest(unittest.TestCase):
             TypeError, dst.blits, [(pygame.Surface((10, 10), SRCALPHA, 32), None)]
         )
 
+    def test_topleft_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="topleft")
+        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+
+        self.assertEqual(dst.get_at((57, 57)), (255, 0, 0))
+        self.assertEqual(dst.get_at((64, 64)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(50, 50, 15, 15))
+
+    def test_topright_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="topright")
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
+
+        self.assertEqual(dst.get_at((43, 57)), (255, 0, 0))
+        self.assertEqual(dst.get_at((35, 64)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(35, 50, 15, 15))
+
+    def test_bottomleft_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="bottomleft")
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
+
+        self.assertEqual(dst.get_at((64, 35)), (255, 0, 0))
+        self.assertEqual(dst.get_at((57, 43)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(50, 35, 15, 15))
+
+    def test_bottomright_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="bottomright")
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
+
+        self.assertEqual(dst.get_at((36, 36)), (255, 0, 0))
+        self.assertEqual(dst.get_at((43, 43)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(35, 35, 15, 15))
+
+    def test_midleft_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="midleft")
+        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+
+        self.assertEqual(dst.get_at((50, 43)), (255, 0, 0))
+        self.assertEqual(dst.get_at((64, 57)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(50, 43, 15, 15))
+
+    def test_midright_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="midright")
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
+
+        self.assertEqual(dst.get_at((36, 43)), (255, 0, 0))
+        self.assertEqual(dst.get_at((49, 57)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(35, 43, 15, 15))
+
+    def test_midtop_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="midtop")
+        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+
+        self.assertEqual(dst.get_at((43, 50)), (255, 0, 0))
+        self.assertEqual(dst.get_at((57, 64)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(43, 50, 15, 15))
+
+    def test_midbottom_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="midbottom")
+        self.assertEqual(dst.get_at((50, 50)), (0, 0, 0))
+
+        self.assertEqual(dst.get_at((43, 35)), (255, 0, 0))
+        self.assertEqual(dst.get_at((57, 50)), (0, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(43, 35, 15, 15))
+
+    def test_center_pos(self):
+        square = pygame.Surface((15, 15))
+        square.fill((255, 0, 0))
+        dst = pygame.Surface((100, 100))
+        result = dst.blit(square, (50, 50), anchor="center")
+        self.assertEqual(dst.get_at((50, 50)), (255, 0, 0))
+
+        self.assertEqual(dst.get_at((43, 43)), (255, 0, 0))
+        self.assertEqual(dst.get_at((57, 57)), (255, 0, 0))
+
+        self.assertEqual(result, pygame.Rect(43, 43, 15, 15))
+
 
 if __name__ == "__main__":
     unittest.main()
