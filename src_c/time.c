@@ -240,16 +240,10 @@ static PyObject *
 time_delay(PyObject *self, PyObject *arg)
 {
     int ticks;
-    PyObject *arg0;
-
-    /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
-    if (PyTuple_Size(arg) != 1)
-        return RAISE(PyExc_ValueError, "delay requires one integer argument");
-    arg0 = PyTuple_GET_ITEM(arg, 0);
-    if (!PyLong_Check(arg0))
+    if (!PyLong_Check(arg))
         return RAISE(PyExc_TypeError, "delay requires one integer argument");
 
-    ticks = PyLong_AsLong(arg0);
+    ticks = PyLong_AsLong(arg);
     if (ticks < 0)
         ticks = 0;
 
@@ -263,13 +257,7 @@ static PyObject *
 time_wait(PyObject *self, PyObject *arg)
 {
     int ticks, start;
-    PyObject *arg0;
-
-    /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
-    if (PyTuple_Size(arg) != 1)
-        return RAISE(PyExc_ValueError, "delay requires one integer argument");
-    arg0 = PyTuple_GET_ITEM(arg, 0);
-    if (!PyLong_Check(arg0))
+    if (!PyLong_Check(arg))
         return RAISE(PyExc_TypeError, "delay requires one integer argument");
 
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
@@ -278,7 +266,7 @@ time_wait(PyObject *self, PyObject *arg)
         }
     }
 
-    ticks = PyLong_AsLong(arg0);
+    ticks = PyLong_AsLong(arg);
     if (ticks < 0)
         ticks = 0;
 
@@ -540,8 +528,8 @@ static PyMethodDef _time_methods[] = {
      "auto quit function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
-    {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},
-    {"wait", time_wait, METH_VARARGS, DOC_PYGAMETIMEWAIT},
+    {"delay", time_delay, METH_O, DOC_PYGAMETIMEDELAY},
+    {"wait", time_wait, METH_O, DOC_PYGAMETIMEWAIT},
     {"set_timer", (PyCFunction)time_set_timer, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETIMESETTIMER},
 

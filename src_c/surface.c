@@ -146,7 +146,7 @@ surf_get_palette(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_palette_at(PyObject *self, PyObject *args);
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *args);
+surf_set_palette(PyObject *self, PyObject *list);
 static PyObject *
 surf_set_palette_at(PyObject *self, PyObject *args);
 static PyObject *
@@ -306,7 +306,7 @@ static struct PyMethodDef surface_methods[] = {
     {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
      DOC_SURFACEGETPALETTEAT},
-    {"set_palette", surf_set_palette, METH_VARARGS, DOC_SURFACESETPALETTE},
+    {"set_palette", surf_set_palette, METH_O, DOC_SURFACESETPALETTE},
     {"set_palette_at", surf_set_palette_at, METH_VARARGS,
      DOC_SURFACESETPALETTEAT},
 
@@ -1092,7 +1092,7 @@ surf_get_palette_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *args)
+surf_set_palette(PyObject *self, PyObject *list)
 {
     /* This method works differently from the SDL 1.2 equivalent.
      * It replaces colors in the surface's existing palette. So, if the
@@ -1104,15 +1104,14 @@ surf_set_palette(PyObject *self, PyObject *args)
     SDL_Color colors[256];
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = NULL;
-    PyObject *list, *item;
+    PyObject *item;
     int i, len;
     Uint8 rgba[4];
     int ecode;
 
-    if (!PyArg_ParseTuple(args, "O", &list))
-        return NULL;
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (!PySequence_Check(list))
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 

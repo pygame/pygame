@@ -760,15 +760,17 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 }
 
 static PyObject *
-pg_display_set_autoresize(PyObject *self, PyObject *args)
+pg_display_set_autoresize(PyObject *self, PyObject *arg)
 {
-    SDL_bool do_resize;
+    int do_resize;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
 
-    if (!PyArg_ParseTuple(args, "p", &do_resize))
+    do_resize = PyObject_IsTrue(arg);
+    if (do_resize == -1) {
         return NULL;
+    }
 
-    state->auto_resize = do_resize;
+    state->auto_resize = (SDL_bool)do_resize;
     SDL_DelEventWatch(pg_ResizeEventWatch, self);
 
     if (do_resize) {
@@ -1973,13 +1975,14 @@ pg_get_caption(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_set_icon(PyObject *self, PyObject *arg)
+pg_set_icon(PyObject *self, PyObject *surface)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface;
-    if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
-        return NULL;
+    if (!pgSurface_Check(surface)) {
+        return RAISE(PyExc_TypeError,
+                     "Argument to set_icon must be a Surface");
+    }
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         if (!pg_display_init(NULL, NULL))
@@ -2542,14 +2545,14 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
-    {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
+    {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
 
     {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
      DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
-    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_VARARGS,
+    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_O,
      "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "DEPRECATED, never officially supported, kept only for compatibility "

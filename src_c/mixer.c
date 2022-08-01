@@ -1035,16 +1035,17 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-chan_queue(PyObject *self, PyObject *args)
+chan_queue(PyObject *self, PyObject *sound)
 {
     int channelnum = pgChannel_AsInt(self);
-    PyObject *sound;
     Mix_Chunk *chunk;
 
-    if (!PyArg_ParseTuple(args, "O!", &pgSound_Type, &sound))
-        return NULL;
-    chunk = pgSound_AsChunk(sound);
+    if (!pgSound_Check(sound)) {
+        return RAISE(PyExc_TypeError,
+                     "The argument must be an instance of Sound");
+    }
 
+    chunk = pgSound_AsChunk(sound);
     if (!channeldata[channelnum].sound) /*nothing playing*/
     {
         Py_BEGIN_ALLOW_THREADS;
@@ -1245,7 +1246,7 @@ chan_get_endevent(PyObject *self, PyObject *_null)
 static PyMethodDef channel_methods[] = {
     {"play", (PyCFunction)chan_play, METH_VARARGS | METH_KEYWORDS,
      DOC_CHANNELPLAY},
-    {"queue", chan_queue, METH_VARARGS, DOC_CHANNELQUEUE},
+    {"queue", chan_queue, METH_O, DOC_CHANNELQUEUE},
     {"get_busy", (PyCFunction)chan_get_busy, METH_NOARGS, DOC_CHANNELGETBUSY},
     {"fadeout", chan_fadeout, METH_VARARGS, DOC_CHANNELFADEOUT},
     {"stop", (PyCFunction)chan_stop, METH_NOARGS, DOC_CHANNELSTOP},
