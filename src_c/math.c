@@ -4090,7 +4090,7 @@ static PyObject *
 math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs != 3)
-        return RAISE(PyExc_ValueError, "clamp requires 3 arguments");
+        return RAISE(PyExc_TypeError, "clamp requires 3 arguments");
 
     PyObject *value = args[0];
     PyObject *min = args[1];

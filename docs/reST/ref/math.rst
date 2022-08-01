@@ -53,7 +53,7 @@ Multiple coordinates can be set using slices or swizzling
    | :sl:`returns value clamped to min and max.`
    | :sg:`clamp(value, min, max) -> float`
 
-   Clamps ``value`` so that it's no lower than ``min``, and no higher
+   Clamps a numeric ``value`` so that it's no lower than ``min``, and no higher
    than ``max``.
 
    .. versionadded:: 2.1.3
