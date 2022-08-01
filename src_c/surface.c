@@ -1830,7 +1830,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     SDL_Rect dest_rect;
     int sx, sy;
     int the_args = 0; /* Represents special_flags */
-    PyObject *anchor = PyUnicode_FromString("topleft");
+    PyObject *anchor = NULL;
     PyObject *anchor_rect;
     SDL_Rect *temp_anchor_rect;
 
@@ -1867,7 +1867,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         src_rect = &temp;
     }
 
-    if (PyUnicode_CompareWithASCIIString(anchor, "topleft") != 0) {
+    if (anchor != NULL &&
+        PyUnicode_CompareWithASCIIString(anchor, "topleft") != 0) {
         anchor_rect = pgRect_New4(0, 0, src->w, src->h);
 
         if (PyObject_HasAttr(anchor_rect, anchor)) {
