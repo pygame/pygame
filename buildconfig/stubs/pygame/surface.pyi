@@ -58,6 +58,18 @@ class Surface:
         dest: Union[Coordinate, RectValue],
         area: Optional[RectValue] = None,
         special_flags: int = 0,
+        anchor: Union[
+            Literal["topleft"],
+            Literal["topright"],
+            Literal["bottomleft"],
+            Literal["bottomright"],
+            Literal["midleft"],
+            Literal["midright"],
+            Literal["midtop"],
+            Literal["midbottom"],
+            Literal["center"],
+            None
+        ] = None,
     ) -> Rect: ...
     def blits(
         self,
