@@ -1142,7 +1142,7 @@ blit_blend_rgba_add_sse2(SDL_BlitInfo *info)
                 n, post_4_width);
         }
         srcp = (Uint32 *)srcp128 + srcskip;
-        dstp = (Uint32 *)srcp128 + dstskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
