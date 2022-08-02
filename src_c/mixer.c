@@ -439,8 +439,13 @@ _init(int freq, int size, int channels, int chunk, char *devicename,
         if (SDL_InitSubSystem(SDL_INIT_AUDIO))
             return RAISE(pgExc_SDLError, SDL_GetError());
 
-#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 0 && \
-    SDL_MIXER_PATCHLEVEL >= 2
+/* This scary looking block is the expansion of
+ * SDL_MIXER_VERSION_ATLEAST(2, 0, 2), but SDL_MIXER_VERSION_ATLEAST is new in
+ * 2.0.2, and we currently aim to support down to 2.0.0 */
+#if ((SDL_MIXER_MAJOR_VERSION >= 2) &&                                \
+     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION >= 0) && \
+     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION > 0 ||   \
+      SDL_MIXER_PATCHLEVEL >= 2))
         if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
                                 allowedchanges) == -1) {
 #else

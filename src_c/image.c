@@ -753,6 +753,87 @@ image_tostring(PyObject *self, PyObject *arg)
         }
         pgSurface_Unlock(surfobj);
     }
+    else if (!strcmp(format, "BGRA")) {
+        hascolorkey = 0;
+
+        string =
+            PyBytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+        if (!string)
+            return NULL;
+        PyBytes_AsStringAndSize(string, &data, &len);
+
+        pgSurface_Lock(surfobj);
+        switch (surf->format->BytesPerPixel) {
+            case 1:
+                for (h = 0; h < surf->h; ++h) {
+                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
+                                                  surf->h, flipped);
+                    for (w = 0; w < surf->w; ++w) {
+                        color = *ptr++;
+                        data[2] = (char)surf->format->palette->colors[color].r;
+                        data[1] = (char)surf->format->palette->colors[color].g;
+                        data[0] = (char)surf->format->palette->colors[color].b;
+                        data[3] = (char)255;
+                        data += 4;
+                    }
+                }
+                break;
+            case 2:
+                for (h = 0; h < surf->h; ++h) {
+                    Uint16 *ptr = (Uint16 *)DATAROW(
+                        surf->pixels, h, surf->pitch, surf->h, flipped);
+                    for (w = 0; w < surf->w; ++w) {
+                        color = *ptr++;
+                        data[2] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                        data[0] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        data[3] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                                  << Aloss)
+                                               : 255);
+                        data += 4;
+                    }
+                }
+                break;
+            case 3:
+                for (h = 0; h < surf->h; ++h) {
+                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
+                                                  surf->h, flipped);
+                    for (w = 0; w < surf->w; ++w) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
+#else
+                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
+#endif
+                        ptr += 3;
+                        data[2] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                        data[0] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        data[3] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                                  << Aloss)
+                                               : 255);
+                        data += 4;
+                    }
+                }
+                break;
+            case 4:
+                for (h = 0; h < surf->h; ++h) {
+                    Uint32 *ptr = (Uint32 *)DATAROW(
+                        surf->pixels, h, surf->pitch, surf->h, flipped);
+                    for (w = 0; w < surf->w; ++w) {
+                        color = *ptr++;
+                        data[2] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                        data[0] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        data[3] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                                  << Aloss)
+                                               : 255);
+                        data += 4;
+                    }
+                }
+                break;
+        }
+        pgSurface_Unlock(surfobj);
+    }
     else if (!strcmp(format, "RGBA_PREMULT")) {
         if (surf->format->BytesPerPixel == 1 || surf->format->Amask == 0)
             return RAISE(PyExc_ValueError,
@@ -1035,6 +1116,28 @@ image_fromstring(PyObject *self, PyObject *arg)
         }
         SDL_UnlockSurface(surf);
     }
+    else if (!strcmp(format, "BGRA")) {
+        if (len != (Py_ssize_t)w * h * 4)
+            return RAISE(
+                PyExc_ValueError,
+                "Bytes length does not equal format and resolution size");
+        surf = SDL_CreateRGBSurface(SDL_SRCALPHA, w, h, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                    0xFF << 16, 0xFF << 8, 0xFF, 0xFF << 24);
+#else
+                                    0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
+#endif
+        if (!surf)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        SDL_LockSurface(surf);
+        for (looph = 0; looph < h; ++looph) {
+            Uint32 *pix = (Uint32 *)DATAROW(surf->pixels, looph, surf->pitch,
+                                            h, flipped);
+            memcpy(pix, data, w * sizeof(Uint32));
+            data += w * sizeof(Uint32);
+        }
+        SDL_UnlockSurface(surf);
+    }
     else if (!strcmp(format, "ARGB")) {
         if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
@@ -1149,6 +1252,21 @@ image_frombuffer(PyObject *self, PyObject *arg)
 #else
         surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3, 0xFF, 0xFF << 8,
                                         0xFF << 16, 0);
+#endif
+    }
+    else if (!strcmp(format, "BGRA")) {
+        if (len != (Py_ssize_t)w * h * 4)
+            return RAISE(
+                PyExc_ValueError,
+                "Buffer length does not equal format and resolution size");
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4, 0xFF << 16,
+                                        0xFF << 8, 0xFF, 0xFF << 24);
+
+#else
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4, 0xFF << 8,
+                                        0xFF << 16, 0xFF << 24, 0xFF);
 #endif
     }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
@@ -1471,7 +1589,9 @@ static PyMethodDef _image_methods[] = {
      METH_NOARGS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
+    {"tobytes", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOBYTES},
     {"fromstring", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMSTRING},
+    {"frombytes", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMBYTES},
     {"frombuffer", image_frombuffer, METH_VARARGS, DOC_PYGAMEIMAGEFROMBUFFER},
     {NULL, NULL, 0, NULL}};
 

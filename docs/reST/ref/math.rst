@@ -48,6 +48,19 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
+.. function:: clamp
+
+   | :sl:`returns value clamped to min and max.`
+   | :sg:`clamp(value, min, max) -> clamped_value`
+
+   Takes ``value`` of any type defining ``__lt__`` and ``__gt__``, and clamps it
+   so it is no lower than ``min``, and no higher than ``max``. If it isn't lower
+   than ``min`` or higher than ``max``, ``value`` is returned un-clamped.
+
+   .. versionadded:: 2.1.3
+
+   .. ## math.clamp ##
+
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
@@ -332,7 +345,14 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`calculates the angle to a given vector in degrees.`
       | :sg:`angle_to(Vector2) -> float`
 
-      Returns the angle between self and the given vector.
+      Returns the angle from self to the passed ``Vector2`` that would rotate self
+      to be aligned with the passed ``Vector2`` without crossing over the negative 
+      x-axis.
+
+      .. figure:: code_examples/angle_to.png
+         :alt: angle_to image
+
+         Example demonstrating the angle returned
 
       .. ## Vector2.angle_to ##
 

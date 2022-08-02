@@ -37,6 +37,9 @@ if os.name == "nt":
     if sys.version_info > (3, 8):
         os.add_dll_directory(pygame_dir)  # only available in 3.8+
 
+    # cleanup namespace
+    del pygame_dir
+
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
 elif "DISPLAY" in os.environ and "SDL_VIDEO_X11_WMCLASS" not in os.environ:

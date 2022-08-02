@@ -9,6 +9,84 @@ from pygame.math import Vector2, Vector3
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
+class MathModuleTest(unittest.TestCase):
+    """Math module tests."""
+
+    def test_clamp(self):
+        """Test clamp function."""
+
+        # Int tests
+        # Test going above max
+        result = pygame.math.clamp(10, 1, 5)
+        self.assertEqual(result, 5)
+        # Test going below min
+        result = pygame.math.clamp(-10, 1, 5)
+        self.assertEqual(result, 1)
+        # Test equal to max
+        result = pygame.math.clamp(5, 1, 5)
+        self.assertEqual(result, 5)
+        # Test equal to min
+        result = pygame.math.clamp(1, 1, 5)
+        self.assertEqual(result, 1)
+        # Test between min and max
+        result = pygame.math.clamp(3, 1, 5)
+        self.assertEqual(result, 3)
+
+        # Float tests
+        # Test going above max
+        result = pygame.math.clamp(10.0, 1.12, 5.0)
+        self.assertAlmostEqual(result, 5.0)
+        # Test going below min
+        result = pygame.math.clamp(-10.0, 1.12, 5.0)
+        self.assertAlmostEqual(result, 1.12)
+        # Test equal to max
+        result = pygame.math.clamp(5.0, 1.12, 5.0)
+        self.assertAlmostEqual(result, 5.0)
+        # Test equal to min
+        result = pygame.math.clamp(1.12, 1.12, 5.0)
+        self.assertAlmostEqual(result, 1.12)
+        # Test between min and max
+        result = pygame.math.clamp(2.5, 1.12, 5.0)
+        self.assertAlmostEqual(result, 2.5)
+
+        # Point < and > are calculated based on the magnitude.
+        class Point:
+            def __init__(self, x, y):
+                self.x = x
+                self.y = y
+
+            def length(self):
+                return math.sqrt(self.x**2 + self.y**2)
+
+            def __lt__(self, other):
+                return self.length() < other.length()
+
+            def __gt__(self, other):
+                return self.length() > other.length()
+
+            def __eq__(self, other):
+                if isinstance(other, Point):
+                    return (self.x == other.x) and (self.y == other.y)
+                return False
+
+        # Point tests
+        # Test going above max
+        result = pygame.math.clamp(Point(100, 100), Point(2, 2), Point(40, 3))
+        self.assertTrue(result == Point(40, 3))
+        # Test going below min
+        result = pygame.math.clamp(Point(0, 0), Point(2, 2), Point(40, 3))
+        self.assertTrue(result == Point(2, 2))
+        # Test equal to max
+        result = pygame.math.clamp(Point(40, 3), Point(2, 2), Point(40, 3))
+        self.assertTrue(result == Point(40, 3))
+        # Test equal to min
+        result = pygame.math.clamp(Point(2, 2), Point(2, 2), Point(40, 3))
+        self.assertTrue(result == Point(2, 2))
+        # Test between min and max
+        result = pygame.math.clamp(Point(10, 10), Point(2, 2), Point(40, 3))
+        self.assertTrue(result == Point(10, 10))
+
+
 class Vector2TypeTest(unittest.TestCase):
     def setUp(self):
         self.zeroVec = Vector2()
@@ -562,21 +640,49 @@ class Vector2TypeTest(unittest.TestCase):
     def test_distance_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to((0, 1)), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to([0, 1]), math.sqrt(2))
         self.assertAlmostEqual(
             self.v1.distance_to(self.v2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
         )
+        self.assertAlmostEqual(
+            self.v1.distance_to(self.t2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_to(self.l2), math.sqrt(diff.x * diff.x + diff.y * diff.y)
+        )
         self.assertEqual(self.v1.distance_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_to(self.l1), 0)
+        self.assertEqual(self.v1.distance_to(self.t2), self.v2.distance_to(self.t1))
+        self.assertEqual(self.v1.distance_to(self.l2), self.v2.distance_to(self.l1))
         self.assertEqual(self.v1.distance_to(self.v2), self.v2.distance_to(self.v1))
 
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
+        self.assertEqual(self.e1.distance_squared_to((0, 1)), 2)
+        self.assertEqual(self.e1.distance_squared_to([0, 1]), 2)
         self.assertAlmostEqual(
             self.v1.distance_squared_to(self.v2), diff.x * diff.x + diff.y * diff.y
         )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.t2), diff.x * diff.x + diff.y * diff.y
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.l2), diff.x * diff.x + diff.y * diff.y
+        )
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.l1), 0)
         self.assertEqual(
             self.v1.distance_squared_to(self.v2), self.v2.distance_squared_to(self.v1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.t2), self.v2.distance_squared_to(self.t1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.l2), self.v2.distance_squared_to(self.l1)
         )
 
     def test_update(self):
@@ -1895,23 +2001,144 @@ class Vector3TypeTest(unittest.TestCase):
     def test_distance_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to((0, 1, 0)), math.sqrt(2))
+        self.assertEqual(self.e1.distance_to([0, 1, 0]), math.sqrt(2))
         self.assertEqual(
             self.v1.distance_to(self.v2),
             math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
         )
+        self.assertEqual(
+            self.v1.distance_to(self.t2),
+            math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
+        )
+        self.assertEqual(
+            self.v1.distance_to(self.l2),
+            math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z),
+        )
         self.assertEqual(self.v1.distance_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_to(self.l1), 0)
         self.assertEqual(self.v1.distance_to(self.v2), self.v2.distance_to(self.v1))
+        self.assertEqual(self.v1.distance_to(self.t2), self.v2.distance_to(self.t1))
+        self.assertEqual(self.v1.distance_to(self.l2), self.v2.distance_to(self.l1))
+
+    def test_distance_to_exceptions(self):
+        v2 = Vector2(10, 10)
+        v3 = Vector3(1, 1, 1)
+
+        # illegal distance Vector3-Vector2 / Vector2-Vector3
+        self.assertRaises(ValueError, v2.distance_to, v3)
+        self.assertRaises(ValueError, v3.distance_to, v2)
+
+        # distance to illegal tuple/list positions
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 1))
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 0))
+        self.assertRaises(ValueError, v2.distance_to, (1,))
+        self.assertRaises(ValueError, v2.distance_to, [1, 1, 1])
+        self.assertRaises(ValueError, v2.distance_to, [1, 1, 0])
+        self.assertRaises(
+            ValueError,
+            v2.distance_to,
+            [
+                1,
+            ],
+        )
+        self.assertRaises(ValueError, v2.distance_to, (1, 1, 1))
+        # vec3
+        self.assertRaises(ValueError, v3.distance_to, (1, 1))
+        self.assertRaises(ValueError, v3.distance_to, (1,))
+        self.assertRaises(ValueError, v3.distance_to, [1, 1])
+        self.assertRaises(
+            ValueError,
+            v3.distance_to,
+            [
+                1,
+            ],
+        )
+
+        # illegal types as positions
+        self.assertRaises(TypeError, v2.distance_to, (1, "hello"))
+        self.assertRaises(TypeError, v2.distance_to, ([], []))
+        self.assertRaises(TypeError, v2.distance_to, (1, ("hello",)))
+
+        # illegal args number
+        self.assertRaises(TypeError, v2.distance_to)
+        self.assertRaises(TypeError, v2.distance_to, (1, 1), (1, 2))
+        self.assertRaises(TypeError, v2.distance_to, (1, 1), (1, 2), 1)
+
+    def test_distance_squared_to_exceptions(self):
+        v2 = Vector2(10, 10)
+        v3 = Vector3(1, 1, 1)
+        dist_t = v2.distance_squared_to
+        dist_t3 = v3.distance_squared_to
+        # illegal distance Vector3-Vector2 / Vector2-Vector3
+        self.assertRaises(ValueError, dist_t, v3)
+        self.assertRaises(ValueError, dist_t3, v2)
+
+        # distance to illegal tuple/list positions
+        self.assertRaises(ValueError, dist_t, (1, 1, 1))
+        self.assertRaises(ValueError, dist_t, (1, 1, 0))
+        self.assertRaises(ValueError, dist_t, (1,))
+        self.assertRaises(ValueError, dist_t, [1, 1, 1])
+        self.assertRaises(ValueError, dist_t, [1, 1, 0])
+        self.assertRaises(
+            ValueError,
+            dist_t,
+            [
+                1,
+            ],
+        )
+        self.assertRaises(ValueError, dist_t, (1, 1, 1))
+        # vec3
+        self.assertRaises(ValueError, dist_t3, (1, 1))
+        self.assertRaises(ValueError, dist_t3, (1,))
+        self.assertRaises(ValueError, dist_t3, [1, 1])
+        self.assertRaises(
+            ValueError,
+            dist_t3,
+            [
+                1,
+            ],
+        )
+
+        # illegal types as positions
+        self.assertRaises(TypeError, dist_t, (1, "hello"))
+        self.assertRaises(TypeError, dist_t, ([], []))
+        self.assertRaises(TypeError, dist_t, (1, ("hello",)))
+
+        # illegal args number
+        self.assertRaises(TypeError, dist_t)
+        self.assertRaises(TypeError, dist_t, (1, 1), (1, 2))
+        self.assertRaises(TypeError, dist_t, (1, 1), (1, 2), 1)
 
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
+        self.assertEqual(self.e1.distance_squared_to((0, 1, 0)), 2)
+        self.assertEqual(self.e1.distance_squared_to([0, 1, 0]), 2)
         self.assertAlmostEqual(
             self.v1.distance_squared_to(self.v2),
             diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
         )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.t2),
+            diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
+        )
+        self.assertAlmostEqual(
+            self.v1.distance_squared_to(self.l2),
+            diff.x * diff.x + diff.y * diff.y + diff.z * diff.z,
+        )
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.t1), 0)
+        self.assertEqual(self.v1.distance_squared_to(self.l1), 0)
         self.assertEqual(
             self.v1.distance_squared_to(self.v2), self.v2.distance_squared_to(self.v1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.t2), self.v2.distance_squared_to(self.t1)
+        )
+        self.assertEqual(
+            self.v1.distance_squared_to(self.l2), self.v2.distance_squared_to(self.l1)
         )
 
     def test_swizzle(self):
