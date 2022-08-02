@@ -35,6 +35,7 @@ class Game:
     def main(self):
         while self.loop:
             self.grid_loop()
+        pg.quit()
 
     def grid_loop(self):
         self.surface.fill((0, 0, 0))
