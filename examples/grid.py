@@ -3,22 +3,22 @@ import pygame as pg
 TITLE = "Grid"
 TILES_HORIZONTAL = 10
 TILES_VERTICAL = 10
-TILE_SIZE = 100
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 1000
+TILE_SIZE = 80
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 800
 
 
 class Player:
     def __init__(self, surface):
         self.surface = surface
-        self.pos = (50, 50)
+        self.pos = (40, 40)
 
     def draw(self):
-        pg.draw.circle(self.surface, (255, 255, 255), self.pos, 50)
+        pg.draw.circle(self.surface, (255, 255, 255), self.pos, 40)
 
     def move(self, target):
-        x = (100 * (target[0] // 100)) + 50
-        y = (100 * (target[1] // 100)) + 50
+        x = (80 * (target[0] // 100)) + 40
+        y = (80 * (target[1] // 100)) + 40
 
         self.pos = (x, y)
 
