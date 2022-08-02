@@ -17,8 +17,8 @@ class Player:
         pg.draw.circle(self.surface, (255, 255, 255), self.pos, 40)
 
     def move(self, target):
-        x = (80 * (target[0] // 100)) + 40
-        y = (80 * (target[1] // 100)) + 40
+        x = (80 * (target[0] // 80)) + 40
+        y = (80 * (target[1] // 80)) + 40
 
         self.pos = (x, y)
 
