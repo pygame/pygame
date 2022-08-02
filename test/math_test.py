@@ -22,8 +22,15 @@ class MathModuleTest(unittest.TestCase):
         result = pygame.math.lerp(10, 100, 1.0)  # 100
         self.assertAlmostEqual(result, 100.0)
 
-        # TODO: Consider testing for percentage being less than 0 and greater
-        # than 1.
+        # Not enough args
+        self.assertRaises(TypeError, pygame.math.lerp, 1)
+
+        # Wrong arg type
+        self.assertRaises(TypeError, pygame.math.lerp, "str", "str", "str")
+
+        # Percent outside range [0, 1]
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, 1.1)
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, -0.5)
 
     def test_clamp(self):
         """Test clamp function."""

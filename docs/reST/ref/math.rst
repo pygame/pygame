@@ -66,8 +66,8 @@ Multiple coordinates can be set using slices or swizzling
    | :sl:`interpolates between two values by a percentage.`
    | :sg:`lerp(a, b, percent) -> float`
 
-   Linearly interpolates between ``a`` and ``b`` by ``percent``. ``percent``
-   should be in the range of ``[0, 1]``.
+   Linearly interpolates between ``a`` and ``b`` by ``percent``. Raises a ValueError
+   if ``percent`` is outside the range of ``[0, 1]``.
 
    .. versionadded:: 2.1.3
 

@@ -4124,7 +4124,7 @@ static PyObject *
 math_lerp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs != 3)
-        return RAISE(PyExc_ValueError, "lerp requires 3 arguments");
+        return RAISE(PyExc_TypeError, "lerp requires 3 arguments");
 
     double a = PyFloat_AsDouble(args[0]);
     if (PyErr_Occurred())
@@ -4136,11 +4136,8 @@ math_lerp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     if (PyErr_Occurred())
         return NULL;
 
-    // Not sure about this. Most other frameworks/engines either automatically
-    // clamp it, or allow you to use values outside this range.
-    // if (percent < 0.0 || percent > 1.0)
-    //    return RAISE(PyExc_ValueError, "Percentage value must be between 0.0
-    //    and 1.0");
+    if (percent < 0 || percent > 1)
+        return RAISE(PyExc_ValueError, "percent must be in range [0, 1]");
 
     return PyFloat_FromDouble(a + (b - a) * percent);
 }
