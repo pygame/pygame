@@ -210,10 +210,18 @@
       | :sl:`Set the number of elements in the Color to 1,2,3, or 4.`
       | :sg:`set_length(len) -> None`
 
+      DEPRECATED: You may unpack the values you need like so, 
+      ``r, g, b, _ = pygame.Color(100, 100, 100)``
+      If you only want r, g and b
+      Or 
+      ``r, g, *_ = pygame.Color(100, 100, 100)`` 
+      if you only want r and g
+
       The default Color length is 4. Colors can have lengths 1,2,3 or 4. This
       is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
       get the length of a Color do ``len(acolor)``.
 
+      .. deprecated:: 2.1.3
       .. versionadded:: 1.9.0
 
       .. ## Color.set_length ##
