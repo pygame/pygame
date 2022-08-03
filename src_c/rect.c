@@ -342,58 +342,31 @@ pgRect_Normalize(SDL_Rect *rect)
 static int
 _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
 {
-    if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
+    int x1 = A->x, y1 = A->y, w1 = A->w, h1 = A->h;
+    int x2 = B->x, y2 = B->y, w2 = B->w, h2 = B->h;
+
+    if (!w1 || !h1 || !w2 || !h2) {
         // zero sized rects should not collide with anything #1197
         return 0;
     }
 
-    // A.left   < B.right  &&
-    // A.top    < B.bottom &&
-    // A.right  > B.left   &&
-    // A.bottom > B.top
-    return (MIN(A->x, A->x + A->w) < MAX(B->x, B->x + B->w) &&
-            MIN(A->y, A->y + A->h) < MAX(B->y, B->y + B->h) &&
-            MAX(A->x, A->x + A->w) > MIN(B->x, B->x + B->w) &&
-            MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
-}
-
-static int
-_pg_do_normalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
-{
-    // A.left   < B.right  &&
-    // A.top    < B.bottom &&
-    // B.left   < A.right  &&
-    // B.top    < A.bottom
-
-    return (A->x < B->x + B->w && A->y < B->y + B->h && B->x < A->x + A->w &&
-            B->y < A->y + A->h);
-}
-
-static int
-_pg_do_notnormalized_rects_intersect(SDL_Rect *A, SDL_Rect *B)
-{
-    int x1 = A->x, y1 = A->y, w1 = A->w, h1 = A->h;
-    int x2 = B->x, y2 = B->y, w2 = B->w, h2 = B->h;
-
-    if (!w1 || !h1 || !w2 || !h2) /* 0 width or height rects don't collide */
-        return 0;
-
-    if (w1 < 0) {
-        x1 += w1;
-        w1 = -w1;
-    }
-    if (h1 < 0) {
-        y1 += h1;
-        h1 = -h1;
-    }
-
-    if (w2 < 0) {
-        x2 += w2;
-        w2 = -w2;
-    }
-    if (h2 < 0) {
-        y2 += h2;
-        h2 = -h2;
+    if (w1 < 0 || h1 < 0 || w2 < 0 || h2 < 0) {
+        if (w1 < 0) {
+            x1 += w1;
+            w1 = -w1;
+        }
+        if (h1 < 0) {
+            y1 += h1;
+            h1 = -h1;
+        }
+        if (w2 < 0) {
+            x2 += w2;
+            w2 = -w2;
+        }
+        if (h2 < 0) {
+            y2 += h2;
+            h2 = -h2;
+        }
     }
 
     return (x1 < x2 + w2 && y1 < y2 + h2 && x2 < x1 + w1 && y2 < y1 + h1);
@@ -633,11 +606,11 @@ static PyObject *
 pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
                     Py_ssize_t nargs)
 {
-    int result = 0;
     SDL_Rect srect = self->r;
-    SDL_Rect temp, *tmp;
+    SDL_Rect temp;
 
     if (nargs == 1) {
+        SDL_Rect *tmp;
         if (!(tmp = pgRect_FromObject(args[0], &temp))) {
             if (PyErr_Occurred())
                 return NULL;
@@ -645,66 +618,44 @@ pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
                 return RAISE(PyExc_TypeError,
                              "Invalid rect, all 4 fields must be numeric");
         }
-
-        result = _pg_do_rects_intersect(&srect, tmp);
+        return PyBool_FromLong(_pg_do_rects_intersect(&srect, tmp));
     }
     else if (nargs == 2) {
-        if (!pg_TwoIntsFromObj(args[0], &(temp.x), &(temp.y)) ||
-            !pg_TwoIntsFromObj(args[1], &(temp.w), &(temp.h))) {
+        if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
+            !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
             if (PyErr_Occurred())
                 return NULL;
             else
                 return RAISE(PyExc_TypeError,
                              "Invalid rect, all 4 fields must be numeric");
         }
-        if (temp.w > 0 && temp.h > 0 && srect.w > 0 && srect.h > 0)
-            result = _pg_do_normalized_rects_intersect(&srect, &temp);
-        else
-            result = _pg_do_notnormalized_rects_intersect(&srect, &temp);
     }
     else if (nargs == 4) {
-        temp.x = PyLong_AsLong(args[0]);
-        if (PyErr_Occurred()) {
-            PyErr_Clear();
-            temp.x = (int)PyFloat_AsDouble(args[0]);
-            if (PyErr_Occurred())
-                return NULL;
-        }
-        temp.y = PyLong_AsLong(args[1]);
-        if (PyErr_Occurred()) {
-            PyErr_Clear();
-            temp.y = (int)PyFloat_AsDouble(args[1]);
-            if (PyErr_Occurred())
-                return NULL;
-        }
-        temp.w = PyLong_AsLong(args[2]);
-        if (PyErr_Occurred()) {
-            PyErr_Clear();
-            temp.w = (int)PyFloat_AsDouble(args[2]);
-            if (PyErr_Occurred())
-                return NULL;
-        }
-        temp.h = PyLong_AsLong(args[3]);
-        if (PyErr_Occurred()) {
-            PyErr_Clear();
-            temp.h = (int)PyFloat_AsDouble(args[3]);
-            if (PyErr_Occurred())
-                return NULL;
-        }
+        if (!(pg_IntFromObj(args[0], &temp.x)))
+            return RAISE(PyExc_TypeError,
+                         "Invalid x value for rect, must be numeric");
 
-        if (temp.w > 0 && temp.h > 0 && srect.w > 0 && srect.h > 0)
-            result = _pg_do_normalized_rects_intersect(&srect, &temp);
-        else
-            result = _pg_do_notnormalized_rects_intersect(&srect, &temp);
+        if (!(pg_IntFromObj(args[1], &temp.y)))
+            return RAISE(PyExc_TypeError,
+                         "Invalid y value for rect, must be numeric");
+
+        if (!(pg_IntFromObj(args[2], &temp.w)))
+            return RAISE(PyExc_TypeError,
+                         "Invalid w value for rect, must be numeric");
+
+        if (!(pg_IntFromObj(args[3], &temp.h)))
+            return RAISE(PyExc_TypeError,
+                         "Invalid h value for rect, must be numeric");
     }
     else {
         return RAISE(PyExc_ValueError,
                      "Incorrect arguments number, must be either 1, 2 or 4");
     }
 
-    return PyBool_FromLong(result);
+    return PyBool_FromLong(_pg_do_rects_intersect(&srect, &temp));
 }
 PG_WRAP_FASTCALL_FUNC(pg_rect_colliderect, pgRectObject)
+
 static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *args)
 {
