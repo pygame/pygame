@@ -426,6 +426,7 @@ copyreg.pickle(Color, __color_reduce, __color_constructor)
 if sys.platform in ("wasi", "emscripten"):
     if pygame_static:
         import pygame.wasm_patches
+
         print(sys._emscripten_info)
 
 
