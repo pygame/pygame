@@ -108,7 +108,7 @@ if sys.platform in ("wasi", "emscripten"):
 
         # cython modules use multiphase initialisation when not in builtin Inittab.
 
-        import pygame._sdl2 as _sdl2
+        from pygame import _sdl2
 
         import importlib.machinery
 
