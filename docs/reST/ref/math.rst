@@ -66,8 +66,28 @@ Multiple coordinates can be set using slices or swizzling
    | :sl:`interpolates between two values by a percentage.`
    | :sg:`lerp(a, b, percent) -> float`
 
-   Linearly interpolates between ``a`` and ``b`` by ``percent``. Raises a ValueError
-   if ``percent`` is outside the range of ``[0, 1]``.
+   Linearly interpolates between ``a`` and ``b`` by ``percent`` using the formula ``a + (b-a) * percent``.
+   
+   If ``percent`` is ``0.5``, ``lerp`` will return the value half-way between ``a``
+   and ``b``. When ``a = 10`` and ``b = 20``, ``lerp(a, b, 0.5)`` will return ``15``.
+
+   This can be used for many things. You could rotate a sprite by a percentage with
+   ``angle = lerp(0, 360, percent)``. You could even scale an enemies attack value
+   based on the level you're playing using lerp:
+
+   ::
+
+      FINAL_LEVEL = 10
+      current_level = 2
+
+      attack = lerp(10, 50, current_level/MAX_LEVEL) # 18
+
+   If you're on level 0, ``attack`` will be ``10``, if you're on level 10,
+   ``attack`` will be ``50``. If you're on level 5, the
+   percentage calculated with ``current_level/MAX_LEVEL`` will be ``0.5``
+   which is 50%, therefore ``attack`` will be ``30``, which is half-way between ``10`` and ``50``.
+
+   Raises a ValueError if ``percent`` is outside the range of ``[0, 1]``.
 
    .. versionadded:: 2.1.3
 
