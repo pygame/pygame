@@ -71,9 +71,9 @@ Multiple coordinates can be set using slices or swizzling
    If ``percent`` is ``0.5``, ``lerp`` will return the value half-way between ``a``
    and ``b``. When ``a = 10`` and ``b = 20``, ``lerp(a, b, 0.5)`` will return ``15``.
 
-   This can be used for many things. You could rotate a sprite by a percentage with
-   ``angle = lerp(0, 360, percent)``. You could even scale an enemies attack value
-   based on the level you're playing using lerp:
+   ``lerp`` can be used for many things. You could rotate a sprite by a percentage with
+   ``angle = lerp(0, 360, percent)``. You could even scale an enemy's attack value
+   based on the level you're playing:
 
    ::
 
