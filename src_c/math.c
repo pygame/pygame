@@ -2261,8 +2261,7 @@ vector2_rotate_rad_ip(pgVector *self, PyObject *angleObject)
         return NULL;
     }
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
@@ -2315,8 +2314,7 @@ vector2_rotate_ip(pgVector *self, PyObject *angleObject)
     }
     angle = DEG2RAD(angle);
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }

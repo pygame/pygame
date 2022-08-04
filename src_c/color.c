@@ -541,10 +541,7 @@ _color_new_internal_length(PyTypeObject *type, const Uint8 rgba[],
         return NULL;
     }
 
-    color->data[0] = rgba[0];
-    color->data[1] = rgba[1];
-    color->data[2] = rgba[2];
-    color->data[3] = rgba[3];
+    memcpy(color->data, rgba, 4);
     color->len = length;
 
     return color;
@@ -1678,6 +1675,12 @@ static PyObject *
 _color_set_length(pgColorObject *color, PyObject *args)
 {
     int clength;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.Color.set_length deprecated since 2.1.3",
+                     1) == -1) {
+        return NULL;
+    }
 
     if (!PyArg_ParseTuple(args, "i", &clength)) {
         if (!PyErr_ExceptionMatches(PyExc_OverflowError)) {
