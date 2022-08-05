@@ -1830,15 +1830,13 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     SDL_Rect dest_rect;
     int sx, sy;
     int the_args = 0; /* Represents special_flags */
-    PyObject *anchor = NULL;
-    PyObject *anchor_rect;
-    SDL_Rect *temp_anchor_rect;
+    const char *anchor_text = NULL;
 
     static char *kwids[] = {"source",        "dest",   "area",
                             "special_flags", "anchor", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|OiO", kwids,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Ois", kwids,
                                      &pgSurface_Type, &srcobject, &argpos,
-                                     &argrect, &the_args, &anchor))
+                                     &argrect, &the_args, &anchor_text))
         return NULL;
 
     src = pgSurface_AsSurface(srcobject);
@@ -1867,19 +1865,50 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         src_rect = &temp;
     }
 
-    if (anchor != NULL &&
-        PyUnicode_CompareWithASCIIString(anchor, "topleft") != 0) {
-        anchor_rect = pgRect_New4(0, 0, src->w, src->h);
+    /*
+    Yes, this code is really unprofessional-looking,
+    but there is actually the fastest way known to
+    make this work. Using `PyObject_SetAttr()` on a
+    pgRect in C is actually slower than this method.
 
-        if (PyObject_HasAttr(anchor_rect, anchor)) {
-            if ((PyObject_SetAttr(anchor_rect, anchor, argpos) == -1)) {
-                Py_DECREF(anchor_rect);
-                return NULL;
-            }
-            temp_anchor_rect = pgRect_FromObject(anchor_rect, &temp);
-            dx = temp_anchor_rect->x;
-            dy = temp_anchor_rect->y;
-        }
+    This code is also slower than Python code itself.
+
+    TODO: Optimize or cleanup implementation.
+    */
+    if (anchor_text == NULL) {
+    }
+    else if (strcmp(anchor_text, "topleft") == 0) {
+    }
+    else if (strcmp(anchor_text, "topright") == 0) {
+        dx = dx - src->w;
+    }
+    else if (strcmp(anchor_text, "bottomleft") == 0) {
+        dy = dy - src->h;
+    }
+    else if (strcmp(anchor_text, "bottomright") == 0) {
+        dx = dx - src->w;
+        dy = dy - src->h;
+    }
+    else if (strcmp(anchor_text, "midleft") == 0) {
+        dy = dy - (src->h / 2);
+    }
+    else if (strcmp(anchor_text, "midright") == 0) {
+        dx = dx - src->w;
+        dy = dy - (src->h / 2);
+    }
+    else if (strcmp(anchor_text, "midtop") == 0) {
+        dx = dx - (src->w / 2);
+    }
+    else if (strcmp(anchor_text, "midbottom") == 0) {
+        dx = dx - (src->w / 2);
+        dy = dy - src->h;
+    }
+    else if (strcmp(anchor_text, "center") == 0) {
+        dx = dx - (src->w / 2);
+        dy = dy - (src->h / 2);
+    }
+    else {
+        return RAISE(PyExc_KeyError, "invalid anchor");
     }
 
     dest_rect.x = dx;
