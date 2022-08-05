@@ -449,25 +449,16 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
     int srcskip = info->s_skip >> 2;
     int dstskip = info->d_skip >> 2;
 
-    // SDL_PixelFormat *srcfmt = info->src;
-    // SDL_PixelFormat *dstfmt = info->dst;
-
     Uint64 *srcp64 = (Uint64 *)info->s_pixels;
     Uint64 *dstp64 = (Uint64 *)info->d_pixels;
 
-    // Uint64 src_amask64 = ((Uint64)srcfmt->Amask << 32) | srcfmt->Amask;
-
     Uint64 rgb_mask64 = 0x00FFFFFF00FFFFFF;
+    Uint32 rgb_mask32 = 0x00FFFFFF;
 
     Uint32 *srcp32 = (Uint32 *)info->s_pixels;
     Uint32 *dstp32 = (Uint32 *)info->d_pixels;
 
-    // Uint32 src_amask32 = srcfmt->Amask;
-
-    Uint32 rgb_mask32 = 0x00FFFFFF;
-
-    __m128i src1, dst1, sub_dst, mm_src_alpha, mm_zero;
-    __m128i mm_alpha_mask_1, mm_alpha_mask_2, mm_rgb_mask;
+    __m128i src1, dst1, sub_dst, mm_src_alpha, mm_zero, mm_rgb_mask;
 
     /* There are two paths through this blitter:
            1. Two pixels at once.
@@ -479,8 +470,6 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
         dstskip = dstskip / 2;
 
         mm_zero = _mm_setzero_si128();
-        mm_alpha_mask_1 = _mm_cvtsi32_si128(0x000000FF);
-        mm_alpha_mask_2 = _mm_cvtsi32_si128(0x00FF0000);
 
         /* two pixels at a time */
         LOAD_64_INTO_M128(&rgb_mask64, &mm_rgb_mask);
@@ -490,21 +479,25 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
                     /* src(ARGB) -> src1 (00000000ARGBARGB) */
                     LOAD_64_INTO_M128(srcp64, &src1);
 
-                    /* created squashed alpha -> mm_src_alpha
-                     * (0000000000000A0A) */
-                    mm_src_alpha =
-                        _mm_add_epi16(_mm_and_si128(_mm_srli_si128(src1, 3),
-                                                    mm_alpha_mask_1),
-                                      _mm_and_si128(_mm_srli_si128(src1, 5),
-                                                    mm_alpha_mask_2));
+                    /* isolate alpha channels
+                     * 00000000A1000A2000 -> mm_src_alpha */
+                    mm_src_alpha = _mm_andnot_si128(mm_rgb_mask, src1);
 
-                    /* Then Calc RGB */
-                    /* 000000000A10A10A20A2 -> rgb_src_alpha */
+                    /* shift right to position alpha channels for manipulation
+                     * 000000000A1000A200 -> mm_src_alpha*/
+                    mm_src_alpha = _mm_srli_si128(mm_src_alpha, 1);
+
+                    /* shuffle alpha channels to duplicate 16 byte pairs
+                     * 000000000A10A10A20A2 -> mm_src_alpha */
+                    mm_src_alpha =
+                        _mm_shufflelo_epi16(mm_src_alpha, 0b11110101);
+
+                    /* finally move into final config
+                     * spread out so they can be multipled in 16 bit math
+                     * against all RGBA of both pixels being blit
+                     * 0A10A10A10A10A20A20A20A2 -> mm_src_alpha */
                     mm_src_alpha =
                         _mm_unpacklo_epi16(mm_src_alpha, mm_src_alpha);
-                    /* 0A10A10A10A10A20A20A20A2 -> rgb_src_alpha */
-                    mm_src_alpha =
-                        _mm_unpacklo_epi32(mm_src_alpha, mm_src_alpha);
 
                     /* 0A0R0G0B0A0R0G0B -> src1 */
                     src1 = _mm_unpacklo_epi8(src1, mm_zero);
