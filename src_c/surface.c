@@ -146,7 +146,7 @@ surf_get_palette(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_palette_at(PyObject *self, PyObject *args);
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *list);
+surf_set_palette(PyObject *self, PyObject *seq);
 static PyObject *
 surf_set_palette_at(PyObject *self, PyObject *args);
 static PyObject *
@@ -1092,7 +1092,7 @@ surf_get_palette_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *list)
+surf_set_palette(PyObject *self, PyObject *seq)
 {
     /* This method works differently from the SDL 1.2 equivalent.
      * It replaces colors in the surface's existing palette. So, if the
@@ -1112,7 +1112,7 @@ surf_set_palette(PyObject *self, PyObject *list)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    if (!PySequence_Check(list))
+    if (!PySequence_Check(seq))
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 
     pal = surf->format->palette;
@@ -1124,10 +1124,10 @@ surf_set_palette(PyObject *self, PyObject *list)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
     old_colors = pal->colors;
 
-    len = (int)MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(seq));
 
     for (i = 0; i < len; i++) {
-        item = PySequence_GetItem(list, i);
+        item = PySequence_GetItem(seq, i);
 
         ecode = pg_RGBAFromObj(item, rgba);
         Py_DECREF(item);

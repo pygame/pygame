@@ -258,7 +258,7 @@ time_wait(PyObject *self, PyObject *arg)
 {
     int ticks, start;
     if (!PyLong_Check(arg))
-        return RAISE(PyExc_TypeError, "delay requires one integer argument");
+        return RAISE(PyExc_TypeError, "wait requires one integer argument");
 
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
         if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
