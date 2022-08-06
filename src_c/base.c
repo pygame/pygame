@@ -385,11 +385,23 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self, PyObject *_null)
+pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
+    int linked = 1; /* Default is linked version. */
     SDL_version v;
 
-    SDL_GetVersion(&v);
+    static char *keywords[] = {"linked", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
+        return NULL; /* Exception already set. */
+    }
+
+    if (linked) {
+        SDL_GetVersion(&v);
+    }
+    else {
+        SDL_VERSION(&v);
+    }
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
 }
 
@@ -2077,7 +2089,7 @@ static PyMethodDef _base_methods[] = {
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
-    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
+    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEGETSDLVERSION},
     {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
      DOC_PYGAMEGETSDLBYTEORDER},
