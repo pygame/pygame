@@ -493,7 +493,7 @@ static PyMethodDef _ft_methods[] = {
     {"was_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
     {"get_error", _ft_get_error, METH_NOARGS, DOC_PYGAMEFREETYPEGETERROR},
-    {"get_version", _ft_get_version, METH_VARARGS | METH_KEYWORDS,
+    {"get_version", (PyCFunction)_ft_get_version, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEGETVERSION},
     {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETCACHESIZE},

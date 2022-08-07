@@ -453,7 +453,7 @@ _imageext_free(void *ptr)
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
-    {"_get_sdl_image_version", imageext_get_sdl_image_version,
+    {"_get_sdl_image_version", (PyCFunction)imageext_get_sdl_image_version,
      METH_VARARGS | METH_KEYWORDS,
      "_get_sdl_image_version() -> (major, minor, patch)\n"
      "Note: Should not be used directly."},
