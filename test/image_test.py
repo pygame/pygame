@@ -220,6 +220,36 @@ class ImageModuleTest(unittest.TestCase):
             del reader
             os.remove(f_path)
 
+    def testSavePNG8(self):
+        """see if we can save an 8 bit png correctly"""
+        # Create an 8-bit PNG file with known colors
+        set_pixels = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (170, 146, 170)]
+
+        size = (1, len(set_pixels))
+        surf = pygame.Surface(size, depth=8)
+        for cnt, pix in enumerate(set_pixels):
+            surf.set_at((0, cnt), pix)
+
+        f_path = tempfile.mktemp(suffix=".png")
+        pygame.image.save(surf, f_path)
+
+        try:
+            # Read the PNG file and verify that pygame saved it correctly
+            reader = png.Reader(filename=f_path)
+            width, height, pixels, _ = reader.asRGB8()
+
+            self.assertEqual(size, (width, height))
+
+            # pixels is a generator
+            self.assertEqual(list(map(tuple, pixels)), set_pixels)
+
+        finally:
+            # Ensures proper clean up.
+            if not reader.file.closed:
+                reader.file.close()
+            del reader
+            os.remove(f_path)
+
     def testSavePaletteAsPNG8(self):
         """see if we can save a png with color values in the proper channels."""
         # Create a PNG file with known colors
