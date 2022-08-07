@@ -443,10 +443,26 @@ image_save_ext(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-imageext_get_sdl_image_version(PyObject *self, PyObject *_null)
+imageext_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
-                         SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+    
+    int compiled = 1;
+
+    static char *keywords[] = {"compiled", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &compiled)) {
+        return NULL;
+    }
+
+    if (!compiled) {
+        SDL_version v;
+        SDL_IMAGE_VERSION(&v);
+        return Py_BuildValue("iii", v.major, v.minor, v.patch);
+    }
+    else {
+        const SDL_version *v = IMG_Linked_Version();
+        return Py_BuildValue("iii", v->major, v->minor, v->patch);
+    }
 }
 
 /*
@@ -465,7 +481,7 @@ _imageext_free(void *ptr)
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
-    {"_get_sdl_image_version", imageext_get_sdl_image_version, METH_NOARGS,
+    {"_get_sdl_image_version", imageext_get_sdl_image_version, METH_VARARGS | METH_KEYWORDS,
      "_get_sdl_image_version() -> (major, minor, patch)\n"
      "Note: Should not be used directly."},
     {NULL, NULL, 0, NULL}};

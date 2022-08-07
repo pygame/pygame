@@ -235,13 +235,36 @@ image_get_extended(PyObject *self, PyObject *_null)
         Py_RETURN_TRUE;
 }
 
+// static PyObject *
+// image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
+// {
+//     int compiled = 1;
+
+//     static char *keywords[] = {"compiled", NULL};
+
+//     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &compiled)) {
+//         return NULL;
+//     }
+
+//     if (!compiled) {
+//         SDL_version v;
+//         SDL_IMAGE_VERSION(&v);
+//         return Py_BuildValue("iii", v.major, v.minor, v.patch);
+//     }
+//     else {
+//         SDL_version *v = IMG_Linked_Version();
+//         return Py_BuildValue("iii", v->major, v->minor, v->patch);
+//     }
+// }
+
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *_null)
+image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     if (extverobj == NULL)
         Py_RETURN_NONE;
     else
-        return PyObject_CallObject(extverobj, NULL);
+        // return PyObject_CallObject(extverobj, NULL);
+        return PyObject_Call(extverobj, args, kwargs);
 }
 
 #if PG_COMPILE_SSE4_2
@@ -1586,7 +1609,7 @@ static PyMethodDef _image_methods[] = {
     {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
     {"get_sdl_image_version", (PyCFunction)image_get_sdl_image_version,
-     METH_NOARGS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
     {"tobytes", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOBYTES},
