@@ -235,30 +235,6 @@ image_get_extended(PyObject *self, PyObject *_null)
         Py_RETURN_TRUE;
 }
 
-// static PyObject *
-// image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject
-// *kwargs)
-// {
-//     int compiled = 1;
-
-//     static char *keywords[] = {"compiled", NULL};
-
-//     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
-//     &compiled)) {
-//         return NULL;
-//     }
-
-//     if (!compiled) {
-//         SDL_version v;
-//         SDL_IMAGE_VERSION(&v);
-//         return Py_BuildValue("iii", v.major, v.minor, v.patch);
-//     }
-//     else {
-//         SDL_version *v = IMG_Linked_Version();
-//         return Py_BuildValue("iii", v->major, v->minor, v->patch);
-//     }
-// }
-
 static PyObject *
 image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {

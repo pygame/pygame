@@ -2038,14 +2038,6 @@ _ft_get_error(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
-// static PyObject *
-// _ft_get_version(PyObject *self, PyObject *_null)
-// {
-//     /* Return the linked FreeType2 version */
-//     return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
-//                          FREETYPE_PATCH);
-// }
-
 static PyObject *
 _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
