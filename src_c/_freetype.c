@@ -45,7 +45,7 @@ _ft_quit(PyObject *, PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
-_ft_get_version(PyObject *, PyObject *);
+_ft_get_version(PyObject *, PyObject *, PyObject *);
 static PyObject *
 _ft_get_error(PyObject *, PyObject *);
 static PyObject *
@@ -493,7 +493,7 @@ static PyMethodDef _ft_methods[] = {
     {"was_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
     {"get_error", _ft_get_error, METH_NOARGS, DOC_PYGAMEFREETYPEGETERROR},
-    {"get_version", _ft_get_version, METH_NOARGS,
+    {"get_version", _ft_get_version, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEGETVERSION},
     {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETCACHESIZE},
@@ -739,7 +739,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
     if (PyBytes_Check(file)) {
         if (PyUnicode_Check(original_file)) {
-            /* Make sure to save a pure Unicode object to prevent possible
+            /* Make sure to save a pure USnicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
              */
@@ -2038,12 +2038,33 @@ _ft_get_error(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+// static PyObject *
+// _ft_get_version(PyObject *self, PyObject *_null)
+// {
+//     /* Return the linked FreeType2 version */
+//     return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
+//                          FREETYPE_PATCH);
+// }
+
 static PyObject *
-_ft_get_version(PyObject *self, PyObject *_null)
+_ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    /* Return the linked FreeType2 version */
-    return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
-                         FREETYPE_PATCH);
+    int compiled = 1;
+    static char *keywords[] = {"compiled", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &compiled)) {
+        return NULL;
+    }
+    
+    if (!compiled) {
+        FT_Int major, minor, patch;
+        FT_Library_Version(inst->library, &major, &minor,  &patch);
+        return Py_BuildValue("iii", major, minor, patch);
+    }
+    else {
+        return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
+                            FREETYPE_PATCH);
+    }
 }
 
 static PyObject *

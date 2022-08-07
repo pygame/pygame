@@ -534,10 +534,10 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
  * Library (de)initialization
  *
  *********************************************************/
+FreeTypeInstance *inst = 0;
 int
 _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 {
-    FreeTypeInstance *inst = 0;
     int error;
 
     inst = _PGFT_malloc(sizeof(FreeTypeInstance));
