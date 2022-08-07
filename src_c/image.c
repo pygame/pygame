@@ -236,13 +236,15 @@ image_get_extended(PyObject *self, PyObject *_null)
 }
 
 // static PyObject *
-// image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
+// image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject
+// *kwargs)
 // {
 //     int compiled = 1;
 
 //     static char *keywords[] = {"compiled", NULL};
 
-//     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &compiled)) {
+//     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
+//     &compiled)) {
 //         return NULL;
 //     }
 

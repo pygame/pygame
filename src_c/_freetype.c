@@ -2052,18 +2052,19 @@ _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
     int compiled = 1;
     static char *keywords[] = {"compiled", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &compiled)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
+                                     &compiled)) {
         return NULL;
     }
-    
+
     if (!compiled) {
         FT_Int major, minor, patch;
-        FT_Library_Version(inst->library, &major, &minor,  &patch);
+        FT_Library_Version(inst->library, &major, &minor, &patch);
         return Py_BuildValue("iii", major, minor, patch);
     }
     else {
         return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
-                            FREETYPE_PATCH);
+                             FREETYPE_PATCH);
     }
 }
 

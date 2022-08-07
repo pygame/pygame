@@ -2089,8 +2089,8 @@ static PyMethodDef _base_methods[] = {
      DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
-    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEGETSDLVERSION},
+    {"get_sdl_version", (PyCFunction)pg_get_sdl_version,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEGETSDLVERSION},
     {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
      DOC_PYGAMEGETSDLBYTEORDER},
 
