@@ -739,7 +739,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
     if (PyBytes_Check(file)) {
         if (PyUnicode_Check(original_file)) {
-            /* Make sure to save a pure USnicode object to prevent possible
+            /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
              * tp_clear for the PyFreetypeFont type.
              */
