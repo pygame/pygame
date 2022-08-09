@@ -1,7 +1,7 @@
 import sys
 
 if __name__ == "__main__":
-    raise ValueError("This module is for import only")
+    raise RuntimeError("This module is for import only")
 test_pkg_name = ".".join(__name__.split(".")[0:-2])
 is_pygame_pkg = test_pkg_name == "pygame.tests"
 test_runner_mod = test_pkg_name + ".test_utils.test_runner"
