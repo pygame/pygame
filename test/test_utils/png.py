@@ -2042,7 +2042,7 @@ class Reader:
             meta["alpha"] = bool(self.trns)
             meta["bitdepth"] = 8
             meta["planes"] = 3 + bool(self.trns)
-            plte = self.palette()
+            plte = list(self.palette())
 
             def iterpal(pixels):
                 for row in pixels:

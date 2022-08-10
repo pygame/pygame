@@ -474,10 +474,11 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-
+#if SDL_VERSION_ATLEAST(2, 0, 6)
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
+#endif
 #endif
 #if defined(SDL_VIDEO_DRIVER_WINRT)
     tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
@@ -691,16 +692,14 @@ static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Window *pygame_window;
-    PyObject *self;
     _DisplayState *state;
     SDL_Window *window;
 
     if (event->type != SDL_WINDOWEVENT)
         return 0;
 
-    self = (PyObject *)userdata;
     pygame_window = pg_GetDefaultWindow();
-    state = DISPLAY_MOD_STATE(self);
+    state = DISPLAY_MOD_STATE((PyObject *)userdata);
 
     window = SDL_GetWindowFromID(event->window.windowID);
     if (window != pygame_window)
@@ -1862,14 +1861,29 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
         return 0;
     }
     for (i = 0; i < 256; i++) {
+        long ret;
         item = PySequence_GetItem(python_array, i);
+        if (!item) {
+            return 0;
+        }
         if (!PyLong_Check(item)) {
             PyErr_SetString(PyExc_ValueError,
                             "gamma ramp must contain integer elements");
             return 0;
         }
-        c_uint16_array[i] = (Uint16)PyLong_AsLong(item);
+        ret = PyLong_AsLong(item);
         Py_XDECREF(item);
+        if (ret < 0 || ret >= 0xFFFF) {
+            if (PyErr_Occurred()) {
+                /* Happens when PyLong_AsLong overflows */
+                return 0;
+            }
+            PyErr_SetString(
+                PyExc_ValueError,
+                "integers in gamma ramp must be between 0 and 0xFFFF");
+            return 0;
+        }
+        c_uint16_array[i] = (Uint16)ret;
     }
     return 1;
 }
@@ -2107,28 +2121,22 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         case SDL_SYSWM_WINDOWS:
         case SDL_SYSWM_X11:
         case SDL_SYSWM_COCOA:
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_WAYLAND:
-#endif
             break;
 
             // These probably have fullscreen/windowed, but not tested yet.
             // before merge, this section should be handled by moving items
             // into the "supported" category, or returning early.
 
-#if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
-#endif
             return PyLong_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
         // In the future, add consoles like xbone/switch here
         case SDL_SYSWM_DIRECTFB:
-        case SDL_SYSWM_UIKIT:  // iOS currently not supported by pygame
-#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_SYSWM_UIKIT:    // iOS currently not supported by pygame
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
-#endif
             if (PyErr_WarnEx(PyExc_Warning,
                              "cannot leave FULLSCREEN on this platform",
                              1) != 0) {
@@ -2137,9 +2145,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
 #endif

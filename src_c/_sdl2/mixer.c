@@ -6,7 +6,7 @@
         "depends": [],
         "name": "pygame._sdl2.mixer",
         "sources": [
-            "src_c\\cython\\pygame\\_sdl2\\mixer.pyx"
+            "src_c/cython/pygame/_sdl2/mixer.pyx"
         ]
     },
     "module_name": "pygame._sdl2.mixer"
@@ -923,7 +923,7 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "src_c\\cython\\pygame\\_sdl2\\mixer.pyx",
+  "src_c/cython/pygame/_sdl2/mixer.pyx",
 };
 /* ForceInitThreads.proto */
 #ifndef __PYX_FORCE_INIT_THREADS
@@ -2020,6 +2020,7 @@ static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_pygame__sdl2_sdl2[] = "pygame._sdl2.sdl2";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
@@ -2073,7 +2074,6 @@ static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
 static PyObject *__pyx_kp_b__22;
-static PyObject *__pyx_n_s__23;
 static PyObject *__pyx_kp_b__23;
 static PyObject *__pyx_kp_b__24;
 static PyObject *__pyx_kp_b__25;
@@ -2116,6 +2116,7 @@ static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_postmix;
 static PyObject *__pyx_n_s_print_exc;
+static PyObject *__pyx_n_s_pygame__sdl2_sdl2;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -17342,7 +17343,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
   {&__pyx_kp_b__22, __pyx_k__22, sizeof(__pyx_k__22), 0, 0, 0, 0},
-  {&__pyx_n_s__23, __pyx_k__23, sizeof(__pyx_k__23), 0, 0, 1, 1},
   {&__pyx_kp_b__23, __pyx_k__23, sizeof(__pyx_k__23), 0, 0, 0, 0},
   {&__pyx_kp_b__24, __pyx_k__24, sizeof(__pyx_k__24), 0, 0, 0, 0},
   {&__pyx_kp_b__25, __pyx_k__25, sizeof(__pyx_k__25), 0, 0, 0, 0},
@@ -17385,6 +17385,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
   {&__pyx_n_s_postmix, __pyx_k_postmix, sizeof(__pyx_k_postmix), 0, 0, 1, 1},
   {&__pyx_n_s_print_exc, __pyx_k_print_exc, sizeof(__pyx_k_print_exc), 0, 0, 1, 1},
+  {&__pyx_n_s_pygame__sdl2_sdl2, __pyx_k_pygame__sdl2_sdl2, sizeof(__pyx_k_pygame__sdl2_sdl2), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -18074,7 +18075,7 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "pygame/_sdl2/mixer.pyx":1
- * from . import error             # <<<<<<<<<<<<<<
+ * from pygame._sdl2.sdl2 import error             # <<<<<<<<<<<<<<
  * import traceback
  * 
  */
@@ -18083,7 +18084,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_error);
   __Pyx_GIVEREF(__pyx_n_s_error);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_error);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s__23, __pyx_t_1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_pygame__sdl2_sdl2, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
@@ -18093,7 +18094,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pygame/_sdl2/mixer.pyx":2
- * from . import error
+ * from pygame._sdl2.sdl2 import error
  * import traceback             # <<<<<<<<<<<<<<
  * 
  * #https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer.html#SEC79
@@ -18113,7 +18114,7 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_postmix, Py_None) < 0) __PYX_ERR(1, 57, __pyx_L1_error)
 
   /* "pygame/_sdl2/mixer.pyx":1
- * from . import error             # <<<<<<<<<<<<<<
+ * from pygame._sdl2.sdl2 import error             # <<<<<<<<<<<<<<
  * import traceback
  * 
  */
