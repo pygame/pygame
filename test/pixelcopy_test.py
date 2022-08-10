@@ -289,7 +289,7 @@ class PixelcopyModuleTest(unittest.TestCase):
 
 
 @unittest.skipIf(IS_PYPY, "pypy having illegal instruction on mac")
-class PixelCopyTestWithArray(unittest.TestCase):
+class PixelCopyTestWithArrayNumpy(unittest.TestCase):
     try:
         import numpy
     except ImportError:
@@ -596,7 +596,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
 
 @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
 @unittest.skipIf(IS_PYPY, "pypy having illegal instruction on mac")
-class PixelCopyTestWithArray(unittest.TestCase):
+class PixelCopyTestWithArrayNewBuf(unittest.TestCase):
 
     if pygame.HAVE_NEWBUF:
         from pygame.tests.test_utils import buftools
@@ -605,7 +605,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
             def __init__(self, initializer):
                 from ctypes import cast, POINTER, c_uint32
 
-                Array2D = PixelCopyTestWithArray.Array2D
+                Array2D = PixelCopyTestWithArrayNewBuf.Array2D
                 super().__init__((3, 5), format="=I", strides=(20, 4))
                 self.content = cast(self.buf, POINTER(c_uint32))
                 for i, v in enumerate(initializer):
@@ -621,7 +621,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
             def __init__(self, initializer):
                 from ctypes import cast, POINTER, c_uint8
 
-                Array3D = PixelCopyTestWithArray.Array3D
+                Array3D = PixelCopyTestWithArrayNewBuf.Array3D
                 super().__init__((3, 5, 3), format="B", strides=(20, 4, 1))
                 self.content = cast(self.buf, POINTER(c_uint8))
                 for i, v in enumerate(initializer):
