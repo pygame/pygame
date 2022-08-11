@@ -179,10 +179,10 @@ Examples
 Here are some examples of different methods to init the graphics display.
 They should help you get an idea of how to go about setting your display mode. ::
 
-  >>> #give me the best depth with a 640 x 480 windowed display
+  >>> # give me the best depth with a 640 x 480 windowed display
   >>> pygame.display.set_mode((640, 480))
 
-  >>> #give me the biggest 16-bit display available
+  >>> # give me the biggest 16-bit display available
   >>> modes = pygame.display.list_modes(16)
   >>> if not modes:
   ...     print('16-bit not supported')
@@ -190,7 +190,7 @@ They should help you get an idea of how to go about setting your display mode. :
   ...     print('Found Resolution:', modes[0])
   ...     pygame.display.set_mode(modes[0], FULLSCREEN, 16)
 
-  >>> #need an 8-bit surface, nothing else will do
+  >>> # need an 8-bit surface, nothing else will do
   >>> if pygame.display.mode_ok((800, 600), 0, 8) != 8:
   ...     print('Can only work with an 8-bit display, sorry')
   ... else:
