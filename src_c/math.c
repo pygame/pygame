@@ -4101,6 +4101,10 @@ math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
         return RAISE(PyExc_TypeError, "clamp requires 3 numeric arguments");
     }
 
+    // Using RichCompare instead of converting to C types for performance
+    // reasons. This implementation was tested to be faster than using
+    // PyFloat_AsDouble and PyErr_Occurred.
+
     // if value < min: return min
     int result = PyObject_RichCompareBool(value, min, Py_LT);
     if (result == 1) {
