@@ -277,9 +277,7 @@ rotate90(SDL_Surface *src, int angle)
                 dstpix = dstrow;
                 srcpix = srcrow;
                 for (loopx = 0; loopx < dstwidth; ++loopx) {
-                    dstpix[0] = srcpix[0];
-                    dstpix[1] = srcpix[1];
-                    dstpix[2] = srcpix[2];
+                    memcpy(dstpix, srcpix, 3);
                     srcpix += srcstepx;
                     dstpix += dststepx;
                 }
@@ -480,9 +478,7 @@ stretch(SDL_Surface *src, SDL_Surface *dst)
                 Uint8 *srcpix = (Uint8 *)srcrow, *dstpix = (Uint8 *)dstrow;
                 w_err = srcwidth2 - dstwidth2;
                 for (loopw = 0; loopw < dstwidth; ++loopw) {
-                    dstpix[0] = srcpix[0];
-                    dstpix[1] = srcpix[1];
-                    dstpix[2] = srcpix[2];
+                    memcpy(dstpix, srcpix, 3);
                     dstpix += 3;
                     while (w_err >= 0) {
                         srcpix += 3;
@@ -812,9 +808,8 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!xaxis) {
         if (!yaxis) {
-            for (loopy = 0; loopy < surf->h; ++loopy)
-                memcpy(dstpix + loopy * dstpitch, srcpix + loopy * srcpitch,
-                       surf->w * surf->format->BytesPerPixel);
+            assert(srcpitch == dstpitch);
+            memcpy(dstpix, srcpix, srcpitch * surf->h);
         }
         else {
             for (loopy = 0; loopy < surf->h; ++loopy)
@@ -868,9 +863,7 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
                                        (surf->h - 1 - loopy) * srcpitch)) +
                             surf->w * 3 - 3;
                         for (loopx = 0; loopx < surf->w; ++loopx) {
-                            dst[0] = src[0];
-                            dst[1] = src[1];
-                            dst[2] = src[2];
+                            memcpy(dst, src, 3);
                             dst += 3;
                             src -= 3;
                         }
@@ -913,9 +906,7 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
                         Uint8 *src = ((Uint8 *)(srcpix + loopy * srcpitch)) +
                                      surf->w * 3 - 3;
                         for (loopx = 0; loopx < surf->w; ++loopx) {
-                            dst[0] = src[0];
-                            dst[1] = src[1];
-                            dst[2] = src[2];
+                            memcpy(dst, src, 3);
                             dst += 3;
                             src -= 3;
                         }
@@ -1024,9 +1015,7 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
                             *(Uint16 *)dstpix = *(Uint16 *)srcpix;
                             break;
                         case 3:
-                            dstpix[0] = srcpix[0];
-                            dstpix[1] = srcpix[1];
-                            dstpix[2] = srcpix[2];
+                            memcpy(dstpix, srcpix, 3);
                             break;
                         case 4:
                             *(Uint32 *)dstpix = *(Uint32 *)srcpix;
@@ -2208,10 +2197,7 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
                 sample[8] = LAPLACIAN_NUM;
             }
 
-            total[0] = 0;
-            total[1] = 0;
-            total[2] = 0;
-            total[3] = 0;
+            memset(total, 0, 4 * sizeof(int));
 
             for (ii = 0; ii < 9; ii++) {
                 SDL_GetRGBA(sample[ii], format, &c1r, &c1g, &c1b, &c1a);
