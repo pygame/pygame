@@ -70,7 +70,10 @@ while running:
 
     for o in balls:
         if target_position is not None:
-            o.position.move_towards_ip(target_position, o.speed * delta_time)
+            try:
+                o.position.move_towards_ip(target_position, o.speed * delta_time)
+            except AttributeError:
+                raise RuntimeError(f"Version {pg.__version__} doesn't have Vector.move_towards function.\nPlease update to >=2.1.3")
         pg.draw.circle(screen, (118, 207, 145), o.position, CIRCLE_RADIUS)
 
     pg.display.flip()
