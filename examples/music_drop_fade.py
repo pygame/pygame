@@ -168,9 +168,7 @@ def main():
     clock = pg.time.Clock()
 
     pg.scrap.init()
-    pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode("ISO-8859-1")
-    # store the current text from the clipboard TODO remove decode
+    clipped = pg.scrap.get(pg.SCRAP_TEXT)
 
     # add the command line arguments to the  music_file_list
     for arg in sys.argv[1:]:
@@ -233,8 +231,7 @@ def main():
             pg.mixer.music.set_volume(volume)
             print("volume:", volume)
 
-        # TODO remove decode when SDL2 scrap is fixed
-        new_text = pg.scrap.get(pg.SCRAP_TEXT).decode("ISO-8859-1")
+        new_text = pg.scrap.get(pg.SCRAP_TEXT)
         if new_text != clipped:  # has the clipboard changed?
             clipped = new_text
             play_file(clipped)  # try to play the file if it has
