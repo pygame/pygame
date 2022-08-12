@@ -92,7 +92,9 @@ while running:
         img.flip_x = t % 50 < 25
     except AttributeError as e:
         print(e)
-        raise RuntimeError(f"Version {pg.__version__} doesn't have pygame._sdl2.video.Image.flip_x attribute.\nPlease update to >=2.1.3")
+        raise RuntimeError(
+            f"Version {pg.__version__} doesn't have pygame._sdl2.video.Image.flip_x attribute.\nPlease update to >=2.1.3"
+        )
     img.flip_y = t % 100 < 50
     img.color[0] = int(255.0 * (0.5 + math.sin(0.5 * t + 10.0) / 2.0))
     img.alpha = int(255.0 * (0.5 + math.sin(0.1 * t) / 2.0))
