@@ -2041,15 +2041,15 @@ _ft_get_error(PyObject *self, PyObject *_null)
 static PyObject *
 _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int compiled = 1;
-    static char *keywords[] = {"compiled", NULL};
+    int linked = 0;
+    static char *keywords[] = {"linked", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
-                                     &compiled)) {
+                                     &linked)) {
         return NULL;
     }
 
-    if (!compiled) {
+    if (linked) {
         FT_Int major, minor, patch;
         FT_Library_Version(inst->library, &major, &minor, &patch);
         return Py_BuildValue("iii", major, minor, patch);

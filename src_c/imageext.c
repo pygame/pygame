@@ -417,16 +417,16 @@ static PyObject *
 imageext_get_sdl_image_version(PyObject *self, PyObject *args,
                                PyObject *kwargs)
 {
-    int compiled = 1;
+    int linked = 0;
 
-    static char *keywords[] = {"compiled", NULL};
+    static char *keywords[] = {"linked", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
-                                     &compiled)) {
+                                     &linked)) {
         return NULL;
     }
 
-    if (!compiled) {
+    if (linked) {
         SDL_version v;
         SDL_IMAGE_VERSION(&v);
         return Py_BuildValue("iii", v.major, v.minor, v.patch);
