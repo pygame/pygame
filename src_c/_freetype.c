@@ -2044,8 +2044,7 @@ _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
     int linked = 0;
     static char *keywords[] = {"linked", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
-                                     &linked)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
         return NULL;
     }
 

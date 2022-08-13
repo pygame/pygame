@@ -421,8 +421,7 @@ imageext_get_sdl_image_version(PyObject *self, PyObject *args,
 
     static char *keywords[] = {"linked", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords,
-                                     &linked)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
         return NULL;
     }
 
