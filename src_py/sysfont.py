@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Library General Public
 # License along with this library; if not, write to the Free
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston and MA  02111-1307 USA
 #
 # Pete Shinners
 # pete@shinners.org
@@ -23,6 +23,7 @@ import os
 import sys
 import warnings
 from os.path import basename, dirname, exists, join, splitext
+from dotenv import load_dotenv
 
 from pygame.font import Font
 
@@ -54,10 +55,13 @@ def _addfont(name, bold, italic, font, fontdict):
 
 def initsysfonts_win32():
     """initialize fonts dictionary on Windows"""
-
-    fontdir = join(os.environ.get("WINDIR", "C:\\Windows"), "Fonts")
-    fonts = {}
-
+	#faster and quicker
+	try:
+		fontdir = join(os.getenv("WINDIR", "C:\\Windows"), "Fonts")
+		fonts = {}
+	except ImportError as e:
+		print(e)
+			
     # add fonts entered in the registry
     microsoft_font_dirs = [
         "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
@@ -156,18 +160,19 @@ def _font_finder_darwin():
         "/Library/Fonts",
         "/Network/Library/Fonts",
         "/System/Library/Fonts",
-        "/System/Library/Fonts/Supplemental",
+        "/System/Library/Fonts/Supplemental"
     ]
 
     username = os.getenv("USER")
     if username:
-        locations.append("/Users/" + username + "/Library/Fonts")
+		#using formatting 
+        locations.append(f"/Users/{username}/Library/Fonts")
 
     strange_root = "/System/Library/Assets/com_apple_MobileAsset_Font3"
     if exists(strange_root):
         strange_locations = os.listdir(strange_root)
         for loc in strange_locations:
-            locations.append(strange_root + "/" + loc + "/AssetData")
+            locations.append(f"{strange_root}/{loc}/AssetData")
 
     fonts = {}
 
@@ -185,7 +190,7 @@ def _font_finder_darwin():
 
 
 def initsysfonts_darwin():
-    """Read the fonts on MacOS, and OS X."""
+    """Read the fonts on MacO  and OS X."""
     # if the X11 binary exists... try and use that.
     #  Not likely to be there on pre 10.4.x ... or MacOS 10.10+
     if exists("/usr/X11/bin/fc-list"):
@@ -289,7 +294,7 @@ def create_aliases():
             "lucidaconsole",
             "consolas",
             "dejavusansmono",
-            "liberationmono",
+            "liberationmono"
         ),
         (
             "sans",
@@ -307,7 +312,7 @@ def create_aliases():
             "trebuchetms",
             "ubuntu",
             "dejavusans",
-            "liberationsans",
+            "liberationsans"
         ),
         (
             "serif",
@@ -323,10 +328,10 @@ def create_aliases():
             "cambria",
             "constantia",
             "dejavuserif",
-            "liberationserif",
+            "liberationserif"
         ),
         ("wingdings", "wingbats"),
-        ("comicsansms", "comicsans"),
+        ("comicsansms", "comicsans")
     )
     for alias_set in alias_groups:
         for name in alias_set:
