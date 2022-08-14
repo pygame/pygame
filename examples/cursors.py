@@ -200,7 +200,7 @@ def main():
 
         bg.fill((183, 201, 226), (0, 15, bg.get_width(), 50))
         text1 = font.render(
-            ("This is a " + pg.mouse.get_cursor().type + " cursor"), True, (0, 0, 0)
+            (f"This is a {pg.mouse.get_cursor().type} cursor"), True, (0, 0, 0)
         )
         text_rect1 = text1.get_rect(center=(bg.get_width() / 2, 40))
         bg.blit(text1, text_rect1)
