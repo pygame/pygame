@@ -69,7 +69,7 @@ thickarrow_strings = (
 bitmap_cursor1 = pg.cursors.Cursor(
     (24, 24),
     (0, 0),
-    *pg.cursors.compile(thickarrow_strings, black="X", white=".", xor="o")
+    *pg.cursors.compile(thickarrow_strings, black="X", white=".", xor="o"),
 )
 
 
