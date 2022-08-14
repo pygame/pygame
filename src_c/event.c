@@ -1529,14 +1529,13 @@ event_name(PyObject *self, PyObject *arg)
 static PyObject *
 set_grab(PyObject *self, PyObject *arg)
 {
-    int doit;
-    SDL_Window *win = NULL;
-
-    if (!PyArg_ParseTuple(arg, "p", &doit))
+    int doit = PyObject_IsTrue(arg);
+    if (doit == -1)
         return NULL;
+
     VIDEO_INIT_CHECK();
 
-    win = pg_GetDefaultWindow();
+    SDL_Window *win = pg_GetDefaultWindow();
     if (win) {
         if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
@@ -2190,7 +2189,7 @@ static PyMethodDef _event_methods[] = {
 
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
-    {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
+    {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
