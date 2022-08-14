@@ -119,9 +119,9 @@ class Cursor:
     def __repr__(self):
         if self.type == "system":
             id_string = _cursor_id_table.get(self.data[0], "constant lookup error")
-            return f'<Cursor(type: system, constant: {id_string})>'
+            return f"<Cursor(type: system, constant: {id_string})>"
         if self.type == "bitmap":
-            size = f"size: {self.data[0]!s}" # !s for calling str(), or it will call format()
+            size = f"size: {self.data[0]!s}"  # !s for calling str(), or it will call format()
             hotspot = f"hotspot: {self.data[1]!s}"
             return f"<Cursor(type: bitmap, {size}, {hotspot})>"
         if self.type == "color":
