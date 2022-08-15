@@ -445,6 +445,40 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.update ##
 
+   
+   .. attribute:: epsilon
+      
+      | :sl:`Determines the tolerance of vector calculations.`
+      
+      Both Vector classes have a value named ``epsilon`` that defaults to ``1e-6``.
+      This value acts as a numerical margin in various methods to account for floating point
+      arithmetic errors. Specifically, ``epsilon`` is used in the following places:
+
+         * comparing Vectors (``==`` and ``!=``)
+         * the ``is_normalized`` method (if the square of the length is within ``epsilon`` of 1, it's normalized)
+         * slerping (a Vector with a length of ``<epsilon`` is considered a zero vector, and can't slerp with that)
+         * reflection (can't reflect over the zero vector)
+         * projection (can't project onto the zero vector)
+         * rotation (only used when rotating by a multiple of 90 degrees)
+
+      While it's possible to change ``epsilon`` for a specific instance of a Vector, all the other Vectors
+      will retain the default value. Changing ``epsilon`` on a specific instance however could lead to some
+      asymmetric behavior where symmetry would be expected, such as
+
+      ::
+
+         u = pygame.Vector2(0, 1)
+         v = pygame.Vector2(0, 1.2)
+         u.epsilon = 0.5 # don't set it nearly this large
+
+         print(u == v) # >> True
+         print(v == u) # >> False
+
+      You'll probably never have to change ``epsilon`` from the default value, but in rare situations you might
+      find that either the margin is too large or too small, in which case changing ``epsilon`` slightly 
+      might help you out.
+
+
    .. ## pygame.math.Vector2 ##
 
 .. class:: Vector3
@@ -1017,6 +1051,12 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector3.update ##
 
+   .. attribute:: epsilon
+
+      | :sl:`Determines the tolerance of vector calculations.`
+      
+      With lengths within this number, vectors are considered equal. For more information see :attr:`pygame.math.Vector2.epsilon`
+            
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
