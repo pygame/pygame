@@ -95,7 +95,7 @@ class VideoCapturePlayer:
         )
         print("(Selecting a camera that does not exist will default to camera 0)")
         for index, cam in enumerate(clist):
-            print("[" + str(index) + "]: " + cam)
+            print(f"[{index}]: {cam}")
 
         going = True
         while going:
