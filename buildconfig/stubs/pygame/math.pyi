@@ -19,7 +19,6 @@ if sys.version_info >= (3, 9):
 else:
     from typing import Collection
 
-
 def clamp(value: float, min: float, max: float, /) -> float: ...
 
 _TVec = TypeVar("_TVec", bound=_GenericVector)
@@ -318,7 +317,7 @@ class Vector3(_GenericVector):
     @overload
     def update(
         self: _TVec,
-        xyz: Union[str, float, Sequence[float], _TVec] = 0,
+        x: Union[str, float, Sequence[float], _TVec] = 0,
     ) -> None: ...
     @overload
     def update(self, x: int, y: int, z: int) -> None: ...
