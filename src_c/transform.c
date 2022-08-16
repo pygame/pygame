@@ -592,7 +592,8 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
 
-    if (!(newsurf = scale_to(surfobj, surfobj2, width, height))) {
+    newsurf = scale_to(surfobj, surfobj2, width, height);
+    if (!newsurf) {
         return NULL;
     }
 
@@ -624,10 +625,11 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
-
-    if (!(newsurf = scale_to(surfobj, surfobj2, (int)(surf->w * scalex),
-                             (int)(surf->h * scaley))))
+    newsurf = scale_to(surfobj, surfobj2, (int)(surf->w * scalex),
+                       (int)(surf->h * scaley));
+    if (!newsurf) {
         return NULL;
+    }
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
@@ -1564,8 +1566,10 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
 
-    if (!(newsurf = smoothscale_to(self, surfobj, surfobj2, width, height)))
+    newsurf = smoothscale_to(self, surfobj, surfobj2, width, height);
+    if (!newsurf) {
         return NULL;
+    }
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
@@ -1596,10 +1600,11 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
-    if (!(newsurf =
-              smoothscale_to(self, surfobj, surfobj2, (int)(surf->w * scale),
-                             (int)(surf->h * scaley))))
+    newsurf = smoothscale_to(self, surfobj, surfobj2, (int)(surf->w * scale),
+                             (int)(surf->h * scaley));
+    if (!newsurf) {
         return NULL;
+    }
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
