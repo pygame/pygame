@@ -97,13 +97,9 @@ mask_call_copy(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-mask_get_size(PyObject *self, PyObject *args)
+mask_get_size(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
-
-    if (!PyArg_ParseTuple(args, ""))
-        return NULL;
-
     return Py_BuildValue("(ii)", mask->w, mask->h);
 }
 
@@ -2321,7 +2317,7 @@ to_surface_error:
 static PyMethodDef mask_methods[] = {
     {"__copy__", mask_copy, METH_NOARGS, DOC_MASKCOPY},
     {"copy", mask_call_copy, METH_NOARGS, DOC_MASKCOPY},
-    {"get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
+    {"get_size", mask_get_size, METH_NOARGS, DOC_MASKGETSIZE},
     {"get_rect", (PyCFunction)mask_get_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_MASKGETRECT},
     {"get_at", (PyCFunction)mask_get_at, METH_VARARGS | METH_KEYWORDS,

@@ -1180,7 +1180,7 @@ class ImageModuleTest(unittest.TestCase):
 
         for filename, expected_color in filename_expected_color:
             with self.subTest(
-                "Test loading a " + filename.split(".")[-1],
+                f'Test loading a {filename.split(".")[-1]}',
                 filename="examples/data/" + filename,
                 expected_color=expected_color,
             ):
