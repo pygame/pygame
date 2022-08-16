@@ -75,7 +75,7 @@ class TouchInteractiveTest(unittest.TestCase):
                     for finger_index in range(0, num_fingers):
                         data = pygame._sdl2.touch.get_finger(first_device, finger_index)
                         render = font.render(
-                            f"finger - {data!s}", True, pygame.Color("#000000")
+                            f"finger - {data}", True, pygame.Color("#000000")
                         )
 
                         finger_data_renders.append(render)

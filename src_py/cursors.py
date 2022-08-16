@@ -121,11 +121,11 @@ class Cursor:
             id_string = _cursor_id_table.get(self.data[0], "constant lookup error")
             return f"<Cursor(type: system, constant: {id_string})>"
         if self.type == "bitmap":
-            size = f"size: {self.data[0]!s}"  # !s for calling str(), or it will call format()
-            hotspot = f"hotspot: {self.data[1]!s}"
+            size = f"size: {self.data[0]}"
+            hotspot = f"hotspot: {self.data[1]}"
             return f"<Cursor(type: bitmap, {size}, {hotspot})>"
         if self.type == "color":
-            hotspot = f"hotspot: {self.data[0]!s}"
+            hotspot = f"hotspot: {self.data[0]}"
             surf = repr(self.data[1])
             return f"<Cursor(type: color, {hotspot}, surf: {surf})>"
         raise TypeError("Invalid Cursor")
