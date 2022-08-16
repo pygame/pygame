@@ -1132,15 +1132,8 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.z, 3.0)
 
     def testConstructionMissing(self):
-        def assign_missing_value_1():
-            v = Vector3(1, 2)
-
-        self.assertRaises(ValueError, assign_missing_value_1)
-
-        def assign_missing_value_2():
-            v = Vector3(x=1, y=2)
-
-        self.assertRaises(ValueError, assign_missing_value_2)
+        self.assertRaises(ValueError, Vector3, 1, 2)
+        self.assertRaises(ValueError, Vector3, x=1, y=2)
 
     def testAttributeAccess(self):
         tmp = self.v1.x
