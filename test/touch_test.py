@@ -24,7 +24,7 @@ class TouchTest(unittest.TestCase):
     def test_get_device(self):
         touch.get_device(0)
 
-    def test_num_fingers__invalid(self):
+    def test_get_device__invalid(self):
         self.assertRaises(pygame.error, touch.get_device, -1234)
         self.assertRaises(TypeError, touch.get_device, "test")
 
