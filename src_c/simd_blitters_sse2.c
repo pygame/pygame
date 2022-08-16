@@ -487,13 +487,18 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
                      * 000000000A1000A200 -> mm_src_alpha*/
                     mm_src_alpha = _mm_srli_si128(mm_src_alpha, 1);
 
-                    /* shuffle alpha channels to duplicate 16 byte pairs
-                     * 000000000A10A10A20A2 -> mm_src_alpha */
+                    /* shuffle alpha channels to duplicate 16 bit pairs
+                     * shuffle (3, 3, 1, 1) (backed 2 bit numbers)
+                     * [00][00][00][00][0A1][00][0A2][00] -> mm_src_alpha
+                     * [7 ][6 ][5 ][4 ][ 3 ][2 ][ 1 ][0 ]
+                     * Therefore the previous contents of 16 bit number #1
+                     * Goes into 16 bit number #1 and #2, and the previous
+                     * content of 16 bit number #3 goes into #2 and #3 */
                     mm_src_alpha =
                         _mm_shufflelo_epi16(mm_src_alpha, 0b11110101);
 
                     /* finally move into final config
-                     * spread out so they can be multipled in 16 bit math
+                     * spread out so they can be multiplied in 16 bit math
                      * against all RGBA of both pixels being blit
                      * 0A10A10A10A10A20A20A20A2 -> mm_src_alpha */
                     mm_src_alpha =
