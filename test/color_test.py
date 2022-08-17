@@ -264,15 +264,8 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual((1, 2, 3, 4), (r, g, b, a))
         self.assertEqual(c, (r, g, b, a))
 
-        c.set_length(3)
-        r, g, b = c
+        r, g, b = c.rgb
         self.assertEqual((1, 2, 3), (r, g, b))
-
-        # Checking if DeprecationWarning is triggered
-        # when function is called
-        for i in range(1, 5):
-            with self.assertWarns(DeprecationWarning):
-                c.set_length(i)
 
     def test_length(self):
         # should be able to unpack to r,g,b,a and r,g,b
@@ -296,6 +289,12 @@ class ColorTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, c.set_length, -1)
         self.assertRaises(ValueError, c.set_length, 0)
         self.assertRaises(ValueError, c.set_length, pow(2, 33))
+
+        # Checking if DeprecationWarning is triggered
+        # when function is called
+        for i in range(1, 5):
+            with self.assertWarns(DeprecationWarning):
+                c.set_length(i)
 
     def test_case_insensitivity_of_string_args(self):
         self.assertEqual(pygame.color.Color("red"), pygame.color.Color("Red"))
@@ -461,6 +460,42 @@ class ColorTypeTest(unittest.TestCase):
             self.assertRaises(ValueError, cls, seq_type((100,)))
             self.assertRaises(ValueError, cls, seq_type((100, 90)))
             self.assertRaises(ValueError, cls, seq_type((100, 90, 80, 70, 60)))
+
+    def test_rgb(self):
+        c = pygame.Color(10, 20, 30, 255)
+        self.assertEqual(c.rgb, (10, 20, 30))
+
+        # Test simple assignments
+        c.rgb = (40, 50, 60)
+        self.assertEqual(c.rgb, (40, 50, 60))
+        self.assertEqual(c.r, 40)
+        self.assertEqual(c.g, 50)
+        self.assertEqual(c.b, 60)
+        self.assertEqual(c.a, 255)
+
+        # Test assigment with list
+        c.rgb = [70, 80, 90]
+        self.assertEqual(c.rgb, (70, 80, 90))
+        self.assertEqual(c.r, 70)
+        self.assertEqual(c.g, 80)
+        s
+
+        # Test behaviour when with alpha value
+        c = pygame.Color(10, 20, 30, 100)
+        c.rgb = (40, 50, 60)
+        self.assertEqual(c.rgb, (40, 50, 60))
+        self.assertEqual(c.r, 40)
+        self.assertEqual(c.g, 50)
+        self.assertEqual(c.b, 60)
+        # TODO: Should this be 255?
+        self.assertEqual(c.a, 100)
+
+        # Test invalid assignments
+        self.assertRaises(TypeError, setattr, c, 'rgb', (40,))
+        self.assertRaises(TypeError, setattr, c, 'rgb', (40, 50))
+        self.assertRaises(TypeError, setattr, c, 'rgb', ("", 40, 50))
+        self.assertRaises(TypeError, setattr, c, 'rgb', (40, "", 50))
+        self.assertRaises(TypeError, setattr, c, 'rgb', (40, 50, ""))
 
     def test_rgba(self):
         c = pygame.Color(0)
