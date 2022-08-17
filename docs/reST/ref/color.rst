@@ -185,6 +185,16 @@
 
       .. ## Color.i1i2i3 ##
 
+   .. attribute:: rgb
+
+      | :sl:`Gets or sets the RGB representation of the Color.`
+      | :sg:`rgb -> tuple`
+
+      Returns ``RGB`` values of the Color as a tuple of three integers in the
+      range of 0 to 255 stripping any alpha value.
+
+      .. ## Color.rgb ##
+
    .. method:: normalize
 
       | :sl:`Returns the normalized RGBA values of the Color.`

@@ -130,6 +130,10 @@ _color_get_cmy(pgColorObject *, void *);
 static int
 _color_set_cmy(pgColorObject *, PyObject *, void *);
 static PyObject *
+_color_get_rgb(pgColorObject *, void *);
+static int
+_color_set_rgb(pgColorObject *, PyObject *, void *);
+static PyObject *
 _color_get_arraystruct(pgColorObject *, void *);
 
 /* Number protocol methods */
@@ -219,6 +223,8 @@ static PyGetSetDef _color_getsets[] = {
      NULL},
     {"i1i2i3", (getter)_color_get_i1i2i3, (setter)_color_set_i1i2i3,
      DOC_COLORI1I2I3, NULL},
+    {"rgb", (getter)_color_get_rgb, (setter)_color_set_rgb, DOC_COLORRGB,
+     NULL},
     {"cmy", (getter)_color_get_cmy, (setter)_color_set_cmy, DOC_COLORCMY,
      NULL},
     {"__array_struct__", (getter)_color_get_arraystruct, NULL,
@@ -295,6 +301,18 @@ _get_double(PyObject *obj, double *val)
     }
     *val = PyFloat_AsDouble(floatobj);
     Py_DECREF(floatobj);
+    return 1;
+}
+
+static int
+_get_int(PyObject *obj, int *val)
+{
+    PyObject *intobj;
+    if (!(intobj = PyNumber_Long(obj))) {
+        return 0;
+    }
+    *val = PyLong_AsLong(intobj);
+    Py_DECREF(intobj);
     return 1;
 }
 
@@ -1420,6 +1438,46 @@ _color_set_i1i2i3(pgColorObject *color, PyObject *value, void *closure)
     color->data[1] = (Uint8)(ag * 255);
     color->data[2] = (Uint8)(ab * 255);
 
+    return 0;
+}
+
+static PyObject *
+_color_get_rgb(pgColorObject *color, void *closure)
+{
+    return Py_BuildValue("(iii)", color->data[0], color->data[1],
+                         color->data[2]);
+}
+
+static int
+_color_set_rgb(pgColorObject *color, PyObject *value, void *closure)
+{
+    PyObject *item;
+    int r, g, b;
+    DEL_ATTR_NOT_SUPPORTED_CHECK("rgb", value);
+    item = PySequence_GetItem(value, 0);
+    if (!item || !_get_int(item, &r) || r < 0 || r > 255) {
+        Py_XDECREF(item);
+        PyErr_SetString(PyExc_ValueError, "invalid RGB value");
+        return -1;
+    }
+    Py_DECREF(item);
+    item = PySequence_GetItem(value, 1);
+    if (!item || !_get_int(item, &g) || g < 0 || g > 255) {
+        Py_XDECREF(item);
+        PyErr_SetString(PyExc_ValueError, "invalid RGB value");
+        return -1;
+    }
+    Py_DECREF(item);
+    item = PySequence_GetItem(value, 2);
+    if (!item || !_get_int(item, &b) || b < 0 || b > 255) {
+        Py_XDECREF(item);
+        PyErr_SetString(PyExc_ValueError, "invalid RGB value");
+        return -1;
+    }
+    Py_DECREF(item);
+    color->data[0] = r;
+    color->data[1] = g;
+    color->data[2] = b;
     return 0;
 }
 

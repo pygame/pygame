@@ -8,6 +8,7 @@
 #define DOC_COLORHSVA "hsva -> tuple\nGets or sets the HSVA representation of the Color."
 #define DOC_COLORHSLA "hsla -> tuple\nGets or sets the HSLA representation of the Color."
 #define DOC_COLORI1I2I3 "i1i2i3 -> tuple\nGets or sets the I1I2I3 representation of the Color."
+#define DOC_COLORRGB "rgb -> tuple\nGets or sets the RGB representation of the Color."
 #define DOC_COLORNORMALIZE "normalize() -> tuple\nReturns the normalized RGBA values of the Color."
 #define DOC_COLORCORRECTGAMMA "correct_gamma (gamma) -> Color\nApplies a certain gamma value to the Color."
 #define DOC_COLORSETLENGTH "set_length(len) -> None\nSet the number of elements in the Color to 1,2,3, or 4."
@@ -57,6 +58,10 @@ Gets or sets the HSLA representation of the Color.
 pygame.Color.i1i2i3
  i1i2i3 -> tuple
 Gets or sets the I1I2I3 representation of the Color.
+
+pygame.Color.rgb
+ rgb -> tuple
+Gets or sets the RGB representation of the Color.
 
 pygame.Color.normalize
  normalize() -> tuple
