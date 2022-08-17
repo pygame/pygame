@@ -21,6 +21,7 @@ class Color(Collection[int]):
     hsva: Tuple[float, float, float, float]
     hsla: Tuple[float, float, float, float]
     i1i2i3: Tuple[float, float, float]
+    rgb: Tuple[int, int, int]
     __hash__: None  # type: ignore
     __array_struct__: Any
     @overload
