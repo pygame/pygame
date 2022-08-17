@@ -478,7 +478,7 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c.rgb, (70, 80, 90))
         self.assertEqual(c.r, 70)
         self.assertEqual(c.g, 80)
-        s
+        self.assertEqual(c.b, 90)
 
         # Test behaviour when with alpha value
         c = pygame.Color(10, 20, 30, 100)
@@ -491,11 +491,11 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c.a, 100)
 
         # Test invalid assignments
-        self.assertRaises(TypeError, setattr, c, 'rgb', (40,))
-        self.assertRaises(TypeError, setattr, c, 'rgb', (40, 50))
-        self.assertRaises(TypeError, setattr, c, 'rgb', ("", 40, 50))
-        self.assertRaises(TypeError, setattr, c, 'rgb', (40, "", 50))
-        self.assertRaises(TypeError, setattr, c, 'rgb', (40, 50, ""))
+        self.assertRaises(ValueError, setattr, c, 'rgb', (40,))
+        self.assertRaises(ValueError, setattr, c, 'rgb', (40, 50))
+        self.assertRaises(ValueError, setattr, c, 'rgb', ("", 40, 50))
+        self.assertRaises(ValueError, setattr, c, 'rgb', (40, "", 50))
+        self.assertRaises(ValueError, setattr, c, 'rgb', (40, 50, ""))
 
     def test_rgba(self):
         c = pygame.Color(0)
