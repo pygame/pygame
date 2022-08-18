@@ -8,6 +8,7 @@ except NameError:
 import pygame
 from pygame.locals import *
 from pygame.pixelcopy import surface_to_array, map_array, array_to_surface, make_surface
+import warnings
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -15,6 +16,17 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 def unsigned32(i):
     """cast signed 32 bit integer to an unsigned integer"""
     return i & 0xFFFFFFFF
+
+
+def _suppress_warnings(c):
+    def decorator(f):
+        def new_f(*args, **kwargs):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=c)
+                return f(*args, **kwargs)
+
+        return new_f
+    return decorator
 
 
 @unittest.skipIf(IS_PYPY, "pypy having illegal instruction on mac")
@@ -185,6 +197,7 @@ class PixelcopyModuleTest(unittest.TestCase):
                 )
             view = None
 
+    @_suppress_warnings(DeprecationWarning)
     def test_map_array(self):
         targets = [
             self._make_surface(8),
