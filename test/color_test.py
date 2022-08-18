@@ -2,6 +2,7 @@ import math
 import operator
 import platform
 import unittest
+import warnings
 from collections.abc import Collection, Sequence
 
 import pygame
@@ -61,12 +62,24 @@ def _assign_item(x, p, y):
     x[p] = y
 
 
+def _suppress_warnings(c):
+    def decorator(f):
+        def new_f(*args, **kwargs):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=c)
+                return f(*args, **kwargs)
+
+        return new_f
+    return decorator
+
+
 class ColorTypeTest(unittest.TestCase):
     def test_new(self):
         c = pygame.Color.__new__(pygame.Color)
         self.assertEqual(c, pygame.Color(0, 0, 0, 255))
         self.assertEqual(len(c), 4)
 
+    @_suppress_warnings(DeprecationWarning)
     def test_init(self):
         c = pygame.Color(10, 20, 30, 200)
         self.assertEqual(c, (10, 20, 30, 200))
@@ -257,6 +270,7 @@ class ColorTypeTest(unittest.TestCase):
 
         # NOTE: assigning to a slice is currently unsupported.
 
+    @_suppress_warnings(DeprecationWarning)
     def test_unpack(self):
         # should be able to unpack to r,g,b,a and r,g,b
         c = pygame.Color(1, 2, 3, 4)
@@ -268,12 +282,7 @@ class ColorTypeTest(unittest.TestCase):
         r, g, b = c
         self.assertEqual((1, 2, 3), (r, g, b))
 
-        # Checking if DeprecationWarning is triggered
-        # when function is called
-        for i in range(1, 5):
-            with self.assertWarns(DeprecationWarning):
-                c.set_length(i)
-
+    @_suppress_warnings(DeprecationWarning)
     def test_length(self):
         # should be able to unpack to r,g,b,a and r,g,b
         c = pygame.Color(1, 2, 3, 4)
@@ -296,6 +305,12 @@ class ColorTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, c.set_length, -1)
         self.assertRaises(ValueError, c.set_length, 0)
         self.assertRaises(ValueError, c.set_length, pow(2, 33))
+
+        # Checking if DeprecationWarning is triggered
+        # when function is called
+        for i in range(1, 5):
+            with self.assertWarns(DeprecationWarning):
+                c.set_length(i)
 
     def test_case_insensitivity_of_string_args(self):
         self.assertEqual(pygame.color.Color("red"), pygame.color.Color("Red"))
@@ -990,6 +1005,7 @@ class ColorTypeTest(unittest.TestCase):
     # only available if ctypes module is also available
 
     @unittest.skipIf(IS_PYPY, "PyPy has no ctypes")
+    @_suppress_warnings(DeprecationWarning)
     def test_arraystruct(self):
 
         import pygame.tests.test_utils.arrinter as ai
@@ -1013,6 +1029,7 @@ class ColorTypeTest(unittest.TestCase):
                 self.assertEqual(data[j], c[j])
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @_suppress_warnings(DeprecationWarning)
     def test_newbuf(self):
         from pygame.tests.test_utils import buftools
         from ctypes import cast, POINTER, c_uint8
@@ -1203,6 +1220,7 @@ class ColorTypeTest(unittest.TestCase):
                         ),
                     )
 
+    @_suppress_warnings(DeprecationWarning)
     def test_update(self):
         c = pygame.color.Color(0, 0, 0)
         c.update(1, 2, 3, 4)
