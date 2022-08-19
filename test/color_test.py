@@ -70,6 +70,7 @@ def _suppress_warnings(c):
                 return f(*args, **kwargs)
 
         return new_f
+
     return decorator
 
 
