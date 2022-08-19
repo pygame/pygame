@@ -1,7 +1,10 @@
 import platform
 import unittest
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 try:
     from pygame.tests.test_utils import arrinter
@@ -187,6 +190,7 @@ class PixelcopyModuleTest(unittest.TestCase):
                 )
             view = None
 
+    @unittest.skipIf(not np, "Numpy is not installed")
     def test_map_array(self):
         targets = [
             self._make_surface(8),
