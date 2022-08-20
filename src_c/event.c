@@ -1293,10 +1293,13 @@ pg_EventGetAttr(PyObject *o, PyObject *attr_name)
     PyObject *result = PyObject_GenericGetAttr(o, attr_name);
 
     if (!result) {
+        PyObject *type, *value, *traceback;
+        PyErr_Fetch(&type, &value, &traceback);
         result = PyDict_GetItem(((pgEventObject *)o)->dict, attr_name);
 
         if (!result) {
-            return NULL; /* error is set by GenericGetAttr already */
+            PyErr_Restore(type, value, traceback);
+            return NULL;
         }
         PyErr_Clear();
     }
