@@ -1264,10 +1264,11 @@ class Vector2TypeTest(unittest.TestCase):
             (0.93, 2.83),
             (7.6,),
         ):
-            v2 = v1.clamp_magnitude(*args)
-            v1.clamp_magnitude_ip(*args)
-            self.assertEqual(v1, v2)
-            self.assertEqual(v1, Vector2(1, 2))
+            with self.subTest(args=args):
+                v2 = v1.clamp_magnitude(*args)
+                v1.clamp_magnitude_ip(*args)
+                self.assertEqual(v1, v2)
+                self.assertEqual(v1, Vector2(1, 2))
 
     def test_clamp_mag_v2_edge_cases(self):
         v1 = Vector2(1, 2)
@@ -1288,8 +1289,9 @@ class Vector2TypeTest(unittest.TestCase):
             (1, 2, 3),
             (342.234, "test"),
         ):
-            self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
-            self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
 
         for invalid_args in (
             (-1,),
@@ -1297,8 +1299,9 @@ class Vector2TypeTest(unittest.TestCase):
             (-4, 10),
             (-4, -2),
         ):
-            self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
-            self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
 
         # 0 vector
         v2 = Vector2()
@@ -2787,10 +2790,11 @@ class Vector3TypeTest(unittest.TestCase):
             (0.93, 6.83),
             (7.6,),
         ):
-            v2 = v1.clamp_magnitude(*args)
-            v1.clamp_magnitude_ip(*args)
-            self.assertEqual(v1, v2)
-            self.assertEqual(v1, Vector3(1, 2, 3))
+            with self.subTest(args=args):
+                v2 = v1.clamp_magnitude(*args)
+                v1.clamp_magnitude_ip(*args)
+                self.assertEqual(v1, v2)
+                self.assertEqual(v1, Vector3(1, 2, 3))
 
     def test_clamp_mag_v3_edge_cases(self):
         v1 = Vector3(1, 2, 1)
@@ -2811,8 +2815,9 @@ class Vector3TypeTest(unittest.TestCase):
             (1, 2, 3),
             (342.234, "test"),
         ):
-            self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
-            self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
 
         for invalid_args in (
             (-1,),
@@ -2820,8 +2825,9 @@ class Vector3TypeTest(unittest.TestCase):
             (-4, 10),
             (-4, -2),
         ):
-            self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
-            self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
 
         # 0 vector
         v2 = Vector3()
