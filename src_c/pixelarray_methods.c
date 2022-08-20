@@ -1076,6 +1076,7 @@ _close_array(pgPixelArrayObject *array, PyObject *args)
 static PyObject *
 _enter_context(pgPixelArrayObject *array, PyObject *args)
 {
+    Py_INCREF(array);
     return (PyObject *)array;
 }
 
