@@ -1382,9 +1382,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance)
 {
     Py_ssize_t i;
-    double delta[VECTOR_MAX_SIZE];
-    double dist;
-
+    double frac, dist, delta[VECTOR_MAX_SIZE];
     if (max_distance == 0)
         return;
 
@@ -1393,6 +1391,11 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
+    if (dist == 0) {
+        /* origin and target are same, return early (this also makes sure
+         * that frac is never NaN) */
+        return;
+    }
 
     if (dist <= max_distance) {
         /* Return target Vector */
@@ -1401,10 +1404,9 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
         return;
     }
 
+    frac = max_distance / dist;
     for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
-
-    return;
+        origin_coords[i] += delta[i] * frac;
 }
 
 static PyObject *
@@ -2261,8 +2263,7 @@ vector2_rotate_rad_ip(pgVector *self, PyObject *angleObject)
         return NULL;
     }
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
@@ -2315,8 +2316,7 @@ vector2_rotate_ip(pgVector *self, PyObject *angleObject)
     }
     angle = DEG2RAD(angle);
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
@@ -4090,11 +4090,20 @@ static PyObject *
 math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (nargs != 3)
-        return RAISE(PyExc_ValueError, "clamp requires 3 arguments");
+        return RAISE(PyExc_TypeError, "clamp requires 3 arguments");
 
     PyObject *value = args[0];
     PyObject *min = args[1];
     PyObject *max = args[2];
+
+    if (PyNumber_Check(args[0]) != 1 || PyNumber_Check(args[1]) != 1 ||
+        PyNumber_Check(args[2]) != 1) {
+        return RAISE(PyExc_TypeError, "clamp requires 3 numeric arguments");
+    }
+
+    // Using RichCompare instead of converting to C types for performance
+    // reasons. This implementation was tested to be faster than using
+    // PyFloat_AsDouble and PyErr_Occurred.
 
     // if value < min: return min
     int result = PyObject_RichCompareBool(value, min, Py_LT);
