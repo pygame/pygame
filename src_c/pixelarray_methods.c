@@ -234,9 +234,7 @@ _make_surface(pgPixelArrayObject *array, PyObject *args)
                 pixel_p = pixelrow;
                 new_pixel_p = new_pixelrow;
                 for (x = 0; x < dim0; ++x) {
-                    new_pixel_p[0] = pixel_p[0];
-                    new_pixel_p[1] = pixel_p[1];
-                    new_pixel_p[2] = pixel_p[2];
+                    memcpy(new_pixel_p, pixel_p, 3);
                     pixel_p += stride0;
                     new_pixel_p += new_stride0;
                 }
