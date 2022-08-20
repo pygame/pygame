@@ -63,16 +63,18 @@ Multiple coordinates can be set using slices or swizzling
 
 .. function:: lerp
 
-   | :sl:`interpolates between two values by a percentage.`
-   | :sg:`lerp(a, b, percent) -> float`
+   | :sl:`interpolates between two values by a weight.`
+   | :sg:`lerp(a, b, weight) -> float`
 
-   Linearly interpolates between ``a`` and ``b`` by ``percent`` using the formula ``a + (b-a) * percent``.
+   Linearly interpolates between ``a`` and ``b`` by ``weight`` using the formula ``a + (b-a) * weight``.
    
-   If ``percent`` is ``0.5``, ``lerp`` will return the value half-way between ``a``
-   and ``b``. When ``a = 10`` and ``b = 20``, ``lerp(a, b, 0.5)`` will return ``15``.
+   If ``weight`` is ``0.5``, ``lerp`` will return the value half-way between ``a``
+   and ``b``. When ``a = 10`` and ``b = 20``, ``lerp(a, b, 0.5)`` will return ``15``. You
+   can think of weight as the percentage of interpolation from ``a`` to ``b``, ``0.0``
+   being 0% and ``1.0`` being 100%.
 
-   ``lerp`` can be used for many things. You could rotate a sprite by a percentage with
-   ``angle = lerp(0, 360, percent)``. You could even scale an enemy's attack value
+   ``lerp`` can be used for many things. You could rotate a sprite by a weight with
+   ``angle = lerp(0, 360, weight)``. You could even scale an enemy's attack value
    based on the level you're playing:
 
    ::
@@ -84,10 +86,10 @@ Multiple coordinates can be set using slices or swizzling
 
    If you're on level 0, ``attack`` will be ``10``, if you're on level 10,
    ``attack`` will be ``50``. If you're on level 5, the
-   percentage calculated with ``current_level/MAX_LEVEL`` will be ``0.5``
-   which is 50%, therefore ``attack`` will be ``30``, which is half-way between ``10`` and ``50``.
+   result of ``current_level/MAX_LEVEL`` will be ``0.5``
+   which represents 50%, therefore ``attack`` will be ``30``, which is the midpoint of ``10`` and ``50``.
 
-   Raises a ValueError if ``percent`` is outside the range of ``[0, 1]``.
+   Raises a ValueError if ``weight`` is outside the range of ``[0, 1]``.
 
    .. versionadded:: 2.1.3
 

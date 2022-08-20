@@ -4132,14 +4132,14 @@ math_lerp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
     double b = PyFloat_AsDouble(args[1]);
     if (PyErr_Occurred())
         return NULL;
-    double percent = PyFloat_AsDouble(args[2]);
+    double weight = PyFloat_AsDouble(args[2]);
     if (PyErr_Occurred())
         return NULL;
 
-    if (percent < 0 || percent > 1)
-        return RAISE(PyExc_ValueError, "percent must be in range [0, 1]");
+    if (weight < 0 || weight > 1)
+        return RAISE(PyExc_ValueError, "weight must be in range [0, 1]");
 
-    return PyFloat_FromDouble(a + (b - a) * percent);
+    return PyFloat_FromDouble(a + (b - a) * weight);
 }
 
 PG_WRAP_FASTCALL_FUNC(math_lerp, PyObject);
