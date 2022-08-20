@@ -190,6 +190,14 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(round(change_ip.x, 2), expected.x)
         self.assertEqual(round(change_ip.y, 2), expected.y)
 
+    def test_move_towards_self(self):
+        vec = Vector2(6.36, 2001.13)
+        vec2 = vec.copy()
+        for dist in (-3.54, -1, 0, 0.234, 12):
+            self.assertEqual(vec.move_towards(vec2, dist), vec)
+            vec2.move_towards_ip(vec, dist)
+            self.assertEqual(vec, vec2)
+
     def test_move_towards_errors(self):
         def overpopulate():
             origin = Vector2(7.22, 2004.0)
@@ -2495,6 +2503,71 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(other * 3), TestVector)
         self.assertEqual(type(other / 3), TestVector)
         self.assertEqual(type(other.elementwise() ** 3), TestVector)
+
+    def test_move_towards_basic(self):
+        expected = Vector3(7.93205057, 2006.38284641, 43.80780420)
+        origin = Vector3(7.22, 2004.0, 42.13)
+        target = Vector3(12.30, 2021.0, 54.1)
+        change_ip = origin.copy()
+
+        change = origin.move_towards(target, 3)
+        change_ip.move_towards_ip(target, 3)
+
+        self.assertEqual(change, expected)
+        self.assertEqual(change_ip, expected)
+
+    def test_move_towards_max_distance(self):
+        expected = Vector3(12.30, 2021, 42.5)
+        origin = Vector3(7.22, 2004.0, 17.5)
+        change_ip = origin.copy()
+
+        change = origin.move_towards(expected, 100)
+        change_ip.move_towards_ip(expected, 100)
+
+        self.assertEqual(change, expected)
+        self.assertEqual(change_ip, expected)
+
+    def test_move_nowhere(self):
+        origin = Vector3(7.22, 2004.0, 24.5)
+        target = Vector3(12.30, 2021.0, 3.2)
+        change_ip = origin.copy()
+
+        change = origin.move_towards(target, 0)
+        change_ip.move_towards_ip(target, 0)
+
+        self.assertEqual(change, origin)
+        self.assertEqual(change_ip, origin)
+
+    def test_move_away(self):
+        expected = Vector3(6.74137906, 2002.39831577, 49.70890994)
+        origin = Vector3(7.22, 2004.0, 52.2)
+        target = Vector3(12.30, 2021.0, 78.64)
+        change_ip = origin.copy()
+
+        change = origin.move_towards(target, -3)
+        change_ip.move_towards_ip(target, -3)
+
+        self.assertEqual(change, expected)
+        self.assertEqual(change_ip, expected)
+
+    def test_move_towards_self(self):
+        vec = Vector3(6.36, 2001.13, -123.14)
+        vec2 = vec.copy()
+        for dist in (-3.54, -1, 0, 0.234, 12):
+            self.assertEqual(vec.move_towards(vec2, dist), vec)
+            vec2.move_towards_ip(vec, dist)
+            self.assertEqual(vec, vec2)
+
+    def test_move_towards_errors(self):
+        origin = Vector3(7.22, 2004.0, 4.1)
+        target = Vector3(12.30, 2021.0, -421.5)
+
+        self.assertRaises(TypeError, origin.move_towards, target, 3, 2)
+        self.assertRaises(TypeError, origin.move_towards_ip, target, 3, 2)
+        self.assertRaises(TypeError, origin.move_towards, target, "a")
+        self.assertRaises(TypeError, origin.move_towards_ip, target, "b")
+        self.assertRaises(TypeError, origin.move_towards, "c", 3)
+        self.assertRaises(TypeError, origin.move_towards_ip, "d", 3)
 
 
 if __name__ == "__main__":

@@ -1382,9 +1382,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance)
 {
     Py_ssize_t i;
-    double delta[VECTOR_MAX_SIZE];
-    double dist;
-
+    double frac, dist, delta[VECTOR_MAX_SIZE];
     if (max_distance == 0)
         return;
 
@@ -1393,6 +1391,11 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
+    if (dist == 0) {
+        /* origin and target are same, return early (this also makes sure
+         * that frac is never NaN) */
+        return;
+    }
 
     if (dist <= max_distance) {
         /* Return target Vector */
@@ -1401,10 +1404,9 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
         return;
     }
 
+    frac = max_distance / dist;
     for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
-
-    return;
+        origin_coords[i] += delta[i] * frac;
 }
 
 static PyObject *
