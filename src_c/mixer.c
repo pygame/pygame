@@ -628,6 +628,27 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 /* sound object methods */
 
 static PyObject *
+_pg_sound_subtype_new(PyObject *self, Uint8 **mem, int volume)
+{
+    pgSoundObject *sound =
+        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
+    Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
+
+    if (chunk) {
+        MIXER_INIT_CHECK();
+
+        Mix_VolumeChunk(chunk, volume);
+    }
+
+    if (sound) {
+        sound->mem = mem;
+        sound->chunk = chunk;
+    }
+
+    return (PyObject *)sound;
+}
+
+static PyObject *
 pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
@@ -761,6 +782,16 @@ snd_get_raw(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
+snd_copy(PyObject *self, PyObject *_null)
+{
+    Mix_Chunk *chunk = pgSound_AsChunk(self);
+    int volume;
+    MIXER_INIT_CHECK();
+    volume = Mix_VolumeChunk(chunk, -1);
+    return _pg_sound_subtype_new(self, ((pgSoundObject *)self)->mem, volume);
+}
+
+static PyObject *
 snd_get_arraystruct(PyObject *self, void *closure)
 {
     Py_buffer view;
@@ -815,6 +846,7 @@ PyMethodDef sound_methods[] = {
     {"get_volume", snd_get_volume, METH_NOARGS, DOC_SOUNDGETVOLUME},
     {"get_length", snd_get_length, METH_NOARGS, DOC_SOUNDGETLENGTH},
     {"get_raw", snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
+    {"copy", snd_copy, METH_NOARGS, DOC_SOUNDGETRAW},
     {NULL, NULL, 0, NULL}};
 
 static PyGetSetDef sound_getset[] = {
