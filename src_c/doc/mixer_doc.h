@@ -23,6 +23,7 @@
 #define DOC_SOUNDGETNUMCHANNELS "get_num_channels() -> count\ncount how many times this Sound is playing"
 #define DOC_SOUNDGETLENGTH "get_length() -> seconds\nget the length of the Sound"
 #define DOC_SOUNDGETRAW "get_raw() -> bytes\nreturn a bytestring copy of the Sound samples."
+#define DOC_SOUNDCOPY "copy() -> Sound\ncopy the Sound"
 #define DOC_PYGAMEMIXERCHANNEL "Channel(id) -> Channel\nCreate a Channel object for controlling playback"
 #define DOC_CHANNELPLAY "play(Sound, loops=0, maxtime=0, fade_ms=0) -> None\nplay a Sound on a specific Channel"
 #define DOC_CHANNELSTOP "stop() -> None\nstop playback on a Channel"
@@ -145,6 +146,10 @@ get the length of the Sound
 pygame.mixer.Sound.get_raw
  get_raw() -> bytes
 return a bytestring copy of the Sound samples.
+
+pygame.mixer.Sound.copy
+ copy() -> Sound
+copy the Sound
 
 pygame.mixer.Channel
  Channel(id) -> Channel

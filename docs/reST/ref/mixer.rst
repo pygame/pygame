@@ -401,6 +401,14 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       .. versionadded:: 1.9.2
 
       .. ## Sound.get_raw ##
+   
+   .. method:: copy
+
+      | :sl:`copy the Sound`
+      | :sg:`copy() -> Sound`
+      
+      Returns a new Sound object with the same data and volume as the original.
+   .. ## pygame.mixer.Sound.copy ##
 
    .. ## pygame.mixer.Sound ##
 

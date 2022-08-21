@@ -50,6 +50,8 @@ class Sound:
     def __init__(
         self, array: numpy.ndarray
     ) -> None: ...  # Buffer protocol is still not implemented in typing
+    def __copy__(self) -> Sound: ...
+    copy = __copy__
     def play(
         self,
         loops: int = 0,
