@@ -15606,7 +15606,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_14LayeredUpdates_42__setstate_cython_
 
 /* Python wrapper */
 static int __pyx_pw_6pygame_7_sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygame_7_sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: treshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
+static char __pyx_doc_6pygame_7_sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: treshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
 #if CYTHON_UPDATE_DESCRIPTOR_DOC
 struct wrapperbase __pyx_wrapperbase_6pygame_7_sprite_12LayeredDirty___init__;
 #endif
@@ -25801,7 +25801,7 @@ static PyTypeObject __pyx_type_6pygame_7_sprite_OrderedUpdates = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "RenderUpdates class that draws Sprites in order of addition\n\n    pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates\n\n    This class derives from pygame.sprite.RenderUpdates().  It maintains\n    the order in which the Sprites were added to the Group for rendering.\n    This makes adding and removing Sprites from the Group a little\n    slower than regular Groups.\n\n    ", /*tp_doc*/
+  "RenderUpdates class that draws Sprites in order of addition\n\n    pygame.sprite.OrderedUpdates(*sprites): return OrderedUpdates\n\n    This class derives from pygame.sprite.RenderUpdates().  It maintains\n    the order in which the Sprites were added to the Group for rendering.\n    This makes adding and removing Sprites from the Group a little\n    slower than regular Groups.\n\n    ", /*tp_doc*/
   __pyx_tp_traverse_6pygame_7_sprite_OrderedUpdates, /*tp_traverse*/
   __pyx_tp_clear_6pygame_7_sprite_OrderedUpdates, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -26008,7 +26008,7 @@ static PyTypeObject __pyx_type_6pygame_7_sprite_LayeredUpdates = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "LayeredUpdates Group handles layers, which are drawn like OrderedUpdates\n\n    pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates\n\n    This group is fully compatible with pygame.sprite.Sprite.\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
+  "LayeredUpdates Group handles layers, which are drawn like OrderedUpdates\n\n    pygame.sprite.LayeredUpdates(*sprites, **kwargs): return LayeredUpdates\n\n    This group is fully compatible with pygame.sprite.Sprite.\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
   __pyx_tp_traverse_6pygame_7_sprite_LayeredUpdates, /*tp_traverse*/
   __pyx_tp_clear_6pygame_7_sprite_LayeredUpdates, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -26217,7 +26217,7 @@ static PyTypeObject __pyx_type_6pygame_7_sprite_LayeredDirty = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates\n\n    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n    This group requires pygame.sprite.DirtySprite or any sprite that\n    has the following attributes:\n        image, rect, dirty, visible, blendmode (see doc of DirtySprite).\n\n    It uses the dirty flag technique and is therefore faster than\n    pygame.sprite.RenderUpdates if you have many static sprites.  It\n    also switches automatically between dirty rect updating and full\n    screen drawing, so you do no have to worry which would be faster.\n\n    As with the pygame.sprite.Group, you can specify some additional attributes\n    through kwargs:\n        _use_update: True/False   (default is False)\n        _default_layer: default layer where the sprites without a layer are\n            added\n        _time_threshold: treshold time for switching between dirty rect mode\n            and fullscreen mode; defaults to updating at 80 frames per second,\n            which is equal to 1000.0 / 80.0\n\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
+  "LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates\n\n    pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty\n\n    This group requires pygame.sprite.DirtySprite or any sprite that\n    has the following attributes:\n        image, rect, dirty, visible, blendmode (see doc of DirtySprite).\n\n    It uses the dirty flag technique and is therefore faster than\n    pygame.sprite.RenderUpdates if you have many static sprites.  It\n    also switches automatically between dirty rect updating and full\n    screen drawing, so you do no have to worry which would be faster.\n\n    As with the pygame.sprite.Group, you can specify some additional attributes\n    through kwargs:\n        _use_update: True/False   (default is False)\n        _default_layer: default layer where the sprites without a layer are\n            added\n        _time_threshold: treshold time for switching between dirty rect mode\n            and fullscreen mode; defaults to updating at 80 frames per second,\n            which is equal to 1000.0 / 80.0\n\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
   __pyx_tp_traverse_6pygame_7_sprite_LayeredDirty, /*tp_traverse*/
   __pyx_tp_clear_6pygame_7_sprite_LayeredDirty, /*tp_clear*/
   0, /*tp_richcompare*/

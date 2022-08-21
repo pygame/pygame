@@ -105,7 +105,6 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     float startx, starty, endx, endy;
     int blend = 1; /* Default blend. */
-    float pts[4];
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
     Uint8 rgba[4];
@@ -151,12 +150,7 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    pts[0] = startx;
-    pts[1] = starty;
-    pts[2] = endx;
-    pts[3] = endy;
-    draw_aaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend,
-                drawn_area);
+    draw_aaline(surf, color, startx, starty, endx, endy, blend, drawn_area);
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");

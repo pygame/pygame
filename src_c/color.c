@@ -93,7 +93,8 @@ _color_lerp(pgColorObject *, PyObject *, PyObject *);
 static PyObject *
 _premul_alpha(pgColorObject *, PyObject *);
 static PyObject *
-_color_update(pgColorObject *, PyObject *, PyObject *);
+_color_update(pgColorObject *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(_color_update, pgColorObject);
 
 /* Getters/setters */
 static PyObject *
@@ -200,7 +201,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORLERP},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
-    {"update", (PyCFunction)_color_update, METH_VARARGS, DOC_COLORUPDATE},
+    {"update", (PyCFunction)PG_FASTCALL_NAME(_color_update), PG_FASTCALL,
+     DOC_COLORUPDATE},
     {NULL, NULL, 0, NULL}};
 
 /**
@@ -539,10 +541,7 @@ _color_new_internal_length(PyTypeObject *type, const Uint8 rgba[],
         return NULL;
     }
 
-    color->data[0] = rgba[0];
-    color->data[1] = rgba[1];
-    color->data[2] = rgba[2];
-    color->data[3] = rgba[3];
+    memcpy(color->data, rgba, 4);
     color->len = length;
 
     return color;
@@ -833,50 +832,37 @@ _premul_alpha(pgColorObject *color, PyObject *_null)
 }
 
 static PyObject *
-_color_update(pgColorObject *self, PyObject *args, PyObject *kwargs)
+_color_update(pgColorObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     Uint8 *rgba = self->data;
-    PyObject *r_or_obj;
-    PyObject *g = NULL;
-    PyObject *b = NULL;
-    PyObject *a = NULL;
-
-    if (!PyArg_ParseTuple(args, "O|OOO", &r_or_obj, &g, &b, &a)) {
-        return NULL;
-    }
-
-    if (!g) {
-        if (_parse_color_from_single_object(r_or_obj, rgba)) {
+    if (nargs == 1) {
+        if (_parse_color_from_single_object(args[0], rgba)) {
             return NULL;
         }
     }
-    else {
+    else if (nargs == 3 || nargs == 4) {
+        Py_ssize_t i;
         Uint32 color = 0;
-
-        /* Color(R,G,B[,A]) */
-        if (!_get_color(r_or_obj, &color) || color > 255) {
-            return RAISE(PyExc_ValueError, "invalid color argument");
-        }
-        rgba[0] = (Uint8)color;
-        if (!_get_color(g, &color) || color > 255) {
-            return RAISE(PyExc_ValueError, "invalid color argument");
-        }
-        rgba[1] = (Uint8)color;
-        if (!b || !_get_color(b, &color) || color > 255) {
-            return RAISE(PyExc_ValueError, "invalid color argument");
-        }
-        rgba[2] = (Uint8)color;
-
-        if (a) {
-            if (!_get_color(a, &color) || color > 255) {
+        for (i = 0; i < nargs; i++) {
+            if (!_get_color(args[i], &color) || color > 255) {
                 return RAISE(PyExc_ValueError, "invalid color argument");
             }
-            self->len = 4;
-            rgba[3] = (Uint8)color;
+            rgba[i] = (Uint8)color;
         }
+        /* Update len only if alpha component was passed (because the previous
+         * implementation of this function behaved so) */
+        if (nargs == 4) {
+            self->len = 4;
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "update can take only 1, 3 or 4 arguments");
     }
     Py_RETURN_NONE;
 }
+
+PG_WRAP_FASTCALL_FUNC(_color_update, pgColorObject)
 
 /**
  * color.r
@@ -1689,6 +1675,12 @@ static PyObject *
 _color_set_length(pgColorObject *color, PyObject *args)
 {
     int clength;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.Color.set_length deprecated since 2.1.3",
+                     1) == -1) {
+        return NULL;
+    }
 
     if (!PyArg_ParseTuple(args, "i", &clength)) {
         if (!PyErr_ExceptionMatches(PyExc_OverflowError)) {

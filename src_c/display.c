@@ -474,10 +474,11 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-
+#if SDL_VERSION_ATLEAST(2, 0, 6)
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
+#endif
 #endif
 #if defined(SDL_VIDEO_DRIVER_WINRT)
     tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
@@ -691,16 +692,14 @@ static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Window *pygame_window;
-    PyObject *self;
     _DisplayState *state;
     SDL_Window *window;
 
     if (event->type != SDL_WINDOWEVENT)
         return 0;
 
-    self = (PyObject *)userdata;
     pygame_window = pg_GetDefaultWindow();
-    state = DISPLAY_MOD_STATE(self);
+    state = DISPLAY_MOD_STATE((PyObject *)userdata);
 
     window = SDL_GetWindowFromID(event->window.windowID);
     if (window != pygame_window)
@@ -761,15 +760,17 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 }
 
 static PyObject *
-pg_display_set_autoresize(PyObject *self, PyObject *args)
+pg_display_set_autoresize(PyObject *self, PyObject *arg)
 {
-    SDL_bool do_resize;
+    int do_resize;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
 
-    if (!PyArg_ParseTuple(args, "p", &do_resize))
+    do_resize = PyObject_IsTrue(arg);
+    if (do_resize == -1) {
         return NULL;
+    }
 
-    state->auto_resize = do_resize;
+    state->auto_resize = (SDL_bool)do_resize;
     SDL_DelEventWatch(pg_ResizeEventWatch, self);
 
     if (do_resize) {
@@ -1013,7 +1014,19 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                             y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
-                        SDL_GetWindowPosition(win, &x, &y);
+                        int old_w, old_h;
+                        SDL_GetWindowSize(win, &old_w, &old_h);
+
+                        /* Emulate SDL1 behaviour: When the window is to be
+                         * centred, the window shifts to the new centred
+                         * location only when resolution changes and previous
+                         * position is retained when the dimensions don't
+                         * change.
+                         * When the window is not to be centred, previous
+                         * position is retained unconditionally */
+                        if (!center_window || (w == old_w && h == old_h)) {
+                            SDL_GetWindowPosition(win, &x, &y);
+                        }
                     }
                 }
                 if (!(flags & PGS_OPENGL) !=
@@ -1962,13 +1975,14 @@ pg_get_caption(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_set_icon(PyObject *self, PyObject *arg)
+pg_set_icon(PyObject *self, PyObject *surface)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface;
-    if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
-        return NULL;
+    if (!pgSurface_Check(surface)) {
+        return RAISE(PyExc_TypeError,
+                     "Argument to set_icon must be a Surface");
+    }
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         if (!pg_display_init(NULL, NULL))
@@ -2110,28 +2124,22 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         case SDL_SYSWM_WINDOWS:
         case SDL_SYSWM_X11:
         case SDL_SYSWM_COCOA:
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_WAYLAND:
-#endif
             break;
 
             // These probably have fullscreen/windowed, but not tested yet.
             // before merge, this section should be handled by moving items
             // into the "supported" category, or returning early.
 
-#if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
-#endif
             return PyLong_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
         // In the future, add consoles like xbone/switch here
         case SDL_SYSWM_DIRECTFB:
-        case SDL_SYSWM_UIKIT:  // iOS currently not supported by pygame
-#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_SYSWM_UIKIT:    // iOS currently not supported by pygame
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
-#endif
             if (PyErr_WarnEx(PyExc_Warning,
                              "cannot leave FULLSCREEN on this platform",
                              1) != 0) {
@@ -2140,9 +2148,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
 #endif
@@ -2539,14 +2545,14 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
-    {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
+    {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
 
     {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
      DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
-    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_VARARGS,
+    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_O,
      "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "DEPRECATED, never officially supported, kept only for compatibility "

@@ -14,7 +14,6 @@ This demo will show you a few things:
 
 """
 
-
 import os
 
 import pygame as pg
@@ -31,7 +30,8 @@ def surfdemo_show(array_img, name):
     pg.display.set_caption(name)
     while True:
         e = pg.event.wait()
-        if e.type == pg.MOUSEBUTTONDOWN:
+        # Force application to only advance when main button is released
+        if e.type == pg.MOUSEBUTTONUP and e.button == pg.BUTTON_LEFT:
             break
         elif e.type == pg.KEYDOWN and e.key == pg.K_s:
             # pg.image.save(screen, name+'.bmp')
@@ -56,8 +56,9 @@ def main():
     from numpy import int32, uint8, uint
 
     pg.init()
+
     print(f"Using {surfarray.get_arraytype().capitalize()}")
-    print("Press the mouse button to advance image.")
+    print("Press the left mouse button to advance image.")
     print('Press the "s" key to save the current image.')
 
     # allblack

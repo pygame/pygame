@@ -6,14 +6,15 @@ A little "console" where you can write in text.
 Shows how to use the TEXTEDITING and TEXTINPUT events.
 """
 import sys
+import os
 
 import pygame
 import pygame as pg
 import pygame.freetype as freetype
 
-# Version check
-if pg.get_sdl_version() < (2, 0, 0):
-    raise Exception("This example requires pygame 2.")
+# This environment variable is important
+# If not added the candidate list will not show
+os.environ["SDL_IME_SHOW_UI"] = "1"
 
 
 class TextInput:
@@ -200,11 +201,6 @@ class Game:
         )
 
     def main_loop(self) -> None:
-        """
-        https://wiki.libsdl.org/SDL_HINT_IME_INTERNAL_EDITING
-        https://wiki.libsdl.org/Tutorials/TextInput
-        Candidate list not showing due to SDL2 problem ;w;
-        """
         pg.key.start_text_input()
         input_rect = pg.Rect(80, 80, 320, 40)
         pg.key.set_text_input_rect(input_rect)

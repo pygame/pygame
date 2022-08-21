@@ -81,7 +81,11 @@ static int _pg_event_is_init = 0;
  * duration of the program) because its cleanup can be messy with multiple
  * threads trying to use it. Since it's a singleton we don't need to worry
  * about memory leaks */
+#ifndef __EMSCRIPTEN__
+/* emscripten does not allow multithreading for now and SDL_CreateMutex fails.
+ * Don't bother with mutexes on emscripten for now */
 static SDL_mutex *pg_evfilter_mutex = NULL;
+#endif
 
 static struct ScanAndUnicode {
     SDL_Scancode key;
@@ -94,6 +98,12 @@ static int pg_key_repeat_interval = 0;
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
 static SDL_Event _pg_last_keydown_event = {0};
+
+#ifdef __EMSCRIPTEN__
+/* these macros are no-op here */
+#define PG_LOCK_EVFILTER_MUTEX
+#define PG_UNLOCK_EVFILTER_MUTEX
+#else /* not on emscripten */
 
 #define PG_LOCK_EVFILTER_MUTEX                                             \
     if (pg_evfilter_mutex) {                                               \
@@ -118,6 +128,7 @@ static SDL_Event _pg_last_keydown_event = {0};
             PG_EXIT(1);                                                    \
         }                                                                  \
     }
+#endif /* not on emscripten */
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -321,10 +332,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
         _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
         _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
         _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
         _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
         _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
@@ -351,9 +360,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(FINGERUP);
         _PG_HANDLE_PROXIFY(KEYDOWN);
         _PG_HANDLE_PROXIFY(KEYUP);
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
-#endif
         _PG_HANDLE_PROXIFY(JOYAXISMOTION);
         _PG_HANDLE_PROXIFY(JOYBALLMOTION);
         _PG_HANDLE_PROXIFY(JOYHATMOTION);
@@ -371,12 +378,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(MULTIGESTURE);
         _PG_HANDLE_PROXIFY(NOEVENT);
         _PG_HANDLE_PROXIFY(QUIT);
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
-#endif
         _PG_HANDLE_PROXIFY(SYSWMEVENT);
         _PG_HANDLE_PROXIFY(TEXTEDITING);
         _PG_HANDLE_PROXIFY(TEXTINPUT);
@@ -642,13 +645,14 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
+#ifndef __EMSCRIPTEN__
         if (!pg_evfilter_mutex) {
             /* Create mutex only if it has not been created already */
             pg_evfilter_mutex = SDL_CreateMutex();
             if (!pg_evfilter_mutex)
                 return RAISE(pgExc_SDLError, SDL_GetError());
         }
-
+#endif
         SDL_SetEventFilter(pg_event_filter, NULL);
     }
     _pg_event_is_init = 1;
@@ -694,10 +698,8 @@ _pg_name_from_eventtype(int type)
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_KEYMAPCHANGED:
             return "KeyMapChanged";
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 14)
         case SDL_LOCALECHANGED:
             return "LocaleChanged";
@@ -782,20 +784,14 @@ _pg_name_from_eventtype(int type)
         case SDL_CONTROLLERSENSORUPDATE:
             return "ControllerSensorUpdate";
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_RENDER_TARGETS_RESET:
             return "RenderTargetsReset";
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_RENDER_DEVICE_RESET:
             return "RenderDeviceReset";
-#endif
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
@@ -1053,7 +1049,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "x", PyLong_FromLong(event->window.data1));
             _pg_insobj(dict, "y", PyLong_FromLong(event->window.data2));
             break;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
             _pg_insobj(
@@ -1067,7 +1062,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "iscapture",
                        PyLong_FromLong(event->adevice.iscapture));
             break;
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP:
@@ -1535,14 +1529,13 @@ event_name(PyObject *self, PyObject *arg)
 static PyObject *
 set_grab(PyObject *self, PyObject *arg)
 {
-    int doit;
-    SDL_Window *win = NULL;
-
-    if (!PyArg_ParseTuple(arg, "p", &doit))
+    int doit = PyObject_IsTrue(arg);
+    if (doit == -1)
         return NULL;
+
     VIDEO_INIT_CHECK();
 
-    win = pg_GetDefaultWindow();
+    SDL_Window *win = pg_GetDefaultWindow();
     if (win) {
         if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
@@ -2196,7 +2189,7 @@ static PyMethodDef _event_methods[] = {
 
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
-    {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
+    {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},

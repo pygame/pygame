@@ -12,3 +12,26 @@ pygame\._sdl2\..*\.__test__
 # cython classes have some special dunders for internal use, ignore that in 
 # stubtest
 pygame\._sdl2\..*\.__pyx_.*__
+
+# don't look for stubs for examples or for tests
+pygame\.examples.*
+pygame\.tests.*
+
+# don't look for stubs for pyinstaller hook
+pygame\.__pyinstaller.*
+
+# don't look for stubs for these private modules either
+pygame\.draw_py
+pygame\._sprite
+pygame\._freetype
+pygame\._camera
+pygame\._camera_opencv
+pygame\._camera_vidcapture
+pygame\.ftfont
+pygame\.imageext
+pygame\.macosx
+pygame\.newbuffer
+pygame\.pkgdata
+pygame\.pypm
+pygame\._sdl2\.mixer
+pygame\.sysfont.*

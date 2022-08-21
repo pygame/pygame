@@ -87,6 +87,8 @@ static PyTypeObject pgVectorIter_Type;
 #define pgVector_Check(x) (pgVector2_Check(x) || pgVector3_Check(x))
 #define vector_elementwiseproxy_Check(x) \
     (Py_TYPE(x) == &pgVectorElementwiseProxy_Type)
+#define _vector_subtype_new(x) \
+    ((pgVector *)(Py_TYPE(x)->tp_new(Py_TYPE(x), NULL, NULL)))
 
 #define DEG2RAD(angle) ((angle)*M_PI / 180.)
 #define RAD2DEG(angle) ((angle)*180. / M_PI)
@@ -107,6 +109,11 @@ typedef struct {
 } vector_elementwiseproxy;
 
 /* further forward declarations */
+/* math functions */
+static PyObject *
+math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(math_clamp, PyObject);
+
 /* generic helper functions */
 static int
 RealNumber_Check(PyObject *obj);
@@ -133,8 +140,6 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance);
 
 /* generic vector functions */
-static pgVector *
-_vector_subtype_new(pgVector *base);
 static PyObject *
 pgVector_NEW(Py_ssize_t dim);
 static void
@@ -554,61 +559,23 @@ static PyMemberDef vector_members[] = {
     {NULL} /* Sentinel */
 };
 
-static pgVector *
-_vector_subtype_new(pgVector *base)
-{
-    pgVector *vec;
-    PyTypeObject *type = Py_TYPE(base);
-    Py_ssize_t dim = base->dim;
-
-    vec = (pgVector *)(type->tp_new(type, NULL, NULL));
-
-    if (vec) {
-        vec->dim = dim;
-        vec->epsilon = VECTOR_EPSILON;
-        vec->coords = PyMem_New(double, dim);
-
-        if (vec->coords == NULL) {
-            Py_DECREF(vec);
-            return (pgVector *)PyErr_NoMemory();
-        }
-    }
-    return vec;
-}
-
 static PyObject *
 pgVector_NEW(Py_ssize_t dim)
 {
-    pgVector *vec;
     switch (dim) {
         case 2:
-            vec = PyObject_New(pgVector, &pgVector2_Type);
-            break;
+            return vector2_new(&pgVector2_Type, NULL, NULL);
         case 3:
-            vec = PyObject_New(pgVector, &pgVector3_Type);
-            break;
+            return vector3_new(&pgVector3_Type, NULL, NULL);
             /*
                 case 4:
-                    vec = PyObject_New(pgVector, &pgVector4_Type);
-                    break;
+                    return vector4_new(&pgVector4_Type, NULL, NULL);
             */
         default:
             PyErr_SetString(PyExc_SystemError,
                             "Wrong internal call to pgVector_NEW.\n");
             return NULL;
     }
-
-    if (vec != NULL) {
-        vec->dim = dim;
-        vec->epsilon = VECTOR_EPSILON;
-        vec->coords = PyMem_New(double, dim);
-        if (vec->coords == NULL) {
-            Py_DECREF(vec);
-            return PyErr_NoMemory();
-        }
-    }
-
-    return (PyObject *)vec;
 }
 
 static void
@@ -1415,9 +1382,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance)
 {
     Py_ssize_t i;
-    double delta[VECTOR_MAX_SIZE];
-    double dist;
-
+    double frac, dist, delta[VECTOR_MAX_SIZE];
     if (max_distance == 0)
         return;
 
@@ -1426,6 +1391,11 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
+    if (dist == 0) {
+        /* origin and target are same, return early (this also makes sure
+         * that frac is never NaN) */
+        return;
+    }
 
     if (dist <= max_distance) {
         /* Return target Vector */
@@ -1434,10 +1404,9 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
         return;
     }
 
+    frac = max_distance / dist;
     for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
-
-    return;
+        origin_coords[i] += delta[i] * frac;
 }
 
 static PyObject *
@@ -1671,18 +1640,52 @@ vector_reflect_ip(pgVector *self, PyObject *normal)
 static double
 _vector_distance_helper(pgVector *self, PyObject *other)
 {
-    Py_ssize_t i;
-    double distance_squared, tmp;
+    Py_ssize_t i, dim = self->dim;
+    double distance_squared = 0;
 
-    distance_squared = 0;
-    for (i = 0; i < self->dim; ++i) {
-        tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
-        distance_squared += tmp * tmp;
+    /* Specialised fastpath for Vector-Vector distance calculation*/
+    if (pgVector_Check(other)) {
+        pgVector *otherv = (pgVector *)other;
+        double dx, dy;
+
+        if (dim != otherv->dim) {
+            PyErr_SetString(PyExc_ValueError, "Vectors must be the same size");
+            return -1;
+        }
+
+        dx = otherv->coords[0] - self->coords[0];
+        dy = otherv->coords[1] - self->coords[1];
+
+        distance_squared = dx * dx + dy * dy;
+
+        if (dim == 3) {
+            double dz;
+            dz = otherv->coords[2] - self->coords[2];
+            distance_squared += dz * dz;
+        }
     }
-    /* PySequence_GetItem_AsDouble can fail in which case it will set an Err */
-    if (PyErr_Occurred())
-        return -1;
+    /* Vector-Sequence distance calculation*/
+    else {
+        double tmp;
+        PyObject *fast_seq = PySequence_Fast(other, "A sequence was expected");
+        if (!fast_seq) {
+            return -1;
+        }
 
+        if (PySequence_Fast_GET_SIZE(fast_seq) != dim) {
+            PyErr_SetString(PyExc_ValueError,
+                            "Vector and sequence must be the same size");
+            return -1;
+        }
+
+        for (i = 0; i < dim; ++i) {
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fast_seq, i)) -
+                  self->coords[i];
+            if (PyErr_Occurred())
+                return -1;
+            distance_squared += tmp * tmp;
+        }
+    }
     return distance_squared;
 }
 
@@ -2260,8 +2263,7 @@ vector2_rotate_rad_ip(pgVector *self, PyObject *angleObject)
         return NULL;
     }
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
@@ -2314,8 +2316,7 @@ vector2_rotate_ip(pgVector *self, PyObject *angleObject)
     }
     angle = DEG2RAD(angle);
 
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
+    memcpy(tmp, self->coords, 2 * sizeof(double));
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
@@ -4086,6 +4087,49 @@ vector_elementwise(pgVector *vec, PyObject *_null)
 }
 
 static PyObject *
+math_clamp(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (nargs != 3)
+        return RAISE(PyExc_TypeError, "clamp requires 3 arguments");
+
+    PyObject *value = args[0];
+    PyObject *min = args[1];
+    PyObject *max = args[2];
+
+    if (PyNumber_Check(args[0]) != 1 || PyNumber_Check(args[1]) != 1 ||
+        PyNumber_Check(args[2]) != 1) {
+        return RAISE(PyExc_TypeError, "clamp requires 3 numeric arguments");
+    }
+
+    // Using RichCompare instead of converting to C types for performance
+    // reasons. This implementation was tested to be faster than using
+    // PyFloat_AsDouble and PyErr_Occurred.
+
+    // if value < min: return min
+    int result = PyObject_RichCompareBool(value, min, Py_LT);
+    if (result == 1) {
+        Py_INCREF(min);
+        return min;
+    }
+    else if (result == -1)
+        return NULL;
+
+    // if value > max: return max
+    result = PyObject_RichCompareBool(value, max, Py_GT);
+    if (result == 1) {
+        Py_INCREF(max);
+        return max;
+    }
+    else if (result == -1)
+        return NULL;
+
+    Py_INCREF(value);
+    return value;
+}
+
+PG_WRAP_FASTCALL_FUNC(math_clamp, PyObject);
+
+static PyObject *
 math_enable_swizzling(pgVector *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
@@ -4112,6 +4156,8 @@ math_disable_swizzling(pgVector *self, PyObject *_null)
 }
 
 static PyMethodDef _math_methods[] = {
+    {"clamp", (PyCFunction)PG_FASTCALL_NAME(math_clamp), PG_FASTCALL,
+     DOC_PYGAMEMATHCLAMP},
     {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
      "Deprecated, will be removed in a future version"},
     {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,

@@ -632,7 +632,7 @@ cdef class RenderUpdates(Group):
 cdef class OrderedUpdates(RenderUpdates):
     """RenderUpdates class that draws Sprites in order of addition
 
-    pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates
+    pygame.sprite.OrderedUpdates(*sprites): return OrderedUpdates
 
     This class derives from pygame.sprite.RenderUpdates().  It maintains
     the order in which the Sprites were added to the Group for rendering.
@@ -662,7 +662,7 @@ cdef class OrderedUpdates(RenderUpdates):
 cdef class LayeredUpdates(AbstractGroup):
     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
 
-    pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates
+    pygame.sprite.LayeredUpdates(*sprites, **kwargs): return LayeredUpdates
 
     This group is fully compatible with pygame.sprite.Sprite.
     New in pygame 1.8.0
@@ -1003,7 +1003,7 @@ cdef class LayeredUpdates(AbstractGroup):
 cdef class LayeredDirty(LayeredUpdates):
     """LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates
 
-    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
+    pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty
 
     This group requires pygame.sprite.DirtySprite or any sprite that
     has the following attributes:
@@ -1035,7 +1035,7 @@ cdef class LayeredDirty(LayeredUpdates):
     def __init__(self, *sprites, **kwargs):
         """initialize group.
 
-        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
+        pygame.sprite.LayeredDirty(*sprites, **kwargs): return LayeredDirty
 
         You can specify some additional attributes through kwargs:
             _use_update: True/False   (default is False)
