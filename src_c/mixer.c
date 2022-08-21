@@ -628,7 +628,7 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 /* sound object methods */
 
 static PyObject *
-_pg_sound_subtype_new(PyObject *self, Uint8 **mem, int volume)
+_pg_sound_subtype_new(PyObject *self, Uint8 *mem, int volume)
 {
     pgSoundObject *sound =
         (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
