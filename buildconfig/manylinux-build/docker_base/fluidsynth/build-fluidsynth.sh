@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-FSYNTH_VER="2.2.7"
+FSYNTH_VER="2.2.8"
 FSYNTH="fluidsynth-$FSYNTH_VER"
 
 curl -sL --retry 10 https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VER}.tar.gz > ${FSYNTH}.tar.gz
