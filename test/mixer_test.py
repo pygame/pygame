@@ -1183,6 +1183,15 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
                 snd.get_raw()
 
+    def test_copy(self):
+        """Test that the copy method would return correct values and etc"""
+        samples = b"abcdefgh"  # keep byte size a multiple of 4
+        a = mixer.Sound(buffer=samples)
+        a.set_volume(0.7)
+        b = a.copy()
+        self.assertEqual(a.get_raw(), b.get_raw())
+        self.assertEqual(a.get_volume(), b.get_volume())
+
 
 ##################################### MAIN #####################################
 
