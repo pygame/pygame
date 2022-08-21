@@ -1192,6 +1192,15 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(a.get_raw(), b.get_raw())
         self.assertEqual(a.get_volume(), b.get_volume())
 
+        class Amogus(mixer.Sound):
+            pass
+
+        c = Amogus(buffer=samples)
+        d = c.copy()
+        self.assertEqual(type(d), Amogus)
+        self.assertEqual(d.get_raw(), c.get_raw())
+        self.assertEqual(d.get_volume(), c.get_volume())
+
 
 ##################################### MAIN #####################################
 
