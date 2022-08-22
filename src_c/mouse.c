@@ -29,6 +29,31 @@
 
 #include "doc/mouse_doc.h"
 
+PyObject *
+pg_tuple_from_values_int(int val1, int val2)
+{
+    PyObject *tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    return tup;
+}
+
 /* mouse module functions */
 static PyObject *
 mouse_set_pos(PyObject *self, PyObject *args)
@@ -97,7 +122,7 @@ mouse_get_pos(PyObject *self, PyObject *_null)
         }
     }
 
-    return Py_BuildValue("(ii)", x, y);
+    return pg_tuple_from_values_int(x, y);
 }
 
 static PyObject *
@@ -121,7 +146,7 @@ mouse_get_rel(PyObject *self, PyObject *_null)
             y/=scaley;
         }
     */
-    return Py_BuildValue("(ii)", x, y);
+    return pg_tuple_from_values_int(x, y);
 }
 
 static PyObject *
