@@ -135,8 +135,8 @@ alphablit_alpha_avx2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
     while (height--) {
         if (pre_8_width > 0) {
             /* ==== load 1-7 pixels into AVX registers ==== */
-            mm256_src = _mm256_maskload_epi32(srcp, mm256_mask);
-            mm256_dst = _mm256_maskload_epi32(dstp, mm256_mask);
+            mm256_src = _mm256_maskload_epi32((int *)srcp, mm256_mask);
+            mm256_dst = _mm256_maskload_epi32((int *)dstp, mm256_mask);
 
             /* ==== shuffle pixels out into two registers each, src
              * and dst set up for 16 bit math, like 0A0R0G0B ==== */
@@ -170,7 +170,7 @@ alphablit_alpha_avx2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
 
             /* ==== recombine A and B pixels and store ==== */
             mm256_dst = _mm256_packus_epi16(mm256_dstA, mm256_dstB);
-            _mm256_maskstore_epi32(dstp, mm256_mask, mm256_dst);
+            _mm256_maskstore_epi32((int *)dstp, mm256_mask, mm256_dst);
 
             srcp += srcpxskip * pre_8_width;
             dstp += dstpxskip * pre_8_width;
