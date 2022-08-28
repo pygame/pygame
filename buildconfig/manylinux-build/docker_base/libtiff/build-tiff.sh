@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-TIFF=tiff-4.3.0
+TIFF=tiff-4.4.0
 
 curl -sL --retry 10 https://download.osgeo.org/libtiff/${TIFF}.tar.gz > ${TIFF}.tar.gz
 sha512sum -c tiff.sha512
