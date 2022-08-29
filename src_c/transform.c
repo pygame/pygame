@@ -823,8 +823,9 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!xaxis) {
         if (!yaxis) {
-            assert(srcpitch == dstpitch);
-            memcpy(dstpix, srcpix, srcpitch * surf->h);
+            for (loopy = 0; loopy < surf->h; ++loopy)
+                memcpy(dstpix + loopy * dstpitch, srcpix + loopy * srcpitch,
+                       surf->w * surf->format->BytesPerPixel);
         }
         else {
             for (loopy = 0; loopy < surf->h; ++loopy)

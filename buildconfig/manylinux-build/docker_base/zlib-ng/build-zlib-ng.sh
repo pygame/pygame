@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-ZLIB_NG_VER=2.0.5
+ZLIB_NG_VER=2.0.6
 ZLIB_NG_NAME="zlib-ng-$ZLIB_NG_VER"
 curl -sL --retry 10 https://github.com/zlib-ng/zlib-ng/archive/refs/tags/${ZLIB_NG_VER}.tar.gz > ${ZLIB_NG_NAME}.tar.gz
 

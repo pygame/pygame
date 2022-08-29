@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-FREETYPE=freetype-2.11.0
+FREETYPE=freetype-2.12.1
 
 if [ ! -d $FREETYPE ]; then
 

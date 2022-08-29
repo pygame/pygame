@@ -22,6 +22,9 @@ RUN linux32 yum install -y dbus-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
+ADD cmake /cmake_build/
+RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
+
 ADD brotli /brotli_build/
 RUN ["linux32", "bash", "/brotli_build/build-brotli.sh"]
 
@@ -75,9 +78,6 @@ RUN ["linux32", "bash", "/pulseaudio_build/build-pulseaudio.sh"]
 ADD libmodplug /libmodplug_build/
 RUN ["linux32", "bash", "/libmodplug_build/build-libmodplug.sh"]
 
-ADD cmake /cmake_build/
-RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
-
 ADD fluidsynth /fluidsynth_build/
 RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
@@ -90,8 +90,3 @@ ENV MAKEFLAGS=
 
 ADD portmidi /portmidi_build/
 RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
-
-ADD pypy /pypy_build/
-ARG BASE_IMAGE2=manylinux1_i686
-RUN if [ "$BASE_IMAGE2" = "manylinux2010_i686" ] ; then linux32 bash /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi
-RUN if [ "$BASE_IMAGE2" = "manylinux2014_i686" ] ; then linux32 bash /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi
