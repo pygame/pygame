@@ -252,7 +252,9 @@ pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
                         UNICODE_DEF_FS_ERROR, eclass);
     PyConfig_Clear(&config);
 #else
-    // DOES NOT WORK BUT SHOULD
+    // test Victor's idea
+    if (!obj)
+        return NULL;
     PyObject *result = PyUnicode_EncodeFSDefault(obj);
 #endif
 #else
