@@ -417,7 +417,7 @@ static PyObject *
 imageext_get_sdl_image_version(PyObject *self, PyObject *args,
                                PyObject *kwargs)
 {
-    int linked = 0;
+    int linked = 1;
 
     static char *keywords[] = {"linked", NULL};
 
