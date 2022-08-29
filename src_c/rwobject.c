@@ -243,7 +243,7 @@ pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
 static PyObject *
 pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-#if 1 //PY_VERSION_HEX >= 0x030c0000
+#if 1  // PY_VERSION_HEX >= 0x030c0000
     // should work on CI, if not, put back fencing.
     PyObject *result = PyUnicode_EncodeFSDefault(obj);
 #else
