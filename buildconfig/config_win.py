@@ -356,14 +356,8 @@ class DependencyGroup:
 
 def _add_sdl2_dll_deps(DEPS):
     # MIXER
-    DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
-                 ['ogg'])
-    DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
-                 link_lib='vorbis', libs=['vorbis'])
     DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
-    DEPS.add_dll(r'(lib)?FLAC[-0-9]*\.dll$', 'flac', ['*FLAC-[0-9]*'])
     DEPS.add_dll(r'(lib)?modplug[-0-9]*\.dll$', 'modplug', ['*modplug-[0-9]*'])
-    DEPS.add_dll(r'(lib)?mpg123[-0-9]*\.dll$', 'mpg123', ['*mpg123-[0-9]*'])
     DEPS.add_dll(r'(lib)?opus[-0-9]*\.dll$', 'opus', ['*opus-[0-9]*'])
     DEPS.add_dll(r'(lib)?opusfile[-0-9]*\.dll$', 'opusfile', ['*opusfile-[0-9]*'])
     # IMAGE
@@ -379,7 +373,7 @@ def setup():
     #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
     DEPS.add_dummy('PORTTIME')
     DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
-             ['SDL', 'vorbisfile'])
+             ['SDL'])
     DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
              find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
     DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
@@ -403,6 +397,9 @@ def setup_prebuilt_sdl2(prebuilt_dir):
         '',
         'lib',
         os.path.join('lib', get_machine_type()),
+        # SDL also provides some optional DLLs sometimes, so we also look for
+        # those
+        os.path.join('lib', get_machine_type(), "optional"),
     ])
     Dependency.inc_hunt.append('')
 
@@ -413,7 +410,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                         ['SDL', 'jpeg', 'png', 'tiff'], 0)
     mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
-                        ['SDL', 'vorbisfile'])
+                        ['SDL'])
     DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
     #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
     DEPS.add_dummy('PORTTIME')
@@ -440,12 +437,8 @@ def setup_prebuilt_sdl2(prebuilt_dir):
         'z': imageDep.path,
         'webp': imageDep.path,
 
-        'vorbis': mixerDep.path,
-        'vorbisfile': mixerDep.path,
         'ogg': mixerDep.path,
-        'flac': mixerDep.path,
         'modplug': mixerDep.path,
-        'mpg123': mixerDep.path,
         'opus': mixerDep.path,
         'opusfile': mixerDep.path,
     }
