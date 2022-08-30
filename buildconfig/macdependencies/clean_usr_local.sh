@@ -41,6 +41,10 @@ rm -rf /usr/local/share/doc/libsndfile
 rm -rf /usr/local/share/glib-2.0
 rm -rf /usr/local/share/gdb/auto-load
 
+# The installer fails when it tries to create this directory and it already
+# exists, so clean it before that
+rm -rf /usr/local/share/bash-completion
+
 rm -rf /usr/local/include/glib-2.0
 rm -rf /usr/local/include/gio-unix-2.0
 rm -rf /usr/local/include/brotli
