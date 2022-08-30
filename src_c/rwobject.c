@@ -257,8 +257,6 @@ pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
         return NULL;
 
     if ((size_t)PyBytes_GET_SIZE(obj) != strlen(PyBytes_AS_STRING(obj))) {
-        PyErr_Format(eclass, "File path '%.1024s' contains null characters",
-                     PyBytes_AS_STRING(obj));
         Py_RETURN_NONE;
     }
 
