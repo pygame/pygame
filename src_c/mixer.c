@@ -628,27 +628,6 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 /* sound object methods */
 
 static PyObject *
-_pg_sound_subtype_new(PyObject *self, Uint8 *mem, int volume)
-{
-    pgSoundObject *sound =
-        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
-    Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
-
-    if (chunk) {
-        MIXER_INIT_CHECK();
-
-        Mix_VolumeChunk(chunk, volume);
-    }
-
-    if (sound) {
-        sound->mem = mem;
-        sound->chunk = chunk;
-    }
-
-    return (PyObject *)sound;
-}
-
-static PyObject *
 pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
@@ -784,11 +763,24 @@ snd_get_raw(PyObject *self, PyObject *_null)
 static PyObject *
 snd_copy(PyObject *self, PyObject *_null)
 {
+    pgSoundObject *sound =
+        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int volume;
+
+    if (chunk) {
+        MIXER_INIT_CHECK();
+        Mix_VolumeChunk(chunk, volume);
+    }
+
+    if (sound) {
+        sound->mem = ((pgSoundObject *)self)->mem;
+        sound->chunk = chunk;
+    }
+
     MIXER_INIT_CHECK();
     volume = Mix_VolumeChunk(chunk, -1);
-    return _pg_sound_subtype_new(self, ((pgSoundObject *)self)->mem, volume);
+    return (PyObject *)sound;
 }
 
 static PyObject *
