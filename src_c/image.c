@@ -241,7 +241,6 @@ image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
     if (extverobj == NULL)
         Py_RETURN_NONE;
     else
-        // return PyObject_CallObject(extverobj, NULL);
         return PyObject_Call(extverobj, args, kwargs);
 }
 
