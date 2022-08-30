@@ -103,26 +103,6 @@ OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
                  SDL_Surface *dst, SDL_Rect *dstrect,
                  int the_args)
 {
-//    SDL_BlitInfo info;
-//
-//    /* Set up the blit information */
-//    info.width = srcrect->w;
-//    info.height = srcrect->h;
-//    info.s_pixels = (Uint8 *)src->pixels +
-//                    (Uint16)srcrect->y * src->pitch +
-//                    (Uint16)srcrect->x * src->format->BytesPerPixel;
-//    info.s_pxskip = src->format->BytesPerPixel;
-//    info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
-//    info.d_pixels = (Uint8 *)dst->pixels +
-//                    (Uint16)dstrect->y * dst->pitch +
-//                    (Uint16)dstrect->x * dst->format->BytesPerPixel;
-//    info.d_pxskip = dst->format->BytesPerPixel;
-//    info.d_skip = dst->pitch - info.width * dst->format->BytesPerPixel;
-//    info.src = src->format;
-//    info.dst = dst->format;
-//    SDL_GetSurfaceAlphaMod(src, &info.src_blanket_alpha);
-//    info.src_has_colorkey = SDL_GetColorKey(src, &info.src_colorkey) == 0;
-
     SDL_bool overlap;
     Uint8 *src_pixels, *dst_pixels;
     int w, h;
@@ -163,31 +143,6 @@ OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
         }
         return 0;
     }
-
-//#ifdef __SSE__
-//    if (SDL_HasSSE() &&
-//        !((uintptr_t) src & 15) && !(srcskip & 15) &&
-//        !((uintptr_t) dst & 15) && !(dstskip & 15)) {
-//        while (h--) {
-//            SDL_memcpySSE(dst, src, w);
-//            src += srcskip;
-//            dst += dstskip;
-//        }
-//        return;
-//    }
-//#endif
-//
-//#ifdef __MMX__
-//    if (SDL_HasMMX() && !(srcskip & 7) && !(dstskip & 7)) {
-//        while (h--) {
-//            SDL_memcpyMMX(dst, src, w);
-//            src += srcskip;
-//            dst += dstskip;
-//        }
-//        _mm_empty();
-//        return;
-//    }
-//#endif
 
     while (h--) {
         SDL_memcpy(dst_pixels, src_pixels, w);
