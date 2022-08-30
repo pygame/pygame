@@ -46,9 +46,6 @@ RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 ADD libtiff /libtiff_build/
 RUN ["linux32", "bash", "/libtiff_build/build-tiff.sh"]
 
-ADD opus /opus_build/
-RUN ["linux32", "bash", "/opus_build/build-opus.sh"]
-
 #ADD harfbuzz /harfbuzz_build/
 #RUN ["linux32", "bash", "/harfbuzz_build/build-harfbuzz.sh"]
 
@@ -68,6 +65,9 @@ RUN ["linux32", "bash", "/mpg123_build/build-mpg123.sh"]
 
 ADD flac /flac_build/
 RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
+
+ADD opus /opus_build/
+RUN ["linux32", "bash", "/opus_build/build-opus.sh"]
 
 ADD sndfile /sndfile_build/
 RUN ["linux32", "bash", "/sndfile_build/build-sndfile.sh"]

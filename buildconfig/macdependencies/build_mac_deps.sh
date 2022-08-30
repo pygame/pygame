@@ -59,7 +59,6 @@ bash libpng/build-png.sh # depends on zlib
 bash libjpegturbo/build-jpeg-turbo.sh
 bash libtiff/build-tiff.sh
 bash libwebp/build-webp.sh
-bash opus/build-opus.sh
 
 # sdl_ttf deps
 # export EXTRA_CONFIG_FREETYPE=--without-harfbuzz
@@ -73,6 +72,7 @@ bash libmodplug/build-libmodplug.sh
 bash ogg/build-ogg.sh
 bash flac/build-flac.sh
 bash mpg123/build-mpg123.sh
+bash opus/build-opus.sh # needs libogg (which is a container format)
 
 # fluidsynth (for sdl_mixer)
 bash gettext/build-gettext.sh
