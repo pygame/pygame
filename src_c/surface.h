@@ -352,4 +352,8 @@ int
 pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             SDL_Rect *dstrect, int the_args);
 
+int
+pygame_Opaque_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                   SDL_Rect *dstrect, int the_args);
+
 #endif /* SURFACE_H */

@@ -90,10 +90,112 @@ blit_blend_premultiplied_mmx(SDL_BlitInfo *info);
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                SDL_Rect *dstrect, int the_args);
+static int
+OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                 SDL_Rect *dstrect, int the_args);
 extern int
 SDL_RLESurface(SDL_Surface *surface);
 extern void
 SDL_UnRLESurface(SDL_Surface *surface, int recode);
+
+static int
+OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
+                 SDL_Surface *dst, SDL_Rect *dstrect,
+                 int the_args)
+{
+//    SDL_BlitInfo info;
+//
+//    /* Set up the blit information */
+//    info.width = srcrect->w;
+//    info.height = srcrect->h;
+//    info.s_pixels = (Uint8 *)src->pixels +
+//                    (Uint16)srcrect->y * src->pitch +
+//                    (Uint16)srcrect->x * src->format->BytesPerPixel;
+//    info.s_pxskip = src->format->BytesPerPixel;
+//    info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
+//    info.d_pixels = (Uint8 *)dst->pixels +
+//                    (Uint16)dstrect->y * dst->pitch +
+//                    (Uint16)dstrect->x * dst->format->BytesPerPixel;
+//    info.d_pxskip = dst->format->BytesPerPixel;
+//    info.d_skip = dst->pitch - info.width * dst->format->BytesPerPixel;
+//    info.src = src->format;
+//    info.dst = dst->format;
+//    SDL_GetSurfaceAlphaMod(src, &info.src_blanket_alpha);
+//    info.src_has_colorkey = SDL_GetColorKey(src, &info.src_colorkey) == 0;
+
+    SDL_bool overlap;
+    Uint8 *src_pixels, *dst_pixels;
+    int w, h;
+    int srcskip, dstskip;
+
+    w = srcrect->w * src->format->BytesPerPixel;
+    h = srcrect->h;
+    src_pixels = (Uint8 *)src->pixels +
+                 (Uint16)srcrect->y * src->pitch +
+                 (Uint16)srcrect->x * src->format->BytesPerPixel;
+    dst_pixels = (Uint8 *)dst->pixels +
+                 (Uint16)dstrect->y * dst->pitch +
+                 (Uint16)dstrect->x * dst->format->BytesPerPixel;
+    srcskip = src->pitch;
+    dstskip = dst->pitch;
+
+    /* Properly handle overlapping blits */
+    if (src_pixels < dst_pixels) {
+        overlap = (dst_pixels < (src_pixels + h*srcskip));
+    } else {
+        overlap = (src_pixels < (dst_pixels + h*dstskip));
+    }
+    if (overlap) {
+        if ( dst_pixels < src_pixels ) {
+                while ( h-- ) {
+                        SDL_memmove(dst_pixels, src_pixels, w);
+                        src_pixels += srcskip;
+                        dst_pixels += dstskip;
+                }
+        } else {
+                src_pixels += ((h-1) * srcskip);
+                dst_pixels += ((h-1) * dstskip);
+                while ( h-- ) {
+                        SDL_memmove(dst_pixels, src_pixels, w);
+                        src_pixels -= srcskip;
+                        dst_pixels -= dstskip;
+                }
+        }
+        return 0;
+    }
+
+//#ifdef __SSE__
+//    if (SDL_HasSSE() &&
+//        !((uintptr_t) src & 15) && !(srcskip & 15) &&
+//        !((uintptr_t) dst & 15) && !(dstskip & 15)) {
+//        while (h--) {
+//            SDL_memcpySSE(dst, src, w);
+//            src += srcskip;
+//            dst += dstskip;
+//        }
+//        return;
+//    }
+//#endif
+//
+//#ifdef __MMX__
+//    if (SDL_HasMMX() && !(srcskip & 7) && !(dstskip & 7)) {
+//        while (h--) {
+//            SDL_memcpyMMX(dst, src, w);
+//            src += srcskip;
+//            dst += dstskip;
+//        }
+//        _mm_empty();
+//        return;
+//    }
+//#endif
+
+    while (h--) {
+        SDL_memcpy(dst_pixels, src_pixels, w);
+        src_pixels += srcskip;
+        dst_pixels += dstskip;
+    }
+    return 0;
+}
 
 static int
 SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
@@ -3061,4 +3163,98 @@ pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                  SDL_Rect *dstrect, int the_args)
 {
     return pygame_Blit(src, srcrect, dst, dstrect, the_args);
+}
+
+int
+pygame_Opaque_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                   SDL_Rect *dstrect, int the_args)
+{
+    SDL_Rect fulldst;
+    int srcx, srcy, w, h;
+
+    /* Make sure the surfaces aren't locked */
+    if (!src || !dst) {
+        SDL_SetError("pygame_Blit: passed a NULL surface");
+        return (-1);
+    }
+    if (src->locked || dst->locked) {
+        SDL_SetError("pygame_Blit: Surfaces must not be locked during blit");
+        return (-1);
+    }
+
+    /* If the destination rectangle is NULL, use the entire dest surface */
+    if (dstrect == NULL) {
+        fulldst.x = fulldst.y = 0;
+        dstrect = &fulldst;
+    }
+
+    /* clip the source rectangle to the source surface */
+    if (srcrect) {
+        int maxw, maxh;
+
+        srcx = srcrect->x;
+        w = srcrect->w;
+        if (srcx < 0) {
+            w += srcx;
+            dstrect->x -= srcx;
+            srcx = 0;
+        }
+        maxw = src->w - srcx;
+        if (maxw < w)
+            w = maxw;
+
+        srcy = srcrect->y;
+        h = srcrect->h;
+        if (srcy < 0) {
+            h += srcy;
+            dstrect->y -= srcy;
+            srcy = 0;
+        }
+        maxh = src->h - srcy;
+        if (maxh < h)
+            h = maxh;
+    }
+    else {
+        srcx = srcy = 0;
+        w = src->w;
+        h = src->h;
+    }
+
+    /* clip the destination rectangle against the clip rectangle */
+    {
+        SDL_Rect *clip = &dst->clip_rect;
+        int dx, dy;
+
+        dx = clip->x - dstrect->x;
+        if (dx > 0) {
+            w -= dx;
+            dstrect->x += dx;
+            srcx += dx;
+        }
+        dx = dstrect->x + w - clip->x - clip->w;
+        if (dx > 0)
+            w -= dx;
+
+        dy = clip->y - dstrect->y;
+        if (dy > 0) {
+            h -= dy;
+            dstrect->y += dy;
+            srcy += dy;
+        }
+        dy = dstrect->y + h - clip->y - clip->h;
+        if (dy > 0)
+            h -= dy;
+    }
+
+    if (w > 0 && h > 0) {
+        SDL_Rect sr;
+
+        sr.x = srcx;
+        sr.y = srcy;
+        sr.w = dstrect->w = w;
+        sr.h = dstrect->h = h;
+        return OpaqueBlitPyGame(src, &sr, dst, dstrect, the_args);
+    }
+    dstrect->w = dstrect->h = 0;
+    return 0;
 }

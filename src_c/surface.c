@@ -3732,7 +3732,22 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
     }
     else {
         /* Py_BEGIN_ALLOW_THREADS */
-        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+        /* Try injecting a faster blit path here for common
+            surf formats opaque blitting */
+        if (the_args != PYGAME_BLEND_ALPHA_SDL2 &&
+            !(pg_EnvShouldBlendAlphaSDL2()) &&
+            SDL_GetColorKey(src, &key) != 0 &&
+            dst->format->BytesPerPixel == 4 &&
+            src->format->BytesPerPixel == 4 &&
+            !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
+            !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL)){
+            result = pygame_Opaque_Blit(src, srcrect, dst, dstrect, the_args);
+        }
+        else{
+            result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+        }
+
+
         /* Py_END_ALLOW_THREADS */
     }
 
