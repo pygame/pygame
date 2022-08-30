@@ -255,7 +255,15 @@ pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
     // test Victor's idea
     if (!obj)
         return NULL;
+
+    if ((size_t)PyBytes_GET_SIZE(obj) != strlen(PyBytes_AS_STRING(obj))) {
+        PyErr_Format(eclass, "File path '%.1024s' contains null characters",
+                     PyBytes_AS_STRING(obj));
+        return NULL;
+    }
+
     PyObject *result = PyUnicode_EncodeFSDefault(obj);
+
 #endif
 #else
     PyObject *result = pg_EncodeString(obj, Py_FileSystemDefaultEncoding,
