@@ -763,23 +763,16 @@ snd_get_raw(PyObject *self, PyObject *_null)
 static PyObject *
 snd_copy(PyObject *self, PyObject *_null)
 {
-    pgSoundObject *sound =
-        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
-    Mix_Chunk *chunk = pgSound_AsChunk(self);
-    int volume;
-
-    if (chunk) {
-        MIXER_INIT_CHECK();
-        Mix_VolumeChunk(chunk, volume);
-    }
-
+    Mix_Chunk *old_chunk = pgSound_AsChunk(self);
+    Mix_Chunk *new_chunk = Mix_QuickLoad_RAW(old_chunk->abuf, old_chunk->alen);
+    new_chunk->volume = old_chunk->volume;
+    pgSoundObject *sound = (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
     if (sound) {
-        sound->mem = ((pgSoundObject *)self)->mem;
-        sound->chunk = chunk;
+        sound->mem = NULL;
+        sound->chunk = new_chunk;
     }
+    sound->chunk = new_chunk;
 
-    MIXER_INIT_CHECK();
-    volume = Mix_VolumeChunk(chunk, -1);
     return (PyObject *)sound;
 }
 
