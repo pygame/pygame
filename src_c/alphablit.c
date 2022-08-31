@@ -99,9 +99,8 @@ extern void
 SDL_UnRLESurface(SDL_Surface *surface, int recode);
 
 static int
-OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
-                 SDL_Surface *dst, SDL_Rect *dstrect,
-                 int the_args)
+OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+                 SDL_Rect *dstrect, int the_args)
 {
     SDL_bool overlap;
     Uint8 *src_pixels, *dst_pixels;
@@ -110,36 +109,36 @@ OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
 
     w = srcrect->w * src->format->BytesPerPixel;
     h = srcrect->h;
-    src_pixels = (Uint8 *)src->pixels +
-                 (Uint16)srcrect->y * src->pitch +
+    src_pixels = (Uint8 *)src->pixels + (Uint16)srcrect->y * src->pitch +
                  (Uint16)srcrect->x * src->format->BytesPerPixel;
-    dst_pixels = (Uint8 *)dst->pixels +
-                 (Uint16)dstrect->y * dst->pitch +
+    dst_pixels = (Uint8 *)dst->pixels + (Uint16)dstrect->y * dst->pitch +
                  (Uint16)dstrect->x * dst->format->BytesPerPixel;
     srcskip = src->pitch;
     dstskip = dst->pitch;
 
     /* Properly handle overlapping blits */
     if (src_pixels < dst_pixels) {
-        overlap = (dst_pixels < (src_pixels + h*srcskip));
-    } else {
-        overlap = (src_pixels < (dst_pixels + h*dstskip));
+        overlap = (dst_pixels < (src_pixels + h * srcskip));
+    }
+    else {
+        overlap = (src_pixels < (dst_pixels + h * dstskip));
     }
     if (overlap) {
-        if ( dst_pixels < src_pixels ) {
-                while ( h-- ) {
-                        SDL_memmove(dst_pixels, src_pixels, w);
-                        src_pixels += srcskip;
-                        dst_pixels += dstskip;
-                }
-        } else {
-                src_pixels += ((h-1) * srcskip);
-                dst_pixels += ((h-1) * dstskip);
-                while ( h-- ) {
-                        SDL_memmove(dst_pixels, src_pixels, w);
-                        src_pixels -= srcskip;
-                        dst_pixels -= dstskip;
-                }
+        if (dst_pixels < src_pixels) {
+            while (h--) {
+                SDL_memmove(dst_pixels, src_pixels, w);
+                src_pixels += srcskip;
+                dst_pixels += dstskip;
+            }
+        }
+        else {
+            src_pixels += ((h - 1) * srcskip);
+            dst_pixels += ((h - 1) * dstskip);
+            while (h--) {
+                SDL_memmove(dst_pixels, src_pixels, w);
+                src_pixels -= srcskip;
+                dst_pixels -= dstskip;
+            }
         }
         return 0;
     }

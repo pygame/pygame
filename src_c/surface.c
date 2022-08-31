@@ -3738,15 +3738,14 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             !(pg_EnvShouldBlendAlphaSDL2()) &&
             SDL_GetColorKey(src, &key) != 0 &&
             dst->format->BytesPerPixel == 4 &&
-            src->format->BytesPerPixel == 4 &&
-            !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
-            !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL)){
+            src->format->BytesPerPixel == 4 && !pg_HasSurfaceRLE(src) &&
+            !pg_HasSurfaceRLE(dst) && !(src->flags & SDL_RLEACCEL) &&
+            !(dst->flags & SDL_RLEACCEL)) {
             result = pygame_Opaque_Blit(src, srcrect, dst, dstrect, the_args);
         }
-        else{
+        else {
             result = SDL_BlitSurface(src, srcrect, dst, dstrect);
         }
-
 
         /* Py_END_ALLOW_THREADS */
     }
