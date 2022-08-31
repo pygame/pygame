@@ -116,32 +116,34 @@ OpaqueBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     srcskip = src->pitch;
     dstskip = dst->pitch;
 
-    /* Properly handle overlapping blits */
-    if (src_pixels < dst_pixels) {
-        overlap = (dst_pixels < (src_pixels + h * srcskip));
-    }
-    else {
-        overlap = (src_pixels < (dst_pixels + h * dstskip));
-    }
-    if (overlap) {
-        if (dst_pixels < src_pixels) {
-            while (h--) {
-                SDL_memmove(dst_pixels, src_pixels, w);
-                src_pixels += srcskip;
-                dst_pixels += dstskip;
-            }
-        }
-        else {
-            src_pixels += ((h - 1) * srcskip);
-            dst_pixels += ((h - 1) * dstskip);
-            while (h--) {
-                SDL_memmove(dst_pixels, src_pixels, w);
-                src_pixels -= srcskip;
-                dst_pixels -= dstskip;
-            }
-        }
-        return 0;
-    }
+    /* Think the below is already taken care of by our rect clipping code
+       blits don't overlap surfaces edges because they have already been
+       clipped not to*/
+//    if (src_pixels < dst_pixels) {
+//        overlap = (dst_pixels < (src_pixels + h * srcskip));
+//    }
+//    else {
+//        overlap = (src_pixels < (dst_pixels + h * dstskip));
+//    }
+//    if (overlap) {
+//        if (dst_pixels < src_pixels) {
+//            while (h--) {
+//                SDL_memmove(dst_pixels, src_pixels, w);
+//                src_pixels += srcskip;
+//                dst_pixels += dstskip;
+//            }
+//        }
+//        else {
+//            src_pixels += ((h - 1) * srcskip);
+//            dst_pixels += ((h - 1) * dstskip);
+//            while (h--) {
+//                SDL_memmove(dst_pixels, src_pixels, w);
+//                src_pixels -= srcskip;
+//                dst_pixels -= dstskip;
+//            }
+//        }
+//        return 0;
+//    }
 
     while (h--) {
         SDL_memcpy(dst_pixels, src_pixels, w);
