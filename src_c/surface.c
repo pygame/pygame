@@ -3718,35 +3718,28 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
     }
     else if (the_args != PYGAME_BLEND_ALPHA_SDL2 &&
              !(pg_EnvShouldBlendAlphaSDL2()) &&
-             SDL_GetColorKey(src, &key) != 0 &&
-             (dst->format->BytesPerPixel == 4 ||
-              dst->format->BytesPerPixel == 2) &&
-             _PgSurface_SrcAlpha(src) &&
-             (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
-             !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
-             !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL)) {
-        /* If we have a 32bit source surface with per pixel alpha
-           and no RLE we'll use pygame_Blit so we can mimic how SDL1
-            behaved */
-        result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
-    }
-    else {
-        /* Py_BEGIN_ALLOW_THREADS */
-        /* Try injecting a faster blit path here for common
-            surf formats opaque blitting */
-        if (the_args != PYGAME_BLEND_ALPHA_SDL2 &&
-            !(pg_EnvShouldBlendAlphaSDL2()) &&
-            SDL_GetColorKey(src, &key) != 0 &&
-            dst->format->BytesPerPixel == 4 &&
-            src->format->BytesPerPixel == 4 && !pg_HasSurfaceRLE(src) &&
-            !pg_HasSurfaceRLE(dst) && !(src->flags & SDL_RLEACCEL) &&
-            !(dst->flags & SDL_RLEACCEL)) {
+             SDL_GetColorKey(src, &key) != 0 && !pg_HasSurfaceRLE(src) &&
+             !pg_HasSurfaceRLE(dst) && !(src->flags & SDL_RLEACCEL) &&
+             !(dst->flags & SDL_RLEACCEL)) {
+        if ((dst->format->BytesPerPixel == 4 ||
+             dst->format->BytesPerPixel == 2) &&
+            _PgSurface_SrcAlpha(src) &&
+            SDL_ISPIXELFORMAT_ALPHA(src->format->format)) {
+            /* If we have a 32bit or 16 source surface with per pixel alpha
+               and no RLE we'll use pygame_Blit so we can mimic how SDL1
+               behaved */
+            result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
+        }
+        else if (dst->format->BytesPerPixel == src->format->BytesPerPixel) {
             result = pygame_Opaque_Blit(src, srcrect, dst, dstrect, the_args);
         }
         else {
             result = SDL_BlitSurface(src, srcrect, dst, dstrect);
         }
-
+    }
+    else {
+        /* Py_BEGIN_ALLOW_THREADS */
+        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
         /* Py_END_ALLOW_THREADS */
     }
 
