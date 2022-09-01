@@ -766,7 +766,8 @@ snd_copy(PyObject *self, PyObject *_null)
     Mix_Chunk *old_chunk = pgSound_AsChunk(self);
     Mix_Chunk *new_chunk = Mix_QuickLoad_RAW(old_chunk->abuf, old_chunk->alen);
     new_chunk->volume = old_chunk->volume;
-    pgSoundObject *sound = (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
+    pgSoundObject *sound =
+        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
     if (sound) {
         sound->mem = NULL;
         sound->chunk = new_chunk;
