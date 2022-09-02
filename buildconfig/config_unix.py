@@ -1,6 +1,6 @@
 """Config on Unix"""
 
-import os, sys
+import os
 from glob import glob
 import platform
 import logging

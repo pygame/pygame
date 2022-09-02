@@ -741,7 +741,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             self.assertIsInstance(v, BufferProxy)
             self.assertEqual(v.length, length)
-            self.assertEqual(repr(v), "<BufferProxy(" + str(length) + ")>")
+            self.assertEqual(repr(v), f"<BufferProxy({length})>")
 
         # Check for a subsurface (not contiguous)
         s = pygame.Surface((7, 10), 0, 32)
