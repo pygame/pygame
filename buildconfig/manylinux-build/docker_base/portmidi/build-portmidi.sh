@@ -3,39 +3,16 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-PORTMIDI="portmidi-src-217"
-SRC_ZIP="${PORTMIDI}.zip"
+PORTMIDI_VER="2.0.3"
+PORTMIDI="portmidi-${PORTMIDI_VER}"
 
-curl -sL --retry 10 http://downloads.sourceforge.net/project/portmedia/portmidi/217/${SRC_ZIP} > ${SRC_ZIP}
+curl -sL --retry 10 https://github.com/PortMidi/portmidi/archive/refs/tags/v${PORTMIDI_VER}.tar.gz> ${PORTMIDI}.tar.gz
 sha512sum -c portmidi.sha512
-unzip $SRC_ZIP
 
-# if [ "$(uname -i)" = "x86_64" ]; then
-#    export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk.x86_64
-#    JRE_LIB_DIR=amd64
-# else
-#    export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk
-#    JRE_LIB_DIR=i386
-# fi
-# ls ${JAVA_HOME}
-# ls ${JAVA_HOME}/jre
-# ls ${JAVA_HOME}/jre/lib
-# ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR
-# ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR/server
+tar xzf ${PORTMIDI}.tar.gz
+cd $PORTMIDI
 
-cd portmidi/
-patch -p1 < ../no-java.patch
-if [[ "$MAC_ARCH" == "arm64" ]]; then
-    patch -p1 < ../mac_arm64.patch
-elif [[ "$MAC_ARCH" == "x86_64" ]]; then
-    patch -p1 < ../mac.patch
-fi
-
-# cmake -DJAVA_JVM_LIBRARY=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/server/libjvm.so .
-mkdir buildportmidi
-cd buildportmidi
-
-cmake -DCMAKE_BUILD_TYPE=Release .. $ARCHS_CONFIG_CMAKE_FLAG
+cmake -DCMAKE_BUILD_TYPE=Release . $ARCHS_CONFIG_CMAKE_FLAG
 make
 make install
 

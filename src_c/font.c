@@ -261,12 +261,13 @@ font_get_bold(PyObject *self, PyObject *_null)
 
 /* Implements set_bold(bool) */
 static PyObject *
-font_set_bold(PyObject *self, PyObject *args)
+font_set_bold(PyObject *self, PyObject *arg)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int val;
-    if (!PyArg_ParseTuple(args, "p", &val))
+    int val = PyObject_IsTrue(arg);
+    if (val == -1) {
         return NULL;
+    }
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_BOLD, val);
 
@@ -307,13 +308,13 @@ font_get_italic(PyObject *self, PyObject *_null)
 
 /* Implements set_italic(bool) */
 static PyObject *
-font_set_italic(PyObject *self, PyObject *args)
+font_set_italic(PyObject *self, PyObject *arg)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int val;
-
-    if (!PyArg_ParseTuple(args, "p", &val))
+    int val = PyObject_IsTrue(arg);
+    if (val == -1) {
         return NULL;
+    }
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_ITALIC, val);
 
@@ -354,13 +355,13 @@ font_get_underline(PyObject *self, PyObject *_null)
 
 /* Implements set_underline(bool) */
 static PyObject *
-font_set_underline(PyObject *self, PyObject *args)
+font_set_underline(PyObject *self, PyObject *arg)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int val;
-
-    if (!PyArg_ParseTuple(args, "p", &val))
+    int val = PyObject_IsTrue(arg);
+    if (val == -1) {
         return NULL;
+    }
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_UNDERLINE, val);
 
@@ -401,13 +402,13 @@ font_get_strikethrough(PyObject *self, PyObject *args)
 
 /* Implements set_strikethrough(bool) */
 static PyObject *
-font_set_strikethrough(PyObject *self, PyObject *args)
+font_set_strikethrough(PyObject *self, PyObject *arg)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int val;
-
-    if (!PyArg_ParseTuple(args, "p", &val))
+    int val = PyObject_IsTrue(arg);
+    if (val == -1) {
         return NULL;
+    }
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_STRIKETHROUGH, val);
 
@@ -519,16 +520,11 @@ font_render(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_size(PyObject *self, PyObject *args)
+font_size(PyObject *self, PyObject *text)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int w, h;
-    PyObject *text;
     const char *string;
-
-    if (!PyArg_ParseTuple(args, "O", &text)) {
-        return NULL;
-    }
 
     if (PyUnicode_Check(text)) {
         PyObject *bytes = PyUnicode_AsEncodedString(text, "utf-8", "strict");
@@ -557,11 +553,10 @@ font_size(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_metrics(PyObject *self, PyObject *args)
+font_metrics(PyObject *self, PyObject *textobj)
 {
     TTF_Font *font = PyFont_AsFont(self);
     PyObject *list;
-    PyObject *textobj;
     Py_ssize_t length;
     Py_ssize_t i;
     int minx;
@@ -575,10 +570,6 @@ font_metrics(PyObject *self, PyObject *args)
     Uint16 ch;
     PyObject *temp;
     int surrogate;
-
-    if (!PyArg_ParseTuple(args, "O", &textobj)) {
-        return NULL;
-    }
 
     if (PyUnicode_Check(textobj)) {
         obj = textobj;
@@ -664,19 +655,19 @@ static PyMethodDef font_methods[] = {
     {"get_linesize", font_get_linesize, METH_NOARGS, DOC_FONTGETLINESIZE},
 
     {"get_bold", font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
-    {"set_bold", font_set_bold, METH_VARARGS, DOC_FONTSETBOLD},
+    {"set_bold", font_set_bold, METH_O, DOC_FONTSETBOLD},
     {"get_italic", font_get_italic, METH_NOARGS, DOC_FONTGETITALIC},
-    {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
+    {"set_italic", font_set_italic, METH_O, DOC_FONTSETITALIC},
     {"get_underline", font_get_underline, METH_NOARGS, DOC_FONTGETUNDERLINE},
-    {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
+    {"set_underline", font_set_underline, METH_O, DOC_FONTSETUNDERLINE},
     {"get_strikethrough", font_get_strikethrough, METH_NOARGS,
      DOC_FONTGETSTRIKETHROUGH},
-    {"set_strikethrough", font_set_strikethrough, METH_VARARGS,
+    {"set_strikethrough", font_set_strikethrough, METH_O,
      DOC_FONTSETSTRIKETHROUGH},
 
-    {"metrics", font_metrics, METH_VARARGS, DOC_FONTMETRICS},
+    {"metrics", font_metrics, METH_O, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
-    {"size", font_size, METH_VARARGS, DOC_FONTSIZE},
+    {"size", font_size, METH_O, DOC_FONTSIZE},
 
     {NULL, NULL, 0, NULL}};
 

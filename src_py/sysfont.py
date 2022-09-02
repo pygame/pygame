@@ -161,13 +161,13 @@ def _font_finder_darwin():
 
     username = os.getenv("USER")
     if username:
-        locations.append("/Users/" + username + "/Library/Fonts")
+        locations.append(f"/Users/{username}/Library/Fonts")
 
     strange_root = "/System/Library/Assets/com_apple_MobileAsset_Font3"
     if exists(strange_root):
         strange_locations = os.listdir(strange_root)
         for loc in strange_locations:
-            locations.append(strange_root + "/" + loc + "/AssetData")
+            locations.append(f"{strange_root}/{loc}/AssetData")
 
     fonts = {}
 

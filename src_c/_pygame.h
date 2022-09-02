@@ -281,6 +281,41 @@ supported Python version. #endif */
 
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
 
+/* CPython 3.6 had initial and undocumented FASTCALL support, but we play it
+ * safe by not relying on implementation details */
+#if PY_VERSION_HEX < 0x03070000
+
+/* Macro for naming a pygame fastcall wrapper function */
+#define PG_FASTCALL_NAME(func) _##func##_fastcall_wrap
+
+/* used to forward declare compat functions */
+#define PG_DECLARE_FASTCALL_FUNC(func, self_type) \
+    static PyObject *PG_FASTCALL_NAME(func)(self_type * self, PyObject * args)
+
+/* Using this macro on a function defined with the FASTCALL calling convention
+ * adds a wrapper definition that uses regular python VARARGS convention.
+ * Since it is guaranteed that the 'args' object is a tuple, we can directly
+ * call PySequence_Fast_ITEMS and PyTuple_GET_SIZE on it (which are macros that
+ * assume the same, and don't do error checking) */
+#define PG_WRAP_FASTCALL_FUNC(func, self_type)                            \
+    PG_DECLARE_FASTCALL_FUNC(func, self_type)                             \
+    {                                                                     \
+        return func(self, (PyObject *const *)PySequence_Fast_ITEMS(args), \
+                    PyTuple_GET_SIZE(args));                              \
+    }
+
+#define PG_FASTCALL METH_VARARGS
+
+#else /* PY_VERSION_HEX >= 0x03070000 */
+/* compat macros are no-op on python versions that support fastcall */
+#define PG_FASTCALL_NAME(func) func
+#define PG_DECLARE_FASTCALL_FUNC(func, self_type)
+#define PG_WRAP_FASTCALL_FUNC(func, self_type)
+
+#define PG_FASTCALL METH_FASTCALL
+
+#endif /* PY_VERSION_HEX >= 0x03070000 */
+
 /*
  * event module internals
  */

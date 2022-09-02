@@ -146,7 +146,7 @@ surf_get_palette(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_palette_at(PyObject *self, PyObject *args);
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *args);
+surf_set_palette(PyObject *self, PyObject *seq);
 static PyObject *
 surf_set_palette_at(PyObject *self, PyObject *args);
 static PyObject *
@@ -306,7 +306,7 @@ static struct PyMethodDef surface_methods[] = {
     {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
      DOC_SURFACEGETPALETTEAT},
-    {"set_palette", surf_set_palette, METH_VARARGS, DOC_SURFACESETPALETTE},
+    {"set_palette", surf_set_palette, METH_O, DOC_SURFACESETPALETTE},
     {"set_palette_at", surf_set_palette_at, METH_VARARGS,
      DOC_SURFACESETPALETTEAT},
 
@@ -1092,7 +1092,7 @@ surf_get_palette_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_palette(PyObject *self, PyObject *args)
+surf_set_palette(PyObject *self, PyObject *seq)
 {
     /* This method works differently from the SDL 1.2 equivalent.
      * It replaces colors in the surface's existing palette. So, if the
@@ -1104,16 +1104,15 @@ surf_set_palette(PyObject *self, PyObject *args)
     SDL_Color colors[256];
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = NULL;
-    PyObject *list, *item;
+    PyObject *item;
     int i, len;
     Uint8 rgba[4];
     int ecode;
 
-    if (!PyArg_ParseTuple(args, "O", &list))
-        return NULL;
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
-    if (!PySequence_Check(list))
+
+    if (!PySequence_Check(seq))
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 
     pal = surf->format->palette;
@@ -1125,10 +1124,10 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
     old_colors = pal->colors;
 
-    len = (int)MIN(pal->ncolors, PySequence_Length(list));
+    len = (int)MIN(pal->ncolors, PySequence_Length(seq));
 
     for (i = 0; i < len; i++) {
-        item = PySequence_GetItem(list, i);
+        item = PySequence_GetItem(seq, i);
 
         ecode = pg_RGBAFromObj(item, rgba);
         Py_DECREF(item);
@@ -1907,23 +1906,41 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *special_flags = NULL;
     PyObject *ret = NULL;
     PyObject *retrect = NULL;
-    Py_ssize_t itemlength;
+    Py_ssize_t itemlength, sequencelength, curriter = 0;
     int doreturn = 1;
     int bliterrornum = 0;
+    int issequence = 0;
     static char *kwids[] = {"blit_sequence", "doreturn", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwids, &blitsequence,
                                      &doreturn))
         return NULL;
 
-    if (doreturn) {
-        ret = PyList_New(0);
-        if (!ret)
-            return NULL;
-    }
-    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
+    if (!PyIter_Check(blitsequence) &&
+        !(issequence = PySequence_Check(blitsequence))) {
         bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
         goto bliterror;
     }
+
+    if (doreturn) {
+        /* If the sequence is countable, meaning not a generator, we can get
+         * faster rect appending to the list by pre allocating it
+         * to later call the more efficient SET_ITEM*/
+        if (issequence) {
+            sequencelength = PySequence_Size(blitsequence);
+            if (sequencelength == -1) {
+                bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                goto bliterror;
+            }
+
+            ret = PyList_New(sequencelength);
+        }
+        else {
+            ret = PyList_New(0);
+        }
+        if (!ret)
+            return NULL;
+    }
+
     iterator = PyObject_GetIter(blitsequence);
     if (!iterator) {
         Py_XDECREF(ret);
@@ -1951,16 +1968,16 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         assert(itemlength >= 2);
 
         /* (Surface, dest) */
-        srcobject = PySequence_GetItem(item, 0);
-        argpos = PySequence_GetItem(item, 1);
+        srcobject = PySequence_ITEM(item, 0);
+        argpos = PySequence_ITEM(item, 1);
 
         if (itemlength >= 3) {
             /* (Surface, dest, area) */
-            argrect = PySequence_GetItem(item, 2);
+            argrect = PySequence_ITEM(item, 2);
         }
         if (itemlength == 4) {
             /* (Surface, dest, area, special_flags) */
-            special_flags = PySequence_GetItem(item, 3);
+            special_flags = PySequence_ITEM(item, 3);
         }
         Py_DECREF(item);
         /* Clear item to avoid double deref on errors */
@@ -2029,11 +2046,22 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         if (doreturn) {
             retrect = NULL;
             retrect = pgRect_New(&dest_rect);
-            if (PyList_Append(ret, retrect) != 0) {
+
+            /* If the sequence is countable, we already pre allocated a list
+             * of matching size. Now we can use the efficient PyList_SET_ITEM
+             * to add elements to the list */
+            if (issequence) {
+                PyList_SET_ITEM(ret, curriter++, retrect);
+            }
+            else if (PyList_Append(ret, retrect) != -1) {
+                Py_DECREF(retrect);
+            }
+            else {
+                Py_DECREF(retrect);
+                retrect = NULL;
                 bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
                 goto bliterror;
             }
-            Py_DECREF(retrect);
             retrect = NULL; /* Clear to avoid double deref on errors */
         }
         Py_DECREF(srcobject);
@@ -3644,7 +3672,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             subsurface cannot be blitted to its owner because the
             owner is locked.
             */
-         dst->pixels == src->pixels &&
+         dst->pixels == src->pixels && srcrect != NULL &&
          surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
