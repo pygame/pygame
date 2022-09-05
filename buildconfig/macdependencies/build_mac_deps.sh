@@ -49,10 +49,6 @@ sudo mkdir -p /usr/local/man/man1  # the install tries to put something in here
 sudo chmod 0777 /usr/local/man/man1  # so that install can put files here
 mkdir -p ${MACDEP_CACHE_PREFIX_PATH}/usr/local/man/man1
 
-# freetype dependencies
-bash brotli/build-brotli.sh
-bash bzip2/build-bzip2.sh
-
 # sdl_image deps
 bash zlib-ng/build-zlib-ng.sh
 bash libpng/build-png.sh # depends on zlib
@@ -60,11 +56,9 @@ bash libjpegturbo/build-jpeg-turbo.sh
 bash libtiff/build-tiff.sh
 bash libwebp/build-webp.sh
 
-# sdl_ttf deps
-# export EXTRA_CONFIG_FREETYPE=--without-harfbuzz
-# bash freetype/build-freetype.sh
-# bash harfbuzz/build-harfbuzz.sh
-# export EXTRA_CONFIG_FREETYPE=
+# freetype (also sdl_ttf dep)
+bash brotli/build-brotli.sh
+bash bzip2/build-bzip2.sh
 bash freetype/build-freetype.sh
 
 # sdl_mixer deps

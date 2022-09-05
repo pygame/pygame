@@ -77,7 +77,10 @@ cd ..
 # Build SDL_ttf
 tar xzf ${TTF2}.tar.gz
 cd $TTF2
-./configure $ARCHS_CONFIG_FLAG
+
+# We already build freetype+harfbuzz for pygame.freetype
+# So we make SDL_ttf use that instead of SDL_ttf vendored copies
+./configure $ARCHS_CONFIG_FLAG --disable-freetype-builtin --disable-harfbuzz-builtin
 make
 make install
 
