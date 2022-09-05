@@ -21,6 +21,16 @@ RUN yum install -y zlib-devel libX11-devel\
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN yum install -y libcap-devel libxkbcommon-devel
 
+# With this we
+# 1) Force install prefix to /usr/local
+# 2) use lib directory within /usr/local (and not lib64)
+# 3) make release binaries
+# 4) build shared libraries
+ENV PG_BASE_CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local/ \
+  -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=true"
+
 ADD pkg-config /pkg-config_build/
 RUN ["bash", "/pkg-config_build/build-pkg-config.sh"]
 
@@ -88,6 +98,10 @@ ENV MAKEFLAGS=
 
 ADD portmidi /portmidi_build/
 RUN ["bash", "/portmidi_build/build-portmidi.sh"]
+
+# run strip on built libraries
+COPY strip-lib-so-files.sh /tmp/
+RUN source /tmp/strip-lib-so-files.sh
 
 ENV base_image=$BASE_IMAGE
 RUN echo "$base_image"

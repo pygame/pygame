@@ -18,6 +18,18 @@ export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 # for great speed.
 export MAKEFLAGS="-j 4"
 
+# With this we
+# 1) Force install prefix to /usr/local
+# 2) use lib directory within /usr/local (and not lib64)
+# 3) make release binaries
+# 4) build shared libraries
+# 5) not have @rpath in the linked dylibs (needed on macs only)
+export PG_BASE_CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local/ \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=true \
+    -DCMAKE_INSTALL_NAME_DIR=/usr/local/lib"
+
 if [[ "$MAC_ARCH" == "arm64" ]]; then
     # for scripts using ./configure to make arm64 binaries
     export CC="clang -target arm64-apple-macos11.0"
@@ -26,7 +38,8 @@ if [[ "$MAC_ARCH" == "arm64" ]]; then
     # This does not do anything actually, but without this ./configure errors
     export ARCHS_CONFIG_FLAG="--host=aarch64-apple-darwin20.0.0"
     
-    export ARCHS_CONFIG_CMAKE_FLAG="-DCMAKE_OSX_ARCHITECTURES=arm64"
+    # configure cmake to cross-compile
+    export PG_BASE_CMAKE_FLAGS="$PG_BASE_CMAKE_FLAGS -DCMAKE_OSX_ARCHITECTURES=arm64"
 
     # we don't need mac 10.9 support while compiling for apple M1 macs
     export MACOSX_DEPLOYMENT_TARGET=11.0
@@ -36,9 +49,6 @@ else
 
     export MACOSX_DEPLOYMENT_TARGET=10.9
 fi
-
-# This arg is added to not have @rpath in the linked dylibs
-export ARCHS_CONFIG_CMAKE_FLAG="-DCMAKE_INSTALL_NAME_DIR=/usr/local/lib $ARCHS_CONFIG_CMAKE_FLAG"
 
 cd ../manylinux-build/docker_base
 
@@ -72,9 +82,6 @@ bash opus/build-opus.sh # needs libogg (which is a container format)
 bash gettext/build-gettext.sh
 bash glib/build-glib.sh # depends on gettext
 bash sndfile/build-sndfile.sh
-sudo mkdir -p /usr/local/lib64 # the install tries to put something in here
-sudo chmod 0777 /usr/local/lib64
-mkdir -p ${MACDEP_CACHE_PREFIX_PATH}/usr/local/lib64
 bash fluidsynth/build-fluidsynth.sh
 
 bash sdl_libs/build-sdl2-libs.sh

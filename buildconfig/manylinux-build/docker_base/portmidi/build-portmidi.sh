@@ -12,7 +12,7 @@ sha512sum -c portmidi.sha512
 tar xzf ${PORTMIDI}.tar.gz
 cd $PORTMIDI
 
-cmake -DCMAKE_BUILD_TYPE=Release . $ARCHS_CONFIG_CMAKE_FLAG
+cmake . $PG_BASE_CMAKE_FLAGS
 make
 make install
 

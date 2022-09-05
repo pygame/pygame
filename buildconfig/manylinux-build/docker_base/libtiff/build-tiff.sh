@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     ./configure --disable-lzma --disable-webp --disable-zstd
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Use CMake on MacOS because arm64 builds fail with weird errors in ./configure
-    cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release -Dlzma=OFF -Dwebp=OFF -Dzstd=OFF
+    cmake . $PG_BASE_CMAKE_FLAGS -Dlzma=OFF -Dwebp=OFF -Dzstd=OFF
 fi
 
 make
