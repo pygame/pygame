@@ -22,6 +22,9 @@ RUN linux32 yum install -y dbus-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
+ADD pkg-config /pkg-config_build/
+RUN ["linux32", "bash", "/pkg-config_build/build-pkg-config.sh"]
+
 ADD cmake /cmake_build/
 RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
 

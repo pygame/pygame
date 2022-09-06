@@ -21,6 +21,9 @@ RUN yum install -y zlib-devel libX11-devel\
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN yum install -y libcap-devel libxkbcommon-devel
 
+ADD pkg-config /pkg-config_build/
+RUN ["bash", "/pkg-config_build/build-pkg-config.sh"]
+
 ADD cmake /cmake_build/
 RUN ["bash", "/cmake_build/build-cmake.sh"]
 
