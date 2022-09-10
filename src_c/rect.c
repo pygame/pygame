@@ -1330,6 +1330,11 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
     int val = 0;
     int *data = (int *)&self->r;
 
+    if (!v) {
+        PyErr_SetString(PyExc_TypeError, "item deletion is not supported");
+        return -1;
+    }
+
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
             i += 4;
@@ -1407,6 +1412,11 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
 static int
 pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 {
+    if (!value) {
+        PyErr_SetString(PyExc_TypeError, "item deletion is not supported");
+        return -1;
+    }
+
     if (PyIndex_Check(op)) {
         PyObject *index;
         Py_ssize_t i;
