@@ -73,7 +73,7 @@ jobs:
 
     - name: Build WASM with emsdk
       run: |
-        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2" /opt/python-wasm-sdk/python3-wasm setup.py build -j$(nproc)
+        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build -j$(nproc)
     
     - name: Generate libpygame.a static binaries archive
       run: |

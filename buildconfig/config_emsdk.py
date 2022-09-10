@@ -23,12 +23,10 @@ if not is_wasm:
 
 # EMCC_CFLAGS="-s USE_SDL=2 is required to prevent '-iwithsysroot/include/SDL'
 # which is SDL1 from ./emscripten/tools/ports/__init__.py
-# but CI is not expected to have that problem and that would trigger useless
-# rebuild
-if os.environ.get("CI", None):
-    EMCC_CFLAGS = os.environ.get("EMCC_CFLAGS","")
-    EMCC_CFLAGS += " -sUSE_SDL=2 -sUSE_LIBPNG -sUSE_LIBJPEG"
-    os.environ["EMCC_CFLAGS"]=EMCC_CFLAGS.strip()
+
+EMCC_CFLAGS = os.environ.get("EMCC_CFLAGS","")
+EMCC_CFLAGS += " -s USE_SDL=2 -s USE_LIBPNG=1 -s USE_LIBJPEG=1"
+os.environ["EMCC_CFLAGS"]=EMCC_CFLAGS.strip()
 
 CC=os.environ.get("CC","emcc")
 os.environ["CC"] = CC.strip()
