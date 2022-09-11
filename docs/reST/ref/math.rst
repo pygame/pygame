@@ -406,6 +406,9 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`clamp_magnitude(max_length) -> Vector2`
       | :sg:`clamp_magnitude(min_length, max_length) -> Vector2`
 
+      **PLEASE NOTE:** This method is considered experimental for now and is
+      subject to potential changes in future versions.
+
       Returns a new copy of a vector with the magnitude clamped between 
       ``max_length`` and ``min_length``. If only one argument is passed, it is 
       taken to be the ``max_length``
@@ -423,6 +426,9 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
       | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
+
+      **PLEASE NOTE:** This method is considered experimental for now and is
+      subject to potential changes in future versions.
 
       Clamps the vector's magnitude between ``max_length`` and ``min_length``.
       If only one argument is passed, it is taken to be the ``max_length``
@@ -1020,6 +1026,9 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`clamp_magnitude(max_length) -> Vector3`
       | :sg:`clamp_magnitude(min_length, max_length) -> Vector3`
 
+      **PLEASE NOTE:** This method is considered experimental for now and is
+      subject to potential changes in future versions.
+
       Returns a new copy of a vector with the magnitude clamped between 
       ``max_length`` and ``min_length``. If only one argument is passed, it is 
       taken to be the ``max_length``
@@ -1037,6 +1046,9 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`Clamps the vector's magnitude between max_length and min_length`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
       | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
+
+      **PLEASE NOTE:** This method is considered experimental for now and is
+      subject to potential changes in future versions.
 
       Clamps the vector's magnitude between ``max_length`` and ``min_length``.
       If only one argument is passed, it is taken to be the ``max_length``
