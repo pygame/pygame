@@ -843,7 +843,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
        screen as the old one */
     int display = _get_display(win);
     char *title = state->title;
-    int init_flip = 0;
     char *scale_env;
 
     char *keywords[] = {"size", "flags", "depth", "display", "vsync", NULL};
@@ -1101,7 +1100,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                init_flip = 1;
             }
             else {
                 /* set min size to (1,1) to erase any previously set min size
@@ -1311,11 +1309,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         pg_SetDefaultWindowSurface(surface);
         Py_DECREF(surface);
 
-        /* ensure window is initially black */
-        if (init_flip) {
-            SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
-            pg_flip_internal(state);
-        }
+        /* ensure window is always black after a set_mode call */
+        SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
+        pg_flip_internal(state);
     }
 
     /*set the window icon*/
