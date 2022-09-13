@@ -1183,10 +1183,20 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
                 snd.get_raw()
 
-    def test_copy(self):
-        """Ensures the sound is properly copied"""
+    def test_copy_buffer(self):
+        """Ensures the sound is properly copied via a buffer input"""
         samples = b"abcdefgh"  # keep byte size a multiple of 4
         a = mixer.Sound(buffer=samples)
+        a.set_volume(0.7)
+        b = a.copy()
+        self.assertEqual(a.get_raw(), b.get_raw())
+        self.assertEqual(a.get_volume(), b.get_volume())
+
+    def test_copy_file(self):
+        """Ensures the sound is properly copied via a file"""
+        wave_path = example_path(os.path.join("data", "house_lo.wav"))
+        uwave_path = str(wave_path)
+        a = mixer.Sound(file=uwave_path)
         a.set_volume(0.7)
         b = a.copy()
         self.assertEqual(a.get_raw(), b.get_raw())
@@ -1195,6 +1205,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_subtype_copy(self):
         """Ensures the sound is properly copied when a subtype of the class is created"""
         samples = b"abcdefgh"  # keep byte size a multiple of 4
+
         class Amogus(mixer.Sound):
             pass
 
