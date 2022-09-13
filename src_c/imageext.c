@@ -40,14 +40,6 @@
 #undef HAVE_STDLIB_H
 #endif
 
-#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
-#include <stdio.h>
-#else
-// PNG_SKIP_SETJMP_CHECK : non-regression on #662 (build error on old libpng)
-#define PNG_SKIP_SETJMP_CHECK
-#include <png.h>
-#endif
-
 #include "pgcompat.h"
 
 #include "doc/image_doc.h"
@@ -70,14 +62,6 @@ static SDL_mutex *_pg_img_mutex = 0;
 #endif
 */
 
-#ifdef WIN32
-#include <windows.h>
-#define pg_RWflush(rwops) \
-    (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
-
-#else /* ~WIN32 */
-#define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
-#endif /* ~WIN32 */
 
 static char *
 iext_find_extension(char *fullname)
@@ -145,188 +129,6 @@ image_load_ext(PyObject *self, PyObject *arg)
     return final;
 }
 
-/* This entire png saving code is directly copied from the SDL_image source
- * (with minor changes)
- * Eventually this should be removed, and we should start using the SDL_image
- * functions directly */
-#ifdef PNG_H
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-static const Uint32 png_format = SDL_PIXELFORMAT_ABGR8888;
-#else
-static const Uint32 png_format = SDL_PIXELFORMAT_RGBA8888;
-#endif
-
-static void
-png_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
-    if (SDL_RWwrite(rwops, data, 1, length) != length) {
-        SDL_RWclose(rwops);
-        png_error(png_ptr,
-                  "Error while writing to the PNG file (SDL_RWwrite)");
-    }
-}
-
-static void
-png_flush_fn(png_structp png_ptr)
-{
-    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
-    if (pg_RWflush(rwops)) {
-        SDL_RWclose(rwops);
-        png_error(png_ptr, "Error while writing to PNG file (flush)");
-    }
-}
-
-static int
-pg_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
-{
-    if (dst) {
-        png_structp png_ptr;
-        png_infop info_ptr;
-        png_colorp color_ptr = NULL;
-        Uint8 transparent_table[256];
-        SDL_Surface *source = surface;
-        SDL_Palette *palette;
-        int png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-
-        png_ptr =
-            png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-        if (png_ptr == NULL) {
-            IMG_SetError(
-                "Couldn't allocate memory for PNG file or incompatible PNG "
-                "dll");
-            return -1;
-        }
-
-        info_ptr = png_create_info_struct(png_ptr);
-        if (info_ptr == NULL) {
-            png_destroy_write_struct(&png_ptr, NULL);
-            IMG_SetError("Couldn't create image information for PNG file");
-            return -1;
-        }
-#ifdef PNG_SETJMP_SUPPORTED
-#ifndef LIBPNG_VERSION_12
-        if (setjmp(*png_set_longjmp_fn(png_ptr, longjmp, sizeof(jmp_buf))))
-#else
-        if (setjmp(png_ptr->jmpbuf))
-#endif
-#endif
-        {
-            png_destroy_write_struct(&png_ptr, &info_ptr);
-            IMG_SetError("Error writing the PNG file.");
-            return -1;
-        }
-
-        palette = surface->format->palette;
-        if (palette) {
-            const int ncolors = palette->ncolors;
-            int i;
-            int last_transparent = -1;
-
-            color_ptr = (png_colorp)SDL_malloc(sizeof(png_colorp) * ncolors);
-            if (color_ptr == NULL) {
-                png_destroy_write_struct(&png_ptr, &info_ptr);
-                IMG_SetError("Couldn't create palette for PNG file");
-                return -1;
-            }
-            for (i = 0; i < ncolors; i++) {
-                color_ptr[i].red = palette->colors[i].r;
-                color_ptr[i].green = palette->colors[i].g;
-                color_ptr[i].blue = palette->colors[i].b;
-                if (palette->colors[i].a != 255) {
-                    last_transparent = i;
-                }
-            }
-            png_set_PLTE(png_ptr, info_ptr, color_ptr, ncolors);
-            png_color_type = PNG_COLOR_TYPE_PALETTE;
-
-            if (last_transparent >= 0) {
-                for (i = 0; i <= last_transparent; ++i) {
-                    transparent_table[i] = palette->colors[i].a;
-                }
-                png_set_tRNS(png_ptr, info_ptr, transparent_table,
-                             last_transparent + 1, NULL);
-            }
-        }
-        else if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
-            /* If the surface is exactly the right RGB format it is just passed
-             * through */
-            png_color_type = PNG_COLOR_TYPE_RGB;
-        }
-        else if (!SDL_ISPIXELFORMAT_ALPHA(surface->format->format)) {
-            /* If the surface is not exactly the right RGB format but does not
-               have alpha information, it should be converted to RGB24 before
-               being passed through */
-            png_color_type = PNG_COLOR_TYPE_RGB;
-            source =
-                SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB24, 0);
-        }
-        else if (surface->format->format != png_format) {
-            /* Otherwise, (surface has alpha data), and it is not in the exact
-               right format , so it should be converted to that */
-            source = SDL_ConvertSurfaceFormat(surface, png_format, 0);
-        }
-
-        png_set_write_fn(png_ptr, dst, png_write_fn, png_flush_fn);
-
-        png_set_IHDR(png_ptr, info_ptr, surface->w, surface->h, 8,
-                     png_color_type, PNG_INTERLACE_NONE,
-                     PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-
-        if (source) {
-            png_bytep *row_pointers;
-            int row;
-
-            row_pointers =
-                (png_bytep *)SDL_malloc(sizeof(png_bytep) * source->h);
-            if (!row_pointers) {
-                png_destroy_write_struct(&png_ptr, &info_ptr);
-                IMG_SetError("Out of memory");
-                return -1;
-            }
-            for (row = 0; row < (int)source->h; row++) {
-                row_pointers[row] =
-                    (png_bytep)(Uint8 *)source->pixels + row * source->pitch;
-            }
-
-            png_set_rows(png_ptr, info_ptr, row_pointers);
-            png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-
-            SDL_free(row_pointers);
-            if (source != surface) {
-                SDL_FreeSurface(source);
-            }
-        }
-        png_destroy_write_struct(&png_ptr, &info_ptr);
-        if (color_ptr) {
-            SDL_free(color_ptr);
-        }
-        if (freedst) {
-            SDL_RWclose(dst);
-        }
-    }
-    else {
-        IMG_SetError("Passed NULL dst");
-        return -1;
-    }
-    return 0;
-}
-
-int
-pg_SavePNG(SDL_Surface *surface, const char *file)
-{
-    SDL_RWops *dst = SDL_RWFromFile(file, "wb");
-    if (dst) {
-        return pg_SavePNG_RW(surface, dst, 1);
-    }
-    else {
-        return -1;
-    }
-}
-
-#endif /* end if PNG_H */
-
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
 {
@@ -379,19 +181,12 @@ image_save_ext(PyObject *self, PyObject *arg)
             }
         }
         else if (!strcasecmp(ext, "png")) {
-#ifdef PNG_H
-            /*Py_BEGIN_ALLOW_THREADS; */
             if (rw != NULL) {
-                result = pg_SavePNG_RW(surf, rw, 0);
+                result = IMG_SavePNG_RW(surf, rw, 0);
             }
             else {
-                result = pg_SavePNG(surf, name);
+                result = IMG_SavePNG(surf, name);
             }
-            /*Py_END_ALLOW_THREADS; */
-#else
-            PyErr_SetString(pgExc_SDLError, "No support for png compiled in.");
-            result = -2;
-#endif /* ~PNG_H */
         }
     }
 
