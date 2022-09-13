@@ -130,8 +130,6 @@ def main(auto_config=False):
     ]
 
     DEPS.extend([
-        Dependency('PNG', 'png.h', 'libpng', ['png']),
-        Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', '', []),
         find_freetype(),

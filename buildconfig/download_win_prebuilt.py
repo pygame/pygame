@@ -82,8 +82,8 @@ def get_urls(x86=True, x64=True):
         'efa040633c4faf8b006c0c1e552456ca4e5a3a53',
         ],
         [
-        'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
-        '137f86474691f4e12e76e07d58d5920c8d844d5b',
+        'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.6.2-VC.zip',
+        '4111affcca1f4b41c2f4b4c445ccf06fe081b5e9',
         ],
         [
         'https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.1/SDL2_ttf-devel-2.20.1-VC.zip',
@@ -201,12 +201,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_image-devel-2.0.5-VC/SDL2_image-2.0.5'
+                'SDL2_image-devel-2.6.2-VC/SDL2_image-2.6.2'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_image-2.0.5'
+                'SDL2_image-2.6.2'
             )
         )
         copy(

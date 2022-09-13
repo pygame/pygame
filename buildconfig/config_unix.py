@@ -193,8 +193,6 @@ def main(auto_config=False):
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL2_gfx.so', ['SDL2_gfx']),
     ]
     DEPS.extend([
-        Dependency('PNG', 'png.h', 'libpng', ['png']),
-        Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ])

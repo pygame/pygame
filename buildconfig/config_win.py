@@ -361,8 +361,7 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(lib)?opus[-0-9]*\.dll$', 'opus', ['*opus-[0-9]*'])
     DEPS.add_dll(r'(lib)?opusfile[-0-9]*\.dll$', 'opusfile', ['*opusfile-[0-9]*'])
     # IMAGE
-    DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
-    DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
+    DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
 
 def setup():
@@ -374,13 +373,9 @@ def setup():
     DEPS.add_dummy('PORTTIME')
     DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
              ['SDL'])
-    DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-             find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
-    DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
-             find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
     DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
-             ['SDL', 'jpeg', 'png', 'tiff'], 0)
-    DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
+             ['SDL', 'tiff', 'webp'], 0)
+    DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'freetype'])
     DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
              find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
     DEPS.configure()
@@ -408,7 +403,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
     fontDep = DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL'])
     imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
-                        ['SDL', 'jpeg', 'png', 'tiff'], 0)
+                        ['SDL', 'tiff', 'webp'], 0)
     mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
                         ['SDL'])
     DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$', find_header=r'portmidi\.h')
@@ -419,22 +414,8 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     DEPS.add('FREETYPE', 'freetype', ['freetype'], r'freetype[-0-9]*\.dll$',
                      find_header=r'ft2build\.h', find_lib=r'freetype[-0-9]*\.lib')
 
-    png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
-                   find_header=r'png\.h', find_lib=r'(lib)?png1[-0-9]*\.lib')
-    png.path = imageDep.path
-    png.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
-    png.found = True
-    jpeg = DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-9*'], r'(lib){0,1}jpeg-9\.dll$',
-                   find_header=r'jpeglib\.h', find_lib=r'(lib)?jpeg-9\.lib')
-    jpeg.path = imageDep.path
-    jpeg.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
-    jpeg.found = True
-
     dllPaths = {
-        'png': imageDep.path,
-        'jpeg': imageDep.path,
         'tiff': imageDep.path,
-        'z': imageDep.path,
         'webp': imageDep.path,
 
         'ogg': mixerDep.path,
