@@ -96,10 +96,15 @@ cd $MIX2
 # The --disable-x-shared flags make it use standard dynamic linking rather than
 # dlopen-ing the library itself. This is important for when auditwheel moves
 # libraries into the wheel.
+# We prefer libflac, mpg123 and ogg-vorbis over SDL vendored implementations
+# at the moment. This can be changed later if need arises.
 # For now, libmodplug is preferred over libxmp (but this may need changing
 # in the future)
 ./configure $ARCHS_CONFIG_FLAG \
       --disable-dependency-tracking \
+      --disable-music-ogg-stb --enable-music-ogg-vorbis \
+      --disable-music-flac-drflac --enable-music-flac-libflac \
+      --disable-music-mp3-drmp3 --enable-music-mp3-mpg123 \
       --enable-music-mod-modplug --disable-music-mod-mikmod-shared \
       --disable-music-mod-xmp --disable-music-mod-xmp-shared \
       --enable-music-midi-fluidsynth --disable-music-midi-fluidsynth-shared \
