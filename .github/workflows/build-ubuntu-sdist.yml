@@ -54,7 +54,7 @@ jobs:
       run: |
         sudo apt-get update --fix-missing
         sudo apt-get upgrade
-        sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg8-dev python3-setuptools python3-dev
+        sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev python3-setuptools python3-dev
         pip3 install sphinx numpy>=1.21.0
 
     - name: Make sdist and install it
