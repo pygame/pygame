@@ -27,13 +27,15 @@ formats.
 
    * ``JPEG``
 
-   * ``LBM`` (and ``PBM``, ``PGM``, ``PPM``)
+   * ``LBM`` 
 
    * ``PCX``
 
    * ``PNG``
    
-   * ``PNM``
+   * ``PNM`` (and ``PBM``, ``PGM``, ``PPM``)
+
+   * ``QOI``
 
    * ``SVG`` (limited support, using Nano SVG)
 
@@ -43,10 +45,14 @@ formats.
 
    * ``WEBP``
 
+   * ``XCF``
+
    * ``XPM``
    
    
 .. versionadded:: 2.0 Loading SVG, WebP, PNM
+
+.. versionadded:: 2.1.3 Loading QOI images (if SDL_image is new enough to support it)
 
 Saving images only supports a limited set of formats. You can save to the
 following formats.
