@@ -40,7 +40,6 @@ one or more image file names as command line arguments.
 import os
 import random
 import sys
-import timeit
 
 import pygame as pg
 
