@@ -175,7 +175,7 @@ pg_tuple_from_values_int(int val1, int val2)
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
 {
-    pgRectObject *rect = type->tp_new(type, NULL, NULL);
+    pgRectObject *rect = (pgRectObject *)type->tp_new(type, NULL, NULL);
 
     if (rect) {
         rect->r.x = x;
