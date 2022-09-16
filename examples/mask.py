@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-""" pygame.examples.mask
+"""
+pygame.examples.mask
 
 A pygame.mask collision detection production.
 
@@ -39,89 +40,69 @@ one or more image file names as command line arguments.
 import sys
 import os
 import random
+import timeit
 
 import pygame as pg
 
 
-def maskFromSurface(surface, threshold=127):
-    return pg.mask.from_surface(surface, threshold)
-
-
-def vadd(x, y):
-    return [x[0] + y[0], x[1] + y[1]]
-
-
-def vsub(x, y):
-    return [x[0] - y[0], x[1] - y[1]]
-
-
-def vdot(x, y):
-    return x[0] * y[0] + x[1] * y[1]
-
-
 class Sprite:
-    def __init__(self, surface, mask=None):
+    def __init__(self, pos, vel, surface: pg.Surface, mask: pg.mask.Mask=None):
         self.surface = surface
-        if mask:
+        self.width, self.height = self.surface.get_size()
+        if mask is not None:
             self.mask = mask
         else:
-            self.mask = maskFromSurface(self.surface)
-        self.setPos([0, 0])
-        self.setVelocity([0, 0])
+            self.mask = pg.mask.from_surface(self.surface)
 
-    def setPos(self, pos):
-        self.pos = [pos[0], pos[1]]
+        self.pos = pg.Vector2(pos)
+        self.vel = pg.Vector2(vel)
 
-    def setVelocity(self, vel):
-        self.vel = [vel[0], vel[1]]
+    def collide(self, sprite):
+        """
+        Test if the sprites are colliding and
+        resolve the collision in this case.
 
-    def move(self, dr):
-        self.pos = vadd(self.pos, dr)
-
-    def kick(self, impulse):
-        self.vel[0] += impulse[0]
-        self.vel[1] += impulse[1]
-
-    def collide(self, s):
-        """Test if the sprites are colliding and
-        resolve the collision in this case."""
-        offset = [int(x) for x in vsub(s.pos, self.pos)]
-        overlap = self.mask.overlap_area(s.mask, offset)
+        Positional arguments:
+            sprite: other sprite to test for collisions
+        """
+        offset = [int(x) for x in sprite.pos - self.pos]
+        overlap = self.mask.overlap_area(sprite.mask, offset)
         if overlap == 0:
             return
-        """Calculate collision normal"""
+        # Calculate collision normal
         nx = self.mask.overlap_area(
-            s.mask, (offset[0] + 1, offset[1])
-        ) - self.mask.overlap_area(s.mask, (offset[0] - 1, offset[1]))
+            sprite.mask, (offset[0] + 1, offset[1])
+        ) - self.mask.overlap_area(sprite.mask, (offset[0] - 1, offset[1]))
         ny = self.mask.overlap_area(
-            s.mask, (offset[0], offset[1] + 1)
-        ) - self.mask.overlap_area(s.mask, (offset[0], offset[1] - 1))
+            sprite.mask, (offset[0], offset[1] + 1)
+        ) - self.mask.overlap_area(sprite.mask, (offset[0], offset[1] - 1))
+        
         if nx == 0 and ny == 0:
-            """One sprite is inside another"""
+            # One sprite is inside another
             return
-        n = [nx, ny]
-        dv = vsub(s.vel, self.vel)
-        J = vdot(dv, n) / (2 * vdot(n, n))
+
+        n = pg.Vector2(nx, ny)
+        dv = sprite.vel - self.vel
+        J = dv * n / (2 * n * n)
         if J > 0:
-            """Can scale up to 2*J here to get bouncy collisions"""
+            # Can scale up to 2*J here to get bouncy collisions
             J *= 1.9
-            self.kick([nx * J, ny * J])
-            s.kick([-J * nx, -J * ny])
-        return
+            self.vel += [nx * J, ny * J]
+            sprite.vel += [-J * nx, -J * ny]
 
-        # """Separate the sprites"""
-        # c1 = -overlap/vdot(n,n)
-        # c2 = -c1/2
-        # self.move([c2*nx,c2*ny])
-        # s.move([(c1+c2)*nx,(c1+c2)*ny])
+        # # Separate the sprites
+        # c1 = -overlap / vdot(n, n)
+        # c2 = -c1 / 2
+        # self.pos += [c2 * nx, c2 * ny]
+        # sprite.pos += [(c1 + c2) * nx, (c1 + c2) * ny]
 
-    def update(self, dt):
-        self.pos[0] += dt * self.vel[0]
-        self.pos[1] += dt * self.vel[1]
+    def update(self):
+        self.pos += self.vel
 
 
 def main(*args):
-    """Display multiple images bounce off each other using collision detection
+    """
+    Display multiple images bounce off each other using collision detection
 
     Positional arguments:
       one or more image file names.
@@ -134,68 +115,65 @@ def main(*args):
         raise ValueError("Require at least one image file name: non given")
     print("Press any key to quit")
     pg.init()
-    screen = pg.display.set_mode((640, 480))
+
+    screen_width, screen_height = 640, 480
+    screen = pg.display.set_mode((screen_width, screen_height))
+    clock = pg.time.Clock()
+    
     images = []
     masks = []
-    for impath in args:
-        images.append(pg.image.load(impath).convert_alpha())
-        masks.append(maskFromSurface(images[-1]))
-
-    numtimes = 10
-    import time
-
-    t1 = time.time()
-    for x in range(numtimes):
-        unused_mask = maskFromSurface(images[-1])
-    t2 = time.time()
-
-    print(f"python maskFromSurface :{t2 - t1}")
-
-    t1 = time.time()
-    for x in range(numtimes):
-        unused_mask = pg.mask.from_surface(images[-1])
-    t2 = time.time()
-
-    print(f"C pg.mask.from_surface :{t2 - t1}")
+    for image_path in args:
+        images.append(pg.image.load(image_path).convert_alpha())
+        masks.append(pg.mask.from_surface(images[-1]))
 
     sprites = []
     for i in range(20):
         j = i % len(images)
-        s = Sprite(images[j], masks[j])
-        s.setPos(
-            (
-                random.uniform(0, screen.get_width()),
-                random.uniform(0, screen.get_height()),
-            )
+        s = Sprite(
+            pos=(
+                random.uniform(0, screen_width),
+                random.uniform(0, screen_width),
+            ),
+            vel=(
+                random.uniform(-5, 5), 
+                random.uniform(-5, 5),
+            ),
+            surface=images[j],
+            mask=masks[j],
         )
-        s.setVelocity((random.uniform(-5, 5), random.uniform(-5, 5)))
         sprites.append(s)
-    pg.time.set_timer(pg.USEREVENT, 33)
-    while True:
-        event = pg.event.wait()
-        if event.type == pg.QUIT:
-            return
-        elif event.type == pg.USEREVENT:
 
-            # Do both mechanics and screen update
-            screen.fill((240, 220, 100))
-            for i, sprite in enumerate(sprites):
-                for j in range(i + 1, len(sprites)):
-                    sprite.collide(sprites[j])
-            for s in sprites:
-                s.update(1)
-                if s.pos[0] < -s.surface.get_width() - 3:
-                    s.pos[0] = screen.get_width()
-                elif s.pos[0] > screen.get_width() + 3:
-                    s.pos[0] = -s.surface.get_width()
-                if s.pos[1] < -s.surface.get_height() - 3:
-                    s.pos[1] = screen.get_height()
-                elif s.pos[1] > screen.get_height() + 3:
-                    s.pos[1] = -s.surface.get_height()
-                screen.blit(s.surface, s.pos)
-            pg.display.update()
-        elif event.type == pg.KEYDOWN:
-            return
+    while True:
+        for event in pg.event.get():
+            if event.type in (pg.QUIT, pg.KEYDOWN):
+                return
+        
+        screen.fill((240, 220, 100))
+        
+        for sprite_index, sprite in enumerate(sprites):
+            for other_sprite in sprites[sprite_index + 1:]:
+                sprite.collide(other_sprite)
+        
+            sprite.update()
+            
+            # If the sprite is outside of the screen on the left
+            if sprite.pos.x < -sprite.width:
+                sprite.pos.x = screen_width
+            # right
+            elif sprite.pos.x > screen_width:
+                sprite.pos.x = -sprite.width
+            # top
+            if sprite.pos.y < -sprite.height:
+                sprite.pos.y = screen_height
+            # down
+            elif sprite.pos.y > screen_height:
+                sprite.pos.y = -sprite.height
+            
+            screen.blit(sprite.surface, sprite.pos)
+
+        clock.tick(30)
+        pg.display.flip()
+
 
 
 if __name__ == "__main__":
@@ -204,8 +182,8 @@ if __name__ == "__main__":
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        imagename = os.path.join(main_dir, "data", "alien1.png")
-        main(imagename)
+        image_name = os.path.join(main_dir, "data", "alien1.png")
+        main(image_name)
 
     else:
         main(*sys.argv[1:])
