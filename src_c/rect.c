@@ -35,7 +35,8 @@
 #include <limits.h>
 
 static PyTypeObject pgRect_Type;
-#define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
+#define pgRect_Check(x) (PyObject_IsInstance(x, (PyObject *)&pgRect_Type))
+#define pgRect_CheckExact(x) (Py_TYPE(x) == &pgRect_Type)
 
 static int
 pg_rect_init(pgRectObject *, PyObject *, PyObject *);
@@ -174,7 +175,7 @@ pg_tuple_from_values_int(int val1, int val2)
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
 {
-    pgRectObject *rect = (pgRectObject *)pgRect_Type.tp_new(type, NULL, NULL);
+    pgRectObject *rect = type->tp_new(type, NULL, NULL);
 
     if (rect) {
         rect->r.x = x;
@@ -191,7 +192,9 @@ pg_rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pgRectObject *self;
 
 #ifdef PYPY_VERSION
-    if (pg_rect_freelist_num > -1) {
+    /* Only instances of the base pygame.Rect class are allowed in the
+     * current freelist implementation (subclasses are not allowed) */
+    if (pg_rect_freelist_num > -1 && type == &pgRect_Type) {
         self = pg_rect_freelist[pg_rect_freelist_num];
         Py_INCREF(self);
         /* This is so that pypy garbage collector thinks it is a new obj
@@ -225,7 +228,10 @@ pg_rect_dealloc(pgRectObject *self)
     }
 
 #ifdef PYPY_VERSION
-    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX - 1) {
+    /* Only instances of the base pygame.Rect class are allowed in the
+     * current freelist implementation (subclasses are not allowed) */
+    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX - 1 &&
+        pgRect_CheckExact(self)) {
         pg_rect_freelist_num++;
         pg_rect_freelist[pg_rect_freelist_num] = self;
     }
@@ -1463,7 +1469,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             self->r.w = val;
             self->r.h = val;
         }
-        else if (PyObject_IsInstance(value, (PyObject *)&pgRect_Type)) {
+        else if (pgRect_Check(value)) {
             pgRectObject *rect = (pgRectObject *)value;
 
             self->r.x = rect->r.x;
