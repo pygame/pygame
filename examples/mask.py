@@ -37,16 +37,16 @@ This module can also be run as a stand-alone program, excepting
 one or more image file names as command line arguments.
 """
 
-import sys
 import os
 import random
+import sys
 import timeit
 
 import pygame as pg
 
 
 class Sprite:
-    def __init__(self, pos, vel, surface: pg.Surface, mask: pg.mask.Mask=None):
+    def __init__(self, pos, vel, surface: pg.Surface, mask: pg.mask.Mask = None):
         self.surface = surface
         self.width, self.height = self.surface.get_size()
         if mask is not None:
@@ -76,7 +76,7 @@ class Sprite:
         ny = self.mask.overlap_area(
             sprite.mask, (offset[0], offset[1] + 1)
         ) - self.mask.overlap_area(sprite.mask, (offset[0], offset[1] - 1))
-        
+
         if nx == 0 and ny == 0:
             # One sprite is inside another
             return
@@ -119,7 +119,7 @@ def main(*args):
     screen_width, screen_height = 640, 480
     screen = pg.display.set_mode((screen_width, screen_height))
     clock = pg.time.Clock()
-    
+
     images = []
     masks = []
     for image_path in args:
@@ -135,7 +135,7 @@ def main(*args):
                 random.uniform(0, screen_width),
             ),
             vel=(
-                random.uniform(-5, 5), 
+                random.uniform(-5, 5),
                 random.uniform(-5, 5),
             ),
             surface=images[j],
@@ -147,15 +147,15 @@ def main(*args):
         for event in pg.event.get():
             if event.type in (pg.QUIT, pg.KEYDOWN):
                 return
-        
+
         screen.fill((240, 220, 100))
-        
+
         for sprite_index, sprite in enumerate(sprites):
-            for other_sprite in sprites[sprite_index + 1:]:
+            for other_sprite in sprites[sprite_index + 1 :]:
                 sprite.collide(other_sprite)
-        
+
             sprite.update()
-            
+
             # If the sprite is outside of the screen on the left
             if sprite.pos.x < -sprite.width:
                 sprite.pos.x = screen_width
@@ -168,12 +168,11 @@ def main(*args):
             # down
             elif sprite.pos.y > screen_height:
                 sprite.pos.y = -sprite.height
-            
+
             screen.blit(sprite.surface, sprite.pos)
 
         clock.tick(30)
         pg.display.flip()
-
 
 
 if __name__ == "__main__":
