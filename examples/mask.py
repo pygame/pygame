@@ -195,8 +195,7 @@ if __name__ == "__main__":
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        image_name = os.path.join(main_dir, "data", "alien1.png")
-        main(image_name)
+        main(os.path.join(main_dir, "data", "alien1.png"))
 
     else:
         main(*sys.argv[1:])
