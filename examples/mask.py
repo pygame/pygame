@@ -45,7 +45,18 @@ import pygame as pg
 
 
 class Sprite:
+    """
+    Moving Sprite demonstrating pixel-perfect collisions between pg.mask.Mask objects
+    """
+
     def __init__(self, pos, vel, surface: pg.Surface, mask: pg.mask.Mask = None):
+        """
+        Positional arguments:
+            pos: Position of the sprite (sequence of 2 integers)
+            vel: Movement velocity of the sprite (sequence of 2 integers)
+            surface: Image (as a pg.Surface) of the sprite
+            mask: pg.mask.Mask object (optional)
+        """
         self.surface = surface
         self.width, self.height = self.surface.get_size()
         if mask is not None:
@@ -69,33 +80,38 @@ class Sprite:
         if overlap == 0:
             return
         # Calculate collision normal
-        nx = self.mask.overlap_area(
-            sprite.mask, (offset[0] + 1, offset[1])
-        ) - self.mask.overlap_area(sprite.mask, (offset[0] - 1, offset[1]))
-        ny = self.mask.overlap_area(
-            sprite.mask, (offset[0], offset[1] + 1)
-        ) - self.mask.overlap_area(sprite.mask, (offset[0], offset[1] - 1))
 
-        if nx == 0 and ny == 0:
+        # Number of collisions
+        n_collisions = pg.Vector2(
+            # x axis
+            self.mask.overlap_area(sprite.mask, (offset[0] + 1, offset[1]))
+            - self.mask.overlap_area(sprite.mask, (offset[0] - 1, offset[1])),
+            # y axis
+            self.mask.overlap_area(sprite.mask, (offset[0], offset[1] + 1))
+            - self.mask.overlap_area(sprite.mask, (offset[0], offset[1] - 1)),
+        )
+        if n_collisions.x == 0 and n_collisions.y == 0:
             # One sprite is inside another
             return
 
-        n = pg.Vector2(nx, ny)
-        dv = sprite.vel - self.vel
-        J = dv * n / (2 * n * n)
-        if J > 0:
-            # Can scale up to 2*J here to get bouncy collisions
-            J *= 1.9
-            self.vel += [nx * J, ny * J]
-            sprite.vel += [-J * nx, -J * ny]
+        delta_vel = sprite.vel - self.vel
+        j = delta_vel * n_collisions / (2 * n_collisions * n_collisions)
+        if j > 0:
+            # Can scale up to 2*j here to get bouncy collisions
+            j *= 1.9
+            self.vel += [n_collisions.x * j, n_collisions.y * j]
+            sprite.vel += [-j * n_collisions.x, -j * n_collisions.y]
 
         # # Separate the sprites
-        # c1 = -overlap / vdot(n, n)
+        # c1 = -overlap / (n_collisions * n_collisions)
         # c2 = -c1 / 2
-        # self.pos += [c2 * nx, c2 * ny]
-        # sprite.pos += [(c1 + c2) * nx, (c1 + c2) * ny]
+        # self.pos += [c2 * n_collisions.x, c2 * n_collisions.y]
+        # sprite.pos += [(c1 + c2) * n_collisions.x, (c1 + c2) * n_collisions.y]
 
     def update(self):
+        """
+        Move the sprite
+        """
         self.pos += self.vel
 
 
@@ -112,11 +128,10 @@ def main(*args):
 
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
-    print("Press any key to quit")
     pg.init()
 
-    screen_width, screen_height = 640, 480
-    screen = pg.display.set_mode((screen_width, screen_height))
+    screen_size = (640, 480)
+    screen = pg.display.set_mode(screen_size)
     clock = pg.time.Clock()
 
     images = []
@@ -128,10 +143,10 @@ def main(*args):
     sprites = []
     for i in range(20):
         j = i % len(images)
-        s = Sprite(
+        sprite = Sprite(
             pos=(
-                random.uniform(0, screen_width),
-                random.uniform(0, screen_width),
+                random.uniform(0, screen_size[0]),
+                random.uniform(0, screen_size[1]),
             ),
             vel=(
                 random.uniform(-5, 5),
@@ -140,7 +155,7 @@ def main(*args):
             surface=images[j],
             mask=masks[j],
         )
-        sprites.append(s)
+        sprites.append(sprite)
 
     while True:
         for event in pg.event.get():
@@ -157,15 +172,15 @@ def main(*args):
 
             # If the sprite is outside of the screen on the left
             if sprite.pos.x < -sprite.width:
-                sprite.pos.x = screen_width
+                sprite.pos.x = screen_size[0]
             # right
-            elif sprite.pos.x > screen_width:
+            elif sprite.pos.x > screen_size[0]:
                 sprite.pos.x = -sprite.width
             # top
             if sprite.pos.y < -sprite.height:
-                sprite.pos.y = screen_height
+                sprite.pos.y = screen_size[1]
             # down
-            elif sprite.pos.y > screen_height:
+            elif sprite.pos.y > screen_size[1]:
                 sprite.pos.y = -sprite.height
 
             screen.blit(sprite.surface, sprite.pos)
