@@ -78,8 +78,8 @@ def get_urls(x86=True, x64=True):
     url_sha1 = []
     url_sha1.extend([
         [
-        'https://www.libsdl.org/release/SDL2-devel-2.0.22-VC.zip',
-        'efa040633c4faf8b006c0c1e552456ca4e5a3a53',
+        'https://www.libsdl.org/release/SDL2-devel-2.24.0-VC.zip',
+        '8a54459189e88c30ba024ee5f18ce4b1a5d1d9e7',
         ],
         [
         'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
@@ -234,12 +234,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.22-VC/SDL2-2.0.22'
+                'SDL2-devel-2.24.0-VC/SDL2-2.24.0'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.22'
+                'SDL2-2.24.0'
             )
         )
 
