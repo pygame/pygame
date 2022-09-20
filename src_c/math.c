@@ -257,9 +257,13 @@ vector_project_onto(pgVector *self, PyObject *other);
 static PyObject *
 vector_copy(pgVector *self, PyObject *_null);
 static PyObject *
-vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs);
+vector_clamp_magnitude(pgVector *self, PyObject *const *args,
+                       Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(vector_clamp_magnitude, pgVector);
 static PyObject *
-vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs);
+vector_clamp_magnitude_ip(pgVector *self, PyObject *const *args,
+                          Py_ssize_t nargs);
+PG_DECLARE_FASTCALL_FUNC(vector_clamp_magnitude_ip, pgVector);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -805,7 +809,7 @@ vector_copy(pgVector *self, PyObject *_null)
 }
 
 static PyObject *
-vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
+vector_clamp_magnitude(pgVector *self, PyObject *const *args, Py_ssize_t nargs)
 {
     Py_ssize_t i;
     pgVector *ret;
@@ -817,7 +821,7 @@ vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
     for (i = 0; i < self->dim; ++i)
         ret->coords[i] = self->coords[i];
 
-    PyObject *ret_val = vector_clamp_magnitude_ip(ret, args, kwargs);
+    PyObject *ret_val = vector_clamp_magnitude_ip(ret, args, nargs);
     if (!ret_val) {
         return NULL;
     }
@@ -826,62 +830,58 @@ vector_clamp_magnitude(pgVector *self, PyObject *args, PyObject *kwargs)
     return (PyObject *)ret;
 }
 
+PG_WRAP_FASTCALL_FUNC(vector_clamp_magnitude, pgVector);
+
 static PyObject *
-vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
+vector_clamp_magnitude_ip(pgVector *self, PyObject *const *args,
+                          Py_ssize_t nargs)
 {
     Py_ssize_t i;
-    double arg0;
-    double arg1 = 0; /*
-    Default value, if arg1 is set to a different value,
-    then it will clamp to the minimum and maximum.
-    */
-    double max_length;
-    double min_length;
-    double old_length_sq;
-    double fraction;
-
-    int length_greater;
-    int length_less;
-
-    static char *keywords[] = {"arg0", "arg1", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d|d", keywords, &arg0,
-                                     &arg1)) {
-        return NULL;
+    double max_length, old_length_sq, fraction = 1, min_length = 0;
+    switch (nargs) {
+        case 2:
+            min_length = PyFloat_AsDouble(args[0]);
+            if (min_length == -1.0 && PyErr_Occurred()) {
+                return NULL;
+            }
+            /* Fall-through */
+        case 1:
+            max_length = PyFloat_AsDouble(args[nargs - 1]);
+            if (max_length == -1.0 && PyErr_Occurred()) {
+                return NULL;
+            }
+            break;
+        default:
+            return RAISE(PyExc_TypeError,
+                         "Vector clamp function must take one or two floats");
     }
 
-    if (arg1 != 0) {
-        min_length = arg0;
-        max_length = arg1;
+    if (min_length > max_length) {
+        return RAISE(PyExc_ValueError,
+                     "Argument min_length cannot exceed max_length");
     }
-    else if (arg1 == 0) {
-        max_length = arg0;
-        min_length = arg1;
+
+    if (max_length < 0 || min_length < 0) {
+        return RAISE(PyExc_ValueError,
+                     "Arguments to Vector clamp must be non-negative");
     }
 
     /* Get magnitude of Vector */
     old_length_sq = _scalar_product(self->coords, self->coords, self->dim);
-
     if (old_length_sq == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot clamp a vector with zero length");
-        return NULL;
+        return RAISE(PyExc_ValueError,
+                     "Cannot clamp a vector with zero length");
     }
 
-    /*
-    Notes for other contributors reading this code:
-    The numerator for the fraction is different.
-    */
-    length_greater = old_length_sq > max_length * max_length;
-    fraction = 1;
-
-    if (length_greater) {
+    /* Notes for other contributors reading this code:
+     * The numerator for the fraction is different.
+     */
+    if (old_length_sq > max_length * max_length) {
         /* Scale to length */
         fraction = max_length / sqrt(old_length_sq);
     }
 
-    length_less = old_length_sq < min_length * min_length;
-    if (length_less) {
+    if (old_length_sq < min_length * min_length) {
         /* Scale to length */
         fraction = min_length / sqrt(old_length_sq);
     }
@@ -891,6 +891,8 @@ vector_clamp_magnitude_ip(pgVector *self, PyObject *args, PyObject *kwargs)
 
     Py_RETURN_NONE;
 }
+
+PG_WRAP_FASTCALL_FUNC(vector_clamp_magnitude_ip, pgVector);
 
 static PyNumberMethods vector_as_number = {
     .nb_add = (binaryfunc)vector_add,
@@ -1382,9 +1384,7 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
                             double *target_coords, double max_distance)
 {
     Py_ssize_t i;
-    double delta[VECTOR_MAX_SIZE];
-    double dist;
-
+    double frac, dist, delta[VECTOR_MAX_SIZE];
     if (max_distance == 0)
         return;
 
@@ -1393,6 +1393,11 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
 
     /* Get magnitude of Vector */
     dist = sqrt(_scalar_product(delta, delta, dim));
+    if (dist == 0) {
+        /* origin and target are same, return early (this also makes sure
+         * that frac is never NaN) */
+        return;
+    }
 
     if (dist <= max_distance) {
         /* Return target Vector */
@@ -1401,10 +1406,9 @@ _vector_move_towards_helper(Py_ssize_t dim, double *origin_coords,
         return;
     }
 
+    frac = max_distance / dist;
     for (i = 0; i < dim; ++i)
-        origin_coords[i] = origin_coords[i] + delta[i] / dist * max_distance;
-
-    return;
+        origin_coords[i] += delta[i] * frac;
 }
 
 static PyObject *
@@ -2454,10 +2458,11 @@ static PyMethodDef vector2_methods[] = {
     {"project", (PyCFunction)vector2_project, METH_O, DOC_VECTOR2PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude,
-     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR2CLAMPMAGNITUDE},
-    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip,
-     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR2CLAMPMAGNITUDEIP},
+    {"clamp_magnitude", (PyCFunction)PG_FASTCALL_NAME(vector_clamp_magnitude),
+     PG_FASTCALL, DOC_VECTOR2CLAMPMAGNITUDE},
+    {"clamp_magnitude_ip",
+     (PyCFunction)PG_FASTCALL_NAME(vector_clamp_magnitude_ip), PG_FASTCALL,
+     DOC_VECTOR2CLAMPMAGNITUDEIP},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
@@ -3368,10 +3373,11 @@ static PyMethodDef vector3_methods[] = {
     {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR3COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
-    {"clamp_magnitude", (PyCFunction)vector_clamp_magnitude,
-     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR3CLAMPMAGNITUDE},
-    {"clamp_magnitude_ip", (PyCFunction)vector_clamp_magnitude_ip,
-     METH_VARARGS | METH_KEYWORDS, DOC_VECTOR3CLAMPMAGNITUDEIP},
+    {"clamp_magnitude", (PyCFunction)PG_FASTCALL_NAME(vector_clamp_magnitude),
+     PG_FASTCALL, DOC_VECTOR3CLAMPMAGNITUDE},
+    {"clamp_magnitude_ip",
+     (PyCFunction)PG_FASTCALL_NAME(vector_clamp_magnitude_ip), PG_FASTCALL,
+     DOC_VECTOR3CLAMPMAGNITUDEIP},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector3_reduce, METH_NOARGS, NULL},

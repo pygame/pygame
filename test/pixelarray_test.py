@@ -265,6 +265,11 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         with pygame.PixelArray(s) as a:
             a[:]
 
+        # Test pixel array write... will also catch refcount issues and
+        # segfault
+        with pygame.PixelArray(s) as a:
+            a[:] = pygame.Color("deepskyblue")
+
     def test_pixel_array(self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface((10, 20), 0, bpp)

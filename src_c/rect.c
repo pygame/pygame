@@ -146,6 +146,31 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
     return 1;
 }
 
+PyObject *
+pg_tuple_from_values_int(int val1, int val2)
+{
+    PyObject *tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    return tup;
+}
+
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
 {
@@ -1330,6 +1355,11 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
     int val = 0;
     int *data = (int *)&self->r;
 
+    if (!v) {
+        PyErr_SetString(PyExc_TypeError, "item deletion is not supported");
+        return -1;
+    }
+
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
             i += 4;
@@ -1407,6 +1437,11 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
 static int
 pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 {
+    if (!value) {
+        PyErr_SetString(PyExc_TypeError, "item deletion is not supported");
+        return -1;
+    }
+
     if (PyIndex_Check(op)) {
         PyObject *index;
         Py_ssize_t i;
@@ -1835,7 +1870,7 @@ pg_rect_setcentery(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_gettopleft(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x, self->r.y);
+    return pg_tuple_from_values_int(self->r.x, self->r.y);
 }
 
 static int
@@ -1862,7 +1897,7 @@ pg_rect_settopleft(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_gettopright(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + self->r.w, self->r.y);
+    return pg_tuple_from_values_int(self->r.x + self->r.w, self->r.y);
 }
 
 static int
@@ -1889,7 +1924,7 @@ pg_rect_settopright(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getbottomleft(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x, self->r.y + self->r.h);
+    return pg_tuple_from_values_int(self->r.x, self->r.y + self->r.h);
 }
 
 static int
@@ -1916,7 +1951,8 @@ pg_rect_setbottomleft(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getbottomright(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + self->r.w, self->r.y + self->r.h);
+    return pg_tuple_from_values_int(self->r.x + self->r.w,
+                                    self->r.y + self->r.h);
 }
 
 static int
@@ -1943,7 +1979,7 @@ pg_rect_setbottomright(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getmidtop(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + (self->r.w >> 1), self->r.y);
+    return pg_tuple_from_values_int(self->r.x + (self->r.w >> 1), self->r.y);
 }
 
 static int
@@ -1970,7 +2006,7 @@ pg_rect_setmidtop(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getmidleft(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x, self->r.y + (self->r.h >> 1));
+    return pg_tuple_from_values_int(self->r.x, self->r.y + (self->r.h >> 1));
 }
 
 static int
@@ -1997,8 +2033,8 @@ pg_rect_setmidleft(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getmidbottom(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + (self->r.w >> 1),
-                         self->r.y + self->r.h);
+    return pg_tuple_from_values_int(self->r.x + (self->r.w >> 1),
+                                    self->r.y + self->r.h);
 }
 
 static int
@@ -2025,8 +2061,8 @@ pg_rect_setmidbottom(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getmidright(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + self->r.w,
-                         self->r.y + (self->r.h >> 1));
+    return pg_tuple_from_values_int(self->r.x + self->r.w,
+                                    self->r.y + (self->r.h >> 1));
 }
 
 static int
@@ -2053,8 +2089,8 @@ pg_rect_setmidright(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getcenter(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x + (self->r.w >> 1),
-                         self->r.y + (self->r.h >> 1));
+    return pg_tuple_from_values_int(self->r.x + (self->r.w >> 1),
+                                    self->r.y + (self->r.h >> 1));
 }
 
 static int
@@ -2081,7 +2117,7 @@ pg_rect_setcenter(pgRectObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_rect_getsize(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.w, self->r.h);
+    return pg_tuple_from_values_int(self->r.w, self->r.h);
 }
 
 static int
