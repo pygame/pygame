@@ -2529,6 +2529,17 @@ class RectTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
 
+    def test_ass_subscript_deletion(self):
+        r = Rect(0, 0, 0, 0)
+        with self.assertRaises(TypeError):
+            del r[0]
+
+        with self.assertRaises(TypeError):
+            del r[0:2]
+
+        with self.assertRaises(TypeError):
+            del r[...]
+
     def test_collection_abc(self):
         r = Rect(64, 70, 75, 30)
         self.assertTrue(isinstance(r, Collection))
