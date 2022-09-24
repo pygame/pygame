@@ -1025,6 +1025,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                          * position is retained unconditionally */
                         if (!center_window || (w == old_w && h == old_h)) {
                             SDL_GetWindowPosition(win, &x, &y);
+                        } else {
+                            x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+                            y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                         }
                     }
                 }
