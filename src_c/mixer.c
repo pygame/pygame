@@ -832,6 +832,7 @@ PyMethodDef sound_methods[] = {
     {"get_length", snd_get_length, METH_NOARGS, DOC_SOUNDGETLENGTH},
     {"get_raw", snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
     {"copy", snd_copy, METH_NOARGS, DOC_SOUNDCOPY},
+    {"__copy__", snd_copy, METH_NOARGS, DOC_SOUNDCOPY},
     {NULL, NULL, 0, NULL}};
 
 static PyGetSetDef sound_getset[] = {
