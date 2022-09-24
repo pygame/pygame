@@ -772,7 +772,6 @@ snd_copy(PyObject *self, PyObject *_null)
         sound->mem = NULL;
         sound->chunk = new_chunk;
     }
-    sound->chunk = new_chunk;
 
     return (PyObject *)sound;
 }
