@@ -70,7 +70,6 @@ jobs:
         sudo apt-get install lz4
         echo https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE
         curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvP --use-compress-program=lz4
-        #wget -O- https://github.com/pygame-web/python-wasm-sdk/releases/download/3.1.19.0/python3.11-wasm-sdk-Ubuntu-22.04.tar.lz4 | tar xvP --use-compress-program=lz4
         # do not let SDL1 interfere
         rm -rf /opt/python-wasm-sdk/emsdk/upstream/emscripten/cache/sysroot/include/SDL
       working-directory: /opt
