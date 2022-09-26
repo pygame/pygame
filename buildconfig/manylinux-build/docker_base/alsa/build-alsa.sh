@@ -10,6 +10,7 @@ sha512sum -c alsa.sha512
 tar xjf ${ALSA}.tar.bz2
 cd ${ALSA}
 
-./configure --with-configdir=/usr/share/alsa
+# alsa prefers /usr prefix as a default, so we explicitly override it
+./configure --prefix=/usr/local --with-configdir=/usr/local/share/alsa 
 make
 make install
