@@ -49,7 +49,7 @@ class Sprite:
     Moving Sprite demonstrating pixel-perfect collisions between pg.mask.Mask objects
     """
 
-    def __init__(self, pos, vel, surface: pg.Surface, mask: pg.mask.Mask = None):
+    def __init__(self, pos, vel, surface, mask=None):
         """
         Positional arguments:
             pos: Position of the sprite (sequence of 2 integers)
