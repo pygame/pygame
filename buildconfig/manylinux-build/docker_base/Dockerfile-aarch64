@@ -31,11 +31,14 @@ ENV PG_BASE_CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local/ \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=true"
 
+# remember to keep this updated when we drop 3.10 support
+ENV PATH="/opt/python/cp310-cp310/bin:$PATH"
+
 ADD pkg-config /pkg-config_build/
 RUN ["bash", "/pkg-config_build/build-pkg-config.sh"]
 
-ADD cmake /cmake_build/
-RUN ["bash", "/cmake_build/build-cmake.sh"]
+ADD buildtools /buildtools/
+RUN ["bash", "/buildtools/install.sh"]
 
 #ADD zlib-ng /zlib-ng_build/
 #RUN ["bash", "/zlib-ng_build/build-zlib-ng.sh"]
