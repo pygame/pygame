@@ -13,7 +13,7 @@ cd $(dirname `readlink -f "$0"`)
 COMPILED_PKGCONFIG_DIRS=$(pkg-config --variable pc_path pkg-config)
 
 # append path(s) where other installs put .pc files
-COMPILED_PKGCONFIG_DIRS="${COMPILED_PKGCONFIG_DIRS}:/usr/local/lib/pkgconfig"
+COMPILED_PKGCONFIG_DIRS="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:${COMPILED_PKGCONFIG_DIRS}"
 
 PKGCONFIG=pkg-config-0.29.2
 

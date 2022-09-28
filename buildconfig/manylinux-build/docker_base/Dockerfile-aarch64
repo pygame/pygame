@@ -46,6 +46,9 @@ RUN ["bash", "/libffi_build/build-libffi.sh"]
 ADD libxml2 /libxml2_build/
 RUN ["bash", "/libxml2_build/build-libxml2.sh"]
 
+ADD wayland /wayland_build/
+RUN ["bash", "/wayland_build/build-wayland.sh"]
+
 #ADD zlib-ng /zlib-ng_build/
 #RUN ["bash", "/zlib-ng_build/build-zlib-ng.sh"]
 
