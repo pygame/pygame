@@ -34,16 +34,6 @@ def surfdemo_show(array_img, name):
         if e.type == pg.MOUSEBUTTONUP and e.button == pg.BUTTON_LEFT:
             break
         elif e.type == pg.KEYDOWN and e.key == pg.K_s:
-            # pg.image.save(screen, name+'.bmp')
-            # s = pg.Surface(screen.get_size(), 0, 32)
-            # s = s.convert_alpha()
-            # s.fill((0,0,0,255))
-            # s.blit(screen, (0,0))
-            # s.fill((222,0,0,50), (0,0,40,40))
-            # pg.image.save_extended(s, name+'.png')
-            # pg.image.save(s, name+'.png')
-            # pg.image.save(screen, name+'_screen.png')
-            # pg.image.save(s, name+'.tga')
             pg.image.save(screen, name + ".png")
         elif e.type == pg.QUIT:
             pg.quit()
@@ -52,23 +42,23 @@ def surfdemo_show(array_img, name):
 
 def main():
     """show various surfarray effects"""
-    import numpy as N
-    from numpy import int32, uint8, uint
+    import numpy as np
+    from numpy import int32, uint
 
     pg.init()
 
-    print(f"Using {surfarray.get_arraytype().capitalize()}")
+    print("Using Numpy")
     print("Press the left mouse button to advance image.")
     print('Press the "s" key to save the current image.')
 
     # allblack
-    allblack = N.zeros((128, 128), int32)
+    allblack = np.zeros((128, 128), int32)
     surfdemo_show(allblack, "allblack")
 
     # striped
-    # the element type is required for N.zeros in numpy else
+    # the element type is required for np.zeros in numpy else
     # an array of float is returned.
-    striped = N.zeros((128, 128, 3), int32)
+    striped = np.zeros((128, 128, 3), int32)
     striped[:] = (255, 0, 0)
     striped[:, ::3] = (0, 255, 255)
     surfdemo_show(striped, "striped")
@@ -88,25 +78,25 @@ def main():
     surfdemo_show(scaledown, "scaledown")
 
     # scaleup
-    # the element type is required for N.zeros in numpy else
+    # the element type is required for np.zeros in numpy else
     # an #array of floats is returned.
     shape = rgbarray.shape
-    scaleup = N.zeros((shape[0] * 2, shape[1] * 2, shape[2]), int32)
+    scaleup = np.zeros((shape[0] * 2, shape[1] * 2, shape[2]), int32)
     scaleup[::2, ::2, :] = rgbarray
     scaleup[1::2, ::2, :] = rgbarray
     scaleup[:, 1::2] = scaleup[:, ::2]
     surfdemo_show(scaleup, "scaleup")
 
     # redimg
-    redimg = N.array(rgbarray)
+    redimg = np.array(rgbarray)
     redimg[:, :, 1:] = 0
     surfdemo_show(redimg, "redimg")
 
     # soften
     # having factor as an array forces integer upgrade during multiplication
     # of rgbarray, even for numpy.
-    factor = N.array((8,), int32)
-    soften = N.array(rgbarray, int32)
+    factor = np.array((8,), int32)
+    soften = np.array(rgbarray, int32)
     soften[1:, :] += rgbarray[:-1, :] * factor
     soften[:-1, :] += rgbarray[1:, :] * factor
     soften[:, 1:] += rgbarray[:, :-1] * factor
@@ -115,14 +105,14 @@ def main():
     surfdemo_show(soften, "soften")
 
     # crossfade (50%)
-    src = N.array(rgbarray)
-    dest = N.zeros(rgbarray.shape)  # dest is float64 by default.
+    src = np.array(rgbarray)
+    dest = np.zeros(rgbarray.shape)  # dest is float64 by default.
     dest[:] = 20, 50, 100
     diff = (dest - src) * 0.50
     xfade = src + diff.astype(uint)
     surfdemo_show(xfade, "xfade")
 
-    # alldone
+    # all done
     pg.quit()
 
 
