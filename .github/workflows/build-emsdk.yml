@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       # pin SDK version to the latest, update manually
-      SDK_VERSION: 3.1.22.0
+      SDK_VERSION: 3.1.24.1
       SDK_ARCHIVE: python3.11-wasm-sdk-Ubuntu-22.04.tar.lz4
       SDKROOT: /opt/python-wasm-sdk
 
