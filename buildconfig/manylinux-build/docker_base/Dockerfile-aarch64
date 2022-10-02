@@ -87,6 +87,15 @@ RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
 ADD libmodplug /libmodplug_build/
 RUN ["bash", "/libmodplug_build/build-libmodplug.sh"]
 
+ADD libffi /libffi_build/
+RUN ["bash", "/libffi_build/build-libffi.sh"]
+
+ADD gettext /gettext_build/
+RUN ["bash", "/gettext_build/build-gettext.sh"]
+
+ADD glib /glib_build/
+RUN ["bash", "/glib_build/build-glib.sh"]
+
 ADD fluidsynth /fluidsynth_build/
 RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
