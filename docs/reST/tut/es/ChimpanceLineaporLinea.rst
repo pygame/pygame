@@ -1,23 +1,22 @@
-.. TUTORIAL:Line by Line Descriptions of the Chimp Example
-
+.. TUTORIAL:Descripciones línea por línea del ejemplo del chimpancé
 .. include:: common.txt
 
-*************************************************************
+***************************************************************
   Tutorial de Pygame - Ejemplo del Chimpancé, Línea Por Línea
-*************************************************************
+***************************************************************
 
 
 Chimpancé, Línea Por Línea
-===========================
+==========================
 .. rst-class:: docinfo
 
-:Autor: Pete Shinners
+:Autor: Pete Shinners. Traducción al español: Estefania Pivaral Serrano
 :Contacto: pete@shinners.org
 
 .. toctree::
    :hidden:
 
-   chimp.py
+   ../chimp.py
 
 
 Introducción
@@ -52,7 +51,7 @@ del chimpancé para ti mismo en el directorio de ejemplos.
    .. image:: chimpshot.gif
       :alt: chimp game banner
 
-   :doc:`Full Source <chimp.py>`
+   :doc:`Full Source <../chimp.py>`
 
 
 Importación de Módulos
@@ -97,7 +96,7 @@ funciones de carga exactamente dónde buscar.
 
 
 Carga de Recursos
-------------------
+-----------------
 
 A continuación, se presentan dos funciones que se pueden usar para cargar imágenes y sonidos.
 En esta sección examinaremos cada función individualmente. ::
@@ -328,7 +327,7 @@ la actual imagen llamada "original".
 
 
 Inicializar Todo
------------------
+----------------
 
 Antes de poder hacer algo con pygame, necesitamos asegurarnos que los módulos
 estén inicializados. En este caso, vamos a abrir también una simple ventana de
@@ -472,7 +471,7 @@ juego para asegurarnos que no se ejecute demasiado rápido.
 
 
 Bucle principal (Main Loop)
-----------------------------
+---------------------------
 
 No hay mucho por acá, solo un loop infinito. ::
 
@@ -530,6 +529,7 @@ método de actualización para todos los sprites que contiene. Cada uno de los
 objetos se va a mover, dependiendo de cuál sea el estado en el que estén. Acá
 es donde el mono se va a mover de un lado a otro, o va a girar un poco más 
 lejos si fue recientemente golpeado.
+
 
 
 Dibujar la Escena Completa
