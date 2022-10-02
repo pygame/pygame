@@ -763,14 +763,24 @@ snd_get_raw(PyObject *self, PyObject *_null)
 static PyObject *
 snd_copy(PyObject *self, PyObject *_null)
 {
+    Mix_Chunk *new_chunk;
     Mix_Chunk *old_chunk = pgSound_AsChunk(self);
-    Mix_Chunk *new_chunk = Mix_QuickLoad_RAW(old_chunk->abuf, old_chunk->alen);
-    new_chunk->volume = old_chunk->volume;
-    pgSoundObject *sound =
-        (pgSoundObject *)pgSound_Type.tp_new(Py_TYPE(self), NULL, NULL);
+    pgSoundObject *sound = (pgSoundObject *)Py_TYPE(self)->tp_new(Py_TYPE(self), NULL, NULL);
+
     if (sound) {
+        new_chunk = Mix_QuickLoad_RAW(old_chunk->abuf, old_chunk->alen);
+        if (new_chunk) {
+            new_chunk->volume = old_chunk->volume;
+        }
+        else {
+            PyErr_Format(PyExc_SystemError, "Internal pygame error, chunk could not be created.");
+        }
+
         sound->mem = NULL;
         sound->chunk = new_chunk;
+    }
+    else {
+        PyErr_Format(PyExc_SystemError, "Internal pygame error, sound could not be created.");
     }
 
     return (PyObject *)sound;
