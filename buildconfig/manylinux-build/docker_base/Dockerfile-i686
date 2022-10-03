@@ -59,6 +59,21 @@ RUN ["linux32", "bash", "/xorg_build/libpciaccess/build-libpciaccess.sh"]
 ADD mesa/libdrm /mesa_build/libdrm/
 RUN ["linux32", "bash", "/mesa_build/libdrm/build-libdrm.sh"]
 
+ADD xorg/libxshmfence /xorg_build/libxshmfence/
+RUN ["linux32", "bash", "/xorg_build/libxshmfence/build-libxshmfence.sh"]
+
+ADD mesa/glslang /mesa_build/glslang/
+RUN ["linux32", "bash", "/mesa_build/glslang/build-glslang.sh"]
+
+ADD mesa/mako /mesa_build/mako/
+RUN ["linux32", "bash", "/mesa_build/mako/build-mako.sh"]
+
+ADD mesa/flex /mesa_build/flex/
+RUN ["linux32", "bash", "/mesa_build/flex/build-flex.sh"]
+
+ADD mesa/mesa /mesa_build/mesa/
+RUN ["linux32", "bash", "/mesa_build/mesa/build-mesa.sh"]
+
 #ADD zlib-ng /zlib-ng_build/
 #RUN ["linux32", "bash", "/zlib-ng_build/build-zlib-ng.sh"]
 
