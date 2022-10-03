@@ -49,6 +49,15 @@ RUN ["bash", "/libxml2_build/build-libxml2.sh"]
 ADD wayland /wayland_build/
 RUN ["bash", "/wayland_build/build-wayland.sh"]
 
+ADD xorg/macros /xorg_build/macros/
+RUN ["bash", "/xorg_build/macros/build-macros.sh"]
+
+ADD xorg/libpciaccess /xorg_build/libpciaccess/
+RUN ["bash", "/xorg_build/libpciaccess/build-libpciaccess.sh"]
+
+ADD mesa/libdrm /mesa_build/libdrm/
+RUN ["bash", "/mesa_build/libdrm/build-libdrm.sh"]
+
 #ADD zlib-ng /zlib-ng_build/
 #RUN ["bash", "/zlib-ng_build/build-zlib-ng.sh"]
 
