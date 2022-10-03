@@ -12,8 +12,7 @@ sha512sum -c libjpegturbo.sha512
 tar xzf ${JPEG}.tar.gz
 cd ${JPEG}
 
-cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr/local/ -DWITH_TURBOJPEG=0
+cmake . $PG_BASE_CMAKE_FLAGS -DWITH_TURBOJPEG=0
 
 make
 make install

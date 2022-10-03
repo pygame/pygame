@@ -38,6 +38,7 @@ rm -rf /usr/local/opt/gettext
 
 rm -rf /usr/local/share/doc/tiff-*
 rm -rf /usr/local/share/doc/libsndfile
+rm -rf /usr/local/share/doc/opusfile
 rm -rf /usr/local/share/glib-2.0
 rm -rf /usr/local/share/gdb/auto-load
 

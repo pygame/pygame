@@ -22,11 +22,6 @@ pygame\.__pyinstaller.*
 
 # don't look for stubs for these private modules either
 pygame\.draw_py
-pygame\._sprite
-pygame\._freetype
-pygame\._camera
-pygame\._camera_opencv
-pygame\._camera_vidcapture
 pygame\.ftfont
 pygame\.imageext
 pygame\.macosx
