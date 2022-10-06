@@ -89,9 +89,10 @@ from warnings import warn
 
 import pygame
 
-from pygame.rect import Rect
-from pygame.time import get_ticks
-from pygame.mask import from_surface
+from pygame.rect   import Rect
+from pygame.time   import get_ticks
+from pygame.mask   import from_surface
+from pygame.event  import NUMEVENTS, EventType
 
 
 class Sprite:
@@ -109,8 +110,11 @@ class Sprite:
 
     """
 
+    listening_events = frozenset()
+
     def __init__(self, *groups):
         self.__g = {}  # The groups the sprite is in
+        self._old_listening_events = frozenset(self.listening_events)
         if groups:
             self.add(*groups)
 
@@ -245,6 +249,35 @@ class Sprite:
                 "instead."
             )
 
+    def handle_event(self,event):
+        """method to handle events
+
+        Sprite.handle_event(event):
+
+        The default implementation of this method does nothing; it's just a
+        convenient "hook" that you can override. This method is called by
+        Group.handle_event(event) with the event you called it with only if
+        it's type is in listening_events.
+
+        Note that if you change listening_events, the changes will not be 
+        acknoleged untill you call Sprite.update_listening_events()
+
+        There is no need to use this method if not using the convenience
+        method by the same name in the Group class.
+        """
+
+    def update_listening_events(self):
+        for event_type in self.listening_events-self._old_listening_event:
+            #The previous line only interates over new event types
+            for group in self.__g:
+                group._register_event(event_type,self)
+        for event_type in self._old_listening_event-self.listening_events:
+            #The previous line only interates over old event types
+            for group in self.__g:
+                group._unregister_event(event_type,self)
+        self._old_listerning_events = frozenset(self.listerning_events)
+            
+
 
 class DirtySprite(Sprite):
     """a more featureful subclass of Sprite with more attributes
@@ -360,6 +393,7 @@ class AbstractGroup:
     def __init__(self):
         self.spritedict = {}
         self.lostsprites = []
+        self.event_listeners = {x:set() for i in range(NUMEVENTS)}
 
     def sprites(self):
         """get a list of sprites in the group
@@ -386,6 +420,9 @@ class AbstractGroup:
         :param layer: the layer to add to, if the group type supports layers
         """
         self.spritedict[sprite] = None
+        for event_type in self.event_listeners:
+            if event_type in sprite.event_listeners:
+                self.event_listeners[event_type].add(sprite)
 
     def remove_internal(self, sprite):
         """
@@ -397,6 +434,9 @@ class AbstractGroup:
         if lost_rect:
             self.lostsprites.append(lost_rect)
         del self.spritedict[sprite]
+        for event_type in self.event_listeners:
+            if sprite in sprite.event_listeners[event_type]:
+                self.event_listeners[event_type].remove(sprite)
 
     def has_internal(self, sprite):
         """
@@ -611,6 +651,43 @@ class AbstractGroup:
     def __repr__(self):
         return f"<{self.__class__.__name__}({len(self)} sprites)>"
 
+    def _register_event(self,event_type,sprite):
+        """directly adds a sprite to self.event_listeners
+        """
+        self.event_listeners[event_type].add(sprite)
+        
+    def _unregister_event(self,event_type,sprite):
+        """directly adds a sprite to self.event_listeners
+        """
+        self.event_listeners[event_type].remove(sprite)
+
+    def handle_event(self,event):
+        """Handles a single event, notifing contained sprites as nessersery
+        
+        AbstractGroup.handle_event(self,event)
+        
+        Calls the handle_event(event) method of all contained sprites
+        whom are listening from this types of event.
+        To handle more than one event at once, use 
+        AbstractGroup.handle_events() insted
+        """
+        for sprite in self.event_listerners[event.type]:
+            sprite.handle_event(event)
+
+    def handle_events(self,*events):
+        """Handles multiple events at once
+        
+        AbstractGroup.handle_events(*events)
+        
+        Calls event handlers in the same manor as AbstractGroup.handle_event
+        but work on more than on event at a time.
+        Each argument should be eather an event or an iterable yields events.
+        """
+        for event in events:
+            if isinstant(event,EventType):
+                self.handle_event(event)
+            else:
+                self.handle_events(*event)
 
 class Group(AbstractGroup):
     """container class for many Sprites
