@@ -49,6 +49,9 @@ RUN ["bash", "/libxml2_build/build-libxml2.sh"]
 ADD wayland /wayland_build/
 RUN ["bash", "/wayland_build/build-wayland.sh"]
 
+ADD libdecor /libdecor_build/
+RUN ["bash", "/libdecor_build/build-libdecor.sh"]
+
 ADD xorg/macros /xorg_build/macros/
 RUN ["bash", "/xorg_build/macros/build-macros.sh"]
 
