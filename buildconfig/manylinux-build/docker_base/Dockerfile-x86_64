@@ -11,15 +11,15 @@ RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 
 #RUN rpm -i /tmp/${RPMFORGE_FILE}
 
-# Install SDL and portmidi dependencies
-RUN yum install -y zlib-devel libX11-devel\
-    mesa-libGLU-devel audiofile-devel \
-    jpackage-utils \
-    giflib-devel dbus-devel \
-    dejavu-sans-fonts fontconfig \
-    libXcursor-devel libXi-devel libXxf86vm-devel \
-    libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
-RUN yum install -y libcap-devel libxkbcommon-devel
+# systemd is needed for udev (for SDL and pulse)
+# TODO: libXinerama-devel and libXxf86vm-devel can be removed from here once
+# we update to SDL 2.24.0
+# it's okay to install X11 and friends from outdated centos repos because newer
+# libs are dynamically loaded at runtime
+RUN yum install -y zlib-devel dbus-devel fontconfig xz systemd-devel \
+  libcap-devel libxkbcommon-devel \
+  libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXfixes-devel \
+  libXi-devel libXinerama-devel libXxf86vm-devel libXScrnSaver-devel
 
 # With this we
 # 1) Force install prefix to /usr/local
