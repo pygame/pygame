@@ -72,6 +72,8 @@ static const char resourcefunc_name[] = "getResource";
 #endif
 static const char font_defaultname[] = "freesansbold.ttf";
 
+static const int font_defaultsize = 12;
+
 /*
  */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
@@ -695,15 +697,14 @@ font_dealloc(PyFontObject *self)
 static int
 font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 {
-    int fontsize;
+    int fontsize = font_defaultsize;
     TTF_Font *font = NULL;
-    PyObject *obj;
+    PyObject *obj = Py_None;
     SDL_RWops *rw;
 
     self->font = NULL;
-    if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
-        return -1;
-    }
+    // This is now optional so no need to return if it doesn't pass
+    PyArg_ParseTuple(args, "|Oi", &obj, &fontsize);
 
     if (!font_initialized) {
         PyErr_SetString(pgExc_SDLError, "font not initialized");
