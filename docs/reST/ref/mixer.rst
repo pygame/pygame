@@ -205,8 +205,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    | :sg:`set_reserved(count) -> count`
 
    The mixer can reserve any number of channels that will not be automatically
-   selected for playback by Sounds. If sounds are currently playing on the
-   reserved channels they will not be stopped.
+   selected for playback by Sounds. This means that whenever you play a Sound 
+   without specifying a channel, a reserved channel will never be used. If sounds
+   are currently playing on the reserved channels they will not be stopped.
 
    This allows the application to reserve a specific number of channels for
    important sounds that must not be dropped or have a guaranteed channel to

@@ -1120,7 +1120,7 @@ class FreeTypeFontTest(unittest.TestCase):
                 TypeError, font.render_raw_to, surf_buf, text, dest, size=24
             )
 
-    def test_freetype_Font_text_is_None(self):
+    def test_freetype_Font_text_is_None_with_arr(self):
         f = ft.Font(self._sans_path, 36)
         f.style = ft.STYLE_NORMAL
         f.rotation = 0
