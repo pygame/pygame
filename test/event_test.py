@@ -91,6 +91,10 @@ if pygame.get_sdl_version() >= (2, 0, 5):
 
 
 class EventTypeTest(unittest.TestCase):
+    def test_Event_alias(self):
+        """Check if pygame.Event is present and the correct type."""
+        self.assertIs(pygame.Event, pygame.event.Event)
+
     def test_Event(self):
         """Ensure an Event object can be created."""
         e = pygame.event.Event(pygame.USEREVENT, some_attr=1, other_attr="1")

@@ -276,6 +276,10 @@ class FontTypeTest(unittest.TestCase):
 
     def tearDown(self):
         pygame_font.quit()
+    
+    def test_font_alias(self):
+        """Check if pygame.Font is present and the correct type."""
+        self.assertIs(pygame.Font, pygame.font.Font)
 
     def test_get_ascent(self):
         # Ckecking ascent would need a custom test font to do properly.

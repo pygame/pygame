@@ -31,6 +31,10 @@ class JoystickTypeTest(unittest.TestCase):
         #
 
         self.fail()
+        
+    def test_Joystick_alias(self):
+        """Check if pygame.Joystick is present and the correct type."""
+        self.assertIs(pygame.Joystick, pygame.joystick.Joystick)
 
 
 class JoystickModuleTest(unittest.TestCase):
