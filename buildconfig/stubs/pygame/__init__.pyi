@@ -52,6 +52,10 @@ from .math import Vector2 as Vector2, Vector3 as Vector3
 from .cursors import Cursor as Cursor
 from .bufferproxy import BufferProxy as BufferProxy
 from .mask import Mask as Mask
+from .event import Event as Event
+from .font import Font as Font
+from .mixer import Channel as Channel
+from .time import Clock as Clock
 from .base import (
     BufferError as BufferError,
     HAVE_NEWBUF as HAVE_NEWBUF,
