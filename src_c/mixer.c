@@ -635,8 +635,8 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     int loops = 0, playtime = -1, fade_ms = 0;
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -679,8 +679,8 @@ snd_get_num_channels(PyObject *self, PyObject *_null)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -693,10 +693,10 @@ snd_fadeout(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int _time;
-    
+
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -715,10 +715,10 @@ static PyObject *
 snd_stop(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
-    
+
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -736,8 +736,8 @@ snd_set_volume(PyObject *self, PyObject *args)
     float volume;
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -756,8 +756,8 @@ snd_get_volume(PyObject *self, PyObject *_null)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -772,12 +772,13 @@ static PyObject *
 snd_get_length(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
-    
+
     if (chunk == NULL) {
-        return PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
+        return NULL;
     }
-    
+
     int freq, channels, mixerbytes, numsamples;
     Uint16 format;
     MIXER_INIT_CHECK();
@@ -801,8 +802,8 @@ snd_get_raw(PyObject *self, PyObject *_null)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -848,8 +849,8 @@ snd_get_samples_address(PyObject *self, PyObject *closure)
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
         return NULL;
     }
 
@@ -974,9 +975,9 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
     Py_ssize_t samples;
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_RuntimeError,
-            "Sound object not initalised correctly.");
-        return NULL;
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Sound object not initalised correctly.");
+        return -1;
     }
 
     view->obj = 0;
