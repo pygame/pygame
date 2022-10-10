@@ -2,16 +2,6 @@
 #ifndef PG_PLATFORM_INTERNAL_H
 #define PG_PLATFORM_INTERNAL_H
 
-/* This must be before all else */
-#if defined(__SYMBIAN32__) && defined(OPENC)
-#include <sys/types.h>
-#if defined(__WINS__)
-void *
-_alloca(size_t size);
-#define alloca _alloca
-#endif /* __WINS__ */
-#endif /* defined(__SYMBIAN32__) && defined(OPENC) */
-
 #include "include/pgplatform.h"
 
 #ifndef MIN
@@ -22,12 +12,6 @@ _alloca(size_t size);
 #endif
 #ifndef ABS
 #define ABS(a) (((a) < 0) ? -(a) : (a))
-#endif
-
-#if defined(macintosh) && defined(__MWERKS__) || defined(__SYMBIAN32__)
-#define PYGAME_EXPORT __declspec(export)
-#else
-#define PYGAME_EXPORT
 #endif
 
 /* warnings */
