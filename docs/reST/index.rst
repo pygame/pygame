@@ -83,7 +83,7 @@ Tutorials
 :doc:`Display Modes <tut/DisplayModes>`
   Getting a display surface for the screen.
 
-:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/overview>`
+:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/개요>`
   빨간블록 검은블록
 
 :doc:`Tutorial de Pygame - Ejemplo del Chimpancé, Línea Por Línea <tut/es/ChimpanceLineaporLinea>`
