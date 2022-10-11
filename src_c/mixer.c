@@ -34,18 +34,21 @@
 
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
-#define CHECK_CHUNK_VALID(CHUNK, RET)                              \
-    if ((CHUNK) == NULL) {                                         \
-        PyErr_SetString(PyExc_RuntimeError,                        \
-                        "Sound object not initalised correctly."); \
-        return (RET);                                              \
+static const char *sound_not_initialised_errmsg =
+    "__init__() was not called on Sound object so it failed to setup "
+    "correctly."
+
+#define CHECK_CHUNK_VALID(CHUNK, RET)                                      \
+    if ((CHUNK) == NULL) {                                                 \
+        PyErr_SetString(PyExc_RuntimeError, sound_not_initialised_errmsg); \
+        return (RET);                                                      \
     }
 
-/* The SDL audio format constants are not defined for anything larger
-   than 2 byte samples. Define our own. Low two bytes gives sample
-   size in bytes. Higher bytes are flags.
-*/
-typedef Uint32 PG_sample_format_t;
+    /* The SDL audio format constants are not defined for anything larger
+       than 2 byte samples. Define our own. Low two bytes gives sample
+       size in bytes. Higher bytes are flags.
+    */
+    typedef Uint32 PG_sample_format_t;
 const PG_sample_format_t PG_SAMPLE_SIGNED = 0x10000u;
 const PG_sample_format_t PG_SAMPLE_NATIVE_ENDIAN = 0x20000u;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
