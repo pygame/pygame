@@ -839,8 +839,7 @@ MODINIT_DEFINE(key)
         return NULL;
     }
 
-    pgExc_IterNotSupportedError = PyErr_NewException(
-        "pygame.key.IterNotSupprtedError", PyExc_NotImplementedError, NULL);
+    pgExc_IterNotSupportedError = PyErr_NewException("pygame.key.IterNotSupportedError", NULL, NULL);
     /* Because we need a reference to BufferError in the base module */
     Py_INCREF(pgExc_IterNotSupportedError);
     if (PyModule_AddObject(module, "IterNotSupportedError",
