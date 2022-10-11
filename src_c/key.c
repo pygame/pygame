@@ -73,6 +73,9 @@ typedef struct {
     PyTupleObject tuple;
 } pgScancodeWrapper;
 
+/* Custom exceptions */
+static PyObject *pgExc_IterNotSupportedError = NULL;
+
 static PyObject *
 pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
 {
@@ -102,10 +105,20 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
     return ret;
 }
 
+static PyObject *
+pg_iter_raise(PyObject *self)
+{
+    PyErr_SetString(pgExc_IterNotSupportedError,
+                    "Iterating over key states is no long supported");
+    return NULL;
+}
+
 static PyTypeObject pgScancodeWrapper_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
     .tp_repr = (reprfunc)pg_scancodewrapper_repr,
     .tp_as_mapping = &pg_scancodewrapper_mapping,
+    .tp_iter = &pg_iter_raise,
+    .tp_iternext = &pg_iter_raise,
     .tp_flags =
         Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
 };
@@ -826,10 +839,22 @@ MODINIT_DEFINE(key)
         return NULL;
     }
 
+    pgExc_IterNotSupportedError = PyErr_NewException(
+        "pygame.key.IterNotSupprtedError", PyExc_NotImplementedError, NULL);
+    /* Because we need a reference to BufferError in the base module */
+    Py_INCREF(pgExc_IterNotSupportedError);
+    if (PyModule_AddObject(module, "IterNotSupportedError",
+                           pgExc_IterNotSupportedError)) {
+        Py_DECREF(pgExc_IterNotSupportedError);
+        Py_DECREF(module);
+        return NULL;
+    }
+
     Py_INCREF(&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
                            (PyObject *)&pgScancodeWrapper_Type)) {
         Py_DECREF(&pgScancodeWrapper_Type);
+        Py_DECREF(pgExc_IterNotSupportedError);
         Py_DECREF(module);
         return NULL;
     }
