@@ -36,7 +36,7 @@
 
 static const char *sound_not_initialised_errmsg =
     "__init__() was not called on Sound object so it failed to setup "
-    "correctly."
+    "correctly.";
 
 #define CHECK_CHUNK_VALID(CHUNK, RET)                                      \
     if ((CHUNK) == NULL) {                                                 \
