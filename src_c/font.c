@@ -702,9 +702,12 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *obj = Py_None;
     SDL_RWops *rw;
 
+    static const char *kwlist[] = {"font", "size", NULL};
+
     self->font = NULL;
     // This is now optional so no need to return if it doesn't pass
-    if (!PyArg_ParseTuple(args, "|Oi", &obj, &fontsize)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &obj,
+                                     &fontsize)) {
         return -1;
     }
 
