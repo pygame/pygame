@@ -704,7 +704,9 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 
     self->font = NULL;
     // This is now optional so no need to return if it doesn't pass
-    PyArg_ParseTuple(args, "|Oi", &obj, &fontsize);
+    if (!PyArg_ParseTuple(args, "|Oi", &obj, &fontsize)) {
+        return -1;
+    }
 
     if (!font_initialized) {
         PyErr_SetString(pgExc_SDLError, "font not initialized");
