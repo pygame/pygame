@@ -1588,8 +1588,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                     key = ((dst_r, dst_b, dst_a), (src_r, src_b, src_a))
                     results[key] = tuple(dest_surf.get_at((65, 33)))
                     for i in range(4):
-                        self.assertLessEqual(
-                            abs(results[key][i] - results_expected[key][i]), 2)
+                        self.assertAlmostEqual(results[key][i], results_expected[key][i], None, None, 4)
 
         # print("(dest_r, dest_b, dest_a), (src_r, src_b, src_a): color")
         # pprint(results)
