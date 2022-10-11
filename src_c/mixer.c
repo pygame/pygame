@@ -725,6 +725,9 @@ snd_get_volume(PyObject *self, PyObject *_null)
     MIXER_INIT_CHECK();
 
     volume = Mix_VolumeChunk(chunk, -1);
+    if (volume == -1) {
+        return PyLong_FromLong(volume);
+    }
     return PyFloat_FromDouble(volume / 128.0);
 }
 
