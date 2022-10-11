@@ -35,10 +35,10 @@
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
 #define CHECK_CHUNK_VALID(CHUNK, RET)                              \
-    if (CHUNK == NULL) {                                           \
+    if ((CHUNK) == NULL) {                                         \
         PyErr_SetString(PyExc_RuntimeError,                        \
                         "Sound object not initalised correctly."); \
-        return RET;                                                \
+        return (RET);                                              \
     }
 
 /* The SDL audio format constants are not defined for anything larger
