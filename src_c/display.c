@@ -1112,6 +1112,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                  this invalidates the display surface*/
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
+                if (0 !=
+                    SDL_SetWindowFullscreen(
+                        win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
+                                          SDL_WINDOW_FULLSCREEN_DESKTOP))) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
 
 #if (SDL_VERSION_ATLEAST(2, 0, 5))
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
@@ -1122,13 +1128,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     SDL_ShowWindow(win);
                 else if (flags & PGS_HIDDEN)
                     SDL_HideWindow(win);
-
-                if (0 !=
-                    SDL_SetWindowFullscreen(
-                        win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
-                                          SDL_WINDOW_FULLSCREEN_DESKTOP))) {
-                    return RAISE(pgExc_SDLError, SDL_GetError());
-                }
 
                 SDL_SetWindowPosition(win, x, y);
 
@@ -2382,6 +2381,10 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                 int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
                 if (win == NULL) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+                if (0 != SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN))
+                {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
                 display_surface->surf = SDL_GetWindowSurface(win);
