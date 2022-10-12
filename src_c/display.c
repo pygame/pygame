@@ -1112,6 +1112,11 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                  this invalidates the display surface*/
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
+
+                /* The window must be brought out of fullscreen before the
+                 * resize/bordered/hidden changes due to SDL ignoring those
+                 * changes if the window is fullscreen
+                 * See https://github.com/pygame/pygame/issues/2711 */
                 if (0 !=
                     SDL_SetWindowFullscreen(
                         win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
@@ -2083,7 +2088,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result, flags;
-    int window_w, window_h, w, h, window_display;
+    int window_w, window_h, w, h, window_display, x, y;
     SDL_DisplayMode display_mode;
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -2095,7 +2100,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    flags = SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+    flags = SDL_GetWindowFlags(win);
     /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
 
     SDL_VERSION(&wm_info.version);
@@ -2156,6 +2161,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
+    SDL_GetWindowPosition(win, &x, &y);
     window_display = SDL_GetWindowDisplayIndex(win);
     if (SDL_GetDesktopDisplayMode(window_display, &display_mode) != 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2272,7 +2278,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                              1) != 0) {
                 return NULL;
             }
-            win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+            flags &= ~SDL_WINDOW_FULLSCREEN_DESKTOP;
+            win = SDL_CreateWindow(state->title, wx, wy, w, h, flags);
             if (win == NULL) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
@@ -2291,12 +2298,31 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         }
         state->toggle_windowed_w = 0;
         state->toggle_windowed_h = 0;
+
+        x = state->fullscreen_backup_x;
+        y = state->fullscreen_backup_y;
+
+        // if the program goes into fullscreen first the "saved
+        // x and y" are "undefined position" that should be
+        // interpreted as a cue to center the window
+        if (x == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display))
+            x = SDL_WINDOWPOS_CENTERED_DISPLAY(window_display);
+        if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display))
+            y = SDL_WINDOWPOS_CENTERED_DISPLAY(window_display);
+
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+        SDL_SetWindowResizable(win, flags & SDL_WINDOW_RESIZABLE);
+#endif
+        SDL_SetWindowBordered(win, (flags & SDL_WINDOW_BORDERLESS) == 0);
+
+        SDL_SetWindowPosition(win, x, y);
     }
     else {
         /* TOGGLE FULLSCREEN ON */
-
         state->toggle_windowed_w = w;
         state->toggle_windowed_h = h;
+        state->fullscreen_backup_x = x;
+        state->fullscreen_backup_y = y;
         if (pg_renderer != NULL) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -2379,12 +2405,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                 h != display_surface->surf->h) {
                 int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
-                win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+                win = SDL_CreateWindow(state->title, wx, wy, w, h, flags);
                 if (win == NULL) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
-                if (0 != SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN))
-                {
+                if (0 != SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN)) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
                 display_surface->surf = SDL_GetWindowSurface(win);
