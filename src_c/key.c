@@ -108,15 +108,26 @@ pg_iter_raise(PyObject *self)
 static PyObject *
 pg_scancodewrapper_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 {
+    PyObject *tuple = NULL;
     Py_ssize_t size = PyTuple_Size(args);
+    if (size == 1) {
+        tuple = PyTuple_GET_ITEM(args, 0);
+        if (PyTuple_Check(tuple)) {
+            size = PyTuple_Size(tuple);
+        }
+        else {
+            tuple = NULL;
+        }
+    }
     pgScancodeWrapper *obj =
-        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, 0));
+        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, 1));
 
-    if (obj) {
+    if (obj && tuple) {
         for (Py_ssize_t i = 0; i < size; ++i) {
-            PyObject *item = PyTuple_GET_ITEM((PyObject *)args, i);
+            PyObject *item = PyTuple_GET_ITEM((PyObject *)tuple, i);
             PyTuple_SET_ITEM((PyObject *)obj, i, item);
         }
+        Py_DECREF(tuple);
     }
 
     return (PyObject *)obj;
