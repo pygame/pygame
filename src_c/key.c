@@ -91,6 +91,38 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
     return ret;
 }
 
+static PyObject *
+pg_iter_raise(PyObject *self)
+{
+    PyErr_SetString(pgExc_SDLError,
+                    "Iterating over key states is no long supported");
+    return NULL;
+}
+
+/**
+ * There is an issue in PyPy that causes __iter__ to be called
+ * on creation of a ScandcodeWrapper. This stops this from
+ * happening.
+ */
+#ifdef PYPY_VERSION
+static PyObject *
+pg_scancodewrapper_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
+{
+    Py_ssize_t size = PyTuple_Size(args);
+    pgScancodeWrapper *obj =
+        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, 0));
+
+    if (obj) {
+        for (Py_ssize_t i = 0; i < size; ++i) {
+            PyObject *item = PyTuple_GET_ITEM((PyObject *)args, i);
+            PyTuple_SET_ITEM((PyObject *)obj, i, item);
+        }
+    }
+
+    return (PyObject *)obj;
+}
+#endif /* PYPY_VERSION */
+
 static PyMappingMethods pg_scancodewrapper_mapping = {
     .mp_subscript = (binaryfunc)pg_scancodewrapper_subscript,
 };
@@ -105,22 +137,16 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
     return ret;
 }
 
-static PyObject *
-pg_iter_raise(PyObject *self)
-{
-    PyErr_SetString(pgExc_IterNotSupportedError,
-                    "Iterating over key states is no long supported");
-    return NULL;
-}
-
 static PyTypeObject pgScancodeWrapper_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
     .tp_repr = (reprfunc)pg_scancodewrapper_repr,
     .tp_as_mapping = &pg_scancodewrapper_mapping,
-    .tp_iter = &pg_iter_raise,
-    .tp_iternext = &pg_iter_raise,
-    .tp_flags =
-        Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
+    .tp_iter = (getiterfunc)pg_iter_raise,
+    .tp_iternext = (iternextfunc)pg_iter_raise,
+#ifdef PYPY_VERSION
+    .tp_new = pg_scancodewrapper_new,
+#endif
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 };
 
 static PyObject *
