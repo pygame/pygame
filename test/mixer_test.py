@@ -1195,12 +1195,12 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             correct.get_volume()
         except Exception:
             self.fail("This should not raise an exception.")
-    
+
     def test_incorrect_subclassing(self):
         class IncorrectSuclass(mixer.Sound):
             def __init__(self):
                 pass
-        
+
         incorrect = IncorrectSuclass()
 
         self.assertRaises(RuntimeError, incorrect.get_volume)
