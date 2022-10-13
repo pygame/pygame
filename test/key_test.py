@@ -236,9 +236,9 @@ class KeyModuleTest(unittest.TestCase):
 
     def test_get_pressed_not_iter(self):
         states = pygame.key.get_pressed()
-        with self.assertRaises(pygame.error):
+        with self.assertRaises(TypeError):
             next(states)
-        with self.assertRaises(pygame.error):
+        with self.assertRaises(TypeError):
             for k in states:
                 pass
 
