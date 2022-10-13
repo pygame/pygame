@@ -34,13 +34,11 @@
 
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
-static const char *sound_not_initialised_errmsg =
-    "__init__() was not called on Sound object so it failed to setup "
-    "correctly.";
-
 #define CHECK_CHUNK_VALID(CHUNK, RET)                                      \
     if ((CHUNK) == NULL) {                                                 \
-        PyErr_SetString(PyExc_RuntimeError, sound_not_initialised_errmsg); \
+        PyErr_SetString(PyExc_RuntimeError,                                \
+                        "__init__() was not called on Sound object so it " \
+                        "failed to setup correctly.");                     \
         return (RET);                                                      \
     }
 
