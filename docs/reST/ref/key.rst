@@ -266,6 +266,13 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
       translate these pushed keys into a fully translated character value. See
       the ``pygame.KEYDOWN`` events on the :mod:`pygame.event` queue for this
       functionality.
+   
+   .. versionadded:: 2.1.4
+      The collection of bools returned by ``get_pressed`` can not be iterated
+      over. Previously when iterating over the collection using builtin
+      ``enumerate``, if the space bar is is pressed the value received from
+      ``enumerate`` is 44 but ``K_SPACE`` is actually 32. In this case calling
+      :func:`pygame.key.name()` returns a comma character, ",".
 
    .. ## pygame.key.get_pressed ##
 
