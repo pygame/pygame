@@ -119,8 +119,9 @@ pg_scancodewrapper_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
             tuple = NULL;
         }
     }
+
     pgScancodeWrapper *obj =
-        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, 1));
+        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, size));
 
     if (obj && tuple) {
         for (Py_ssize_t i = 0; i < size; ++i) {
