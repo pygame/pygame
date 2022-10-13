@@ -12,7 +12,7 @@ build on an old Linux distribution in a docker container.
 manylinux is an older linux with a fairly compatible ABI, so you can make linux binary
 wheels that run on many different linux distros.
 
-* https://bitbucket.org/pygame/pygame/issues/295/build-linux-wheels-with-manylinux
+* https://github.com/pygame/pygame/issues/295
 * https://github.com/pypa/auditwheel
 * https://github.com/pypa/manylinux
 * https://hub.docker.com/u/pygame/

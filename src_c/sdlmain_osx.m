@@ -347,7 +347,7 @@ MODINIT_DEFINE (sdlmain_osx)
     /* create the module */
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
-        MODPREFIX "sdlmain_osx",
+        "sdlmain_osx",
         NULL,
         -1,
         macosx_builtins,
