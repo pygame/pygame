@@ -19,6 +19,36 @@
 #endif
 #endif
 
+/* This returns 1 when sse2 is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_sse2_at_runtime_but_uncompiled()
+{
+    if (SDL_HasSSE2()) {
+#ifdef __SSE2__
+        return 0;
+#else
+        return 1;
+#endif /* __SSE2__ */
+    }
+    return 0;
+}
+
+/* This returns 1 when neon is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_neon_at_runtime_but_uncompiled()
+{
+    if (SDL_HasNEON()) {
+#ifdef PG_ENABLE_ARM_NEON
+        return 0;
+#else
+        return 1;
+#endif /* PG_ENABLE_ARM_NEON */
+    }
+    return 0;
+}
+
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 
 /* See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=32869
