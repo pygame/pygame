@@ -1586,12 +1586,14 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                         src_surf, (0, 0), special_flags=pygame.BLEND_ALPHA_SDL2
                     )
                     key = ((dst_r, dst_b, dst_a), (src_r, src_b, src_a))
-                    results[key] = dest_surf.get_at((65, 33))
-                    self.assertEqual(results[key], results_expected[key])
+                    results[key] = tuple(dest_surf.get_at((65, 33)))
+                    for i in range(4):
+                        self.assertAlmostEqual(
+                            results[key][i], results_expected[key][i], delta=4
+                        )
 
         # print("(dest_r, dest_b, dest_a), (src_r, src_b, src_a): color")
         # pprint(results)
-        self.assertEqual(results, results_expected)
 
     def test_opaque_destination_blit_with_set_alpha(self):
         # no set_alpha()
