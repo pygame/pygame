@@ -40,7 +40,7 @@
 
 // Check GCC
 #if __GNUC__
-#if __x86_64__ || __ppc64__
+#if __x86_64__ || __ppc64__ || __aarch64__
 #define ENV64BIT
 #endif
 #endif
@@ -259,7 +259,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         !(src->format->Amask != 0 && dst->format->Amask != 0 &&
                           src->format->Amask != dst->format->Amask) &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgb_add_avx2(&info);
                         break;
                     }
@@ -304,7 +304,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         !(src->format->Amask != 0 && dst->format->Amask != 0 &&
                           src->format->Amask != dst->format->Amask) &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgb_sub_avx2(&info);
                         break;
                     }
@@ -349,7 +349,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         !(src->format->Amask != 0 && dst->format->Amask != 0 &&
                           src->format->Amask != dst->format->Amask) &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgb_mul_avx2(&info);
                         break;
                     }
@@ -394,7 +394,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         !(src->format->Amask != 0 && dst->format->Amask != 0 &&
                           src->format->Amask != dst->format->Amask) &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgb_min_avx2(&info);
                         break;
                     }
@@ -439,7 +439,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Bmask == dst->format->Bmask &&
                         !(src->format->Amask != 0 && dst->format->Amask != 0 &&
                           src->format->Amask != dst->format->Amask) &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgb_max_avx2(&info);
                         break;
                     }
@@ -484,7 +484,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgba_add_avx2(&info);
                         break;
                     }
@@ -526,7 +526,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgba_sub_avx2(&info);
                         break;
                     }
@@ -568,7 +568,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgba_mul_avx2(&info);
                         break;
                     }
@@ -610,7 +610,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgba_min_avx2(&info);
                         break;
                     }
@@ -652,7 +652,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         info.src_blend != SDL_BLENDMODE_NONE &&
-                        SDL_HasAVX2() && (src != dst)) {
+                        pg_has_avx2() && (src != dst)) {
                         blit_blend_rgba_max_avx2(&info);
                         break;
                     }
