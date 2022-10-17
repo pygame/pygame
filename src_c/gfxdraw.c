@@ -1096,7 +1096,7 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
 MODINIT_DEFINE(gfxdraw)
 {
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
-                                         MODPREFIX "gfxdraw",
+                                         "gfxdraw",
                                          DOC_PYGAMEGFXDRAW,
                                          -1,
                                          _gfxdraw_methods,

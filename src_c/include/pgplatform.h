@@ -41,11 +41,6 @@
 #undef _POSIX_C_SOURCE
 #endif
 
-/* No signal() */
-#if defined(__SYMBIAN32__) && defined(HAVE_SIGNAL_H)
-#undef HAVE_SIGNAL_H
-#endif
-
 #if defined(HAVE_SNPRINTF)
 #undef HAVE_SNPRINTF
 #endif
