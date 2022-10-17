@@ -2101,7 +2101,6 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         return RAISE(pgExc_SDLError, "No open window");
 
     flags = SDL_GetWindowFlags(win);
-    /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
 
     SDL_VERSION(&wm_info.version);
     if (!SDL_GetWindowWMInfo(win, &wm_info)) {
@@ -2279,6 +2278,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                 return NULL;
             }
             flags &= ~SDL_WINDOW_FULLSCREEN_DESKTOP;
+            /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
             win = SDL_CreateWindow(state->title, wx, wy, w, h, flags);
             if (win == NULL) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
