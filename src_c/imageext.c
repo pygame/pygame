@@ -40,13 +40,9 @@
 #undef HAVE_STDLIB_H
 #endif
 
-#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
-#include <stdio.h>
-#else
 // PNG_SKIP_SETJMP_CHECK : non-regression on #662 (build error on old libpng)
 #define PNG_SKIP_SETJMP_CHECK
 #include <png.h>
-#endif
 
 #include "pgcompat.h"
 

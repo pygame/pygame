@@ -439,14 +439,9 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     "AudioFastForward",
 };
 
-#if defined(BUILD_STATIC)
-// from SDL_keyboard.c
-extern char *
-SDL_UCS4ToUTF8(Uint32 ch, char *dst);
-#else
 /* Taken from SDL_iconv() */
 char *
-SDL_UCS4ToUTF8(Uint32 ch, char *dst)
+pg_UCS4ToUTF8(Uint32 ch, char *dst)
 {
     Uint8 *p = (Uint8 *)dst;
     if (ch <= 0x7F) {
@@ -473,7 +468,6 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
     }
     return dst;
 }
-#endif
 
 /* Patch in pygame 1 compat names in our key name compat table */
 static void
@@ -605,7 +599,7 @@ _get_keycode_name(SDL_Keycode key)
         default:
             /* SDL2 converts lowercase letters to uppercase here, but we don't
              * for pygame 1 compatibility */
-            end = SDL_UCS4ToUTF8((Uint32)key, name);
+            end = pg_UCS4ToUTF8((Uint32)key, name);
             *end = '\0';
             return name;
     }
