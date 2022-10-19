@@ -1,14 +1,14 @@
-.. TUTORIAL:Introducion de Modos de Visualización
+.. TUTORIAL:Introducción al Módulo de Cámara
 
 .. include:: common.txt
 
-*************************************************
+****************************************************************
   Pygame Tutorials - Configuración de los Modos de Visualización
-*************************************************
+****************************************************************
 
 
 Introducción al Módulo de Cámara
-==========================
+================================
 
 .. rst-class:: docinfo
 
@@ -20,7 +20,8 @@ imágenes fijas, ver transmisiones en vivo y hacer algo simple de visión por co
 tutorial cubrirá todos esos casos de uso, proveyendo ejemplos de código en los que tu puedes basar
 tu aplicación o juego. Te puedes referir a  :mod:`reference documentation <pygame.camera>` por el API completo.
 
-.. nota::
+.. note::
+
   Emepezando con Pygame 1.9, el módulo de cámara ofrecera soporte nativo para cámaras 
   que usan v4l2 en Linux. Hay soporte para otras plataformas a través de Videocapture
   u OpenCV, pero esta guía se centrará en el módulo nativo. La mayor parte del código 
