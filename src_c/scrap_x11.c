@@ -611,8 +611,7 @@ pygame_scrap_init(void)
     int retval = 0;
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.init deprecated since 2.1.4",
-                     1) == -1) {
+                     "pygame.scrap.init deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
@@ -669,8 +668,7 @@ pygame_scrap_lost(void)
     int retval;
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.lost deprecated since 2.1.4",
-                     1) == -1) {
+                     "pygame.scrap.lost deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
@@ -697,7 +695,7 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
     XEvent ev;
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.put deprecated since 2.1.4. Consider using" 
+                     "pygame.scrap.put deprecated since 2.1.4. Consider using"
                      " pygame.scrap.put_text instead.",
                      1) == -1) {
         return NULL;

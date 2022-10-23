@@ -113,8 +113,7 @@ _scrap_init(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                    "pygame.scrap.init deprecated since 2.1.4",
-                    1) == -1) {
+                     "pygame.scrap.init deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
@@ -147,8 +146,8 @@ static PyObject *
 _scrap_get_init(PyObject *self, PyObject *_null)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                    "pygame.scrap.get_init deprecated since 2.1.4",
-                    1) == -1) {
+                     "pygame.scrap.get_init deprecated since 2.1.4",
+                     1) == -1) {
         return NULL;
     }
 
@@ -251,8 +250,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     }
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.get deprecated since 2.1.4",
-                     1) == -1) {
+                     "pygame.scrap.get deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
@@ -331,7 +329,7 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
     static const char argfmt[] = "sy#";
 
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.put deprecated since 2.1.4. Consider using" 
+                     "pygame.scrap.put deprecated since 2.1.4. Consider using"
                      " pygame.scrap.put_text instead.",
                      1) == -1) {
         return NULL;
@@ -416,17 +414,18 @@ _scrap_set_mode(PyObject *self, PyObject *args)
 #endif /* !defined(MAC_SCRAP) */
 
 /**
- * @brief Fetches a python string from the SDL clipboard. If 
+ * @brief Fetches a python string from the SDL clipboard. If
  *        there is nothing in the clipboard, it will return empty
- * 
- * @return PyObject* 
+ *
+ * @return PyObject*
  */
 static PyObject *
-_scrap_get_text(PyObject *self, PyObject *args) {
-    char* text = SDL_GetClipboardText();
+_scrap_get_text(PyObject *self, PyObject *args)
+{
+    char *text = SDL_GetClipboardText();
 
     if (!text) {
-        const char* err = SDL_GetError();
+        const char *err = SDL_GetError();
         if (err) {
             SDL_free(text);
             PyErr_SetString(PyExc_RuntimeError, err);
@@ -434,7 +433,7 @@ _scrap_get_text(PyObject *self, PyObject *args) {
         }
     }
 
-    PyObject* returnValue = Py_BuildValue("s", text);
+    PyObject *returnValue = Py_BuildValue("s", text);
     SDL_free(text);
 
     return returnValue;
@@ -442,24 +441,24 @@ _scrap_get_text(PyObject *self, PyObject *args) {
 
 /**
  * @brief Puts a python string into the SDL clipboard
- * 
+ *
  * @param args A python string to be put into the clipboard
- * 
- * @return PyObject* 
+ *
+ * @return PyObject*
  */
 static PyObject *
-_scrap_put_text(PyObject *self, PyObject *args) {
-    char* text;
+_scrap_put_text(PyObject *self, PyObject *args)
+{
+    char *text;
 
     if (!PyArg_ParseTuple(args, "s", &text)) {
         return NULL;
     }
 
     if (SDL_SetClipboardText(text)) {
-        const char* err = SDL_GetError();
+        const char *err = SDL_GetError();
         if (err) {
-            return RAISE(pgExc_SDLError,
-                     "video mode not initialized");
+            return RAISE(pgExc_SDLError, "video mode not initialized");
         }
     }
 
@@ -469,11 +468,12 @@ _scrap_put_text(PyObject *self, PyObject *args) {
 /**
  * @brief If the SDL clipboard has something in it, will return True.
  *          Else it returns False.
- * 
- * @return PyObject* 
+ *
+ * @return PyObject*
  */
 static PyObject *
-_scrap_has_text(PyObject* self, PyObject *args) {
+_scrap_has_text(PyObject *self, PyObject *args)
+{
     const SDL_bool hasText = SDL_HasClipboardText();
 
     if (hasText) {

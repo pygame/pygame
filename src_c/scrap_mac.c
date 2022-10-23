@@ -46,8 +46,7 @@ static PyObject *
 _scrap_init(PyObject *self, PyObject *args)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                    "pygame.scrap.init deprecated since 2.1.4",
-                    1) == -1) {
+                     "pygame.scrap.init deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
@@ -71,7 +70,7 @@ static PyObject *
 _scrap_put_scrap(PyObject *self, PyObject *args)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.put deprecated since 2.1.4. Consider using" 
+                     "pygame.scrap.put deprecated since 2.1.4. Consider using"
                      " pygame.scrap.put_text instead.",
                      1) == -1) {
         return NULL;
@@ -84,8 +83,7 @@ static PyObject *
 _scrap_lost_scrap(PyObject *self, PyObject *args)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.lost deprecated since 2.1.4",
-                     1) == -1) {
+                     "pygame.scrap.lost deprecated since 2.1.4", 1) == -1) {
         return NULL;
     }
 
