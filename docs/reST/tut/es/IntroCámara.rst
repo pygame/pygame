@@ -18,7 +18,7 @@ Introducción al Módulo de Cámara
 Pygame 1.9 viene con soporte para cámaras interconectadas, lo que le permite capturar
 imágenes fijas, ver transmisiones en vivo y hacer algo simple de visión por computadora. Este
 tutorial cubrirá todos esos casos de uso, proveyendo ejemplos de código en los que tu puedes basar
-tu aplicación o juego. Te puedes referir a  :mod:`reference documentation <pygame.camera>` por el API completo.
+tu aplicación o juego. Te puedes referir a :mod:`reference documentation <pygame.camera>` por el API completo.
 
 .. note::
 
