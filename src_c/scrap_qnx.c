@@ -68,7 +68,6 @@ pygame_scrap_lost(void)
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
-
     return (PhInputGroup(NULL) != InputGroup);
 }
 

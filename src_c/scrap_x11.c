@@ -659,6 +659,11 @@ pygame_scrap_lost(void)
 {
     int retval;
 
+    if (!pygame_scrap_initialized()) {
+        PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
+        return 0;
+    }
+
     Lock_Display();
     retval = (XGetSelectionOwner(SDL_Display, GET_CLIPATOM(_currentmode)) !=
               SDL_Window);
@@ -753,7 +758,6 @@ pygame_scrap_get(char *type, size_t *count)
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return NULL;
     }
-
     return _get_data_as(GET_CLIPATOM(_currentmode), _convert_format(type),
                         count);
 }
@@ -763,7 +767,6 @@ pygame_scrap_contains(char *type)
 {
     int i = 0;
     char **types = pygame_scrap_get_types();
-
     while (types[i]) {
         if (strcmp(type, types[i]) == 0)
             return 1;
