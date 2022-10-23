@@ -15,7 +15,7 @@ pygame_scrap_contains(char *type)
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.scrap.contains deprecated since 2.1.4",
                      1) == -1) {
-        return NULL;
+        return -1;
     }
 
     return (strcmp(type, pygame_scrap_plaintext_type) == 0) &&
@@ -67,7 +67,7 @@ pygame_scrap_init(void)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.scrap.init deprecated since 2.1.4", 1) == -1) {
-        return NULL;
+        return -1;
     }
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -89,7 +89,7 @@ pygame_scrap_lost(void)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.scrap.lost deprecated since 2.1.4", 1) == -1) {
-        return NULL;
+        return -1;
     }
 
     return 1;
@@ -107,7 +107,7 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
                      "pygame.scrap.put deprecated since 2.1.4. Consider using"
                      " pygame.scrap.put_text instead.",
                      1) == -1) {
-        return NULL;
+        return -1;
     }
 
     if (strcmp(type, pygame_scrap_plaintext_type) == 0) {
