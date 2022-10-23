@@ -592,8 +592,10 @@ pg_mixer_get_init(PyObject *self, PyObject *_null)
         Py_RETURN_NONE;
 
     // create a signed or unsigned number of bits per sample
-    // XXX: When mixer is init'd with a format of -8, this returns +8
-    realform = (format & ~0xff) ? -(format & 0xff) : format & 0xff;
+    realform = SDL_AUDIO_BITSIZE(format);
+    if (SDL_AUDIO_ISSIGNED(format)) {
+        realform = -realform;
+    }
     return Py_BuildValue("(iii)", freq, realform, channels);
 }
 
