@@ -19,9 +19,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* Needed for deprecation warnings */
-#include <Python.h>
-
 #include <Windows.h>
 
 #if !defined(CF_DIBV5)
@@ -165,11 +162,6 @@ pygame_scrap_init(void)
     SDL_SysWMinfo info;
     int retval = 0;
 
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.init deprecated since 2.1.4", 1) == -1) {
-        return NULL;
-    }
-
     /* Grab the window manager specific information */
     SDL_SetError("SDL is not running on known window manager");
 
@@ -190,11 +182,6 @@ pygame_scrap_init(void)
 int
 pygame_scrap_lost(void)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.lost deprecated since 2.1.4", 1) == -1) {
-        return NULL;
-    }
-
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
@@ -208,13 +195,6 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
     UINT format;
     Py_ssize_t nulledlen = srclen + 1;
     HANDLE hMem;
-
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.put deprecated since 2.1.4. Consider using"
-                     " pygame.scrap.put_text instead.",
-                     1) == -1) {
-        return NULL;
-    }
 
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
@@ -269,13 +249,6 @@ pygame_scrap_get(char *type, size_t *count)
 
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
-        return NULL;
-    }
-
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.get deprecated since 2.1.4. Consider using"
-                     " pygame.scrap.get_text instead.",
-                     1) == -1) {
         return NULL;
     }
 
@@ -354,12 +327,6 @@ pygame_scrap_get_types(void)
     char tmp[100] = {'\0'};
     int size = 0;
 
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.get_types deprecated since 2.1.4",
-                     1) == -1) {
-        return NULL;
-    }
-
     if (!OpenClipboard(window_handle))
         return NULL;
 
@@ -431,11 +398,5 @@ pygame_scrap_get_types(void)
 int
 pygame_scrap_contains(char *type)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.contains deprecated since 2.1.4",
-                     1) == -1) {
-        return NULL;
-    }
-
     return IsClipboardFormatAvailable(_convert_format(type));
 }
