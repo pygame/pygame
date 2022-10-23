@@ -84,6 +84,9 @@ solves no longer exists, it will likely be removed in the future.
    | :sl:`gets SDL_ttf version`
    | :sg:`get_sdl_ttf_version(linked=True) -> (major, minor, patch)`
 
+   **Experimental:** feature still in development available for testing and feedback. It may change.
+   `Please leave get_sdl_ttf_version feedback with authors <https://github.com/pygame/pygame/pull/3095>`_
+
    Returns a tuple of integers that identify SDL_ttf's version.
    SDL_ttf is the underlying font rendering library, written in C,
    on which pygame's font module depends. If 'linked' is True (the default), 
