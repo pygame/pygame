@@ -343,6 +343,9 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    corresponding key constant exists and is unique). If the return value is
    passed to the ``key_code`` function, the original constant will be returned.
 
+   **Experimental:** ``use_compat`` paramater still in development for testing and feedback. It may change.
+   `Please leave use_compat feedback with authors <https://github.com/pygame/pygame/pull/3312>`_
+
    If this argument is ``False``, the returned name may be prettier to display
    and may cover a wider range of keys than with ``use_compat``, but there are
    no guarantees that this name will be the same across different pygame
