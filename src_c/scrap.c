@@ -27,6 +27,8 @@
 
 #include "SDL_syswm.h"
 
+#include "SDL_clipboard.h"
+
 #include "pygame.h"
 
 #include "pgcompat.h"
@@ -60,6 +62,13 @@ static PyObject *
 _scrap_lost_scrap(PyObject *self, PyObject *args);
 static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
+
+static PyObject *
+_scrap_get_text(PyObject *self, PyObject *args);
+static PyObject *
+_scrap_put_text(PyObject *self, PyObject *args);
+static PyObject *
+_scrap_has_text(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
 #if !defined(__WIN32__)
@@ -103,6 +112,12 @@ _scrap_init(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "pygame.scrap.init deprecated since 2.1.4",
+                    1) == -1) {
+        return NULL;
+    }
+
     if (!pygame_scrap_initialized()) {
         Py_XDECREF(_clipdata);
         Py_XDECREF(_selectiondata);
@@ -131,6 +146,12 @@ _scrap_init(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_get_init(PyObject *self, PyObject *_null)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "pygame.scrap.get_init deprecated since 2.1.4",
+                    1) == -1) {
+        return NULL;
+    }
+
     return PyBool_FromLong(pygame_scrap_initialized());
 }
 
@@ -146,6 +167,12 @@ _scrap_get_types(PyObject *self, PyObject *_null)
     char *type;
     PyObject *list;
     PyObject *tmp;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.get_types deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
 
     PYGAME_SCRAP_INIT_CHECK();
     if (!pygame_scrap_lost()) {
@@ -190,6 +217,12 @@ _scrap_contains(PyObject *self, PyObject *args)
 {
     char *type = NULL;
 
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.contains deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     if (!PyArg_ParseTuple(args, "s", &type))
         return NULL;
     if (pygame_scrap_contains(type))
@@ -209,6 +242,19 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     PyObject *retval;
     char *scrap_type;
     size_t count;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.get deprecated since 2.1.4. Consider using"
+                     " pygame.scrap.get_text instead.",
+                     1) == -1) {
+        return NULL;
+    }
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.get deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
 
     PYGAME_SCRAP_INIT_CHECK();
 
@@ -284,6 +330,13 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
     PyObject *tmp;
     static const char argfmt[] = "sy#";
 
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.put deprecated since 2.1.4. Consider using" 
+                     " pygame.scrap.put_text instead.",
+                     1) == -1) {
+        return NULL;
+    }
+
     PYGAME_SCRAP_INIT_CHECK();
 
     if (!PyArg_ParseTuple(args, argfmt, &scrap_type, &scrap, &scraplen)) {
@@ -340,6 +393,13 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args)
 {
     PYGAME_SCRAP_INIT_CHECK();
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.set_mode deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     if (!PyArg_ParseTuple(args, "i", &_currentmode))
         return NULL;
 
@@ -354,6 +414,74 @@ _scrap_set_mode(PyObject *self, PyObject *args)
 }
 
 #endif /* !defined(MAC_SCRAP) */
+
+/**
+ * @brief Fetches a python string from the SDL clipboard. If 
+ *        there is nothing in the clipboard, it will return empty
+ * 
+ * @return PyObject* 
+ */
+static PyObject *
+_scrap_get_text(PyObject *self, PyObject *args) {
+    char* text = SDL_GetClipboardText();
+
+    if (!text) {
+        const char* err = SDL_GetError();
+        if (err) {
+            SDL_free(text);
+            PyErr_SetString(PyExc_RuntimeError, err);
+            return NULL;
+        }
+    }
+
+    PyObject* returnValue = Py_BuildValue("s", text);
+    SDL_free(text);
+
+    return returnValue;
+}
+
+/**
+ * @brief Puts a python string into the SDL clipboard
+ * 
+ * @param args A python string to be put into the clipboard
+ * 
+ * @return PyObject* 
+ */
+static PyObject *
+_scrap_put_text(PyObject *self, PyObject *args) {
+    char* text;
+
+    if (!PyArg_ParseTuple(args, "s", &text)) {
+        return NULL;
+    }
+
+    if (SDL_SetClipboardText(text)) {
+        const char* err = SDL_GetError();
+        if (err) {
+            return RAISE(pgExc_SDLError,
+                     "video mode not initialized");
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief If the SDL clipboard has something in it, will return True.
+ *          Else it returns False.
+ * 
+ * @return PyObject* 
+ */
+static PyObject *
+_scrap_has_text(PyObject* self, PyObject *args) {
+    const SDL_bool hasText = SDL_HasClipboardText();
+
+    if (hasText) {
+        Py_RETURN_TRUE;
+    }
+
+    Py_RETURN_FALSE;
+}
 
 static PyMethodDef scrap_builtins[] = {
 /*
@@ -374,6 +502,9 @@ static PyMethodDef scrap_builtins[] = {
     {"set_mode", _scrap_set_mode, METH_VARARGS, DOC_PYGAMESCRAPSETMODE},
 
 #endif
+    {"get_text", _scrap_get_text, METH_NOARGS, DOC_PYGAMESCRAPGETTEXT},
+    {"has_text", _scrap_has_text, METH_NOARGS, DOC_PYGAMESCRAPHASTEXT},
+    {"put_text", _scrap_put_text, METH_VARARGS, DOC_PYGAMESCRAPPUTTEXT},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(scrap)

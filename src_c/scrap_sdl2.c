@@ -1,6 +1,9 @@
 #include "SDL.h"
 #include "SDL_clipboard.h"
 
+/* Needed for deprecation warnings */
+#include <Python.h>
+
 #define PYGAME_SCRAP_FREE_STRING 1
 
 char *pygame_scrap_plaintext_type = "text/plain;charset=utf-8";
@@ -9,6 +12,12 @@ char **pygame_scrap_types;
 int
 pygame_scrap_contains(char *type)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.contains deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     return (strcmp(type, pygame_scrap_plaintext_type) == 0) &&
            SDL_HasClipboardText();
 }
@@ -44,12 +53,24 @@ pygame_scrap_get_types(void)
         return NULL;
     }
 
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.get_types deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     return pygame_scrap_types;
 }
 
 int
 pygame_scrap_init(void)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "pygame.scrap.init deprecated since 2.1.4",
+                    1) == -1) {
+        return NULL;
+    }
+
     SDL_Init(SDL_INIT_VIDEO);
 
     pygame_scrap_types = malloc(sizeof(char *) * 2);
@@ -67,6 +88,12 @@ pygame_scrap_init(void)
 int
 pygame_scrap_lost(void)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.lost deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     return 1;
 }
 
@@ -76,6 +103,13 @@ pygame_scrap_put(char *type, Py_ssize_t srclen, char *src)
     if (!pygame_scrap_initialized()) {
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
+    }
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.scrap.put deprecated since 2.1.4. Consider using" 
+                     " pygame.scrap.put_text instead.",
+                     1) == -1) {
+        return NULL;
     }
 
     if (strcmp(type, pygame_scrap_plaintext_type) == 0) {
