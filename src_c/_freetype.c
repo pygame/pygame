@@ -600,10 +600,9 @@ static PyGetSetDef _ftfont_getsets[] = {
 /*
  * FREETYPE FONT BASE TYPE TABLE
  */
-#define FULL_TYPE_NAME MODULE_NAME "." FONT_TYPE_NAME
 
 PyTypeObject pgFont_Type = {
-    PyVarObject_HEAD_INIT(0, 0).tp_name = FULL_TYPE_NAME,
+    PyVarObject_HEAD_INIT(0, 0).tp_name = "pygame.freetype.Font",
     .tp_basicsize = sizeof(pgFontObject),
     .tp_dealloc = (destructor)_ftfont_dealloc,
     .tp_repr = (reprfunc)_ftfont_repr,
@@ -615,7 +614,6 @@ PyTypeObject pgFont_Type = {
     .tp_new = (newfunc)_ftfont_new,
 };
 
-#undef FULL_TYPE_NAME
 
 /****************************************************
  * CONSTRUCTOR/INIT/DESTRUCTOR

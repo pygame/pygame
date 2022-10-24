@@ -1456,7 +1456,7 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgEvent_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.event.Event",
     .tp_basicsize = sizeof(pgEventObject),
     .tp_dealloc = pg_event_dealloc,
     .tp_repr = pg_event_str,

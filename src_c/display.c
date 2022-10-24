@@ -366,7 +366,7 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.display.VidInfo",
     .tp_basicsize = sizeof(pgVidInfoObject),
     .tp_dealloc = pg_vidinfo_dealloc,
     .tp_getattr = pg_vidinfo_getattr,
