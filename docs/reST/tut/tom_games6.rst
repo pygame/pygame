@@ -12,7 +12,7 @@
 So far you've learnt all the basics necessary to build a simple game. You should understand how to create Pygame objects, how Pygame
 displays objects, how it handles events, and how you can use physics to introduce some motion into your game. Now I'll just show how
 you can take all those chunks of code and put them together into a working game. What we need first is to let the ball hit the sides
-of the screen, and for the bat to be able to hit the ball, otherwise there's not going to be much game play involved. We do this
+of the screen, and for the bat to be able to hit the ball, otherwise there's not going to be much gameplay involved. We do this
 using Pygame's :meth:`collision <pygame.Rect.collidepoint>` methods.
 
 
@@ -21,7 +21,7 @@ using Pygame's :meth:`collision <pygame.Rect.collidepoint>` methods.
 6.1. Let the ball hit sides
 ---------------------------
 
-The basics principle behind making it bounce of the sides is easy to grasp. You grab the coordinates of the four corners of the ball,
+The basic principle behind making it bounce of the sides is easy to grasp. You grab the coordinates of the four corners of the ball,
 and check to see if they correspond with the x or y coordinate of the edge of the screen. So if the top right and top left corners both
 have a y coordinate of zero, you know that the ball is currently on the top edge of the screen. We do all this in the ``update`` function,
 after we've worked out the new position of the ball.
@@ -44,7 +44,7 @@ after we've worked out the new position of the ball.
 
 Here we check to see if the ``area``
 contains the new position of the ball (it always should, so we needn't have an ``else`` clause,
-though in other circumstances you might want to consider it. We then check if the coordinates for the four corners
+though in other circumstances you might want to consider it). We then check if the coordinates for the four corners
 are *colliding* with the area's edges, and create objects for each result. If they are, the objects will have a value of 1,
 or ``True``. If they don't, then the value will be ``None``, or ``False``. We then see if it has hit the top or bottom, and if it
 has we change the ball's direction. Handily, using radians we can do this by simply reversing its positive/negative value.
