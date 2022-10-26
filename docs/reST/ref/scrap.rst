@@ -17,9 +17,9 @@ are supported with the ``scrap.put_text``, ``scrap.get_text``, and ``scrap.has_t
 functions. All other functions are deprecated as of pygame 2.1.4 and will be removed
 in a future release of pygame.
 
-.. note:: ``scrap.put_text``, ``scrap.get_text``, and ``scrap.has_text`` use a different
-   clipboard than the rest of the ``scrap`` module. For this reason, those functions are 
-   not intercompatible with the rest of the module.
+.. note:: ``scrap.put_text``, ``scrap.get_text``, and ``scrap.has_text`` use the same
+   clipboard as the rest of the current API, but only strings are compatible with the 
+   new API as of right now.
 
 **THE BELOW INFORMATION IS DEPRECATED IN PYGAME 2.1.4 AND WILL BE REMOVED IN THE FUTURE.**
 

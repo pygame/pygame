@@ -249,11 +249,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.scrap.get deprecated since 2.1.4", 1) == -1) {
-        return NULL;
-    }
-
     PYGAME_SCRAP_INIT_CHECK();
 
     if (!PyArg_ParseTuple(args, "s", &scrap_type))
