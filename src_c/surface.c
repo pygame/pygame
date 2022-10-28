@@ -969,6 +969,8 @@ surf_unmap_rgb(PyObject *self, PyObject *arg)
 static PyObject *
 surf_lock(PyObject *self, PyObject *_null)
 {
+    if (!pgSurface_AsSurface(self))
+        return RAISE(pgExc_SDLError, "display Surface quit");
     if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
     Py_RETURN_NONE;
@@ -977,6 +979,8 @@ surf_lock(PyObject *self, PyObject *_null)
 static PyObject *
 surf_unlock(PyObject *self, PyObject *_null)
 {
+    if (!pgSurface_AsSurface(self))
+        return RAISE(pgExc_SDLError, "display Surface quit");
     pgSurface_Unlock((pgSurfaceObject *)self);
     Py_RETURN_NONE;
 }
@@ -985,6 +989,8 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                            ((pgSurfaceObject *)self)->subsurface);
 }
@@ -994,6 +1000,8 @@ surf_get_locked(PyObject *self, PyObject *_null)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
 
+    if (!pgSurface_AsSurface(self))
+        return RAISE(pgExc_SDLError, "display Surface quit");
     if (surf->locklist && PyList_Size(surf->locklist) > 0)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
@@ -1005,6 +1013,8 @@ surf_get_locks(PyObject *self, PyObject *_null)
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
     Py_ssize_t len, i = 0;
     PyObject *tuple, *tmp;
+    if (!pgSurface_AsSurface(self))
+        return RAISE(pgExc_SDLError, "display Surface quit");
     if (!surf->locklist)
         return PyTuple_New(0);
 
@@ -1388,6 +1398,8 @@ surf_get_blendmode(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -1435,6 +1447,8 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
         return NULL;
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     pgSurface_Prep(self);
 
     if (SDL_GetColorKey(surf, &colorkey) == 0) {
