@@ -614,7 +614,6 @@ PyTypeObject pgFont_Type = {
     .tp_new = (newfunc)_ftfont_new,
 };
 
-
 /****************************************************
  * CONSTRUCTOR/INIT/DESTRUCTOR
  ****************************************************/
