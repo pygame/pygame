@@ -54,6 +54,9 @@ Instead, always begin with the original image and scale to the desired size.)
    | :sl:`resize to new resolution, using scalar(s)`
    | :sg:`scale_by(surface, factor, dest_surface=None) -> Surface`
 
+   **Experimental:** feature still in development available for testing and feedback. It may change.
+   `Please leave scale_by feedback with authors <https://github.com/pygame/pygame/pull/2723>`_
+
    Same as :func:`scale()`, but scales by some factor, rather than taking
    the new size explicitly. For example, :code:`transform.scale_by(surf, 3)`
    will triple the size of the surface in both dimensions. Optionally, the
@@ -136,6 +139,9 @@ Instead, always begin with the original image and scale to the desired size.)
 
    | :sl:`resize to new resolution, using scalar(s)`
    | :sg:`smoothscale_by(surface, factor, dest_surface=None) -> Surface`
+
+   **Experimental:** feature still in development available for testing and feedback. It may change.
+   `Please leave smoothscale_by feedback with authors <https://github.com/pygame/pygame/pull/2723>`_
 
    Same as :func:`smoothscale()`, but scales by some factor, rather than
    taking the new size explicitly. For example,
