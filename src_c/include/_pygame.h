@@ -483,7 +483,7 @@ PYGAMEAPI_EXTERN_SLOTS(math);
  *  functions in Python 3.
  */
 
-PG_INLINE PyObject *
+static PG_INLINE PyObject *
 pg_tuple_from_values_int(int val1, int val2)
 {
     PyObject *tup = PyTuple_New(2);
