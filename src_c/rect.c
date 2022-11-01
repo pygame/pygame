@@ -147,31 +147,6 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
     return 1;
 }
 
-PyObject *
-pg_tuple_from_values_int(int val1, int val2)
-{
-    PyObject *tup = PyTuple_New(2);
-    if (!tup) {
-        return NULL;
-    }
-
-    PyObject *tmp = PyLong_FromLong(val1);
-    if (!tmp) {
-        Py_DECREF(tup);
-        return NULL;
-    }
-    PyTuple_SET_ITEM(tup, 0, tmp);
-
-    tmp = PyLong_FromLong(val2);
-    if (!tmp) {
-        Py_DECREF(tup);
-        return NULL;
-    }
-    PyTuple_SET_ITEM(tup, 1, tmp);
-
-    return tup;
-}
-
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
 {

@@ -477,3 +477,33 @@ PYGAMEAPI_EXTERN_SLOTS(math);
 #endif /* ~PYGAME_H */
 
 #endif /* PYGAME_H */
+
+/*  Use the end of this file for other cross module inline utility
+ *  functions There seems to be no good reason to stick to macro only
+ *  functions in Python 3.
+ */
+
+PG_INLINE PyObject *
+pg_tuple_from_values_int(int val1, int val2)
+{
+    PyObject *tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    return tup;
+}
