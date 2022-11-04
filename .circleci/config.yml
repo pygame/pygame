@@ -14,7 +14,6 @@ jobs:
     environment:
       # these environment variables will be passed to the docker container
       - CIBW_ENVIRONMENT: PIP_CONFIG_FILE=buildconfig/pip_config.ini PORTMIDI_INC_PORTTIME=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=disk
-      - CIBW_BUILD: cp* pp*
       - CIBW_ARCHS: aarch64
       - CIBW_SKIP: '*-musllinux_*'
       - CIBW_MANYLINUX_AARCH64_IMAGE: pygame/manylinux2014_base_aarch64
@@ -28,7 +27,7 @@ jobs:
       - run:
           name: Build the Linux wheels.
           command: |
-            pip3 install --user cibuildwheel==2.5.0
+            pip3 install --user cibuildwheel==2.10.2
             PATH="$HOME/.local/bin:$PATH" cibuildwheel --output-dir wheelhouse
 
       - store_artifacts:

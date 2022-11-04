@@ -24,7 +24,7 @@ provided by modules like ``sys`` and ``pygame``.
 
 First off, you need to start off your game and load up your modules. It's always a good idea to set a few things straight at the top of
 the main source file, such as the name of the file, what it contains, the license it is under, and any other helpful info you might
-want to give those will will be looking at it. Then you can load modules, with some error checking so that Python doesn't print out
+want to give those who will be looking at it. Then you can load modules, with some error checking so that Python doesn't print out
 a nasty traceback, which non-programmers won't understand. The code is fairly simple, so I won't bother explaining any of it::
 
   #!/usr/bin/env python

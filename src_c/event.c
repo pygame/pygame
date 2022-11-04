@@ -332,10 +332,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(APP_DIDENTERBACKGROUND);
         _PG_HANDLE_PROXIFY(APP_WILLENTERFOREGROUND);
         _PG_HANDLE_PROXIFY(APP_DIDENTERFOREGROUND);
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         _PG_HANDLE_PROXIFY(AUDIODEVICEADDED);
         _PG_HANDLE_PROXIFY(AUDIODEVICEREMOVED);
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         _PG_HANDLE_PROXIFY(CLIPBOARDUPDATE);
         _PG_HANDLE_PROXIFY(CONTROLLERAXISMOTION);
         _PG_HANDLE_PROXIFY(CONTROLLERBUTTONDOWN);
@@ -362,9 +360,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(FINGERUP);
         _PG_HANDLE_PROXIFY(KEYDOWN);
         _PG_HANDLE_PROXIFY(KEYUP);
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
-#endif
         _PG_HANDLE_PROXIFY(JOYAXISMOTION);
         _PG_HANDLE_PROXIFY(JOYBALLMOTION);
         _PG_HANDLE_PROXIFY(JOYHATMOTION);
@@ -382,12 +378,8 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(MULTIGESTURE);
         _PG_HANDLE_PROXIFY(NOEVENT);
         _PG_HANDLE_PROXIFY(QUIT);
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         _PG_HANDLE_PROXIFY(RENDER_DEVICE_RESET);
-#endif
         _PG_HANDLE_PROXIFY(SYSWMEVENT);
         _PG_HANDLE_PROXIFY(TEXTEDITING);
         _PG_HANDLE_PROXIFY(TEXTINPUT);
@@ -706,10 +698,8 @@ _pg_name_from_eventtype(int type)
             return "KeyDown";
         case SDL_KEYUP:
             return "KeyUp";
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_KEYMAPCHANGED:
             return "KeyMapChanged";
-#endif
 #if SDL_VERSION_ATLEAST(2, 0, 14)
         case SDL_LOCALECHANGED:
             return "LocaleChanged";
@@ -794,20 +784,14 @@ _pg_name_from_eventtype(int type)
         case SDL_CONTROLLERSENSORUPDATE:
             return "ControllerSensorUpdate";
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_RENDER_TARGETS_RESET:
             return "RenderTargetsReset";
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_RENDER_DEVICE_RESET:
             return "RenderDeviceReset";
-#endif
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
@@ -1065,7 +1049,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "x", PyLong_FromLong(event->window.data1));
             _pg_insobj(dict, "y", PyLong_FromLong(event->window.data2));
             break;
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
             _pg_insobj(
@@ -1079,7 +1062,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "iscapture",
                        PyLong_FromLong(event->adevice.iscapture));
             break;
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP:
@@ -1547,14 +1529,13 @@ event_name(PyObject *self, PyObject *arg)
 static PyObject *
 set_grab(PyObject *self, PyObject *arg)
 {
-    int doit;
-    SDL_Window *win = NULL;
-
-    if (!PyArg_ParseTuple(arg, "p", &doit))
+    int doit = PyObject_IsTrue(arg);
+    if (doit == -1)
         return NULL;
+
     VIDEO_INIT_CHECK();
 
-    win = pg_GetDefaultWindow();
+    SDL_Window *win = pg_GetDefaultWindow();
     if (win) {
         if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
@@ -2208,7 +2189,7 @@ static PyMethodDef _event_methods[] = {
 
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
-    {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
+    {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},

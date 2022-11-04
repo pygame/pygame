@@ -6,8 +6,8 @@
 # To configure, compile, install, just run this script.
 #     python setup.py install
 
-import io
 import platform
+import sysconfig
 
 with open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
@@ -16,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name": "pygame",
-    "version": "2.1.3.dev5",
+    "version": "2.1.4.dev1",
     "license": "LGPL",
     "url": "https://www.pygame.org",
     "author": "A community project.",
@@ -68,8 +68,8 @@ import sys
 import os
 
 # just import these always and fail early if not present
-import distutils
 from setuptools import setup
+import distutils
 
 import distutils.ccompiler
 
@@ -443,7 +443,8 @@ for e in extensions:
 
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here
-        e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
+        if sysconfig.get_config_var("MAINCC") != "clang":        
+            e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
 
     if "mask" in e.name and sys.platform == "win32":
         # skip analyze warnings that pop up a lot in mask for now. TODO fix

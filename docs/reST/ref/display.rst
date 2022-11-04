@@ -205,6 +205,11 @@ required).
 
    .. versionchanged:: 1.9.5 ``display`` argument added
 
+   .. versionchanged:: 2.1.3
+      pygame now ensures that subsequent calls to this function clears the
+      window to black. On older versions, this was an implementation detail
+      on the major platforms this function was tested with.
+
    .. ## pygame.display.set_mode ##
 
 .. function:: get_surface

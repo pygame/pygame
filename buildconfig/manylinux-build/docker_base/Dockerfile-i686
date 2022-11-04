@@ -22,11 +22,21 @@ RUN linux32 yum install -y dbus-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
-ADD brotli /brotli_build/
-RUN ["linux32", "bash", "/brotli_build/build-brotli.sh"]
+# With this we
+# 1) Force install prefix to /usr/local
+# 2) use lib directory within /usr/local (and not lib64)
+# 3) make release binaries
+# 4) build shared libraries
+ENV PG_BASE_CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local/ \
+  -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=true"
 
-#ADD bzip2 /bzip2_build/
-#RUN ["linux32", "bash", "/bzip2_build/build-bzip2.sh"]
+ADD pkg-config /pkg-config_build/
+RUN ["linux32", "bash", "/pkg-config_build/build-pkg-config.sh"]
+
+ADD cmake /cmake_build/
+RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
 
 #ADD zlib-ng /zlib-ng_build/
 #RUN ["linux32", "bash", "/zlib-ng_build/build-zlib-ng.sh"]
@@ -43,11 +53,11 @@ RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 ADD libtiff /libtiff_build/
 RUN ["linux32", "bash", "/libtiff_build/build-tiff.sh"]
 
-ADD opus /opus_build/
-RUN ["linux32", "bash", "/opus_build/build-opus.sh"]
+ADD brotli /brotli_build/
+RUN ["linux32", "bash", "/brotli_build/build-brotli.sh"]
 
-#ADD harfbuzz /harfbuzz_build/
-#RUN ["linux32", "bash", "/harfbuzz_build/build-harfbuzz.sh"]
+#ADD bzip2 /bzip2_build/
+#RUN ["linux32", "bash", "/bzip2_build/build-bzip2.sh"]
 
 ADD freetype /freetype_build/
 RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
@@ -66,6 +76,9 @@ RUN ["linux32", "bash", "/mpg123_build/build-mpg123.sh"]
 ADD flac /flac_build/
 RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
 
+ADD opus /opus_build/
+RUN ["linux32", "bash", "/opus_build/build-opus.sh"]
+
 ADD sndfile /sndfile_build/
 RUN ["linux32", "bash", "/sndfile_build/build-sndfile.sh"]
 
@@ -75,8 +88,14 @@ RUN ["linux32", "bash", "/pulseaudio_build/build-pulseaudio.sh"]
 ADD libmodplug /libmodplug_build/
 RUN ["linux32", "bash", "/libmodplug_build/build-libmodplug.sh"]
 
-ADD cmake /cmake_build/
-RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
+ADD libffi /libffi_build/
+RUN ["bash", "/libffi_build/build-libffi.sh"]
+
+ADD gettext /gettext_build/
+RUN ["bash", "/gettext_build/build-gettext.sh"]
+
+ADD glib /glib_build/
+RUN ["bash", "/glib_build/build-glib.sh"]
 
 ADD fluidsynth /fluidsynth_build/
 RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
@@ -91,7 +110,6 @@ ENV MAKEFLAGS=
 ADD portmidi /portmidi_build/
 RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
 
-ADD pypy /pypy_build/
-ARG BASE_IMAGE2=manylinux1_i686
-RUN if [ "$BASE_IMAGE2" = "manylinux2010_i686" ] ; then linux32 bash /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi
-RUN if [ "$BASE_IMAGE2" = "manylinux2014_i686" ] ; then linux32 bash /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi
+# run strip on built libraries
+COPY strip-lib-so-files.sh /tmp/
+RUN source /tmp/strip-lib-so-files.sh

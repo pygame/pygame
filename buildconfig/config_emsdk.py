@@ -189,8 +189,8 @@ def main(auto_config=False):
     incdirs = []
     libdirs = []
 
-    incdirs += [os.environ.get("PREFIX") + d for d in origincdirs]
-    libdirs += [os.environ.get("PREFIX") + d for d in origlibdirs]
+    incdirs += [os.environ.get("PREFIX", "") + d for d in origincdirs]
+    libdirs += [os.environ.get("PREFIX", "") + d for d in origlibdirs]
 
     incdirs += [EMSDK + '/upstream/emscripten/cache/sysroot'+ d for d in origincdirs]
 

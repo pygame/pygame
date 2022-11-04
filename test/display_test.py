@@ -333,7 +333,14 @@ class DisplayModuleTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             pygame.display.gl_get_attribute("DUMMY")
 
-    def todo_test_gl_set_attribute(self):
+    @unittest.skipIf(
+        (
+            "skipping for all because some failures on rasppi and maybe other platforms"
+            or os.environ.get("SDL_VIDEODRIVER") == "dummy"
+        ),
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+    def test_gl_set_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_set_attribute:
 
@@ -352,7 +359,47 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
-        self.fail()
+        screen = display.set_mode((0, 0), pygame.OPENGL)
+
+        # We create a list where we store the values that we set each flag to
+        set_values = [8, 24, 8, 16, 16, 16, 16, 1, 1, 0]
+
+        # Setting the flags with values supposedly different from the original values
+
+        # assign SDL1-supported values with gl_set_attribute
+        pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE, set_values[0])
+        pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, set_values[1])
+        pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, set_values[2])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE, set_values[3])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE, set_values[4])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE, set_values[5])
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE, set_values[6])
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, set_values[7])
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, set_values[8])
+        pygame.display.gl_set_attribute(pygame.GL_STEREO, set_values[9])
+
+        # We create a list where we store the values after getting them
+        get_values = []
+
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
+
+        # We check to see if the values that we get correspond to the values that we set
+        # them to or to the original values.
+        for i in range(len(set_values)):
+            self.assertTrue(get_values[i] == set_values[i])
+
+        # test using non-flag argument
+        with self.assertRaises(TypeError):
+            pygame.display.gl_get_attribute("DUMMY")
 
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
