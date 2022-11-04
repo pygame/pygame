@@ -547,7 +547,7 @@ pg_event_filter(void *_, SDL_Event *event)
     }
 
     else if (event->type == SDL_MOUSEWHEEL) {
-        //#691 We are not moving wheel!
+        // #691 We are not moving wheel!
         if (!event->wheel.y && !event->wheel.x)
             return 0;
 
