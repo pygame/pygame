@@ -2,7 +2,7 @@
 #define DOC_PYGAMEIMAGE "pygame module for image transfer"
 #define DOC_PYGAMEIMAGELOAD "load(filename) -> Surface\nload(fileobj, namehint="") -> Surface\nload new image from a file (or file-like object)"
 #define DOC_PYGAMEIMAGESAVE "save(Surface, filename) -> None\nsave(Surface, fileobj, namehint="") -> None\nsave an image to file (or file-like object)"
-#define DOC_PYGAMEIMAGEGETSDLIMAGEVERSION "get_sdl_image_version() -> None\nget_sdl_image_version() -> (major, minor, patch)\nget version number of the SDL_Image library being used"
+#define DOC_PYGAMEIMAGEGETSDLIMAGEVERSION "get_sdl_image_version(linked=True) -> None\nget_sdl_image_version(linked=True) -> (major, minor, patch)\nget version number of the SDL_Image library being used"
 #define DOC_PYGAMEIMAGEGETEXTENDED "get_extended() -> bool\ntest if extended image formats can be loaded"
 #define DOC_PYGAMEIMAGETOSTRING "tostring(Surface, format, flipped=False) -> bytes\ntransfer image to byte buffer"
 #define DOC_PYGAMEIMAGETOBYTES "tobytes(Surface, format, flipped=False) -> bytes\ntransfer image to byte buffer"
@@ -32,8 +32,8 @@ pygame.image.save
 save an image to file (or file-like object)
 
 pygame.image.get_sdl_image_version
- get_sdl_image_version() -> None
- get_sdl_image_version() -> (major, minor, patch)
+ get_sdl_image_version(linked=True) -> None
+ get_sdl_image_version(linked=True) -> (major, minor, patch)
 get version number of the SDL_Image library being used
 
 pygame.image.get_extended
