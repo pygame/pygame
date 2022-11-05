@@ -267,6 +267,20 @@ class FontTest(unittest.TestCase):
             pygame.display.update(rect)
             self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
+    
+    def test_render_multiline(self):
+        f = pygame_font.Font(None, 20)
+        one_line = f.render("hello", True, "black", "white", 200)
+        two_lines = f.render("hello\nworld", True, "black", "white", 200)
+        self.assertGreater(two_lines.get_height(), one_line.get_height())
+
+        one_line = f.render("hello", True, "black", None, 200)
+        two_lines = f.render("hello\nworld", True, "black", None, 200)
+        self.assertGreater(two_lines.get_height(), one_line.get_height())
+
+        one_line = f.render("hello", False, "black", None, 200)
+        two_lines = f.render("hello\nworld", False, "black", None, 200)
+        self.assertGreater(two_lines.get_height(), one_line.get_height())
 
 
 @unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
@@ -300,7 +314,7 @@ class FontTypeTest(unittest.TestCase):
         self.assertTrue(isinstance(height, int))
         self.assertTrue(height > 0)
         s = f.render("X", False, (255, 255, 255))
-        self.assertTrue(s.get_size()[1] == height)
+        self.assertAlmostEqual(s.get_height(), height, delta=3)
 
     def test_get_linesize(self):
         # Ckecking linesize would need a custom test font to do properly.
@@ -479,6 +493,16 @@ class FontTypeTest(unittest.TestCase):
             self.assertTrue(f.strikethrough)
             f.strikethrough = False
             self.assertFalse(f.strikethrough)
+
+    def test_set_align_property(self):
+        f = pygame_font.Font(None, 20)
+        self.assertEqual(f.align, pygame.FONT_LEFT)
+        f.align = pygame.FONT_CENTER
+        self.assertEqual(f.align, pygame.FONT_CENTER)
+        f.align = pygame.FONT_RIGHT
+        self.assertEqual(f.align, pygame.FONT_RIGHT)
+        f.align = pygame.FONT_LEFT
+        self.assertEqual(f.align, pygame.FONT_LEFT)
 
     def test_size(self):
         f = pygame_font.Font(None, 20)

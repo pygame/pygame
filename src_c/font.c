@@ -72,6 +72,17 @@ static const char resourcefunc_name[] = "getResource";
 #endif
 static const char font_defaultname[] = "freesansbold.ttf";
 
+#ifndef SDL_TTF_VERSION_ATLEAST
+/**
+ *  This macro will evaluate to true if compiled with SDL_ttf at least X.Y.Z.
+ *  New in SDL_ttf 2.0.15 so here it is in pygame for compat
+ */
+#define SDL_TTF_VERSION_ATLEAST(X, Y, Z) \
+    ((SDL_TTF_MAJOR_VERSION >= X) && \
+     (SDL_TTF_MAJOR_VERSION > X || SDL_TTF_MINOR_VERSION >= Y) && \
+     (SDL_TTF_MAJOR_VERSION > X || SDL_TTF_MINOR_VERSION > Y || SDL_TTF_PATCHLEVEL >= Z))
+#endif
+
 /*
  */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
@@ -393,6 +404,49 @@ font_setter_strikethrough(PyObject *self, PyObject *value, void *closure)
     return 0;
 }
 
+/* Implements getter for the align attribute */
+static PyObject *
+font_getter_align(PyObject *self, void *closure)
+{
+#if SDL_TTF_VERSION_ATLEAST(2, 20, 0)
+    TTF_Font *font = PyFont_AsFont(self);
+    return PyLong_FromLong(TTF_GetFontWrappedAlign(font));
+#else
+    return RAISE(pgExc_SDLError,
+                 "pygame.font not compiled with a new enough SDL_ttf version. "
+                 "Needs SDL_ttf 2.20.0 or above.");
+#endif
+}
+
+/* Implements setter for the align attribute */
+static PyObject *
+font_setter_align(PyObject *self, PyObject *value, void *closure)
+{
+#if SDL_TTF_VERSION_ATLEAST(2, 20, 0)
+    TTF_Font *font = PyFont_AsFont(self);
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("align", value);
+
+    long val = PyLong_AsLong(value);
+    if (val == -1 && PyErr_Occurred()) {
+        return RAISE(PyExc_TypeError, "font.align should be an integer");
+    }
+
+    if (val < 0 || val > 2) {
+        return RAISE(
+            pgExc_SDLError,
+            "font.align should be FONT_LEFT, FONT_CENTER, or FONT_RIGHT");
+    }
+
+    TTF_SetFontWrappedAlign(font, val);
+    return 0;
+#else
+    return RAISE(pgExc_SDLError,
+                 "pygame.font not compiled with a new enough SDL_ttf version. "
+                 "Needs SDL_ttf 2.20.0 or above.");
+#endif
+}
+
 /* Implements get_strikethrough() */
 static PyObject *
 font_get_strikethrough(PyObject *self, PyObject *args)
@@ -425,9 +479,10 @@ font_render(PyObject *self, PyObject *args)
     Uint8 rgba[] = {0, 0, 0, 0};
     SDL_Surface *surf;
     const char *astring = "";
+    int wraplength = 0;
 
-    if (!PyArg_ParseTuple(args, "OpO|O", &text, &antialias, &fg_rgba_obj,
-                          &bg_rgba_obj)) {
+    if (!PyArg_ParseTuple(args, "OpO|Oi", &text, &antialias, &fg_rgba_obj,
+                          &bg_rgba_obj, &wraplength)) {
         return NULL;
     }
 
@@ -484,19 +539,34 @@ font_render(PyObject *self, PyObject *args)
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
         if (utf_8_needs_UCS_4(astring)) {
             return RAISE(PyExc_UnicodeError,
-                         "A Unicode character above '\\uFFFF' was found;"
+                         "a Unicode character above '\\uFFFF' was found;"
                          " not supported with SDL_ttf version below 2.0.15");
         }
 #endif
 
         if (antialias && bg_rgba_obj == Py_None) {
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+            surf = TTF_RenderUTF8_Blended_Wrapped(font, astring, foreg,
+                                                  wraplength);
+#else
             surf = TTF_RenderUTF8_Blended(font, astring, foreg);
+#endif
         }
         else if (antialias) {
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+            surf = TTF_RenderUTF8_Shaded_Wrapped(font, astring, foreg, backg,
+                                                 wraplength);
+#else
             surf = TTF_RenderUTF8_Shaded(font, astring, foreg, backg);
+#endif
         }
         else {
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+            surf =
+                TTF_RenderUTF8_Solid_Wrapped(font, astring, foreg, wraplength);
+#else
             surf = TTF_RenderUTF8_Solid(font, astring, foreg);
+#endif
             /* If an explicit background was provided and the rendering options
             resolve to Render_Solid, that needs to be explicitly handled. */
             if (surf != NULL && bg_rgba_obj != Py_None) {
@@ -646,6 +716,8 @@ static PyGetSetDef font_getsets[] = {
      DOC_FONTUNDERLINE, NULL},
     {"strikethrough", (getter)font_getter_strikethrough,
      (setter)font_setter_strikethrough, DOC_FONTSTRIKETHROUGH, NULL},
+    {"align", (getter)font_getter_align, (setter)font_setter_align, DOC_FONTALIGN,
+     NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {

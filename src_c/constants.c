@@ -627,6 +627,11 @@ MODINIT_DEFINE(constants)
 #define PYGAME_USEREVENT_DROPFILE 0x1000
     DEC_CONSTS(USEREVENT_DROPFILE, PYGAME_USEREVENT_DROPFILE);
 
+    /* Font alignment constants */
+    DEC_CONSTS(FONT_LEFT, 0);
+    DEC_CONSTS(FONT_CENTER, 1);
+    DEC_CONSTS(FONT_RIGHT, 2);
+
     if (PyModule_AddObject(module, "__all__", all_list)) {
         Py_DECREF(all_list);
         Py_DECREF(module);

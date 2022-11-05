@@ -244,17 +244,32 @@ solves no longer exists, it will likely be removed in the future.
 
       .. ## Font.strikethrough ##
 
+   .. attribute:: align
+
+      | :sl:`Set how rendered text is aligned when given a wrap length`
+      | :sg:`align -> int`
+
+      Can be set to `pygame.FONT_LEFT`, `pygame.FONT_RIGHT`, or
+      `pygame.FONT_CENTER`. This controls the text alignment behavior for the
+      font.
+
+      Requires pygame built with SDL_ttf 2.20.0, as all official pygame
+      distributions are.
+
+      .. versionadded:: 2.1.4
+
+      .. ## Font.align ##
+
    .. method:: render
 
       | :sl:`draw text on a new Surface`
-      | :sg:`render(text, antialias, color, background=None) -> Surface`
+      | :sg:`render(text, antialias, color, background=None, wraplength=0) -> Surface`
 
       This creates a new Surface with the specified text rendered on it. 
       :mod:`pygame.font` provides no way to directly draw text on an existing
       Surface: instead you must use :func:`Font.render` to create an image
       (Surface) of the text, then blit this image onto another Surface.
 
-      The text can only be a single line: newline characters are not rendered.
       Null characters ('\x00') raise a TypeError. Both Unicode and char (byte)
       strings are accepted. For Unicode strings only UCS-2 characters
       ('\\u0001' to '\\uFFFF') were previously supported and any greater
@@ -265,6 +280,10 @@ solves no longer exists, it will likely be removed in the future.
       [e.g.: (0,0,255) for blue]. The optional background argument is a color
       to use for the text background. If no background is passed the area
       outside the text will be transparent.
+
+      Starting in `2.1.4`, there is a `wraplength` argument which describes the
+      width in pixels a line of text should be before wrapping to a new line.
+      See :attr:`pygame.font.Font.align` for line-alignment settings.
 
       The Surface returned will be of the dimensions required to hold the text.
       (the same as those returned by :func:`Font.size`). If an empty string is passed
@@ -285,9 +304,6 @@ solves no longer exists, it will likely be removed in the future.
       cause the resulting image to maintain transparency information by
       colorkey rather than (much less efficient) alpha values.
 
-      If you render '\\n' an unknown char will be rendered. Usually a
-      rectangle. Instead you need to handle newlines yourself.
-
       Font rendering is not thread safe: only a single thread can render text
       at any time.
 
@@ -295,6 +311,9 @@ solves no longer exists, it will likely be removed in the future.
         raise an exception. Use `if hasattr(pygame.font, "UCS4"):` to see if
         pygame supports rendering UCS4 unicode including more languages and
         emoji.
+
+      .. versionchanged:: 2.1.4 newline characters now will break text into
+         multiple lines.
 
       .. ## Font.render ##
 
