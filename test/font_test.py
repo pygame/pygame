@@ -267,7 +267,7 @@ class FontTest(unittest.TestCase):
             pygame.display.update(rect)
             self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
-    
+
     def test_render_multiline(self):
         f = pygame_font.Font(None, 20)
         one_line = f.render("hello", True, "black", "white", 200)
