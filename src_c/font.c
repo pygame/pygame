@@ -430,21 +430,24 @@ font_setter_align(PyObject *self, PyObject *value, void *closure)
 
     long val = PyLong_AsLong(value);
     if (val == -1 && PyErr_Occurred()) {
-        return RAISE(PyExc_TypeError, "font.align should be an integer");
+        PyErr_SetString(PyExc_TypeError, "font.align should be an integer");
+        return -1;
     }
 
     if (val < 0 || val > 2) {
-        return RAISE(
+        PyErr_SetString(
             pgExc_SDLError,
             "font.align should be FONT_LEFT, FONT_CENTER, or FONT_RIGHT");
+        return -1;
     }
 
     TTF_SetFontWrappedAlign(font, val);
     return 0;
 #else
-    return RAISE(pgExc_SDLError,
-                 "pygame.font not compiled with a new enough SDL_ttf version. "
-                 "Needs SDL_ttf 2.20.0 or above.");
+    PyErr_SetString(pgExc_SDLError,
+                    "pygame.font not compiled with a new enough SDL_ttf "
+                    "version. Needs SDL_ttf 2.20.0 or above.");
+    return -1;
 #endif
 }
 
