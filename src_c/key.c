@@ -103,7 +103,7 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.key.ScancodeWrapper",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
     .tp_repr = (reprfunc)pg_scancodewrapper_repr,
     .tp_as_mapping = &pg_scancodewrapper_mapping,
     .tp_flags =

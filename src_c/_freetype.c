@@ -45,7 +45,7 @@ _ft_quit(PyObject *, PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
-_ft_get_version(PyObject *, PyObject *, PyObject *);
+_ft_get_version(PyObject *, PyObject *);
 static PyObject *
 _ft_get_error(PyObject *, PyObject *);
 static PyObject *
@@ -493,7 +493,7 @@ static PyMethodDef _ft_methods[] = {
     {"was_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
     {"get_error", _ft_get_error, METH_NOARGS, DOC_PYGAMEFREETYPEGETERROR},
-    {"get_version", (PyCFunction)_ft_get_version, METH_VARARGS | METH_KEYWORDS,
+    {"get_version", _ft_get_version, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETVERSION},
     {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETCACHESIZE},
@@ -600,9 +600,10 @@ static PyGetSetDef _ftfont_getsets[] = {
 /*
  * FREETYPE FONT BASE TYPE TABLE
  */
+#define FULL_TYPE_NAME MODULE_NAME "." FONT_TYPE_NAME
 
 PyTypeObject pgFont_Type = {
-    PyVarObject_HEAD_INIT(0, 0).tp_name = "pygame.freetype.Font",
+    PyVarObject_HEAD_INIT(0, 0).tp_name = FULL_TYPE_NAME,
     .tp_basicsize = sizeof(pgFontObject),
     .tp_dealloc = (destructor)_ftfont_dealloc,
     .tp_repr = (reprfunc)_ftfont_repr,
@@ -613,6 +614,8 @@ PyTypeObject pgFont_Type = {
     .tp_init = (initproc)_ftfont_init,
     .tp_new = (newfunc)_ftfont_new,
 };
+
+#undef FULL_TYPE_NAME
 
 /****************************************************
  * CONSTRUCTOR/INIT/DESTRUCTOR
@@ -2036,24 +2039,11 @@ _ft_get_error(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-_ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
+_ft_get_version(PyObject *self, PyObject *_null)
 {
-    int linked = 1;
-    static char *keywords[] = {"linked", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
-        return NULL;
-    }
-
-    if (linked) {
-        FT_Int major, minor, patch;
-        FT_Library_Version(inst->library, &major, &minor, &patch);
-        return Py_BuildValue("iii", major, minor, patch);
-    }
-    else {
-        return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
-                             FREETYPE_PATCH);
-    }
+    /* Return the linked FreeType2 version */
+    return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
+                         FREETYPE_PATCH);
 }
 
 static PyObject *

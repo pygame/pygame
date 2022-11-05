@@ -196,5 +196,3 @@ class Rect(Collection[int]):
     def collidedictall(
         self, rect_dict: Dict[_K, "Rect"], values: bool
     ) -> List[Tuple[_K, "Rect"]]: ...
-
-RectType = Rect

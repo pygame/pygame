@@ -377,7 +377,7 @@ static struct PyMethodDef surface_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgSurface_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.surface.Surface",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Surface",
     .tp_basicsize = sizeof(pgSurfaceObject),
     .tp_dealloc = surface_dealloc,
     .tp_repr = surface_str,
