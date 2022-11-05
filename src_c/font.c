@@ -77,10 +77,11 @@ static const char font_defaultname[] = "freesansbold.ttf";
  *  This macro will evaluate to true if compiled with SDL_ttf at least X.Y.Z.
  *  New in SDL_ttf 2.0.15 so here it is in pygame for compat
  */
-#define SDL_TTF_VERSION_ATLEAST(X, Y, Z) \
-    ((SDL_TTF_MAJOR_VERSION >= X) && \
+#define SDL_TTF_VERSION_ATLEAST(X, Y, Z)                          \
+    ((SDL_TTF_MAJOR_VERSION >= X) &&                              \
      (SDL_TTF_MAJOR_VERSION > X || SDL_TTF_MINOR_VERSION >= Y) && \
-     (SDL_TTF_MAJOR_VERSION > X || SDL_TTF_MINOR_VERSION > Y || SDL_TTF_PATCHLEVEL >= Z))
+     (SDL_TTF_MAJOR_VERSION > X || SDL_TTF_MINOR_VERSION > Y ||   \
+      SDL_TTF_PATCHLEVEL >= Z))
 #endif
 
 /*
@@ -419,7 +420,7 @@ font_getter_align(PyObject *self, void *closure)
 }
 
 /* Implements setter for the align attribute */
-static PyObject *
+static int
 font_setter_align(PyObject *self, PyObject *value, void *closure)
 {
 #if SDL_TTF_VERSION_ATLEAST(2, 20, 0)
@@ -716,8 +717,8 @@ static PyGetSetDef font_getsets[] = {
      DOC_FONTUNDERLINE, NULL},
     {"strikethrough", (getter)font_getter_strikethrough,
      (setter)font_setter_strikethrough, DOC_FONTSTRIKETHROUGH, NULL},
-    {"align", (getter)font_getter_align, (setter)font_setter_align, DOC_FONTALIGN,
-     NULL},
+    {"align", (getter)font_getter_align, (setter)font_setter_align,
+     DOC_FONTALIGN, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
