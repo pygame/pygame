@@ -484,8 +484,12 @@ PYGAMEAPI_EXTERN_SLOTS(math);
  */
 
 static PG_INLINE PyObject *
-pg_tuple_from_values_int(int val1, int val2)
+pg_tuple_couple_from_values_int(int val1, int val2)
 {
+    /* This function turns two input integers into a python tuple object.
+     * Currently, 5th November 2022, this is faster than using Py_BuildValue
+     * to do the same thing.
+     */
     PyObject *tup = PyTuple_New(2);
     if (!tup) {
         return NULL;
@@ -504,6 +508,42 @@ pg_tuple_from_values_int(int val1, int val2)
         return NULL;
     }
     PyTuple_SET_ITEM(tup, 1, tmp);
+
+    return tup;
+}
+
+static PG_INLINE PyObject *
+pg_tuple_triple_from_values_int(int val1, int val2, int val3)
+{
+    /* This function turns three input integers into a python tuple object.
+     * Currently, 5th November 2022, this is faster than using Py_BuildValue
+     * to do the same thing.
+     */
+    PyObject *tup = PyTuple_New(3);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    tmp = PyLong_FromLong(val3);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 2, tmp);
 
     return tup;
 }
