@@ -511,7 +511,7 @@ clock_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject PyClock_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Clock",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.time.Clock",
     .tp_basicsize = sizeof(PyClockObject),
     .tp_dealloc = clock_dealloc,
     .tp_repr = clock_str,
