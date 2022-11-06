@@ -19,13 +19,35 @@
 #endif
 #endif
 
-#define RAISE_SSE2_RUNTIME_NOSSE2_COMPILED_WARNING()         \
-    char warning[128];                                       \
-    PyOS_snprintf(warning, sizeof(warning),                  \
-                  "Blitting with Non-SIMD blitter on"        \
-                  "SSE2/Neon capable system. Pygame may"     \
-                  "be compiled without SSE2/Neon support."); \
-    PyErr_WarnEx(PyExc_RuntimeWarning, warning, 0)
+/* This returns 1 when sse2 is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_sse2_at_runtime_but_uncompiled()
+{
+    if (SDL_HasSSE2()) {
+#ifdef __SSE2__
+        return 0;
+#else
+        return 1;
+#endif /* __SSE2__ */
+    }
+    return 0;
+}
+
+/* This returns 1 when neon is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_neon_at_runtime_but_uncompiled()
+{
+    if (SDL_HasNEON()) {
+#ifdef PG_ENABLE_ARM_NEON
+        return 0;
+#else
+        return 1;
+#endif /* PG_ENABLE_ARM_NEON */
+    }
+    return 0;
+}
 
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 
@@ -635,9 +657,6 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcdoublepxskip = 2 * dstpxskip;
-    int dstdoublepxskip = 2 * dstpxskip;
-
     int pre_2_width = width % 2;
     int post_2_width = (width - pre_2_width) / 2;
 
@@ -700,13 +719,11 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
                     /*dstp = 0xAARRGGBB*/
                     srcp64++;
                     dstp64++;
-                    srcp += srcdoublepxskip;
-                    dstp += dstdoublepxskip;
                 },
                 n, post_2_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp64 + srcskip;
+        dstp = (Uint32 *)dstp64 + dstskip;
     }
 }
 
@@ -726,9 +743,6 @@ blit_blend_rgb_mul_sse2(SDL_BlitInfo *info)
     Uint64 *dstp64 = (Uint64 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcdoublepxskip = 2 * dstpxskip;
-    int dstdoublepxskip = 2 * dstpxskip;
 
     int pre_2_width = width % 2;
     int post_2_width = (width - pre_2_width) / 2;
@@ -802,13 +816,11 @@ blit_blend_rgb_mul_sse2(SDL_BlitInfo *info)
                     /*dstp = 0xAARRGGBB*/
                     srcp64++;
                     dstp64++;
-                    srcp += srcdoublepxskip;
-                    dstp += dstdoublepxskip;
                 },
                 n, post_2_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp64 + srcskip;
+        dstp = (Uint32 *)dstp64 + dstskip;
     }
 }
 
@@ -827,9 +839,6 @@ blit_blend_rgba_add_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -868,13 +877,11 @@ blit_blend_rgba_add_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -893,9 +900,6 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -940,13 +944,11 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -965,9 +967,6 @@ blit_blend_rgba_sub_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1006,13 +1005,11 @@ blit_blend_rgba_sub_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1031,9 +1028,6 @@ blit_blend_rgb_sub_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1078,13 +1072,11 @@ blit_blend_rgb_sub_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1103,9 +1095,6 @@ blit_blend_rgba_max_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1144,13 +1133,11 @@ blit_blend_rgba_max_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1169,9 +1156,6 @@ blit_blend_rgb_max_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1216,13 +1200,11 @@ blit_blend_rgb_max_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1240,9 +1222,6 @@ blit_blend_rgba_min_sse2(SDL_BlitInfo *info)
     Uint32 *dstp = (Uint32 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
 
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
@@ -1282,13 +1261,11 @@ blit_blend_rgba_min_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1306,9 +1283,6 @@ blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
     Uint32 *dstp = (Uint32 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
 
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
@@ -1354,13 +1328,11 @@ blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1504,12 +1476,5 @@ premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
             },
             n, width);
     }
-}
-#else
-void
-premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
-{
-    RAISE_SSE2_RUNTIME_NOSSE2_COMPILED_WARNING();
-    premul_surf_color_by_alpha_non_simd(src, dst);
 }
 #endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/

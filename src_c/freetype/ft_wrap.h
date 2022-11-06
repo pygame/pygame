@@ -253,6 +253,8 @@ extern _FreeTypeState _modstate;
  * Internal API
  **********************************************************/
 
+extern FreeTypeInstance *inst;
+
 /**************************************** General functions ******************/
 const char *
 _PGFT_GetError(FreeTypeInstance *);

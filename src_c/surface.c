@@ -3834,6 +3834,10 @@ MODINIT_DEFINE(surface)
     if (module == NULL) {
         return NULL;
     }
+    if (pg_warn_simd_at_runtime_but_uncompiled() < 0) {
+        Py_DECREF(module);
+        return NULL;
+    }
     Py_INCREF(&pgSurface_Type);
     if (PyModule_AddObject(module, "SurfaceType",
                            (PyObject *)&pgSurface_Type)) {

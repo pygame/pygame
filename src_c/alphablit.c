@@ -3119,3 +3119,25 @@ premul_surf_color_by_alpha_non_simd(SDL_Surface *src, SDL_Surface *dst)
             n, width);
     }
 }
+
+#define _PG_WARN_SIMD(s)                                              \
+    if (pg_##s##_at_runtime_but_uncompiled()) {                       \
+        if (PyErr_WarnEx(                                             \
+                PyExc_RuntimeWarning,                                 \
+                "Your system is " #s " capable but pygame was not "   \
+                "built with support for it. The performance of some " \
+                "of your blits could be adversely affected",          \
+                1) < 0) {                                             \
+            return -1;                                                \
+        }                                                             \
+    }
+
+/* On error, returns -1 with python error set. */
+int
+pg_warn_simd_at_runtime_but_uncompiled()
+{
+    _PG_WARN_SIMD(avx2)
+    _PG_WARN_SIMD(sse2)
+    _PG_WARN_SIMD(neon)
+    return 0;
+}
