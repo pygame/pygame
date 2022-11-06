@@ -3070,7 +3070,7 @@ premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst)
     SDL_GetSurfaceBlendMode(src, &src_blend);
     if (src_blend == SDL_BLENDMODE_NONE && !(src->format->Amask != 0))
         return -1;
-    // since we know dst is a copy of src we can simplify the normal checks
+        // since we know dst is a copy of src we can simplify the normal checks
 #if !defined(__EMSCRIPTEN__)
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #if defined(__SSE2__)
@@ -3089,8 +3089,6 @@ premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst)
 #endif /* __EMSCRIPTEN__ */
     premul_surf_color_by_alpha_non_simd(src, dst);
     return 0;
-
-
 }
 
 void
