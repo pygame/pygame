@@ -18,8 +18,9 @@ Python Pygame Introduction
 
 This article is an introduction to the `pygame library <http://www.pygame.org>`_
 for `Python programmers <https://www.python.org/>`_.
-The original version appeared in the `Py Zine <http://pyzine.com/?p=18>`_,
-volume 1 issue 3. This version contains minor revisions, to
+The original version appeared in the `PyZine volume 1 issue 3
+<https://web.archive.org/web/20030810011958/http://store.pyzine.com:80/article.phtml?a=2>`_.
+This version contains minor revisions, to
 create an all-around better article. Pygame is a Python extension
 library that wraps the `SDL <http://www.libsdl.org>`_ library
 and its helpers.
