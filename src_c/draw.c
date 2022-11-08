@@ -1043,6 +1043,23 @@ add_pixel_to_drawn_list(int x, int y, int *pts)
     }
 }
 
+static void
+add_line_to_drawn_list(int x1, int y1, int x2, int *pts)
+{
+    if (x1 < pts[0]) {
+        pts[0] = x1;
+    }
+    if (y1 < pts[1]) {
+        pts[1] = y1;
+    }
+    if (x2 > pts[2]) {
+        pts[2] = x2;
+    }
+    if (y1 > pts[3]) {
+        pts[3] = y1;
+    }
+}
+
 static int
 clip_line(SDL_Surface *surf, int *x1, int *y1, int *x2, int *y2)
 {
@@ -1358,19 +1375,9 @@ drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 {
     Uint8 *pixel, *end;
 
-    if (x1 == x2) {
-        return;
-    }
-
     pixel = ((Uint8 *)surf->pixels) + surf->pitch * y1;
-    if (x1 < x2) {
-        end = pixel + x2 * surf->format->BytesPerPixel;
-        pixel += x1 * surf->format->BytesPerPixel;
-    }
-    else {
-        end = pixel + x1 * surf->format->BytesPerPixel;
-        pixel += x2 * surf->format->BytesPerPixel;
-    }
+    end = pixel + x2 * surf->format->BytesPerPixel;
+    pixel += x1 * surf->format->BytesPerPixel;
     switch (surf->format->BytesPerPixel) {
         case 1:
             for (; pixel <= end; ++pixel) {
@@ -1447,8 +1454,7 @@ drawhorzlineclipbounding(SDL_Surface *surf, Uint32 color, int x1, int y1,
         return;
     }
 
-    add_pixel_to_drawn_list(x1, y1, pts);
-    add_pixel_to_drawn_list(x2, y1, pts);
+    add_line_to_drawn_list(x1, y1, x2, pts);
 
     drawhorzline(surf, color, x1, y1, x2);
 }
