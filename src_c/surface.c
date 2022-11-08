@@ -221,6 +221,8 @@ static PyObject *
 surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_pixels_address(PyObject *self, PyObject *closure);
+static PyObject *
+surf_get_pixel_format(PyObject *self, PyObject *args);
 static int
 _view_kind(PyObject *obj, void *view_kind_vptr);
 static int
@@ -373,6 +375,8 @@ static struct PyMethodDef surface_methods[] = {
      METH_VARARGS | METH_KEYWORDS, DOC_SURFACEGETBOUNDINGRECT},
     {"get_view", surf_get_view, METH_VARARGS, DOC_SURFACEGETVIEW},
     {"get_buffer", surf_get_buffer, METH_NOARGS, DOC_SURFACEGETBUFFER},
+    {"get_pixel_format", surf_get_pixel_format, METH_NOARGS,
+     DOC_SURFACEGETPIXELFORMAT},
 
     {NULL, NULL, 0, NULL}};
 
@@ -3516,6 +3520,20 @@ surf_get_pixels_address(PyObject *self, PyObject *closure)
 #else
     return PyLong_FromUnsignedLong((unsigned long)address);
 #endif
+}
+
+static PyObject *
+surf_get_pixel_format(PyObject *self, PyObject *_null)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
+    Uint32 pixel_format = surf->format->format;
+    const char *pixel_format_name = SDL_GetPixelFormatName(pixel_format);
+
+    return PyUnicode_FromFormat("%s", pixel_format_name);
 }
 
 static void

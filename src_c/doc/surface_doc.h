@@ -48,6 +48,7 @@
 #define DOC_SURFACEGETBOUNDINGRECT "get_bounding_rect(min_alpha = 1) -> Rect\nfind the smallest rect containing data"
 #define DOC_SURFACEGETVIEW "get_view(<kind>='2') -> BufferProxy\nreturn a buffer view of the Surface's pixels."
 #define DOC_SURFACEGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the pixels of the Surface."
+#define DOC_SURFACEGETPIXELFORMAT "get_pixel_format() -> string\nreturns a string describing the surface's pixel format."
 #define DOC_SURFACEPIXELSADDRESS "_pixels_address -> int\npixel buffer address"
 
 
@@ -259,6 +260,10 @@ return a buffer view of the Surface's pixels.
 pygame.Surface.get_buffer
  get_buffer() -> BufferProxy
 acquires a buffer object for the pixels of the Surface.
+
+pygame.Surface.get_pixel_format
+ get_pixel_format() -> string
+returns a string describing the surface's pixel format.
 
 pygame.Surface._pixels_address
  _pixels_address -> int

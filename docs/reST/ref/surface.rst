@@ -893,6 +893,18 @@
 
       .. ## Surface.get_buffer ##
 
+   .. method:: get_pixel_format
+
+      | :sl:`returns a string describing the surface's pixel format.`
+      | :sg:`get_pixel_format() -> string`
+
+      Returns the pixel format of the surface as a string. It will be something
+      like "SDL_PIXELFORMAT_ARGB8888".
+
+      .. versionadded:: 2.1.4
+
+      .. ## Surface.get_pixel_format ##
+
    .. attribute:: _pixels_address
 
       | :sl:`pixel buffer address`
