@@ -1689,21 +1689,29 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
             d1 += dx + radius_squared;
         }
         if (line) {
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y, x0 + (int)x - 1, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1, x0 + (int)x - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 + (int)x - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1,
+                                     x0 + (int)x - 1, drawn_area);
         }
         else {
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y, x0 - (int)x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1, x0 - (int)x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 - (int)y, x0 + (int)x_inner - 1, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 + (int)y - 1, x0 + (int)x_inner - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 - (int)y,
+                                     x0 + (int)x_inner - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1,
+                                     y0 + (int)y - 1, x0 + (int)x_inner - 1,
+                                     drawn_area);
         }
         x++;
         y--;
         dx += double_radius_squared;
         dy -= double_radius_squared;
         d1 += dx - dy + radius_squared;
-        if (line && y < radius_inner) line = 0;
+        if (line && y < radius_inner)
+            line = 0;
         if (!line) {
             while (d1_inner < 0) {
                 x_inner += 1;
@@ -1717,17 +1725,25 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
             d1_inner += dx_inner - dy_inner + radius_inner_squared;
         }
     }
-    d1 = radius_squared * (x + 0.5) * (x + 0.5) + radius_squared * (y - 1) * (y - 1) - radius_squared * radius_squared;
+    d1 = radius_squared *
+         ((x + 0.5) * (x + 0.5) + (y - 1) * (y - 1) - radius_squared);
     while (y >= 0) {
         if (line) {
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y, x0 + (int)x - 1, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1, x0 + (int)x - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 + (int)x - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1,
+                                     x0 + (int)x - 1, drawn_area);
         }
         else {
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y, x0 - (int)x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1, x0 - (int)x_inner, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 - (int)y, x0 + (int)x_inner - 1, drawn_area);
-            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 + (int)y - 1, x0 + (int)x_inner - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 - (int)y,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - (int)x, y0 + (int)y - 1,
+                                     x0 - (int)x_inner, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1, y0 - (int)y,
+                                     x0 + (int)x_inner - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 + (int)x - 1,
+                                     y0 + (int)y - 1, x0 + (int)x_inner - 1,
+                                     drawn_area);
         }
         if (d1 > 0) {
             y--;
@@ -1741,7 +1757,8 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
             dy -= double_radius_squared;
             d1 += dx - dy + radius_squared;
         }
-        if (line && y < radius_inner) line = 0;
+        if (line && y < radius_inner)
+            line = 0;
         if (!line) {
             if (dx_inner < dy_inner) {
                 while (d1_inner < 0) {
@@ -1756,7 +1773,11 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
                 d1_inner += dx_inner - dy_inner + radius_inner_squared;
             }
             else {
-                if (!d2_inner) d2_inner = radius_inner_squared * (x_inner + 0.5) * (x_inner + 0.5) + radius_inner_squared * (y_inner - 1) * (y_inner - 1) - radius_inner_squared * radius_inner_squared;
+                if (!d2_inner)
+                    d2_inner =
+                        radius_inner_squared *
+                        ((x_inner + 0.5) * (x_inner + 0.5) +
+                         (y_inner - 1) * (y_inner - 1) - radius_inner_squared);
                 if (d2_inner > 0) {
                     y_inner--;
                     dy_inner -= double_radius_inner_squared;
