@@ -353,7 +353,7 @@ pg_init(PyObject *self, PyObject *_null)
     }
 
     pg_is_init = 1;
-    return Py_BuildValue("(ii)", success, fail);
+    return pg_tuple_couple_from_values_int(success, fail);
 }
 
 static void

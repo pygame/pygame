@@ -56,7 +56,7 @@ key_get_repeat(PyObject *self, PyObject *_null)
 
     VIDEO_INIT_CHECK();
     pg_GetKeyRepeat(&delay, &interval);
-    return Py_BuildValue("(ii)", delay, interval);
+    return pg_tuple_couple_from_values_int(delay, interval);
 }
 
 /*

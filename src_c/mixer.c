@@ -596,7 +596,7 @@ pg_mixer_get_init(PyObject *self, PyObject *_null)
     if (SDL_AUDIO_ISSIGNED(format)) {
         realform = -realform;
     }
-    return Py_BuildValue("(iii)", freq, realform, channels);
+    return pg_tuple_triple_from_values_int(freq, realform, channels);
 }
 
 static PyObject *

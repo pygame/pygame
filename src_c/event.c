@@ -922,8 +922,8 @@ dict_from_event(SDL_Event *event)
 
     switch (event->type) {
         case SDL_VIDEORESIZE:
-            obj = Py_BuildValue("(ii)", event->window.data1,
-                                event->window.data2);
+            obj = pg_tuple_couple_from_values_int(event->window.data1,
+                                                  event->window.data2);
             _pg_insobj(dict, "size", obj);
             _pg_insobj(dict, "w", PyLong_FromLong(event->window.data1));
             _pg_insobj(dict, "h", PyLong_FromLong(event->window.data2));
@@ -970,10 +970,11 @@ dict_from_event(SDL_Event *event)
                        PyLong_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
-            obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
+            obj = pg_tuple_couple_from_values_int(event->motion.x,
+                                                  event->motion.y);
             _pg_insobj(dict, "pos", obj);
-            obj =
-                Py_BuildValue("(ii)", event->motion.xrel, event->motion.yrel);
+            obj = pg_tuple_couple_from_values_int(event->motion.xrel,
+                                                  event->motion.yrel);
             _pg_insobj(dict, "rel", obj);
             if ((tuple = PyTuple_New(3))) {
                 PyTuple_SET_ITEM(tuple, 0,
@@ -993,7 +994,8 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
+            obj = pg_tuple_couple_from_values_int(event->button.x,
+                                                  event->button.y);
             _pg_insobj(dict, "pos", obj);
             _pg_insobj(dict, "button", PyLong_FromLong(event->button.button));
             _pg_insobj(
@@ -1013,7 +1015,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "instance_id",
                        PyLong_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyLong_FromLong(event->jball.ball));
-            obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
+            obj = pg_tuple_couple_from_values_int(event->jball.xrel,
+                                                  event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
@@ -1030,7 +1033,7 @@ dict_from_event(SDL_Event *event)
                 hx = 1;
             else if (event->jhat.value & SDL_HAT_LEFT)
                 hx = -1;
-            _pg_insobj(dict, "value", Py_BuildValue("(ii)", hx, hy));
+            _pg_insobj(dict, "value", pg_tuple_couple_from_values_int(hx, hy));
             break;
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:

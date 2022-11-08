@@ -100,7 +100,7 @@ static PyObject *
 mask_get_size(PyObject *self, PyObject *_null)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
-    return Py_BuildValue("(ii)", mask->w, mask->h);
+    return pg_tuple_couple_from_values_int(mask->w, mask->h);
 }
 
 /* Creates a Rect object based on the given mask's size. The rect's
@@ -224,7 +224,7 @@ mask_overlap(PyObject *self, PyObject *args, PyObject *kwargs)
 
     val = bitmask_overlap_pos(mask, othermask, x, y, &xp, &yp);
     if (val) {
-        return Py_BuildValue("(ii)", xp, yp);
+        return pg_tuple_couple_from_values_int(xp, yp);
     }
     else {
         Py_INCREF(Py_None);
@@ -521,7 +521,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
             if (bitmask_getbit(m, x, y)) {
                 firstx = x;
                 firsty = y;
-                value = Py_BuildValue("(ii)", x - 1, y - 1);
+                value = pg_tuple_couple_from_values_int(x - 1, y - 1);
 
                 if (NULL == value) {
                     Py_DECREF(plist);
@@ -562,7 +562,7 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
             e--;
             if (!e) {
                 e = every;
-                value = Py_BuildValue("(ii)", secx - 1, secy - 1);
+                value = pg_tuple_couple_from_values_int(secx - 1, secy - 1);
 
                 if (NULL == value) {
                     Py_DECREF(plist);
@@ -606,7 +606,8 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
                         break;
                     }
 
-                    value = Py_BuildValue("(ii)", nextx - 1, nexty - 1);
+                    value =
+                        pg_tuple_couple_from_values_int(nextx - 1, nexty - 1);
 
                     if (NULL == value) {
                         Py_DECREF(plist);

@@ -444,7 +444,7 @@ joy_get_ball(PyObject *self, PyObject *args)
     }
 
     SDL_JoystickGetBall(joy, _index, &dx, &dy);
-    return Py_BuildValue("(ii)", dx, dy);
+    return pg_tuple_couple_from_values_int(dx, dy);
 }
 
 static PyObject *
@@ -502,7 +502,7 @@ joy_get_hat(PyObject *self, PyObject *args)
         px = -1;
     }
 
-    return Py_BuildValue("(ii)", px, py);
+    return pg_tuple_couple_from_values_int(px, py);
 }
 
 static PyMethodDef joy_methods[] = {
