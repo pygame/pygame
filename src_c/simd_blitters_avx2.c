@@ -915,6 +915,14 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
 
     /* if either surface has a non-zero alpha mask use that as our mask */
     Uint32 amask = info->src->Amask | info->dst->Amask;
+    /* find the index 0, 1, 2 or 3 of the alpha channel within the pixel
+     * this can vary depending on the channel order in the pixel format.
+     * e.g. ARGB vs RGBA or BGRA
+     */
+    char a_index = ((amask >> 8) == 0)    ? 0
+                   : ((amask >> 16) == 0) ? 1
+                   : ((amask >> 24) == 0) ? 2
+                                          : 3;
 
     __m256i *srcp256 = (__m256i *)info->s_pixels;
     __m256i *dstp256 = (__m256i *)info->d_pixels;
@@ -932,21 +940,25 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
         _mm256_set_epi8(0x80, 23, 0x80, 22, 0x80, 21, 0x80, 20, 0x80, 19, 0x80,
                         18, 0x80, 17, 0x80, 16, 0x80, 7, 0x80, 6, 0x80, 5,
                         0x80, 4, 0x80, 3, 0x80, 2, 0x80, 1, 0x80, 0);
-
-    mm256_shuff_alpha_mask_A =
-        _mm256_set_epi8(0x80, 23, 0x80, 23, 0x80, 23, 0x80, 23, 0x80, 19, 0x80,
-                        19, 0x80, 19, 0x80, 19, 0x80, 7, 0x80, 7, 0x80, 7,
-                        0x80, 7, 0x80, 3, 0x80, 3, 0x80, 3, 0x80, 3);
+    /* use the alpha index to eventually grab the alpha channel of each pixel */
+    mm256_shuff_alpha_mask_A = _mm256_set_epi8(
+        0x80, 20 + a_index, 0x80, 20 + a_index, 0x80, 20 + a_index, 0x80,
+        20 + a_index, 0x80, 16 + a_index, 0x80, 16 + a_index, 0x80,
+        16 + a_index, 0x80, 16 + a_index, 0x80, 4 + a_index, 0x80, 4 + a_index,
+        0x80, 4 + a_index, 0x80, 4 + a_index, 0x80, a_index, 0x80, a_index,
+        0x80, a_index, 0x80, a_index);
 
     mm256_shuff_mask_B =
         _mm256_set_epi8(0x80, 31, 0x80, 30, 0x80, 29, 0x80, 28, 0x80, 27, 0x80,
                         26, 0x80, 25, 0x80, 24, 0x80, 15, 0x80, 14, 0x80, 13,
                         0x80, 12, 0x80, 11, 0x80, 10, 0x80, 9, 0x80, 8);
-
-    mm256_shuff_alpha_mask_B =
-        _mm256_set_epi8(0x80, 31, 0x80, 31, 0x80, 31, 0x80, 31, 0x80, 27, 0x80,
-                        27, 0x80, 27, 0x80, 27, 0x80, 15, 0x80, 15, 0x80, 15,
-                        0x80, 15, 0x80, 11, 0x80, 11, 0x80, 11, 0x80, 11);
+    /* use the alpha index to eventually grab the alpha channel of each pixel */
+    mm256_shuff_alpha_mask_B = _mm256_set_epi8(
+        0x80, 28 + a_index, 0x80, 28 + a_index, 0x80, 28 + a_index, 0x80,
+        28 + a_index, 0x80, 24 + a_index, 0x80, 24 + a_index, 0x80,
+        24 + a_index, 0x80, 24 + a_index, 0x80, 12 + a_index, 0x80,
+        12 + a_index, 0x80, 12 + a_index, 0x80, 12 + a_index, 0x80,
+        8 + a_index, 0x80, 8 + a_index, 0x80, 8 + a_index, 0x80, 8 + a_index);
 
     mm256_ones = _mm256_set_epi8(
         0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01,
