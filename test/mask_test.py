@@ -8,7 +8,6 @@ import sys
 import pygame
 from pygame.locals import *
 from pygame.math import Vector2
-from pygame.tests.test_utils import AssertRaisesRegexMixin
 
 
 IS_PYPY = "PyPy" == platform.python_implementation()
@@ -144,7 +143,7 @@ def assertMaskEqual(testcase, m1, m2, msg=None):
 
 
 # @unittest.skipIf(IS_PYPY, "pypy has lots of mask failures")  # TODO
-class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class MaskTypeTest(unittest.TestCase):
     ORIGIN_OFFSETS = (
         (0, 0),
         (0, 1),
