@@ -162,7 +162,7 @@
       | :sg:`hsla -> tuple`
 
       The ``HSLA`` representation of the Color. The ``HSLA`` components are in
-      the ranges ``H`` = [0, 360], ``S`` = [0, 100], ``V`` = [0, 100], A = [0,
+      the ranges ``H`` = [0, 360], ``S`` = [0, 100], ``L`` = [0, 100], A = [0,
       100]. Note that this will not return the absolutely exact ``HSL`` values
       for the set ``RGB`` values in all cases. Due to the ``RGB`` mapping from
       0-255 and the ``HSL`` mapping from 0-100 and 0-360 rounding errors may
