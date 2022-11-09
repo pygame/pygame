@@ -940,7 +940,8 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
         _mm256_set_epi8(0x80, 23, 0x80, 22, 0x80, 21, 0x80, 20, 0x80, 19, 0x80,
                         18, 0x80, 17, 0x80, 16, 0x80, 7, 0x80, 6, 0x80, 5,
                         0x80, 4, 0x80, 3, 0x80, 2, 0x80, 1, 0x80, 0);
-    /* use the alpha index to eventually grab the alpha channel of each pixel */
+    /* use the alpha index to eventually grab the alpha channel of each pixel
+     */
     mm256_shuff_alpha_mask_A = _mm256_set_epi8(
         0x80, 20 + a_index, 0x80, 20 + a_index, 0x80, 20 + a_index, 0x80,
         20 + a_index, 0x80, 16 + a_index, 0x80, 16 + a_index, 0x80,
@@ -952,7 +953,8 @@ blit_blend_premultiplied_avx2(SDL_BlitInfo *info)
         _mm256_set_epi8(0x80, 31, 0x80, 30, 0x80, 29, 0x80, 28, 0x80, 27, 0x80,
                         26, 0x80, 25, 0x80, 24, 0x80, 15, 0x80, 14, 0x80, 13,
                         0x80, 12, 0x80, 11, 0x80, 10, 0x80, 9, 0x80, 8);
-    /* use the alpha index to eventually grab the alpha channel of each pixel */
+    /* use the alpha index to eventually grab the alpha channel of each pixel
+     */
     mm256_shuff_alpha_mask_B = _mm256_set_epi8(
         0x80, 28 + a_index, 0x80, 28 + a_index, 0x80, 28 + a_index, 0x80,
         28 + a_index, 0x80, 24 + a_index, 0x80, 24 + a_index, 0x80,
