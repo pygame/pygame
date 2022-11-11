@@ -269,6 +269,45 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
    .. ## pygame.key.get_pressed ##
 
+.. function:: get_just_pressed
+
+   | :sl:`returns a pygame.key.ScancodeWrapper containing the most recent key presses`
+   | :sg:`get_just_pressed() -> bools`
+
+   Returns a sequence of boolean values representing the KEYDOWN events as of the last call to pygame.event.get()
+   done by tracking the KEYDOWN events when the event loop is pumped using pygame.event.get() 
+   and is therefore similar to checking KEYDOWNS in the event loop.
+
+   .. note::
+      If you require getting the key presses in order use the event queue KEYDOWN events
+
+   ::
+      if pygame.key.get_just_pressed()[pygame.K_b]:
+         print("B key just pressed")
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.key.get_just_pressed ##
+.. function:: get_just_released
+
+   | :sl:`returns a pygame.key.ScancodeWrapper containing the most recent key releases`
+   | :sg:`get_just_pressed() -> bools`
+
+   Returns a sequence of boolean values representing the KEYDOWN events as of the last call to pygame.event.get()
+   done by tracking the KEYUP events when the event loop is pumped using pygame.event.get() 
+   and is therefore similar to checking KEYUPS in the event loop.
+
+   .. note::
+      If you require getting the key releases in order use the event queue KEYUP events.
+
+   ::
+      if pygame.key.get_just_released()[pygame.K_b]:
+         print("B key just released")
+
+   .. versionadded:: 2.1.3
+
+   .. ## pygame.key.get_just_released ##
+
 .. function:: get_mods
 
    | :sl:`determine which modifier keys are being held`

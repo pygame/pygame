@@ -99,6 +99,10 @@ static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
 static SDL_Event _pg_last_keydown_event = {0};
 
+/* Not used as text, acts as an array of bools */
+char pressed_keys[SDL_NUM_SCANCODES];
+char released_keys[SDL_NUM_SCANCODES];
+
 #ifdef __EMSCRIPTEN__
 /* these macros are no-op here */
 #define PG_LOCK_EVFILTER_MUTEX
@@ -1861,6 +1865,18 @@ error:
     return NULL;
 }
 
+char *
+pgEvent_GetKeyDownInfo(void)
+{
+    return pressed_keys;
+}
+
+char *
+pgEvent_GetKeyUpInfo(void)
+{
+    return released_keys;
+}
+
 static PyObject *
 _pg_get_all_events(void)
 {
@@ -1882,6 +1898,14 @@ _pg_get_all_events(void)
         for (loop = 0; loop < len; loop++) {
             if (!_pg_event_append_to_list(list, &eventbuf[loop]))
                 goto error;
+
+            if (eventbuf[loop].type == SDL_KEYDOWN) {
+                pressed_keys[(int)eventbuf[loop].key.keysym.scancode] = 1;
+            }
+
+            if (eventbuf[loop].type == SDL_KEYUP) {
+                released_keys[(int)eventbuf[loop].key.keysym.scancode] = 1;
+            }
         }
     }
     return list;
@@ -1962,6 +1986,9 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
     VIDEO_INIT_CHECK();
 
     _pg_event_pump(dopump);
+
+    memset(pressed_keys, 0, sizeof(pressed_keys));
+    memset(released_keys, 0, sizeof(released_keys));
 
     if (obj_evtype == NULL || obj_evtype == Py_None) {
         if (obj_exclude != NULL && obj_exclude != Py_None) {
@@ -2272,13 +2299,15 @@ MODINIT_DEFINE(event)
     }
 
     /* export the c api */
-    assert(PYGAMEAPI_EVENT_NUMSLOTS == 6);
+    assert(PYGAMEAPI_EVENT_NUMSLOTS == 8);
     c_api[0] = &pgEvent_Type;
     c_api[1] = pgEvent_New;
     c_api[2] = pgEvent_New2;
     c_api[3] = pgEvent_FillUserEvent;
     c_api[4] = pg_EnableKeyRepeat;
     c_api[5] = pg_GetKeyRepeat;
+    c_api[6] = pgEvent_GetKeyDownInfo;
+    c_api[7] = pgEvent_GetKeyUpInfo;
 
     apiobj = encapsulate_api(c_api, "event");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

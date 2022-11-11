@@ -2,6 +2,8 @@
 #define DOC_PYGAMEKEY "pygame module to work with the keyboard"
 #define DOC_PYGAMEKEYGETFOCUSED "get_focused() -> bool\ntrue if the display is receiving keyboard input from the system"
 #define DOC_PYGAMEKEYGETPRESSED "get_pressed() -> bools\nget the state of all keyboard buttons"
+#define DOC_PYGAMEKEYGETJUSTPRESSED "get_just_pressed() -> bools\nreturns a pygame.key.ScancodeWrapper containing the most recent key presses"
+#define DOC_PYGAMEKEYGETJUSTRELEASED "get_just_pressed() -> bools\nreturns a pygame.key.ScancodeWrapper containing the most recent key releases"
 #define DOC_PYGAMEKEYGETMODS "get_mods() -> int\ndetermine which modifier keys are being held"
 #define DOC_PYGAMEKEYSETMODS "set_mods(int) -> None\ntemporarily set which modifier keys are pressed"
 #define DOC_PYGAMEKEYSETREPEAT "set_repeat() -> None\nset_repeat(delay) -> None\nset_repeat(delay, interval) -> None\ncontrol how held keys are repeated"
@@ -27,6 +29,14 @@ true if the display is receiving keyboard input from the system
 pygame.key.get_pressed
  get_pressed() -> bools
 get the state of all keyboard buttons
+
+pygame.key.get_just_pressed
+ get_just_pressed() -> bools
+returns a pygame.key.ScancodeWrapper containing the most recent key presses
+
+pygame.key.get_just_released
+ get_just_pressed() -> bools
+returns a pygame.key.ScancodeWrapper containing the most recent key releases
 
 pygame.key.get_mods
  get_mods() -> int

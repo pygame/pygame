@@ -145,6 +145,49 @@ key_get_pressed(PyObject *self, PyObject *_null)
     return ret_obj;
 }
 
+static PyObject *
+get_just_pressed()
+{
+    char *pressed_keys = pgEvent_GetKeyDownInfo();
+    PyObject *key_tuple = PyTuple_New(SDL_NUM_SCANCODES);
+    PyObject *ret_obj = NULL;
+
+    VIDEO_INIT_CHECK();
+
+    int i;
+    for (i = 0; i < SDL_NUM_SCANCODES; i++) {
+        PyObject *key_elem;
+        key_elem = PyBool_FromLong(pressed_keys[i]);
+        PyTuple_SET_ITEM(key_tuple, i, key_elem);
+    }
+    ret_obj = PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
+                                           key_tuple, NULL);
+    Py_DECREF(key_tuple);
+    return ret_obj;
+}
+
+static PyObject *
+get_just_released()
+{
+    char *released_keys = pgEvent_GetKeyUpInfo();
+    PyObject *key_tuple = PyTuple_New(SDL_NUM_SCANCODES);
+
+    PyObject *ret_obj = NULL;
+
+    VIDEO_INIT_CHECK();
+
+    int i;
+    for (i = 0; i < SDL_NUM_SCANCODES; i++) {
+        PyObject *key_elem;
+        key_elem = PyBool_FromLong(released_keys[i]);
+        PyTuple_SET_ITEM(key_tuple, i, key_elem);
+    }
+    ret_obj = PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
+                                           key_tuple, NULL);
+    Py_DECREF(key_tuple);
+    return ret_obj;
+}
+
 /* Keep our own table for backwards compatibility. This table is directly taken
  * from SDL2 source (but some SDL1 names are patched in it at runtime).
  * This has to be kept updated (only new things can be added, existing names in
@@ -776,6 +819,10 @@ static PyMethodDef _key_methods[] = {
      DOC_PYGAMEKEYSTOPTEXTINPUT},
     {"set_text_input_rect", key_set_text_input_rect, METH_O,
      DOC_PYGAMEKEYSETTEXTINPUTRECT},
+    {"get_just_pressed", (PyCFunction)get_just_pressed, METH_NOARGS,
+     DOC_PYGAMEKEYGETJUSTPRESSED},
+    {"get_just_released", (PyCFunction)get_just_released, METH_NOARGS,
+     DOC_PYGAMEKEYGETJUSTRELEASED},
 
     {NULL, NULL, 0, NULL}};
 

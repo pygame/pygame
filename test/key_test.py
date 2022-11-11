@@ -234,6 +234,19 @@ class KeyModuleTest(unittest.TestCase):
         states = pygame.key.get_pressed()
         self.assertEqual(states[pygame.K_RIGHT], 0)
 
+    def test_get_just_pressed(self):
+        pressed_keys = pygame.key.get_just_pressed()
+        self.assertEqual(pressed_keys[pygame.K_RIGHT], 0)
+
+    def test_get_just_released(self):
+        released_keys = pygame.key.get_just_released()
+        self.assertEqual(released_keys[pygame.K_RIGHT], 0)
+
+    def test_name(self):
+        self.assertEqual(pygame.key.name(pygame.K_RETURN), "return")
+        self.assertEqual(pygame.key.name(pygame.K_0), "0")
+        self.assertEqual(pygame.key.name(pygame.K_SPACE), "space")
+
     def test_name_and_key_code(self):
         for const_name in dir(pygame):
             if not const_name.startswith("K_") or const_name in SKIPPED_KEYS:
