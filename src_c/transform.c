@@ -601,7 +601,8 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
 
     SDL_LockSurface(newsurf);
 
-    for (int i = 0; i < src->w * src->h; i++) {
+    int i;
+    for (i = 0; i < src->w * src->h; i++) {
         Uint8 r, g, b, a;
         SDL_GetRGBA(pixels[i], newsurf->format, &r, &g, &b, &a);
 
