@@ -243,6 +243,18 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.average_color ##
 
+.. function:: grayscale
+
+   | :sl:`grayscale a surface`
+   | :sg:`grayscale(surface, dest_surface=None) -> Surface`
+
+   Grayscales the surface.
+
+   An optional destination surface can be passed which is faster than creating a new Surface.
+   However this destination surface must have the same dimensions (width, height) as the source Surface.
+
+   .. ## pygame.transform.grayscale ##
+
 .. function:: threshold
 
    | :sl:`finds which, and how many pixels in a surface are within a threshold of a 'search_color' or a 'search_surf'.`

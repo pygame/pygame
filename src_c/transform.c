@@ -570,6 +570,95 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
     return retsurf;
 }
 
+SDL_Surface *
+grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
+{
+    SDL_Surface *src = pgSurface_AsSurface(srcobj);
+    SDL_Surface *newsurf;
+
+    if (!dstobj) {
+        newsurf = newsurf_fromsurf(src, srcobj->surf->w, srcobj->surf->h);
+        if (!newsurf)
+            return NULL;
+    }
+    else {
+        newsurf = pgSurface_AsSurface(dstobj);
+    }
+
+    if (newsurf->w != src->w || newsurf->h != src->h) {
+        return (SDL_Surface *)(RAISE(
+            PyExc_ValueError,
+            "Destination surface must be the same size as source surface."));
+    }
+
+    if (src->format->BytesPerPixel != newsurf->format->BytesPerPixel) {
+        return (SDL_Surface *)(RAISE(
+            PyExc_ValueError,
+            "Source and destination surfaces need the same format."));
+    }
+
+    Uint32 *pixels = (Uint32 *)src->pixels;
+
+    SDL_LockSurface(newsurf);
+
+    for (int i = 0; i < src->w * src->h; i++) {
+        Uint8 r, g, b, a;
+        SDL_GetRGBA(pixels[i], newsurf->format, &r, &g, &b, &a);
+
+        Uint32 grayscale_pixel = 0.212671 * r + 0.715160 * g + 0.072169 * b;
+
+        Uint32 transparent_pixel;
+        SDL_GetColorKey(src, &transparent_pixel);
+
+        int x = i % newsurf->w;
+        int y = i / newsurf->w;
+        Uint32 *const target_pixel =
+            (Uint32 *)((Uint8 *)newsurf->pixels + y * newsurf->pitch +
+                       x * newsurf->format->BytesPerPixel);
+        if (pixels[i] != transparent_pixel) {
+            Uint32 new_pixel = (0xFF << 24) | (grayscale_pixel << 16) |
+                               (grayscale_pixel << 8) | grayscale_pixel;
+            *target_pixel = new_pixel;
+        }
+        else {
+            *target_pixel = transparent_pixel;
+        }
+    }
+
+    SDL_UnlockSurface(newsurf);
+
+    return newsurf;
+}
+
+static PyObject *
+surf_grayscale(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    pgSurfaceObject *surfobj;
+    pgSurfaceObject *surfobj2 = NULL;
+    SDL_Surface *newsurf;
+
+    static char *keywords[] = {"surface", "dest_surface", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O!", keywords,
+                                     &pgSurface_Type, &surfobj,
+                                     &pgSurface_Type, &surfobj2))
+        return NULL;
+
+    newsurf = grayscale(surfobj, surfobj2);
+
+    if (!newsurf) {
+        return NULL;
+    }
+
+    if (surfobj2) {
+        Py_INCREF(surfobj2);
+        return (PyObject *)surfobj2;
+    }
+    else {
+        return (PyObject *)pgSurface_New(newsurf);
+    }
+}
+
 static PyObject *
 surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -2997,6 +3086,8 @@ static PyMethodDef _transform_methods[] = {
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGESURFACES},
     {"average_color", (PyCFunction)surf_average_color,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGECOLOR},
+    {"grayscale", (PyCFunction)surf_grayscale, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMGRAYSCALE},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(transform)

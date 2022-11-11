@@ -158,6 +158,23 @@ class TransformModuleTest(unittest.TestCase):
         dest = pygame.Surface((64, 48))
         pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
 
+    def test_grayscale(self):
+        s = pygame.Surface((32, 32))
+        s.fill((255, 0, 0))
+
+        s2 = pygame.transform.grayscale(s)
+        self.assertEqual(
+            pygame.transform.average_color(s2)[0], round(54.231105)
+        )  # 0.212671 * 255 + 0.715160 * 0 + 0.072169 * 0
+        self.assertEqual(pygame.transform.average_color(s2)[1], round(54.231105))
+        self.assertEqual(pygame.transform.average_color(s2)[2], round(54.231105))
+
+        dest = pygame.Surface((32, 32))
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], round(54.231105))
+        self.assertEqual(pygame.transform.average_color(dest)[1], round(54.231105))
+        self.assertEqual(pygame.transform.average_color(dest)[2], round(54.231105))
+
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
 
