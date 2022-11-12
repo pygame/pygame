@@ -598,7 +598,6 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
     }
 
     Uint32 *pixels = (Uint32 *)src->pixels;
-
     SDL_LockSurface(newsurf);
 
     int i;
@@ -616,9 +615,11 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
         Uint32 *const target_pixel =
             (Uint32 *)((Uint8 *)newsurf->pixels + y * newsurf->pitch +
                        x * newsurf->format->BytesPerPixel);
+
         if (pixels[i] != transparent_pixel) {
-            Uint32 new_pixel = (0xFF << 24) | (grayscale_pixel << 16) |
-                               (grayscale_pixel << 8) | grayscale_pixel;
+            Uint32 new_pixel =
+                SDL_MapRGBA(src->format, grayscale_pixel, grayscale_pixel,
+                            grayscale_pixel, a);
             *target_pixel = new_pixel;
         }
         else {
