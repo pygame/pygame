@@ -665,6 +665,9 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
             else if (pixel_32) {
                 SDL_GetRGBA(pixel_32[i], newsurf->format, &r, &g, &b, &a);
             }
+            else {
+                SDL_GetRGBA(pixel_32[i], newsurf->format, &r, &g, &b, &a);
+            }
             Uint32 grayscale_pixel =
                 0.212671 * r + 0.715160 * g + 0.072169 * b;
             Uint32 new_pixel =
