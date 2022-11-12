@@ -32,7 +32,8 @@ get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
 entire library. Browse the documentation on the `docs page`_. You
 can also browse the documentation locally by running `python -m pygame.docs`
-in your terminal.
+in your terminal. If the docs aren't found locally, it'll launch the online
+website instead.
 
 The online documentation stays up to date with the development version
 of pygame on github.  This may be a bit newer than the version of pygame
