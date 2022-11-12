@@ -517,6 +517,45 @@ stretch(SDL_Surface *src, SDL_Surface *dst)
     }
 }
 
+/* _set_at_pixels sets the pixel to the_color.
+
+    x - x pos in the SDL_Surface pixels.
+    y - y pos in the SDL_Surface pixels.
+    format - of the SDL_Surface pixels.
+    pitch - of the SDL_Surface.
+    the_color - to set in the pixels at this position.
+*/
+static PG_INLINE void
+_set_at_pixels(int x, int y, Uint8 *pixels, SDL_PixelFormat *format,
+               int surf_pitch, Uint32 the_color)
+{
+    Uint8 *byte_buf;
+
+    switch (format->BytesPerPixel) {
+        case 1:
+            *((Uint8 *)pixels + y * surf_pitch + x) = (Uint8)the_color;
+            break;
+        case 2:
+            *((Uint16 *)(pixels + y * surf_pitch) + x) = (Uint16)the_color;
+            break;
+        case 3:
+            byte_buf = (Uint8 *)(pixels + y * surf_pitch) + x * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            *(byte_buf + (format->Rshift >> 3)) = (Uint8)(the_color >> 16);
+            *(byte_buf + (format->Gshift >> 3)) = (Uint8)(the_color >> 8);
+            *(byte_buf + (format->Bshift >> 3)) = (Uint8)the_color;
+#else
+            *(byte_buf + 2 - (format->Rshift >> 3)) = (Uint8)(the_color >> 16);
+            *(byte_buf + 2 - (format->Gshift >> 3)) = (Uint8)(the_color >> 8);
+            *(byte_buf + 2 - (format->Bshift >> 3)) = (Uint8)the_color;
+#endif
+            break;
+        default: /* case 4: */
+            *((Uint32 *)(pixels + y * surf_pitch) + x) = the_color;
+            break;
+    }
+}
+
 static SDL_Surface *
 scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
          int height)
@@ -597,33 +636,42 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
             "Source and destination surfaces need the same format."));
     }
 
-    Uint32 *pixels = (Uint32 *)src->pixels;
-    SDL_LockSurface(newsurf);
+    Uint8 *pixel_8 = NULL;
+    Uint16 *pixel_16 = NULL;
+    Uint32 *pixel_32 = NULL;
 
-    int i;
-    for (i = 0; i < src->w * src->h; i++) {
-        Uint8 r, g, b, a;
-        SDL_GetRGBA(pixels[i], newsurf->format, &r, &g, &b, &a);
+    if (src->format->BitsPerPixel == 8) {
+        pixel_8 = (Uint8 *)src->pixels;
+    }
+    else if (src->format->BitsPerPixel == 16) {
+        pixel_16 = (Uint16 *)src->pixels;
+    }
+    else if (src->format->BitsPerPixel == 32) {
+        pixel_32 = (Uint32 *)src->pixels;
+    }
 
-        Uint32 grayscale_pixel = 0.212671 * r + 0.715160 * g + 0.072169 * b;
+    for (int y = 0; y < newsurf->h; y++) {
+        for (int x = 0; x < newsurf->w; x++) {
+            int i = y * newsurf->pitch / newsurf->format->BytesPerPixel + x;
 
-        Uint32 transparent_pixel;
-        SDL_GetColorKey(src, &transparent_pixel);
-
-        int x = i % newsurf->w;
-        int y = i / newsurf->w;
-        Uint32 *const target_pixel =
-            (Uint32 *)((Uint8 *)newsurf->pixels + y * newsurf->pitch +
-                       x * newsurf->format->BytesPerPixel);
-
-        if (pixels[i] != transparent_pixel) {
+            Uint8 r, g, b, a;
+            if (pixel_8) {
+                SDL_GetRGBA(pixel_8[i], newsurf->format, &r, &g, &b, &a);
+            }
+            else if (pixel_16) {
+                SDL_GetRGBA(pixel_16[i], newsurf->format, &r, &g, &b, &a);
+            }
+            else if (pixel_32) {
+                SDL_GetRGBA(pixel_32[i], newsurf->format, &r, &g, &b, &a);
+            }
+            Uint32 grayscale_pixel =
+                0.212671 * r + 0.715160 * g + 0.072169 * b;
             Uint32 new_pixel =
                 SDL_MapRGBA(src->format, grayscale_pixel, grayscale_pixel,
                             grayscale_pixel, a);
-            *target_pixel = new_pixel;
-        }
-        else {
-            *target_pixel = transparent_pixel;
+
+            _set_at_pixels(x, y, newsurf->pixels, newsurf->format,
+                           newsurf->pitch, new_pixel);
         }
     }
 
@@ -1796,45 +1844,6 @@ _get_color_move_pixels(Uint8 bpp, Uint8 *pixels, Uint32 *the_color)
             return pixels + 4;
     }
     // printf("---bpp:%i, pixels:%p\n", bpp, pixels);
-}
-
-/* _set_at_pixels sets the pixel to the_color.
-
-    x - x pos in the SDL_Surface pixels.
-    y - y pos in the SDL_Surface pixels.
-    format - of the SDL_Surface pixels.
-    pitch - of the SDL_Surface.
-    the_color - to set in the pixels at this position.
-*/
-static PG_INLINE void
-_set_at_pixels(int x, int y, Uint8 *pixels, SDL_PixelFormat *format,
-               int surf_pitch, Uint32 the_color)
-{
-    Uint8 *byte_buf;
-
-    switch (format->BytesPerPixel) {
-        case 1:
-            *((Uint8 *)pixels + y * surf_pitch + x) = (Uint8)the_color;
-            break;
-        case 2:
-            *((Uint16 *)(pixels + y * surf_pitch) + x) = (Uint16)the_color;
-            break;
-        case 3:
-            byte_buf = (Uint8 *)(pixels + y * surf_pitch) + x * 3;
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            *(byte_buf + (format->Rshift >> 3)) = (Uint8)(the_color >> 16);
-            *(byte_buf + (format->Gshift >> 3)) = (Uint8)(the_color >> 8);
-            *(byte_buf + (format->Bshift >> 3)) = (Uint8)the_color;
-#else
-            *(byte_buf + 2 - (format->Rshift >> 3)) = (Uint8)(the_color >> 16);
-            *(byte_buf + 2 - (format->Gshift >> 3)) = (Uint8)(the_color >> 8);
-            *(byte_buf + 2 - (format->Bshift >> 3)) = (Uint8)the_color;
-#endif
-            break;
-        default: /* case 4: */
-            *((Uint32 *)(pixels + y * surf_pitch) + x) = the_color;
-            break;
-    }
 }
 
 static int
