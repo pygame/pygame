@@ -650,8 +650,9 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
         pixel_32 = (Uint32 *)src->pixels;
     }
 
-    for (int y = 0; y < newsurf->h; y++) {
-        for (int x = 0; x < newsurf->w; x++) {
+    int x, y;
+    for (y = 0; y < newsurf->h; y++) {
+        for (x = 0; x < newsurf->w; x++) {
             int i = y * newsurf->pitch / newsurf->format->BytesPerPixel + x;
 
             Uint8 r, g, b, a;
