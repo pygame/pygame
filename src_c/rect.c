@@ -342,34 +342,19 @@ pgRect_Normalize(SDL_Rect *rect)
 static int
 _pg_do_rects_intersect(SDL_Rect *A, SDL_Rect *B)
 {
-    int x1 = A->x, y1 = A->y, w1 = A->w, h1 = A->h;
-    int x2 = B->x, y2 = B->y, w2 = B->w, h2 = B->h;
-
-    if (!w1 || !h1 || !w2 || !h2) {
+    if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
         // zero sized rects should not collide with anything #1197
         return 0;
     }
 
-    if (w1 < 0 || h1 < 0 || w2 < 0 || h2 < 0) {
-        if (w1 < 0) {
-            x1 += w1;
-            w1 = -w1;
-        }
-        if (h1 < 0) {
-            y1 += h1;
-            h1 = -h1;
-        }
-        if (w2 < 0) {
-            x2 += w2;
-            w2 = -w2;
-        }
-        if (h2 < 0) {
-            y2 += h2;
-            h2 = -h2;
-        }
-    }
-
-    return (x1 < x2 + w2 && y1 < y2 + h2 && x2 < x1 + w1 && y2 < y1 + h1);
+    // A.left   < B.right  &&
+    // A.top    < B.bottom &&
+    // A.right  > B.left   &&
+    // A.bottom > B.top
+    return (MIN(A->x, A->x + A->w) < MAX(B->x, B->x + B->w) &&
+            MIN(A->y, A->y + A->h) < MAX(B->y, B->y + B->h) &&
+            MAX(A->x, A->x + A->w) > MIN(B->x, B->x + B->w) &&
+            MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
 }
 
 static PyObject *
@@ -606,21 +591,48 @@ static PyObject *
 pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
                     Py_ssize_t nargs)
 {
+    /* This function got changed to use the FASTCALL calling convention in
+     * Python 3.7. This lets us exploit the fact that we don't have an
+     * intermediate Tuple args object to extract all the arguments from, saving
+     * us performance in the process. This decoupling forces us to deal with
+     * all the different cases (dictated by the number of parameters) by
+     * building specific code paths.
+     * Given that this function accepts any Rect-like object, there are 3 main
+     * cases to deal with:
+     * - 1 parameter: a Rect-like object
+     * - 2 parameters: two sequences that represent the position and dimensions
+     * of the Rect
+     * - 4 parameters: four numbers that represent the position and dimensions
+     */
+
     SDL_Rect srect = self->r;
     SDL_Rect temp;
 
     if (nargs == 1) {
+        /* One argument was passed in, so we assume it's a rectstyle object.
+         * This could mean several of the following (all dealt by
+         * pgRect_FromObject):
+         * - (x, y, w, h)
+         * - ((x, y), (w, h))
+         * - Rect
+         * - Object with "rect" attribute
+         */
         SDL_Rect *tmp;
         if (!(tmp = pgRect_FromObject(args[0], &temp))) {
-            if (PyErr_Occurred())
+            if (PyErr_Occurred()) {
                 return NULL;
-            else
+            }
+            else {
                 return RAISE(PyExc_TypeError,
                              "Invalid rect, all 4 fields must be numeric");
+            }
         }
         return PyBool_FromLong(_pg_do_rects_intersect(&srect, tmp));
     }
     else if (nargs == 2) {
+        /* Two separate sequences were passed in:
+         * - (x, y), (w, h)
+         */
         if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
             !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
             if (PyErr_Occurred())
@@ -631,21 +643,28 @@ pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
         }
     }
     else if (nargs == 4) {
-        if (!(pg_IntFromObj(args[0], &temp.x)))
+        /* Four separate arguments were passed in:
+         * - x, y, w, h
+         */
+        if (!(pg_IntFromObj(args[0], &temp.x))) {
             return RAISE(PyExc_TypeError,
                          "Invalid x value for rect, must be numeric");
+        }
 
-        if (!(pg_IntFromObj(args[1], &temp.y)))
+        if (!(pg_IntFromObj(args[1], &temp.y))) {
             return RAISE(PyExc_TypeError,
                          "Invalid y value for rect, must be numeric");
+        }
 
-        if (!(pg_IntFromObj(args[2], &temp.w)))
+        if (!(pg_IntFromObj(args[2], &temp.w))) {
             return RAISE(PyExc_TypeError,
                          "Invalid w value for rect, must be numeric");
+        }
 
-        if (!(pg_IntFromObj(args[3], &temp.h)))
+        if (!(pg_IntFromObj(args[3], &temp.h))) {
             return RAISE(PyExc_TypeError,
                          "Invalid h value for rect, must be numeric");
+        }
     }
     else {
         return RAISE(PyExc_ValueError,
