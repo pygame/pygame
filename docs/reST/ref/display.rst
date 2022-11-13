@@ -308,6 +308,7 @@ required).
                  is called. (current_h, current_w are available since
                  SDL 1.2.10, and pygame 1.8.0). They are -1 on error, or if
                  an old SDL is being used.
+     pixel_format: A string representing the format of each pixel's color
 
    .. ## pygame.display.Info ##
 

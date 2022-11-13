@@ -323,6 +323,11 @@ pg_vidinfo_getattr(PyObject *self, char *name)
         return PyLong_FromLong(current_h);
     else if (!strcmp(name, "current_w"))
         return PyLong_FromLong(current_w);
+    else if (!strcmp(name, "pixel_format")) {
+        const char *name = SDL_GetPixelFormatName(info->vfmt->format);
+        // + 16 to remove SDL_PIXELFORMAT_ prefix
+        return PyUnicode_FromString(name + 16);
+    }
 
     return RAISE(PyExc_AttributeError, "does not exist in vidinfo");
 }
@@ -333,7 +338,10 @@ pg_vidinfo_str(PyObject *self)
     int current_w = -1;
     int current_h = -1;
     pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
-    const char *pixel_format_name = SDL_GetPixelFormatName(info->vfmt->format);
+
+    // + 16 to remove SDL_PIXELFORMAT_ prefix
+    const char *pixel_format_name =
+        SDL_GetPixelFormatName(info->vfmt->format) + 16;
 
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
