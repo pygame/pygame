@@ -1677,6 +1677,7 @@ _vector_distance_helper(pgVector *self, PyObject *other)
         }
 
         if (PySequence_Fast_GET_SIZE(fast_seq) != dim) {
+            Py_DECREF(fast_seq);
             PyErr_SetString(PyExc_ValueError,
                             "Vector and sequence must be the same size");
             return -1;
@@ -1685,11 +1686,15 @@ _vector_distance_helper(pgVector *self, PyObject *other)
         for (i = 0; i < dim; ++i) {
             tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fast_seq, i)) -
                   self->coords[i];
-            if (PyErr_Occurred())
+            if (PyErr_Occurred()) {
+                Py_DECREF(fast_seq);
                 return -1;
+            }
             distance_squared += tmp * tmp;
         }
+        Py_DECREF(fast_seq);
     }
+
     return distance_squared;
 }
 

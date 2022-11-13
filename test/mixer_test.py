@@ -4,7 +4,7 @@ import unittest
 import pathlib
 import platform
 
-from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
+from pygame.tests.test_utils import example_path
 
 import pygame
 from pygame import mixer
@@ -655,7 +655,7 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 
-class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class ChannelTypeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initializing the mixer is slow, so minimize the times it is called.
@@ -914,7 +914,7 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 ############################### SOUND CLASS TESTS ##############################
 
 
-class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class SoundTypeTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         mixer.quit()
