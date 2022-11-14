@@ -160,21 +160,21 @@ un umbral más fácilmente por color, algo que veremos más adelante en el tutor
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "RGB")
 
-.. image:: camera_rgb.jpg
+.. image:: ../camera_rgb.jpg
    :class: trailing
 
 ::
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "YUV")
 
-.. image:: camera_yuv.jpg
+.. image:: ../camera_yuv.jpg
    :class: trailing
 
 ::
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "HSV")
 
-.. image:: camera_hsv.jpg
+.. image:: ../camera_hsv.jpg
    :class: trailing
 
 
@@ -194,7 +194,7 @@ referencia para obtener detalles sobre la función
   self.snapshot = self.cam.get_image(self.snapshot)
   pygame.transform.threshold(self.thresholded,self.snapshot,(0,255,0),(90,170,170),(0,0,0),2)
 
-.. image:: camera_thresholded.jpg
+.. image:: ../camera_thresholded.jpg
    :class: trailing
 
 
