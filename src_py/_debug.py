@@ -11,6 +11,7 @@ from pygame.freetype import get_version as get_freetype_version
 
 from pygame.version import ver
 
+
 def str_from_tuple(version_tuple):
     if version_tuple is None:
         return "None"
@@ -18,8 +19,10 @@ def str_from_tuple(version_tuple):
     strs = [str(i) for i in version_tuple]
     return ".".join(strs)
 
-def debug(filename = None):
+
+def debug(filename=None):
     import platform
+
     debug_str = ""
 
     debug_str += f"Platform:\t\t{platform.platform()}\n"
@@ -31,23 +34,33 @@ def debug(filename = None):
     debug_str += f"Architecture:\t\tBits: {platform.architecture()[0]}\tLinkage: {platform.architecture()[1]}\n\n"
 
     debug_str += f"pygame version:\t\t{ver}\n"
-            
+
     debug_str += f"python version:\t\t{str_from_tuple(sys.version_info[0:3])}\n\n"
 
-    debug_str += (f"SDL versions:\t\tLinked: {str_from_tuple(get_sdl_version())}\t"
-                    f"Compiled: {str_from_tuple(get_sdl_version(linked = False))}\n")
+    debug_str += (
+        f"SDL versions:\t\tLinked: {str_from_tuple(get_sdl_version())}\t"
+        f"Compiled: {str_from_tuple(get_sdl_version(linked = False))}\n"
+    )
 
-    debug_str += (f"SDL Mixer versions:\tLinked: {str_from_tuple(get_sdl_mixer_version())}\t"
-                    f"Compiled: {str_from_tuple(get_sdl_mixer_version(linked = False))}\n")
+    debug_str += (
+        f"SDL Mixer versions:\tLinked: {str_from_tuple(get_sdl_mixer_version())}\t"
+        f"Compiled: {str_from_tuple(get_sdl_mixer_version(linked = False))}\n"
+    )
 
-    debug_str += (f"SDL Font versions:\tLinked: {str_from_tuple(get_sdl_ttf_version())}\t"
-                    f"Compiled: {str_from_tuple(get_sdl_ttf_version(linked = False))}\n")
+    debug_str += (
+        f"SDL Font versions:\tLinked: {str_from_tuple(get_sdl_ttf_version())}\t"
+        f"Compiled: {str_from_tuple(get_sdl_ttf_version(linked = False))}\n"
+    )
 
-    debug_str += (f"SDL Image versions:\tLinked: {str_from_tuple(get_sdl_image_version())}\t"
-                    f"Compiled: {str_from_tuple(get_sdl_image_version(linked = False))}\n")
+    debug_str += (
+        f"SDL Image versions:\tLinked: {str_from_tuple(get_sdl_image_version())}\t"
+        f"Compiled: {str_from_tuple(get_sdl_image_version(linked = False))}\n"
+    )
 
-    debug_str += (f"Freetype versions:\tLinked: {str_from_tuple(get_freetype_version())}\t"
-                    f"Compiled: {str_from_tuple(get_freetype_version(linked = False))}")
+    debug_str += (
+        f"Freetype versions:\tLinked: {str_from_tuple(get_freetype_version())}\t"
+        f"Compiled: {str_from_tuple(get_freetype_version(linked = False))}"
+    )
 
     if filename is None:
         print(debug_str)
