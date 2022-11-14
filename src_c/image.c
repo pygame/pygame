@@ -236,12 +236,12 @@ image_get_extended(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *_null)
+image_get_sdl_image_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     if (extverobj == NULL)
         Py_RETURN_NONE;
     else
-        return PyObject_CallObject(extverobj, NULL);
+        return PyObject_Call(extverobj, args, kwargs);
 }
 
 #if PG_COMPILE_SSE4_2
@@ -1586,7 +1586,7 @@ static PyMethodDef _image_methods[] = {
     {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
     {"get_sdl_image_version", (PyCFunction)image_get_sdl_image_version,
-     METH_NOARGS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
     {"tobytes", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOBYTES},

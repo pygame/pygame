@@ -3,7 +3,6 @@ import unittest
 from pygame.tests import test_utils
 from pygame.tests.test_utils import (
     example_path,
-    AssertRaisesRegexMixin,
     SurfaceSubclass,
 )
 
@@ -23,7 +22,7 @@ import ctypes
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
-class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class SurfaceTypeTest(unittest.TestCase):
     def test_surface__pixel_format_as_surface_subclass(self):
         """Ensure a subclassed surface can be used for pixel format
         when creating a new surface."""
@@ -1065,7 +1064,7 @@ class TestSurfaceBlit(unittest.TestCase):
         target.blit(source, (0, 0))
 
 
-class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
+class GeneralSurfaceTests(unittest.TestCase):
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") == "dummy",
         'requires a non-"dummy" SDL_VIDEODRIVER',

@@ -547,7 +547,7 @@ pg_event_filter(void *_, SDL_Event *event)
     }
 
     else if (event->type == SDL_MOUSEWHEEL) {
-        //#691 We are not moving wheel!
+        // #691 We are not moving wheel!
         if (!event->wheel.y && !event->wheel.x)
             return 0;
 
@@ -1456,7 +1456,7 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgEvent_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.event.Event",
     .tp_basicsize = sizeof(pgEventObject),
     .tp_dealloc = pg_event_dealloc,
     .tp_repr = pg_event_str,
