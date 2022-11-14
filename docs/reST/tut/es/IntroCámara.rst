@@ -222,14 +222,14 @@ Toma en cuenta que estamos utilizando el espacio de color HSV en las siguientes 
       self.display.fill(self.ccolor, (0,0,50,50))
       pygame.display.flip()
 
-.. image:: camera_average.jpg
+.. image:: ../camera_average.jpg
    :class: trailing
 
 ::
 
   pygame.transform.threshold(self.thresholded,self.snapshot,self.ccolor,(30,30,30),(0,0,0),2)
 
-.. image:: camera_thresh.jpg
+.. image:: ../camera_thresh.jpg
    :class: trailing
 
 
@@ -250,14 +250,14 @@ ejemplo solo tiene la cámara apuntando a una pared blanca en el espacio de colo
       self.display.blit(self.background, (0,0))
       pygame.display.flip()
 
-.. image:: camera_background.jpg
+.. image:: ../camera_background.jpg
    :class: trailing
 
 ::
 
   pygame.transform.threshold(self.thresholded,self.snapshot,(0,255,0),(30,30,30),(0,0,0),1,self.background)
 
-.. image:: camera_green.jpg
+.. image:: ../camera_green.jpg
    :class: trailing
 
 
@@ -287,7 +287,7 @@ y usarlo para controlar un objeto en la pantalla.
           pygame.draw.circle(self.display, (0,255,0), coord, max(min(50,mask.count()/400),5))
       pygame.display.flip()
 
-.. image:: camera_mask.jpg
+.. image:: ../camera_mask.jpg
    :class: trailing
 
 
