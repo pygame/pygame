@@ -419,16 +419,17 @@ _scrap_get_text(PyObject *self, PyObject *args)
 {
     char *text = SDL_GetClipboardText();
 
-    if (!text) {
+    // if SDL_GetClipboardText fails, it returns an empty string
+    if (text[0] == '\0') {
         const char *err = SDL_GetError();
         if (err) {
             SDL_free(text);
-            PyErr_SetString(PyExc_RuntimeError, err);
+            PyErr_SetString(pgExc_SDLError, err);
             return NULL;
         }
     }
 
-    PyObject *returnValue = Py_BuildValue("s", text);
+    PyObject *returnValue = PyUnicode_FromString(text);
     SDL_free(text);
 
     return returnValue;
@@ -453,7 +454,7 @@ _scrap_put_text(PyObject *self, PyObject *args)
     if (SDL_SetClipboardText(text)) {
         const char *err = SDL_GetError();
         if (err) {
-            return RAISE(pgExc_SDLError, "video mode not initialized");
+            return RAISE(pgExc_SDLError, err);
         }
     }
 
