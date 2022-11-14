@@ -31,7 +31,10 @@ def debug(filename=None):
 
     debug_str += f"Processor:\t\t{platform.processor()}\n"
 
-    debug_str += f"Architecture:\t\tBits: {platform.architecture()[0]}\tLinkage: {platform.architecture()[1]}\n\n"
+    debug_str += (
+        f"Architecture:\t\tBits: {platform.architecture()[0]}\t"
+        f"Linkage: {platform.architecture()[1]}\n\n"
+    )
 
     debug_str += f"pygame version:\t\t{ver}\n"
 
@@ -66,5 +69,5 @@ def debug(filename=None):
         print(debug_str)
 
     else:
-        with open(filename, "w") as debugfile:
+        with open(filename, "w", encoding="utf8") as debugfile:
             debugfile.write(debug_str)
