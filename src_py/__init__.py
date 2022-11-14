@@ -23,8 +23,8 @@ to create fully featured games and multimedia programs in the python
 language. The package is highly portable, with games running on
 Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux."""
 
-import sys
 import os
+import sys
 
 # Choose Windows display driver
 if os.name == "nt":
@@ -275,6 +275,12 @@ try:
 except (ImportError, OSError):
     fastevent = MissingModule("fastevent", urgent=0)
 
+try:
+    import pygame._debug
+    from pygame._debug import debug as debug
+except (ImportError, OSError):
+    debug = MissingModule("_debug", urgent=0)
+
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
 # programs get everything they need (like py2exe)
@@ -292,6 +298,8 @@ try:
 
 except (ImportError, OSError):
     pass
+
+
 
 
 def packager_imports():
