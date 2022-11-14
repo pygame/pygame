@@ -19,8 +19,20 @@ def str_from_tuple(version_tuple):
     return ".".join(strs)
 
 def debug(filename = None):
-    debug_str = (f"pygame version: {ver}\n"
-                    f"python version: {str_from_tuple(sys.version_info[0:3])}\n")
+    import platform
+    debug_str = ""
+
+    debug_str += f"Platform:\t\t{platform.platform()}\n"
+
+    debug_str += f"System:\t\t\t{platform.system()}\n"
+
+    debug_str += f"Processor:\t\t{platform.processor()}\n"
+
+    debug_str += f"Architecture:\t\tBits: {platform.architecture()[0]}\tLinkage: {platform.architecture()[1]}\n\n"
+
+    debug_str += f"pygame version:\t\t{ver}\n"
+            
+    debug_str += f"python version:\t\t{str_from_tuple(sys.version_info[0:3])}\n\n"
 
     debug_str += (f"SDL versions:\t\tLinked: {str_from_tuple(get_sdl_version())}\t"
                     f"Compiled: {str_from_tuple(get_sdl_version(linked = False))}\n")
@@ -39,3 +51,7 @@ def debug(filename = None):
 
     if filename is None:
         print(debug_str)
+
+    else:
+        with open(filename, "w") as debugfile:
+            debugfile.write(debug_str)
