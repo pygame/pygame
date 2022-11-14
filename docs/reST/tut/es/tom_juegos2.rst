@@ -20,7 +20,7 @@ Por el beneficio la revisión, y para asegurar que estas familiarizado con la es
 brevemente un programa básico de Pygame, que mostrará no más que una ventana con algo de texto, que al final debería parecerse a
 esto (probablemente la decoración de la ventana será diferente en tu sistema):
 
-.. image:: tom_basic.png
+.. image:: docs/reST/tut/tom_basic.png
 
 El código completo para este ejemplo se ve así:
 
