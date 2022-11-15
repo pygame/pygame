@@ -2046,8 +2046,17 @@ _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (linked) {
+        FT_Library lib;
+        int err = FT_Init_FreeType(&lib);
+        if (err) {
+            // Not sure what the best exception to raise here is
+            // it's not an SDL exception, but I don't know of any
+            // pygame FreeType exceptions
+            PyErr_SetString(pgExc_SDLError, "FreeType could not be initialized");
+            return NULL;
+        }
         FT_Int major, minor, patch;
-        FT_Library_Version(inst->library, &major, &minor, &patch);
+        FT_Library_Version(lib, &major, &minor, &patch);
         return Py_BuildValue("iii", major, minor, patch);
     }
     else {
