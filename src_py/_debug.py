@@ -4,8 +4,6 @@
 import sys
 
 
-
-
 def str_from_tuple(version_tuple):
     if version_tuple is None:
         return "None"
@@ -62,10 +60,10 @@ def debug(filename=None):
         f"Compiled: {str_from_tuple(get_sdl_image_version(linked = False))}\n"
     )
 
-    # debug_str += (
-    #     f"Freetype versions:\tLinked: {str_from_tuple(get_freetype_version())}\t"
-    #     f"Compiled: {str_from_tuple(get_freetype_version(linked = False))}"
-    # )
+    debug_str += (
+        f"Freetype versions:\tLinked: {str_from_tuple(get_freetype_version())}\t"
+        f"Compiled: {str_from_tuple(get_freetype_version(linked = False))}"
+    )
 
     if filename is None:
         print(debug_str)
@@ -73,4 +71,3 @@ def debug(filename=None):
     else:
         with open(filename, "w", encoding="utf8") as debugfile:
             debugfile.write(debug_str)
-
