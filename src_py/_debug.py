@@ -67,9 +67,9 @@ def debug(filename=None):
         )
     else:
         debug_str += (
-            f"Freetype versions:\tLinked: Unk\t"
-            f"Compiled: Unk\t"
-            f"Freetype is not initialized"
+            "Freetype versions:\tLinked: Unk\t"
+            "Compiled: Unk\t"
+            "Freetype is not initialized"
         )
 
     if filename is None:
