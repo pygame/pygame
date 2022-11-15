@@ -192,6 +192,25 @@ object instead of the module, which can be used to test for availability.
 
    .. ## pygame.encode_file_path ##
 
+.. function:: debug
+   
+   | :sl:`retrieves useful information for debugging and issue-reporting purposes`
+   | :sg:`debug(filename=None) -> None`
+
+   Constructs a string containing details on the system, the python interpreter,
+   the pygame version, and the linked and compiled versions of the libraries that
+   pygame wraps. If ``filename`` is ``None``, then the string is printed into the
+   console. Otherwise, the debug string is written to the specified file.
+
+   .. note::
+      If ``pygame.freetype`` has not been initialized with :func:`pygame.init` or :func:`pygame.freetype.init`,
+      then the linked and compiled versions of FreeType will be "Unk" since this information is not
+      available before initialization. 
+
+   .. versionadded:: 2.1.4
+
+   .. ## pygame.debug ##
+
 
 :mod:`pygame.version`
 =====================
