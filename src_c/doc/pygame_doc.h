@@ -11,6 +11,7 @@
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable) -> None\nregister a function to be called when pygame quits"
 #define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None\nEncode a Unicode or bytes object"
 #define DOC_PYGAMEENCODEFILEPATH "encode_file_path([obj [, etype]]) -> bytes or None\nEncode a Unicode or bytes object as a file system path"
+#define DOC_PYGAMEDEBUG "debug(filename=None) -> None\nretrieves useful information for debugging and issue-reporting purposes"
 #define DOC_PYGAMEVERSION "small module containing version information"
 #define DOC_PYGAMEVERSIONVER "ver = '1.2'\nversion number as a string"
 #define DOC_PYGAMEVERSIONVERNUM "vernum = (1, 5, 3)\ntupled integers of the version"
@@ -68,6 +69,10 @@ Encode a Unicode or bytes object
 pygame.encode_file_path
  encode_file_path([obj [, etype]]) -> bytes or None
 Encode a Unicode or bytes object as a file system path
+
+pygame.debug
+ debug(filename=None) -> None
+retrieves useful information for debugging and issue-reporting purposes
 
 pygame.version
 small module containing version information
