@@ -17,7 +17,7 @@ def debug(filename=None):
     from pygame.mixer import get_sdl_mixer_version
     from pygame.font import get_sdl_ttf_version
     from pygame.image import get_sdl_image_version
-    from pygame.freetype import get_version as get_freetype_version
+    from pygame.freetype import get_version as ft_version, get_init as ft_init
 
     from pygame.version import ver
 
@@ -60,10 +60,17 @@ def debug(filename=None):
         f"Compiled: {str_from_tuple(get_sdl_image_version(linked = False))}\n"
     )
 
-    debug_str += (
-        f"Freetype versions:\tLinked: {str_from_tuple(get_freetype_version())}\t"
-        f"Compiled: {str_from_tuple(get_freetype_version(linked = False))}"
-    )
+    if ft_init():
+        debug_str += (
+            f"Freetype versions:\tLinked: {str_from_tuple(ft_version())}\t"
+            f"Compiled: {str_from_tuple(ft_version(linked = False))}"
+        )
+    else:
+        debug_str += (
+            f"Freetype versions:\tLinked: Unk\t"
+            f"Compiled: Unk\t"
+            f"Freetype is not initialized"
+        )
 
     if filename is None:
         print(debug_str)
