@@ -1253,6 +1253,8 @@ dict_from_event(SDL_Event *event)
         case PGE_WINDOWDISPLAYCHANGED:
         case SDL_TEXTEDITING:
         case SDL_TEXTINPUT:
+        case SDL_DROPTEXT:
+        case SDL_DROPFILE:
         case SDL_MOUSEWHEEL:
         case SDL_KEYDOWN:
         case SDL_KEYUP:
@@ -1260,18 +1262,11 @@ dict_from_event(SDL_Event *event)
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP: {
             SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-            PyObject *pgWindow;
-            if (!window ||
-                !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
-                pgWindow = Py_None;
-            }
-            Py_INCREF(pgWindow);
-            _pg_insobj(dict, "window", pgWindow);
-            break;
-        }
-        case SDL_DROPTEXT:
-        case SDL_DROPFILE:{
-            SDL_Window *window = SDL_GetWindowFromID(event->drop.windowID);
+            if (event->type==SDL_DROPTEXT ||
+                event->type==SDL_DROPFILE){
+                window = SDL_GetWindowFromID(event->drop.windowID);
+                }
+                
             PyObject *pgWindow;
             if (!window ||
                 !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
