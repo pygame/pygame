@@ -1269,6 +1269,18 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "window", pgWindow);
             break;
         }
+        case SDL_DROPTEXT:
+        case SDL_DROPFILE:{
+            SDL_Window *window = SDL_GetWindowFromID(event->drop.windowID);
+            PyObject *pgWindow;
+            if (!window ||
+                !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
+                pgWindow = Py_None;
+            }
+            Py_INCREF(pgWindow);
+            _pg_insobj(dict, "window", pgWindow);
+            break;
+        }
     }
     return dict;
 }
