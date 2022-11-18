@@ -66,7 +66,7 @@ Multiple coordinates can be set using slices or swizzling
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
-   | :sg:`Vector2() -> Vector2`
+   | :sg:`Vector2() -> Vector2(0, 0)`
    | :sg:`Vector2(int) -> Vector2`
    | :sg:`Vector2(float) -> Vector2`
    | :sg:`Vector2(Vector2) -> Vector2`
@@ -505,7 +505,7 @@ Multiple coordinates can be set using slices or swizzling
 .. class:: Vector3
 
    | :sl:`a 3-Dimensional Vector`
-   | :sg:`Vector3() -> Vector3`
+   | :sg:`Vector3() -> Vector3(0, 0, 0)`
    | :sg:`Vector3(int) -> Vector3`
    | :sg:`Vector3(float) -> Vector3`
    | :sg:`Vector3(Vector3) -> Vector3`
