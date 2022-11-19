@@ -1262,11 +1262,10 @@ dict_from_event(SDL_Event *event)
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP: {
             SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-            if (event->type==SDL_DROPTEXT ||
-                event->type==SDL_DROPFILE){
+            if (event->type == SDL_DROPTEXT || event->type == SDL_DROPFILE) {
                 window = SDL_GetWindowFromID(event->drop.windowID);
-                }
-                
+            }
+
             PyObject *pgWindow;
             if (!window ||
                 !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
