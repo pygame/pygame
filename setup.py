@@ -684,10 +684,15 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                 )
             )
 
-            if msc_ver >= 1913:
+            if 1913 <= msc_ver < 1929:
                 e.extra_compile_args.extend(
                     (
                         "/experimental:external",
+                    )
+                )
+            if msc_ver >= 1913:
+                e.extra_compile_args.extend(
+                    (
                         "/external:W0",
                         "/external:env:CAExcludePath",
                     )
