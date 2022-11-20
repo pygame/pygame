@@ -19,17 +19,17 @@ Documents
 ---------
 
 `Readme`_
-  Basic information about pygame: what it is, who is involved, and where to find it.
+  Basic information about pygame on what it is, who is involved, and where to find it.
 
 `Install`_
   Steps needed to compile pygame on several platforms.
-  Also help on finding and installing prebuilt binaries for your system.
+  Also helps with finding and installing prebuilt binaries for your system.
 
 :doc:`filepaths`
   How pygame handles file system paths.
 
 :doc:`Pygame Logos <logos>`
-   The logos of Pygame in different resolutions.
+   A collection of pygame logos in different resolutions.
 
 
 `LGPL License`_
