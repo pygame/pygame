@@ -1285,12 +1285,14 @@ dict_from_event(SDL_Event *event)
             window = SDL_GetWindowFromID(event->button.windowID);
             break;
         }
+#if SDL_VERSION_ATLEAST(2, 0, 14)
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP: {
             window = SDL_GetWindowFromID(event->tfinger.windowID);
             break;
         }
+#endif
         default: {
             return dict;
         }
