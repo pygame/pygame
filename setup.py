@@ -914,10 +914,12 @@ class LintFormatCommand(Command):
 
         # Other files have too many issues for now. setup.py, buildconfig, etc
         python_directories = ["src_py", "test", "examples"]
+        test_files = "test/*.py"
         if self.lint:
             commands = {
                 "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
                 "black": ["--check", "--diff"] + python_directories,
+                "teyit": [test_files, "--fail-on-change"],
                 # Test directory has too much pylint warning for now
                 "pylint": ["src_py"],
             }
@@ -925,9 +927,10 @@ class LintFormatCommand(Command):
             commands = {
                 "clang-format": ["-i"] + c_files,
                 "black": python_directories,
+                "teyit": [test_files],
             }
 
-        formatters = ["black", "clang-format"]
+        formatters = ["black", "clang-format", "teyit"]
         for linter, option in commands.items():
             print(" ".join([linter] + option))
             check_linter_exists(linter)
