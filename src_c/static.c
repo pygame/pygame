@@ -368,8 +368,6 @@ pygame_Inittab()
 
 #include "time.c"
 
-#include "context.c"
-
 #include "_freetype.c"
 #include "freetype/ft_wrap.c"
 #include "freetype/ft_render.c"

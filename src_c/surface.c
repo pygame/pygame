@@ -377,7 +377,7 @@ static struct PyMethodDef surface_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgSurface_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Surface",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.surface.Surface",
     .tp_basicsize = sizeof(pgSurfaceObject),
     .tp_dealloc = surface_dealloc,
     .tp_repr = surface_str,
@@ -3802,6 +3802,10 @@ MODINIT_DEFINE(surface)
     /* create the module */
     module = PyModule_Create(&_module);
     if (module == NULL) {
+        return NULL;
+    }
+    if (pg_warn_simd_at_runtime_but_uncompiled() < 0) {
+        Py_DECREF(module);
         return NULL;
     }
     Py_INCREF(&pgSurface_Type);

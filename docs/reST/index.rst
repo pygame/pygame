@@ -25,10 +25,10 @@ Documents
   Steps needed to compile pygame on several platforms.
   Also help on finding and installing prebuilt binaries for your system.
 
-`File Path Function Arguments`_
+:doc:`filepaths`
   How pygame handles file system paths.
 
-`Pygame Logos`_
+:doc:`Pygame Logos <logos>`
    The logos of Pygame in different resolutions.
 
 
@@ -192,8 +192,4 @@ Reference
 
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
-.. _File Path Function Arguments: filepaths.html
-
 .. _LGPL License: LGPL.txt
-
-.. _Pygame Logos: logos.html
