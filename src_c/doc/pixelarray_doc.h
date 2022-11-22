@@ -10,7 +10,7 @@
 #define DOC_PIXELARRAYEXTRACT "extract(color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray\nExtracts the passed color from the PixelArray."
 #define DOC_PIXELARRAYCOMPARE "compare(array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray\nCompares the PixelArray with another one."
 #define DOC_PIXELARRAYTRANSPOSE "transpose() -> PixelArray\nExchanges the x and y axis."
-#define DOC_PIXELARRAYCLOSE "transpose() -> PixelArray\nCloses the PixelArray, and releases Surface lock."
+#define DOC_PIXELARRAYCLOSE "close() -> PixelArray\nCloses the PixelArray, and releases Surface lock."
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -62,7 +62,7 @@ pygame.PixelArray.transpose
 Exchanges the x and y axis.
 
 pygame.PixelArray.close
- transpose() -> PixelArray
+ close() -> PixelArray
 Closes the PixelArray, and releases Surface lock.
 
 */

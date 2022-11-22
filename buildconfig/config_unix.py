@@ -8,12 +8,16 @@ from distutils.sysconfig import get_python_inc
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
-localbase = os.environ.get('LOCALBASE', '')
+
 if os.environ.get('PYGAME_EXTRA_BASE', ''):
     extrabases = os.environ['PYGAME_EXTRA_BASE'].split(':')
 else:
     extrabases = []
 
+if os.environ.get('LOCALBASE', ''):
+    extrabases.append(os.environ['LOCALBASE'])
+
+extrabases.extend(("/usr", "/usr/local"))
 
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
@@ -135,10 +139,35 @@ def main(auto_config=False):
 
     #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
     origincdirs = ['/include', '/include/SDL2']
-    origlibdirs = ['/lib', '/lib64', '/X11R6/lib',
-                   '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu',
-                   '/lib/arm-linux-gnueabihf/', '/lib/aarch64-linux-gnu/', 
-                   '/lib/powerpc64le-linux-gnu/']
+    origlibdirs = ['/lib', '/lib64', '/X11R6/lib']
+
+    # If we are on a debian based system, we also need to handle 
+    # /lib/<multiarch-tuple>
+    # We have a few commands to get the correct <multiarch-tuple>, we try those
+    # one by one till we get something that works
+    for cmd in (
+        "dpkg-architecture -qDEB_HOST_MULTIARCH",
+        "gcc -print-multiarch",
+        "gcc -dumpmachine",
+    ):
+        try:
+            f = os.popen(cmd)
+        except Exception:
+            # We don't bother here, instead we try the next fallback
+            continue
+
+        try:
+            stdout = f.read().strip()
+        finally:
+            if f.close() is not None:
+                # The command didn't exist successfully, the stdout we got is
+                # useless
+                stdout = ""
+
+        if stdout:
+            # found what we were looking for
+            origlibdirs.append(f"/lib/{stdout}")
+            break
 
     if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
         origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
@@ -216,13 +245,6 @@ def main(auto_config=False):
     for extrabase in extrabases:
         incdirs += [extrabase + d for d in origincdirs]
         libdirs += [extrabase + d for d in origlibdirs]
-    incdirs += ["/usr"+d for d in origincdirs]
-    libdirs += ["/usr"+d for d in origlibdirs]
-    incdirs += ["/usr/local"+d for d in origincdirs]
-    libdirs += ["/usr/local"+d for d in origlibdirs]
-    if localbase:
-        incdirs = [localbase+d for d in origincdirs]
-        libdirs = [localbase+d for d in origlibdirs]
 
     for arg in DEPS[0].cflags.split():
         if arg[:2] == '-I':

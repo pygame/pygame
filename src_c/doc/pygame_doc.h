@@ -6,7 +6,7 @@
 #define DOC_PYGAMEERROR "raise pygame.error(message)\nstandard pygame exception"
 #define DOC_PYGAMEGETERROR "get_error() -> errorstr\nget the current error message"
 #define DOC_PYGAMESETERROR "set_error(error_msg) -> None\nset the current error message"
-#define DOC_PYGAMEGETSDLVERSION "get_sdl_version() -> major, minor, patch\nget the version number of SDL"
+#define DOC_PYGAMEGETSDLVERSION "get_sdl_version(linked=True) -> major, minor, patch\nget the version number of SDL"
 #define DOC_PYGAMEGETSDLBYTEORDER "get_sdl_byteorder() -> int\nget the byte order of SDL"
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable) -> None\nregister a function to be called when pygame quits"
 #define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None\nEncode a Unicode or bytes object"
@@ -50,7 +50,7 @@ pygame.set_error
 set the current error message
 
 pygame.get_sdl_version
- get_sdl_version() -> major, minor, patch
+ get_sdl_version(linked=True) -> major, minor, patch
 get the version number of SDL
 
 pygame.get_sdl_byteorder

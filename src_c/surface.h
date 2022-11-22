@@ -352,4 +352,7 @@ int
 pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             SDL_Rect *dstrect, int the_args);
 
+int
+pg_warn_simd_at_runtime_but_uncompiled();
+
 #endif /* SURFACE_H */
