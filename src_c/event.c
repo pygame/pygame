@@ -1262,6 +1262,8 @@ dict_from_event(SDL_Event *event)
             window = SDL_GetWindowFromID(event->text.windowID);
             break;
         }
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
         case SDL_DROPTEXT:
         case SDL_DROPFILE: {
             window = SDL_GetWindowFromID(event->drop.windowID);
