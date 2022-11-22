@@ -319,9 +319,9 @@ class Vector2TypeTest(unittest.TestCase):
 
         # call __contains__ explicitly to test that it is defined
         self.assertTrue(c.__contains__(0))
-        self.assertTrue(0 in c)
-        self.assertTrue(1 in c)
-        self.assertTrue(2 not in c)
+        self.assertIn(0, c)
+        self.assertIn(1, c)
+        self.assertNotIn(2, c)
         self.assertFalse(c.__contains__(2))
 
         self.assertRaises(TypeError, lambda: "string" in c)
@@ -329,51 +329,51 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testAdd(self):
         v3 = self.v1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.v2.x)
         self.assertEqual(v3.y, self.v1.y + self.v2.y)
         v3 = self.v1 + self.t2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.t2[0])
         self.assertEqual(v3.y, self.v1.y + self.t2[1])
         v3 = self.v1 + self.l2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.l2[0])
         self.assertEqual(v3.y, self.v1.y + self.l2[1])
         v3 = self.t1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.t1[0] + self.v2.x)
         self.assertEqual(v3.y, self.t1[1] + self.v2.y)
         v3 = self.l1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.l1[0] + self.v2.x)
         self.assertEqual(v3.y, self.l1[1] + self.v2.y)
 
     def testSub(self):
         v3 = self.v1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.v2.x)
         self.assertEqual(v3.y, self.v1.y - self.v2.y)
         v3 = self.v1 - self.t2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.t2[0])
         self.assertEqual(v3.y, self.v1.y - self.t2[1])
         v3 = self.v1 - self.l2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.l2[0])
         self.assertEqual(v3.y, self.v1.y - self.l2[1])
         v3 = self.t1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.t1[0] - self.v2.x)
         self.assertEqual(v3.y, self.t1[1] - self.v2.y)
         v3 = self.l1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.l1[0] - self.v2.x)
         self.assertEqual(v3.y, self.l1[1] - self.v2.y)
 
     def testScalarMultiplication(self):
         v = self.s1 * self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.s1 * self.v1.x)
         self.assertEqual(v.y, self.s1 * self.v1.y)
         v = self.v1 * self.s2
@@ -382,11 +382,11 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testScalarDivision(self):
         v = self.v1 / self.s1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertAlmostEqual(v.x, self.v1.x / self.s1)
         self.assertAlmostEqual(v.y, self.v1.y / self.s1)
         v = self.v1 // self.s2
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.v1.x // self.s2)
         self.assertEqual(v.y, self.v1.y // self.s2)
 
@@ -398,12 +398,12 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testUnary(self):
         v = +self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.v1.x)
         self.assertEqual(v.y, self.v1.y)
         self.assertNotEqual(id(v), id(self.v1))
         v = -self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, -self.v1.x)
         self.assertEqual(v.y, -self.v1.y)
         self.assertNotEqual(id(v), id(self.v1))
@@ -993,8 +993,8 @@ class Vector2TypeTest(unittest.TestCase):
 
     def test_collection_abc(self):
         v = Vector2(3, 4)
-        self.assertTrue(isinstance(v, Collection))
-        self.assertFalse(isinstance(v, Sequence))
+        self.assertIsInstance(v, Collection)
+        self.assertNotIsInstance(v, Sequence)
 
     def test_clamp_mag_v2_max(self):
         v1 = Vector2(7, 2)
@@ -1290,10 +1290,10 @@ class Vector3TypeTest(unittest.TestCase):
 
         # call __contains__ explicitly to test that it is defined
         self.assertTrue(c.__contains__(0))
-        self.assertTrue(0 in c)
-        self.assertTrue(1 in c)
-        self.assertTrue(2 in c)
-        self.assertTrue(3 not in c)
+        self.assertIn(0, c)
+        self.assertIn(1, c)
+        self.assertIn(2, c)
+        self.assertNotIn(3, c)
         self.assertFalse(c.__contains__(10))
 
         self.assertRaises(TypeError, lambda: "string" in c)
@@ -1301,61 +1301,61 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testAdd(self):
         v3 = self.v1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.v2.x)
         self.assertEqual(v3.y, self.v1.y + self.v2.y)
         self.assertEqual(v3.z, self.v1.z + self.v2.z)
         v3 = self.v1 + self.t2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.t2[0])
         self.assertEqual(v3.y, self.v1.y + self.t2[1])
         self.assertEqual(v3.z, self.v1.z + self.t2[2])
         v3 = self.v1 + self.l2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x + self.l2[0])
         self.assertEqual(v3.y, self.v1.y + self.l2[1])
         self.assertEqual(v3.z, self.v1.z + self.l2[2])
         v3 = self.t1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.t1[0] + self.v2.x)
         self.assertEqual(v3.y, self.t1[1] + self.v2.y)
         self.assertEqual(v3.z, self.t1[2] + self.v2.z)
         v3 = self.l1 + self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.l1[0] + self.v2.x)
         self.assertEqual(v3.y, self.l1[1] + self.v2.y)
         self.assertEqual(v3.z, self.l1[2] + self.v2.z)
 
     def testSub(self):
         v3 = self.v1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.v2.x)
         self.assertEqual(v3.y, self.v1.y - self.v2.y)
         self.assertEqual(v3.z, self.v1.z - self.v2.z)
         v3 = self.v1 - self.t2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.t2[0])
         self.assertEqual(v3.y, self.v1.y - self.t2[1])
         self.assertEqual(v3.z, self.v1.z - self.t2[2])
         v3 = self.v1 - self.l2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.v1.x - self.l2[0])
         self.assertEqual(v3.y, self.v1.y - self.l2[1])
         self.assertEqual(v3.z, self.v1.z - self.l2[2])
         v3 = self.t1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.t1[0] - self.v2.x)
         self.assertEqual(v3.y, self.t1[1] - self.v2.y)
         self.assertEqual(v3.z, self.t1[2] - self.v2.z)
         v3 = self.l1 - self.v2
-        self.assertTrue(isinstance(v3, type(self.v1)))
+        self.assertIsInstance(v3, type(self.v1))
         self.assertEqual(v3.x, self.l1[0] - self.v2.x)
         self.assertEqual(v3.y, self.l1[1] - self.v2.y)
         self.assertEqual(v3.z, self.l1[2] - self.v2.z)
 
     def testScalarMultiplication(self):
         v = self.s1 * self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.s1 * self.v1.x)
         self.assertEqual(v.y, self.s1 * self.v1.y)
         self.assertEqual(v.z, self.s1 * self.v1.z)
@@ -1366,12 +1366,12 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testScalarDivision(self):
         v = self.v1 / self.s1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertAlmostEqual(v.x, self.v1.x / self.s1)
         self.assertAlmostEqual(v.y, self.v1.y / self.s1)
         self.assertAlmostEqual(v.z, self.v1.z / self.s1)
         v = self.v1 // self.s2
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.v1.x // self.s2)
         self.assertEqual(v.y, self.v1.y // self.s2)
         self.assertEqual(v.z, self.v1.z // self.s2)
@@ -1384,13 +1384,13 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testUnary(self):
         v = +self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, self.v1.x)
         self.assertEqual(v.y, self.v1.y)
         self.assertEqual(v.z, self.v1.z)
         self.assertNotEqual(id(v), id(self.v1))
         v = -self.v1
-        self.assertTrue(isinstance(v, type(self.v1)))
+        self.assertIsInstance(v, type(self.v1))
         self.assertEqual(v.x, -self.v1.x)
         self.assertEqual(v.y, -self.v1.y)
         self.assertEqual(v.z, -self.v1.z)
@@ -2512,8 +2512,8 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_collection_abc(self):
         v = Vector3(3, 4, 5)
-        self.assertTrue(isinstance(v, Collection))
-        self.assertFalse(isinstance(v, Sequence))
+        self.assertIsInstance(v, Collection)
+        self.assertNotIsInstance(v, Sequence)
 
     def test_clamp_mag_v3_max(self):
         v1 = Vector3(7, 2, 2)

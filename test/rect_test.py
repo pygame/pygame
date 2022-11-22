@@ -703,27 +703,26 @@ class RectTypeTest(unittest.TestCase):
         self.assertTrue(
             r.contains(Rect(2, 3, 1, 1)), "r does not contain Rect(2, 3, 1, 1)"
         )
-        self.assertTrue(Rect(2, 3, 1, 1) in r, "r does not contain Rect(2, 3, 1, 1) 2")
+        self.assertIn(Rect(2, 3, 1, 1), r, "r does not contain Rect(2, 3, 1, 1) 2")
         self.assertTrue(
             r.contains(Rect(r)), "r does not contain the same rect as itself"
         )
-        self.assertTrue(r in Rect(r), "r does not contain the same rect as itself")
+        self.assertIn(r, Rect(r), "r does not contain the same rect as itself")
         self.assertTrue(
             r.contains(Rect(2, 3, 0, 0)),
             "r does not contain an empty rect within its bounds",
         )
-        self.assertTrue(
-            Rect(2, 3, 0, 0) in r,
-            "r does not contain an empty rect within its bounds",
+        self.assertIn(
+            Rect(2, 3, 0, 0), r, "r does not contain an empty rect within its bounds"
         )
         self.assertFalse(r.contains(Rect(0, 0, 1, 2)), "r contains Rect(0, 0, 1, 2)")
         self.assertFalse(r.contains(Rect(4, 6, 1, 1)), "r contains Rect(4, 6, 1, 1)")
         self.assertFalse(r.contains(Rect(4, 6, 0, 0)), "r contains Rect(4, 6, 0, 0)")
-        self.assertFalse(Rect(0, 0, 1, 2) in r, "r contains Rect(0, 0, 1, 2)")
-        self.assertFalse(Rect(4, 6, 1, 1) in r, "r contains Rect(4, 6, 1, 1)")
-        self.assertFalse(Rect(4, 6, 0, 0) in r, "r contains Rect(4, 6, 0, 0)")
-        self.assertTrue(2 in Rect(0, 0, 1, 2), "r does not contain 2")
-        self.assertFalse(3 in Rect(0, 0, 1, 2), "r contains 3")
+        self.assertNotIn(Rect(0, 0, 1, 2), r, "r contains Rect(0, 0, 1, 2)")
+        self.assertNotIn(Rect(4, 6, 1, 1), r, "r contains Rect(4, 6, 1, 1)")
+        self.assertNotIn(Rect(4, 6, 0, 0), r, "r contains Rect(4, 6, 0, 0)")
+        self.assertIn(2, Rect(0, 0, 1, 2), "r does not contain 2")
+        self.assertNotIn(3, Rect(0, 0, 1, 2), "r contains 3")
 
         self.assertRaises(TypeError, lambda: "string" in Rect(0, 0, 1, 2))
         self.assertRaises(TypeError, lambda: 4 + 3j in Rect(0, 0, 1, 2))
@@ -1357,7 +1356,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(Rect(-2, -2, 5, 5), r1)
 
         # Bug for an empty list. Would return a Rect instead of None.
-        self.assertTrue(r1.unionall_ip([]) is None)
+        self.assertIsNone(r1.unionall_ip([]))
 
     def test_colliderect(self):
         r1 = Rect(1, 2, 3, 4)
@@ -2531,8 +2530,8 @@ class RectTypeTest(unittest.TestCase):
 
     def test_collection_abc(self):
         r = Rect(64, 70, 75, 30)
-        self.assertTrue(isinstance(r, Collection))
-        self.assertFalse(isinstance(r, Sequence))
+        self.assertIsInstance(r, Collection)
+        self.assertNotIsInstance(r, Sequence)
 
 
 class SubclassTest(unittest.TestCase):
@@ -2545,62 +2544,62 @@ class SubclassTest(unittest.TestCase):
         mr1 = self.MyRect(1, 2, 10, 20)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.copy()
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_move(self):
         mr1 = self.MyRect(1, 2, 10, 20)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.move(1, 2)
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_inflate(self):
         mr1 = self.MyRect(1, 2, 10, 20)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.inflate(2, 4)
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_clamp(self):
         mr1 = self.MyRect(19, 12, 5, 5)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.clamp(Rect(10, 10, 10, 10))
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_clip(self):
         mr1 = self.MyRect(1, 2, 3, 4)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.clip(Rect(0, 0, 3, 4))
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_union(self):
         mr1 = self.MyRect(1, 1, 1, 2)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.union(Rect(-2, -2, 1, 2))
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_unionall(self):
         mr1 = self.MyRect(0, 0, 1, 1)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.unionall([Rect(-2, -2, 1, 1), Rect(2, 2, 1, 1)])
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_fit(self):
         mr1 = self.MyRect(10, 10, 30, 30)
         self.assertTrue(mr1.an_attribute)
         mr2 = mr1.fit(Rect(30, 30, 15, 10))
-        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertIsInstance(mr2, self.MyRect)
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
     def test_collection_abc(self):
         mr1 = self.MyRect(64, 70, 75, 30)
-        self.assertTrue(isinstance(mr1, Collection))
-        self.assertFalse(isinstance(mr1, Sequence))
+        self.assertIsInstance(mr1, Collection)
+        self.assertNotIsInstance(mr1, Sequence)
 
 
 if __name__ == "__main__":

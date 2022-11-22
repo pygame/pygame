@@ -20,7 +20,7 @@ class ClockTypeTest(unittest.TestCase):
         c = Clock()
         self.assertEqual(c.get_fps(), 0)
         # Type check get_fps should return float
-        self.assertTrue(type(c.get_fps()) == float)
+        self.assertEqual(type(c.get_fps()), float)
         # Allowable margin of error in percentage
         delta = 0.30
         # Test fps correctness for 100, 60 and 30 fps
@@ -260,7 +260,7 @@ class TimeModuleTest(unittest.TestCase):
         millis = 50
         delta = 15  # Acceptable margin of error in ms
         # Assert return type to be int
-        self.assertTrue(type(pygame.time.get_ticks()) == int)
+        self.assertEqual(type(pygame.time.get_ticks()), int)
         for i in range(iterations):
             curr_ticks = pygame.time.get_ticks()  # Save current tick count
             curr_time = time.time()  # Save current time

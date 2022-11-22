@@ -190,23 +190,23 @@ class BufferProxyTest(unittest.TestCase):
         weak_v = weakref.ref(v)
         kwds = p = a = before_callback = after_callback = None
         gc.collect()
-        self.assertTrue(weak_p() is not None)
-        self.assertTrue(weak_a() is not None)
-        self.assertTrue(weak_before() is not None)
-        self.assertTrue(weak_after() is not None)
+        self.assertIsNotNone(weak_p())
+        self.assertIsNotNone(weak_a())
+        self.assertIsNotNone(weak_before())
+        self.assertIsNotNone(weak_after())
         v = None
         [gc.collect() for x in range(4)]
-        self.assertTrue(weak_v() is None)
-        self.assertTrue(weak_p() is None)
-        self.assertTrue(weak_a() is None)
-        self.assertTrue(weak_before() is None)
-        self.assertTrue(weak_after() is None)
-        self.assertTrue(weak_r0() is not None)
-        self.assertTrue(weak_r1() is not None)
+        self.assertIsNone(weak_v())
+        self.assertIsNone(weak_p())
+        self.assertIsNone(weak_a())
+        self.assertIsNone(weak_before())
+        self.assertIsNone(weak_after())
+        self.assertIsNotNone(weak_r0())
+        self.assertIsNotNone(weak_r1())
         r = None
         gc.collect()
-        self.assertTrue(weak_r0() is None)
-        self.assertTrue(weak_r1() is None)
+        self.assertIsNone(weak_r0())
+        self.assertIsNone(weak_r1())
 
         # Cycle removal
         kwds = dict(self.view_keywords)
@@ -293,7 +293,7 @@ class BufferProxyTest(unittest.TestCase):
         exp = Exporter((10, 2), "=i")
         b = BufferProxy(exp)
         imp = Importer(b, buftools.PyBUF_RECORDS)
-        self.assertTrue(imp.obj is b)
+        self.assertIs(imp.obj, b)
         self.assertEqual(imp.buf, exp.buf)
         self.assertEqual(imp.ndim, exp.ndim)
         self.assertEqual(imp.format, exp.format)
@@ -302,7 +302,7 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(imp.len, exp.len)
         self.assertEqual(imp.shape, exp.shape)
         self.assertEqual(imp.strides, exp.strides)
-        self.assertTrue(imp.suboffsets is None)
+        self.assertIsNone(imp.suboffsets)
 
         d = {
             "typestr": "|u1",
@@ -312,16 +312,16 @@ class BufferProxyTest(unittest.TestCase):
         }  # 9? Will not reading the data anyway.
         b = BufferProxy(d)
         imp = Importer(b, buftools.PyBUF_SIMPLE)
-        self.assertTrue(imp.obj is b)
+        self.assertIs(imp.obj, b)
         self.assertEqual(imp.buf, 9)
         self.assertEqual(imp.len, 10)
         self.assertEqual(imp.format, None)
         self.assertEqual(imp.itemsize, 1)
         self.assertEqual(imp.ndim, 0)
         self.assertTrue(imp.readonly)
-        self.assertTrue(imp.shape is None)
-        self.assertTrue(imp.strides is None)
-        self.assertTrue(imp.suboffsets is None)
+        self.assertIsNone(imp.shape)
+        self.assertIsNone(imp.strides)
+        self.assertIsNone(imp.suboffsets)
 
     try:
         pygame.bufferproxy.get_segcount

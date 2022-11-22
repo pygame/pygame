@@ -1065,7 +1065,7 @@ class TransformModuleTest(unittest.TestCase):
             s = pygame.transform.rotate(s, rotation)
 
         for pt, color in gradient:
-            self.assertTrue(s.get_at(pt) == color)
+            self.assertEqual(s.get_at(pt), color)
 
     def test_scale2x(self):
 
@@ -1102,7 +1102,7 @@ class TransformModuleTest(unittest.TestCase):
 
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.assertTrue(filter_type in ["GENERIC", "MMX", "SSE"])
+        self.assertIn(filter_type, ["GENERIC", "MMX", "SSE"])
         # It would be nice to test if a non-generic type corresponds to an x86
         # processor. But there is no simple test for this. platform.machine()
         # returns process version specific information, like 'i686'.

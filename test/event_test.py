@@ -152,14 +152,14 @@ class EventTypeTest(unittest.TestCase):
         c = pygame.event.Event(EVENT_TYPES[1], a=1)
         d = pygame.event.Event(EVENT_TYPES[0], a=2)
 
-        self.assertTrue(a == a)
-        self.assertFalse(a != a)
-        self.assertTrue(a == b)
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
-        self.assertFalse(a == c)
-        self.assertTrue(a != d)
-        self.assertFalse(a == d)
+        self.assertEqual(a, a)
+        self.assertEqual(a, a)
+        self.assertEqual(a, b)
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, d)
+        self.assertNotEqual(a, d)
 
 
 race_condition_notification = """
@@ -355,7 +355,7 @@ class EventModuleTest(unittest.TestCase):
         should_be_allowed_types = [e.type for e in ret if e.type != event]
 
         self.assertEqual(should_be_blocked, [])
-        self.assertTrue(unblocked_event in should_be_allowed_types)
+        self.assertIn(unblocked_event, should_be_allowed_types)
 
     def test_set_blocked__event_sequence(self):
         """Ensure a sequence of event types can be blocked."""

@@ -587,8 +587,8 @@ class AbstractGroupTypeTest(unittest.TestCase):
     def test_empty(self):
 
         self.ag.empty()
-        self.assertFalse(self.s1 in self.ag)
-        self.assertFalse(self.s2 in self.ag)
+        self.assertNotIn(self.s1, self.ag)
+        self.assertNotIn(self.s2, self.ag)
 
     def test_has_internal(self):
         self.assertTrue(self.ag.has_internal(self.s1))
@@ -598,13 +598,13 @@ class AbstractGroupTypeTest(unittest.TestCase):
 
         # Test removal of 1 sprite
         self.ag.remove(self.s1)
-        self.assertFalse(self.ag in self.s1.groups())
+        self.assertNotIn(self.ag, self.s1.groups())
         self.assertFalse(self.ag.has(self.s1))
 
         # Test removal of 2 sprites as 2 arguments
         self.ag2.remove(self.s3, self.s4)
-        self.assertFalse(self.ag2 in self.s3.groups())
-        self.assertFalse(self.ag2 in self.s4.groups())
+        self.assertNotIn(self.ag2, self.s3.groups())
+        self.assertNotIn(self.ag2, self.s4.groups())
         self.assertFalse(self.ag2.has(self.s3, self.s4))
 
         # Test removal of 4 sprites as a list containing a sprite and a group
@@ -613,10 +613,10 @@ class AbstractGroupTypeTest(unittest.TestCase):
         self.ag2.add(self.s3, self.s4)
         g = sprite.Group(self.s2)
         self.ag.remove([self.s1, g], self.ag2)
-        self.assertFalse(self.ag in self.s1.groups())
-        self.assertFalse(self.ag in self.s2.groups())
-        self.assertFalse(self.ag in self.s3.groups())
-        self.assertFalse(self.ag in self.s4.groups())
+        self.assertNotIn(self.ag, self.s1.groups())
+        self.assertNotIn(self.ag, self.s2.groups())
+        self.assertNotIn(self.ag, self.s3.groups())
+        self.assertNotIn(self.ag, self.s4.groups())
         self.assertFalse(self.ag.has(self.s1, self.s2, self.s3, self.s4))
 
     def test_remove_internal(self):
@@ -1252,7 +1252,7 @@ class SpriteBase:
             self.sprite.remove_internal(g)
 
         for g in self.groups:
-            self.assertFalse(g in self.sprite.groups())
+            self.assertNotIn(g, self.sprite.groups())
 
     def test_update(self):
         class test_sprite(pygame.sprite.Sprite):

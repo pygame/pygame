@@ -252,14 +252,14 @@ class MidiModuleTest(unittest.TestCase):
     def test_get_count(self):
         c = pygame.midi.get_count()
         self.assertIsInstance(c, int)
-        self.assertTrue(c >= 0)
+        self.assertGreaterEqual(c, 0)
 
     def test_get_default_input_id(self):
 
         midin_id = pygame.midi.get_default_input_id()
         # if there is a not None return make sure it is an int.
         self.assertIsInstance(midin_id, int)
-        self.assertTrue(midin_id >= -1)
+        self.assertGreaterEqual(midin_id, -1)
         pygame.midi.quit()
         self.assertRaises(RuntimeError, pygame.midi.get_default_output_id)
 
@@ -267,7 +267,7 @@ class MidiModuleTest(unittest.TestCase):
 
         c = pygame.midi.get_default_output_id()
         self.assertIsInstance(c, int)
-        self.assertTrue(c >= -1)
+        self.assertGreaterEqual(c, -1)
         pygame.midi.quit()
         self.assertRaises(RuntimeError, pygame.midi.get_default_output_id)
 

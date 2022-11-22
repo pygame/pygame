@@ -130,7 +130,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(OverflowError, ft.Font, file=None, size=-1)
 
         f = ft.Font(None, size=24)
-        self.assertTrue(f.height > 0)
+        self.assertGreater(f.height, 0)
         self.assertRaises(
             FileNotFoundError, f.__init__, os.path.join(FONTDIR, "nonexistent.ttf")
         )
@@ -486,32 +486,32 @@ class FreeTypeFontTest(unittest.TestCase):
 
         rect_default = font.get_rect("ABCDabcd", size=24)
         test_rect(rect_default)
-        self.assertTrue(rect_default.size > (0, 0))
-        self.assertTrue(rect_default.width > rect_default.height)
+        self.assertGreater(rect_default.size, (0, 0))
+        self.assertGreater(rect_default.width, rect_default.height)
 
         rect_bigger = font.get_rect("ABCDabcd", size=32)
         test_rect(rect_bigger)
-        self.assertTrue(rect_bigger.size > rect_default.size)
+        self.assertGreater(rect_bigger.size, rect_default.size)
 
         rect_strong = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_STRONG)
         test_rect(rect_strong)
-        self.assertTrue(rect_strong.size > rect_default.size)
+        self.assertGreater(rect_strong.size, rect_default.size)
 
         font.vertical = True
         rect_vert = font.get_rect("ABCDabcd", size=24)
         test_rect(rect_vert)
-        self.assertTrue(rect_vert.width < rect_vert.height)
+        self.assertLess(rect_vert.width, rect_vert.height)
         font.vertical = False
 
         rect_oblique = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_OBLIQUE)
         test_rect(rect_oblique)
-        self.assertTrue(rect_oblique.width > rect_default.width)
-        self.assertTrue(rect_oblique.height == rect_default.height)
+        self.assertGreater(rect_oblique.width, rect_default.width)
+        self.assertEqual(rect_oblique.height, rect_default.height)
 
         rect_under = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_UNDERLINE)
         test_rect(rect_under)
-        self.assertTrue(rect_under.width == rect_default.width)
-        self.assertTrue(rect_under.height > rect_default.height)
+        self.assertEqual(rect_under.width, rect_default.width)
+        self.assertGreater(rect_under.height, rect_default.height)
 
         # Rect size should change if UTF surrogate pairs are treated as
         # one code point or two.
@@ -1131,8 +1131,8 @@ class FreeTypeFontTest(unittest.TestCase):
         f.vertical = True
         get_rect_vert = f.get_rect(text)
 
-        self.assertTrue(get_rect_vert.width < get_rect.width)
-        self.assertTrue(get_rect_vert.height > get_rect.height)
+        self.assertLess(get_rect_vert.width, get_rect.width)
+        self.assertGreater(get_rect_vert.height, get_rect.height)
         f.vertical = False
         render_to_surf = pygame.Surface(get_rect.size, pygame.SRCALPHA, 32)
 
@@ -1180,7 +1180,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # wide style: trigger glyph reload
         r = f.get_rect(None, style=ft.STYLE_WIDE)
         self.assertEqual(r.height, get_rect.height)
-        self.assertTrue(r.width > get_rect.width)
+        self.assertGreater(r.width, get_rect.width)
         r = f.get_rect(None)
         self.assertEqual(r, get_rect)
 
@@ -1471,7 +1471,7 @@ class FreeTypeFontTest(unittest.TestCase):
         f.get_metrics(many_glyphs, size=8)
         f.get_metrics(many_glyphs, size=10)
         ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
-        self.assertTrue(ccount < count)
+        self.assertLess(ccount, count)
         self.assertEqual(
             (ccount + cdelete_count, caccess, chit, cmiss), (count, access, hit, miss)
         )
@@ -1489,7 +1489,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         img, size1 = font.render(chr(1), (0, 0, 0), size=24)
         img, size0 = font.render("", (0, 0, 0), size=24)
-        self.assertTrue(size1.width > size0.width)
+        self.assertGreater(size1.width, size0.width)
 
         metrics = font.get_metrics(chr(1) + chr(48), size=24)
         self.assertEqual(len(metrics), 2)
@@ -1587,7 +1587,7 @@ class FreeTypeFontTest(unittest.TestCase):
         #
         font = self._TEST_FONTS["fixed"]
         r1 = font.get_rect(" ", size=64)
-        self.assertTrue(r1.width > 1)
+        self.assertGreater(r1.width, 1)
         r2 = font.get_rect("  ", size=64)
         self.assertEqual(r2.width, 2 * r1.width)
 
@@ -1608,7 +1608,7 @@ class FreeTypeFontTest(unittest.TestCase):
         refs.append(weakref.ref(font.get_rect(text)))
 
         n = len(refs)
-        self.assertTrue(n > 0)
+        self.assertGreater(n, 0)
 
         # for pypy we garbage collection twice.
         for i in range(2):
@@ -1676,7 +1676,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # Check single name string:
         font_name = ft.SysFont(fonts[0], size).name
-        self.assertFalse(font_name is None)
+        self.assertIsNotNone(font_name)
 
         # Check string of comma-separated names.
         names = ",".join(fonts)

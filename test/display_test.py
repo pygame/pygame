@@ -395,7 +395,7 @@ class DisplayModuleTest(unittest.TestCase):
         # We check to see if the values that we get correspond to the values that we set
         # them to or to the original values.
         for i in range(len(set_values)):
-            self.assertTrue(get_values[i] == set_values[i])
+            self.assertEqual(get_values[i], set_values[i])
 
         # test using non-flag argument
         with self.assertRaises(TypeError):

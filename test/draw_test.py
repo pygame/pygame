@@ -510,7 +510,7 @@ class DrawEllipseMixin:
             # For each of the four borders check if it contains the color
             borders = get_border_values(surface, width, height)
             for border in borders:
-                self.assertTrue(color in border)
+                self.assertIn(color, border)
 
         def not_same_size(width, height, border_width, left, top):
             """Test for ellipses that aren't the same size as the surface."""
@@ -1825,7 +1825,7 @@ class DrawLineTest(LineMixin, DrawTestCase):
             for x in range(1, width - 1):
                 for y in range(1, height - 1):
                     if surf.get_at((x, y)) == BLACK:
-                        self.assertTrue(white_surrounded_pixels(x, y) < 3)
+                        self.assertLess(white_surrounded_pixels(x, y), 3)
 
         check_white_line((50, 50), (140, 0))
         check_white_line((50, 50), (0, 120))

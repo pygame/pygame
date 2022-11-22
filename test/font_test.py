@@ -50,7 +50,7 @@ class FontModuleTest(unittest.TestCase):
             test_ver_tuple(compiled)
             test_ver_tuple(linked)
 
-            self.assertTrue(linked >= compiled)
+            self.assertGreaterEqual(linked, compiled)
 
     def test_SysFont(self):
         # Can only check that a font object is returned.
@@ -62,13 +62,13 @@ class FontModuleTest(unittest.TestCase):
         else:
             font_name = sorted(fonts)[0]
         o = pygame_font.SysFont(font_name, 20)
-        self.assertTrue(isinstance(o, pygame_font.FontType))
+        self.assertIsInstance(o, pygame_font.FontType)
         o = pygame_font.SysFont(font_name, 20, italic=True)
-        self.assertTrue(isinstance(o, pygame_font.FontType))
+        self.assertIsInstance(o, pygame_font.FontType)
         o = pygame_font.SysFont(font_name, 20, bold=True)
-        self.assertTrue(isinstance(o, pygame_font.FontType))
+        self.assertIsInstance(o, pygame_font.FontType)
         o = pygame_font.SysFont("thisisnotafont", 20)
-        self.assertTrue(isinstance(o, pygame_font.FontType))
+        self.assertIsInstance(o, pygame_font.FontType)
 
     def test_get_default_font(self):
         self.assertEqual(pygame_font.get_default_font(), "freesansbold.ttf")
@@ -96,7 +96,7 @@ class FontModuleTest(unittest.TestCase):
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.
 
-            self.assertTrue(isinstance(name, str), name)
+            self.assertIsInstance(name, str, name)
             # Font names can be comprised of only numeric characters, so
             # just checking name.islower() will not work as expected here.
             self.assertFalse(any(c.isupper() for c in name))
@@ -117,7 +117,7 @@ class FontModuleTest(unittest.TestCase):
         # name is a full path.
         for font in fonts:
             path = pygame_font.match_font(font)
-            self.assertFalse(path is None)
+            self.assertIsNotNone(path)
             self.assertTrue(os.path.isabs(path) and os.path.isfile(path))
 
     def test_match_font_name(self):
@@ -281,34 +281,34 @@ class FontTypeTest(unittest.TestCase):
         # Ckecking ascent would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         ascent = f.get_ascent()
-        self.assertTrue(isinstance(ascent, int))
-        self.assertTrue(ascent > 0)
+        self.assertIsInstance(ascent, int)
+        self.assertGreater(ascent, 0)
         s = f.render("X", False, (255, 255, 255))
-        self.assertTrue(s.get_size()[1] > ascent)
+        self.assertGreater(s.get_size()[1], ascent)
 
     def test_get_descent(self):
         # Ckecking descent would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         descent = f.get_descent()
-        self.assertTrue(isinstance(descent, int))
-        self.assertTrue(descent < 0)
+        self.assertIsInstance(descent, int)
+        self.assertLess(descent, 0)
 
     def test_get_height(self):
         # Ckecking height would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
         height = f.get_height()
-        self.assertTrue(isinstance(height, int))
-        self.assertTrue(height > 0)
+        self.assertIsInstance(height, int)
+        self.assertGreater(height, 0)
         s = f.render("X", False, (255, 255, 255))
-        self.assertTrue(s.get_size()[1] == height)
+        self.assertEqual(s.get_size()[1], height)
 
     def test_get_linesize(self):
         # Ckecking linesize would need a custom test font to do properly.
         # Questions: How do linesize, height and descent relate?
         f = pygame_font.Font(None, 20)
         linesize = f.get_linesize()
-        self.assertTrue(isinstance(linesize, int))
-        self.assertTrue(linesize > 0)
+        self.assertIsInstance(linesize, int)
+        self.assertGreater(linesize, 0)
 
     def test_metrics(self):
         # Ensure bytes decoding works correctly. Can only compare results
