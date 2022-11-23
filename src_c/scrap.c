@@ -415,7 +415,7 @@ _scrap_set_mode(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_get_text(PyObject *self, PyObject *args)
 {
-    const char *text = SDL_GetClipboardText();
+    char *text = SDL_GetClipboardText();
 
     // if SDL_GetClipboardText fails, it returns an empty string
     if (text[0] == '\0') {
