@@ -52,7 +52,7 @@ from .math import Vector2 as Vector2, Vector3 as Vector3
 from .cursors import Cursor as Cursor
 from .bufferproxy import BufferProxy as BufferProxy
 from .mask import Mask as Mask
-from ._debug import debug as debug
+from ._debug import print_debug_info as print_debug_info
 from .base import (
     BufferError as BufferError,
     HAVE_NEWBUF as HAVE_NEWBUF,
