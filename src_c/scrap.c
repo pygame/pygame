@@ -27,8 +27,6 @@
 
 #include "SDL_syswm.h"
 
-#include "SDL_clipboard.h"
-
 #include "pygame.h"
 
 #include "pgcompat.h"
@@ -417,12 +415,12 @@ _scrap_set_mode(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_get_text(PyObject *self, PyObject *args)
 {
-    char *text = SDL_GetClipboardText();
+    const char *text = SDL_GetClipboardText();
 
     // if SDL_GetClipboardText fails, it returns an empty string
     if (text[0] == '\0') {
         const char *err = SDL_GetError();
-        if (err) {
+        if (err[0] != '\0') {
             SDL_free(text);
             PyErr_SetString(pgExc_SDLError, err);
             return NULL;
@@ -452,10 +450,7 @@ _scrap_put_text(PyObject *self, PyObject *args)
     }
 
     if (SDL_SetClipboardText(text)) {
-        const char *err = SDL_GetError();
-        if (err) {
-            return RAISE(pgExc_SDLError, err);
-        }
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     Py_RETURN_NONE;
