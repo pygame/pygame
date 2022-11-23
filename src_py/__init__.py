@@ -277,7 +277,7 @@ except (ImportError, OSError):
 
 try:
     import pygame._debug
-    from pygame._debug import debug
+    from pygame._debug import print_debug_info
 except (ImportError, OSError):
     debug = MissingModule("_debug", urgent=0)
 

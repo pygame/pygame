@@ -12,7 +12,7 @@ def str_from_tuple(version_tuple):
     return ".".join(strs)
 
 
-def debug(filename=None):
+def print_debug_info(filename=None):
     from pygame.base import get_sdl_version
     from pygame.mixer import get_sdl_mixer_version
     from pygame.font import get_sdl_ttf_version
@@ -29,12 +29,16 @@ def debug(filename=None):
 
     debug_str += f"System:\t\t\t{platform.system()}\n"
 
+    debug_str += f"System Version:\t\t{platform.version()}\n"
+
     debug_str += f"Processor:\t\t{platform.processor()}\n"
 
     debug_str += (
         f"Architecture:\t\tBits: {platform.architecture()[0]}\t"
         f"Linkage: {platform.architecture()[1]}\n\n"
     )
+
+    debug_str += f"Python:\t\t\t{platform.python_implementation()}\n"
 
     debug_str += f"pygame version:\t\t{ver}\n"
 
