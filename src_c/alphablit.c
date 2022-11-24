@@ -50,20 +50,13 @@
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
 
-/* In case PG_ENABLE_ARM_NEON is defined but negative, we want to honor that
- * But for the if/else chain below we need it to use "ifdef" logic on each
- * element. So we define this temp define for that need. */
-#if PG_ENABLE_ARM_NEON
-#define PG_ARM_NEON_ENABLED
-#endif
-
 /* This defines PG_ENABLE_SSE_NEON as True if either SSE or NEON is available
  * at compile time. Since we do compile time translation of SSE2->NEON, they
  * have the same code paths, so this reduces code duplication of those paths.
  */
-#ifdef __SSE2__
+#if defined(__SSE2__)
 #define PG_ENABLE_SSE_NEON 1
-#elif PG_ARM_NEON_ENABLED
+#elif PG_ENABLE_ARM_NEON
 #define PG_ENABLE_SSE_NEON 1
 #else
 #define PG_ENABLE_SSE_NEON 0
@@ -75,9 +68,9 @@
 int
 pg_HasSSE_NEON()
 {
-#ifdef __SSE2__
+#if defined(__SSE2__)
     return SDL_HasSSE2();
-#elif PG_ARM_NEON_ENABLED
+#elif PG_ENABLE_ARM_NEON
     return SDL_HasNEON();
 #else
     return 0;
@@ -229,7 +222,7 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 /* If our source and destination are the same ARGB 32bit
    format we can use SSE2/NEON to speed up the blend */
 #if PG_ENABLE_SSE_NEON
-                            if ((pg_HasSSE_NEON) && (src != dst)) {
+                            if ((pg_HasSSE_NEON()) && (src != dst)) {
                                 if (info.src_blanket_alpha != 255) {
                                     alphablit_alpha_sse2_argb_surf_alpha(
                                         &info);
