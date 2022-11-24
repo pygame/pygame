@@ -69,11 +69,11 @@ specific attributes.
 
     QUIT              none
     ACTIVEEVENT       gain, state
-    KEYDOWN           key, mod, unicode, scancode
-    KEYUP             key, mod, unicode, scancode
-    MOUSEMOTION       pos, rel, buttons, touch
-    MOUSEBUTTONUP     pos, button, touch
-    MOUSEBUTTONDOWN   pos, button, touch
+    KEYDOWN           key, mod, unicode, scancode, window
+    KEYUP             key, mod, unicode, scancode, window
+    MOUSEMOTION       pos, rel, buttons, touch, window
+    MOUSEBUTTONUP     pos, button, touch, window
+    MOUSEBUTTONDOWN   pos, button, touch, window
     JOYAXISMOTION     joy (deprecated), instance_id, axis, value
     JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
     JOYHATMOTION      joy (deprecated), instance_id, hat, value
@@ -103,19 +103,21 @@ attributes.
 
     AUDIODEVICEADDED   which, iscapture (SDL backend >= 2.0.4)
     AUDIODEVICEREMOVED which, iscapture (SDL backend >= 2.0.4)
-    FINGERMOTION       touch_id, finger_id, x, y, dx, dy
-    FINGERDOWN         touch_id, finger_id, x, y, dx, dy
-    FINGERUP           touch_id, finger_id, x, y, dx, dy
+    FINGERMOTION       touch_id, finger_id, x, y, dx, dy, window
+    FINGERDOWN         touch_id, finger_id, x, y, dx, dy, window
+    FINGERUP           touch_id, finger_id, x, y, dx, dy, window
     MOUSEWHEEL         which, flipped, x, y, touch, precise_x, precise_y
     MULTIGESTURE       touch_id, x, y, pinched, rotated, num_fingers
-    TEXTEDITING        text, start, length
-    TEXTINPUT          text
+    TEXTEDITING        text, start, length, window
+    TEXTINPUT          text, window
 
 .. versionadded:: 1.9.5
 
 .. versionchanged:: 2.0.2 Fixed amount horizontal scroll (x, positive to the right and negative to the left).
 
 .. versionchanged:: 2.0.2 The ``touch`` attribute was added to all the ``MOUSE`` events.
+
+.. versionchanged:: 2.1.4 The ``window`` attribute was added to all the ``FINGER`` events.
 
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
 by a touch input device, and not a real mouse. You might want to ignore such events, if your application
@@ -139,10 +141,10 @@ pygame 2 also supports controller hot-plugging
 
    Event name               Attributes and notes
 
-   DROPFILE                 file
-   DROPBEGIN                (SDL backend >= 2.0.5)
-   DROPCOMPLETE             (SDL backend >= 2.0.5)
-   DROPTEXT                 text (SDL backend >= 2.0.5)
+   DROPFILE                 file, window
+   DROPBEGIN                window (SDL backend >= 2.0.5)
+   DROPCOMPLETE             window (SDL backend >= 2.0.5)
+   DROPTEXT                 text, window (SDL backend >= 2.0.5)
    MIDIIN
    MIDIOUT
    CONTROLLERDEVICEADDED    device_index
@@ -155,6 +157,8 @@ pygame 2 also supports controller hot-plugging
    RENDER_TARGETS_RESET     (SDL backend >= 2.0.2)
    RENDER_DEVICE_RESET      (SDL backend >= 2.0.4)
    LOCALECHANGED            (SDL backend >= 2.0.14)
+
+.. versionchanged:: 2.1.4 The ``window`` attribute was added to all the ``DROP`` events.
 
 Also in this version, ``instance_id`` attributes were added to joystick events,
 and the ``joy`` attribute was deprecated.
@@ -180,7 +184,7 @@ Here is a list of all window events, along with a short description
 
 ::
 
-   Event type                Short description
+   Event type             Short description
 
    WINDOWSHOWN            Window became shown
    WINDOWHIDDEN           Window became hidden
@@ -216,7 +220,7 @@ On Android, the following events can be generated
 
 ::
 
-   Event type                 Short description
+   Event type                Short description
 
    APP_TERMINATING           OS is terminating the application
    APP_LOWMEMORY             OS is low on memory, try to free memory if possible
