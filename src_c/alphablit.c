@@ -45,7 +45,7 @@
 #endif
 #endif
 
-#ifdef PG_ENABLE_ARM_NEON
+#if PG_ENABLE_ARM_NEON
 // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
