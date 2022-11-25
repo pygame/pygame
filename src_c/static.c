@@ -224,6 +224,9 @@ PyGame_static_init()
 #undef pgSurface_SetSurface
 
 #include "surface.c"
+#include "simd_blitters_avx2.c"
+#include "simd_blitters_sse2.c"
+
 
 #undef pgVidInfo_Type
 #undef pgVidInfo_New
