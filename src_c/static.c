@@ -286,12 +286,6 @@ PyInit_pygame_static()
     return PyModule_Create(&mod_pygame_static);
 }
 
-void
-pygame_Inittab()
-{
-    PyImport_AppendInittab("pygame_static", PyInit_pygame_static);
-}
-
 #endif  // defined(BUILD_STATIC)
 
 #include "base.c"
@@ -327,6 +321,8 @@ pygame_Inittab()
 #undef pgSurface_SetSurface
 
 #include "surface.c"
+#include "simd_blitters_avx2.c"
+#include "simd_blitters_sse2.c"
 
 #undef pgVidInfo_Type
 #undef pgVidInfo_New
