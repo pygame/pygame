@@ -206,7 +206,7 @@ load_submodule_mphase(const char *parent, PyObject *mdef, PyObject *spec,
 
     PyModule_ExecDef(mod, (PyModuleDef *)mdef);
 
-    if (!mod) {
+    if (!pmod) {
         snprintf(fqn, sizeof(fqn), "ERROR: %s.%s", parent, alias);
         puts(fqn);
         PyErr_Print();
