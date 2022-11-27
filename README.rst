@@ -24,7 +24,7 @@ Installation
    pip install pygame
 
 
-Help
+How to Use Pygame
 ----
 
 If you are just getting started with pygame, you should be able to
@@ -44,11 +44,11 @@ Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
 
 
-Building From Source
+How to Contribute
 --------------------
 
-If you want to use features that are currently in development,
-or you want to contribute to pygame, you will need to build pygame
+If you want to contribute to pygame, or use features currently
+in development, you will need to build pygame
 locally from its source code, rather than pip installing it.
 
 Installing from source is fairly automated. The most work will
@@ -58,6 +58,9 @@ auto-configure, build, and install pygame.
 
 Much more information about installing and compiling is available
 on the `Compilation wiki page`_.
+
+In addition, the `Hacking wiki page`_ provides useful information
+about contributing and editing.
 
 
 Credits
@@ -184,5 +187,6 @@ See docs/licenses for licenses of dependencies.
 .. _Simple DirectMedia Layer library: https://www.libsdl.org
 .. _We need your help: https://www.pygame.org/contribute.html
 .. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
+.. _Hacking wiki page: https://www.pygame.org/wiki/Hacking
 .. _docs page: https://www.pygame.org/docs/
 .. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
