@@ -1,3 +1,5 @@
+#ifndef _BLIT_INFO_H
+#define _BLIT_INFO_H
 #define NO_PYGAME_C_API
 #include "_surface.h"
 
@@ -19,3 +21,4 @@ typedef struct {
     SDL_BlendMode src_blend;
     SDL_BlendMode dst_blend;
 } SDL_BlitInfo;
+#endif //BLIT_INFO_H
