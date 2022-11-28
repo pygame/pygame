@@ -56,6 +56,7 @@ from .event import Event as Event
 from .font import Font as Font
 from .mixer import Channel as Channel
 from .time import Clock as Clock
+from .joystick import Joystick as Joystick
 from .base import (
     BufferError as BufferError,
     HAVE_NEWBUF as HAVE_NEWBUF,
