@@ -2023,7 +2023,7 @@ class GeneralSurfaceTests(unittest.TestCase):
             mask8 = (224, 28, 3, 0)
             mask15 = (31744, 992, 31, 0)
             mask16 = (63488, 2016, 31, 0)
-            mask24 = (4278190080, 16711680, 65280, 0)
+            mask24 = (16711680, 65280, 255, 0)
             mask32 = (4278190080, 16711680, 65280, 255)
 
             # Surfaces with standard depths and masks
