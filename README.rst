@@ -4,7 +4,7 @@
 
 
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
-|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |BlackFormatBadge|
+|Python3| |GithubCommits| |BlackFormatBadge|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -167,15 +167,6 @@ See docs/licenses for licenses of dependencies.
 
 .. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
    :target: https://github.com/pygame/pygame/compare/2.1.2...main
-
-.. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
-
-.. |LGTMGradePython| image:: https://img.shields.io/lgtm/grade/python/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:python
-
-.. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
 
 .. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
