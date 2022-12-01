@@ -6186,9 +6186,40 @@ class DrawArcMixin:
             with self.assertRaises(TypeError):
                 bounds_rect = self.draw_arc(**kwargs)
 
-    def todo_test_arc(self):
+    def test_arc(self):
         """Ensure draw arc works correctly."""
-        self.fail()
+        black = pygame.Color('black')
+        red = pygame.Color('red')
+
+        # create an image object of width 100, height 150, filled with black.
+        surface = pygame.Surface((100, 150))
+        surface.fill(black)
+
+        # rectangle that contains for the ellipse arc.
+        # 0 pixel from left, 0 pixel from top
+        # 80 pixels wide, 40 pixels high
+        rect = (0, 0, 80, 40)
+
+        # angle of the arc in radians
+        start_angle = 0.0
+        stop_angle = 3.14
+
+        # thickness, and it grows inward from the rectangle
+        width = 3
+
+        # draw an elliptical arc
+        pygame.draw.arc(surface, red, rect, start_angle, stop_angle, width)
+
+        # Save the drawn arc
+        pygame.image.save(surface, "arc.png")
+
+        # arc is red
+        x = 20
+        for y in range(2, 5):
+            self.assertEqual(surface.get_at((x, y)), red)
+
+        # the rest area in surface is black
+        self.assertEqual(surface.get_at((0, 0)), black)
 
     def test_arc__bounding_rect(self):
         """Ensures draw arc returns the correct bounding rect.
