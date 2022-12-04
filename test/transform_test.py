@@ -1086,6 +1086,10 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s2.get_rect().size, (64, 64))
 
     def test_scale2xraw(self):
+        # Even though transform.scale no longer has a special
+        # case for 2x upscaling, this test validates that the behavior
+        # is preserved.
+
         w, h = 32, 32
         s = pygame.Surface((w, h), pygame.SRCALPHA, 32)
         s.fill((0, 0, 0))

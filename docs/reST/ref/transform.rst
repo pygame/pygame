@@ -47,6 +47,10 @@ Instead, always begin with the original image and scale to the desired size.)
    the destination must be the same size as the size (width, height) passed in. Also
    the destination surface must be the same format.
 
+   .. versionchanged:: 2.1.4 internal scaling algorithm was replaced with a nearly
+      equivalent one that is 40% faster. Scale results will be just so slightly
+      different.
+
    .. ## pygame.transform.scale ##
 
 .. function:: scale_by
