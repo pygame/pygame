@@ -1168,18 +1168,22 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                where the driver lies to us because the user has configured
                vsync to be always on or always off, or vsync is on by default
                for the whole desktop because of wayland GL compositing. */
-            if (vsync) {
+            if (vsync == -1) {
                 if (SDL_GL_SetSwapInterval(-1) != 0) {
                     if (PyErr_WarnEx(PyExc_Warning,
                                      "adaptive vsync for OpenGL not "
-                                     "available, trying regular",
+                                     "available",
                                      1) != 0) {
                         _display_state_cleanup(state);
                         goto DESTROY_WINDOW;
                     }
+                }
+            }
+            else {
+                if (vsync == 1) {
                     if (SDL_GL_SetSwapInterval(1) != 0) {
                         if (PyErr_WarnEx(PyExc_Warning,
-                                         "regular vsync for OpenGL *also* not "
+                                         "regular vsync for OpenGL not "
                                          "available",
                                          1) != 0) {
                             _display_state_cleanup(state);
@@ -1187,9 +1191,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         }
                     }
                 }
-            }
-            else {
-                SDL_GL_SetSwapInterval(0);
+                else {
+                    SDL_GL_SetSwapInterval(0);
+                }
             }
         }
         else {
