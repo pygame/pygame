@@ -1796,11 +1796,15 @@ class FreeTypeTest(unittest.TestCase):
 
     def test_get_version(self):
         # Test that get_version() can be called before init()
-        # Also tests that the compiled and linked versions are
-        # the same
+        # Also tests get_version
         ft.quit()
 
-        self.assertEquals(ft.get_version(linked=False), ft.get_version(linked=True))
+        # asserting not None just to have a test case
+        # there is no real fail condition other than
+        # raising an exception or a segfault, so a tuple of ints
+        # should be returned in all cases
+        self.assertIsNotNone(ft.get_version(linked=False))
+        self.assertIsNotNone(ft.get_version(linked=True))
 
 
 if __name__ == "__main__":
