@@ -524,39 +524,47 @@ _vector_coords_from_string(PyObject *str, char **delimiter, double *coords,
                            Py_ssize_t dim)
 {
     int error_code;
-    Py_ssize_t i, start_pos, end_pos, length;
+    Py_ssize_t i, start_pos, end_pos, length, ret = 0;
     PyObject *vector_string;
     vector_string = PyUnicode_FromObject(str);
     if (vector_string == NULL) {
-        return -2;
+        ret = -2;
+        goto end;
     }
     length = PySequence_Length(vector_string);
     /* find the starting point of the first coordinate in the string */
     start_pos =
         _vector_find_string_helper(vector_string, delimiter[0], 0, length);
     if (start_pos < 0) {
-        return start_pos;
+        ret = start_pos;
+        goto end;
     }
     start_pos += strlen(delimiter[0]);
     for (i = 0; i < dim; i++) {
         /* find the end point of the current coordinate in the string */
         end_pos = _vector_find_string_helper(vector_string, delimiter[i + 1],
                                              start_pos, length);
-        if (end_pos < 0)
-            return end_pos;
+        if (end_pos < 0) {
+            ret = end_pos;
+            goto end;
+        }
         /* try to convert the current coordinate */
         error_code = get_double_from_unicode_slice(vector_string, start_pos,
                                                    end_pos, &coords[i]);
         if (error_code < 0) {
-            return -2;
+            ret = -2;
+            goto end;
         }
         else if (error_code == 0) {
-            return -1;
+            ret = -1;
+            goto end;
         }
         /* move starting point to the next coordinate */
         start_pos = end_pos + strlen(delimiter[i + 1]);
     }
-    return 0;
+end:
+    Py_XDECREF(vector_string);
+    return ret;
 }
 
 static PyMemberDef vector_members[] = {
@@ -825,6 +833,7 @@ vector_clamp_magnitude(pgVector *self, PyObject *const *args, Py_ssize_t nargs)
 
     PyObject *ret_val = vector_clamp_magnitude_ip(ret, args, nargs);
     if (!ret_val) {
+        Py_DECREF(ret);
         return NULL;
     }
     Py_DECREF(ret_val);
@@ -991,7 +1000,12 @@ vector_GetSlice(pgVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
         return NULL;
 
     for (i = 0; i < len; i++) {
-        PyList_SET_ITEM(slice, i, PyFloat_FromDouble(self->coords[ilow + i]));
+        PyObject *tmp = PyFloat_FromDouble(self->coords[ilow + i]);
+        if (!tmp) {
+            Py_DECREF(slice);
+            return NULL;
+        }
+        PyList_SET_ITEM(slice, i, tmp);
     }
     return (PyObject *)slice;
 }
@@ -1304,9 +1318,12 @@ vector_normalize(pgVector *self, PyObject *_null)
     }
     memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
 
-    if (!vector_normalize_ip(ret, NULL)) {
+    PyObject *tmp = vector_normalize_ip(ret, NULL);
+    if (!tmp) {
+        Py_DECREF(ret);
         return NULL;
     }
+    Py_DECREF(tmp);
     return (PyObject *)ret;
 }
 
@@ -1623,6 +1640,7 @@ vector_reflect(pgVector *self, PyObject *normal)
 
     if (!_vector_reflect_helper(ret->coords, self->coords, normal, self->dim,
                                 self->epsilon)) {
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
@@ -1821,6 +1839,7 @@ vector_project_onto(pgVector *self, PyObject *other)
     if (b_dot_b < self->epsilon) {
         PyErr_SetString(PyExc_ValueError,
                         "Cannot project onto a vector with zero length");
+        Py_DECREF(ret);
         return NULL;
     }
 
@@ -2253,9 +2272,12 @@ vector2_rotate_rad(pgVector *self, PyObject *angleObject)
     }
 
     ret = _vector_subtype_new(self);
-    if (ret == NULL || !_vector2_rotate_helper(ret->coords, self->coords,
-                                               angle, self->epsilon)) {
-        Py_XDECREF(ret);
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (!_vector2_rotate_helper(ret->coords, self->coords, angle,
+                                self->epsilon)) {
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
@@ -2305,9 +2327,12 @@ vector2_rotate(pgVector *self, PyObject *angleObject)
     angle = DEG2RAD(angle);
 
     ret = _vector_subtype_new(self);
-    if (ret == NULL || !_vector2_rotate_helper(ret->coords, self->coords,
-                                               angle, self->epsilon)) {
-        Py_XDECREF(ret);
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (!_vector2_rotate_helper(ret->coords, self->coords, angle,
+                                self->epsilon)) {
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
@@ -2757,10 +2782,12 @@ vector3_rotate_rad(pgVector *self, PyObject *args)
     }
 
     ret = _vector_subtype_new(self);
-    if (ret == NULL ||
-        !_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (!_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
                                 self->epsilon)) {
-        Py_XDECREF(ret);
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
@@ -2827,10 +2854,12 @@ vector3_rotate(pgVector *self, PyObject *args)
     }
 
     ret = _vector_subtype_new(self);
-    if (ret == NULL ||
-        !_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (!_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
                                 self->epsilon)) {
-        Py_XDECREF(ret);
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
