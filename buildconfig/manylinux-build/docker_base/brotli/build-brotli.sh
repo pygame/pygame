@@ -12,7 +12,7 @@ sha512sum -c brotli.sha512
 tar xzf ${BROTLI}.tar.gz
 cd $BROTLI
 
-cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release
+cmake . $PG_BASE_CMAKE_FLAGS
 make
 make install
 

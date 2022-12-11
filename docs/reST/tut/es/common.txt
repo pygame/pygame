@@ -1,0 +1,8 @@
+.. Common definitions for tutorials
+
+.. include:: ../../common.txt
+
+.. role:: codelineref
+
+.. role:: clr(codelineref)
+   :class: codelineref

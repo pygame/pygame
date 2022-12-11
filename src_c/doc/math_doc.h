@@ -1,6 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
-#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
+#define DOC_PYGAMEMATHCLAMP "clamp(value, min, max) -> float\nreturns value clamped to min and max."
+#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2(0, 0)\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
 #define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
@@ -33,7 +34,8 @@
 #define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector2\nclamp_magnitude(min_length, max_length) -> Vector2\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
 #define DOC_VECTOR2CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(min_length, max_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
-#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
+#define DOC_VECTOR2EPSILON "Determines the tolerance of vector calculations."
+#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3(0, 0, 0)\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
 #define DOC_VECTOR3MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
@@ -81,6 +83,7 @@
 #define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector3\nclamp_magnitude(min_length, max_length) -> Vector3\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
 #define DOC_VECTOR3CLAMPMAGNITUDEIP "clamp_magnitude_ip(max_length) -> None\nclamp_magnitude_ip(min_length, max_length) -> None\nClamps the vector's magnitude between max_length and min_length"
 #define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
+#define DOC_VECTOR3EPSILON "Determines the tolerance of vector calculations."
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -90,8 +93,12 @@
 pygame.math
 pygame module for vector classes
 
+pygame.math.clamp
+ clamp(value, min, max) -> float
+returns value clamped to min and max.
+
 pygame.math.Vector2
- Vector2() -> Vector2
+ Vector2() -> Vector2(0, 0)
  Vector2(int) -> Vector2
  Vector2(float) -> Vector2
  Vector2(Vector2) -> Vector2
@@ -234,8 +241,11 @@ pygame.math.Vector2.update
  update((x, y)) -> None
 Sets the coordinates of the vector.
 
+pygame.math.Vector2.epsilon
+Determines the tolerance of vector calculations.
+
 pygame.math.Vector3
- Vector3() -> Vector3
+ Vector3() -> Vector3(0, 0, 0)
  Vector3(int) -> Vector3
  Vector3(float) -> Vector3
  Vector3(Vector3) -> Vector3
@@ -437,5 +447,8 @@ pygame.math.Vector3.update
  update(x, y, z) -> None
  update((x, y, z)) -> None
 Sets the coordinates of the vector.
+
+pygame.math.Vector3.epsilon
+Determines the tolerance of vector calculations.
 
 */

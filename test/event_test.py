@@ -98,8 +98,8 @@ class EventTypeTest(unittest.TestCase):
         self.assertEqual(e.some_attr, 1)
         self.assertEqual(e.other_attr, "1")
 
-        # Event now uses tp_dictoffset and tp_members: request 62
-        # on Motherhamster Bugzilla.
+        # Event now uses tp_dictoffset and tp_members:
+        # https://github.com/pygame/pygame/issues/62
         self.assertEqual(e.type, pygame.USEREVENT)
         self.assertIs(e.dict, e.__dict__)
 

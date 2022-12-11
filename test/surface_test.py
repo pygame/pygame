@@ -3,7 +3,6 @@ import unittest
 from pygame.tests import test_utils
 from pygame.tests.test_utils import (
     example_path,
-    AssertRaisesRegexMixin,
     SurfaceSubclass,
 )
 
@@ -23,7 +22,7 @@ import ctypes
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
-class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class SurfaceTypeTest(unittest.TestCase):
     def test_surface__pixel_format_as_surface_subclass(self):
         """Ensure a subclassed surface can be used for pixel format
         when creating a new surface."""
@@ -741,7 +740,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             self.assertIsInstance(v, BufferProxy)
             self.assertEqual(v.length, length)
-            self.assertEqual(repr(v), "<BufferProxy(" + str(length) + ")>")
+            self.assertEqual(repr(v), f"<BufferProxy({length})>")
 
         # Check for a subsurface (not contiguous)
         s = pygame.Surface((7, 10), 0, 32)
@@ -1065,14 +1064,14 @@ class TestSurfaceBlit(unittest.TestCase):
         target.blit(source, (0, 0))
 
 
-class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
+class GeneralSurfaceTests(unittest.TestCase):
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") == "dummy",
         'requires a non-"dummy" SDL_VIDEODRIVER',
     )
     def test_image_convert_bug_131(self):
-        # Bitbucket bug #131: Unable to Surface.convert(32) some 1-bit images.
-        # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
+        # bug #131: Unable to Surface.convert(32) some 1-bit images.
+        # https://github.com/pygame/pygame/issues/131
 
         pygame.display.init()
         try:
@@ -1586,12 +1585,14 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                         src_surf, (0, 0), special_flags=pygame.BLEND_ALPHA_SDL2
                     )
                     key = ((dst_r, dst_b, dst_a), (src_r, src_b, src_a))
-                    results[key] = dest_surf.get_at((65, 33))
-                    self.assertEqual(results[key], results_expected[key])
+                    results[key] = tuple(dest_surf.get_at((65, 33)))
+                    for i in range(4):
+                        self.assertAlmostEqual(
+                            results[key][i], results_expected[key][i], delta=4
+                        )
 
         # print("(dest_r, dest_b, dest_a), (src_r, src_b, src_a): color")
         # pprint(results)
-        self.assertEqual(results, results_expected)
 
     def test_opaque_destination_blit_with_set_alpha(self):
         # no set_alpha()
@@ -2022,7 +2023,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
             mask8 = (224, 28, 3, 0)
             mask15 = (31744, 992, 31, 0)
             mask16 = (63488, 2016, 31, 0)
-            mask24 = (4278190080, 16711680, 65280, 0)
+            mask24 = (16711680, 65280, 255, 0)
             mask32 = (4278190080, 16711680, 65280, 255)
 
             # Surfaces with standard depths and masks
@@ -2435,7 +2436,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(s.get_masks(), surf.get_masks())
         self.assertEqual(s.get_losses(), surf.get_losses())
 
-        # Issue 2 at Bitbucket.org/pygame/pygame
+        # Issue https://github.com/pygame/pygame/issues/2
         surf = pygame.Surface.__new__(pygame.Surface)
         self.assertRaises(pygame.error, surf.subsurface, (0, 0, 0, 0))
 
@@ -3768,7 +3769,7 @@ class SurfaceBlendTest(unittest.TestCase):
 class SurfaceSelfBlitTest(unittest.TestCase):
     """Blit to self tests.
 
-    This test case is in response to MotherHamster Bugzilla Bug 19.
+    This test case is in response to https://github.com/pygame/pygame/issues/19
     """
 
     def setUp(self):
@@ -3849,7 +3850,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     @unittest.skipIf("ppc64le" in platform.uname(), "known ppc64le issue")
     def test_colorkey(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
-        # (MotherHamster Bugzilla bug 19).
+        # https://github.com/pygame/pygame/issues/19
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
@@ -3872,7 +3873,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     @unittest.skipIf("ppc64le" in platform.uname(), "known ppc64le issue")
     def test_blanket_alpha(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
-        # (MotherHamster Bugzilla bug 19).
+        # https://github.com/pygame/pygame/issues/19
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
