@@ -2046,6 +2046,18 @@ _ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (linked) {
+        /*
+         * The FreeType library is being initialized here separately from the
+         * initialization of the `pygame.freetype` module so that the linked
+         * version can always be obtained. This does not affect the initialization
+         * state of `pygame.freetype` itself.
+         * 
+         * The reason this is needed is because if freetype has not been initialized,
+         * then a segmentation fault can happen. The alternative would be to return
+         * something predefined to mean something akin to "Unknown", but as this 
+         * function is meant for debugging purposes, it seems like a good idea to
+         * always be able to retrieve the linked FreeType version.
+        */
         FT_Library lib;
         int err = FT_Init_FreeType(&lib);
         if (err) {
