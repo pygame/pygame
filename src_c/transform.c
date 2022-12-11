@@ -437,6 +437,9 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
             "Destination surface not the given width or height."));
     }
 
+    /* Testing width and height of src and dest, because pygame supports
+     * surfaces with "0" as the width or height, and for those nothing should
+     * happen here. */
     if ((width && height) && (src->w && src->h)) {
         pgSurface_Lock(srcobj);
         Py_BEGIN_ALLOW_THREADS;

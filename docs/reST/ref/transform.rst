@@ -48,7 +48,7 @@ Instead, always begin with the original image and scale to the desired size.)
    the destination surface must be the same format.
 
    .. versionchanged:: 2.1.4 internal scaling algorithm was replaced with a nearly
-      equivalent one that is 40% faster. Scale results will be just so slightly
+      equivalent one that is 40% faster. Scale results will be very slightly
       different.
 
    .. ## pygame.transform.scale ##
