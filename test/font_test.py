@@ -500,7 +500,7 @@ class FontTypeTest(unittest.TestCase):
     def test_set_align_property(self):
         if pygame_font.__name__ == "pygame.ftfont":
             return
-    
+
         f = pygame_font.Font(None, 20)
         self.assertEqual(f.align, pygame.FONT_LEFT)
         f.align = pygame.FONT_CENTER
