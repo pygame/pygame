@@ -272,7 +272,7 @@ class FontTest(unittest.TestCase):
         if pygame_font.__name__ == "pygame.ftfont":
             return
 
-        if pygame.font.get_sdl_ttf_version() < (2, 20, 0):
+        if pygame.font.get_sdl_ttf_version() < (2, 0, 18):
             # When the SDL_TTF version is too low, it just ignores the
             # line wrap parameter and newlines
             return
@@ -508,9 +508,10 @@ class FontTypeTest(unittest.TestCase):
 
         f = pygame_font.Font(None, 20)
 
-        if pygame.font.get_sdl_ttf_version() < (2, 0, 18):
+        if pygame.font.get_sdl_ttf_version() < (2, 20, 0):
             with self.assertRaises(pygame.error):
                 f.align = pygame.FONT_CENTER
+            return
 
         self.assertEqual(f.align, pygame.FONT_LEFT)
         f.align = pygame.FONT_CENTER
