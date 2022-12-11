@@ -2253,7 +2253,6 @@ MODINIT_DEFINE(rect)
         return NULL;
     }
 
-
     /* Create the module and add the functions */
     if (PyType_Ready(&pgRect_Type) < 0) {
         return NULL;
