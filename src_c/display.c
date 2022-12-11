@@ -366,7 +366,7 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.display.VidInfo",
     .tp_basicsize = sizeof(pgVidInfoObject),
     .tp_dealloc = pg_vidinfo_dealloc,
     .tp_getattr = pg_vidinfo_getattr,
@@ -692,16 +692,14 @@ static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Window *pygame_window;
-    PyObject *self;
     _DisplayState *state;
     SDL_Window *window;
 
     if (event->type != SDL_WINDOWEVENT)
         return 0;
 
-    self = (PyObject *)userdata;
     pygame_window = pg_GetDefaultWindow();
-    state = DISPLAY_MOD_STATE(self);
+    state = DISPLAY_MOD_STATE((PyObject *)userdata);
 
     window = SDL_GetWindowFromID(event->window.windowID);
     if (window != pygame_window)
@@ -762,15 +760,17 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 }
 
 static PyObject *
-pg_display_set_autoresize(PyObject *self, PyObject *args)
+pg_display_set_autoresize(PyObject *self, PyObject *arg)
 {
-    SDL_bool do_resize;
+    int do_resize;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
 
-    if (!PyArg_ParseTuple(args, "p", &do_resize))
+    do_resize = PyObject_IsTrue(arg);
+    if (do_resize == -1) {
         return NULL;
+    }
 
-    state->auto_resize = do_resize;
+    state->auto_resize = (SDL_bool)do_resize;
     SDL_DelEventWatch(pg_ResizeEventWatch, self);
 
     if (do_resize) {
@@ -843,7 +843,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
        screen as the old one */
     int display = _get_display(win);
     char *title = state->title;
-    int init_flip = 0;
     char *scale_env;
 
     char *keywords[] = {"size", "flags", "depth", "display", "vsync", NULL};
@@ -1101,7 +1100,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                init_flip = 1;
             }
             else {
                 /* set min size to (1,1) to erase any previously set min size
@@ -1311,11 +1309,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         pg_SetDefaultWindowSurface(surface);
         Py_DECREF(surface);
 
-        /* ensure window is initially black */
-        if (init_flip) {
-            SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
-            pg_flip_internal(state);
-        }
+        /* ensure window is always black after a set_mode call */
+        SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
+        pg_flip_internal(state);
     }
 
     /*set the window icon*/
@@ -1975,13 +1971,14 @@ pg_get_caption(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_set_icon(PyObject *self, PyObject *arg)
+pg_set_icon(PyObject *self, PyObject *surface)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface;
-    if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
-        return NULL;
+    if (!pgSurface_Check(surface)) {
+        return RAISE(PyExc_TypeError,
+                     "Argument to set_icon must be a Surface");
+    }
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         if (!pg_display_init(NULL, NULL))
@@ -2544,14 +2541,14 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
-    {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
+    {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
 
     {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
      DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
-    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_VARARGS,
+    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_O,
      "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "DEPRECATED, never officially supported, kept only for compatibility "

@@ -4,7 +4,7 @@
 
 
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
-|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |BlackFormatBadge|
+|Python3| |GithubCommits| |BlackFormatBadge|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -30,7 +30,10 @@ Help
 If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
-entire library. Browse the documentation on the `docs page`_.
+entire library. Browse the documentation on the `docs page`_. You
+can also browse the documentation locally by running `python -m pygame.docs`
+in your terminal. If the docs aren't found locally, it'll launch the online
+website instead.
 
 The online documentation stays up to date with the development version
 of pygame on github.  This may be a bit newer than the version of pygame
@@ -164,15 +167,6 @@ See docs/licenses for licenses of dependencies.
 
 .. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
    :target: https://github.com/pygame/pygame/compare/2.1.2...main
-
-.. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
-
-.. |LGTMGradePython| image:: https://img.shields.io/lgtm/grade/python/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:python
-
-.. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
 
 .. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black

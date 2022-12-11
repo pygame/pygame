@@ -696,12 +696,11 @@ buffer_bool(BufferObject *self)
 
 static PyNumberMethods buffer_as_number = {.nb_bool = (inquiry)buffer_bool};
 
-#define BUFFER_TYPE_FULLNAME "newbuffer.Py_buffer"
 #define BUFFER_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject Py_buffer_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = BUFFER_TYPE_FULLNAME,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.newbuffer.Py_buffer",
     .tp_basicsize = sizeof(BufferObject),
     .tp_dealloc = (destructor)buffer_dealloc,
     .tp_as_number = &buffer_as_number,
@@ -824,10 +823,9 @@ static PyBufferProcs mixin_bufferprocs = {
     (getbufferproc)mixin_getbuffer, (releasebufferproc)mixin_releasebuffer};
 
 #define MIXIN_TPFLAGS (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
-#define BUFFER_MIXIN_TYPE_FULLNAME "newbuffer.BufferMixin"
 
 static PyTypeObject BufferMixin_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = BUFFER_MIXIN_TYPE_FULLNAME,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.newbuffer.BufferMixin",
     .tp_basicsize = sizeof(PyObject),
     .tp_as_buffer = &mixin_bufferprocs,
     .tp_flags = MIXIN_TPFLAGS,

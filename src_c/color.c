@@ -22,7 +22,9 @@
  *
  * Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
  * This addresses bug 52:
- * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ * https://github.com/pygame/pygame/issues/52
+ * With this option, floats have consistent precision regardless of optimize
+ * level.
  *
  * Apparently, the same problem plagues pygame.color, as it failed the
  * test_hsva__all_elements_within_limits and
@@ -260,7 +262,7 @@ static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Color",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.color.Color",
     .tp_basicsize = sizeof(pgColorObject),
     .tp_dealloc = (destructor)_color_dealloc,
     .tp_repr = (reprfunc)_color_repr,
@@ -541,10 +543,7 @@ _color_new_internal_length(PyTypeObject *type, const Uint8 rgba[],
         return NULL;
     }
 
-    color->data[0] = rgba[0];
-    color->data[1] = rgba[1];
-    color->data[2] = rgba[2];
-    color->data[3] = rgba[3];
+    memcpy(color->data, rgba, 4);
     color->len = length;
 
     return color;
@@ -1678,6 +1677,12 @@ static PyObject *
 _color_set_length(pgColorObject *color, PyObject *args)
 {
     int clength;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.Color.set_length deprecated since 2.1.3",
+                     1) == -1) {
+        return NULL;
+    }
 
     if (!PyArg_ParseTuple(args, "i", &clength)) {
         if (!PyErr_ExceptionMatches(PyExc_OverflowError)) {
