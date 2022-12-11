@@ -269,6 +269,9 @@ class FontTest(unittest.TestCase):
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
     def test_render_multiline(self):
+        if pygame_font.__name__ == "pygame.ftfont":
+            return
+
         f = pygame_font.Font(None, 20)
         one_line = f.render("hello", True, "black", "white", 200)
         two_lines = f.render("hello\nworld", True, "black", "white", 200)
@@ -495,6 +498,9 @@ class FontTypeTest(unittest.TestCase):
             self.assertFalse(f.strikethrough)
 
     def test_set_align_property(self):
+        if pygame_font.__name__ == "pygame.ftfont":
+            return
+    
         f = pygame_font.Font(None, 20)
         self.assertEqual(f.align, pygame.FONT_LEFT)
         f.align = pygame.FONT_CENTER
