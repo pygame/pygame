@@ -272,6 +272,11 @@ class FontTest(unittest.TestCase):
         if pygame_font.__name__ == "pygame.ftfont":
             return
 
+        if pygame.font.get_sdl_ttf_version() < (2, 20, 0):
+            # When the SDL_TTF version is too low, it just ignores the
+            # line wrap parameter and newlines
+            return
+
         f = pygame_font.Font(None, 20)
         one_line = f.render("hello", True, "black", "white", 200)
         two_lines = f.render("hello\nworld", True, "black", "white", 200)
@@ -502,6 +507,11 @@ class FontTypeTest(unittest.TestCase):
             return
 
         f = pygame_font.Font(None, 20)
+
+        if pygame.font.get_sdl_ttf_version() < (2, 0, 18):
+            with self.assertRaises(pygame.error):
+                f.align = pygame.FONT_CENTER
+
         self.assertEqual(f.align, pygame.FONT_LEFT)
         f.align = pygame.FONT_CENTER
         self.assertEqual(f.align, pygame.FONT_CENTER)
