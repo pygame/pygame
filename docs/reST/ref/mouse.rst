@@ -24,6 +24,16 @@ is moving many motion events will be placed on the queue. Mouse motion events
 that are not properly cleaned from the event queue are the primary reason the 
 event queue fills up.
 
+When using ``pygame.MOUSEBUTTONDOWN`` or ``pygame.MOUSEBUTTONUP`` events
+to track the scrolling of the mousewheel, if multiple events are registered
+in a frame, 2 will be added to each successive event's button attribute. So,
+if 3 events are registered during one frame when you scroll up, the first
+``pygame.MOUSEBUTTONDOWN`` event will have a button attribute of 4, the second
+will have a button attribute of 6, and the third will have a button attribute
+of 8. The same goes for ``pygame.MOUSEBUTTONUP`` events.
+During scrolling, both types of events will be generated, so to track
+scrolling, only handle one of these two types of events.
+
 If the mouse cursor is hidden, and input is grabbed to the current display the
 mouse will enter a virtual input mode, where the relative movements of the
 mouse will never be stopped by the borders of the screen. See the functions
