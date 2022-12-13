@@ -512,8 +512,8 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     SDL_Surface *surface;
     SDL_PixelFormat default_format;
 
-    char *kwids[] = {"size", "flags", "depth", "masks", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwids, &size, &flags,
+    static char *keywords[] = {"size", "flags", "depth", "masks", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", keywords, &size, &flags,
                                      &depth, &masks))
         return -1;
 
@@ -1741,8 +1741,8 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     SDL_Rect sdlrect;
     int blendargs = 0;
 
-    static char *kwids[] = {"color", "rect", "special_flags", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids, &rgba_obj,
+    static char *keywords[] = {"color", "rect", "special_flags", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", keywords, &rgba_obj,
                                      &r, &blendargs))
         return NULL;
     if (!surf)
@@ -1834,8 +1834,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int sx, sy;
     int the_args = 0;
 
-    static char *kwids[] = {"source", "dest", "area", "special_flags", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Oi", kwids,
+    static char *keywords[] = {"source", "dest", "area", "special_flags", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Oi", keywords,
                                      &pgSurface_Type, &srcobject, &argpos,
                                      &argrect, &the_args))
         return NULL;
@@ -1914,8 +1914,8 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int doreturn = 1;
     int bliterrornum = 0;
     int issequence = 0;
-    static char *kwids[] = {"blit_sequence", "doreturn", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwids, &blitsequence,
+    static char *keywords[] = {"blit_sequence", "doreturn", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", keywords, &blitsequence,
                                      &doreturn))
         return NULL;
 
@@ -2140,8 +2140,8 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     int w, h;
     Uint8 *src, *dst;
 
-    static char *kwids[] = {"dx", "dy", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwids, &dx, &dy)) {
+    static char *keywords[] = {"dx", "dy", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", keywords, &dx, &dy)) {
         return NULL;
     }
 
@@ -2326,11 +2326,6 @@ surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *rect;
     SDL_Surface *surf = pgSurface_AsSurface(self);
-
-    if (PyTuple_GET_SIZE(args) > 0) {
-        return RAISE(PyExc_TypeError,
-                     "get_rect only accepts keyword arguments");
-    }
 
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
@@ -2660,8 +2655,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     Uint32 colorkey;
     Uint8 keyr, keyg, keyb;
 
-    char *kwids[] = {"min_alpha", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha))
+    char *keywords[] = {"min_alpha", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &min_alpha))
         return RAISE(PyExc_ValueError,
                      "get_bounding_rect only accepts a single optional "
                      "min_alpha argument");
