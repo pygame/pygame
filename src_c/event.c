@@ -856,7 +856,6 @@ get_joy_guid(int device_index)
 void
 _joy_map_add(int device_index)
 {
-#if SDL_VERSION_ATLEAST(2, 0, 6)
     int instance_id = (int)SDL_JoystickGetDeviceInstanceID(device_index);
     PyObject *k, *v;
     if (instance_id != -1) {
@@ -868,7 +867,6 @@ _joy_map_add(int device_index)
         Py_XDECREF(k);
         Py_XDECREF(v);
     }
-#endif
 }
 
 /** Look up a device ID for an instance ID. */

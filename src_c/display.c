@@ -474,11 +474,9 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-#if SDL_VERSION_ATLEAST(2, 0, 6)
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
-#endif
 #endif
 #if defined(SDL_VIDEO_DRIVER_WINRT)
     tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
