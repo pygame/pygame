@@ -350,11 +350,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(DOLLARGESTURE);
         _PG_HANDLE_PROXIFY(DOLLARRECORD);
         _PG_HANDLE_PROXIFY(DROPFILE);
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         _PG_HANDLE_PROXIFY(DROPTEXT);
         _PG_HANDLE_PROXIFY(DROPBEGIN);
         _PG_HANDLE_PROXIFY(DROPCOMPLETE);
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         _PG_HANDLE_PROXIFY(FINGERMOTION);
         _PG_HANDLE_PROXIFY(FINGERDOWN);
         _PG_HANDLE_PROXIFY(FINGERUP);
@@ -750,14 +748,12 @@ _pg_name_from_eventtype(int type)
             return "TextEditing";
         case SDL_DROPFILE:
             return "DropFile";
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             return "DropText";
         case SDL_DROPBEGIN:
             return "DropBegin";
         case SDL_DROPCOMPLETE:
             return "DropComplete";
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -1137,8 +1133,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "file", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
-
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
@@ -1146,8 +1140,6 @@ dict_from_event(SDL_Event *event)
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
             break;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
             _pg_insobj(dict, "instance_id",
