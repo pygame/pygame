@@ -266,6 +266,8 @@ static PyObject *
 vector_clamp_magnitude_ip(pgVector *self, PyObject *const *args,
                           Py_ssize_t nargs);
 PG_DECLARE_FASTCALL_FUNC(vector_clamp_magnitude_ip, pgVector);
+static PyObject *
+vector___round__(pgVector *self, PyObject *args);
 
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
@@ -2101,6 +2103,47 @@ static PyBufferProcs vector_as_buffer = {
 };
 #endif
 
+static PyObject *
+vector___round__(pgVector *self, PyObject *args)
+{
+    Py_ssize_t i, ndigits;
+    PyObject *o_ndigits = NULL;
+
+    pgVector *ret = _vector_subtype_new(self);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(args, "|O", &o_ndigits)) {
+        Py_DECREF(ret);
+        return NULL;
+    }
+
+    memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
+
+    if (o_ndigits == NULL || o_ndigits == Py_None) {
+        for (i = 0; i < ret->dim; ++i)
+            ret->coords[i] = round(ret->coords[i]);
+    }
+    else if (RealNumber_Check(o_ndigits)) {
+        ndigits = PyNumber_AsSsize_t(o_ndigits, NULL);
+        if (PyErr_Occurred()) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+        for (i = 0; i < ret->dim; ++i)
+            ret->coords[i] = round(ret->coords[i] * pow(10, (double)ndigits)) /
+                             pow(10, (double)ndigits);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Argument must be an integer");
+        Py_DECREF(ret);
+        return NULL;
+    }
+
+    return (PyObject *)ret;
+}
+
 /*********************************************************************
  * vector2 specific functions
  *********************************************************************/
@@ -2498,6 +2541,7 @@ static PyMethodDef vector2_methods[] = {
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
+    {"__round__", (PyCFunction)vector___round__, METH_VARARGS, NULL},
 
     {NULL} /* Sentinel */
 };
@@ -3417,6 +3461,7 @@ static PyMethodDef vector3_methods[] = {
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector3_reduce, METH_NOARGS, NULL},
+    {"__round__", (PyCFunction)vector___round__, METH_VARARGS, NULL},
 
     {NULL} /* Sentinel */
 };
