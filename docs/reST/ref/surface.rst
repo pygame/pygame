@@ -769,8 +769,10 @@
 
       This is not needed for normal pygame usage.
 
-      .. note:: In SDL2, the masks are read-only and accordingly this method will raise
-                an AttributeError if called.
+      .. note:: Starting in pygame 2.0, the masks are read-only and
+         accordingly this method will raise a TypeError if called.
+
+      .. deprecated:: 2.0.0
 
       .. versionadded:: 1.8.1
 
@@ -795,8 +797,10 @@
 
       This is not needed for normal pygame usage.
 
-      .. note:: In SDL2, the shifts are read-only and accordingly this method will raise
-                an AttributeError if called.
+      .. note:: Starting in pygame 2.0, the shifts are read-only and
+         accordingly this method will raise a TypeError if called.
+
+      .. deprecated:: 2.0.0
 
       .. versionadded:: 1.8.1
 
