@@ -3,6 +3,7 @@
 
 import sys
 import traceback
+import importlib
 
 
 def str_from_tuple(version_tuple):
@@ -13,54 +14,60 @@ def str_from_tuple(version_tuple):
     return ".".join(strs)
 
 
+def attempt_import(module, function_name, output_str=""):
+    try:
+        mod = importlib.import_module(module)
+        i = getattr(mod, function_name)
+        success = True
+    except (ImportError, AttributeError):
+        i = None
+        output_str += f"There was a problem with {module} import\n"
+        output_str += "A dummy value will be returned for the version\n"
+        output_str += traceback.format_exc() + "\n" + "=" * 20 + "\n"
+        success = False
+
+    return (output_str, success, i)
+
+
 def print_debug_info(filename=None):
     debug_str = ""
 
+    # keyword for compat with getters
+    def dummy_return(linked=True):
+        # lint complains about unused keyword
+        if linked:
+            return (-1, -1, -1)
+        return (-1, -1, -1)
+
     from pygame.base import get_sdl_version
 
-    try:
-        from pygame.mixer import get_sdl_mixer_version
-    except ImportError as e:
-        debug_str += "There was a problem with pygame.mixer import\n"
-        debug_str += "The SDL mixer version will be a dummy value\n"
-        debug_str += traceback.format_exc() + "\n"
-        debug_str += "=" * 20 + "\n"
+    debug_str, *mixer = attempt_import(
+        "pygame.mixer", "get_sdl_mixer_version", debug_str
+    )
+    if not mixer[0]:
+        get_sdl_mixer_version = dummy_return
+    else:
+        get_sdl_mixer_version = mixer[1]
 
-        def get_sdl_mixer_version(linked=True):
-            return (-1, -1, -1)
+    debug_str, *font = attempt_import("pygame.font", "get_sdl_ttf_version", debug_str)
+    if not font[0]:
+        get_sdl_ttf_version = dummy_return
+    else:
+        get_sdl_ttf_version = font[1]
 
-    try:
-        from pygame.font import get_sdl_ttf_version
-    except ImportError as e:
-        debug_str += "There was a problem with pygame.font import\n"
-        debug_str += "The SDL ttf version will be a dummy value\n"
-        debug_str += traceback.format_exc() + "\n"
-        debug_str += "=" * 20 + "\n"
+    debug_str, *image = attempt_import(
+        "pygame.image", "get_sdl_image_version", debug_str
+    )
+    if not image[0]:
+        get_sdl_image_version = dummy_return
+    else:
+        get_sdl_image_version = image[1]
 
-        def get_sdl_ttf_version(linked=True):
-            return (-1, -1, -1)
-
-    try:
-        from pygame.image import get_sdl_image_version
-    except ImportError as e:
-        debug_str += "There was a problem with pygame.image import\n"
-        debug_str += "The SDL image version will be a dummy value\n"
-        debug_str += traceback.format_exc() + "\n"
-        debug_str += "=" * 20 + "\n"
-
-        def get_sdl_image_version(linked=True):
-            return (-1, -1, -1)
-
-    try:
-        from pygame.freetype import get_version as ft_version
-    except ImportError as e:
-        debug_str += "There was a problem with pygame.freetype import\n"
-        debug_str += "The FreeType version will be a dummy value\n"
-        debug_str += traceback.format_exc() + "\n"
-        debug_str += "=" * 20 + "\n"
-
-        def ft_version(linked=True):
-            return (-1, -1, -1)
+    debug_str, *freetype = attempt_import("pygame.freetype", "get_version", debug_str)
+    if not freetype[0]:
+        ft_version = dummy_return
+    else:
+        ft_version = freetype[1]
 
     from pygame.version import ver
 
