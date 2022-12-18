@@ -4,9 +4,9 @@
 import sys
 import traceback
 import importlib
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Callable
 
-ImportResult = Tuple[str, bool, Optional[Any]]
+ImportResult = Tuple[str, bool, Optional[Callable]]
 
 
 def str_from_tuple(version_tuple):
