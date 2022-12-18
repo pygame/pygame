@@ -4,6 +4,9 @@
 import sys
 import traceback
 import importlib
+from typing import Tuple, Optional, TypeAlias
+
+ImportResult: TypeAlias = Tuple[str, bool, Optional[function]]
 
 
 def str_from_tuple(version_tuple):
