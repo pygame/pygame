@@ -2,6 +2,7 @@
 """
 
 import sys
+import traceback
 
 
 def str_from_tuple(version_tuple):
@@ -13,15 +14,17 @@ def str_from_tuple(version_tuple):
 
 
 def print_debug_info(filename=None):
+    debug_str = ""
+
     from pygame.base import get_sdl_version
 
     try:
         from pygame.mixer import get_sdl_mixer_version
     except ImportError as e:
-        print("There was a problem with pygame.mixer import")
-        print("The SDL mixer version will be a dummy value")
-        print(e)
-        print("=" * 20)
+        debug_str += "There was a problem with pygame.mixer import\n"
+        debug_str += "The SDL mixer version will be a dummy value\n"
+        debug_str += traceback.format_exc() + "\n"
+        debug_str += "=" * 20 + "\n"
 
         def get_sdl_mixer_version(linked=True):
             return (-1, -1, -1)
@@ -29,10 +32,10 @@ def print_debug_info(filename=None):
     try:
         from pygame.font import get_sdl_ttf_version
     except ImportError as e:
-        print("There was a problem with pygame.font import")
-        print("The SDL ttf version will be a dummy value")
-        print(e)
-        print("=" * 20)
+        debug_str += "There was a problem with pygame.font import\n"
+        debug_str += "The SDL ttf version will be a dummy value\n"
+        debug_str += traceback.format_exc() + "\n"
+        debug_str += "=" * 20 + "\n"
 
         def get_sdl_ttf_version(linked=True):
             return (-1, -1, -1)
@@ -40,10 +43,10 @@ def print_debug_info(filename=None):
     try:
         from pygame.image import get_sdl_image_version
     except ImportError as e:
-        print("There was a problem with pygame.image import")
-        print("The SDL image version will be a dummy value")
-        print(e)
-        print("=" * 20)
+        debug_str += "There was a problem with pygame.image import\n"
+        debug_str += "The SDL image version will be a dummy value\n"
+        debug_str += traceback.format_exc() + "\n"
+        debug_str += "=" * 20 + "\n"
 
         def get_sdl_image_version(linked=True):
             return (-1, -1, -1)
@@ -51,10 +54,10 @@ def print_debug_info(filename=None):
     try:
         from pygame.freetype import get_version as ft_version
     except ImportError as e:
-        print("There was a problem with pygame.freetype import")
-        print("The FreeType version will be a dummy value")
-        print(e)
-        print("=" * 20)
+        debug_str += "There was a problem with pygame.freetype import\n"
+        debug_str += "The FreeType version will be a dummy value\n"
+        debug_str += traceback.format_exc() + "\n"
+        debug_str += "=" * 20 + "\n"
 
         def ft_version(linked=True):
             return (-1, -1, -1)
@@ -62,8 +65,6 @@ def print_debug_info(filename=None):
     from pygame.version import ver
 
     import platform
-
-    debug_str = ""
 
     debug_str += f"Platform:\t\t{platform.platform()}\n"
 
