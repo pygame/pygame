@@ -1,6 +1,6 @@
-from typing import Tuple, Union, Optional
+from typing import Tuple, Union, Optional, Any
 
-ImportResult = Tuple[str, bool, Optional[function]]
+ImportResult = Tuple[str, bool, Optional[Any]]
 
 def str_from_tuple(version_tuple: Union[Tuple[int, int, int], None]) -> str: ...
 def attempt_import(module: str, function_name: str, output_str: str="") -> ImportResult: ...

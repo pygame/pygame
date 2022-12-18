@@ -6,7 +6,7 @@ import traceback
 import importlib
 from typing import Tuple, Optional
 
-ImportResult = Tuple[str, bool, Optional[function]]
+ImportResult = Tuple[str, bool, Optional[Any]]
 
 
 def str_from_tuple(version_tuple):
