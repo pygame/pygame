@@ -1,6 +1,6 @@
 #include "simd_blitters.h"
 
-#ifdef PG_ENABLE_ARM_NEON
+#if PG_ENABLE_ARM_NEON
 // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
@@ -40,7 +40,7 @@ int
 pg_neon_at_runtime_but_uncompiled()
 {
     if (SDL_HasNEON()) {
-#ifdef PG_ENABLE_ARM_NEON
+#if PG_ENABLE_ARM_NEON
         return 0;
 #else
         return 1;
