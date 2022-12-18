@@ -14,10 +14,50 @@ def str_from_tuple(version_tuple):
 
 def print_debug_info(filename=None):
     from pygame.base import get_sdl_version
-    from pygame.mixer import get_sdl_mixer_version
-    from pygame.font import get_sdl_ttf_version
-    from pygame.image import get_sdl_image_version
-    from pygame.freetype import get_version as ft_version
+
+    try:
+        from pygame.mixer import get_sdl_mixer_version
+    except ImportError as e:
+        print("There was a problem with pygame.mixer import")
+        print("The SDL mixer version will be a dummy value")
+        print(e)
+        print("=" * 20)
+
+        def get_sdl_mixer_version(linked=True):
+            return (-1, -1, -1)
+
+    try:
+        from pygame.font import get_sdl_ttf_version
+    except ImportError as e:
+        print("There was a problem with pygame.font import")
+        print("The SDL ttf version will be a dummy value")
+        print(e)
+        print("=" * 20)
+
+        def get_sdl_ttf_version(linked=True):
+            return (-1, -1, -1)
+
+    try:
+        from pygame.image import get_sdl_image_version
+    except ImportError as e:
+        print("There was a problem with pygame.image import")
+        print("The SDL image version will be a dummy value")
+        print(e)
+        print("=" * 20)
+
+        def get_sdl_image_version(linked=True):
+            return (-1, -1, -1)
+
+    try:
+        from pygame.freetype import get_version as ft_version
+    except ImportError as e:
+        print("There was a problem with pygame.freetype import")
+        print("The FreeType version will be a dummy value")
+        print(e)
+        print("=" * 20)
+
+        def ft_version(linked=True):
+            return (-1, -1, -1)
 
     from pygame.version import ver
 
