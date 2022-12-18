@@ -12,6 +12,7 @@ class DebugTest(unittest.TestCase):
 
     def test_print_debug(self):
         import os
+
         pygame.print_debug_info("temp_file.txt")
         with open("temp_file.txt", "r") as temp_file:
             text = temp_file.read()
