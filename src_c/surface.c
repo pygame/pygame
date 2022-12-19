@@ -2383,15 +2383,6 @@ surf_get_masks(PyObject *self, PyObject *_null)
 static PyObject *
 surf_set_masks(PyObject *self, PyObject *args)
 {
-    SDL_Surface *surf = pgSurface_AsSurface(self);
-    /* Need to use 64bit vars so this works on 64 bit pythons. */
-    unsigned long r, g, b, a;
-
-    if (!PyArg_ParseTuple(args, "(kkkk)", &r, &g, &b, &a))
-        return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-
     return RAISE(PyExc_TypeError, "The surface masks are read-only in SDL2");
 }
 
@@ -2409,14 +2400,6 @@ surf_get_shifts(PyObject *self, PyObject *_null)
 static PyObject *
 surf_set_shifts(PyObject *self, PyObject *args)
 {
-    SDL_Surface *surf = pgSurface_AsSurface(self);
-    unsigned long r, g, b, a;
-
-    if (!PyArg_ParseTuple(args, "(kkkk)", &r, &g, &b, &a))
-        return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-
     return RAISE(PyExc_TypeError, "The surface shifts are read-only in SDL2");
 }
 
