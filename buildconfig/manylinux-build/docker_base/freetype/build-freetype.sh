@@ -26,6 +26,10 @@ cd $FREETYPE
 make
 make install  # this freetype is not installed to mac cache dir
 
+# (because of issues on macos < 12, we don't compile freetype with harfbuzz
+# support on macs)
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+
 cd ..
 
 # 2. Compile harfbuzz with freetype support
@@ -60,6 +64,8 @@ make clean
 ./configure $ARCHS_CONFIG_FLAG --with-harfbuzz=yes
 make
 make install
+
+fi # if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Install to mac deps cache dir as well

@@ -78,9 +78,15 @@ cd ..
 tar xzf ${TTF2}.tar.gz
 cd $TTF2
 
-# We already build freetype+harfbuzz for pygame.freetype
-# So we make SDL_ttf use that instead of SDL_ttf vendored copies
-./configure $ARCHS_CONFIG_FLAG --disable-freetype-builtin --disable-harfbuzz-builtin
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # On linux we already build freetype+harfbuzz for pygame.freetype
+    # So we make SDL_ttf use that instead of SDL_ttf vendored copies
+    # TODO: These flags should also be used on mac builds once macos < 12
+    # freetype issue is addressed
+    EXTRA_SDL_TTF_FLAGS="--disable-freetype-builtin --disable-harfbuzz-builtin"
+fi
+
+./configure $ARCHS_CONFIG_FLAG $EXTRA_SDL_TTF_FLAGS
 make
 make install
 
