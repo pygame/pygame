@@ -103,14 +103,14 @@ def benchmark_workers(a_bench_func=None, the_data=None):
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for _ in range(20):
-            print(f"active count:{threading.active_count()}")
+            print("active count: {}").format(threading.active_count())
             tmap(doit, thedata, worker_queue=wq)
         t2 = time.time()
 
         wq.stop()
 
         total_time = t2 - t1
-        print(f"total time num_workers:{num_workers}: time:{total_time}:")
+        print("Total Time num_workers: {}, time: {}").format(num_workers, total_time)
 
         if total_time < best:
             # last_best = best_number
