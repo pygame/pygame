@@ -110,7 +110,7 @@ def benchmark_workers(a_bench_func=None, the_data=None):
         wq.stop()
 
         total_time = t2 - t1
-        print("Total Time num_workers: {}, time: {}").format(num_workers, total_time)
+        print("Total Time num_workers: {}, time: {}".format(num_workers, total_time))
 
         if total_time < best:
             # last_best = best_number
