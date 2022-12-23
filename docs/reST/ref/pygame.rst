@@ -192,10 +192,10 @@ object instead of the module, which can be used to test for availability.
 
    .. ## pygame.encode_file_path ##
 
-.. function:: debug
+.. function:: print_debug_info
    
    | :sl:`retrieves useful information for debugging and issue-reporting purposes`
-   | :sg:`debug(filename=None) -> None`
+   | :sg:`print_debug_info(filename=None) -> None`
 
    Constructs a string containing details on the system, the python interpreter,
    the pygame version, and the linked and compiled versions of the libraries that
@@ -209,7 +209,7 @@ object instead of the module, which can be used to test for availability.
 
    .. versionadded:: 2.1.4
 
-   .. ## pygame.debug ##
+   .. ## pygame.print_debug_info ##
 
 
 :mod:`pygame.version`
