@@ -45,7 +45,7 @@ _ft_quit(PyObject *, PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
-_ft_get_version(PyObject *, PyObject *);
+_ft_get_version(PyObject *, PyObject *, PyObject *);
 static PyObject *
 _ft_get_error(PyObject *, PyObject *);
 static PyObject *
@@ -493,7 +493,7 @@ static PyMethodDef _ft_methods[] = {
     {"was_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
     {"get_error", _ft_get_error, METH_NOARGS, DOC_PYGAMEFREETYPEGETERROR},
-    {"get_version", _ft_get_version, METH_NOARGS,
+    {"get_version", (PyCFunction)_ft_get_version, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEGETVERSION},
     {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETCACHESIZE},
@@ -2036,11 +2036,50 @@ _ft_get_error(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-_ft_get_version(PyObject *self, PyObject *_null)
+_ft_get_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    /* Return the linked FreeType2 version */
-    return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
-                         FREETYPE_PATCH);
+    int linked = 1;
+    static char *keywords[] = {"linked", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|p", keywords, &linked)) {
+        return NULL;
+    }
+
+    if (linked) {
+        /*
+         * The FreeType library is being initialized here separately from the
+         * initialization of the `pygame.freetype` module so that the linked
+         * version can always be obtained. This does not affect the
+         * initialization state of `pygame.freetype` itself.
+         *
+         * The reason this is needed is because if freetype has not been
+         * initialized, then a segmentation fault can happen. The alternative
+         * would be to return something predefined to mean something akin to
+         * "Unknown", but as this function is meant for debugging purposes, it
+         * seems like a good idea to always be able to retrieve the linked
+         * FreeType version.
+         */
+        FT_Library lib;
+        int err = FT_Init_FreeType(&lib);
+        if (err) {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "FreeType could not be initialized");
+
+            FT_Done_FreeType(lib);
+
+            return NULL;
+        }
+        FT_Int major, minor, patch;
+        FT_Library_Version(lib, &major, &minor, &patch);
+
+        FT_Done_FreeType(lib);
+
+        return Py_BuildValue("iii", major, minor, patch);
+    }
+    else {
+        return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
+                             FREETYPE_PATCH);
+    }
 }
 
 static PyObject *

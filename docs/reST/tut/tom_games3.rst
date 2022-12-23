@@ -31,7 +31,7 @@ a nasty traceback, which non-programmers won't understand. The code is fairly si
   #
   # Tom's Pong
   # A simple pong game with realistic physics and AI
-  # http://www.tomchance.uklinux.net/projects/pong.shtml
+  # http://tomchance.org.uk/projects/pong
   #
   # Released under the GNU General Public License
 

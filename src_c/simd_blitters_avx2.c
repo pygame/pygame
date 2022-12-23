@@ -26,6 +26,23 @@ pg_has_avx2()
           !defined(SDL_DISABLE_IMMINTRIN_H) */
 }
 
+/* This returns 1 when avx2 is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_avx2_at_runtime_but_uncompiled()
+{
+    if (SDL_HasAVX2()) {
+#if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+    !defined(SDL_DISABLE_IMMINTRIN_H)
+        return 0;
+#else
+        return 1;
+#endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
+          !defined(SDL_DISABLE_IMMINTRIN_H) */
+    }
+    return 0;
+}
+
 #if defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
     !defined(SDL_DISABLE_IMMINTRIN_H)
 void
