@@ -3680,7 +3680,7 @@ class SurfaceBlendTest(unittest.TestCase):
 
         self.assertEqual(argb_surf_a.get_at((0, 0)), pygame.Color(32, 64, 64, 192))
 
-        bgra_surf_a.fill((64, 0, 0, 128))  # black at 100% alpha
+        bgra_surf_a.fill((64, 0, 0, 128))  # 128 red at 50% alpha
         self.assertEqual(bgra_surf_a.get_at((0, 0)), pygame.Color(64, 0, 0, 128))
 
         # 128 green, 128 blue at 50% alpha, premultiplied

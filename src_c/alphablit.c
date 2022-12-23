@@ -581,15 +581,13 @@ SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
                         src->format->Rmask == dst->format->Rmask &&
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
-                        info.src_blend != SDL_BLENDMODE_NONE) &&
+                        src->format->Amask == 0xFF000000 &&
+                        info.src_blend != SDL_BLENDMODE_NONE &&
                         pg_HasSSE_NEON() && (src != dst)) {
                         blit_blend_premultiplied_sse2(&info);
                         break;
                     }
 #endif /* PG_ENABLE_SSE_NEON */
-#endif /* PG_ENABLE_ARM_NEON */
-#endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
-#endif /* __EMSCRIPTEN__ */
 #endif /* SDL_BYTEORDER == SDL_LIL_ENDIAN */
 #endif /* __EMSCRIPTEN__ */
                     blit_blend_premultiplied(&info);
