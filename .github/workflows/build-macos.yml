@@ -33,7 +33,7 @@ on:
 jobs:
   deps:
     name: ${{ matrix.macarch }} deps
-    runs-on: macos-12
+    runs-on: macos-11
     strategy:
       matrix:
         # make arm64 deps and x86_64 deps
@@ -70,7 +70,7 @@ jobs:
   build:
     name: ${{ matrix.name }}
     needs: deps
-    runs-on: macos-12
+    runs-on: macos-11
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
