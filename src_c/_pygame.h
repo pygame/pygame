@@ -42,6 +42,33 @@
 
 #include <SDL.h>
 
+#if (SDL_VERSION_ATLEAST(3, 0, 0))
+#define IS_SDL3 1
+SDL_Surface *SDL_CreateRGBSurface(Uint32 flags, int width, int height, int depth, Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask)
+{
+    return SDL_CreateSurface(width, height,
+            SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask));
+}
+
+SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format)
+{
+    return SDL_CreateSurface(width, height, format);
+}
+
+SDL_Surface *SDL_CreateRGBSurfaceFrom(void *pixels, int width, int height, int depth, int pitch, Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask)
+{
+    return SDL_CreateSurfaceFrom(pixels, width, height, pitch,
+            SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask));
+}
+
+SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels, int width, int height, int depth, int pitch, Uint32 format)
+{
+    return SDL_CreateSurfaceFrom(pixels, width, height, pitch, format);
+}
+#else
+#define IS_SDL3 0
+#endif
+
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,

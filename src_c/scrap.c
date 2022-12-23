@@ -62,26 +62,8 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
-#if !defined(__WIN32__)
 #define SDL2_SCRAP
 #include "scrap_sdl2.c"
-
-#elif defined(__unix__) && defined(SDL_VIDEO_DRIVER_X11)
-/*!defined(__QNXNTO__) &&*/
-#define X11_SCRAP
-#include <time.h> /* Needed for clipboard timeouts. */
-#include "scrap_x11.c"
-
-#elif defined(__WIN32__)
-#define WIN_SCRAP
-#include "scrap_win.c"
-
-#elif defined(__APPLE__)
-#define MAC_SCRAP
-#include "scrap_mac.c"
-#else
-#error Unknown window manager for clipboard handling
-#endif /* scrap type */
 
 /**
  * \brief Indicates whether the scrap module is already initialized.

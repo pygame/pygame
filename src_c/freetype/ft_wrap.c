@@ -465,7 +465,11 @@ RWops_read(FT_Stream stream, unsigned long offset, unsigned char *buffer,
     if (count == 0)
         return 0;
 
+#if IS_SDL3
+    return (unsigned long)SDL_RWread(src, buffer, (size_t)count);
+#else
     return (unsigned long)SDL_RWread(src, buffer, 1, (int)count);
+#endif
 }
 
 int

@@ -347,8 +347,10 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(CONTROLLERTOUCHPADUP);
         _PG_HANDLE_PROXIFY(CONTROLLERSENSORUPDATE);
 #endif
+#if !IS_SDL3
         _PG_HANDLE_PROXIFY(DOLLARGESTURE);
         _PG_HANDLE_PROXIFY(DOLLARRECORD);
+#endif
         _PG_HANDLE_PROXIFY(DROPFILE);
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         _PG_HANDLE_PROXIFY(DROPTEXT);
@@ -362,7 +364,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(KEYUP);
         _PG_HANDLE_PROXIFY(KEYMAPCHANGED);
         _PG_HANDLE_PROXIFY(JOYAXISMOTION);
+#if !IS_SDL3
         _PG_HANDLE_PROXIFY(JOYBALLMOTION);
+#endif
         _PG_HANDLE_PROXIFY(JOYHATMOTION);
         _PG_HANDLE_PROXIFY(JOYBUTTONDOWN);
         _PG_HANDLE_PROXIFY(JOYBUTTONUP);
@@ -375,7 +379,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(MOUSEBUTTONDOWN);
         _PG_HANDLE_PROXIFY(MOUSEBUTTONUP);
         _PG_HANDLE_PROXIFY(MOUSEWHEEL);
+#if !IS_SDL3
         _PG_HANDLE_PROXIFY(MULTIGESTURE);
+#endif
         _PG_HANDLE_PROXIFY(NOEVENT);
         _PG_HANDLE_PROXIFY(QUIT);
         _PG_HANDLE_PROXIFY(RENDER_TARGETS_RESET);
@@ -387,6 +393,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(VIDEOEXPOSE);
         _PG_HANDLE_PROXIFY_PGE(MIDIIN);
         _PG_HANDLE_PROXIFY_PGE(MIDIOUT);
+#if !IS_SDL3
         _PG_HANDLE_PROXIFY_PGE(WINDOWSHOWN);
         _PG_HANDLE_PROXIFY_PGE(WINDOWHIDDEN);
         _PG_HANDLE_PROXIFY_PGE(WINDOWEXPOSED);
@@ -405,6 +412,7 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY_PGE(WINDOWHITTEST);
         _PG_HANDLE_PROXIFY_PGE(WINDOWICCPROFCHANGED);
         _PG_HANDLE_PROXIFY_PGE(WINDOWDISPLAYCHANGED);
+#endif
         default:
             return type;
     }
@@ -422,6 +430,7 @@ _pg_pgevent_deproxify(Uint32 type)
     return _pg_pgevent_proxify_helper(type, 0);
 }
 
+#if !IS_SDL3
 static int
 _pg_translate_windowevent(void *_, SDL_Event *event)
 {
@@ -431,6 +440,7 @@ _pg_translate_windowevent(void *_, SDL_Event *event)
     }
     return 1;
 }
+#endif
 
 static int SDLCALL
 _pg_remove_pending_VIDEORESIZE(void *userdata, SDL_Event *event)
@@ -469,6 +479,7 @@ pg_event_filter(void *_, SDL_Event *event)
     SDL_Event newdownevent, newupevent, newevent = *event;
     int x, y, i;
 
+#if !IS_SDL3
     if (event->type == SDL_WINDOWEVENT) {
         /* DON'T filter SDL_WINDOWEVENTs here. If we delete events, they
          * won't be available to low-level SDL2 either.*/
@@ -496,7 +507,12 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
 
-    else if (event->type == SDL_KEYDOWN) {
+        else if (event->type == SDL_KEYDOWN) {
+#else
+        if (event->type == SDL_KEYDOWN) {  
+#endif
+
+
         if (event->key.repeat)
             return 0;
 
@@ -712,8 +728,10 @@ _pg_name_from_eventtype(int type)
             return "MouseButtonUp";
         case SDL_JOYAXISMOTION:
             return "JoyAxisMotion";
+#if !IS_SDL3
         case SDL_JOYBALLMOTION:
             return "JoyBallMotion";
+#endif
         case SDL_JOYHATMOTION:
             return "JoyHatMotion";
         case SDL_JOYBUTTONUP:
@@ -740,8 +758,10 @@ _pg_name_from_eventtype(int type)
             return "FingerDown";
         case SDL_FINGERUP:
             return "FingerUp";
+#if !IS_SDL3
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+#endif
         case SDL_MOUSEWHEEL:
             return "MouseWheel";
         case SDL_TEXTINPUT:
@@ -792,6 +812,7 @@ _pg_name_from_eventtype(int type)
             return "RenderTargetsReset";
         case SDL_RENDER_DEVICE_RESET:
             return "RenderDeviceReset";
+#if !IS_SDL3
         case PGE_WINDOWSHOWN:
             return "WindowShown";
         case PGE_WINDOWHIDDEN:
@@ -823,11 +844,12 @@ _pg_name_from_eventtype(int type)
         case PGE_WINDOWTAKEFOCUS:
             return "WindowTakeFocus";
         case PGE_WINDOWHITTEST:
-            return "WindowHitTest";
+            return "Window#HitTest";
         case PGE_WINDOWICCPROFCHANGED:
             return "WindowICCProfChanged";
         case PGE_WINDOWDISPLAYCHANGED:
             return "WindowDisplayChanged";
+#endif
     }
     if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
         return "UserEvent";
@@ -1077,6 +1099,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "pressure",
                        PyFloat_FromDouble(event->tfinger.dy));
             break;
+#if !IS_SDL3
         case SDL_MULTIGESTURE:
             /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
             _pg_insobj(dict, "touch_id",
@@ -1090,6 +1113,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "num_fingers",
                        PyLong_FromLong(event->mgesture.numFingers));
             break;
+#endif
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
 #ifndef NO_SDL_MOUSEWHEEL_FLIPPED
@@ -1607,11 +1631,13 @@ _pg_event_pump(int dopump)
     if (dopump) {
         SDL_PumpEvents();
     }
+#if !IS_SDL3
     /* We need to translate WINDOWEVENTS. But if we do that from the
      * from event filter, internal SDL stuff that rely on WINDOWEVENT
      * might break. So after every event pump, we translate events from
      * here */
     SDL_FilterEvents(_pg_translate_windowevent, NULL);
+#endif
 }
 
 static int

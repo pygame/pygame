@@ -454,7 +454,9 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
 
     VIDEO_INIT_CHECK();
 
+#if !IS_SDL3
     SDL_VERSION(&(info.version))
+#endif
     dict = PyDict_New();
     if (!dict)
         return NULL;
@@ -462,7 +464,11 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     win = pg_GetDefaultWindow();
     if (!win)
         return dict;
+#if IS_SDL3
+    if (!SDL_GetWindowWMInfo(win, &info, SDL_SYSWM_CURRENT_VERSION))
+#else
     if (!SDL_GetWindowWMInfo(win, &info))
+#endif
         return dict;
 
     (void)tmp;
@@ -695,7 +701,11 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
     _DisplayState *state;
     SDL_Window *window;
 
+#if IS_SDL3
+    if (event->type != SDL_WINDOWEVENT_SIZE_CHANGED && event->type != SDL_WINDOWEVENT_MAXIMIZED && event->type != SDL_WINDOWEVENT_RESTORED)
+#elif
     if (event->type != SDL_WINDOWEVENT)
+#endif
         return 0;
 
     pygame_window = pg_GetDefaultWindow();
@@ -706,8 +716,16 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
         return 0;
 
     if (pg_renderer != NULL) {
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-
+#if IS_SDL3
+        if (event->type == SDL_WINDOWEVENT_MAXIMIZED) {
+            SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
+        }
+        if (event->type == SDL_WINDOWEVENT_RESTORED) {
+            SDL_RenderSetIntegerScale(
+                pg_renderer, !(SDL_GetHintBoolean(
+                                 "SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE)));
+        }
+#elif (SDL_VERSION_ATLEAST(2, 0, 5))
         if (event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
             SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
         }
@@ -721,7 +739,11 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
     }
 
     if (state->using_gl) {
+#if IS_SDL3
+        if (event->type == SDL_WINDOWEVENT_SIZE_CHANGED) {
+#else
         if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+#endif
             GL_glViewport_Func p_glViewport =
                 (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
             int wnew = event->window.data1;
@@ -747,7 +769,11 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
         return 0;
     }
 
+#if IS_SDL3
+    if (event->type == SDL_WINDOWEVENT_SIZE_CHANGED) {
+#else
     if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+#endif
         if (window == pygame_window) {
             SDL_Surface *sdl_surface = SDL_GetWindowSurface(window);
             pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
@@ -1205,13 +1231,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
                                             "nearest", SDL_HINT_DEFAULT);
 
-                    if (vsync) {
-                        pg_renderer = SDL_CreateRenderer(
-                            win, -1, SDL_RENDERER_PRESENTVSYNC);
-                    }
-                    else {
-                        pg_renderer = SDL_CreateRenderer(win, -1, 0);
-                    }
+                    int renderer_create_flag = vsync ? SDL_RENDERER_PRESENTVSYNC : 0;
+#if IS_SDL3
+                    pg_renderer = SDL_CreateRenderer(win, NULL, renderer_create_flag);
+#else
+                    pg_renderer = SDL_CreateRenderer(win, -1, renderer_create_flag);
+#endif
 
                     if (pg_renderer == NULL) {
                         return RAISE(pgExc_SDLError,
@@ -1262,6 +1287,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 surf = SDL_GetWindowSurface(win);
             }
         }
+#if !IS_SDL3
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
                                                 state->gamma_ramp + 256,
@@ -1276,6 +1302,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 goto DESTROY_WINDOW;
             }
         }
+#endif
 
         if (state->using_gl && pg_renderer != NULL) {
             _display_state_cleanup(state);
@@ -1809,6 +1836,10 @@ pg_set_gamma(PyObject *self, PyObject *arg)
         return NULL;
     }
 
+#if IS_SDL3
+    RAISE(PyExc_TypeError, "Unsupported in SDL3");
+    return PyBool_FromLong(0);
+#else
     float r, g, b;
     int result = 0;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -1842,6 +1873,7 @@ pg_set_gamma(PyObject *self, PyObject *arg)
         state->gamma_ramp = gamma_ramp;
     }
     return PyBool_FromLong(result == 0);
+#endif
 }
 
 static int
@@ -1901,6 +1933,10 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
         return NULL;
     }
 
+#if IS_SDL3
+    RAISE(PyExc_TypeError, "Unsupported in SDL3");
+    return PyBool_FromLong(0);
+#else
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));
@@ -1932,6 +1968,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
         state->gamma_ramp = gamma_ramp;
     }
     return PyBool_FromLong(result == 0);
+#endif
 }
 
 static PyObject *
@@ -2111,8 +2148,15 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
     flags = SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP;
     /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
 
-    SDL_VERSION(&wm_info.version);
+#if !IS_SDL3
+    SDL_VERSION(&(info.version))
+#endif
+
+#if IS_SDL3
+    if (!SDL_GetWindowWMInfo(win, &wm_info, SDL_SYSWM_CURRENT_VERSION)) {
+#else
     if (!SDL_GetWindowWMInfo(win, &wm_info)) {
+#endif
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
@@ -2145,7 +2189,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
         // In the future, add consoles like xbone/switch here
+#if !IS_SDL3
         case SDL_SYSWM_DIRECTFB:
+#endif
         case SDL_SYSWM_UIKIT:    // iOS currently not supported by pygame
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
             if (PyErr_WarnEx(PyExc_Warning,
@@ -2156,7 +2202,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
+#if !IS_SDL3
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
+#endif
 #if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
 #endif
@@ -2212,8 +2260,12 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                 /* display surface lost? */
                 SDL_DestroyTexture(pg_texture);
                 SDL_DestroyRenderer(pg_renderer);
+#if IS_SDL3
+                pg_renderer = SDL_CreateRenderer(win, NULL, SDL_RENDERER_SOFTWARE);
+#else
                 pg_renderer =
                     SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+#endif
                 pg_texture =
                     SDL_CreateTexture(pg_renderer, SDL_PIXELFORMAT_ARGB8888,
                                       SDL_TEXTUREACCESS_STREAMING, w, h);
