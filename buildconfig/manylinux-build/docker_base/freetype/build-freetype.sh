@@ -42,7 +42,10 @@ cd ${HARFBUZZ_NAME}
     --with-cairo=no --with-chafa=no --with-glib=no --with-icu=no \
     --disable-static LDFLAGS="-L/usr/local/lib"
 make
-make install
+
+if [[ "$OSTYPE" != "darwin"* ]]; then
+    make install
+fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Install to mac deps cache dir as well
