@@ -60,7 +60,7 @@ applications which query the clipboard for the ``"my_data_type"`` data type.
 
 For an example of how the scrap module works refer to the examples page
 (:func:`pygame.examples.scrap_clipboard.main`) or the code directly in GitHub
-(`pygame/examples/scrap_clipboard.py <https://github.com/pygame/pygame/blob/master/examples/scrap_clipboard.py>`_).
+(`pygame/examples/scrap_clipboard.py <https://github.com/pygame/pygame/blob/main/examples/scrap_clipboard.py>`_).
 
 .. versionadded:: 1.8
 

@@ -34,8 +34,6 @@ rm -rf /usr/local/Cellar/opusfile
 rm -rf /usr/local/Cellar/opus
 rm -rf /usr/local/Cellar/freetype
 
-rm -rf /usr/local/opt/gettext
-
 rm -rf /usr/local/share/doc/tiff-*
 rm -rf /usr/local/share/doc/libsndfile
 rm -rf /usr/local/share/doc/opusfile

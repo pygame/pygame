@@ -34,6 +34,14 @@
 
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
+#define CHECK_CHUNK_VALID(CHUNK, RET)                                      \
+    if ((CHUNK) == NULL) {                                                 \
+        PyErr_SetString(PyExc_RuntimeError,                                \
+                        "__init__() was not called on Sound object so it " \
+                        "failed to setup correctly.");                     \
+        return (RET);                                                      \
+    }
+
 /* The SDL audio format constants are not defined for anything larger
    than 2 byte samples. Define our own. Low two bytes gives sample
    size in bytes. Higher bytes are flags.
@@ -584,8 +592,10 @@ pg_mixer_get_init(PyObject *self, PyObject *_null)
         Py_RETURN_NONE;
 
     // create a signed or unsigned number of bits per sample
-    // XXX: When mixer is init'd with a format of -8, this returns +8
-    realform = (format & ~0xff) ? -(format & 0xff) : format & 0xff;
+    realform = SDL_AUDIO_BITSIZE(format);
+    if (SDL_AUDIO_ISSIGNED(format)) {
+        realform = -realform;
+    }
     return Py_BuildValue("(iii)", freq, realform, channels);
 }
 
@@ -634,6 +644,8 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     int channelnum = -1;
     int loops = 0, playtime = -1, fade_ms = 0;
 
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     char *kwids[] = {"loops", "maxtime", "fade_ms", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|iii", kwids, &loops,
                                      &playtime, &fade_ms))
@@ -671,6 +683,9 @@ static PyObject *
 snd_get_num_channels(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
+
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     MIXER_INIT_CHECK();
     return PyLong_FromLong(Mix_GroupCount((int)(intptr_t)chunk));
 }
@@ -680,6 +695,9 @@ snd_fadeout(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int _time;
+
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     if (!PyArg_ParseTuple(args, "i", &_time))
         return NULL;
 
@@ -695,6 +713,9 @@ static PyObject *
 snd_stop(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
+
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     MIXER_INIT_CHECK();
     Py_BEGIN_ALLOW_THREADS;
     Mix_HaltGroup((int)(intptr_t)chunk);
@@ -707,6 +728,8 @@ snd_set_volume(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     float volume;
+
+    CHECK_CHUNK_VALID(chunk, NULL);
 
     if (!PyArg_ParseTuple(args, "f", &volume))
         return NULL;
@@ -721,6 +744,9 @@ static PyObject *
 snd_get_volume(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
+
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     int volume;
     MIXER_INIT_CHECK();
 
@@ -732,6 +758,9 @@ static PyObject *
 snd_get_length(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
+
+    CHECK_CHUNK_VALID(chunk, NULL);
+
     int freq, channels, mixerbytes, numsamples;
     Uint16 format;
     MIXER_INIT_CHECK();
@@ -754,6 +783,7 @@ snd_get_raw(PyObject *self, PyObject *_null)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
+    CHECK_CHUNK_VALID(chunk, NULL);
     MIXER_INIT_CHECK();
 
     return PyBytes_FromStringAndSize((const char *)chunk->abuf,
@@ -794,6 +824,8 @@ static PyObject *
 snd_get_samples_address(PyObject *self, PyObject *closure)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
+
+    CHECK_CHUNK_VALID(chunk, NULL);
 
     MIXER_INIT_CHECK();
 
@@ -915,6 +947,8 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
     Py_ssize_t itemsize;
     Py_ssize_t samples;
 
+    CHECK_CHUNK_VALID(chunk, -1);
+
     view->obj = 0;
     if (snd_buffer_iteminfo(&format, &itemsize, &channels)) {
         return -1;
@@ -984,7 +1018,7 @@ sound_dealloc(pgSoundObject *self)
 }
 
 static PyTypeObject pgSound_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Sound",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mixer.Sound",
     .tp_basicsize = sizeof(pgSoundObject),
     .tp_dealloc = (destructor)sound_dealloc,
     .tp_as_buffer = sound_as_buffer,
@@ -1013,6 +1047,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &fade_ms))
         return NULL;
     chunk = pgSound_AsChunk(sound);
+    CHECK_CHUNK_VALID(chunk, NULL);
 
     Py_BEGIN_ALLOW_THREADS;
     if (fade_ms > 0) {
@@ -1046,6 +1081,7 @@ chan_queue(PyObject *self, PyObject *sound)
     }
 
     chunk = pgSound_AsChunk(sound);
+    CHECK_CHUNK_VALID(chunk, NULL);
     if (!channeldata[channelnum].sound) /*nothing playing*/
     {
         Py_BEGIN_ALLOW_THREADS;
@@ -1302,7 +1338,7 @@ channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgChannel_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Channel",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mixer.Channel",
     .tp_basicsize = sizeof(pgChannelObject),
     .tp_dealloc = channel_dealloc,
     .tp_doc = DOC_PYGAMEMIXERCHANNEL,

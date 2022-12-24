@@ -38,7 +38,7 @@ There is proper functionality for mouse wheel behaviour with pygame 2 supporting
 scroll movements, with signed integer values representing the amount scrolled 
 (``x`` and ``y``), as well as ``flipped`` direction (the set positive and 
 negative values for each axis is flipped). Read more about SDL2 
-input-related changes here `<https://wiki.libsdl.org/MigrationGuide#Input>`_
+input-related changes here `<https://wiki.libsdl.org/MigrationGuide#input>`_
 
 In pygame 2, the mouse wheel functionality can be used by listening for the 
 ``pygame.MOUSEWHEEL`` type of an event (Bear in mind they still emit 
