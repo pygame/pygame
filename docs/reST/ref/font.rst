@@ -162,8 +162,8 @@ solves no longer exists, it will likely be removed in the future.
 .. class:: Font
 
    | :sl:`create a new Font object from a file`
-   | :sg:`Font(file=None, size=12) -> Font`
-   | :sg:`Font(filename, size) -> Font`
+   | :sg:`Font(file_path=None, size=12) -> Font`
+   | :sg:`Font(file_path, size) -> Font`
    | :sg:`Font(pathlib.Path, size) -> Font`
    | :sg:`Font(object, size) -> Font`
 
