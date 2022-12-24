@@ -32,24 +32,29 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.image }} [${{ matrix.arch }}]
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         # Split job into many matrix builds, because GH actions provides 20
-        # concurrent builds on ubuntu. 10 are used here
+        # concurrent builds on ubuntu. 6 are used here
         include:
           # no pypy and cpython >= cp310 on manylinux1
-          - { image: manylinux1, arch: x86_64, pyversions: cp36-* cp37-* cp38-* cp39-* }
-          - { image: manylinux1, arch: i686, pyversions: cp36-* cp37-* cp38-* cp39-* }
+          - { image: manylinux1, arch: x86_64, pyversions: "cp3[6-9]-*" }
+          - { image: manylinux1, arch: i686, pyversions: "cp3[6-9]-*" }
 
-          # no pypy 3.9 on manylinux2010
-          - { image: manylinux2010, arch: x86_64, pyversions: cp* pp37-* pp38-* }
-          - { image: manylinux2010, arch: i686, pyversions: cp* pp37-* pp38-* }
+          # no pypy >= 3.9 and cpython >= cp311 on manylinux2010
+          - { image: manylinux2010, arch: x86_64, pyversions: "cp3{[6-9],10}-* pp3{7,8}-*" }
+          - { image: manylinux2010, arch: i686, pyversions: "cp3{[6-9],10}-* pp3{7,8}-*" }
 
-          # all cpython and pypy versions should support this
-          - { image: manylinux2014, arch: x86_64, pyversions: cp* pp* }
-          - { image: manylinux2014, arch: i686, pyversions: cp* pp* }
+          # all cpython and pypy versions should support this for now
+          # The * here essentially tells cibuildwheel to follow its default behaviour 
+          # of building all possible build configurations the particular cibuildwheel
+          # version supports. Unless cibuildwheel itself is bumped to the next version,
+          # this will stay constant and do the same set of builds everytime.
+          - { image: manylinux2014, arch: x86_64, pyversions: "*" }
+          - { image: manylinux2014, arch: i686, pyversions: "*" }
 
     env:
       # load pip config from this file. Define this in 'CIBW_ENVIRONMENT'
@@ -91,7 +96,7 @@ jobs:
     - uses: actions/checkout@v3.0.2
 
     - name: Build and test wheels
-      uses: pypa/cibuildwheel@v2.5.0
+      uses: pypa/cibuildwheel@v2.10.2
 
     # We upload the generated files under github actions assets
     - name: Upload dist
