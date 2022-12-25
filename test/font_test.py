@@ -277,6 +277,9 @@ class FontTypeTest(unittest.TestCase):
     def tearDown(self):
         pygame_font.quit()
 
+    def test_default_parameters(self):
+        f = pygame_font.Font()
+
     def test_get_ascent(self):
         # Ckecking ascent would need a custom test font to do properly.
         f = pygame_font.Font(None, 20)
@@ -515,6 +518,13 @@ class FontTypeTest(unittest.TestCase):
             os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
         )
         f = pygame_font.Font(font_path, 20)
+    
+    def test_load_from_file_default(self):
+        font_name = pygame_font.get_default_font()
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
+        f = pygame_font.Font(font_path)
 
     def test_load_from_pathlib(self):
         font_name = pygame_font.get_default_font()
@@ -522,6 +532,14 @@ class FontTypeTest(unittest.TestCase):
             os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
         )
         f = pygame_font.Font(pathlib.Path(font_path), 20)
+        f = pygame_font.Font(pathlib.Path(font_path))
+
+    def test_load_from_pathlib_default(self):
+        font_name = pygame_font.get_default_font()
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
+        f = pygame_font.Font(pathlib.Path(font_path))
 
     def test_load_from_file_obj(self):
         font_name = pygame_font.get_default_font()
@@ -530,11 +548,25 @@ class FontTypeTest(unittest.TestCase):
         )
         with open(font_path, "rb") as f:
             font = pygame_font.Font(f, 20)
+            font = pygame_font.Font(f)
+
+    def test_load_from_file_obj_default(self):
+        font_name = pygame_font.get_default_font()
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
+        with open(font_path, "rb") as f:
+            font = pygame_font.Font(f)
 
     def test_load_default_font_filename(self):
         # In font_init, a special case is when the filename argument is
         # identical to the default font file name.
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
+
+    def test_load_default_font_filename_default(self):
+        # In font_init, a special case is when the filename argument is
+        # identical to the default font file name.
+        f = pygame_font.Font(pygame_font.get_default_font())
 
     def _load_unicode(self, path):
         import shutil
