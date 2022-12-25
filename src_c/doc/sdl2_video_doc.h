@@ -21,7 +21,6 @@
 #define DOC_WINDOWSIZE "size -> (int, int)\nGets and sets the window size."
 #define DOC_WINDOWPOSITION "position -> (int, int) or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED\nGets and sets the window position."
 #define DOC_WINDOWOPACITY "opacity -> float\nGets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque)."
-#define DOC_WINDOWBRIGHTNESS "brightness -> float\nGets and sets the brightness (gamma multiplier) for the display that owns the window."
 #define DOC_WINDOWDISPLAYINDEX "display_index -> int\nGet the index of the display that owns the window. *Read-only*"
 #define DOC_WINDOWSETMODALFOR "set_modal_for(Window) -> None\nSet the window as a modal for a parent window. This function is only supported on X11."
 #define DOC_PYGAMESDL2VIDEOTEXTURE "Texture(renderer, size, depth=0, static=False, streaming=False, target=False) -> Texture\npygame object that representing a Texture."
@@ -156,10 +155,6 @@ Gets and sets the window position.
 pygame._sdl2.video.Window.opacity
  opacity -> float
 Gets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque).
-
-pygame._sdl2.video.Window.brightness
- brightness -> float
-Gets and sets the brightness (gamma multiplier) for the display that owns the window.
 
 pygame._sdl2.video.Window.display_index
  display_index -> int
