@@ -548,7 +548,6 @@ class FontTypeTest(unittest.TestCase):
         )
         with open(font_path, "rb") as f:
             font = pygame_font.Font(f, 20)
-            font = pygame_font.Font(f)
 
     def test_load_from_file_obj_default(self):
         font_name = pygame_font.get_default_font()
