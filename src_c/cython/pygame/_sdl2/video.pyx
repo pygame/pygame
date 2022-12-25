@@ -506,17 +506,6 @@ cdef class Window:
             raise error()
 
     @property
-    def brightness(self):
-        """ The brightness (gamma multiplier) for the display that owns a given window.
-        0.0 is completely dark and 1.0 is normal brightness."""
-        return SDL_GetWindowBrightness(self._win)
-
-    @brightness.setter
-    def brightness(self, float value):
-        if SDL_SetWindowBrightness(self._win, value):
-            raise error()
-
-    @property
     def display_index(self):
         """ The index of the display associated with the window. *Read-only*.
 
