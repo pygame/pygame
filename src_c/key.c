@@ -155,7 +155,8 @@ static PyTypeObject pgScancodeWrapper_Type = {
 #ifdef PYPY_VERSION
     .tp_new = pg_scancodewrapper_new,
 #endif
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_flags =
+        Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
 };
 
 static PyObject *
