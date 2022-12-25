@@ -269,10 +269,8 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    
    .. versionadded:: 2.1.4
       The collection of bools returned by ``get_pressed`` can not be iterated
-      over. Previously when iterating over the collection using builtin
-      ``enumerate``, if the space bar is is pressed the value received from
-      ``enumerate`` is 44 but ``K_SPACE`` is actually 32. In this case calling
-      :func:`pygame.key.name()` returns a comma character, ",".
+      over because the indexes of the internal tuple does not correpsond to the 
+      keycodes.
 
    .. ## pygame.key.get_pressed ##
 
