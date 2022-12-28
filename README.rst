@@ -63,8 +63,8 @@ on the `Compilation wiki page`_.
 Credits
 -------
 
-Thanks to everyone who has helped contribute to this library.
-Special thanks are also in order.
+Huge thanks to everyone who has helped contribute to this library.
+Special thanks are also in order:
 
 * Marcus Von Appen: many changes, and fixes, 1.7.1+ freebsd maintainer
 * Lenard Lindstrom: the 1.8+ windows maintainer, many changes, and fixes
