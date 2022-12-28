@@ -339,7 +339,7 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
             ver, *get_sdl_version() + sys.version_info[0:3]
         )
     )
-    print("Hello from the pygame community! To contribute, go to: https://www.pygame.org/contribute.html. Your contributions is what keeps pygame alive!")
+    print("Hello from the pygame community! To contribute, go to: https://www.pygame.org/contribute.html. Your contributions keeps pygame great!")
 
 # cleanup namespace
 del pygame, os, sys, MissingModule, copyreg, packager_imports
