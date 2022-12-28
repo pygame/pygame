@@ -1803,6 +1803,12 @@ pg_set_palette(PyObject *self, PyObject *args)
 static PyObject *
 pg_set_gamma(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     float r, g, b;
     int result = 0;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -1889,6 +1895,12 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
 static PyObject *
 pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma_ramp deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));
