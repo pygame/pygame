@@ -1,8 +1,3 @@
-.. Pygame documentation master file, created by
-   sphinx-quickstart on Sat Mar  5 11:56:39 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Pygame Front Page
 =================
 
@@ -15,9 +10,32 @@ Pygame Front Page
    tut/*
    tut/en/**/*
    tut/ko/**/*
+   tut/es/*
    c_api
    filepaths
    logos
+
+Quick start
+-----------
+
+Welcome to pygame! Once you've got pygame installed (:code:`pip install pygame` or
+:code:`pip3 install pygame` for most people), the next question is how to get a game
+loop running. Pygame, unlike some other libraries, gives you full control of program
+execution. That freedom means it is easy to mess up in your initial steps.
+
+Here is a good example of a basic setup (opens the window, updates the screen, and handles events)--
+
+.. literalinclude:: ref/code_examples/base_script.py
+
+Here is a slightly more fleshed out example, which shows you how to move something
+(a circle in this case) around on screen--
+
+.. literalinclude:: ref/code_examples/base_script_example.py
+
+For more in depth reference, check out the :ref:`tutorials-reference-label`
+section below, check out a video tutorial (`I'm a fan of this one
+<https://www.youtube.com/watch?v=AY9MnQ4x3zk>`_), or reference the API
+documentation by module.
 
 Documents
 ---------
@@ -29,10 +47,10 @@ Documents
   Steps needed to compile pygame on several platforms.
   Also help on finding and installing prebuilt binaries for your system.
 
-`File Path Function Arguments`_
+:doc:`filepaths`
   How pygame handles file system paths.
 
-`Pygame Logos`_
+:doc:`Pygame Logos <logos>`
    The logos of Pygame in different resolutions.
 
 
@@ -40,6 +58,8 @@ Documents
   This is the license pygame is distributed under.
   It provides for pygame to be distributed with open source and commercial software.
   Generally, if pygame is not changed, it can be used with any type of program.
+
+.. _tutorials-reference-label:
 
 Tutorials
 ---------
@@ -87,8 +107,14 @@ Tutorials
 :doc:`Display Modes <tut/DisplayModes>`
   Getting a display surface for the screen.
 
-:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/overview>`
+:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/개요>`
   빨간블록 검은블록
+
+:doc:`Tutorial de Pygame - Ejemplo del Chimpancé, Línea Por Línea <tut/es/ChimpanceLineaporLinea>`
+  Los ejemplos de pygame incluyen un sencillo programa con un puño interactivo y un chimpancé.
+  Está inspirado en el molesto banner de flash de principios de la década de 2000.
+  Este tutorial examina cada línea de código utilizada en el ejemplo.
+
 
 Reference
 ---------
@@ -190,8 +216,4 @@ Reference
 
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
-.. _File Path Function Arguments: filepaths.html
-
 .. _LGPL License: LGPL.txt
-
-.. _Pygame Logos: logos.html

@@ -1,6 +1,6 @@
 #include "simd_blitters.h"
 
-#ifdef PG_ENABLE_ARM_NEON
+#if PG_ENABLE_ARM_NEON
 // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
 #include "include/sse2neon.h"
 #endif /* PG_ENABLE_ARM_NEON */
@@ -14,10 +14,40 @@
 
 // Check GCC
 #if __GNUC__
-#if __x86_64__ || __ppc64__
+#if __x86_64__ || __ppc64__ || __aarch64__
 #define ENV64BIT
 #endif
 #endif
+
+/* This returns 1 when sse2 is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_sse2_at_runtime_but_uncompiled()
+{
+    if (SDL_HasSSE2()) {
+#ifdef __SSE2__
+        return 0;
+#else
+        return 1;
+#endif /* __SSE2__ */
+    }
+    return 0;
+}
+
+/* This returns 1 when neon is available at runtime but support for it isn't
+ * compiled in, 0 in all other cases */
+int
+pg_neon_at_runtime_but_uncompiled()
+{
+    if (SDL_HasNEON()) {
+#if PG_ENABLE_ARM_NEON
+        return 0;
+#else
+        return 1;
+#endif /* PG_ENABLE_ARM_NEON */
+    }
+    return 0;
+}
 
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 
@@ -449,25 +479,16 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
     int srcskip = info->s_skip >> 2;
     int dstskip = info->d_skip >> 2;
 
-    // SDL_PixelFormat *srcfmt = info->src;
-    // SDL_PixelFormat *dstfmt = info->dst;
-
     Uint64 *srcp64 = (Uint64 *)info->s_pixels;
     Uint64 *dstp64 = (Uint64 *)info->d_pixels;
 
-    // Uint64 src_amask64 = ((Uint64)srcfmt->Amask << 32) | srcfmt->Amask;
-
     Uint64 rgb_mask64 = 0x00FFFFFF00FFFFFF;
+    Uint32 rgb_mask32 = 0x00FFFFFF;
 
     Uint32 *srcp32 = (Uint32 *)info->s_pixels;
     Uint32 *dstp32 = (Uint32 *)info->d_pixels;
 
-    // Uint32 src_amask32 = srcfmt->Amask;
-
-    Uint32 rgb_mask32 = 0x00FFFFFF;
-
-    __m128i src1, dst1, sub_dst, mm_src_alpha, mm_zero;
-    __m128i mm_alpha_mask_1, mm_alpha_mask_2, mm_rgb_mask;
+    __m128i src1, dst1, sub_dst, mm_src_alpha, mm_zero, mm_rgb_mask;
 
     /* There are two paths through this blitter:
            1. Two pixels at once.
@@ -479,8 +500,6 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
         dstskip = dstskip / 2;
 
         mm_zero = _mm_setzero_si128();
-        mm_alpha_mask_1 = _mm_cvtsi32_si128(0x000000FF);
-        mm_alpha_mask_2 = _mm_cvtsi32_si128(0x00FF0000);
 
         /* two pixels at a time */
         LOAD_64_INTO_M128(&rgb_mask64, &mm_rgb_mask);
@@ -490,21 +509,30 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
                     /* src(ARGB) -> src1 (00000000ARGBARGB) */
                     LOAD_64_INTO_M128(srcp64, &src1);
 
-                    /* created squashed alpha -> mm_src_alpha
-                     * (0000000000000A0A) */
-                    mm_src_alpha =
-                        _mm_add_epi16(_mm_and_si128(_mm_srli_si128(src1, 3),
-                                                    mm_alpha_mask_1),
-                                      _mm_and_si128(_mm_srli_si128(src1, 5),
-                                                    mm_alpha_mask_2));
+                    /* isolate alpha channels
+                     * 00000000A1000A2000 -> mm_src_alpha */
+                    mm_src_alpha = _mm_andnot_si128(mm_rgb_mask, src1);
 
-                    /* Then Calc RGB */
-                    /* 000000000A10A10A20A2 -> rgb_src_alpha */
+                    /* shift right to position alpha channels for manipulation
+                     * 000000000A1000A200 -> mm_src_alpha*/
+                    mm_src_alpha = _mm_srli_si128(mm_src_alpha, 1);
+
+                    /* shuffle alpha channels to duplicate 16 bit pairs
+                     * shuffle (3, 3, 1, 1) (backed 2 bit numbers)
+                     * [00][00][00][00][0A1][00][0A2][00] -> mm_src_alpha
+                     * [7 ][6 ][5 ][4 ][ 3 ][2 ][ 1 ][0 ]
+                     * Therefore the previous contents of 16 bit number #1
+                     * Goes into 16 bit number #1 and #2, and the previous
+                     * content of 16 bit number #3 goes into #2 and #3 */
+                    mm_src_alpha =
+                        _mm_shufflelo_epi16(mm_src_alpha, 0b11110101);
+
+                    /* finally move into final config
+                     * spread out so they can be multiplied in 16 bit math
+                     * against all RGBA of both pixels being blit
+                     * 0A10A10A10A10A20A20A20A2 -> mm_src_alpha */
                     mm_src_alpha =
                         _mm_unpacklo_epi16(mm_src_alpha, mm_src_alpha);
-                    /* 0A10A10A10A10A20A20A20A2 -> rgb_src_alpha */
-                    mm_src_alpha =
-                        _mm_unpacklo_epi32(mm_src_alpha, mm_src_alpha);
 
                     /* 0A0R0G0B0A0R0G0B -> src1 */
                     src1 = _mm_unpacklo_epi8(src1, mm_zero);
@@ -629,9 +657,6 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcdoublepxskip = 2 * dstpxskip;
-    int dstdoublepxskip = 2 * dstpxskip;
-
     int pre_2_width = width % 2;
     int post_2_width = (width - pre_2_width) / 2;
 
@@ -694,13 +719,11 @@ blit_blend_rgba_mul_sse2(SDL_BlitInfo *info)
                     /*dstp = 0xAARRGGBB*/
                     srcp64++;
                     dstp64++;
-                    srcp += srcdoublepxskip;
-                    dstp += dstdoublepxskip;
                 },
                 n, post_2_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp64 + srcskip;
+        dstp = (Uint32 *)dstp64 + dstskip;
     }
 }
 
@@ -720,9 +743,6 @@ blit_blend_rgb_mul_sse2(SDL_BlitInfo *info)
     Uint64 *dstp64 = (Uint64 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcdoublepxskip = 2 * dstpxskip;
-    int dstdoublepxskip = 2 * dstpxskip;
 
     int pre_2_width = width % 2;
     int post_2_width = (width - pre_2_width) / 2;
@@ -796,13 +816,11 @@ blit_blend_rgb_mul_sse2(SDL_BlitInfo *info)
                     /*dstp = 0xAARRGGBB*/
                     srcp64++;
                     dstp64++;
-                    srcp += srcdoublepxskip;
-                    dstp += dstdoublepxskip;
                 },
                 n, post_2_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp64 + srcskip;
+        dstp = (Uint32 *)dstp64 + dstskip;
     }
 }
 
@@ -821,9 +839,6 @@ blit_blend_rgba_add_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -862,13 +877,11 @@ blit_blend_rgba_add_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -887,9 +900,6 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -934,13 +944,11 @@ blit_blend_rgb_add_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -959,9 +967,6 @@ blit_blend_rgba_sub_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1000,13 +1005,11 @@ blit_blend_rgba_sub_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1025,9 +1028,6 @@ blit_blend_rgb_sub_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1072,13 +1072,11 @@ blit_blend_rgb_sub_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1097,9 +1095,6 @@ blit_blend_rgba_max_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1138,13 +1133,11 @@ blit_blend_rgba_max_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1163,9 +1156,6 @@ blit_blend_rgb_max_sse2(SDL_BlitInfo *info)
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
 
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
-
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
 
@@ -1210,13 +1200,11 @@ blit_blend_rgb_max_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1234,9 +1222,6 @@ blit_blend_rgba_min_sse2(SDL_BlitInfo *info)
     Uint32 *dstp = (Uint32 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
 
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
@@ -1276,13 +1261,11 @@ blit_blend_rgba_min_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1300,9 +1283,6 @@ blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
     Uint32 *dstp = (Uint32 *)info->d_pixels;
     int dstskip = info->d_skip >> 2;
     int dstpxskip = info->d_pxskip >> 2;
-
-    int srcquadpxskip = 4 * dstpxskip;
-    int dstquadpxskip = 4 * dstpxskip;
 
     int pre_4_width = width % 4;
     int post_4_width = (width - pre_4_width) / 4;
@@ -1348,13 +1328,11 @@ blit_blend_rgb_min_sse2(SDL_BlitInfo *info)
 
                     srcp128++;
                     dstp128++;
-                    srcp += srcquadpxskip;
-                    dstp += dstquadpxskip;
                 },
                 n, post_4_width);
         }
-        srcp += srcskip;
-        dstp += dstskip;
+        srcp = (Uint32 *)srcp128 + srcskip;
+        dstp = (Uint32 *)dstp128 + dstskip;
     }
 }
 
@@ -1435,3 +1413,68 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo *info)
     }
 }
 #endif /* (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
+
+#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+void
+premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst)
+{
+    int n;
+    int width = src->w;
+    int height = src->h;
+    Uint32 *srcp = (Uint32 *)src->pixels;
+    Uint32 *dstp = (Uint32 *)dst->pixels;
+
+    SDL_PixelFormat *srcfmt = src->format;
+    Uint32 amask = srcfmt->Amask;
+    Uint64 ones;
+
+    __m128i src1, dst1, rgb_mul_src, mm_alpha, mm_alpha_in, mm_zero, ones_128;
+
+    mm_zero = _mm_setzero_si128();
+    ones = 0x0001000100010001;
+    ones_128 = _mm_loadl_epi64((const __m128i *)&ones);
+
+    while (height--) {
+        /* *INDENT-OFF* */
+        LOOP_UNROLLED4(
+            {
+                Uint32 alpha = *srcp & amask;
+                if (alpha == amask) {
+                    *dstp = *srcp;
+                }
+                else {
+                    /* extract source pixels */
+                    src1 = _mm_cvtsi32_si128(
+                        *srcp); /* src(ARGB) -> src1 (000000000000ARGB) */
+                    src1 = _mm_unpacklo_epi8(
+                        src1, mm_zero); /* 000000000A0R0G0B -> src1 */
+
+                    /* extract source alpha and copy to r, g, b channels */
+                    mm_alpha_in = _mm_cvtsi32_si128(
+                        alpha); /* alpha -> mm_alpha (000000000000A000) */
+                    mm_alpha = _mm_srli_si128(
+                        mm_alpha_in, 3); /* mm_alpha >> ashift ->
+                                            mm_alpha(000000000000000A) */
+                    mm_alpha = _mm_unpacklo_epi16(
+                        mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
+                    mm_alpha = _mm_unpacklo_epi32(
+                        mm_alpha,
+                        mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
+
+                    /* rgb alpha multiply */
+                    rgb_mul_src = _mm_add_epi16(src1, ones_128);
+                    rgb_mul_src = _mm_mullo_epi16(rgb_mul_src, mm_alpha);
+                    rgb_mul_src = _mm_srli_epi16(rgb_mul_src, 8);
+                    dst1 = _mm_packus_epi16(rgb_mul_src, mm_zero);
+                    dst1 = _mm_max_epu8(mm_alpha_in,
+                                        dst1); /* restore original alpha */
+
+                    *dstp = _mm_cvtsi128_si32(dst1);
+                }
+                ++srcp;
+                ++dstp;
+            },
+            n, width);
+    }
+}
+#endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/

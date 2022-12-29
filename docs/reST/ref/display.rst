@@ -205,6 +205,11 @@ required).
 
    .. versionchanged:: 1.9.5 ``display`` argument added
 
+   .. versionchanged:: 2.1.3
+      pygame now ensures that subsequent calls to this function clears the
+      window to black. On older versions, this was an implementation detail
+      on the major platforms this function was tested with.
+
    .. ## pygame.display.set_mode ##
 
 .. function:: get_surface
@@ -564,6 +569,8 @@ required).
    | :sl:`Change the hardware gamma ramps`
    | :sg:`set_gamma(red, green=None, blue=None) -> bool`
 
+   DEPRECATED: This functionality will go away in SDL3.
+
    Set the red, green, and blue gamma values on the display hardware. If the
    green and blue arguments are not passed, they will both be the same as red.
    Not all systems and hardware support gamma ramps, if the function succeeds
@@ -572,6 +579,8 @@ required).
    A gamma value of ``1.0`` creates a linear color table. Lower values will
    darken the display and higher values will brighten.
 
+   .. deprecated:: 2.1.4
+
    .. ## pygame.display.set_gamma ##
 
 .. function:: set_gamma_ramp
@@ -579,10 +588,14 @@ required).
    | :sl:`Change the hardware gamma ramps with a custom lookup`
    | :sg:`set_gamma_ramp(red, green, blue) -> bool`
 
+   DEPRECATED: This functionality will go away in SDL3.
+
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
    argument should be sequence of 256 integers. The integers should range
    between ``0`` and ``0xffff``. Not all systems and hardware support gamma
    ramps, if the function succeeds it will return ``True``.
+
+   .. deprecated:: 2.1.4
 
    .. ## pygame.display.set_gamma_ramp ##
 

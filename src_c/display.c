@@ -366,7 +366,7 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.display.VidInfo",
     .tp_basicsize = sizeof(pgVidInfoObject),
     .tp_dealloc = pg_vidinfo_dealloc,
     .tp_getattr = pg_vidinfo_getattr,
@@ -843,7 +843,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
        screen as the old one */
     int display = _get_display(win);
     char *title = state->title;
-    int init_flip = 0;
     char *scale_env;
 
     char *keywords[] = {"size", "flags", "depth", "display", "vsync", NULL};
@@ -1101,7 +1100,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                init_flip = 1;
             }
             else {
                 /* set min size to (1,1) to erase any previously set min size
@@ -1311,11 +1309,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         pg_SetDefaultWindowSurface(surface);
         Py_DECREF(surface);
 
-        /* ensure window is initially black */
-        if (init_flip) {
-            SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
-            pg_flip_internal(state);
-        }
+        /* ensure window is always black after a set_mode call */
+        SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
+        pg_flip_internal(state);
     }
 
     /*set the window icon*/
@@ -1807,6 +1803,12 @@ pg_set_palette(PyObject *self, PyObject *args)
 static PyObject *
 pg_set_gamma(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     float r, g, b;
     int result = 0;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -1893,6 +1895,12 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
 static PyObject *
 pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma_ramp deprecated since 2.1.4",
+                     1) == -1) {
+        return NULL;
+    }
+
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));

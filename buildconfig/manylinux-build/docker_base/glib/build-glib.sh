@@ -9,7 +9,7 @@ curl -sL --retry 10 https://download.gnome.org/sources/glib/2.56/${GLIB}.tar.xz 
 sha512sum -c glib.sha512
 
 unxz ${GLIB}.tar.xz
-tar xzf ${GLIB}.tar
+tar xf ${GLIB}.tar
 cd $GLIB
 
 if [[ "$MAC_ARCH" == "arm64" ]]; then
@@ -18,7 +18,7 @@ if [[ "$MAC_ARCH" == "arm64" ]]; then
     export GLIB_COMPILE_EXTRA_FLAGS="--cache-file=../macos_arm64.cache"
 fi
 
-./configure $ARCHS_CONFIG_FLAG --with-pcre=internal $GLIB_COMPILE_EXTRA_FLAGS
+CFLAGS=-Wno-error ./configure $ARCHS_CONFIG_FLAG --with-pcre=internal $GLIB_COMPILE_EXTRA_FLAGS --disable-libmount --disable-dbus
 make
 make install
 

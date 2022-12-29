@@ -547,7 +547,7 @@ pg_event_filter(void *_, SDL_Event *event)
     }
 
     else if (event->type == SDL_MOUSEWHEEL) {
-        //#691 We are not moving wheel!
+        // #691 We are not moving wheel!
         if (!event->wheel.y && !event->wheel.x)
             return 0;
 
@@ -1231,7 +1231,7 @@ dict_from_event(SDL_Event *event)
     }  /* switch (event->type) */
     /* Events that dont have any attributes are not handled in switch
      * statement */
-
+    SDL_Window *window;
     switch (event->type) {
         case PGE_WINDOWSHOWN:
         case PGE_WINDOWHIDDEN:
@@ -1250,26 +1250,61 @@ dict_from_event(SDL_Event *event)
         case PGE_WINDOWTAKEFOCUS:
         case PGE_WINDOWHITTEST:
         case PGE_WINDOWICCPROFCHANGED:
-        case PGE_WINDOWDISPLAYCHANGED:
-        case SDL_TEXTEDITING:
-        case SDL_TEXTINPUT:
-        case SDL_MOUSEWHEEL:
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-            SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-            PyObject *pgWindow;
-            if (!window ||
-                !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
-                pgWindow = Py_None;
-            }
-            Py_INCREF(pgWindow);
-            _pg_insobj(dict, "window", pgWindow);
+        case PGE_WINDOWDISPLAYCHANGED: {
+            window = SDL_GetWindowFromID(event->window.windowID);
             break;
         }
+        case SDL_TEXTEDITING: {
+            window = SDL_GetWindowFromID(event->edit.windowID);
+            break;
+        }
+        case SDL_TEXTINPUT: {
+            window = SDL_GetWindowFromID(event->text.windowID);
+            break;
+        }
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
+        case SDL_DROPTEXT:
+        case SDL_DROPFILE: {
+            window = SDL_GetWindowFromID(event->drop.windowID);
+            break;
+        }
+        case SDL_KEYDOWN:
+        case SDL_KEYUP: {
+            window = SDL_GetWindowFromID(event->key.windowID);
+            break;
+        }
+        case SDL_MOUSEWHEEL: {
+            window = SDL_GetWindowFromID(event->wheel.windowID);
+            break;
+        }
+        case SDL_MOUSEMOTION: {
+            window = SDL_GetWindowFromID(event->motion.windowID);
+            break;
+        }
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP: {
+            window = SDL_GetWindowFromID(event->button.windowID);
+            break;
+        }
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP: {
+            window = SDL_GetWindowFromID(event->tfinger.windowID);
+            break;
+        }
+#endif
+        default: {
+            return dict;
+        }
     }
+    PyObject *pgWindow;
+    if (!window || !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
+        pgWindow = Py_None;
+    }
+    Py_INCREF(pgWindow);
+    _pg_insobj(dict, "window", pgWindow);
     return dict;
 }
 
@@ -1456,7 +1491,7 @@ pg_event_init(pgEventObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgEvent_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Event",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.event.Event",
     .tp_basicsize = sizeof(pgEventObject),
     .tp_dealloc = pg_event_dealloc,
     .tp_repr = pg_event_str,

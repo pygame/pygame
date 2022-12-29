@@ -11,7 +11,7 @@ sha512sum -c zlib-ng.sha512
 tar -xf ${ZLIB_NG_NAME}.tar.gz
 cd ${ZLIB_NG_NAME}
 
-cmake . $ARCHS_CONFIG_CMAKE_FLAG -DZLIB_COMPAT=1 -DCMAKE_BUILD_TYPE=Release
+cmake . $PG_BASE_CMAKE_FLAGS -DZLIB_COMPAT=1
 make
 make install
 

@@ -264,7 +264,7 @@ static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject pgPixelArray_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.PixelArray",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.pixelarray.PixelArray",
     .tp_basicsize = sizeof(pgPixelArrayObject),
     .tp_dealloc = (destructor)_pxarray_dealloc,
     .tp_repr = (reprfunc)_pxarray_repr,

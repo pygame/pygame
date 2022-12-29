@@ -1,12 +1,9 @@
 import math
-import platform
 import unittest
 from collections.abc import Collection, Sequence
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
-
-IS_PYPY = "PyPy" == platform.python_implementation()
 
 
 class RectTypeTest(unittest.TestCase):
@@ -69,7 +66,6 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertEqual(test_rect, expected_normalized_rect)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__positive_height(self):
         """Ensures normalize works with a negative width and a positive height."""
         test_rect = Rect((1, 2), (-3, 6))
@@ -82,7 +78,6 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertEqual(test_rect, expected_normalized_rect)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__positive_width(self):
         """Ensures normalize works with a positive width and a negative height."""
         test_rect = Rect((1, 2), (3, -6))
@@ -95,7 +90,6 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertEqual(test_rect, expected_normalized_rect)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__zero_height(self):
         """Ensures normalize works with a negative width and a zero height."""
         test_rect = Rect((1, 2), (-3, 0))
@@ -108,7 +102,6 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertEqual(test_rect, expected_normalized_rect)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_normalize__zero_width(self):
         """Ensures normalize works with a zero width and a negative height."""
         test_rect = Rect((1, 2), (0, -6))
@@ -121,7 +114,6 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertEqual(test_rect, expected_normalized_rect)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy")
     def test_normalize__non_negative(self):
         """Ensures normalize works when width and height are both non-negative.
 
@@ -1264,7 +1256,6 @@ class RectTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 clipped_line = rect.clipline(*line)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_move(self):
         r = Rect(1, 2, 3, 4)
         move_x = 10
@@ -1273,7 +1264,6 @@ class RectTypeTest(unittest.TestCase):
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy sometimes")
     def test_move_ip(self):
         r = Rect(1, 2, 3, 4)
         r2 = Rect(r)
@@ -1404,7 +1394,6 @@ class RectTypeTest(unittest.TestCase):
             "r1 collides with Rect(r1.right, r1.bottom, 1, 1)",
         )
 
-    @unittest.skipIf(IS_PYPY, "fails on pypy3 sometimes")
     def testEquals(self):
         """check to see how the rect uses __eq__"""
         r1 = Rect(1, 2, 3, 4)
@@ -2529,13 +2518,23 @@ class RectTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14, 13, 12, 11])
 
+    def test_ass_subscript_deletion(self):
+        r = Rect(0, 0, 0, 0)
+        with self.assertRaises(TypeError):
+            del r[0]
+
+        with self.assertRaises(TypeError):
+            del r[0:2]
+
+        with self.assertRaises(TypeError):
+            del r[...]
+
     def test_collection_abc(self):
         r = Rect(64, 70, 75, 30)
         self.assertTrue(isinstance(r, Collection))
         self.assertFalse(isinstance(r, Sequence))
 
 
-@unittest.skipIf(IS_PYPY, "fails on pypy")
 class SubclassTest(unittest.TestCase):
     class MyRect(Rect):
         def __init__(self, *args, **kwds):
