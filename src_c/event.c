@@ -569,19 +569,19 @@ pg_event_filter(void *_, SDL_Event *event)
         newupevent.button.clicks = 1;
         newupevent.button.which = event->button.which;
 
-        if (event->wheel.y > 0) {
-            newdownevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
-            newupevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
-        }
-        else {
-            newdownevent.button.button =
-                PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
-            newupevent.button.button = PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
-        }
-
         /* Use a for loop to simulate multiple events, because SDL 1
          * works that way */
         for (i = 0; i < abs(event->wheel.y); i++) {
+            /* Do this in the loop because button.button is mutated before it
+             * is posted from this filter */
+            if (event->wheel.y > 0) {
+                newdownevent.button.button = newupevent.button.button =
+                    PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
+            }
+            else {
+                newdownevent.button.button = newupevent.button.button =
+                    PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
+            }
             SDL_PushEvent(&newdownevent);
             SDL_PushEvent(&newupevent);
         }
