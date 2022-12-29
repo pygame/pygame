@@ -1201,7 +1201,7 @@ class SoundTypeTest(unittest.TestCase):
         b = a.copy()
         self.assertEqual(a.get_raw(), b.get_raw())
         self.assertEqual(a.get_volume(), b.get_volume())
-        
+
         a.set_volume(0.2)
         self.assertNotEqual(a.get_volume(), b.get_volume())
 
@@ -1217,7 +1217,7 @@ class SoundTypeTest(unittest.TestCase):
         self.assertEqual(type(d), Amogus)
         self.assertEqual(d.get_raw(), c.get_raw())
         self.assertEqual(d.get_volume(), c.get_volume())
-        
+
         c.set_volume(0.2)
         self.assertNotEqual(c.get_volume(), d.get_volume())
 
