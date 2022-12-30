@@ -131,8 +131,8 @@ PyInit_sdl2(void);
 PyMODINIT_FUNC
 PyInit_mixer(void);
 
-//PyMODINIT_FUNC
-//PyInit_context(void);
+// PyMODINIT_FUNC
+// PyInit_context(void);
 
 PyMODINIT_FUNC
 PyInit_controller(void);
@@ -254,7 +254,7 @@ PyInit_pygame_static()
     load_submodule("pygame", PyInit_pg_math(), "math");
     load_submodule("pygame", PyInit_display(), "display");
     load_submodule("pygame", PyInit_surface(), "surface");
-//    load_submodule("pygame", PyInit_context(), "context");
+    //    load_submodule("pygame", PyInit_context(), "context");
     load_submodule("pygame", PyInit_key(), "key");
 
     load_submodule("pygame", PyInit_rect(), "rect");
