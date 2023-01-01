@@ -394,7 +394,7 @@ _load_music(PyObject *obj, char *namehint)
         ext = namehint;
     }
     else {
-        ext = pgRWops_GetFileExtension(rw);
+        ext = pgRWops_GetFileExtension();
     }
 
     Py_BEGIN_ALLOW_THREADS;

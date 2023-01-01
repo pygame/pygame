@@ -36,11 +36,11 @@ Header file: src_c/include/pygame.h
    Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWops_FromObject`
    or :c:func:`pgRWops_FromFileObject`.
 
-.. c:function:: char* pgRWops_GetFileExtension(SDL_RWops *rw)
+.. c:function:: char* pgRWops_GetFileExtension()
 
-   Return a string that contains the file extension of the original file
-   loaded into the SDL_RWops object, or NULL if the SDL_RWops object comes
-   from a file object.
+   Returns the last file extension seen by pgRWops_FromObject, or NULL,
+   if the last loaded RWop did not have a file extension. (i.e. if it
+   was a a file object or the extension couldn't be saved).
 
 .. c:function:: int pgRWops_ReleaseObject(SDL_RWops *context)
 

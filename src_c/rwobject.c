@@ -279,12 +279,9 @@ pgRWops_IsFileObject(SDL_RWops *rw)
 }
 
 char *
-pgRWops_GetFileExtension(SDL_RWops *rw)
+pgRWops_GetFileExtension()
 {
-    if (pgRWops_IsFileObject(rw)) {
-        return NULL;
-    }
-    else if (!rwop_has_extension) {
+    if (!rwop_has_extension) {
         return NULL;
     }
     else {
