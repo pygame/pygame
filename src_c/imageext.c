@@ -107,7 +107,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     rw = pgRWops_FromObject(obj);
     if (rw == NULL) /* stop on NULL, error already set */
         return NULL;
-    ext = pgRWops_GetFileExtension(rw);
+    ext = pgRWops_GetFileExtension();
     if (name) /* override extension with namehint if given */
         ext = iext_find_extension(name);
 
