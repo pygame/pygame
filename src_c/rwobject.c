@@ -55,6 +55,10 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
+#define MAX_EXTENSION_LEN 15
+static char rwop_extension[MAX_EXTENSION_LEN+1] = {0};
+static int rwop_has_extension = 0;
+
 static PyObject *os_module = NULL;
 
 static Sint64
@@ -280,8 +284,11 @@ pgRWops_GetFileExtension(SDL_RWops *rw)
     if (pgRWops_IsFileObject(rw)) {
         return NULL;
     }
+    else if (!rwop_has_extension) {
+        return NULL;
+    }
     else {
-        return rw->hidden.unknown.data1;
+        return rwop_extension;
     }
 }
 
@@ -443,6 +450,9 @@ pgRWops_FromFileObject(PyObject *obj)
     SDL_RWops *rw;
     pgRWHelper *helper;
 
+    /* Signal that the extension has not been populated */
+    rwop_has_extension = 0;
+
     if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
     }
@@ -468,9 +478,7 @@ pgRWops_FromFileObject(PyObject *obj)
     helper->file = obj;
     Py_INCREF(obj);
 
-    /* Adding a helper to the hidden data to support file-like object RWops
-     * RWops from actual files use this space to store the file extension
-     * for later use */
+    /* Adding a helper to the hidden data to support file-like object RWops */
     rw->hidden.unknown.data1 = (void *)helper;
     rw->size = _pg_rw_size;
     rw->seek = _pg_rw_seek;
@@ -527,7 +535,6 @@ pgRWops_ReleaseObject(SDL_RWops *context)
 #endif /* WITH_THREAD */
     }
     else {
-        free(context->hidden.unknown.data1);
         ret = SDL_RWclose(context);
         if (ret < 0)
             PyErr_SetString(PyExc_IOError, SDL_GetError());
@@ -694,21 +701,19 @@ _rwops_from_pystr(PyObject *obj)
     rw = SDL_RWFromFile(encoded, "rb");
 
     if (rw) {
-        /* adding the extension to the hidden data for RWops from files */
-        /* this is necessary to support loading functions that rely on
-         * file extensions in a convenient way. File-like objects use this
-         * field for a helper object. */
-        char *extension = NULL;
+        /* Get the extension
+         * Puts it into a global bit of memory because there won't be multiple
+         * C threads calling into this at once in the GIL. Users of the API
+         * can use pgRWops_GetFileExtension */
+
         char *ext = strrchr(encoded, '.');
-        if (ext && strlen(ext) > 1) {
-            ext++;
-            extension = malloc(strlen(ext) + 1);
-            if (!extension) {
-                return (SDL_RWops *)PyErr_NoMemory();
-            }
-            strcpy(extension, ext);
+        ext++;
+
+        if (strlen(ext) <= MAX_EXTENSION_LEN) {
+            strncpy(rwop_extension, ext, MAX_EXTENSION_LEN);
         }
-        rw->hidden.unknown.data1 = (void *)extension;
+        rwop_has_extension = 1;
+
         Py_DECREF(oencoded);
         return rw;
     }
