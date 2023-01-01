@@ -56,7 +56,7 @@ static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
 #define MAX_EXTENSION_LEN 15
-static char rwop_extension[MAX_EXTENSION_LEN+1] = {0};
+static char rwop_extension[MAX_EXTENSION_LEN + 1] = {0};
 static int rwop_has_extension = 0;
 
 static PyObject *os_module = NULL;
