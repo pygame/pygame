@@ -197,6 +197,25 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.assertEqual(before_unpause, after_unpause)
 
+    def test_music_get_metadata(self):
+        file_dir = example_path("data")
+        path = os.path.join(file_dir, "metadata.mp3")
+        pygame.mixer.music.load(path)
+
+        file_metadata = {
+            "title": "Small Tone",
+            "album": "Tones",
+            "artist": "Audacity Generator",
+            "copyright": "2023 Nobody",
+        }
+
+        retrieved_metadata = pygame.mixer.music.get_metadata()
+        self.assertDictEqual(file_metadata, retrieved_metadata)
+        pygame.mixer.music.unload()
+
+        retrieved_metadata = pygame.mixer.music.get_metadata(path)
+        self.assertDictEqual(file_metadata, retrieved_metadata)
+
     def todo_test_stop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:

@@ -16,6 +16,7 @@
 #define DOC_PYGAMEMIXERMUSICQUEUE "queue(filename) -> None\nqueue(fileobj, namehint="", loops=0) -> None\nqueue a sound file to follow the current"
 #define DOC_PYGAMEMIXERMUSICSETENDEVENT "set_endevent() -> None\nset_endevent(type) -> None\nhave the music send an event when playback stops"
 #define DOC_PYGAMEMIXERMUSICGETENDEVENT "get_endevent() -> type\nget the event a channel sends when playback stops"
+#define DOC_PYGAMEMIXERMUSICGETMETADATA "get_metadata() -> dict\nget_metadata(filename) -> dict\nget_metadata(fileobj, namehint="") -> dict\nget metadata of the specified or currently loaded music stream"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -91,5 +92,11 @@ have the music send an event when playback stops
 pygame.mixer.music.get_endevent
  get_endevent() -> type
 get the event a channel sends when playback stops
+
+pygame.mixer.music.get_metadata
+ get_metadata() -> dict
+ get_metadata(filename) -> dict
+ get_metadata(fileobj, namehint="") -> dict
+get metadata of the specified or currently loaded music stream
 
 */

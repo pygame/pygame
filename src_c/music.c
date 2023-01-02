@@ -496,6 +496,59 @@ music_queue(PyObject *self, PyObject *args, PyObject *keywds)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+music_get_metadata(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PyObject *meta_dict;
+    Mix_Music *music = current_music;
+
+    PyObject *obj = NULL;
+    char *namehint = NULL;
+    static char *kwids[] = {"filename", "namehint", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Os", kwids, &obj,
+                                     &namehint))
+        return NULL;
+
+    MIXER_INIT_CHECK();
+
+    if (obj) {
+        music = _load_music(obj, namehint);
+        if (!music) {
+            return NULL;
+        }
+    }
+    else if (namehint) {
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "'namehint' specified without specifying 'filename' or 'fileobj'");
+        return NULL;
+    }
+
+    const char *title;
+    const char *album;
+    const char *artist;
+    const char *copyright;
+
+    title = Mix_GetMusicTitle(music);
+    album = Mix_GetMusicAlbumTag(music);
+    artist = Mix_GetMusicArtistTag(music);
+    copyright = Mix_GetMusicCopyrightTag(music);
+
+    if (!music) {
+        return RAISE(pgExc_SDLError, "music not loaded");
+    }
+
+    meta_dict = Py_BuildValue("{ss ss ss ss}", "title", title, "album", album,
+                              "artist", artist, "copyright", copyright);
+
+    if (!current_music) {
+        Mix_FreeMusic(music);
+    }
+
+    return meta_dict;
+}
+
 static PyMethodDef _music_methods[] = {
     {"set_endevent", music_set_endevent, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETENDEVENT},
@@ -516,6 +569,8 @@ static PyMethodDef _music_methods[] = {
      DOC_PYGAMEMIXERMUSICGETVOLUME},
     {"set_pos", music_set_pos, METH_O, DOC_PYGAMEMIXERMUSICSETPOS},
     {"get_pos", music_get_pos, METH_NOARGS, DOC_PYGAMEMIXERMUSICGETPOS},
+    {"get_metadata", (PyCFunction)music_get_metadata,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERMUSICGETMETADATA},
 
     {"load", (PyCFunction)music_load, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERMUSICLOAD},

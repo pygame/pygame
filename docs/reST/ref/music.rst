@@ -272,3 +272,24 @@ MP3 in most cases.
    .. ## pygame.mixer.music.get_endevent ##
 
 .. ## pygame.mixer.music ##
+
+.. function:: get_metadata
+
+   | :sl:`get metadata of the specified or currently loaded music stream`
+   | :sg:`get_metadata() -> dict`
+   | :sg:`get_metadata(filename) -> dict`
+   | :sg:`get_metadata(fileobj, namehint="") -> dict`
+   
+   If no arguments are passed returns a dictionary containing metadata 
+   of the currently loaded music stream, raises an exception if a music stream is not loaded. 
+   Available keys are ``"title"``, ``"album"``, ``"artist"``, ``"copyright"``. 
+   Values are strings containing corresponding retrieved metadata. 
+   If particular metadata was not found the value is an empty string.
+   
+   Refer to :func:`load` for arguments regarding specifying a file or a file-like object 
+   whose metadata you want to retrieve. For this function all arguments are optional, 
+   however, specifying only the ``namehint`` will raise an exception.
+
+   .. versionadded:: 2.1.4
+   
+   .. ## pygame.mixer.music.get_metadata ##
