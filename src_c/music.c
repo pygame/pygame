@@ -530,10 +530,10 @@ music_get_metadata(PyObject *self, PyObject *args, PyObject *keywds)
     const char *artist;
     const char *copyright;
 
-    title = (char *)Mix_GetMusicTitle(music);
-    album = (char *)Mix_GetMusicAlbumTag(music);
-    artist = (char *)Mix_GetMusicArtistTag(music);
-    copyright = (char *)Mix_GetMusicCopyrightTag(music);
+    title = Mix_GetMusicTitle(music);
+    album = Mix_GetMusicAlbumTag(music);
+    artist = Mix_GetMusicArtistTag(music);
+    copyright = Mix_GetMusicCopyrightTag(music);
 
     if (!music) {
         return RAISE(pgExc_SDLError, "music not loaded");
