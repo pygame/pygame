@@ -32,12 +32,6 @@
 
 #include "mixer.h"
 
-#define SDL_MIXER_VERSION_GE_2_6_0                                    \
-    ((SDL_MIXER_MAJOR_VERSION >= 2) &&                                \
-     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION >= 6) && \
-     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION > 6 ||   \
-      SDL_MIXER_PATCHLEVEL >= 0))
-
 static Mix_Music *current_music = NULL;
 static Mix_Music *queue_music = NULL;
 static int queue_music_loops = 0;
@@ -536,11 +530,16 @@ music_get_metadata(PyObject *self, PyObject *args, PyObject *keywds)
     const char *artist = "";
     const char *copyright = "";
 
-#ifndef SDL_MIXER_VERSION_GE_2_6_0
+#if ((SDL_MIXER_MAJOR_VERSION >= 2) &&                                \
+     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION >= 6) && \
+     (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION > 6 ||   \
+      SDL_MIXER_PATCHLEVEL >= 0))
+
     title = Mix_GetMusicTitle(music);
     album = Mix_GetMusicAlbumTag(music);
     artist = Mix_GetMusicArtistTag(music);
     copyright = Mix_GetMusicCopyrightTag(music);
+
 #endif
 
     if (!music) {
