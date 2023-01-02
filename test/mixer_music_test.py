@@ -202,12 +202,20 @@ class MixerMusicModuleTest(unittest.TestCase):
         path = os.path.join(file_dir, "metadata.mp3")
         pygame.mixer.music.load(path)
 
-        file_metadata = {
-            "title": "Small Tone",
-            "album": "Tones",
-            "artist": "Audacity Generator",
-            "copyright": "2023 Nobody",
-        }
+        if pygame.mixer.get_sdl_mixer_version() >= (2, 6, 0):
+            file_metadata = {
+                "title": "Small Tone",
+                "album": "Tones",
+                "artist": "Audacity Generator",
+                "copyright": "2023 Nobody",
+            }
+        else:
+            file_metadata = {
+                "title": "",
+                "album": "",
+                "artist": "",
+                "copyright": "",
+            }
 
         retrieved_metadata = pygame.mixer.music.get_metadata()
         self.assertDictEqual(file_metadata, retrieved_metadata)
