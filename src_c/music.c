@@ -32,7 +32,7 @@
 
 #include "mixer.h"
 
-#define SDL_MIXER_VERSION_GT_2_6_0                                    \
+#define SDL_MIXER_VERSION_GE_2_6_0                                    \
     ((SDL_MIXER_MAJOR_VERSION >= 2) &&                                \
      (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION >= 6) && \
      (SDL_MIXER_MAJOR_VERSION > 2 || SDL_MIXER_MINOR_VERSION > 6 ||   \
@@ -536,7 +536,7 @@ music_get_metadata(PyObject *self, PyObject *args, PyObject *keywds)
     const char *artist = "";
     const char *copyright = "";
 
-#ifdef SDL_MIXER_VERSION_GT_2_6_0
+#ifndef SDL_MIXER_VERSION_GE_2_6_0
     title = Mix_GetMusicTitle(music);
     album = Mix_GetMusicAlbumTag(music);
     artist = Mix_GetMusicArtistTag(music);
