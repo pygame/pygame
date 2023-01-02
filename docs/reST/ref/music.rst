@@ -286,9 +286,14 @@ MP3 in most cases.
    Values are strings containing corresponding retrieved metadata. 
    If particular metadata was not found the value is an empty string.
    
-   Refer to :func:`load` for arguments regarding specifying a file or a file-like object 
+   Refer to the :func:`pygame.mixer.music.load` function for arguments regarding specifying a file or a file-like object 
    whose metadata you want to retrieve. For this function all arguments are optional, 
    however, specifying only the ``namehint`` will raise an exception.
+   
+   Since the underlying functionality was introduced in version 2.6.0 of SDL_mixer,
+   calling this function with an older version of SDL_mixer will return a dictionary
+   with all values being set to empty strings. You can find your version of SDL_mixer
+   by using :func:`pygame.mixer.get_sdl_mixer_version`.
 
    .. versionadded:: 2.1.4
    
