@@ -55,10 +55,6 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
-#define MAX_EXTENSION_LEN 15
-static char rwop_extension[MAX_EXTENSION_LEN + 1] = {0};
-static int rwop_has_extension = 0;
-
 static PyObject *os_module = NULL;
 
 static Sint64
@@ -281,12 +277,6 @@ pgRWops_IsFileObject(SDL_RWops *rw)
 char *
 pgRWops_GetFileExtension()
 {
-    if (!rwop_has_extension) {
-        return NULL;
-    }
-    else {
-        return rwop_extension;
-    }
 }
 
 static Sint64
@@ -446,9 +436,6 @@ pgRWops_FromFileObject(PyObject *obj)
 {
     SDL_RWops *rw;
     pgRWHelper *helper;
-
-    /* Signal that the extension has not been populated */
-    rwop_has_extension = 0;
 
     if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
@@ -675,11 +662,19 @@ end:
 }
 
 static SDL_RWops *
-_rwops_from_pystr(PyObject *obj)
+_rwops_from_pystr(PyObject *obj, char **extptr)
 {
     SDL_RWops *rw = NULL;
     PyObject *oencoded;
     char *encoded = NULL;
+
+    /* If a valid extptr has been passed, we want it to default to NULL
+     * to show that an extension hasn't been procured (if it has it will
+     * get set to that later) */
+    if (extptr) {
+        *extptr = NULL;
+    }
+
     if (!obj) {
         // forward any errors
         return NULL;
@@ -698,18 +693,19 @@ _rwops_from_pystr(PyObject *obj)
     rw = SDL_RWFromFile(encoded, "rb");
 
     if (rw) {
-        /* Get the extension
-         * Puts it into a global bit of memory because there won't be multiple
-         * C threads calling into this at once in the GIL. Users of the API
-         * can use pgRWops_GetFileExtension */
-
-        char *ext = strrchr(encoded, '.');
-        ext++;
-
-        if (strlen(ext) <= MAX_EXTENSION_LEN) {
-            strncpy(rwop_extension, ext, MAX_EXTENSION_LEN);
+        /* If a valid extptr has been passed, populate it with a dynamically
+         * allocated field for the file extension. */
+        if (extptr) {
+            char *ext = strrchr(encoded, '.');
+            if (ext && strlen(ext) > 1) {
+                ext++;
+                *extptr = malloc(strlen(ext) + 1);
+                if (!(*extptr)) {
+                    return (SDL_RWops *)PyErr_NoMemory();
+                }
+                strcpy(*extptr, ext);
+            }
         }
-        rwop_has_extension = 1;
 
         Py_DECREF(oencoded);
         return rw;
@@ -754,13 +750,13 @@ simple_case:
 }
 
 static SDL_RWops *
-pgRWops_FromObject(PyObject *obj)
+pgRWops_FromObject(PyObject *obj, char **extptr)
 {
 #if __EMSCRIPTEN__
     SDL_RWops *rw;
     int retry = 0;
 again:
-    rw = _rwops_from_pystr(obj);
+    rw = _rwops_from_pystr(obj, extptr);
     if (retry)
         Py_XDECREF(obj);
     if (!rw) {
@@ -784,7 +780,7 @@ fail:
     goto fail;
     // unreachable.
 #else
-    SDL_RWops *rw = _rwops_from_pystr(obj);
+    SDL_RWops *rw = _rwops_from_pystr(obj, extptr);
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
