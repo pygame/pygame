@@ -452,7 +452,7 @@ class AbstractGroup:
                     # subclass of the Sprite class. Alternately, it could be an
                     # old-style sprite group.
                     if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.spritedict:
+                        for spr in sprite.sprites():
                             if not self.has_internal(spr):
                                 self.add_internal(spr)
                                 spr.add_internal(self)
@@ -484,7 +484,7 @@ class AbstractGroup:
                     self.remove(*sprite)
                 except (TypeError, AttributeError):
                     if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.spritedict:
+                        for spr in sprite.sprites():
                             if self.has_internal(spr):
                                 self.remove_internal(spr)
                                 spr.remove_internal(self)
