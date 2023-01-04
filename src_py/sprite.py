@@ -591,7 +591,7 @@ class AbstractGroup:
         Removes all the sprites from the group.
 
         """
-        for sprite in self.spritedict:
+        for sprite in self.sprites():
             self.remove_internal(sprite)
             sprite.remove_internal(self)
 
