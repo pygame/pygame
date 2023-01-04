@@ -420,7 +420,7 @@ class AbstractGroup:
         )
 
     def __iter__(self):
-        return iter(self.sprites())
+        return iter(self.spritedict)
 
     def __contains__(self, sprite):
         return self.has(sprite)
@@ -452,7 +452,7 @@ class AbstractGroup:
                     # subclass of the Sprite class. Alternately, it could be an
                     # old-style sprite group.
                     if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.sprites():
+                        for spr in sprite.spritedict:
                             if not self.has_internal(spr):
                                 self.add_internal(spr)
                                 spr.add_internal(self)
@@ -484,7 +484,7 @@ class AbstractGroup:
                     self.remove(*sprite)
                 except (TypeError, AttributeError):
                     if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.sprites():
+                        for spr in sprite.spritedict:
                             if self.has_internal(spr):
                                 self.remove_internal(spr)
                                 spr.remove_internal(self)
@@ -516,7 +516,7 @@ class AbstractGroup:
                         return False
                 except (TypeError, AttributeError):
                     if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.sprites():
+                        for spr in sprite.spritedict:
                             if not self.has_internal(spr):
                                 return False
                     else:
@@ -534,7 +534,7 @@ class AbstractGroup:
         were passed to this method are passed to the Sprite update function.
 
         """
-        for sprite in self.sprites():
+        for sprite in self.spritedict:
             sprite.update(*args, **kwargs)
 
     def draw(self, surface):
@@ -545,7 +545,7 @@ class AbstractGroup:
         Draws all of the member sprites onto the given surface.
 
         """
-        sprites = self.sprites()
+        sprites = self.spritedict
         if hasattr(surface, "blits"):
             self.spritedict.update(
                 zip(sprites, surface.blits((spr.image, spr.rect) for spr in sprites))
@@ -591,12 +591,12 @@ class AbstractGroup:
         Removes all the sprites from the group.
 
         """
-        for sprite in self.sprites():
+        for sprite in self.spritedict:
             self.remove_internal(sprite)
             sprite.remove_internal(self)
 
     def __bool__(self):
-        return bool(self.sprites())
+        return bool(self.spritedict)
 
     def __len__(self):
         """return number of sprites in group
