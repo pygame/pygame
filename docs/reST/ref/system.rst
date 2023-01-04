@@ -1,9 +1,9 @@
 .. include:: common.txt
 
-:mod:`pygame.context`
+:mod:`pygame.system`
 ======================
 
-.. module:: pygame.context
+.. module:: pygame.system
     :synopsis: pygame module to provide additional context about the system
 
 | :sl:`pygame module to provide additional context about the system`
@@ -14,7 +14,7 @@ This is a new module, so we are marking it experimental for now.
 We probably won't have to change API, but we're keeping the possibility
 open just in case something obvious comes up.
 
-.. versionadded:: 2.1.3
+.. versionadded:: 2.1.4
 
 .. function:: get_pref_path
 
@@ -45,8 +45,17 @@ open just in case something obvious comes up.
 
         And on Linux it would resemble
         /home/bob/.local/share/My Program Name/
+
+   .. note::
+        Since the organization and app names can potentially be used as
+        a folder name, it is highly encouraged to avoid punctuation.
+        Instead stick to letters, numbers, and spaces.
+
+   .. note::
+        The ``appdirs`` library has similar functionality for this use case,
+        but has more "folder types" to choose from.
     
-   .. versionadded:: 2.1.3
+   .. versionadded:: 2.1.4
 
 .. function:: get_pref_locales
 
@@ -76,13 +85,4 @@ open just in case something obvious comes up.
    a ``LOCALECHANGED`` event in this case, if possible, and you can call this
    function again to get an updated copy of preferred locales.
 
-   .. note::
-        Since the organization and app names can potentially be used as
-        a folder name, it is highly encouraged to avoid punctuation.
-        Instead stick to letters, numbers, and spaces.
-
-   .. note::
-        The ``appdirs`` library has similar functionality for this use case,
-        but has more "folder types" to choose from.
-
-   .. versionadded:: 2.1.3
+   .. versionadded:: 2.1.4

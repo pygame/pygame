@@ -2,10 +2,10 @@
 
 #include "pgcompat.h"
 
-#include "doc/context_doc.h"
+#include "doc/system_doc.h"
 
 static PyObject *
-pg_context_get_pref_path(PyObject *self, PyObject *args, PyObject *kwargs)
+pg_system_get_pref_path(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     char *org, *project;
     static char *kwids[] = {"org", "app", NULL};
@@ -27,7 +27,7 @@ pg_context_get_pref_path(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-pg_context_get_pref_locales(PyObject *self, PyObject *_null)
+pg_system_get_pref_locales(PyObject *self, PyObject *_null)
 {
     PyObject *ret_list = PyList_New(0);
     if (!ret_list) {
@@ -99,22 +99,22 @@ error:
 #endif
 }
 
-static PyMethodDef _context_methods[] = {
-    {"get_pref_path", (PyCFunction)pg_context_get_pref_path,
-     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMECONTEXTGETPREFPATH},
-    {"get_pref_locales", pg_context_get_pref_locales, METH_NOARGS,
-     DOC_PYGAMECONTEXTGETPREFLOCALES},
+static PyMethodDef _system_methods[] = {
+    {"get_pref_path", (PyCFunction)pg_system_get_pref_path,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMESYSTEMGETPREFPATH},
+    {"get_pref_locales", pg_system_get_pref_locales, METH_NOARGS,
+     DOC_PYGAMESYSTEMGETPREFLOCALES},
     {NULL, NULL, 0, NULL}};
 
-MODINIT_DEFINE(context)
+MODINIT_DEFINE(system)
 {
     PyObject *module;
     static struct PyModuleDef _module = {
         .m_base = PyModuleDef_HEAD_INIT,
-        .m_name = "context",
-        .m_doc = DOC_PYGAMECONTEXT,
+        .m_name = "system",
+        .m_doc = DOC_PYGAMESYSTEM,
         .m_size = -1,
-        .m_methods = _context_methods,
+        .m_methods = _system_methods,
     };
 
     /* need to import base module, just so SDL is happy. Do this first so if

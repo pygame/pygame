@@ -276,9 +276,9 @@ except (ImportError, OSError):
     fastevent = MissingModule("fastevent", urgent=0)
 
 try:
-    import pygame.context
+    import pygame.system
 except (ImportError, OSError):
-    context = MissingModule("context", urgent=0)
+    system = MissingModule("system", urgent=0)
 
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
