@@ -398,7 +398,7 @@ _load_music(PyObject *obj, char *namehint)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(ext), SDL_TRUE);
+    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(type), SDL_TRUE);
     Py_END_ALLOW_THREADS;
 
     if (ext) {
