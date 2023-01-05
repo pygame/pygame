@@ -1,4 +1,4 @@
-__tags__ = ["ignore", "subprocess_ignore"]
+# __tags__ = ["ignore", "subprocess_ignore"]
 
 # TODO: make scrap_test.py work
 # This test used to work only on linux and windows.
