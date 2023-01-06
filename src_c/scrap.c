@@ -415,16 +415,17 @@ _scrap_set_mode(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_get_text(PyObject *self, PyObject *args)
 {
+    const SDL_bool hasText = SDL_HasClipboardText();
+
     char *text = SDL_GetClipboardText();
 
     // if SDL_GetClipboardText fails, it returns an empty string
-    if (text[0] == '\0') {
-        const char *err = SDL_GetError();
-        if (err[0] != '\0') {
-            SDL_free(text);
-            PyErr_SetString(pgExc_SDLError, err);
-            return NULL;
-        }
+    // hasText helps determine if an actual error occurred
+    // vs just an empty string in the clipboard
+    if (text[0] == "\0" && hasText == SDL_TRUE) {
+        SDL_free(text);
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return NULL;
     }
 
     PyObject *returnValue = PyUnicode_FromString(text);
