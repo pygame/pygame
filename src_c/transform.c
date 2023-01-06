@@ -304,6 +304,27 @@ rotate90(SDL_Surface *src, int angle)
     return dst;
 }
 
+#define SURF_GET_AT(p_color, p_surf, p_x, p_y, p_pixels, p_format, p_pix)     \
+    switch (p_format->BytesPerPixel) {                                        \
+        case 1:                                                               \
+            p_color = (Uint32) *                                              \
+                      ((Uint8 *)(p_pixels) + (p_y)*p_surf->pitch + (p_x));    \
+            break;                                                            \
+        case 2:                                                               \
+            p_color = (Uint32) *                                              \
+                      ((Uint16 *)((p_pixels) + (p_y)*p_surf->pitch) + (p_x)); \
+            break;                                                            \
+        case 3:                                                               \
+            p_pix = ((Uint8 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)*3);    \
+            p_color = (SDL_BYTEORDER == SDL_LIL_ENDIAN)                       \
+                          ? (p_pix[0]) + (p_pix[1] << 8) + (p_pix[2] << 16)   \
+                          : (p_pix[2]) + (p_pix[1] << 8) + (p_pix[0] << 16);  \
+            break;                                                            \
+        default: /* case 4: */                                                \
+            p_color = *((Uint32 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x));  \
+            break;                                                            \
+    }
+
 static void
 rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle,
        double cangle)
@@ -609,6 +630,46 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
     return retsurf;
 }
 
+static void
+convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
+              int width, int height)
+{
+    int srcdiff = srcpitch - (width * 4);
+    int dstdiff = dstpitch - (width * 3);
+    int x, y;
+
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            srcpix++;
+        }
+        srcpix += srcdiff;
+        dstpix += dstdiff;
+    }
+}
+
+static void
+convert_24_32(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
+              int width, int height)
+{
+    int srcdiff = srcpitch - (width * 3);
+    int dstdiff = dstpitch - (width * 4);
+    int x, y;
+
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            *dstpix++ = 0xff;
+        }
+        srcpix += srcdiff;
+        dstpix += dstdiff;
+    }
+}
+
 SDL_Surface *
 grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
 {
@@ -636,44 +697,18 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
             "Source and destination surfaces need the same format."));
     }
 
-    Uint8 *pixel_8 = NULL;
-    Uint16 *pixel_16 = NULL;
-    Uint32 *pixel_32 = NULL;
-
-    if (src->format->BitsPerPixel == 8) {
-        pixel_8 = (Uint8 *)src->pixels;
-    }
-    else if (src->format->BitsPerPixel == 16) {
-        pixel_16 = (Uint16 *)src->pixels;
-    }
-    else if (src->format->BitsPerPixel == 32) {
-        pixel_32 = (Uint32 *)src->pixels;
-    }
-
     int x, y;
-    for (y = 0; y < newsurf->h; y++) {
-        for (x = 0; x < newsurf->w; x++) {
-            int i = y * newsurf->pitch / newsurf->format->BytesPerPixel + x;
-
+    for (y = 0; y < src->h; y++) {
+        for (x = 0; x < src->w; x++) {
+            Uint32 pixel;
+            Uint8 *pix;
+            SURF_GET_AT(pixel, src, x, y, src->pixels, src->format, pix);
             Uint8 r, g, b, a;
-            if (pixel_8) {
-                SDL_GetRGBA(pixel_8[i], newsurf->format, &r, &g, &b, &a);
-            }
-            else if (pixel_16) {
-                SDL_GetRGBA(pixel_16[i], newsurf->format, &r, &g, &b, &a);
-            }
-            else if (pixel_32) {
-                SDL_GetRGBA(pixel_32[i], newsurf->format, &r, &g, &b, &a);
-            }
-            else {
-                SDL_GetRGBA(pixel_32[i], newsurf->format, &r, &g, &b, &a);
-            }
-            Uint32 grayscale_pixel =
-                0.212671 * r + 0.715160 * g + 0.072169 * b;
+            SDL_GetRGBA(pixel, src->format, &r, &g, &b, &a);
+            Uint8 grayscale_pixel = 0.212671 * r + 0.715160 * g + 0.072169 * b;
             Uint32 new_pixel =
                 SDL_MapRGBA(src->format, grayscale_pixel, grayscale_pixel,
                             grayscale_pixel, a);
-
             _set_at_pixels(x, y, newsurf->pixels, newsurf->format,
                            newsurf->pitch, new_pixel);
         }
@@ -1471,46 +1506,6 @@ smoothscale_init(struct _module_state *st)
 }
 
 static void
-convert_24_32(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
-              int width, int height)
-{
-    int srcdiff = srcpitch - (width * 3);
-    int dstdiff = dstpitch - (width * 4);
-    int x, y;
-
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            *dstpix++ = 0xff;
-        }
-        srcpix += srcdiff;
-        dstpix += dstdiff;
-    }
-}
-
-static void
-convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
-              int width, int height)
-{
-    int srcdiff = srcpitch - (width * 4);
-    int dstdiff = dstpitch - (width * 3);
-    int x, y;
-
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            srcpix++;
-        }
-        srcpix += srcdiff;
-        dstpix += dstdiff;
-    }
-}
-
-static void
 scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
 {
     Uint8 *srcpix = (Uint8 *)src->pixels;
@@ -2136,27 +2131,6 @@ mul_4
 clamp_4
 
 */
-
-#define SURF_GET_AT(p_color, p_surf, p_x, p_y, p_pixels, p_format, p_pix)     \
-    switch (p_format->BytesPerPixel) {                                        \
-        case 1:                                                               \
-            p_color = (Uint32) *                                              \
-                      ((Uint8 *)(p_pixels) + (p_y)*p_surf->pitch + (p_x));    \
-            break;                                                            \
-        case 2:                                                               \
-            p_color = (Uint32) *                                              \
-                      ((Uint16 *)((p_pixels) + (p_y)*p_surf->pitch) + (p_x)); \
-            break;                                                            \
-        case 3:                                                               \
-            p_pix = ((Uint8 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)*3);    \
-            p_color = (SDL_BYTEORDER == SDL_LIL_ENDIAN)                       \
-                          ? (p_pix[0]) + (p_pix[1] << 8) + (p_pix[2] << 16)   \
-                          : (p_pix[2]) + (p_pix[1] << 8) + (p_pix[0] << 16);  \
-            break;                                                            \
-        default: /* case 4: */                                                \
-            p_color = *((Uint32 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x));  \
-            break;                                                            \
-    }
 
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
 
