@@ -707,7 +707,7 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
             SDL_GetRGBA(pixel, src->format, &r, &g, &b, &a);
             Uint8 grayscale_pixel = 0.212671 * r + 0.715160 * g + 0.072169 * b;
             Uint32 new_pixel =
-                SDL_MapRGBA(src->format, grayscale_pixel, grayscale_pixel,
+                SDL_MapRGBA(newsurf->format, grayscale_pixel, grayscale_pixel,
                             grayscale_pixel, a);
             _set_at_pixels(x, y, newsurf->pixels, newsurf->format,
                            newsurf->pitch, new_pixel);
