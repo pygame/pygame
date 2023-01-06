@@ -422,7 +422,7 @@ _scrap_get_text(PyObject *self, PyObject *args)
     // if SDL_GetClipboardText fails, it returns an empty string
     // hasText helps determine if an actual error occurred
     // vs just an empty string in the clipboard
-    if (*text == '\0' && hasText == true) {
+    if (*text == '\0' && hasText == SDL_TRUE) {
         SDL_free(text);
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return NULL;
