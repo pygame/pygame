@@ -159,12 +159,6 @@ typedef struct pg_bufferinfo_s {
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
-#define pg_F_IntFromObj \
-    (*(int (*)(PyObject *, int *))PYGAMEAPI_GET_SLOT(base, 24))
-
-#define pg_F_TwoIntsFromObj \
-    (*(int (*)(PyObject *, int *, int *))PYGAMEAPI_GET_SLOT(base, 25))
-
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
