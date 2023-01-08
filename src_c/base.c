@@ -2172,7 +2172,6 @@ MODINIT_DEFINE(base)
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
-
 #define FILLED_SLOTS 24
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
