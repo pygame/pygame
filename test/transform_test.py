@@ -164,16 +164,46 @@ class TransformModuleTest(unittest.TestCase):
 
         s2 = pygame.transform.grayscale(s)
         self.assertEqual(
-            pygame.transform.average_color(s2)[0], round(54.231105)
+            pygame.transform.average_color(s2)[0], 54
         )  # 0.212671 * 255 + 0.715160 * 0 + 0.072169 * 0
-        self.assertEqual(pygame.transform.average_color(s2)[1], round(54.231105))
-        self.assertEqual(pygame.transform.average_color(s2)[2], round(54.231105))
+        self.assertEqual(pygame.transform.average_color(s2)[1], 54)
+        self.assertEqual(pygame.transform.average_color(s2)[2], 54)
 
-        dest = pygame.Surface((32, 32))
+        dest = pygame.Surface((32, 32), depth=32)
         pygame.transform.grayscale(s, dest)
-        self.assertEqual(pygame.transform.average_color(dest)[0], round(54.231105))
-        self.assertEqual(pygame.transform.average_color(dest)[1], round(54.231105))
-        self.assertEqual(pygame.transform.average_color(dest)[2], round(54.231105))
+        self.assertEqual(pygame.transform.average_color(dest)[0], 54)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 54)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 54)
+
+        dest = pygame.Surface((32, 32), depth=32)
+        s.fill((34, 12, 65))
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 20)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 20)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 20)
+
+        dest = pygame.Surface((32, 32), depth=32)
+        s.fill((123, 123, 123))
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 123)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 123)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 123)
+
+        s = pygame.Surface((32, 32), depth=24)
+        s.fill((255, 0, 0))
+        dest = pygame.Surface((32, 32), depth=24)
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 54)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 54)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 54)
+
+        s = pygame.Surface((32, 32), depth=16)
+        s.fill((255, 0, 0))
+        dest = pygame.Surface((32, 32), depth=16)
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 48)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 52)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 48)
 
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
