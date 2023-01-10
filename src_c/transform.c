@@ -1328,26 +1328,6 @@ smoothscale_init(struct _module_state *st)
 }
 
 static void
-convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
-              int width, int height)
-{
-    int srcdiff = srcpitch - (width * 4);
-    int dstdiff = dstpitch - (width * 3);
-    int x, y;
-
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            *dstpix++ = *srcpix++;
-            srcpix++;
-        }
-        srcpix += srcdiff;
-        dstpix += dstdiff;
-    }
-}
-
-static void
 convert_24_32(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
               int width, int height)
 {
@@ -1361,6 +1341,26 @@ convert_24_32(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
             *dstpix++ = *srcpix++;
             *dstpix++ = *srcpix++;
             *dstpix++ = 0xff;
+        }
+        srcpix += srcdiff;
+        dstpix += dstdiff;
+    }
+}
+
+static void
+convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpitch,
+              int width, int height)
+{
+    int srcdiff = srcpitch - (width * 4);
+    int dstdiff = dstpitch - (width * 3);
+    int x, y;
+
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            *dstpix++ = *srcpix++;
+            srcpix++;
         }
         srcpix += srcdiff;
         dstpix += dstdiff;
