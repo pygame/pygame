@@ -251,7 +251,7 @@ Instead, always begin with the original image and scale to the desired size.)
    Grayscales the surface.
 
    An optional destination surface can be passed which is faster than creating a new Surface.
-   However this destination surface must have the same dimensions (width, height) as the source Surface.
+   This destination surface must have the same dimensions (width, height) and depth as the source Surface.
 
    .. ## pygame.transform.grayscale ##
 
