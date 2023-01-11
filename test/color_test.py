@@ -1111,6 +1111,31 @@ class ColorTypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: "string" in c)
         self.assertRaises(TypeError, lambda: 3.14159 in c)
 
+    def test_grayscale(self):
+        Color = pygame.color.Color
+
+        color = Color(255, 0, 0, 255)
+        self.assertEqual(color.grayscale(), Color(54, 54, 54, 255))
+        color = Color(3, 5, 7, 255)
+        self.assertEqual(color.grayscale(), Color(4, 4, 4, 255))
+        color = Color(3, 5, 70, 255)
+        self.assertEqual(color.grayscale(), Color(9, 9, 9, 255))
+        color = Color(3, 50, 70, 255)
+        self.assertEqual(color.grayscale(), Color(41, 41, 41, 255))
+        color = Color(30, 50, 70, 255)
+        self.assertEqual(color.grayscale(), Color(47, 47, 47, 255))
+
+        color = Color(255, 0, 0, 144)
+        self.assertEqual(color.grayscale(), Color(54, 54, 54, 144))
+        color = Color(3, 5, 7, 144)
+        self.assertEqual(color.grayscale(), Color(4, 4, 4, 144))
+        color = Color(3, 5, 70, 144)
+        self.assertEqual(color.grayscale(), Color(9, 9, 9, 144))
+        color = Color(3, 50, 70, 144)
+        self.assertEqual(color.grayscale(), Color(41, 41, 41, 144))
+        color = Color(30, 50, 70, 144)
+        self.assertEqual(color.grayscale(), Color(47, 47, 47, 144))
+
     def test_lerp(self):
         # setup
         Color = pygame.color.Color
