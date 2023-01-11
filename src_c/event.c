@@ -350,11 +350,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(DOLLARGESTURE);
         _PG_HANDLE_PROXIFY(DOLLARRECORD);
         _PG_HANDLE_PROXIFY(DROPFILE);
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         _PG_HANDLE_PROXIFY(DROPTEXT);
         _PG_HANDLE_PROXIFY(DROPBEGIN);
         _PG_HANDLE_PROXIFY(DROPCOMPLETE);
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         _PG_HANDLE_PROXIFY(FINGERMOTION);
         _PG_HANDLE_PROXIFY(FINGERDOWN);
         _PG_HANDLE_PROXIFY(FINGERUP);
@@ -750,14 +748,12 @@ _pg_name_from_eventtype(int type)
             return "TextEditing";
         case SDL_DROPFILE:
             return "DropFile";
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             return "DropText";
         case SDL_DROPBEGIN:
             return "DropBegin";
         case SDL_DROPCOMPLETE:
             return "DropComplete";
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -860,7 +856,6 @@ get_joy_guid(int device_index)
 void
 _joy_map_add(int device_index)
 {
-#if SDL_VERSION_ATLEAST(2, 0, 6)
     int instance_id = (int)SDL_JoystickGetDeviceInstanceID(device_index);
     PyObject *k, *v;
     if (instance_id != -1) {
@@ -872,7 +867,6 @@ _joy_map_add(int device_index)
         Py_XDECREF(k);
         Py_XDECREF(v);
     }
-#endif
 }
 
 /** Look up a device ID for an instance ID. */
@@ -1137,8 +1131,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "file", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
-
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
@@ -1146,8 +1138,6 @@ dict_from_event(SDL_Event *event)
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
             break;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
             _pg_insobj(dict, "instance_id",
@@ -1231,7 +1221,7 @@ dict_from_event(SDL_Event *event)
     }  /* switch (event->type) */
     /* Events that dont have any attributes are not handled in switch
      * statement */
-
+    SDL_Window *window;
     switch (event->type) {
         case PGE_WINDOWSHOWN:
         case PGE_WINDOWHIDDEN:
@@ -1250,26 +1240,61 @@ dict_from_event(SDL_Event *event)
         case PGE_WINDOWTAKEFOCUS:
         case PGE_WINDOWHITTEST:
         case PGE_WINDOWICCPROFCHANGED:
-        case PGE_WINDOWDISPLAYCHANGED:
-        case SDL_TEXTEDITING:
-        case SDL_TEXTINPUT:
-        case SDL_MOUSEWHEEL:
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-            SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-            PyObject *pgWindow;
-            if (!window ||
-                !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
-                pgWindow = Py_None;
-            }
-            Py_INCREF(pgWindow);
-            _pg_insobj(dict, "window", pgWindow);
+        case PGE_WINDOWDISPLAYCHANGED: {
+            window = SDL_GetWindowFromID(event->window.windowID);
             break;
         }
+        case SDL_TEXTEDITING: {
+            window = SDL_GetWindowFromID(event->edit.windowID);
+            break;
+        }
+        case SDL_TEXTINPUT: {
+            window = SDL_GetWindowFromID(event->text.windowID);
+            break;
+        }
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
+        case SDL_DROPTEXT:
+        case SDL_DROPFILE: {
+            window = SDL_GetWindowFromID(event->drop.windowID);
+            break;
+        }
+        case SDL_KEYDOWN:
+        case SDL_KEYUP: {
+            window = SDL_GetWindowFromID(event->key.windowID);
+            break;
+        }
+        case SDL_MOUSEWHEEL: {
+            window = SDL_GetWindowFromID(event->wheel.windowID);
+            break;
+        }
+        case SDL_MOUSEMOTION: {
+            window = SDL_GetWindowFromID(event->motion.windowID);
+            break;
+        }
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP: {
+            window = SDL_GetWindowFromID(event->button.windowID);
+            break;
+        }
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP: {
+            window = SDL_GetWindowFromID(event->tfinger.windowID);
+            break;
+        }
+#endif
+        default: {
+            return dict;
+        }
     }
+    PyObject *pgWindow;
+    if (!window || !(pgWindow = SDL_GetWindowData(window, "pg_window"))) {
+        pgWindow = Py_None;
+    }
+    Py_INCREF(pgWindow);
+    _pg_insobj(dict, "window", pgWindow);
     return dict;
 }
 

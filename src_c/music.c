@@ -256,7 +256,7 @@ music_set_pos(PyObject *self, PyObject *arg)
     Py_END_ALLOW_THREADS;
 
     if (position_set == -1)
-        return RAISE(pgExc_SDLError, "set_pos unsupported for this codec");
+        return RAISE(pgExc_SDLError, SDL_GetError());
 
     Py_RETURN_NONE;
 }

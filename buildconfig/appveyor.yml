@@ -61,7 +61,7 @@ environment:
     - PYTHON: "C:\\Python311\\python"
       PYTHONPATH: "C:\\Python311"
       PYTHON_VERSION: "3.11.0"
-      PYTHON_SUFFIX: "rc2"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "32"
       USE_ANALYZE: ""
 
@@ -103,7 +103,7 @@ environment:
     - PYTHON: "C:\\Python311-x64\\python"
       PYTHONPATH: "C:\\Python311-x64"
       PYTHON_VERSION: "3.11.0"
-      PYTHON_SUFFIX: "rc2"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "64"
       USE_ANALYZE: ""
 

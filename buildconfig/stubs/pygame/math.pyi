@@ -12,6 +12,7 @@ from typing import (
     Union,
     final,
     overload,
+    Optional
 )
 
 if sys.version_info >= (3, 9):
@@ -112,6 +113,7 @@ class _GenericVector(Collection[float]):
     @overload
     def clamp_magnitude_ip(self, min_length: float, max_length: float, /) -> None: ...
     def project(self: _TVec, other: Union[Sequence[float], _TVec]) -> _TVec: ...
+    def __round__(self: _TVec, ndigits: Optional[int]) -> _TVec: ...
 
 # VectorElementwiseProxy is a generic, it can be an elementwiseproxy object for
 # Vector2, Vector3 and vector subclass objects

@@ -80,7 +80,7 @@ who understand how to make a ridiculously simple little "game", and who would li
 It introduces you to some concepts of game design, some simple mathematics to work out ball physics, and some ways to keep your
 game easy to maintain and expand.
 
-All the code in this tutorial works toward implementing `TomPong <http://www.tomchance.uklinux.net/projects/pong.shtml>`_,
+All the code in this tutorial works toward implementing `TomPong <http://tomchance.org.uk/projects/pong>`_,
 a game I've written. By the end of the tutorial, you should not only have a firmer grasp of pygame, but
 you should also understand how TomPong works, and how to make your own version.
 
