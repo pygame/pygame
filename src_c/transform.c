@@ -2142,14 +2142,15 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
         for (x = 0; x < src->w; x++) {
             Uint32 pixel;
             Uint8 *pix;
-            SURF_GET_AT(pixel, src, x, y, src->pixels, src->format, pix);
+            SURF_GET_AT(pixel, src, x, y, (Uint8 *)src->pixels, src->format,
+                        pix);
             Uint8 r, g, b, a;
             SDL_GetRGBA(pixel, src->format, &r, &g, &b, &a);
             Uint8 grayscale_pixel = 0.212671 * r + 0.715160 * g + 0.072169 * b;
             Uint32 new_pixel =
                 SDL_MapRGBA(newsurf->format, grayscale_pixel, grayscale_pixel,
                             grayscale_pixel, a);
-            SURF_SET_AT(new_pixel, newsurf, x, y, newsurf->pixels,
+            SURF_SET_AT(new_pixel, newsurf, x, y, (Uint8 *)newsurf->pixels,
                         newsurf->format, pix);
         }
     }

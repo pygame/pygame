@@ -226,6 +226,15 @@
 
       .. ## Color.set_length ##
 
+   .. method:: grayscale
+
+      | :sl:`returns the grayscale of a Color`
+      | :sg:`grayscale() -> Color`
+
+      Returns a Color which represents the grayscaled version of self.
+
+      .. ## Color.grayscale ##
+
    .. method:: lerp
 
       | :sl:`returns a linear interpolation to the given Color.`
