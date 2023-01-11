@@ -594,15 +594,92 @@ pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_colliderect(pgRectObject *self, PyObject *args)
+pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
+                    Py_ssize_t nargs)
 {
-    SDL_Rect *argrect, temp;
+    /* This function got changed to use the FASTCALL calling convention in
+     * Python 3.7. This lets us exploit the fact that we don't have an
+     * intermediate Tuple args object to extract all the arguments from, saving
+     * us performance in the process. This decoupling forces us to deal with
+     * all the different cases (dictated by the number of parameters) by
+     * building specific code paths.
+     * Given that this function accepts any Rect-like object, there are 3 main
+     * cases to deal with:
+     * - 1 parameter: a Rect-like object
+     * - 2 parameters: two sequences that represent the position and dimensions
+     * of the Rect
+     * - 4 parameters: four numbers that represent the position and dimensions
+     */
 
-    if (!(argrect = pgRect_FromObject(args, &temp))) {
-        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    SDL_Rect srect = self->r;
+    SDL_Rect temp;
+
+    if (nargs == 1) {
+        /* One argument was passed in, so we assume it's a rectstyle object.
+         * This could mean several of the following (all dealt by
+         * pgRect_FromObject):
+         * - (x, y, w, h)
+         * - ((x, y), (w, h))
+         * - Rect
+         * - Object with "rect" attribute
+         */
+        SDL_Rect *tmp;
+        if (!(tmp = pgRect_FromObject(args[0], &temp))) {
+            if (PyErr_Occurred()) {
+                return NULL;
+            }
+            else {
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+            }
+        }
+        return PyBool_FromLong(_pg_do_rects_intersect(&srect, tmp));
     }
-    return PyBool_FromLong(_pg_do_rects_intersect(&self->r, argrect));
+    else if (nargs == 2) {
+        /* Two separate sequences were passed in:
+         * - (x, y), (w, h)
+         */
+        if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
+            !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else if (nargs == 4) {
+        /* Four separate arguments were passed in:
+         * - x, y, w, h
+         */
+        if (!(pg_IntFromObj(args[0], &temp.x))) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid x value for rect, must be numeric");
+        }
+
+        if (!(pg_IntFromObj(args[1], &temp.y))) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid y value for rect, must be numeric");
+        }
+
+        if (!(pg_IntFromObj(args[2], &temp.w))) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid w value for rect, must be numeric");
+        }
+
+        if (!(pg_IntFromObj(args[3], &temp.h))) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid h value for rect, must be numeric");
+        }
+    }
+    else {
+        return RAISE(PyExc_ValueError,
+                     "Incorrect arguments number, must be either 1, 2 or 4");
+    }
+
+    return PyBool_FromLong(_pg_do_rects_intersect(&srect, &temp));
 }
+PG_WRAP_FASTCALL_FUNC(pg_rect_colliderect, pgRectObject)
 
 static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *args)
@@ -1286,8 +1363,8 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTUNIONALLIP},
     {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
      DOC_RECTCOLLIDEPOINT},
-    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
-     DOC_RECTCOLLIDERECT},
+    {"colliderect", (PyCFunction)PG_FASTCALL_NAME(pg_rect_colliderect),
+     PG_FASTCALL, DOC_RECTCOLLIDERECT},
     {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
      DOC_RECTCOLLIDELIST},
     {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
