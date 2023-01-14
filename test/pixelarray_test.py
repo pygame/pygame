@@ -258,25 +258,25 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
                 pass
 
         self.assertRaises(ValueError, iter_after)
-        
+
         def close_after():
             a.close()
-            
+
         self.assertRaises(ValueError, close_after)
-        
+
         def surface_after():
             a.surface
-        
+
         self.assertRaises(ValueError, surface_after)
-        
+
         def itemsize_after():
             a.itemsize
-        
+
         self.assertRaises(ValueError, itemsize_after)
-        
+
         def transpose_after():
             a.transpose()
-        
+
         self.assertRaises(ValueError, transpose_after)
 
     def test_context_manager(self):
