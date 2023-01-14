@@ -238,26 +238,46 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         a = pygame.PixelArray(s)
         a.close()
 
-        def do_operation():
+        def access_after():
             a[:]
 
-        self.assertRaises(ValueError, do_operation)
+        self.assertRaises(ValueError, access_after)
 
-        def do_operation2():
+        def assign_all_after():
             a[:] = 1
 
-        self.assertRaises(ValueError, do_operation2)
+        self.assertRaises(ValueError, assign_all_after)
 
-        def do_operation3():
+        def make_surface_after():
             a.make_surface()
 
-        self.assertRaises(ValueError, do_operation3)
+        self.assertRaises(ValueError, make_surface_after)
 
-        def do_operation4():
+        def iter_after():
             for x in a:
                 pass
 
-        self.assertRaises(ValueError, do_operation4)
+        self.assertRaises(ValueError, iter_after)
+        
+        def close_after():
+            a.close()
+            
+        self.assertRaises(ValueError, close_after)
+        
+        def surface_after():
+            a.surface
+        
+        self.assertRaises(ValueError, surface_after)
+        
+        def itemsize_after():
+            a.itemsize
+        
+        self.assertRaises(ValueError, itemsize_after)
+        
+        def transpose_after():
+            a.transpose()
+        
+        self.assertRaises(ValueError, transpose_after)
 
     def test_context_manager(self):
         """closes properly."""
