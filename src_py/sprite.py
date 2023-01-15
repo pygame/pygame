@@ -688,7 +688,7 @@ class OrderedUpdates(RenderUpdates):
         RenderUpdates.__init__(self, *sprites)
 
     def sprites(self):
-        return list(self._spritelist)
+        return self._spritelist.copy()
 
     def add_internal(self, sprite, layer=None):
         RenderUpdates.add_internal(self, sprite)
@@ -834,7 +834,7 @@ class LayeredUpdates(AbstractGroup):
         LayeredUpdates.sprites(): return sprites
 
         """
-        return list(self._spritelist)
+        return self._spritelist.copy()
 
     def draw(self, surface):
         """draw all sprites in the right order onto the passed surface

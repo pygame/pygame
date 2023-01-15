@@ -178,59 +178,6 @@ except (ImportError, OSError):
     pixelcopy = MissingModule("pixelcopy", urgent=1)
 
 
-def warn_unwanted_files():
-    """warn about unneeded old files"""
-
-    # a temporary hack to warn about camera.so and camera.pyd.
-    install_path = os.path.split(pygame.base.__file__)[0]
-    extension_ext = os.path.splitext(pygame.base.__file__)[1]
-
-    # here are the .so/.pyd files we need to ask to remove.
-    ext_to_remove = ["camera"]
-
-    # here are the .py/.pyo/.pyc files we need to ask to remove.
-    py_to_remove = ["color"]
-
-    # Don't warn on Symbian. The color.py is used as a wrapper.
-    if os.name == "e32":
-        py_to_remove = []
-
-    # See if any of the files are there.
-    extension_files = [f"{x}{extension_ext}" for x in ext_to_remove]
-
-    py_files = [
-        f"{x}{py_ext}" for py_ext in [".py", ".pyc", ".pyo"] for x in py_to_remove
-    ]
-
-    files = py_files + extension_files
-
-    unwanted_files = []
-    for f in files:
-        unwanted_files.append(os.path.join(install_path, f))
-
-    ask_remove = []
-    for f in unwanted_files:
-        if os.path.exists(f):
-            ask_remove.append(f)
-
-    if ask_remove:
-        message = "Detected old file(s).  Please remove the old files:\n"
-        message += " ".join(ask_remove)
-        message += "\nLeaving them there might break pygame.  Cheers!\n\n"
-
-        try:
-            import warnings
-
-            level = 4
-            warnings.warn(message, RuntimeWarning, level)
-        except ImportError:
-            print(message)
-
-
-# disable, because we hopefully don't need it.
-# warn_unwanted_files()
-
-
 try:
     from pygame.surface import Surface, SurfaceType
 except (ImportError, OSError):
@@ -328,11 +275,6 @@ try:
 except (ImportError, OSError):
     fastevent = MissingModule("fastevent", urgent=0)
 
-try:
-    import pygame.context
-except (ImportError, OSError):
-    context = MissingModule("context", urgent=0)
-
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
 # programs get everything they need (like py2exe)
@@ -400,4 +342,4 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, MissingModule, copyreg, warn_unwanted_files, packager_imports
+del pygame, os, sys, MissingModule, copyreg, packager_imports
