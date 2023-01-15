@@ -2145,7 +2145,7 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
     PyObject *srcobject = NULL, *argpos = NULL;
     PyObject *blitsequence;
     PyObject *item = NULL;
-    PyObject **f_blitsequence;
+    PyObject **blit_seq;
     Py_ssize_t itemlength, sequencelength, seq_counter;
     int errornum = 0;
     int result;
@@ -2177,10 +2177,10 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     /* List or Tuple */
     if (PyList_Check(blitsequence) || PyTuple_Check(blitsequence)) {
-        f_blitsequence = PySequence_Fast_ITEMS(blitsequence);
+        blit_seq = PySequence_Fast_ITEMS(blitsequence);
         sequencelength = PySequence_Fast_GET_SIZE(blitsequence);
         for (seq_counter = 0; seq_counter < sequencelength; seq_counter++) {
-            item = f_blitsequence[seq_counter];
+            item = blit_seq[seq_counter];
             if (PyTuple_Check(item)) {
                 itemlength = PySequence_Fast_GET_SIZE(item);
                 if (itemlength != 2) {
@@ -2240,11 +2240,13 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
                 itemlength = PySequence_Size(item);
                 if (itemlength != 2) {
                     errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                    Py_DECREF(item);
                     goto on_error;
                 }
             }
             else {
                 errornum = FBLITS_ERR_TUPLE_REQUIRED;
+                Py_DECREF(item);
                 goto on_error;
             }
 
@@ -2253,11 +2255,11 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             argpos = PySequence_ITEM(item, 1);
 
             Py_DECREF(item);
-            /* Clear item to avoid double deref on errors */
-            item = NULL;
 
             if (!pgSurface_Check(srcobject)) {
                 errornum = BLITS_ERR_SOURCE_NOT_SURFACE;
+                Py_DECREF(srcobject);
+                Py_DECREF(argpos);
                 goto on_error;
             }
 
@@ -2265,10 +2267,12 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
             if (!src) {
                 errornum = BLITS_ERR_SEQUENCE_SURF;
+                Py_DECREF(srcobject);
+                Py_DECREF(argpos);
                 goto on_error;
             }
 
-            if (pg_TwoIntsFromObj(argpos, &(dest_rect.x), &(dest_rect.y))) {
+            if (pg_TwoIntsFromObj(argpos, &dest_rect.x, &dest_rect.y)) {
             }
             else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
                 dest_rect.x = src_rect->x;
@@ -2276,8 +2280,12 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
             }
             else {
                 errornum = BLITS_ERR_INVALID_DESTINATION;
+                Py_DECREF(srcobject);
+                Py_DECREF(argpos);
                 goto on_error;
             }
+
+            Py_DECREF(argpos);
 
             dest_rect.w = src->w;
             dest_rect.h = src->h;
@@ -2287,8 +2295,11 @@ surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
 
             if (result != 0) {
                 errornum = BLITS_ERR_BLIT_FAIL;
+                Py_DECREF(srcobject);
                 goto on_error;
             }
+
+            Py_DECREF(srcobject);
         }
     }
     else {
