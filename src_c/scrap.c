@@ -329,7 +329,7 @@ static PyMethodDef scrap_builtins[] = {
  * Only initialise these functions for ones we know about.
  *
  */
-#if  (defined(WIN_SCRAP) || defined(SDL2_SCRAP))
+#if (defined(WIN_SCRAP) || defined(SDL2_SCRAP))
 
     {"init", _scrap_init, 1, DOC_PYGAMESCRAPINIT},
     {"get_init", _scrap_get_init, METH_NOARGS, DOC_PYGAMESCRAPGETINIT},
