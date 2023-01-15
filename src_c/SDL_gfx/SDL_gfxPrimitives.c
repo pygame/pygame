@@ -338,48 +338,33 @@ int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alp
 		break;
 
 	case 3: 
-		{		/* Slow 24-bpp mode, usually not used */
-			Uint8 Rshift8, Gshift8, Bshift8, Ashift8;
+		{		
+			/* Slow 24-bpp mode. This is patched on the pygame end because the
+			 * original code failed on big endian */
 			Uint8 *pixel = (Uint8 *) dst->pixels + y * dst->pitch + x * 3;
+			Uint8 *dR, *dG, *dB;
+			Uint8 sR, sG, sB;
 
-			Rshift = format->Rshift;
-			Gshift = format->Gshift;
-			Bshift = format->Bshift;
-			Ashift = format->Ashift;
+			SDL_GetRGB(color, format, &sR, &sG, &sB);
 
-			Rshift8 = Rshift / 8;
-			Gshift8 = Gshift / 8;
-			Bshift8 = Bshift / 8;
-			Ashift8 = Ashift / 8;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            dR = pixel + (format->Rshift >> 3);
+            dG = pixel + (format->Gshift >> 3);
+            dB = pixel + (format->Bshift >> 3);
+#else
+            dR = pixel + 2 - (format->Rshift >> 3);
+            dG = pixel + 2 - (format->Gshift >> 3);
+            dB = pixel + 2 - (format->Bshift >> 3);
+#endif
 
 			if (alpha == 255) {
-				*(pixel + Rshift8) = color >> Rshift;
-				*(pixel + Gshift8) = color >> Gshift;
-				*(pixel + Bshift8) = color >> Bshift;
-				*(pixel + Ashift8) = color >> Ashift;
+				*dR = sR;
+				*dG = sG;
+				*dB = sB;
 			} else {
-				Uint8 dR, dG, dB, dA = 0;
-				Uint8 sR, sG, sB, sA = 0;
-
-				dR = *((pixel) + Rshift8);
-				dG = *((pixel) + Gshift8);
-				dB = *((pixel) + Bshift8);
-				dA = *((pixel) + Ashift8);
-
-				sR = (color >> Rshift) & 0xff;
-				sG = (color >> Gshift) & 0xff;
-				sB = (color >> Bshift) & 0xff;
-				sA = (color >> Ashift) & 0xff;
-
-				dR = dR + ((sR - dR) * alpha >> 8);
-				dG = dG + ((sG - dG) * alpha >> 8);
-				dB = dB + ((sB - dB) * alpha >> 8);
-				dA = dA + ((sA - dA) * alpha >> 8);
-
-				*((pixel) + Rshift8) = dR;
-				*((pixel) + Gshift8) = dG;
-				*((pixel) + Bshift8) = dB;
-				*((pixel) + Ashift8) = dA;
+				*dR = *dR + ((sR - *dR) * alpha >> 8);
+				*dG = *dG + ((sG - *dG) * alpha >> 8);
+				*dB = *dB + ((sB - *dB) * alpha >> 8);
 			}
 		}
 		break;
@@ -639,45 +624,32 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 		break;
 
 	case 3:
-		{			/* Slow 24-bpp mode, usually not used */
+		{	
+			/* Slow 24-bpp mode. This is patched on the pygame end because the
+			 * original code failed on big endian */
 			Uint8 *row, *pix;
-			Uint8 dR, dG, dB, dA;
-			Uint8 Rshift8, Gshift8, Bshift8, Ashift8;
+			Uint8 *dR, *dG, *dB;
+			Uint8 sR, sG, sB;
 
-			Rshift = format->Rshift;
-			Gshift = format->Gshift;
-			Bshift = format->Bshift;
-			Ashift = format->Ashift;
-
-			Rshift8 = Rshift / 8;
-			Gshift8 = Gshift / 8;
-			Bshift8 = Bshift / 8;
-			Ashift8 = Ashift / 8;
-
-			sR = (color >> Rshift) & 0xff;
-			sG = (color >> Gshift) & 0xff;
-			sB = (color >> Bshift) & 0xff;
-			sA = (color >> Ashift) & 0xff;
-
+			SDL_GetRGB(color, format, &sR, &sG, &sB);
 			for (y = y1; y <= y2; y++) {
 				row = (Uint8 *) dst->pixels + y * dst->pitch;
 				for (x = x1; x <= x2; x++) {
 					pix = row + x * 3;
 
-					dR = *((pix) + Rshift8);
-					dG = *((pix) + Gshift8);
-					dB = *((pix) + Bshift8);
-					dA = *((pix) + Ashift8);
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            		dR = pix + (format->Rshift >> 3);
+            		dG = pix + (format->Gshift >> 3);
+            		dB = pix + (format->Bshift >> 3);
+#else
+            		dR = pix + 2 - (format->Rshift >> 3);
+            		dG = pix + 2 - (format->Gshift >> 3);
+            		dB = pix + 2 - (format->Bshift >> 3);
+#endif
 
-					dR = dR + ((sR - dR) * alpha >> 8);
-					dG = dG + ((sG - dG) * alpha >> 8);
-					dB = dB + ((sB - dB) * alpha >> 8);
-					dA = dA + ((sA - dA) * alpha >> 8);
-
-					*((pix) + Rshift8) = dR;
-					*((pix) + Gshift8) = dG;
-					*((pix) + Bshift8) = dB;
-					*((pix) + Ashift8) = dA;
+					*dR = *dR + ((sR - *dR) * alpha >> 8);
+					*dG = *dG + ((sG - *dG) * alpha >> 8);
+					*dB = *dB + ((sB - *dB) * alpha >> 8);
 				}
 			}
 		}

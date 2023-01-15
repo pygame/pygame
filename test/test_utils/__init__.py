@@ -20,27 +20,6 @@ def geterror():
     return sys.exc_info()[1]
 
 
-class AssertRaisesRegexMixin:
-    """Provides a way to prevent DeprecationWarnings in python >= 3.2.
-
-    For this mixin to override correctly it needs to be before the
-    unittest.TestCase in the multiple inheritance hierarchy.
-    e.g. class TestClass(AssertRaisesRegexMixin, unittest.TestCase)
-
-    This class/mixin and its usage can be removed when pygame no longer
-    supports python < 3.2.
-    """
-
-    def assertRaisesRegex(self, *args, **kwargs):
-        try:
-            return super().assertRaisesRegex(*args, **kwargs)
-        except AttributeError:
-            try:
-                return super().assertRaisesRegexp(*args, **kwargs)
-            except AttributeError:
-                self.skipTest("No assertRaisesRegex/assertRaisesRegexp method")
-
-
 ###############################################################################
 
 this_dir = os.path.dirname(os.path.abspath(__file__))

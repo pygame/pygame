@@ -10,6 +10,13 @@ import pathlib
 from pygame.tests.test_utils import example_path, png, tostring
 import pygame, pygame.image, pygame.pkgdata
 
+sdl_image_svg_jpeg_save_bug = False
+_sdl_image_ver = pygame.image.get_sdl_image_version()
+if _sdl_image_ver is not None:
+    sdl_image_svg_jpeg_save_bug = (
+        _sdl_image_ver <= (2, 0, 5) and pygame.get_sdl_byteorder() == pygame.BIG_ENDIAN
+    )
+
 
 def test_magic(f, magic_hexes):
     """Tests a given file to see if the magic hex matches."""
@@ -92,6 +99,10 @@ class ImageModuleTest(unittest.TestCase):
                     img_file = io.BytesIO(img_bytes)
                     image = pygame.image.load(img_file)
 
+    @unittest.skipIf(
+        sdl_image_svg_jpeg_save_bug,
+        "SDL_image 2.0.5 and older has a big endian bug in jpeg saving",
+    )
     def testSaveJPG(self):
         """JPG equivalent to issue #211 - color channel swapping
 
@@ -1179,6 +1190,11 @@ class ImageModuleTest(unittest.TestCase):
         ]
 
         for filename, expected_color in filename_expected_color:
+            if filename.endswith("svg") and sdl_image_svg_jpeg_save_bug:
+                # SDL_image 2.0.5 and older has an svg loading bug on big
+                # endian platforms
+                continue
+
             with self.subTest(
                 f'Test loading a {filename.split(".")[-1]}',
                 filename="examples/data/" + filename,
