@@ -794,9 +794,10 @@ _color_correct_gamma(pgColorObject *color, PyObject *args)
 static PyObject *
 _color_grayscale(pgColorObject *self)
 {
-    Uint8 grayscale_pixel = (Uint8)(0.212671 * self->data[0] +
-                            0.715160 * self->data[1] +
-                            0.072169 * self->data[2]);
+    Uint8 grayscale_pixel =
+        (Uint8)(0.299 * self->data[0] + 0.587 * self->data[1] +
+                0.114 * self->data[2]);
+
     Uint8 new_rgba[4];
     new_rgba[0] = grayscale_pixel;
     new_rgba[1] = grayscale_pixel;
