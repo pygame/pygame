@@ -9,7 +9,7 @@ _BufferStyle = Union[BufferProxy, bytes, bytearray, memoryview]
 _to_string_format = Literal[
     "P", "RGB", "RGBX", "RGBA", "ARGB", "BGRA", "RGBA_PREMULT", "ARGB_PREMULT"
 ]
-_from_buffer_format = Literal["P", "RGB", "BGR", "BGRA", "RGBX", "RGBA", "ARGB"]
+_from_buffer_format = Literal["P", "RGB", "BGR", "BGRA", "RGBX", "RGBA", "ARGB", "ABGR"]
 _from_string_format = Literal["P", "RGB", "RGBX", "RGBA", "ARGB", "BGRA"]
 
 def load(filename: FileArg, namehint: str = "") -> Surface: ...

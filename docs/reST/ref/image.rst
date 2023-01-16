@@ -190,6 +190,8 @@ following formats.
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
 
+      * ``ABGR``, 32-bit image with alpha channel, all channels reversed
+
    .. note:: it is preferred to use :func:`tobytes` as of pygame 2.1.3
 
    .. versionadded:: 2.1.3 BGRA format
@@ -226,6 +228,8 @@ following formats.
       * ``RGBA_PREMULT``, 32-bit image with colors scaled by alpha channel
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
+
+      * ``ABGR``, 32-bit image with alpha channel, all channels reversed
    
    .. note:: this function is an alias for :func:`tostring`. The use of this
              function is recommended over :func:`tostring` as of pygame 2.1.3.
@@ -311,6 +315,8 @@ following formats.
       * ``ARGB``, 32-bit image with alpha channel first
 
       * ``BGRA``, 32-bit image with alpha channel, red and blue channels swapped
+
+      * ``ABGR``, 32-bit image with alpha channel, all channels reversed
   
    .. versionadded:: 2.1.3 BGRA format
    .. ## pygame.image.frombuffer ##
