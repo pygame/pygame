@@ -1104,6 +1104,82 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(argb_surf.get_at((2, 2)), pygame.Color(0, 0, 0, 79))
         self.assertEqual(argb_surf.get_at((3, 3)), pygame.Color(50, 200, 20, 255))
 
+    def test_frombuffer_ABGR(self):
+        abgr_buffer = bytearray(
+            [
+                200,
+                255,
+                10,
+                20,
+                200,
+                255,
+                10,
+                20,
+                200,
+                255,
+                10,
+                20,
+                200,
+                255,
+                10,
+                20,
+                127,
+                255,
+                255,
+                255,
+                127,
+                255,
+                255,
+                255,
+                127,
+                255,
+                255,
+                255,
+                127,
+                255,
+                255,
+                255,
+                79,
+                0,
+                0,
+                0,
+                79,
+                0,
+                0,
+                0,
+                79,
+                0,
+                0,
+                0,
+                79,
+                0,
+                0,
+                0,
+                255,
+                50,
+                200,
+                20,
+                255,
+                50,
+                200,
+                20,
+                255,
+                50,
+                200,
+                20,
+                255,
+                50,
+                200,
+                20,
+            ]
+        )
+
+        argb_surf = pygame.image.frombuffer(abgr_buffer, (4, 4), "ABGR")
+        self.assertEqual(argb_surf.get_at((0, 0)), pygame.Color(20, 10, 255, 200))
+        self.assertEqual(argb_surf.get_at((1, 1)), pygame.Color(255, 255, 255, 127))
+        self.assertEqual(argb_surf.get_at((2, 2)), pygame.Color(0, 0, 0, 79))
+        self.assertEqual(argb_surf.get_at((3, 3)), pygame.Color(20, 200, 50, 255))
+
     def test_get_extended(self):
         # Create a png file and try to load it. If it cannot, get_extended() should return False
         raw_image = []
