@@ -40,6 +40,8 @@
 
 #include "SDL_gfx/SDL_gfxPrimitives.h"
 
+#include "draw_shared.h"
+
 static PyObject *
 _gfx_pixelcolor(PyObject *self, PyObject *args);
 static PyObject *
@@ -244,14 +246,15 @@ _gfx_vlinecolor(PyObject *self, PyObject *args)
 static PyObject *
 _gfx_rectanglecolor(PyObject *self, PyObject *args)
 {
-    PyObject *surface, *color, *rect;
+    PyObject *surface, *colorobj, *rect;
+    SDL_Surface *surf = NULL;
     SDL_Rect temprect, *sdlrect;
-    Sint16 x1, x2, _y1, y2;
+    Uint32 color;
     Uint8 rgba[4];
 
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple(args, "OOO:rectangle", &surface, &rect, &color)) {
+    if (!PyArg_ParseTuple(args, "OOO:rectangle", &surface, &rect, &colorobj)) {
         /* Exception already set */
         return NULL;
     }
@@ -265,22 +268,12 @@ _gfx_rectanglecolor(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_TypeError, "invalid rect style argument");
         return NULL;
     }
+    surf = pgSurface_AsSurface(surface);
+    CHECK_LOAD_COLOR(colorobj)
 
-    if (!pg_RGBAFromObj(color, rgba)) {
-        PyErr_SetString(PyExc_TypeError, "invalid color argument");
-        return NULL;
-    }
+    draw_rect(surf, sdlrect->x, sdlrect->y, sdlrect->x + sdlrect->w - 1,
+              sdlrect->y + sdlrect->h - 1, 1, color);
 
-    x1 = sdlrect->x;
-    _y1 = sdlrect->y;
-    x2 = (Sint16)(sdlrect->x + sdlrect->w - 1);
-    y2 = (Sint16)(sdlrect->y + sdlrect->h - 1);
-
-    if (rectangleRGBA(pgSurface_AsSurface(surface), x1, _y1, x2, y2, rgba[0],
-                      rgba[1], rgba[2], rgba[3]) == -1) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        return NULL;
-    }
     Py_RETURN_NONE;
 }
 

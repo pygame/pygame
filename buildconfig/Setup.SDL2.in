@@ -41,7 +41,7 @@ _sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c
 
 GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
 #GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
-gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
+gfxdraw src_c/gfxdraw.c src_c/draw_shared.c $(SDL) $(GFX) $(DEBUG)
 
 #optional freetype module (do not break in multiple lines
 #or the configuration script will choke!)
@@ -65,7 +65,7 @@ surface src_c/simd_blitters_sse2.c src_c/simd_blitters_avx2.c src_c/surface.c sr
 surflock src_c/surflock.c $(SDL) $(DEBUG)
 time src_c/time.c $(SDL) $(DEBUG)
 joystick src_c/joystick.c $(SDL) $(DEBUG)
-draw src_c/draw.c $(SDL) $(DEBUG)
+draw src_c/draw.c src_c/draw_shared.c $(SDL) $(DEBUG)
 image src_c/image.c $(SDL) $(DEBUG)
 transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG)
 mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
