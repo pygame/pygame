@@ -696,6 +696,12 @@ _rwops_from_pystr(PyObject *obj, char **extptr)
                 ext++;
                 *extptr = malloc(strlen(ext) + 1);
                 if (!(*extptr)) {
+                    /* If out of memory, decref oencoded to be safe, and try
+                     * to close out `rw` as well. */
+                    Py_DECREF(oencoded);
+                    if (SDL_RWclose(rw) < 0) {
+                        PyErr_SetString(PyExc_IOError, SDL_GetError());
+                    }
                     return (SDL_RWops *)PyErr_NoMemory();
                 }
                 strcpy(*extptr, ext);
