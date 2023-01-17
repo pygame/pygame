@@ -237,8 +237,7 @@ alphablit_alpha_avx2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
 void
 alphablit_alpha_avx2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info)
 {
-    RAISE_AVX2_RUNTIME_SSE2_COMPILED_WARNING();
-    alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(info);
+    BAD_AVX2_FUNCTION_CALL;
 }
 #endif /* defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
           !defined(SDL_DISABLE_IMMINTRIN_H) */
