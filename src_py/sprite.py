@@ -399,9 +399,6 @@ class AbstractGroup:
 
         :param sprite: The sprite we are removing.
         """
-        # lost_rect = self.spritedict[sprite]
-        # if lost_rect:
-        #     self.lostsprites.append(lost_rect)
         sprite_index = self._spritelist.index(sprite)
         if sprite_index < len(self._sprite_drawn_rects):
             self.lostsprites.append(self._sprite_drawn_rects[sprite_index])
@@ -554,7 +551,9 @@ class AbstractGroup:
         Draws all of the member sprites onto the given surface.
 
         """
-        self._sprite_drawn_rects = surface.blits([(spr.image, spr.rect) for spr in self._spritelist])
+        self._sprite_drawn_rects = surface.blits(
+            [(spr.image, spr.rect) for spr in self._spritelist]
+        )
 
         self.lostsprites = []
         dirty = self.lostsprites
@@ -771,7 +770,6 @@ class LayeredUpdates(AbstractGroup):
         """
         self._spritelayers = {}
         AbstractGroup.__init__(self)
-        self.lostsprites = []
         self.spritedict = {}
         self._default_layer = kwargs.get("default_layer", 0)
 
