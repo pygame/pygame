@@ -87,7 +87,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 
 from warnings import warn
 
-from typing import List, Union
+from typing import List, Union, Tuple, Optional
 
 import pygame
 
@@ -113,11 +113,30 @@ class Sprite:
 
     def __init__(self, *groups):
         self.__g = {}  # The groups the sprite is in
+        self.__image: Optional[pygame.surface.Surface] = None
+        self.__rect: Optional[pygame.rect.Rect] = None
         if groups:
             self.add(*groups)
 
-        self.image = None
-        self.rect = None
+    @property
+    def image(self):
+        return self.__image
+
+    @image.setter
+    def image(self, value: Optional[pygame.surface.Surface]):
+        self.__image = value
+        for group in self.__g:
+            group.rebuild_draw_list()
+
+    @property
+    def rect(self):
+        return self.__rect
+
+    @rect.setter
+    def rect(self, value: Optional[pygame.rect.Rect]):
+        self.__rect = value
+        for group in self.__g:
+            group.rebuild_draw_list()
 
     def add(self, *groups):
         """add the sprite to groups
@@ -364,8 +383,13 @@ class AbstractGroup:
 
     def __init__(self):
         self._spritelist: List[Union[Sprite, DirtySprite]] = []
+        self._draw_list: List[Tuple[pygame.surface.Surface, pygame.Rect]] = []
         self._sprite_drawn_rects: List[pygame.rect.Rect] = []
         self.lostsprites = []
+
+    def rebuild_draw_list(self):
+        self._draw_list = [(sprite.image, sprite.rect)
+                           for sprite in self._spritelist]
 
     def sprites(self):
         """get a list of sprites in the group
@@ -392,6 +416,11 @@ class AbstractGroup:
         :param layer: the layer to add to, if the group type supports layers
         """
         self._spritelist.append(sprite)
+        self.rebuild_draw_list()
+
+    def __add_sprite_drawn_rect_to_lost(self, sprite_index):
+        if sprite_index < len(self._sprite_drawn_rects):
+            self.lostsprites.append(self._sprite_drawn_rects[sprite_index])
 
     def remove_internal(self, sprite):
         """
@@ -400,9 +429,9 @@ class AbstractGroup:
         :param sprite: The sprite we are removing.
         """
         sprite_index = self._spritelist.index(sprite)
-        if sprite_index < len(self._sprite_drawn_rects):
-            self.lostsprites.append(self._sprite_drawn_rects[sprite_index])
-        self._spritelist.remove(sprite)
+        self.__add_sprite_drawn_rect_to_lost(sprite_index)
+        self._spritelist.pop(sprite_index)
+        self.rebuild_draw_list()
 
     def has_internal(self, sprite):
         """
@@ -422,7 +451,7 @@ class AbstractGroup:
 
         """
         return self.__class__(  # noqa pylint: disable=too-many-function-args
-            self.sprites()  # Needed because copy() won't work on AbstractGroup
+            self._spritelist  # Needed because copy() won't work on AbstractGroup
         )
 
     def __iter__(self):
@@ -540,7 +569,7 @@ class AbstractGroup:
         were passed to this method are passed to the Sprite update function.
 
         """
-        for sprite in self.sprites():
+        for sprite in self._spritelist:
             sprite.update(*args, **kwargs)
 
     def draw(self, surface: pygame.surface.Surface):
@@ -551,11 +580,9 @@ class AbstractGroup:
         Draws all of the member sprites onto the given surface.
 
         """
-        self._sprite_drawn_rects = surface.blits(
-            [(spr.image, spr.rect) for spr in self._spritelist]
-        )
+        self._sprite_drawn_rects = surface.blits(self._draw_list)
 
-        self.lostsprites = []
+        self.lostsprites[:] = []
         dirty = self.lostsprites
 
         return dirty
@@ -593,12 +620,14 @@ class AbstractGroup:
         Removes all the sprites from the group.
 
         """
-        for sprite in self.sprites():
-            self.remove_internal(sprite)
+        for index, sprite in enumerate(self._spritelist):
+            self.__add_sprite_drawn_rect_to_lost(index)
             sprite.remove_internal(self)
+        self._spritelist.clear()
+        self._draw_list.clear()
 
     def __bool__(self):
-        return bool(self.sprites())
+        return bool(self._spritelist)
 
     def __len__(self):
         """return number of sprites in group
@@ -608,7 +637,7 @@ class AbstractGroup:
         Returns the number of sprites contained in the group.
 
         """
-        return len(self.sprites())
+        return len(self._spritelist)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({len(self)} sprites)>"
