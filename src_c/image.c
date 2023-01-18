@@ -1166,9 +1166,9 @@ image_frombytes(PyObject *self, PyObject *arg)
                 "Bytes length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface(SDL_SRCALPHA, w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                     0xFF << 24, 0xFF << 16, 0xFF << 8, 0xFF);
+                                    0xFF << 24, 0xFF << 16, 0xFF << 8, 0xFF);
 #else
-                                     0xFF << 16, 0xFF << 24, 0xFF, 0xFF << 8);
+                                    0xFF << 16, 0xFF << 24, 0xFF, 0xFF << 8);
 #endif
         if (!surf)
             return RAISE(pgExc_SDLError, SDL_GetError());
