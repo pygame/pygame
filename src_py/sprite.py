@@ -388,8 +388,7 @@ class AbstractGroup:
         self.lostsprites = []
 
     def rebuild_draw_list(self):
-        self._draw_list = [(sprite.image, sprite.rect)
-                           for sprite in self._spritelist]
+        self._draw_list = [(sprite.image, sprite.rect) for sprite in self._spritelist]
 
     def sprites(self):
         """get a list of sprites in the group
