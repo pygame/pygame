@@ -768,8 +768,6 @@ class OrderedUpdates(RenderUpdates):
 
     """
 
-    pass
-
 
 class LayeredUpdates(AbstractGroup):
     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
