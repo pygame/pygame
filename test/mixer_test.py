@@ -4,7 +4,7 @@ import unittest
 import pathlib
 import platform
 
-from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
+from pygame.tests.test_utils import example_path
 
 import pygame
 from pygame import mixer
@@ -655,7 +655,7 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 
-class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class ChannelTypeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initializing the mixer is slow, so minimize the times it is called.
@@ -918,7 +918,7 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 ############################### SOUND CLASS TESTS ##############################
 
 
-class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class SoundTypeTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         mixer.quit()
@@ -1186,6 +1186,28 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             pygame.mixer.quit()
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
                 snd.get_raw()
+
+    def test_correct_subclassing(self):
+        class CorrectSublass(mixer.Sound):
+            def __init__(self, file):
+                super().__init__(file=file)
+
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        correct = CorrectSublass(filename)
+
+        try:
+            correct.get_volume()
+        except Exception:
+            self.fail("This should not raise an exception.")
+
+    def test_incorrect_subclassing(self):
+        class IncorrectSuclass(mixer.Sound):
+            def __init__(self):
+                pass
+
+        incorrect = IncorrectSuclass()
+
+        self.assertRaises(RuntimeError, incorrect.get_volume)
 
 
 ##################################### MAIN #####################################

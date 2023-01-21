@@ -103,7 +103,7 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = _PG_SCANCODEWRAPPER_TYPE_FULLNAME,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.key.ScancodeWrapper",
     .tp_repr = (reprfunc)pg_scancodewrapper_repr,
     .tp_as_mapping = &pg_scancodewrapper_mapping,
     .tp_flags =
@@ -145,483 +145,174 @@ key_get_pressed(PyObject *self, PyObject *_null)
     return ret_obj;
 }
 
-/* Keep our own table for backwards compatibility. This table is directly taken
- * from SDL2 source (but some SDL1 names are patched in it at runtime).
- * This has to be kept updated (only new things can be added, existing names in
- * this must not be changed) */
-static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-    "Return",
-    "Escape",
-    "Backspace",
-    "Tab",
-    "Space",
-    "-",
-    "=",
-    "[",
-    "]",
-    "\\",
-    "#",
-    ";",
-    "'",
-    "`",
-    ",",
-    ".",
-    "/",
-    "CapsLock",
-    "F1",
-    "F2",
-    "F3",
-    "F4",
-    "F5",
-    "F6",
-    "F7",
-    "F8",
-    "F9",
-    "F10",
-    "F11",
-    "F12",
-    "PrintScreen",
-    "ScrollLock",
-    "Pause",
-    "Insert",
-    "Home",
-    "PageUp",
-    "Delete",
-    "End",
-    "PageDown",
-    "Right",
-    "Left",
-    "Down",
-    "Up",
-    "Numlock",
-    "Keypad /",
-    "Keypad *",
-    "Keypad -",
-    "Keypad +",
-    "Keypad Enter",
-    "Keypad 1",
-    "Keypad 2",
-    "Keypad 3",
-    "Keypad 4",
-    "Keypad 5",
-    "Keypad 6",
-    "Keypad 7",
-    "Keypad 8",
-    "Keypad 9",
-    "Keypad 0",
-    "Keypad .",
-    NULL,
-    "Application",
-    "Power",
-    "Keypad =",
-    "F13",
-    "F14",
-    "F15",
-    "F16",
-    "F17",
-    "F18",
-    "F19",
-    "F20",
-    "F21",
-    "F22",
-    "F23",
-    "F24",
-    "Execute",
-    "Help",
-    "Menu",
-    "Select",
-    "Stop",
-    "Again",
-    "Undo",
-    "Cut",
-    "Copy",
-    "Paste",
-    "Find",
-    "Mute",
-    "VolumeUp",
-    "VolumeDown",
-    NULL,
-    NULL,
-    NULL,
-    "Keypad ,",
-    "Keypad = (AS400)",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    "AltErase",
-    "SysReq",
-    "Cancel",
-    "Clear",
-    "Prior",
-    "Return",
-    "Separator",
-    "Out",
-    "Oper",
-    "Clear / Again",
-    "CrSel",
-    "ExSel",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    "Keypad 00",
-    "Keypad 000",
-    "ThousandsSeparator",
-    "DecimalSeparator",
-    "CurrencyUnit",
-    "CurrencySubUnit",
-    "Keypad (",
-    "Keypad )",
-    "Keypad {",
-    "Keypad }",
-    "Keypad Tab",
-    "Keypad Backspace",
-    "Keypad A",
-    "Keypad B",
-    "Keypad C",
-    "Keypad D",
-    "Keypad E",
-    "Keypad F",
-    "Keypad XOR",
-    "Keypad ^",
-    "Keypad %",
-    "Keypad <",
-    "Keypad >",
-    "Keypad &",
-    "Keypad &&",
-    "Keypad |",
-    "Keypad ||",
-    "Keypad :",
-    "Keypad #",
-    "Keypad Space",
-    "Keypad @",
-    "Keypad !",
-    "Keypad MemStore",
-    "Keypad MemRecall",
-    "Keypad MemClear",
-    "Keypad MemAdd",
-    "Keypad MemSubtract",
-    "Keypad MemMultiply",
-    "Keypad MemDivide",
-    "Keypad +/-",
-    "Keypad Clear",
-    "Keypad ClearEntry",
-    "Keypad Binary",
-    "Keypad Octal",
-    "Keypad Decimal",
-    "Keypad Hexadecimal",
-    NULL,
-    NULL,
-    "Left Ctrl",
-    "Left Shift",
-    "Left Alt",
-    "Left GUI",
-    "Right Ctrl",
-    "Right Shift",
-    "Right Alt",
-    "Right GUI",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    "ModeSwitch",
-    "AudioNext",
-    "AudioPrev",
-    "AudioStop",
-    "AudioPlay",
-    "AudioMute",
-    "MediaSelect",
-    "WWW",
-    "Mail",
-    "Calculator",
-    "Computer",
-    "AC Search",
-    "AC Home",
-    "AC Back",
-    "AC Forward",
-    "AC Stop",
-    "AC Refresh",
-    "AC Bookmarks",
-    "BrightnessDown",
-    "BrightnessUp",
-    "DisplaySwitch",
-    "KBDIllumToggle",
-    "KBDIllumDown",
-    "KBDIllumUp",
-    "Eject",
-    "Sleep",
-    "App1",
-    "App2",
-    "AudioRewind",
-    "AudioFastForward",
+/* Keep our own key-name table for backwards compatibility.
+ * This has to be kept updated (only new things can be added, existing records
+ * in this must not be changed).
+ * Here the constant values are hardcoded so that this table remains compatible
+ * with older SDL2 versions without the need for many SDL version check macro
+ * fences
+ */
+static const struct {
+    const SDL_Keycode key;
+    const char *name;
+} pg_key_and_name[] = {
+    {0, ""},                         /* K_UNKNOWN */
+    {8, "backspace"},                /* K_BACKSPACE */
+    {9, "tab"},                      /* K_TAB */
+    {13, "return"},                  /* K_RETURN */
+    {27, "escape"},                  /* K_ESCAPE */
+    {32, "space"},                   /* K_SPACE */
+    {33, "!"},                       /* K_EXCLAIM */
+    {34, "\""},                      /* K_QUOTEDBL */
+    {35, "#"},                       /* K_HASH */
+    {36, "$"},                       /* K_DOLLAR */
+    {37, "%"},                       /* K_PERCENT */
+    {38, "&"},                       /* K_AMPERSAND */
+    {39, "'"},                       /* K_QUOTE */
+    {40, "("},                       /* K_LEFTPAREN */
+    {41, ")"},                       /* K_RIGHTPAREN */
+    {42, "*"},                       /* K_ASTERISK */
+    {43, "+"},                       /* K_PLUS */
+    {44, ","},                       /* K_COMMA */
+    {45, "-"},                       /* K_MINUS */
+    {46, "."},                       /* K_PERIOD */
+    {47, "/"},                       /* K_SLASH */
+    {48, "0"},                       /* K_0 */
+    {49, "1"},                       /* K_1 */
+    {50, "2"},                       /* K_2 */
+    {51, "3"},                       /* K_3 */
+    {52, "4"},                       /* K_4 */
+    {53, "5"},                       /* K_5 */
+    {54, "6"},                       /* K_6 */
+    {55, "7"},                       /* K_7 */
+    {56, "8"},                       /* K_8 */
+    {57, "9"},                       /* K_9 */
+    {58, ":"},                       /* K_COLON */
+    {59, ";"},                       /* K_SEMICOLON */
+    {60, "<"},                       /* K_LESS */
+    {61, "="},                       /* K_EQUALS */
+    {62, ">"},                       /* K_GREATER */
+    {63, "?"},                       /* K_QUESTION */
+    {64, "@"},                       /* K_AT */
+    {91, "["},                       /* K_LEFTBRACKET */
+    {92, "\\"},                      /* K_BACKSLASH */
+    {93, "]"},                       /* K_RIGHTBRACKET */
+    {94, "^"},                       /* K_CARET */
+    {95, "_"},                       /* K_UNDERSCORE */
+    {96, "`"},                       /* K_BACKQUOTE */
+    {97, "a"},                       /* K_a */
+    {98, "b"},                       /* K_b */
+    {99, "c"},                       /* K_c */
+    {100, "d"},                      /* K_d */
+    {101, "e"},                      /* K_e */
+    {102, "f"},                      /* K_f */
+    {103, "g"},                      /* K_g */
+    {104, "h"},                      /* K_h */
+    {105, "i"},                      /* K_i */
+    {106, "j"},                      /* K_j */
+    {107, "k"},                      /* K_k */
+    {108, "l"},                      /* K_l */
+    {109, "m"},                      /* K_m */
+    {110, "n"},                      /* K_n */
+    {111, "o"},                      /* K_o */
+    {112, "p"},                      /* K_p */
+    {113, "q"},                      /* K_q */
+    {114, "r"},                      /* K_r */
+    {115, "s"},                      /* K_s */
+    {116, "t"},                      /* K_t */
+    {117, "u"},                      /* K_u */
+    {118, "v"},                      /* K_v */
+    {119, "w"},                      /* K_w */
+    {120, "x"},                      /* K_x */
+    {121, "y"},                      /* K_y */
+    {122, "z"},                      /* K_z */
+    {127, "delete"},                 /* K_DELETE */
+    {1073741881, "caps lock"},       /* K_CAPSLOCK */
+    {1073741882, "f1"},              /* K_F1 */
+    {1073741883, "f2"},              /* K_F2 */
+    {1073741884, "f3"},              /* K_F3 */
+    {1073741885, "f4"},              /* K_F4 */
+    {1073741886, "f5"},              /* K_F5 */
+    {1073741887, "f6"},              /* K_F6 */
+    {1073741888, "f7"},              /* K_F7 */
+    {1073741889, "f8"},              /* K_F8 */
+    {1073741890, "f9"},              /* K_F9 */
+    {1073741891, "f10"},             /* K_F10 */
+    {1073741892, "f11"},             /* K_F11 */
+    {1073741893, "f12"},             /* K_F12 */
+    {1073741894, "print screen"},    /* K_PRINT, K_PRINTSCREEN */
+    {1073741895, "scroll lock"},     /* K_SCROLLLOCK, K_SCROLLOCK */
+    {1073741896, "break"},           /* K_BREAK, K_PAUSE */
+    {1073741897, "insert"},          /* K_INSERT */
+    {1073741898, "home"},            /* K_HOME */
+    {1073741899, "page up"},         /* K_PAGEUP */
+    {1073741901, "end"},             /* K_END */
+    {1073741902, "page down"},       /* K_PAGEDOWN */
+    {1073741903, "right"},           /* K_RIGHT */
+    {1073741904, "left"},            /* K_LEFT */
+    {1073741905, "down"},            /* K_DOWN */
+    {1073741906, "up"},              /* K_UP */
+    {1073741907, "numlock"},         /* K_NUMLOCK, K_NUMLOCKCLEAR */
+    {1073741908, "[/]"},             /* K_KP_DIVIDE */
+    {1073741909, "[*]"},             /* K_KP_MULTIPLY */
+    {1073741910, "[-]"},             /* K_KP_MINUS */
+    {1073741911, "[+]"},             /* K_KP_PLUS */
+    {1073741912, "enter"},           /* K_KP_ENTER */
+    {1073741913, "[1]"},             /* K_KP1, K_KP_1 */
+    {1073741914, "[2]"},             /* K_KP2, K_KP_2 */
+    {1073741915, "[3]"},             /* K_KP3, K_KP_3 */
+    {1073741916, "[4]"},             /* K_KP4, K_KP_4 */
+    {1073741917, "[5]"},             /* K_KP5, K_KP_5 */
+    {1073741918, "[6]"},             /* K_KP6, K_KP_6 */
+    {1073741919, "[7]"},             /* K_KP7, K_KP_7 */
+    {1073741920, "[8]"},             /* K_KP8, K_KP_8 */
+    {1073741921, "[9]"},             /* K_KP9, K_KP_9 */
+    {1073741922, "[0]"},             /* K_KP0, K_KP_0 */
+    {1073741923, "[.]"},             /* K_KP_PERIOD */
+    {1073741926, "power"},           /* K_POWER */
+    {1073741927, "equals"},          /* K_KP_EQUALS */
+    {1073741928, "f13"},             /* K_F13 */
+    {1073741929, "f14"},             /* K_F14 */
+    {1073741930, "f15"},             /* K_F15 */
+    {1073741941, "help"},            /* K_HELP */
+    {1073741942, "menu"},            /* K_MENU */
+    {1073741978, "sys req"},         /* K_SYSREQ */
+    {1073741980, "clear"},           /* K_CLEAR */
+    {1073742004, "euro"},            /* K_CURRENCYUNIT, K_EURO */
+    {1073742005, "CurrencySubUnit"}, /* K_CURRENCYSUBUNIT */
+    {1073742048, "left ctrl"},       /* K_LCTRL */
+    {1073742049, "left shift"},      /* K_LSHIFT */
+    {1073742050, "left alt"},        /* K_LALT */
+    {1073742051, "left meta"},       /* K_LGUI, K_LMETA, K_LSUPER */
+    {1073742052, "right ctrl"},      /* K_RCTRL */
+    {1073742053, "right shift"},     /* K_RSHIFT */
+    {1073742054, "right alt"},       /* K_RALT */
+    {1073742055, "right meta"},      /* K_RGUI, K_RMETA, K_RSUPER */
+    {1073742081, "alt gr"},          /* K_MODE */
+    {1073742094, "AC Back"},         /* K_AC_BACK */
 };
 
-#if defined(BUILD_STATIC)
-// from SDL_keyboard.c
-extern char *
-SDL_UCS4ToUTF8(Uint32 ch, char *dst);
-#else
-/* Taken from SDL_iconv() */
-char *
-SDL_UCS4ToUTF8(Uint32 ch, char *dst)
-{
-    Uint8 *p = (Uint8 *)dst;
-    if (ch <= 0x7F) {
-        *p = (Uint8)ch;
-        ++dst;
-    }
-    else if (ch <= 0x7FF) {
-        p[0] = 0xC0 | (Uint8)((ch >> 6) & 0x1F);
-        p[1] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 2;
-    }
-    else if (ch <= 0xFFFF) {
-        p[0] = 0xE0 | (Uint8)((ch >> 12) & 0x0F);
-        p[1] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[2] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 3;
-    }
-    else {
-        p[0] = 0xF0 | (Uint8)((ch >> 18) & 0x07);
-        p[1] = 0x80 | (Uint8)((ch >> 12) & 0x3F);
-        p[2] = 0x80 | (Uint8)((ch >> 6) & 0x3F);
-        p[3] = 0x80 | (Uint8)(ch & 0x3F);
-        dst += 4;
-    }
-    return dst;
-}
-#endif
-
-/* Patch in pygame 1 compat names in our key name compat table */
-static void
-_use_sdl1_key_names(void)
-{
-    /* mostly copied from SDL_keyboard.c
-     * ASCII keys are already handled correctly, it does not break anything
-     * if some of these keys have missing keycodes */
-
-    /* These are specialcases in the _get_keycode_name implementation */
-    SDL1_scancode_names[SDL_SCANCODE_BACKSPACE] = "backspace";
-    SDL1_scancode_names[SDL_SCANCODE_TAB] = "tab";
-    SDL1_scancode_names[SDL_SCANCODE_RETURN] = "return";
-    SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "pause";
-    SDL1_scancode_names[SDL_SCANCODE_ESCAPE] = "escape";
-    SDL1_scancode_names[SDL_SCANCODE_SPACE] = "space";
-    SDL1_scancode_names[SDL_SCANCODE_CLEAR] = "clear";
-    SDL1_scancode_names[SDL_SCANCODE_DELETE] = "delete";
-    SDL1_scancode_names[SDL_SCANCODE_KP_0] = "[0]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_1] = "[1]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_2] = "[2]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_3] = "[3]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_4] = "[4]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_5] = "[5]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_6] = "[6]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_7] = "[7]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_8] = "[8]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_9] = "[9]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_PERIOD] = "[.]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_DIVIDE] = "[/]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_MULTIPLY] = "[*]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_MINUS] = "[-]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_PLUS] = "[+]";
-    SDL1_scancode_names[SDL_SCANCODE_KP_ENTER] = "enter";
-    SDL1_scancode_names[SDL_SCANCODE_KP_EQUALS] = "equals";
-    SDL1_scancode_names[SDL_SCANCODE_UP] = "up";
-    SDL1_scancode_names[SDL_SCANCODE_DOWN] = "down";
-    SDL1_scancode_names[SDL_SCANCODE_RIGHT] = "right";
-    SDL1_scancode_names[SDL_SCANCODE_LEFT] = "left";
-    SDL1_scancode_names[SDL_SCANCODE_DOWN] = "down";
-    SDL1_scancode_names[SDL_SCANCODE_INSERT] = "insert";
-    SDL1_scancode_names[SDL_SCANCODE_HOME] = "home";
-    SDL1_scancode_names[SDL_SCANCODE_END] = "end";
-    SDL1_scancode_names[SDL_SCANCODE_PAGEUP] = "page up";
-    SDL1_scancode_names[SDL_SCANCODE_PAGEDOWN] = "page down";
-    SDL1_scancode_names[SDL_SCANCODE_F1] = "f1";
-    SDL1_scancode_names[SDL_SCANCODE_F2] = "f2";
-    SDL1_scancode_names[SDL_SCANCODE_F3] = "f3";
-    SDL1_scancode_names[SDL_SCANCODE_F4] = "f4";
-    SDL1_scancode_names[SDL_SCANCODE_F5] = "f5";
-    SDL1_scancode_names[SDL_SCANCODE_F6] = "f6";
-    SDL1_scancode_names[SDL_SCANCODE_F7] = "f7";
-    SDL1_scancode_names[SDL_SCANCODE_F8] = "f8";
-    SDL1_scancode_names[SDL_SCANCODE_F9] = "f9";
-    SDL1_scancode_names[SDL_SCANCODE_F10] = "f10";
-    SDL1_scancode_names[SDL_SCANCODE_F11] = "f11";
-    SDL1_scancode_names[SDL_SCANCODE_F12] = "f12";
-    SDL1_scancode_names[SDL_SCANCODE_F13] = "f13";
-    SDL1_scancode_names[SDL_SCANCODE_F14] = "f14";
-    SDL1_scancode_names[SDL_SCANCODE_F15] = "f15";
-    SDL1_scancode_names[SDL_SCANCODE_NUMLOCKCLEAR] = "numlock";
-    SDL1_scancode_names[SDL_SCANCODE_CAPSLOCK] = "caps lock";
-    SDL1_scancode_names[SDL_SCANCODE_SCROLLLOCK] = "scroll lock";
-    SDL1_scancode_names[SDL_SCANCODE_RSHIFT] = "right shift";
-    SDL1_scancode_names[SDL_SCANCODE_LSHIFT] = "left shift";
-    SDL1_scancode_names[SDL_SCANCODE_RCTRL] = "right ctrl";
-    SDL1_scancode_names[SDL_SCANCODE_LCTRL] = "left ctrl";
-    SDL1_scancode_names[SDL_SCANCODE_RALT] = "right alt";
-    SDL1_scancode_names[SDL_SCANCODE_LALT] = "left alt";
-    SDL1_scancode_names[SDL_SCANCODE_RGUI] = "right meta";
-    SDL1_scancode_names[SDL_SCANCODE_LGUI] = "left meta";
-    SDL1_scancode_names[SDL_SCANCODE_MODE] = "alt gr";
-    SDL1_scancode_names[SDL_SCANCODE_APPLICATION] =
-        "compose"; /*  Application / Compose / Context Menu (Windows) key */
-    SDL1_scancode_names[SDL_SCANCODE_HELP] = "help";
-    SDL1_scancode_names[SDL_SCANCODE_PRINTSCREEN] = "print screen";
-    SDL1_scancode_names[SDL_SCANCODE_SYSREQ] = "sys req";
-    SDL1_scancode_names[SDL_SCANCODE_PAUSE] = "break";
-    SDL1_scancode_names[SDL_SCANCODE_MENU] = "menu";
-    SDL1_scancode_names[SDL_SCANCODE_POWER] = "power";
-    SDL1_scancode_names[SDL_SCANCODE_CURRENCYUNIT] =
-        "euro"; /* EURO (SDL1) is an alias for CURRENCYUNIT in SDL2. But we
-                need to retain the SDL1 name in compat mode */
-    SDL1_scancode_names[SDL_SCANCODE_UNDO] = "undo";
-}
-
+/* Get name from keycode using pygame compat table */
 static const char *
-_get_scancode_name(SDL_Scancode scancode)
+_pg_get_keycode_name(SDL_Keycode key)
 {
-    /* this only differs SDL_GetScancodeName() in that we use the (mostly)
-     * backward-compatible table above */
-    const char *name;
-    if (((int)scancode) < ((int)SDL_SCANCODE_UNKNOWN) ||
-        scancode >= SDL_NUM_SCANCODES) {
-        SDL_InvalidParamError("scancode");
-        return "";
+    int i;
+    for (i = 0; i < (int)SDL_arraysize(pg_key_and_name); i++) {
+        if (pg_key_and_name[i].key == key) {
+            return pg_key_and_name[i].name;
+        }
     }
-
-    name = SDL1_scancode_names[scancode];
-    if (name)
-        return name;
-    else
-        return "";
-}
-
-static const char *
-_get_keycode_name(SDL_Keycode key)
-{
-    static char name[8];
-    char *end;
-
-    if (key & SDLK_SCANCODE_MASK) {
-        return _get_scancode_name((SDL_Scancode)(key & ~SDLK_SCANCODE_MASK));
-    }
-
-    switch (key) {
-        case SDLK_RETURN:
-            return _get_scancode_name(SDL_SCANCODE_RETURN);
-        case SDLK_ESCAPE:
-            return _get_scancode_name(SDL_SCANCODE_ESCAPE);
-        case SDLK_BACKSPACE:
-            return _get_scancode_name(SDL_SCANCODE_BACKSPACE);
-        case SDLK_TAB:
-            return _get_scancode_name(SDL_SCANCODE_TAB);
-        case SDLK_SPACE:
-            return _get_scancode_name(SDL_SCANCODE_SPACE);
-        case SDLK_DELETE:
-            return _get_scancode_name(SDL_SCANCODE_DELETE);
-        default:
-            /* SDL2 converts lowercase letters to uppercase here, but we don't
-             * for pygame 1 compatibility */
-            end = SDL_UCS4ToUTF8((Uint32)key, name);
-            *end = '\0';
-            return name;
-    }
+    return pg_key_and_name[SDLK_UNKNOWN].name;
 }
 
 /* Lighter version of SDL_GetKeyFromName, uses custom compat table first */
 static SDL_Keycode
-_get_key_from_name(const char *name)
+_pg_get_key_from_name(const char *name)
 {
     int i;
-    for (i = 0; i < SDL_NUM_SCANCODES; ++i) {
-        if (!SDL1_scancode_names[i]) {
-            continue;
-        }
-        if (!SDL_strcasecmp(name, SDL1_scancode_names[i])) {
-            return SDL_GetKeyFromScancode((SDL_Scancode)i);
+    for (i = 0; i < (int)SDL_arraysize(pg_key_and_name); i++) {
+        if (!SDL_strcasecmp(name, pg_key_and_name[i].name)) {
+            return pg_key_and_name[i].key;
         }
     }
 
@@ -642,7 +333,7 @@ key_name(PyObject *self, PyObject *args, PyObject *kwargs)
     if (use_compat) {
         /* Use our backcompat function, that has names hardcoded in pygame
          * source */
-        return PyUnicode_FromString(_get_keycode_name(key));
+        return PyUnicode_FromString(_pg_get_keycode_name(key));
     }
 
     /* This check only needs to run when use_compat=False because SDL API calls
@@ -675,7 +366,7 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
 
-    code = _get_key_from_name(name);
+    code = _pg_get_key_from_name(name);
     if (code == SDLK_UNKNOWN) {
         return RAISE(PyExc_ValueError, "unknown key name");
     }
@@ -833,8 +524,6 @@ MODINIT_DEFINE(key)
         Py_DECREF(module);
         return NULL;
     }
-
-    _use_sdl1_key_names();
 
     return module;
 }

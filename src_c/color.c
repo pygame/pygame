@@ -22,7 +22,9 @@
  *
  * Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
  * This addresses bug 52:
- * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ * https://github.com/pygame/pygame/issues/52
+ * With this option, floats have consistent precision regardless of optimize
+ * level.
  *
  * Apparently, the same problem plagues pygame.color, as it failed the
  * test_hsva__all_elements_within_limits and
@@ -260,7 +262,7 @@ static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Color",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.color.Color",
     .tp_basicsize = sizeof(pgColorObject),
     .tp_dealloc = (destructor)_color_dealloc,
     .tp_repr = (reprfunc)_color_repr,

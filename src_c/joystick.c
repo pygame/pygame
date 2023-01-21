@@ -535,7 +535,7 @@ static PyMethodDef joy_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgJoystick_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Joystick",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.joystick.Joystick",
     .tp_basicsize = sizeof(pgJoystickObject),
     .tp_dealloc = joy_dealloc,
     .tp_doc = DOC_PYGAMEJOYSTICKJOYSTICK,

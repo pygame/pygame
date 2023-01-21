@@ -40,6 +40,10 @@ the instance ID that was assigned to a Joystick on opening.
 The event queue needs to be pumped frequently for some of the methods to work.
 So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regularly.
 
+To be able to get joystick events and update the joystick objects while the window
+is not in focus, you may set the ``SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS`` environment
+variable. See :ref:`environment variables <environment-variables>` for more details.
+
 
 .. function:: init
 

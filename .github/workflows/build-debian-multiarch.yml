@@ -1,0 +1,93 @@
+# Tests pygame on more exotic architectures. This is not something that is
+# actively supported, but source code support for this is nice to have. We
+# don't do any releases from here.
+
+name: Debian Multiarch
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-debian-multiarch.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-debian-multiarch.yml'
+
+jobs:
+  build-multiarch:
+    name: Debian (Bullseye - 11) [${{ matrix.arch }}]
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        # maybe more things could be added in here in the future (if needed)
+        arch: [s390x, ppc64le]
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Build sources and run tests
+      uses: uraimo/run-on-arch-action@v2.3.0
+      id: build
+      with:
+        arch: ${{ matrix.arch }}
+        distro: bullseye
+
+        # Not required, but speeds up builds
+        githubToken: ${{ github.token }}
+
+        # Create an artifacts directory
+        setup: mkdir -p ~/artifacts
+
+        # Mount the artifacts directory as /artifacts in the container
+        dockerRunArgs: --volume ~/artifacts:/artifacts
+
+        # The shell to run commands with in the container
+        shell: /bin/sh
+
+        # Install some dependencies in the container. This speeds up builds if
+        # you are also using githubToken. Any dependencies installed here will
+        # be part of the container image that gets cached, so subsequent
+        # builds don't have to re-install them. The image layer is cached
+        # publicly in your project's package repository, so it is vital that
+        # no secrets are present in the container state or logs.
+        install: |
+          apt-get update --fix-missing
+          apt-get upgrade -y
+          apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg-dev fontconfig -y
+          apt-get install python3-setuptools python3-dev python3-pip python3-wheel python3-sphinx -y
+
+        # Build a wheel, install it for running unit tests
+        run: |
+          export PIP_CONFIG_FILE=buildconfig/pip_config.ini
+          echo "\nBuilding pygame wheel\n"
+          python3 setup.py docs
+          pip3 wheel . --wheel-dir /artifacts -vvv
+          echo "\nInstalling wheel\n"
+          pip3 install --no-index --pre --find-links /artifacts pygame
+          echo "\nRunning tests\n"
+          export SDL_VIDEODRIVER=dummy
+          export SDL_AUDIODRIVER=disk
+          python3 -m pygame.tests -v --exclude opengl,music,timing --time_out 300
