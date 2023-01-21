@@ -366,16 +366,9 @@ class DirtySprite(Sprite):
         )
 
 
-class AbstractGroup:
-    """base class for containers of sprites
-
-    AbstractGroup does everything needed to behave as a normal group. You can
-    easily subclass a new group class from this or the other groups below if
-    you want to add more features.
-
-    Any AbstractGroup-derived sprite groups act like sequences and support
-    iteration, len, and so on.
-
+class BaseGroup:
+    """
+    A base class for groups with only basic features, designed only for speed.
     """
 
     # dummy val to identify sprite groups, and avoid infinite recursion
@@ -384,22 +377,14 @@ class AbstractGroup:
     def __init__(self):
         self._spritelist: List[Union[Sprite, DirtySprite]] = []
         self._draw_list: List[Tuple[pygame.surface.Surface, pygame.Rect]] = []
-        self._sprite_drawn_rects: List[pygame.rect.Rect] = []
-        self.lostsprites = []
 
     def rebuild_draw_list(self):
         self._draw_list = [(sprite.image, sprite.rect) for sprite in self._spritelist]
 
     def sprites(self):
-        """get a list of sprites in the group
+        """get a list copy of the sprites in the group
 
         Group.sprite(): return list
-
-        Returns an object that can be looped over with a 'for' loop. (For now,
-        it is always a list, but this could change in a future version of
-        pygame.) Alternatively, you can get the same information by iterating
-        directly over the sprite group, e.g. 'for sprite in group'.
-
         """
         return self._spritelist.copy()
 
@@ -417,19 +402,13 @@ class AbstractGroup:
         self._spritelist.append(sprite)
         self.rebuild_draw_list()
 
-    def __add_sprite_drawn_rect_to_lost(self, sprite_index):
-        if sprite_index < len(self._sprite_drawn_rects):
-            self.lostsprites.append(self._sprite_drawn_rects[sprite_index])
-
     def remove_internal(self, sprite):
         """
         For removing a sprite from this group internally.
 
         :param sprite: The sprite we are removing.
         """
-        sprite_index = self._spritelist.index(sprite)
-        self.__add_sprite_drawn_rect_to_lost(sprite_index)
-        self._spritelist.pop(sprite_index)
+        self._spritelist.remove(sprite)
         self.rebuild_draw_list()
 
     def has_internal(self, sprite):
@@ -579,6 +558,78 @@ class AbstractGroup:
         Draws all of the member sprites onto the given surface.
 
         """
+        surface.blits(self._draw_list)
+
+    def empty(self):
+        """remove all sprites
+
+        Group.empty(): return None
+
+        Removes all the sprites from the group.
+
+        """
+        for sprite in self._spritelist:
+            sprite.remove_internal(self)
+        self._spritelist.clear()
+        self._draw_list.clear()
+
+    def __bool__(self):
+        return bool(self._spritelist)
+
+    def __len__(self):
+        """return number of sprites in group
+
+        Group.len(group): return int
+
+        Returns the number of sprites contained in the group.
+
+        """
+        return len(self._spritelist)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}({len(self)} sprites)>"
+
+
+class AbstractGroup(BaseGroup):
+    """base class for containers of sprites
+
+    AbstractGroup does everything needed to behave as a normal group. You can
+    easily subclass a new group class from this or the other groups below if
+    you want to add more features.
+
+    Any AbstractGroup-derived sprite groups act like sequences and support
+    iteration, len, and so on.
+
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._sprite_drawn_rects: List[pygame.rect.Rect] = []
+        self.lostsprites = []
+
+    def __add_sprite_drawn_rect_to_lost(self, sprite_index):
+        if sprite_index < len(self._sprite_drawn_rects):
+            self.lostsprites.append(self._sprite_drawn_rects[sprite_index])
+
+    def remove_internal(self, sprite):
+        """
+        For removing a sprite from this group internally.
+
+        :param sprite: The sprite we are removing.
+        """
+        sprite_index = self._spritelist.index(sprite)
+        self.__add_sprite_drawn_rect_to_lost(sprite_index)
+        self._spritelist.pop(sprite_index)
+        self.rebuild_draw_list()
+
+    def draw(self, surface: pygame.surface.Surface):
+        """draw all sprites onto the surface
+
+        Group.draw(surface): return Rect_list
+
+        Draws all of the member sprites onto the given surface.
+
+        """
         self._sprite_drawn_rects = surface.blits(self._draw_list)
 
         self.lostsprites[:] = []
@@ -625,22 +676,6 @@ class AbstractGroup:
         self._spritelist.clear()
         self._draw_list.clear()
 
-    def __bool__(self):
-        return bool(self._spritelist)
-
-    def __len__(self):
-        """return number of sprites in group
-
-        Group.len(group): return int
-
-        Returns the number of sprites contained in the group.
-
-        """
-        return len(self._spritelist)
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__}({len(self)} sprites)>"
-
 
 class Group(AbstractGroup):
     """container class for many Sprites
@@ -669,6 +704,16 @@ class Group(AbstractGroup):
 
 RenderPlain = Group
 RenderClear = Group
+
+
+class FastGroup(BaseGroup):
+    """
+    A faster group without clear()
+    """
+
+    def __init__(self, *sprites):
+        super().__init__()
+        self.add(*sprites)
 
 
 class RenderUpdates(Group):
