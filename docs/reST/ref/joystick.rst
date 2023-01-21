@@ -107,7 +107,7 @@ variable. See :ref:`environment variables <environment-variables>` for more deta
 
    .. versionchanged:: 2.0.0 Joystick objects are now opened immediately on creation.
 
-   .. versionchanged:: 2.1.3 This class is also available through the ``pygame.Joystick`` 
+   .. versionchanged:: 2.1.4 This class is also available through the ``pygame.Joystick`` 
       alias.
 
    .. method:: init

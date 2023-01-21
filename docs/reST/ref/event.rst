@@ -469,7 +469,7 @@ On Android, the following events can be generated
    When creating the object, the attributes may come from a dictionary
    argument with string keys or from keyword arguments.
 
-   .. versionchanged:: 2.1.3 This class is also available through the ``pygame.Event``
+   .. versionchanged:: 2.1.4 This class is also available through the ``pygame.Event``
       alias.
 
    .. note::
