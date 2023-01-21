@@ -1,6 +1,6 @@
 name: Build WASM (Emscripten)
 
-# Run CI only on changes to main branch, or any PR to main. Do not run CI on 
+# Run CI only on changes to main branch, or any PR to main. Do not run CI on
 # any other branch. Also, skip any non-source changes from running on CI
 on:
   push:
@@ -32,12 +32,13 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       # pin SDK version to the latest, update manually
-      SDK_VERSION: 0.3.3
-      SDK_ARCHIVE: python-wasm-sdk-ubuntu-22.04.tar.lz4
+      SDK_VERSION: 3.1.27.0
+      SDK_ARCHIVE: python3.11-wasm-sdk-Ubuntu-22.04.tar.lz4
+      SDKROOT: /opt/python-wasm-sdk
 
       # use the most recent cython from github, but pin on a commit for CI
       # stability. This is also needed to benefit from caching cython installs
-      LATEST_CYTHON_COMMIT: 8e29b6d47f6f5b10ec1a37f06db440156ac2ac2e
+      LATEST_CYTHON_COMMIT: 9366abc7d6700da7c98b3b1f169e4f2bfac28c54
 
       WHEELHOUSE_CYTHON: /tmp/wheelhouse/cython
 
@@ -67,14 +68,16 @@ jobs:
     - name: Install python-wasm-sdk
       run: |
         sudo apt-get install lz4
-        mkdir python-wasm-sdk && cd python-wasm-sdk
+        echo https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE
         curl -sL --retry 5 https://github.com/pygame-web/python-wasm-sdk/releases/download/$SDK_VERSION/$SDK_ARCHIVE | tar xvP --use-compress-program=lz4
+        # do not let SDL1 interfere
+        rm -rf /opt/python-wasm-sdk/emsdk/upstream/emscripten/cache/sysroot/include/SDL
       working-directory: /opt
 
     - name: Build WASM with emsdk
       run: |
-        EMCC_CFLAGS="-I/opt/python-wasm-sdk/devices/emsdk/usr/include/SDL2 -s USE_SDL=2" /opt/python-wasm-sdk/python3-wasm setup.py build -j$(nproc)
-    
+        ${SDKROOT}/python3-wasm setup.py build -j$(nproc)
+
     - name: Generate libpygame.a static binaries archive
       run: |
         mkdir -p dist
