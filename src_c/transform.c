@@ -573,7 +573,7 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
 static PyObject *
 surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -609,7 +609,7 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -648,7 +648,7 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -709,7 +709,7 @@ surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -812,7 +812,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -966,7 +966,7 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_rotozoom(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -1084,7 +1084,7 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
 static PyObject *
 surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -1576,7 +1576,7 @@ smoothscale_to(PyObject *self, pgSurfaceObject *srcobj,
 static PyObject *
 surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -1612,7 +1612,7 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -1908,7 +1908,7 @@ _color_from_obj(PyObject *color_obj, SDL_PixelFormat *format,
 static PyObject *
 surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -2360,7 +2360,7 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
 static PyObject *
 surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -2603,7 +2603,7 @@ average_surfaces(SDL_Surface **surfaces, size_t num_surfaces,
 static PyObject *
 surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -2986,7 +2986,7 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 static PyObject *
 surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }

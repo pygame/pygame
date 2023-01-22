@@ -100,7 +100,7 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 static PyObject *
 aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -177,7 +177,7 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 line(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -250,7 +250,7 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -391,7 +391,7 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -513,7 +513,7 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -596,7 +596,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -668,7 +668,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 circle(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -768,7 +768,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
@@ -887,7 +887,7 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface* input_surf = pgSurface_AsSurface(self);
+    SDL_Surface *input_surf = pgSurface_AsSurface(self);
     if (!input_surf) {
         return RAISE(pgExc_SDLError, "display Surface quit");
     }
