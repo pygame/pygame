@@ -66,7 +66,6 @@ class Window:
     size: Iterable[int]
     position: Union[int, Iterable[int]]
     opacity: float
-    brightness: float
     display_index: int
     def set_modal_for(self, Window) -> None: ...
 
