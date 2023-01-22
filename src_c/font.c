@@ -705,7 +705,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"font", "size", NULL};
 
     self->font = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &obj,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Oi$Oi", kwlist, &obj,
                                      &fontsize)) {
         return -1;
     }
