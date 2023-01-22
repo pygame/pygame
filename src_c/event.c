@@ -350,11 +350,9 @@ _pg_pgevent_proxify_helper(Uint32 type, Uint8 proxify)
         _PG_HANDLE_PROXIFY(DOLLARGESTURE);
         _PG_HANDLE_PROXIFY(DOLLARRECORD);
         _PG_HANDLE_PROXIFY(DROPFILE);
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         _PG_HANDLE_PROXIFY(DROPTEXT);
         _PG_HANDLE_PROXIFY(DROPBEGIN);
         _PG_HANDLE_PROXIFY(DROPCOMPLETE);
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         _PG_HANDLE_PROXIFY(FINGERMOTION);
         _PG_HANDLE_PROXIFY(FINGERDOWN);
         _PG_HANDLE_PROXIFY(FINGERUP);
@@ -569,19 +567,19 @@ pg_event_filter(void *_, SDL_Event *event)
         newupevent.button.clicks = 1;
         newupevent.button.which = event->button.which;
 
-        if (event->wheel.y > 0) {
-            newdownevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
-            newupevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
-        }
-        else {
-            newdownevent.button.button =
-                PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
-            newupevent.button.button = PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
-        }
-
         /* Use a for loop to simulate multiple events, because SDL 1
          * works that way */
         for (i = 0; i < abs(event->wheel.y); i++) {
+            /* Do this in the loop because button.button is mutated before it
+             * is posted from this filter */
+            if (event->wheel.y > 0) {
+                newdownevent.button.button = newupevent.button.button =
+                    PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
+            }
+            else {
+                newdownevent.button.button = newupevent.button.button =
+                    PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
+            }
             SDL_PushEvent(&newdownevent);
             SDL_PushEvent(&newupevent);
         }
@@ -750,14 +748,12 @@ _pg_name_from_eventtype(int type)
             return "TextEditing";
         case SDL_DROPFILE:
             return "DropFile";
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             return "DropText";
         case SDL_DROPBEGIN:
             return "DropBegin";
         case SDL_DROPCOMPLETE:
             return "DropComplete";
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -860,7 +856,6 @@ get_joy_guid(int device_index)
 void
 _joy_map_add(int device_index)
 {
-#if SDL_VERSION_ATLEAST(2, 0, 6)
     int instance_id = (int)SDL_JoystickGetDeviceInstanceID(device_index);
     PyObject *k, *v;
     if (instance_id != -1) {
@@ -872,7 +867,6 @@ _joy_map_add(int device_index)
         Py_XDECREF(k);
         Py_XDECREF(v);
     }
-#endif
 }
 
 /** Look up a device ID for an instance ID. */
@@ -1137,8 +1131,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "file", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
             break;
-
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", PyUnicode_FromString(event->drop.file));
             SDL_free(event->drop.file);
@@ -1146,8 +1138,6 @@ dict_from_event(SDL_Event *event)
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
             break;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
-
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
             _pg_insobj(dict, "instance_id",
