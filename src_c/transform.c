@@ -573,15 +573,10 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
 static PyObject *
 surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
     PyObject *size;
-    SDL_Surface *newsurf;
+    SDL_Surface *newsurf, *surf;
     int width, height;
     static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
@@ -589,6 +584,11 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &pgSurface_Type, &surfobj, &size,
                                      &pgSurface_Type, &surfobj2))
         return NULL;
+
+    surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
@@ -609,11 +609,6 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
     PyObject *factorobj = NULL;
@@ -631,6 +626,9 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
     newsurf = scale_to(surfobj, surfobj2, (int)(surf->w * scalex),
                        (int)(surf->h * scaley));
     if (!newsurf) {
@@ -648,11 +646,6 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
@@ -664,6 +657,9 @@ surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     /* if the second surface is not there, then make a new one. */
 
@@ -709,11 +705,6 @@ surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
     float angle;
@@ -728,6 +719,10 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &pgSurface_Type, &surfobj, &angle))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     if (surf->w < 1 || surf->h < 1) {
         Py_INCREF(surfobj);
         return (PyObject *)surfobj;
@@ -812,11 +807,6 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
     int xaxis, yaxis;
@@ -830,6 +820,9 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &yaxis))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     newsurf = newsurf_fromsurf(surf, surf->w, surf->h);
     if (!newsurf)
@@ -966,11 +959,6 @@ surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_rotozoom(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf, *surf32;
     float scale, angle;
@@ -981,6 +969,11 @@ surf_rotozoom(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &scale))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
+    surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     if (scale == 0.0 || surf->w == 0 || surf->h == 0) {
         newsurf = newsurf_fromsurf(surf, 0, 0);
         return (PyObject *)pgSurface_New(newsurf);
@@ -1084,11 +1077,6 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
 static PyObject *
 surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     PyObject *surfobj, *rectobj;
     SDL_Surface *surf, *newsurf;
     SDL_Rect *rect, temp;
@@ -1102,6 +1090,9 @@ surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_TypeError, "Rect argument is invalid");
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
     /* The function releases GIL internally, don't release here */
     newsurf = chop(surf, rect->x, rect->y, rect->w, rect->h);
 
@@ -1576,13 +1567,9 @@ smoothscale_to(PyObject *self, pgSurfaceObject *srcobj,
 static PyObject *
 surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
+    SDL_Surface *surf;
     PyObject *size;
     SDL_Surface *newsurf;
     int width, height;
@@ -1592,6 +1579,11 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &pgSurface_Type, &surfobj, &size,
                                      &pgSurface_Type, &surfobj2))
         return NULL;
+
+    surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
@@ -1612,11 +1604,6 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     pgSurfaceObject *surfobj2 = NULL;
     PyObject *factorobj = NULL;
@@ -1634,6 +1621,9 @@ surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     newsurf = smoothscale_to(self, surfobj, surfobj2, (int)(surf->w * scale),
                              (int)(surf->h * scaley));
@@ -1908,11 +1898,6 @@ _color_from_obj(PyObject *color_obj, SDL_PixelFormat *format,
 static PyObject *
 surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     PyObject *dest_surf_obj;
     SDL_Surface *dest_surf = NULL;
 
@@ -2360,11 +2345,6 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
 static PyObject *
 surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
@@ -2376,6 +2356,9 @@ surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     /* if the second surface is not there, then make a new one. */
 
@@ -2603,11 +2586,6 @@ average_surfaces(SDL_Surface **surfaces, size_t num_surfaces,
 static PyObject *
 surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     PyObject *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf = NULL;
@@ -2986,11 +2964,6 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 static PyObject *
 surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *rectobj = NULL;
     SDL_Surface *surf;

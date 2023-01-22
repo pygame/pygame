@@ -100,11 +100,6 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 static PyObject *
 aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *start, *end;
     SDL_Surface *surf = NULL;
@@ -123,6 +118,11 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
         return NULL; /* Exception already set. */
     }
 
+    surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     if (!blend) {
         if (PyErr_WarnEx(
                 PyExc_DeprecationWarning,
@@ -132,8 +132,6 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
             return NULL;
         }
     }
-
-    surf = pgSurface_AsSurface(surfobj);
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -177,11 +175,6 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 line(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *start, *end;
     SDL_Surface *surf = NULL;
@@ -201,6 +194,9 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -250,11 +246,6 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj;
     PyObject *points, *item = NULL;
@@ -280,6 +271,9 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -391,11 +385,6 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj;
     PyObject *points, *item = NULL;
@@ -418,6 +407,9 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -513,11 +505,6 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
@@ -545,6 +532,9 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -596,11 +586,6 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
@@ -625,6 +610,9 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -668,11 +656,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 circle(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj;
     SDL_Surface *surf = NULL;
@@ -713,6 +696,9 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -768,11 +754,6 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *points, *item = NULL;
     SDL_Surface *surf = NULL;
@@ -807,6 +788,9 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -887,11 +871,6 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_Surface *input_surf = pgSurface_AsSurface(self);
-    if (!input_surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
-
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *rectobj;
     SDL_Rect *rect = NULL, temp;
@@ -929,6 +908,10 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
