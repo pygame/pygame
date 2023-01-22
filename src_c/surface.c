@@ -1825,6 +1825,11 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 static PyObject *
 surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp;
     PyObject *argpos, *argrect = NULL;
@@ -1896,6 +1901,11 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (!surf) {
+        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp;
     PyObject *srcobject = NULL, *argpos = NULL, *argrect = NULL;
