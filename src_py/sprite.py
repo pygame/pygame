@@ -126,7 +126,7 @@ class Sprite:
     def image(self, value: Optional[pygame.surface.Surface]):
         self.__image = value
         for group in self.__g:
-            group.rebuild_draw_list()
+            group.should_rebuild_draw_list = True
 
     @property
     def rect(self):
@@ -136,7 +136,7 @@ class Sprite:
     def rect(self, value: Optional[pygame.rect.Rect]):
         self.__rect = value
         for group in self.__g:
-            group.rebuild_draw_list()
+            group.should_rebuild_draw_list = True
 
     def add(self, *groups):
         """add the sprite to groups
@@ -377,8 +377,9 @@ class BaseGroup:
     def __init__(self):
         self._spritelist: List[Union[Sprite, DirtySprite]] = []
         self._draw_list: List[Tuple[pygame.surface.Surface, pygame.Rect]] = []
+        self.should_rebuild_draw_list = False
 
-    def rebuild_draw_list(self):
+    def _rebuild_draw_list(self):
         self._draw_list = [(sprite.image, sprite.rect) for sprite in self._spritelist]
 
     def sprites(self):
@@ -400,7 +401,7 @@ class BaseGroup:
         :param layer: the layer to add to, if the group type supports layers
         """
         self._spritelist.append(sprite)
-        self.rebuild_draw_list()
+        self.should_rebuild_draw_list = True
 
     def remove_internal(self, sprite):
         """
@@ -409,7 +410,7 @@ class BaseGroup:
         :param sprite: The sprite we are removing.
         """
         self._spritelist.remove(sprite)
-        self.rebuild_draw_list()
+        self.should_rebuild_draw_list = True
 
     def has_internal(self, sprite):
         """
@@ -558,6 +559,10 @@ class BaseGroup:
         Draws all of the member sprites onto the given surface.
 
         """
+        if self.should_rebuild_draw_list:
+            self._rebuild_draw_list()
+            self.should_rebuild_draw_list = False
+        # TODO: change this to fblits in the future if that gets merged.
         surface.blits(self._draw_list)
 
     def empty(self):
@@ -620,7 +625,7 @@ class AbstractGroup(BaseGroup):
         sprite_index = self._spritelist.index(sprite)
         self.__add_sprite_drawn_rect_to_lost(sprite_index)
         self._spritelist.pop(sprite_index)
-        self.rebuild_draw_list()
+        self.should_rebuild_draw_list = True
 
     def draw(self, surface: pygame.surface.Surface):
         """draw all sprites onto the surface
@@ -630,6 +635,9 @@ class AbstractGroup(BaseGroup):
         Draws all of the member sprites onto the given surface.
 
         """
+        if self.should_rebuild_draw_list:
+            self._rebuild_draw_list()
+            self.should_rebuild_draw_list = False
         self._sprite_drawn_rects = surface.blits(self._draw_list)
 
         self.lostsprites[:] = []
