@@ -387,13 +387,6 @@ class AbstractGroup:
         self._lost_sprites = []
         self.should_rebuild_draw_list = False
 
-    def _rebuild_draw_list(self):
-        self._draw_list = [(sprite.image, sprite.rect) for sprite in self._sprite_list]
-
-    def __add_sprite_drawn_rect_to_lost(self, sprite_index):
-        if sprite_index < len(self._draw_list):
-            self._lost_sprites.append(self._draw_list[sprite_index][1])
-
     def sprites(self):
         """get a list copy of the sprites in the group
 
@@ -584,6 +577,31 @@ class AbstractGroup:
 
         return dirty
 
+    def clear(self, surface, bgd):
+        """erase the previous position of all sprites
+
+        Group.clear(surface, bgd): return None
+
+        Clears the area under every drawn sprite in the group. The bgd
+        argument should be Surface which is the same dimensions as the
+        screen surface. The bgd could also be a function which accepts
+        the given surface and the area to be cleared as arguments.
+
+        """
+        if callable(bgd):
+            for lost_clear_rect in self._lost_sprites:
+                bgd(surface, lost_clear_rect)
+            for _, clear_rect in self._draw_list:
+                if clear_rect is not None:
+                    bgd(surface, clear_rect)
+        else:
+            surface_blit = surface.blit
+            for lost_clear_rect in self._lost_sprites:
+                surface_blit(bgd, lost_clear_rect, lost_clear_rect)
+            for _, clear_rect in self._draw_list:
+                if clear_rect is not None:
+                    surface_blit(bgd, clear_rect, clear_rect)
+
     def empty(self):
         """remove all sprites
 
@@ -614,30 +632,12 @@ class AbstractGroup:
     def __repr__(self):
         return f"<{self.__class__.__name__}({len(self)} sprites)>"
 
-    def clear(self, surface, bgd):
-        """erase the previous position of all sprites
+    def _rebuild_draw_list(self):
+        self._draw_list = [(sprite.image, sprite.rect) for sprite in self._sprite_list]
 
-        Group.clear(surface, bgd): return None
-
-        Clears the area under every drawn sprite in the group. The bgd
-        argument should be Surface which is the same dimensions as the
-        screen surface. The bgd could also be a function which accepts
-        the given surface and the area to be cleared as arguments.
-
-        """
-        if callable(bgd):
-            for lost_clear_rect in self._lost_sprites:
-                bgd(surface, lost_clear_rect)
-            for _, clear_rect in self._draw_list:
-                if clear_rect is not None:
-                    bgd(surface, clear_rect)
-        else:
-            surface_blit = surface.blit
-            for lost_clear_rect in self._lost_sprites:
-                surface_blit(bgd, lost_clear_rect, lost_clear_rect)
-            for _, clear_rect in self._draw_list:
-                if clear_rect is not None:
-                    surface_blit(bgd, clear_rect, clear_rect)
+    def __add_sprite_drawn_rect_to_lost(self, sprite_index):
+        if sprite_index < len(self._draw_list):
+            self._lost_sprites.append(self._draw_list[sprite_index][1])
 
 
 class Group(AbstractGroup):
