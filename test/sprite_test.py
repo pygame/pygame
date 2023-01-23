@@ -581,14 +581,14 @@ class AbstractGroupTypeTest(unittest.TestCase):
         self.assertEqual((255, 0, 0, 255), self.scr.get_at((5, 5)))
         self.assertEqual((0, 255, 0, 255), self.scr.get_at((15, 5)))
 
-        sprite_1_index = self.ag._spritelist.index(self.s1)
-        sprite_2_index = self.ag._spritelist.index(self.s2)
+        sprite_1_index = self.ag._sprite_list.index(self.s1)
+        sprite_2_index = self.ag._sprite_list.index(self.s2)
 
         self.assertEqual(
-            self.ag._sprite_drawn_rects[sprite_1_index], pygame.Rect(0, 0, 10, 10)
+            self.ag._draw_list[sprite_1_index][1], pygame.Rect(0, 0, 10, 10)
         )
         self.assertEqual(
-            self.ag._sprite_drawn_rects[sprite_2_index], pygame.Rect(10, 0, 10, 10)
+            self.ag._draw_list[sprite_2_index][1], pygame.Rect(10, 0, 10, 10)
         )
 
     def test_empty(self):
@@ -683,7 +683,7 @@ class LayeredGroupBase:
         self.LG.add(spr, layer=expected_layer)
         layer = self.LG.get_layer_of_sprite(spr)
 
-        self.assertEqual(len(self.LG._spritelist), 1)
+        self.assertEqual(len(self.LG._sprite_list), 1)
         self.assertEqual(layer, self.LG.get_layer_of_sprite(spr))
         self.assertEqual(layer, expected_layer)
         self.assertEqual(layer, self.LG._spritelayers[spr])
@@ -694,7 +694,7 @@ class LayeredGroupBase:
         self.LG.add(spr)
         layer = self.LG.get_layer_of_sprite(spr)
 
-        self.assertEqual(len(self.LG._spritelist), 1)
+        self.assertEqual(len(self.LG._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__sprite_with_layer_attribute(self):
@@ -704,7 +704,7 @@ class LayeredGroupBase:
         self.LG.add(spr)
         layer = self.LG.get_layer_of_sprite(spr)
 
-        self.assertEqual(len(self.LG._spritelist), 1)
+        self.assertEqual(len(self.LG._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__passing_layer_keyword(self):
@@ -713,7 +713,7 @@ class LayeredGroupBase:
         self.LG.add(spr, layer=expected_layer)
         layer = self.LG.get_layer_of_sprite(spr)
 
-        self.assertEqual(len(self.LG._spritelist), 1)
+        self.assertEqual(len(self.LG._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__overriding_sprite_layer_attr(self):
@@ -723,7 +723,7 @@ class LayeredGroupBase:
         self.LG.add(spr, layer=expected_layer)
         layer = self.LG.get_layer_of_sprite(spr)
 
-        self.assertEqual(len(self.LG._spritelist), 1)
+        self.assertEqual(len(self.LG._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__adding_sprite_on_init(self):
@@ -732,7 +732,7 @@ class LayeredGroupBase:
         expected_layer = lrg2._default_layer
         layer = lrg2._spritelayers[spr]
 
-        self.assertEqual(len(lrg2._spritelist), 1)
+        self.assertEqual(len(lrg2._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__sprite_init_layer_attr(self):
@@ -742,7 +742,7 @@ class LayeredGroupBase:
         lrg2 = sprite.LayeredUpdates(spr)
         layer = lrg2._spritelayers[spr]
 
-        self.assertEqual(len(lrg2._spritelist), 1)
+        self.assertEqual(len(lrg2._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__sprite_init_passing_layer(self):
@@ -751,7 +751,7 @@ class LayeredGroupBase:
         lrg2 = sprite.LayeredUpdates(spr, layer=expected_layer)
         layer = lrg2._spritelayers[spr]
 
-        self.assertEqual(len(lrg2._spritelist), 1)
+        self.assertEqual(len(lrg2._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__sprite_init_overiding_layer(self):
@@ -761,7 +761,7 @@ class LayeredGroupBase:
         lrg2 = sprite.LayeredUpdates(spr, layer=expected_layer)
         layer = lrg2._spritelayers[spr]
 
-        self.assertEqual(len(lrg2._spritelist), 1)
+        self.assertEqual(len(lrg2._sprite_list), 1)
         self.assertEqual(layer, expected_layer)
 
     def test_add__spritelist(self):
@@ -771,7 +771,7 @@ class LayeredGroupBase:
 
         self.LG.add(sprites)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_count)
 
         for i in range(sprite_count):
             layer = self.LG.get_layer_of_sprite(sprites[i])
@@ -787,7 +787,7 @@ class LayeredGroupBase:
 
         self.LG.add(sprites)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_and_layer_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_and_layer_count)
 
         for i in range(sprite_and_layer_count):
             layer = self.LG.get_layer_of_sprite(sprites[i])
@@ -801,7 +801,7 @@ class LayeredGroupBase:
 
         self.LG.add(sprites, layer=expected_layer)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_count)
 
         for i in range(sprite_count):
             layer = self.LG.get_layer_of_sprite(sprites[i])
@@ -818,7 +818,7 @@ class LayeredGroupBase:
 
         self.LG.add(sprites, layer=expected_layer)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_and_layer_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_and_layer_count)
 
         for i in range(sprite_and_layer_count):
             layer = self.LG.get_layer_of_sprite(sprites[i])
@@ -832,7 +832,7 @@ class LayeredGroupBase:
         lrg2 = sprite.LayeredUpdates(sprites)
         expected_layer = lrg2._default_layer
 
-        self.assertEqual(len(lrg2._spritelist), sprite_count)
+        self.assertEqual(len(lrg2._sprite_list), sprite_count)
 
         for i in range(sprite_count):
             layer = lrg2.get_layer_of_sprite(sprites[i])
@@ -848,12 +848,12 @@ class LayeredGroupBase:
 
         self.LG.add(sprites)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_count)
 
         for i in range(sprite_count):
             self.LG.remove(sprites[i])
 
-        self.assertEqual(len(self.LG._spritelist), 0)
+        self.assertEqual(len(self.LG._sprite_list), 0)
 
     def test_sprites(self):
         sprites = []
@@ -864,7 +864,7 @@ class LayeredGroupBase:
 
         self.LG.add(sprites)
 
-        self.assertEqual(len(self.LG._spritelist), sprite_and_layer_count)
+        self.assertEqual(len(self.LG._sprite_list), sprite_and_layer_count)
 
         # Sprites should be ordered based on their layer (bottom to top),
         # which is the reverse order of the sprites list.
@@ -941,7 +941,7 @@ class LayeredGroupBase:
         self.assertEqual(top_layer, self.LG.get_top_layer())
         self.assertEqual(top_layer, max(layers))
         self.assertEqual(top_layer, max(self.LG._spritelayers.values()))
-        self.assertEqual(top_layer, self.LG._spritelayers[self.LG._spritelist[-1]])
+        self.assertEqual(top_layer, self.LG._spritelayers[self.LG._sprite_list[-1]])
 
     def test_get_bottom_layer(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]
@@ -952,7 +952,7 @@ class LayeredGroupBase:
         self.assertEqual(bottom_layer, self.LG.get_bottom_layer())
         self.assertEqual(bottom_layer, min(layers))
         self.assertEqual(bottom_layer, min(self.LG._spritelayers.values()))
-        self.assertEqual(bottom_layer, self.LG._spritelayers[self.LG._spritelist[0]])
+        self.assertEqual(bottom_layer, self.LG._spritelayers[self.LG._sprite_list[0]])
 
     def test_move_to_front(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]
@@ -961,11 +961,11 @@ class LayeredGroupBase:
         spr = self.sprite()
         self.LG.add(spr, layer=3)
 
-        self.assertNotEqual(spr, self.LG._spritelist[-1])
+        self.assertNotEqual(spr, self.LG._sprite_list[-1])
 
         self.LG.move_to_front(spr)
 
-        self.assertEqual(spr, self.LG._spritelist[-1])
+        self.assertEqual(spr, self.LG._sprite_list[-1])
 
     def test_move_to_back(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]
@@ -974,11 +974,11 @@ class LayeredGroupBase:
         spr = self.sprite()
         self.LG.add(spr, layer=55)
 
-        self.assertNotEqual(spr, self.LG._spritelist[0])
+        self.assertNotEqual(spr, self.LG._sprite_list[0])
 
         self.LG.move_to_back(spr)
 
-        self.assertEqual(spr, self.LG._spritelist[0])
+        self.assertEqual(spr, self.LG._sprite_list[0])
 
     def test_get_top_sprite(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]
