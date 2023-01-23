@@ -83,7 +83,6 @@ class Sprite(_SupportsSprite):
     def kill(self) -> None: ...
     def alive(self) -> bool: ...
     def groups(self) -> List[_Group]: ...
-    def rebuild_draw_list(self): ...
 
 # concrete dirty sprite implementation class
 class DirtySprite(_SupportsDirtySprite):
@@ -102,11 +101,13 @@ _TGroup = TypeVar("_TGroup", bound=AbstractGroup)
 # sprite functions don't need all sprite attributes to be present in the
 # arguments passed, they only use a few which are marked in the below protocols
 class _HasRect(Protocol):
-    rect: Rect
+    @property
+    def rect(self) -> Optional[Rect]: ...
 
 # image in addition to rect
 class _HasImageAndRect(_HasRect, Protocol):
-    image: Surface
+    @property
+    def image(self) -> Optional[Surface]: ...
 
 # mask in addition to rect
 class _HasMaskAndRect(_HasRect, Protocol):
@@ -148,7 +149,6 @@ _TDirtySprite = TypeVar("_TDirtySprite", bound=_DirtySpriteSupportsGroup)
 # b = Group(MySprite())
 
 class AbstractGroup(Generic[_TSprite]):
-    spritedict: Dict[_TSprite, Optional[Rect]]
     lostsprites: List[Rect]
     def __init__(self) -> None: ...
     def __len__(self) -> int: ...
