@@ -170,6 +170,7 @@ cdef extern from "SDL.h" nogil:
 
     # WINDOW
     # https://wiki.libsdl.org/SDL_CreateWindow
+    # https://wiki.libsdl.org/SDL2/SDL_CreateWindowFrom
     # https://wiki.libsdl.org/SDL_DestroyWindow
     # https://wiki.libsdl.org/SDL_GetWindowTitle
     # https://wiki.libsdl.org/SDL_SetWindowTitle
@@ -179,6 +180,7 @@ cdef extern from "SDL.h" nogil:
                                  int         w,
                                  int         h,
                                  Uint32      flags)
+    SDL_Window* SDL_CreateWindowFrom(const void* data)
     void SDL_DestroyWindow(SDL_Window *window)
     const char* SDL_GetWindowTitle(SDL_Window* window)
     void SDL_SetWindowTitle(SDL_Window* window,

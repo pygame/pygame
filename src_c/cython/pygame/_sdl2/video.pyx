@@ -219,6 +219,22 @@ cdef class Window:
         self._is_borrowed=1
         SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
+    
+    @classmethod  
+    def from_existing_window(cls,hwnd):
+        """ Create a Window object from an existing window.
+
+        :param int hwnd : The handle of the window.
+        """
+        cdef long _hwnd=hwnd
+        cdef Window self = cls.__new__(cls)
+        cdef SDL_Window* window = SDL_CreateWindowFrom(<void*>_hwnd)
+        if not window:
+            raise error()
+        self._win=window
+        self._is_borrowed=1
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
+        return self
 
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE,
