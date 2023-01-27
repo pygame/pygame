@@ -806,6 +806,7 @@ snd_copy(PyObject *self, PyObject *_null)
         else {
             PyErr_Format(PyExc_SystemError,
                          "Internal pygame error, chunk could not be created.");
+            return 0;
         }
 
         sound->mem = NULL;
@@ -814,6 +815,7 @@ snd_copy(PyObject *self, PyObject *_null)
     else {
         PyErr_Format(PyExc_SystemError,
                      "Internal pygame error, sound could not be created.");
+        return 0;
     }
 
     return (PyObject *)sound;
