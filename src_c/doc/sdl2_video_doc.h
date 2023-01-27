@@ -2,6 +2,7 @@
 #define DOC_PYGAMESDL2VIDEO "Experimental pygame module for porting new SDL video systems"
 #define DOC_PYGAMESDL2VIDEOWINDOW "Window(title="pygame", size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window\npygame object that represents a window"
 #define DOC_WINDOWFROMDISPLAYMODULE "from_display_module() -> Window\nCreates window using window created by pygame.display.set_mode()."
+#define DOC_WINDOWFROMEXISTINGWINDOW "from_existing_window(hwnd) -> Window\nCreate a Window object from an existing window."
 #define DOC_WINDOWGRAB "grab -> bool\nGets or sets whether the mouse is confined to the window."
 #define DOC_WINDOWRELATIVEMOUSE "relative_mouse -> bool\nGets or sets the window's relative mouse motion state."
 #define DOC_WINDOWSETWINDOWED "set_windowed() -> None\nEnable windowed mode (exit fullscreen)."
@@ -79,6 +80,10 @@ pygame object that represents a window
 pygame._sdl2.video.Window.from_display_module
  from_display_module() -> Window
 Creates window using window created by pygame.display.set_mode().
+
+pygame._sdl2.video.Window.from_existing_window
+ from_existing_window(hwnd) -> Window
+Create a Window object from an existing window.
 
 pygame._sdl2.video.Window.grab
  grab -> bool
