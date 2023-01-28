@@ -226,13 +226,13 @@ cdef class Window:
 
         :param int hwnd : The handle of the window.
         """
-        cdef long _hwnd=hwnd
+        cdef unsigned long long _hwnd=hwnd
         cdef Window self = cls.__new__(cls)
         cdef SDL_Window* window = SDL_CreateWindowFrom(<void*>_hwnd)
         if not window:
             raise error()
         self._win=window
-        self._is_borrowed=1
+        self._is_borrowed=0
         SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
 

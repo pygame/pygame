@@ -823,6 +823,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int w, h;
     PyObject *size = NULL;
     int vsync = SDL_FALSE;
+    const void *hwnd = NULL;
     /* display will get overwritten by ParseTupleAndKeywords only if display
        parameter is given. By default, put the new window on the same
        screen as the old one */
@@ -830,12 +831,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     char *title = state->title;
     char *scale_env;
 
-    char *keywords[] = {"size", "flags", "depth", "display", "vsync", NULL};
+    char *keywords[] = {"size",  "flags", "depth", "display",
+                        "vsync", "hwnd",  NULL};
 
     scale_env = SDL_getenv("PYGAME_FORCE_SCALE");
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|Oiiii", keywords, &size,
-                                     &flags, &depth, &display, &vsync))
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|OiiiiK", keywords, &size,
+                                     &flags, &depth, &display, &vsync, &hwnd))
         return NULL;
 
     if (scale_env != NULL) {
@@ -1075,7 +1077,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (!win) {
                 /*open window*/
-                win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
+                if (hwnd != NULL) {
+                    win = SDL_CreateWindowFrom(hwnd);
+                }
+                else {
+                    win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
+                }
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
             }
