@@ -474,11 +474,9 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-#if SDL_VERSION_ATLEAST(2, 0, 6)
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
-#endif
 #endif
 #if defined(SDL_VIDEO_DRIVER_WINRT)
     tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
@@ -540,16 +538,6 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
 
     tmp = PyCapsule_New(info.info.wl.shell_surface, "shell_surface", NULL);
     PyDict_SetItemString(dict, "shell_surface", tmp);
-    Py_DECREF(tmp);
-#endif
-#if defined(SDL_VIDEO_DRIVER_MIR) /* no longer available, left for API/ABI \
-                                     compatibility. Remove in 2.1! */
-    tmp = PyCapsule_New(info.info.mir.connection, "connection", NULL);
-    PyDict_SetItemString(dict, "connection", tmp);
-    Py_DECREF(tmp);
-
-    tmp = PyCapsule_New(info.info.mir.surface, "surface", NULL);
-    PyDict_SetItemString(dict, "surface", tmp);
     Py_DECREF(tmp);
 #endif
 #if defined(SDL_VIDEO_DRIVER_ANDROID)
@@ -706,8 +694,6 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
         return 0;
 
     if (pg_renderer != NULL) {
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-
         if (event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
             SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
         }
@@ -716,7 +702,6 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
                 pg_renderer, !(SDL_GetHintBoolean(
                                  "SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE)));
         }
-#endif
         return 0;
     }
 
@@ -1039,21 +1024,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_Rect display_bounds;
                 int fractional_scaling = SDL_FALSE;
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 if (0 !=
                     SDL_GetDisplayUsableBounds(display, &display_bounds)) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
-#else
-                display_bounds.w = display_mode.w - 80;
-                display_bounds.h = display_mode.h - 30;
-#endif
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 if (SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",
                                        SDL_FALSE))
                     fractional_scaling = SDL_TRUE;
-#endif
                 if (state->scaled_gl)
                     fractional_scaling = SDL_TRUE;
 
@@ -1113,9 +1091,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
-#endif
                 SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
                 if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
@@ -1218,8 +1194,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                                      "failed to create renderer");
                     }
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-
                     /* use whole screen with uneven pixels on fullscreen,
                        exact scale otherwise.
                        we chose the window size for this to work */
@@ -1228,7 +1202,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         !(flags & PGS_FULLSCREEN ||
                           SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",
                                              SDL_FALSE)));
-#endif
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
                     /* this must be called after creating the renderer!*/
                     SDL_SetWindowMinimumSize(win, w, h);
@@ -2157,9 +2130,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 
             // Untested and unsupported platforms
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
-#endif
         case SDL_SYSWM_UNKNOWN:
         default:
             return RAISE(pgExc_SDLError, "Unsupported platform");
@@ -2220,12 +2191,10 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             }
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
             /* use exact integer scale in windowed mode */
             SDL_RenderSetIntegerScale(
                 pg_renderer, !SDL_GetHintBoolean(
                                  "SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE));
-#endif
             SDL_SetWindowMinimumSize(win, w, h);
         }
         else if (state->using_gl) {
@@ -2335,9 +2304,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             }
 
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
             SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
-#endif
         }
         else if (state->using_gl) {
             result =
