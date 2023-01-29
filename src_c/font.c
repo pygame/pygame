@@ -416,6 +416,29 @@ font_set_strikethrough(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
+font_set_pointsize(PyFontObject *self, PyObject *arg)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val = PyLong_AsLong(arg);
+
+    if (val <= 0) {
+        return RAISE(PyExc_ValueError,
+                     "Font cannot be less than or equal to 0");
+    }
+
+    TTF_SetFontSize(font, val);
+    self->point_size = val;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+font_get_pointsize(PyFontObject *self, PyObject *arg)
+{
+    return PyLong_FromLong(self->point_size);
+}
+
+static PyObject *
 font_render(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
@@ -664,6 +687,8 @@ static PyMethodDef font_methods[] = {
      DOC_FONTGETSTRIKETHROUGH},
     {"set_strikethrough", font_set_strikethrough, METH_O,
      DOC_FONTSETSTRIKETHROUGH},
+    {"get_pointsize", font_get_pointsize, METH_NOARGS, DOC_FONTGETPOINTSIZE},
+    {"set_pointsize", font_set_pointsize, METH_O, DOC_FONTSETPOINTSIZE},
 
     {"metrics", font_metrics, METH_O, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
@@ -773,6 +798,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(obj);
     self->font = font;
     self->ttf_init_generation = current_ttf_generation;
+    self->point_size = fontsize;
 
     return 0;
 
