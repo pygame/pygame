@@ -28,6 +28,8 @@
 #define DOC_FONTGETHEIGHT "get_height() -> int\nget the height of the font"
 #define DOC_FONTGETASCENT "get_ascent() -> int\nget the ascent of the font"
 #define DOC_FONTGETDESCENT "get_descent() -> int\nget the descent of the font"
+#define DOC_FONTSETPOINTSIZE "set_pointsize(bool) -> None\nset the point size of the font"
+#define DOC_FONTGETPOINTSIZE "get_pointsize() -> bool\nget the point size of the font"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -150,5 +152,13 @@ get the ascent of the font
 pygame.font.Font.get_descent
  get_descent() -> int
 get the descent of the font
+
+pygame.font.Font.set_pointsize
+ set_pointsize(bool) -> None
+set the point size of the font
+
+pygame.font.Font.get_pointsize
+ get_pointsize() -> bool
+get the point size of the font
 
 */

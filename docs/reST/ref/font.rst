@@ -472,6 +472,20 @@ solves no longer exists, it will likely be removed in the future.
 
       .. ## Font.get_descent ##
 
+   .. method:: set_pointsize
+
+      | :sl:`set the point size of the font`
+      | :sg:`set_pointsize(bool) -> None`
+
+      .. ## Font.set_pointsize ##
+
+   .. method:: get_pointsize
+
+      | :sl:`get the point size of the font`
+      | :sg:`get_pointsize() -> bool`
+
+      .. ## Font.get_pointsize ##
+
    .. ## pygame.font.Font ##
 
 .. ## pygame.font ##
