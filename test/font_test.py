@@ -688,6 +688,13 @@ class VisualTests(unittest.TestCase):
     def test_italic_underline(self):
         self.assertTrue(self.query(italic=True, underline=True))
 
+    def test_pointsize(self):
+        f = pygame.font.Font(None, 50)
+        f.set_pointsize(20)
+        self.assertEqual(20, f.get_pointsize())
+        f.set_pointsize(10)
+        self.assertEqual(10, f.get_pointsize())
+
     def test_bold_strikethrough(self):
         if pygame_font.__name__ != "pygame.ftfont":
             self.assertTrue(self.query(bold=True, strikethrough=True))
