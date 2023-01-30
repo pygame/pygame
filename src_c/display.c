@@ -815,6 +815,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
+    SDL_Window *dummy = NULL;
+    char dummy_id_str[32];
     pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf = NULL;
     SDL_Surface *newownedsurf = NULL;
@@ -1078,7 +1080,24 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (!win) {
                 /*open window*/
                 if (hwnd != NULL) {
-                    win = SDL_CreateWindowFrom(hwnd);
+                    if (flags & PGS_OPENGL) {
+                        // Create window with SDL_CreateWindowFrom() and OpenGL
+                        // See https://gamedev.stackexchange.com/a/119903
+                        dummy = SDL_CreateWindow(
+                            "OpenGL Dummy", 0, 0, 1, 1,
+                            SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+                        sprintf(dummy_id_str, "%p", dummy);
+                        SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT,
+                                    dummy_id_str);
+
+                        win = SDL_CreateWindowFrom(hwnd);
+
+                        SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT,
+                                    "");
+                    }
+                    else {
+                        win = SDL_CreateWindowFrom(hwnd);
+                    }
                 }
                 else {
                     win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
