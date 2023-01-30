@@ -485,6 +485,9 @@ solves no longer exists, it will likely be removed in the future.
       script, for which the script code is `"Deva"`. See the full list of
       script codes in `ISO 15924 <https://www.unicode.org/iso15924/iso15924-codes.html>`_.
 
+      This method requires pygame built with SDL_ttf 2.20.0 or above. Otherwise the
+      method will raise a pygame.error.
+
       .. versionadded:: 2.1.4
 
       .. ## Font.set_script ## 
