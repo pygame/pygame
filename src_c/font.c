@@ -763,7 +763,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         fontsize = (int)(fontsize * .6875);
     }
 
-    rw = pgRWops_FromObject(obj);
+    rw = pgRWops_FromObject(obj, NULL);
 
     if (rw == NULL && PyUnicode_Check(obj)) {
         if (!PyUnicode_CompareWithASCIIString(obj, font_defaultname)) {
@@ -786,7 +786,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
              * but this rewritten code aims to keep the exact behavior as the
              * old one */
 
-            rw = pgRWops_FromObject(obj);
+            rw = pgRWops_FromObject(obj, NULL);
         }
     }
 
