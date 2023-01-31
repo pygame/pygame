@@ -373,7 +373,7 @@ Mix_Music *
 _load_music(PyObject *obj, char *namehint)
 {
     Mix_Music *new_music = NULL;
-    char *ext = NULL;
+    char *ext = NULL, *type = NULL;
     SDL_RWops *rw = NULL;
     PyObject *_type = NULL;
     PyObject *error = NULL;
@@ -381,7 +381,7 @@ _load_music(PyObject *obj, char *namehint)
 
     MIXER_INIT_CHECK();
 
-    rw = pgRWops_FromObject(obj);
+    rw = pgRWops_FromObject(obj, &ext);
     if (rw ==
         NULL) { /* stop on NULL, error already set is what we SHOULD do */
         PyErr_Fetch(&_type, &error, &_traceback);
@@ -391,15 +391,19 @@ _load_music(PyObject *obj, char *namehint)
         return NULL;
     }
     if (namehint) {
-        ext = namehint;
+        type = namehint;
     }
     else {
-        ext = pgRWops_GetFileExtension(rw);
+        type = ext;
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(ext), SDL_TRUE);
+    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(type), SDL_TRUE);
     Py_END_ALLOW_THREADS;
+
+    if (ext) {
+        free(ext);
+    }
 
     if (!new_music) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
