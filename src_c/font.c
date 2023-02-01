@@ -427,7 +427,9 @@ font_set_pointsize(PyFontObject *self, PyObject *arg)
                      "Font cannot be less than or equal to 0");
     }
 
-    TTF_SetFontSize(font, val);
+    if (TTF_SetFontSize(font, val) == -1) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+    }
     self->point_size = val;
 #endif
 
