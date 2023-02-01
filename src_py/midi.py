@@ -68,8 +68,8 @@ def _module_init(state=None):
         _module_init.value
     except AttributeError:
         return False
-    else:
-        return _module_init.value
+
+    return _module_init.value
 
 
 def init():
