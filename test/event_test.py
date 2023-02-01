@@ -72,22 +72,12 @@ NAMES_AND_EVENTS = (
     ("ControllerDeviceRemoved", pygame.CONTROLLERDEVICEREMOVED),
     ("ControllerDeviceMapped", pygame.CONTROLLERDEVICEREMAPPED),
     ("DropFile", pygame.DROPFILE),
+    ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
+    ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
+    ("DropText", pygame.DROPTEXT),
+    ("DropBegin", pygame.DROPBEGIN),
+    ("DropComplete", pygame.DROPCOMPLETE),
 )
-
-# Add in any SDL 2.0.4 specific events.
-if pygame.get_sdl_version() >= (2, 0, 4):
-    NAMES_AND_EVENTS += (
-        ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
-        ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
-    )
-
-# Add in any SDL 2.0.5 specific events.
-if pygame.get_sdl_version() >= (2, 0, 5):
-    NAMES_AND_EVENTS += (
-        ("DropText", pygame.DROPTEXT),
-        ("DropBegin", pygame.DROPBEGIN),
-        ("DropComplete", pygame.DROPCOMPLETE),
-    )
 
 
 class EventTypeTest(unittest.TestCase):

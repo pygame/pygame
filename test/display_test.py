@@ -514,6 +514,8 @@ class DisplayModuleTest(unittest.TestCase):
         gammas = [0.25, 0.5, 0.88, 1.0]
         for gamma in gammas:
             with self.subTest(gamma=gamma):
+                with self.assertWarns(DeprecationWarning):
+                    self.assertEqual(pygame.display.set_gamma(gamma), True)
                 self.assertEqual(pygame.display.set_gamma(gamma), True)
 
     @unittest.skipIf(
@@ -549,7 +551,8 @@ class DisplayModuleTest(unittest.TestCase):
         r = list(range(256))
         g = [number + 256 for number in r]
         b = [number + 256 for number in g]
-        isSupported = pygame.display.set_gamma_ramp(r, g, b)
+        with self.assertWarns(DeprecationWarning):
+            isSupported = pygame.display.set_gamma_ramp(r, g, b)
         if isSupported:
             self.assertTrue(pygame.display.set_gamma_ramp(r, g, b))
         else:

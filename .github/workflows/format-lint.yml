@@ -22,7 +22,7 @@ on:
 
 jobs:
   format-lint-code-check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3.0.2

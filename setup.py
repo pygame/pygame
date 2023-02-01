@@ -767,7 +767,8 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                             return
 
 
-        replace_scale_mmx()
+        if not 'ARM64' in sys.version:
+            replace_scale_mmx()
 
 # clean up the list of extensions
 for e in extensions[:]:

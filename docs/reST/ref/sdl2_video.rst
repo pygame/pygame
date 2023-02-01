@@ -118,11 +118,6 @@
       | :sl:`Gets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque).`
       | :sg:`opacity -> float`
 
-   .. attribute:: brightness
-
-      | :sl:`Gets and sets the brightness (gamma multiplier) for the display that owns the window.`
-      | :sg:`brightness -> float`
-
    .. attribute:: display_index
 
       | :sl:`Get the index of the display that owns the window. *Read-only*`
