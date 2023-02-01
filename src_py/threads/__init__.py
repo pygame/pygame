@@ -99,7 +99,6 @@ def benchmark_workers(a_bench_func=None, the_data=None):
     # last_best = -1
 
     for num_workers in range(0, MAX_WORKERS_TO_TEST):
-
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for _ in range(20):
