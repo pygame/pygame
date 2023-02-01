@@ -2542,7 +2542,6 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v, 0.5 * self.e2)
 
     def test_inplace_operators(self):
-
         v = Vector3(1, 1, 1)
         v *= 2
         self.assertEqual(v, (2.0, 2.0, 2.0))

@@ -418,7 +418,6 @@ class BufferProxyLegacyTest(unittest.TestCase):
     data = (ctypes.addressof(buffer), True)
 
     def test_length(self):
-
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.length:
 
         # The size of the buffer data in bytes.
@@ -432,7 +431,6 @@ class BufferProxyLegacyTest(unittest.TestCase):
         self.assertEqual(bf.length, 3 * 3 * 4)
 
     def test_raw(self):
-
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.raw:
 
         # The raw buffer data as string. The string may contain NUL bytes.
@@ -451,7 +449,6 @@ class BufferProxyLegacyTest(unittest.TestCase):
         self.assertRaises(ValueError, getattr, bf, "raw")
 
     def test_write(self):
-
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.write:
 
         # B.write (bufferproxy, buffer, offset) -> None

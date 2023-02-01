@@ -19,7 +19,6 @@ pg.init()
 
 
 def main():
-
     Running = True
     surf = pg.display.set_mode((640, 480))
     font = pg.font.SysFont("Arial", 24)

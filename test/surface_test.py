@@ -79,7 +79,6 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEqual(surf_16.get_bytesize(), 2)
 
     def test_set_at(self):
-
         # 24bit surfaces
         s = pygame.Surface((100, 100), 0, 24)
         s.fill((0, 0, 0))
@@ -409,7 +408,6 @@ class SurfaceTypeTest(unittest.TestCase):
             pygame.display.quit()
 
     def test_fill_negative_coordinates(self):
-
         # negative coordinates should be clipped by fill, and not draw outside the surface.
         color = (25, 25, 25, 25)
         color2 = (20, 20, 20, 25)
@@ -788,7 +786,6 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEqual(seglen, s.get_bytesize())
 
     def test_set_colorkey(self):
-
         # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_colorkey:
 
         # Surface.set_colorkey(Color, flags=0): return None
@@ -1614,7 +1611,6 @@ class GeneralSurfaceTests(unittest.TestCase):
         self.assertEqual(no_surf_alpha_col, surf_alpha_col)
 
     def todo_test_convert(self):
-
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
 
         # Surface.convert(Surface): return Surface
@@ -1971,7 +1967,6 @@ class GeneralSurfaceTests(unittest.TestCase):
         self.assertIs(surf.get_locked(), blit_locked_test(surf))  # Unlocked
 
     def test_get_locks(self):
-
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locks:
 
         # Surface.get_locks(): return tuple
@@ -2208,7 +2203,6 @@ class GeneralSurfaceTests(unittest.TestCase):
             self.assertEqual((width, height), found_size)
 
     def test_lock(self):
-
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.lock:
 
         # Surface.lock(): return None
@@ -2400,7 +2394,6 @@ class GeneralSurfaceTests(unittest.TestCase):
         self.assertRaises(IndexError, surf.set_palette_at, -1, replacement)
 
     def test_subsurface(self):
-
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.subsurface:
 
         # Surface.subsurface(Rect): return Surface
