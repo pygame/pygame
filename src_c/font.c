@@ -418,6 +418,7 @@ font_set_strikethrough(PyObject *self, PyObject *arg)
 static PyObject *
 font_set_pointsize(PyFontObject *self, PyObject *arg)
 {
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 18)
     TTF_Font *font = PyFont_AsFont(self);
     int val = PyLong_AsLong(arg);
 
@@ -428,6 +429,7 @@ font_set_pointsize(PyFontObject *self, PyObject *arg)
 
     TTF_SetFontSize(font, val);
     self->point_size = val;
+#endif
 
     Py_RETURN_NONE;
 }
@@ -435,7 +437,11 @@ font_set_pointsize(PyFontObject *self, PyObject *arg)
 static PyObject *
 font_get_pointsize(PyFontObject *self, PyObject *arg)
 {
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 18)
     return PyLong_FromLong(self->point_size);
+#else
+    PyErr_SetString(PyExc_SystemError, "incorrect SDL_ttf version (requires 2.0.18)");
+#endif
 }
 
 static PyObject *
