@@ -442,7 +442,8 @@ font_get_pointsize(PyFontObject *self, PyObject *arg)
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 18)
     return PyLong_FromLong(self->point_size);
 #else
-    PyErr_SetString(PyExc_SystemError, "incorrect SDL_ttf version (requires 2.0.18)");
+    PyErr_SetString(PyExc_SystemError,
+                    "incorrect SDL_ttf version (requires 2.0.18)");
 #endif
 }
 
