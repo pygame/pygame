@@ -30,6 +30,7 @@
 #define DOC_FONTGETDESCENT "get_descent() -> int\nget the descent of the font"
 #define DOC_FONTSETPOINTSIZE "set_pointsize(bool) -> None\nset the point size of the font"
 #define DOC_FONTGETPOINTSIZE "get_pointsize() -> bool\nget the point size of the font"
+#define DOC_FONTSETSCRIPT "set_script(str) -> None\nset the script code for text shaping"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -160,5 +161,9 @@ set the point size of the font
 pygame.font.Font.get_pointsize
  get_pointsize() -> bool
 get the point size of the font
+
+pygame.font.Font.set_script
+ set_script(str) -> None
+set the script code for text shaping
 
 */
