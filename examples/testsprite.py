@@ -4,10 +4,10 @@
 Like the testsprite.c that comes with libsdl, this pygame version shows
 lots of sprites moving around.
 
-It is an abomination of ugly code, and mostly used for testing.
+It is an abomination of ugly code, and is mostly used for testing.
 
 
-See pg.examples.aliens for some prettyier code.
+See pg.examples.aliens for some prettier code.
 """
 import sys
 import os
