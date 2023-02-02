@@ -478,7 +478,6 @@ class TransformModuleTest(unittest.TestCase):
 
     # XXX
     def test_threshold_non_src_alpha(self):
-
         result = pygame.Surface((10, 10))
         s1 = pygame.Surface((10, 10))
         s2 = pygame.Surface((10, 10))
@@ -866,7 +865,6 @@ class TransformModuleTest(unittest.TestCase):
         )
 
     def test_average_surfaces__24(self):
-
         SIZE = 32
         depth = 24
         s1 = pygame.Surface((SIZE, SIZE), 0, depth)
@@ -1068,7 +1066,6 @@ class TransformModuleTest(unittest.TestCase):
             self.assertTrue(s.get_at(pt) == color)
 
     def test_scale2x(self):
-
         # __doc__ (as of 2008-06-25) for pygame.transform.scale2x:
 
         # pygame.transform.scale2x(Surface, DestSurface = None): Surface
@@ -1116,16 +1113,19 @@ class TransformModuleTest(unittest.TestCase):
         # All machines should allow returning to original value.
         # Also check that keyword argument works.
         pygame.transform.set_smoothscale_backend(backend=original_type)
+
         # Something invalid.
         def change():
             pygame.transform.set_smoothscale_backend("mmx")
 
         self.assertRaises(ValueError, change)
+
         # Invalid argument keyword.
         def change():
             pygame.transform.set_smoothscale_backend(t="GENERIC")
 
         self.assertRaises(TypeError, change)
+
         # Invalid argument type.
         def change():
             pygame.transform.set_smoothscale_backend(1)
@@ -1205,7 +1205,6 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(test_surface.get_size(), (20, 20))
 
     def test_rotozoom(self):
-
         # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
 
         # pygame.transform.rotozoom(Surface, angle, scale): return Surface

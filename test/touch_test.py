@@ -38,7 +38,6 @@ class TouchTest(unittest.TestCase):
 
 
 class TouchInteractiveTest(unittest.TestCase):
-
     __tags__ = ["interactive"]
 
     @unittest.skipIf(not has_touchdevice, "no touch devices found")
