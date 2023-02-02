@@ -279,7 +279,6 @@ class DirtySprite(Sprite):
     """
 
     def __init__(self, *groups):
-
         self.dirty = 1
 
         # referred to as special_flags in the documentation of Surface.blit
@@ -1675,7 +1674,6 @@ def spritecollide(sprite, group, dokill, collided=None):
     default_sprite_collide_func = sprite.rect.colliderect
 
     if dokill:
-
         crashed = []
         append = crashed.append
 
