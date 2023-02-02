@@ -698,35 +698,25 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             # Test simple slicing
             self.assertEqual(len(ar[:, :]), 6)
             self.assertEqual(
-                len(
-                    ar[
-                        :,
-                    ]
-                ),
+                len(ar[:,]),
                 6,
             )
             self.assertEqual(len(ar[1, :]), 8)
             self.assertEqual(len(ar[:, 2]), 6)
             # Empty slices
             self.assertEqual(
-                ar[
-                    4:4,
-                ],
+                ar[4:4,],
                 None,
             )
             self.assertEqual(ar[4:4, ...], None)
             self.assertEqual(ar[4:4, 2:2], None)
             self.assertEqual(ar[4:4, 1:4], None)
             self.assertEqual(
-                ar[
-                    4:4:2,
-                ],
+                ar[4:4:2,],
                 None,
             )
             self.assertEqual(
-                ar[
-                    4:4:-2,
-                ],
+                ar[4:4:-2,],
                 None,
             )
             self.assertEqual(ar[4:4:1, ...], None)
@@ -857,9 +847,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar[0, 0], 0)
             self.assertEqual(ar[1, 0], 0)
             self.assertEqual(ar[-1, -1], 0)
-            ar[
-                ...,
-            ] = (0, 0, 255)
+            ar[...,] = (0, 0, 255)
             self.assertEqual(ar[0, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[1, 0], sf.map_rgb((0, 0, 255)))
             self.assertEqual(ar[-1, -1], sf.map_rgb((0, 0, 255)))
@@ -1338,7 +1326,6 @@ class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
 
     @unittest.skipIf(IS_PYPY, "skipping for PyPy (why?)")
     def test_shape(self):
-
         for shape in [[4, 16], [5, 13]]:
             w, h = shape
             sf = pygame.Surface(shape, 0, 32)
@@ -1456,7 +1443,6 @@ class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
 @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
 @unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayNewBufferTest(unittest.TestCase, TestMixin):
-
     if pygame.HAVE_NEWBUF:
         from pygame.tests.test_utils import buftools
 
