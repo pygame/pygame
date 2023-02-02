@@ -90,7 +90,6 @@ class SndarrayTest(unittest.TestCase):
         check_sound(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
 
     def test_samples(self):
-
         null_byte = b"\x00"
 
         def check_sample(size, channels, test_data):

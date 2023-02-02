@@ -16,7 +16,6 @@ import pygame.camera
 
 
 class VideoCapturePlayer:
-
     size = (640, 480)
 
     def __init__(self, **argd):
@@ -28,7 +27,6 @@ class VideoCapturePlayer:
         self.init_cams(0)
 
     def init_cams(self, which_cam_idx):
-
         # gets a list of available cameras.
         self.clist = pygame.camera.list_cameras()
 

@@ -991,7 +991,6 @@ class ColorTypeTest(unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "PyPy has no ctypes")
     def test_arraystruct(self):
-
         import pygame.tests.test_utils.arrinter as ai
         import ctypes as ct
 

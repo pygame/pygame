@@ -38,7 +38,6 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(clock.get_fps(), fps, delta=fps * delta)
 
     def test_get_rawtime(self):
-
         iterations = 10
         delay = 0.1
         delay_miliseconds = delay * (10**3)  # actual time difference between ticks

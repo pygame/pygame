@@ -99,7 +99,6 @@ def benchmark_workers(a_bench_func=None, the_data=None):
     # last_best = -1
 
     for num_workers in range(0, MAX_WORKERS_TO_TEST):
-
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for _ in range(20):
@@ -250,7 +249,7 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
         # print("after wait")
         # print("queue size:%s" % wq.queue.qsize())
         if wq.queue.qsize():
-            raise Exception("buggy threadmap")
+            raise RuntimeError("buggy threadmap")
         # if we created a worker queue, we need to stop it.
         if not worker_queue and not _wq:
             # print("stopping")
@@ -258,7 +257,7 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
             if wq.queue.qsize():
                 um = wq.queue.get()
                 if not um is STOP:
-                    raise Exception("buggy threadmap")
+                    raise RuntimeError("buggy threadmap")
 
         # see if there were any errors.  If so raise the first one.  This matches map behaviour.
         # TODO: the traceback doesn't show up nicely.
