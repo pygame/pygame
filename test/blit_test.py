@@ -72,7 +72,6 @@ class BlitTest(unittest.TestCase):
         self.assertEqual(s.get_at((0, 0))[0], 0)
 
     def make_blit_list(self, num_surfs):
-
         blit_list = []
         for i in range(num_surfs):
             dest = (i * 10, 0)
@@ -83,7 +82,6 @@ class BlitTest(unittest.TestCase):
         return blit_list
 
     def test_blits(self):
-
         NUM_SURFS = 255
         PRINT_TIMING = 0
         dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
