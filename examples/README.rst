@@ -123,6 +123,10 @@ testsprite.py
 textinput.py
    A little "console" where you can write in text.
    Shows how to use the TEXTEDITING and TEXTINPUT events.
+ 
+trackers.py
+   Demonstrates use of OOP (Object-Oriented-Programming) in Pygame.
+   Uses velocity and acceleration to make four trackers home in on the user's cursor.
 
 vgrade.py
    Demonstrates creating a vertical gradient with
