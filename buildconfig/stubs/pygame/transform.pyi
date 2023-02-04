@@ -51,3 +51,8 @@ def threshold(
     search_surf: Optional[Surface] = None,
     inverse_set: bool = False,
 ) -> int: ...
+def blur(
+    surface: Surface,
+    radius: int,
+    dest_surface: Optional[Surface] = None
+) -> Surface: ...

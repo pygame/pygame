@@ -2966,6 +2966,146 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
     return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
+static void
+_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
+{
+    // Reference : https://blog.csdn.net/blogshinelee/article/details/80997324
+    if (radius == 0)
+        return;
+
+    Uint8 *srcpx = (Uint8 *)src->pixels;
+    Uint8 *dstpx = (Uint8 *)dst->pixels;
+    int w = dst->w, h = dst->h;
+    int i, x, y, color, nb;
+    Uint8 *vbuf = NULL;
+    Uint64 sum;
+
+    if (radius > MIN(w, h)) {
+        radius = MIN(w, h) - 1;
+    }
+
+    nb = src->format->BytesPerPixel;
+    vbuf = malloc(h);
+
+    for (color = 0; color < nb; color++) {
+        for (y = 0; y < h; y++) {
+            sum = 0;
+            for (i = 0; i <= radius; i++) {
+                sum += *(srcpx + src->pitch * y + nb * i + color);
+            }
+            for (x = 0; x < w; x++) {
+                *(dstpx + dst->pitch * y + nb * x + color) =
+                    MIN(sum / (radius * 2), 255);
+
+                // update sum
+                if (x >= radius)
+                    sum -=
+                        *(srcpx + src->pitch * y + nb * (x - radius) + color);
+                if (x + radius < w)
+                    sum +=
+                        *(srcpx + src->pitch * y + nb * (x + radius) + color);
+            }
+        }
+
+        for (x = 0; x < h; x++) {
+            sum = 0;
+            for (i = 0; i <= radius; i++) {
+                sum += *(dstpx + dst->pitch * i + nb * x + color);
+            }
+            for (y = 0; y < w; y++) {
+                vbuf[y] = MIN(sum / (radius * 2), 255);
+
+                // update sum
+                if (y >= radius)
+                    sum -=
+                        *(dstpx + dst->pitch * (y - radius) + nb * x + color);
+                if (y + radius < w)
+                    sum +=
+                        *(dstpx + dst->pitch * (y + radius) + nb * x + color);
+            }
+
+            for (y = 0; y < w; y++) {
+                // write back from buffer
+                *(dstpx + dst->pitch * y + nb * x + color) = vbuf[y];
+            }
+        }
+    }
+    free(vbuf);
+}
+
+static SDL_Surface *
+blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
+{
+    SDL_Surface *src = NULL;
+    SDL_Surface *retsurf = NULL;
+
+    src = pgSurface_AsSurface(srcobj);
+
+    if (!dstobj) {
+        retsurf = newsurf_fromsurf(src, src->w, src->h);
+        if (!retsurf)
+            return NULL;
+    }
+    else {
+        retsurf = pgSurface_AsSurface(dstobj);
+    }
+
+    if ((retsurf->w) != (src->w) || (retsurf->h) != (src->h)) {
+        return RAISE(PyExc_ValueError,
+                     "Destination surface not the same size.");
+    }
+
+    if (src->format->BytesPerPixel != retsurf->format->BytesPerPixel) {
+        return (SDL_Surface *)(RAISE(
+            PyExc_ValueError,
+            "Source and destination surfaces need the same format."));
+    }
+
+    SDL_LockSurface(retsurf);
+    pgSurface_Lock(srcobj);
+
+    Py_BEGIN_ALLOW_THREADS;
+
+    _blur(src, retsurf, radius);
+
+    Py_END_ALLOW_THREADS;
+
+    pgSurface_Unlock(srcobj);
+    SDL_UnlockSurface(retsurf);
+
+    return retsurf;
+}
+
+static PyObject *
+surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    pgSurfaceObject *dst_surf_obj = NULL;
+    pgSurfaceObject *src_surf_obj;
+    SDL_Surface *new_surf = NULL;
+
+    int radius;
+
+    static char *kwlist[] = {"surface", "radius", "dest_surface", 0};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!i|O!", kwlist,
+                                     &pgSurface_Type, &src_surf_obj, &radius,
+                                     &pgSurface_Type, &dst_surf_obj))
+        return NULL;
+
+    new_surf = blur(src_surf_obj, dst_surf_obj, radius);
+    if (!new_surf) {
+        return NULL;
+    }
+
+    if (dst_surf_obj) {
+        Py_INCREF(dst_surf_obj);
+        return (PyObject *)dst_surf_obj;
+    }
+    else {
+        return (PyObject *)pgSurface_New(new_surf);
+    }
+}
+
 static PyMethodDef _transform_methods[] = {
     {"scale", (PyCFunction)surf_scale, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETRANSFORMSCALE},
@@ -2997,6 +3137,7 @@ static PyMethodDef _transform_methods[] = {
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGESURFACES},
     {"average_color", (PyCFunction)surf_average_color,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGECOLOR},
+    {"blur", (PyCFunction)surf_blur, METH_VARARGS | METH_KEYWORDS, "doc"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(transform)
