@@ -2970,8 +2970,6 @@ static void
 _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
 {
     // Reference : https://blog.csdn.net/blogshinelee/article/details/80997324
-    if (radius == 0)
-        return;
 
     Uint8 *srcpx = (Uint8 *)src->pixels;
     Uint8 *dstpx = (Uint8 *)dst->pixels;
@@ -2995,7 +2993,7 @@ _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
             }
             for (x = 0; x < w; x++) {
                 *(dstpx + dst->pitch * y + nb * x + color) =
-                    MIN(sum / (radius * 2), 255);
+                    (Uint8)MIN(sum / (radius * 2 + 1), 255);
 
                 // update sum
                 if (x >= radius)
@@ -3003,7 +3001,7 @@ _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
                         *(srcpx + src->pitch * y + nb * (x - radius) + color);
                 if (x + radius < w)
                     sum +=
-                        *(srcpx + src->pitch * y + nb * (x + radius) + color);
+                        *(srcpx + src->pitch * y + nb * (x + radius +1) + color);
             }
         }
 
@@ -3013,18 +3011,18 @@ _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
                 sum += *(dstpx + dst->pitch * i + nb * x + color);
             }
             for (y = 0; y < w; y++) {
-                vbuf[y] = MIN(sum / (radius * 2), 255);
+                vbuf[y] = (Uint8)MIN(sum / (radius * 2 + 1), 255);
 
                 // update sum
                 if (y >= radius)
                     sum -=
                         *(dstpx + dst->pitch * (y - radius) + nb * x + color);
-                if (y + radius < w)
+                if (y + radius < h)
                     sum +=
-                        *(dstpx + dst->pitch * (y + radius) + nb * x + color);
+                        *(dstpx + dst->pitch * (y + radius + 1) + nb * x + color);
             }
 
-            for (y = 0; y < w; y++) {
+            for (y = 0; y < h; y++) {
                 // write back from buffer
                 *(dstpx + dst->pitch * y + nb * x + color) = vbuf[y];
             }
