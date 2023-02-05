@@ -83,6 +83,8 @@ required).
    be set to a string containing the window id or handle. The environment
    variable is checked when the pygame display is initialized. Be aware that
    there can be many strange side effects when running in an embedded display.
+   This is only for pygame 1.x and no longer applies to pygame 2.x due to the 
+   change from SDL 1 to SDL 2.
 
    It is harmless to call this more than once, repeated calls have no effect.
 
@@ -113,7 +115,7 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0, hwnd=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
@@ -188,6 +190,13 @@ required).
    Vsync behaviour is considered experimental, and may change in future releases.
 
    .. versionadded:: 2.0.0 ``vsync``
+
+   The ``hwnd`` argument is an integer contains the window id (or handle) of
+   a foreign window. By setting this parameter, pygame display can be embedded
+   into the foreign window. Be aware that there can be many strange side effects
+   when running in an embedded display.
+
+   .. versionadded:: 2.1.4 ``hwnd``
 
    Basic example:
 

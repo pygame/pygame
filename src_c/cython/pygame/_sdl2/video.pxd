@@ -43,6 +43,8 @@ cdef extern from "SDL.h" nogil:
         SDL_BLENDMODE_MOD = 0x00000004,
         SDL_BLENDMODE_INVALID = 0x7FFFFFFF
 
+    ctypedef void *SDL_GLContext
+
     # https://wiki.libsdl.org/SDL_MessageBoxData
     # https://wiki.libsdl.org/SDL_ShowMessageBox
     cdef Uint32 _SDL_MESSAGEBOX_ERROR "SDL_MESSAGEBOX_ERROR"
@@ -167,6 +169,16 @@ cdef extern from "SDL.h" nogil:
         SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR = 0x00000008,
         SDL_BLENDFACTOR_DST_ALPHA = 0x00000009,
         SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA = 0x0000000A
+
+    # Hint
+    # https://wiki.libsdl.org/SDL2/SDL_SetHint
+    SDL_bool SDL_SetHint(const char *name, const char *value)
+
+    # OpenGL
+    # https://wiki.libsdl.org/SDL2/SDL_GL_CreateContext
+    # https://wiki.libsdl.org/SDL2/SDL_GL_SwapWindow
+    SDL_GLContext SDL_GL_CreateContext(SDL_Window *window)
+    void SDL_GL_SwapWindow(SDL_Window * window)
 
     # WINDOW
     # https://wiki.libsdl.org/SDL_CreateWindow

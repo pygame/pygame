@@ -543,6 +543,38 @@ cdef class Window:
             return
         self.destroy()
 
+cdef class OpenGLWindow(Window):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,opengl=1,**kwargs)
+        if not SDL_GL_CreateContext(self._win):
+            raise error()
+
+    @classmethod  
+    def from_existing_window(cls,hwnd):
+        cdef unsigned long long _hwnd=hwnd
+        cdef Window self = cls.__new__(cls)
+
+        # Create window with SDL_CreateWindowFrom() and OpenGL
+        # See https://gamedev.stackexchange.com/a/119903
+        cdef char[64] dummy_window_str
+        cdef SDL_Window* dummy_window = SDL_CreateWindow("Dummy",0,0,1,1,_SDL_WINDOW_OPENGL|_SDL_WINDOW_HIDDEN)
+        sprintf(dummy_window_str,"%p",dummy_window)
+        SDL_SetHint(b"SDL_VIDEO_WINDOW_SHARE_PIXEL_FORMAT",dummy_window_str)
+        cdef SDL_Window* window = SDL_CreateWindowFrom(<void*>_hwnd)
+        SDL_SetHint(b"SDL_VIDEO_WINDOW_SHARE_PIXEL_FORMAT",b'')
+
+        if not window:
+            raise error()
+        self._win=window
+        self._is_borrowed=0
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
+        if not SDL_GL_CreateContext(self._win):
+            raise error()
+        return self
+
+    def gl_flip(self):
+        SDL_GL_SwapWindow(self._win) 
+
 cdef Uint32 format_from_depth(int depth):
     cdef Uint32 Rmask, Gmask, Bmask, Amask
     if depth == 16:
