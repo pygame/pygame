@@ -252,7 +252,7 @@ required).
    | :sg:`update(rectangle_list) -> None`
 
    This function is like an optimized version of ``pygame.display.flip()`` for
-   software displays. It allows only a portion of the screen to updated,
+   software displays. It allows only a portion of the screen to be updated,
    instead of the entire area. If no argument is passed it updates the entire
    Surface area like ``pygame.display.flip()``.
 

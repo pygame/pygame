@@ -160,7 +160,6 @@ class Camera:
 
 class CameraMac(Camera):
     def __init__(self, device=0, size=(640, 480), mode="RGB"):
-
         if isinstance(device, int):
             _dev = device
         elif isinstance(device, str):

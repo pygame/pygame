@@ -304,7 +304,6 @@ def main(winstyle=0):
 
     # Run our main loop whilst the player is alive.
     while player.alive():
-
         # get input
         for event in pg.event.get():
             if event.type == pg.QUIT:

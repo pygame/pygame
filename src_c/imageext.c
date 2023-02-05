@@ -96,7 +96,7 @@ image_load_ext(PyObject *self, PyObject *arg)
 {
     PyObject *obj;
     PyObject *final;
-    char *name = NULL, *ext = NULL;
+    char *name = NULL, *ext = NULL, *type = NULL;
     SDL_Surface *surf;
     SDL_RWops *rw = NULL;
 
@@ -104,12 +104,16 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    rw = pgRWops_FromObject(obj);
+    rw = pgRWops_FromObject(obj, &ext);
     if (rw == NULL) /* stop on NULL, error already set */
         return NULL;
-    ext = pgRWops_GetFileExtension(rw);
-    if (name) /* override extension with namehint if given */
-        ext = iext_find_extension(name);
+
+    if (name) { /* override extension with namehint if given */
+        type = iext_find_extension(name);
+    }
+    else { /* Otherwise type should be whatever ext is, even if ext is NULL */
+        type = ext;
+    }
 
 #ifdef WITH_THREAD
     /*
@@ -125,11 +129,15 @@ image_load_ext(PyObject *self, PyObject *arg)
     SDL_UnlockMutex(_pg_img_mutex);
     */
 
-    surf = IMG_LoadTyped_RW(rw, 1, ext);
+    surf = IMG_LoadTyped_RW(rw, 1, type);
     Py_END_ALLOW_THREADS;
 #else  /* ~WITH_THREAD */
-    surf = IMG_LoadTyped_RW(rw, 1, ext);
+    surf = IMG_LoadTyped_RW(rw, 1, type);
 #endif /* ~WITH_THREAD */
+
+    if (ext) {
+        free(ext);
+    }
 
     if (surf == NULL)
         return RAISE(pgExc_SDLError, IMG_GetError());

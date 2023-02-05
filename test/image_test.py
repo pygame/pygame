@@ -299,7 +299,6 @@ class ImageModuleTest(unittest.TestCase):
             os.remove(f_path)
 
     def test_save(self):
-
         s = pygame.Surface((10, 10))
         s.fill((23, 23, 23))
         magic_hex = {}
