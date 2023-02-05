@@ -2967,7 +2967,7 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static void
-_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
+box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
 {
     // Reference : https://blog.csdn.net/blogshinelee/article/details/80997324
 
@@ -2996,12 +2996,14 @@ _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
                     (Uint8)MIN(sum / (radius * 2 + 1), 255);
 
                 // update sum
-                if (x >= radius)
+                if (x - radius >= 0) {
                     sum -=
                         *(srcpx + src->pitch * y + nb * (x - radius) + color);
-                if (x + radius < w)
-                    sum +=
-                        *(srcpx + src->pitch * y + nb * (x + radius +1) + color);
+                }
+                if (x + radius + 1 < w) {
+                    sum += *(srcpx + src->pitch * y + nb * (x + radius + 1) +
+                             color);
+                }
             }
         }
 
@@ -3010,16 +3012,18 @@ _blur(SDL_Surface *src, SDL_Surface *dst, int radius)
             for (i = 0; i <= radius; i++) {
                 sum += *(dstpx + dst->pitch * i + nb * x + color);
             }
-            for (y = 0; y < w; y++) {
+            for (y = 0; y < h; y++) {
                 vbuf[y] = (Uint8)MIN(sum / (radius * 2 + 1), 255);
 
                 // update sum
-                if (y >= radius)
+                if (y - radius >= 0) {
                     sum -=
                         *(dstpx + dst->pitch * (y - radius) + nb * x + color);
-                if (y + radius < h)
-                    sum +=
-                        *(dstpx + dst->pitch * (y + radius + 1) + nb * x + color);
+                }
+                if (y + radius + 1 < h) {
+                    sum += *(dstpx + dst->pitch * (y + radius + 1) + nb * x +
+                             color);
+                }
             }
 
             for (y = 0; y < h; y++) {
@@ -3036,6 +3040,10 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
 {
     SDL_Surface *src = NULL;
     SDL_Surface *retsurf = NULL;
+
+    if (radius < 0) {
+        return RAISE(PyExc_ValueError, "Radius less than zero.");
+    }
 
     src = pgSurface_AsSurface(srcobj);
 
@@ -3064,7 +3072,7 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
 
     Py_BEGIN_ALLOW_THREADS;
 
-    _blur(src, retsurf, radius);
+    box_blur(src, retsurf, radius);
 
     Py_END_ALLOW_THREADS;
 
@@ -3135,7 +3143,8 @@ static PyMethodDef _transform_methods[] = {
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGESURFACES},
     {"average_color", (PyCFunction)surf_average_color,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGECOLOR},
-    {"blur", (PyCFunction)surf_blur, METH_VARARGS | METH_KEYWORDS, "doc"},
+    {"blur", (PyCFunction)surf_blur, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMBLUR},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(transform)

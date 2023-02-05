@@ -12,6 +12,7 @@
 #define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "set_smoothscale_backend(backend) -> None\nset smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'"
 #define DOC_PYGAMETRANSFORMCHOP "chop(surface, rect) -> Surface\ngets a copy of an image with an interior area removed"
 #define DOC_PYGAMETRANSFORMLAPLACIAN "laplacian(surface, dest_surface=None) -> Surface\nfind edges in a surface"
+#define DOC_PYGAMETRANSFORMBLUR "blur(surface, radius, dest_surface=None) -> Surface\nmake surface blur"
 #define DOC_PYGAMETRANSFORMAVERAGESURFACES "average_surfaces(surfaces, dest_surface=None, palette_colors=1) -> Surface\nfind the average surface from many surfaces."
 #define DOC_PYGAMETRANSFORMAVERAGECOLOR "average_color(surface, rect=None, consider_alpha=False) -> Color\nfinds the average color of a surface"
 #define DOC_PYGAMETRANSFORMTHRESHOLD "threshold(dest_surface, surface, search_color, threshold=(0,0,0,0), set_color=(0,0,0,0), set_behavior=1, search_surf=None, inverse_set=False) -> num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a 'search_color' or a 'search_surf'."
@@ -71,6 +72,10 @@ gets a copy of an image with an interior area removed
 pygame.transform.laplacian
  laplacian(surface, dest_surface=None) -> Surface
 find edges in a surface
+
+pygame.transform.blur
+ blur(surface, radius, dest_surface=None) -> Surface
+make surface blur
 
 pygame.transform.average_surfaces
  average_surfaces(surfaces, dest_surface=None, palette_colors=1) -> Surface

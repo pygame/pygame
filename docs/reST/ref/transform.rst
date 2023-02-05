@@ -210,6 +210,17 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.laplacian ##
 
+.. function:: blur
+
+   | :sl:`make surface blur`
+   | :sg:`blur(surface, radius, dest_surface=None) -> Surface`
+
+   Makes the surface blur using box blur algorithm.
+
+   .. versionadded:: 2.1.4
+
+   .. ## pygame.transform.blur ##
+
 .. function:: average_surfaces
 
    | :sl:`find the average surface from many surfaces.`
