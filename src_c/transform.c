@@ -2973,61 +2973,61 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
 
     Uint8 *srcpx = (Uint8 *)src->pixels;
     Uint8 *dstpx = (Uint8 *)dst->pixels;
-    Uint8 nb=src->format->BytesPerPixel;
+    Uint8 nb = src->format->BytesPerPixel;
     int w = dst->w, h = dst->h, pitch = dst->pitch;
     int i, x, y, color;
-    Uint32  *buf = malloc(pitch*sizeof(Uint32));
-    Uint32 *sum_v= malloc(pitch*sizeof(Uint32));
-    Uint32 *sum_h= malloc(nb*sizeof(Uint32));
+    Uint32 *buf = malloc(pitch * sizeof(Uint32));
+    Uint32 *sum_v = malloc(pitch * sizeof(Uint32));
+    Uint32 *sum_h = malloc(nb * sizeof(Uint32));
 
     if (radius > MIN(w, h)) {
         radius = MIN(w, h) - 1;
     }
-    
-    memset(sum_v,0,pitch*sizeof(Uint32));
-    for (y=0;y<=radius;y++){//y-pre
-        for(i=0;i<pitch;i++){
+
+    memset(sum_v, 0, pitch * sizeof(Uint32));
+    for (y = 0; y <= radius; y++) {  // y-pre
+        for (i = 0; i < pitch; i++) {
             sum_v[i] += *(srcpx + pitch * y + i);
         }
     }
-    for(y=0;y<h;y++){//y
-        for(i=0;i<pitch;i++){
+    for (y = 0; y < h; y++) {  // y
+        for (i = 0; i < pitch; i++) {
             buf[i] = MIN(sum_v[i] / (radius * 2 + 1), 255);
         }
 
-        memset(sum_h,0,nb*sizeof(Uint32));
-        for (x = 0; x <= radius; x++) {//x-pre
-            for(color=0;color<nb;color++){
-                sum_h[color] += buf[x*nb+color];
+        memset(sum_h, 0, nb * sizeof(Uint32));
+        for (x = 0; x <= radius; x++) {  // x-pre
+            for (color = 0; color < nb; color++) {
+                sum_h[color] += buf[x * nb + color];
             }
         }
-        for(x=0;x<w;x++){//x
-            for(color=0;color<nb;color++){
+        for (x = 0; x < w; x++) {  // x
+            for (color = 0; color < nb; color++) {
                 *(dstpx + pitch * y + nb * x + color) =
                     (Uint8)MIN(sum_h[color] / (radius * 2 + 1), 255);
             }
 
             // update horizontal sum
             if (x - radius >= 0) {
-                for(color=0;color<nb;color++){
-                    sum_h[color] -= buf[(x - radius)*nb + color];
+                for (color = 0; color < nb; color++) {
+                    sum_h[color] -= buf[(x - radius) * nb + color];
                 }
             }
             if (x + radius + 1 < w) {
-                for(color=0;color<nb;color++){
-                    sum_h[color] += buf[(x + radius + 1)*nb + color];
+                for (color = 0; color < nb; color++) {
+                    sum_h[color] += buf[(x + radius + 1) * nb + color];
                 }
             }
         }
 
         // update vertical sum
         if (y - radius >= 0) {
-            for(i=0;i<pitch;i++){
+            for (i = 0; i < pitch; i++) {
                 sum_v[i] -= *(srcpx + pitch * (y - radius) + i);
             }
         }
         if (y + radius + 1 < h) {
-            for(i=0;i<pitch;i++){
+            for (i = 0; i < pitch; i++) {
                 sum_v[i] += *(srcpx + pitch * (y + radius + 1) + i);
             }
         }
@@ -3045,7 +3045,8 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
     SDL_Surface *retsurf = NULL;
 
     if (radius < 0) {
-        return RAISE(PyExc_ValueError, "The radius should not be less than zero.");
+        return RAISE(PyExc_ValueError,
+                     "The radius should not be less than zero.");
     }
 
     src = pgSurface_AsSurface(srcobj);
@@ -3110,7 +3111,7 @@ surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_INCREF(dst_surf_obj);
         return (PyObject *)dst_surf_obj;
     }
-    
+
     return (PyObject *)pgSurface_New(new_surf);
 }
 
