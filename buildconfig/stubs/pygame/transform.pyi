@@ -54,5 +54,6 @@ def threshold(
 def blur(
     surface: Surface,
     radius: int,
+    repeat_edge_pixels: Optional[bool] = True,
     dest_surface: Optional[Surface] = None
 ) -> Surface: ...

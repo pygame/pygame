@@ -2967,7 +2967,7 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static void
-box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
+box_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
 {
     // Reference : https://blog.csdn.net/blogshinelee/article/details/80997324
 
@@ -2990,9 +2990,28 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
             sum_v[i] += *(srcpx + pitch * y + i);
         }
     }
+    if (repeat) {
+        for (i = 0; i < pitch; i++) {
+            sum_v[i] += (*(srcpx + i) * radius);
+        }
+    }
     for (y = 0; y < h; y++) {  // y
         for (i = 0; i < pitch; i++) {
             buf[i] = MIN(sum_v[i] / (radius * 2 + 1), 255);
+
+            // update vertical sum
+            if (y - radius >= 0) {
+                sum_v[i] -= *(srcpx + pitch * (y - radius) + i);
+            }
+            else if (repeat) {
+                sum_v[i] -= *(srcpx + i);
+            }
+            if (y + radius + 1 < h) {
+                sum_v[i] += *(srcpx + pitch * (y + radius + 1) + i);
+            }
+            else if (repeat) {
+                sum_v[i] += *(srcpx + pitch * (h - 1) + i);
+            }
         }
 
         memset(sum_h, 0, nb * sizeof(Uint32));
@@ -3001,34 +3020,29 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
                 sum_h[color] += buf[x * nb + color];
             }
         }
+        if (repeat) {
+            for (color = 0; color < nb; color++) {
+                sum_h[color] += (buf[color] * radius);
+            }
+        }
         for (x = 0; x < w; x++) {  // x
             for (color = 0; color < nb; color++) {
                 *(dstpx + pitch * y + nb * x + color) =
                     (Uint8)MIN(sum_h[color] / (radius * 2 + 1), 255);
-            }
 
-            // update horizontal sum
-            if (x - radius >= 0) {
-                for (color = 0; color < nb; color++) {
+                // update horizontal sum
+                if (x - radius >= 0) {
                     sum_h[color] -= buf[(x - radius) * nb + color];
                 }
-            }
-            if (x + radius + 1 < w) {
-                for (color = 0; color < nb; color++) {
+                else if (repeat) {
+                    sum_h[color] -= buf[color];
+                }
+                if (x + radius + 1 < w) {
                     sum_h[color] += buf[(x + radius + 1) * nb + color];
                 }
-            }
-        }
-
-        // update vertical sum
-        if (y - radius >= 0) {
-            for (i = 0; i < pitch; i++) {
-                sum_v[i] -= *(srcpx + pitch * (y - radius) + i);
-            }
-        }
-        if (y + radius + 1 < h) {
-            for (i = 0; i < pitch; i++) {
-                sum_v[i] += *(srcpx + pitch * (y + radius + 1) + i);
+                else if (repeat) {
+                    sum_h[color] += buf[(w - 1) * nb + color];
+                }
             }
         }
     }
@@ -3039,7 +3053,8 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
 }
 
 static SDL_Surface *
-blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
+blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius,
+     SDL_bool repeat)
 {
     SDL_Surface *src = NULL;
     SDL_Surface *retsurf = NULL;
@@ -3076,7 +3091,7 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
 
     Py_BEGIN_ALLOW_THREADS;
 
-    box_blur(src, retsurf, radius);
+    box_blur(src, retsurf, radius, repeat);
 
     Py_END_ALLOW_THREADS;
 
@@ -3092,17 +3107,19 @@ surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
     pgSurfaceObject *dst_surf_obj = NULL;
     pgSurfaceObject *src_surf_obj;
     SDL_Surface *new_surf = NULL;
+    SDL_bool repeat_edge_pixels = SDL_TRUE;
 
     int radius;
 
-    static char *kwlist[] = {"surface", "radius", "dest_surface", 0};
+    static char *kwlist[] = {"surface", "radius", "repeat_edge_pixels",
+                             "dest_surface", 0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!i|O!", kwlist,
-                                     &pgSurface_Type, &src_surf_obj, &radius,
-                                     &pgSurface_Type, &dst_surf_obj))
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwargs, "O!i|pO!", kwlist, &pgSurface_Type, &src_surf_obj,
+            &radius, &repeat_edge_pixels, &pgSurface_Type, &dst_surf_obj))
         return NULL;
 
-    new_surf = blur(src_surf_obj, dst_surf_obj, radius);
+    new_surf = blur(src_surf_obj, dst_surf_obj, radius, repeat_edge_pixels);
     if (!new_surf) {
         return NULL;
     }

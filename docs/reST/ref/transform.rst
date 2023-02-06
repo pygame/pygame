@@ -213,7 +213,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: blur
 
    | :sl:`make surface blur`
-   | :sg:`blur(surface, radius, dest_surface=None) -> Surface`
+   | :sg:`blur(surface, radius, repeat_edge_pixels=True, dest_surface=None) -> Surface`
 
    Makes the surface blur using box blur algorithm.
 
