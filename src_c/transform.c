@@ -2973,8 +2973,9 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
 
     Uint8 *srcpx = (Uint8 *)src->pixels;
     Uint8 *dstpx = (Uint8 *)dst->pixels;
+    Uint8 nb=src->format->BytesPerPixel;
     int w = dst->w, h = dst->h;
-    int i, x, y, color, nb;
+    int i, x, y, color;
     Uint8 *vbuf = NULL;
     Uint64 sum;
 
@@ -2982,8 +2983,7 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
         radius = MIN(w, h) - 1;
     }
 
-    nb = src->format->BytesPerPixel;
-    vbuf = malloc(h);
+    vbuf = malloc(h*sizeof(Uint8));
 
     for (color = 0; color < nb; color++) {
         for (y = 0; y < h; y++) {
@@ -3007,7 +3007,7 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
             }
         }
 
-        for (x = 0; x < h; x++) {
+        for (x = 0; x < w; x++) {
             sum = 0;
             for (i = 0; i <= radius; i++) {
                 sum += *(dstpx + dst->pitch * i + nb * x + color);
