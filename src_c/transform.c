@@ -2974,65 +2974,68 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius)
     Uint8 *srcpx = (Uint8 *)src->pixels;
     Uint8 *dstpx = (Uint8 *)dst->pixels;
     Uint8 nb=src->format->BytesPerPixel;
-    int w = dst->w, h = dst->h;
+    int w = dst->w, h = dst->h, pitch = dst->pitch;
     int i, x, y, color;
-    Uint8 *vbuf = NULL;
-    Uint64 sum;
+    Uint32  *buf = malloc(pitch*sizeof(Uint32));
+    Uint32 *sum_v= malloc(pitch*sizeof(Uint32));
+    Uint32 *sum_h= malloc(nb*sizeof(Uint32));
 
     if (radius > MIN(w, h)) {
         radius = MIN(w, h) - 1;
     }
+    
+    memset(sum_v,0,pitch*sizeof(Uint32));
+    for (y=0;y<=radius;y++){//y-pre
+        for(i=0;i<pitch;i++){
+            sum_v[i] += *(srcpx + pitch * y + i);
+        }
+    }
+    for(y=0;y<h;y++){//y
+        for(i=0;i<pitch;i++){
+            buf[i] = MIN(sum_v[i] / (radius * 2 + 1), 255);
+        }
 
-    vbuf = malloc(h*sizeof(Uint8));
-
-    for (color = 0; color < nb; color++) {
-        for (y = 0; y < h; y++) {
-            sum = 0;
-            for (i = 0; i <= radius; i++) {
-                sum += *(srcpx + src->pitch * y + nb * i + color);
+        memset(sum_h,0,nb*sizeof(Uint32));
+        for (x = 0; x <= radius; x++) {//x-pre
+            for(color=0;color<nb;color++){
+                sum_h[color] += buf[x*nb+color];
             }
-            for (x = 0; x < w; x++) {
-                *(dstpx + dst->pitch * y + nb * x + color) =
-                    (Uint8)MIN(sum / (radius * 2 + 1), 255);
+        }
+        for(x=0;x<w;x++){//x
+            for(color=0;color<nb;color++){
+                *(dstpx + pitch * y + nb * x + color) =
+                    (Uint8)MIN(sum_h[color] / (radius * 2 + 1), 255);
+            }
 
-                // update sum
-                if (x - radius >= 0) {
-                    sum -=
-                        *(srcpx + src->pitch * y + nb * (x - radius) + color);
+            // update horizontal sum
+            if (x - radius >= 0) {
+                for(color=0;color<nb;color++){
+                    sum_h[color] -= buf[(x - radius)*nb + color];
                 }
-                if (x + radius + 1 < w) {
-                    sum += *(srcpx + src->pitch * y + nb * (x + radius + 1) +
-                             color);
+            }
+            if (x + radius + 1 < w) {
+                for(color=0;color<nb;color++){
+                    sum_h[color] += buf[(x + radius + 1)*nb + color];
                 }
             }
         }
 
-        for (x = 0; x < w; x++) {
-            sum = 0;
-            for (i = 0; i <= radius; i++) {
-                sum += *(dstpx + dst->pitch * i + nb * x + color);
+        // update vertical sum
+        if (y - radius >= 0) {
+            for(i=0;i<pitch;i++){
+                sum_v[i] -= *(srcpx + pitch * (y - radius) + i);
             }
-            for (y = 0; y < h; y++) {
-                vbuf[y] = (Uint8)MIN(sum / (radius * 2 + 1), 255);
-
-                // update sum
-                if (y - radius >= 0) {
-                    sum -=
-                        *(dstpx + dst->pitch * (y - radius) + nb * x + color);
-                }
-                if (y + radius + 1 < h) {
-                    sum += *(dstpx + dst->pitch * (y + radius + 1) + nb * x +
-                             color);
-                }
-            }
-
-            for (y = 0; y < h; y++) {
-                // write back from buffer
-                *(dstpx + dst->pitch * y + nb * x + color) = vbuf[y];
+        }
+        if (y + radius + 1 < h) {
+            for(i=0;i<pitch;i++){
+                sum_v[i] += *(srcpx + pitch * (y + radius + 1) + i);
             }
         }
     }
-    free(vbuf);
+
+    free(buf);
+    free(sum_v);
+    free(sum_h);
 }
 
 static SDL_Surface *
