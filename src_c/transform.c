@@ -3042,7 +3042,7 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius)
     SDL_Surface *retsurf = NULL;
 
     if (radius < 0) {
-        return RAISE(PyExc_ValueError, "Radius less than zero.");
+        return RAISE(PyExc_ValueError, "The radius should not be less than zero.");
     }
 
     src = pgSurface_AsSurface(srcobj);
@@ -3107,9 +3107,8 @@ surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_INCREF(dst_surf_obj);
         return (PyObject *)dst_surf_obj;
     }
-    else {
-        return (PyObject *)pgSurface_New(new_surf);
-    }
+    
+    return (PyObject *)pgSurface_New(new_surf);
 }
 
 static PyMethodDef _transform_methods[] = {
