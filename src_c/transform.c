@@ -2987,30 +2987,30 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
     memset(sum_v, 0, pitch * sizeof(Uint32));
     for (y = 0; y <= radius; y++) {  // y-pre
         for (i = 0; i < pitch; i++) {
-            sum_v[i] += *(srcpx + pitch * y + i);
+            sum_v[i] += srcpx[pitch * y + i];
         }
     }
     if (repeat) {
         for (i = 0; i < pitch; i++) {
-            sum_v[i] += (*(srcpx + i) * radius);
+            sum_v[i] += srcpx[i] * radius;
         }
     }
     for (y = 0; y < h; y++) {  // y
         for (i = 0; i < pitch; i++) {
-            buf[i] = MIN(sum_v[i] / (radius * 2 + 1), 255);
+            buf[i] = sum_v[i] / (radius * 2 + 1);
 
             // update vertical sum
             if (y - radius >= 0) {
-                sum_v[i] -= *(srcpx + pitch * (y - radius) + i);
+                sum_v[i] -= srcpx[pitch * (y - radius) + i];
             }
             else if (repeat) {
-                sum_v[i] -= *(srcpx + i);
+                sum_v[i] -= srcpx[i];
             }
             if (y + radius + 1 < h) {
-                sum_v[i] += *(srcpx + pitch * (y + radius + 1) + i);
+                sum_v[i] += srcpx[pitch * (y + radius + 1) + i];
             }
             else if (repeat) {
-                sum_v[i] += *(srcpx + pitch * (h - 1) + i);
+                sum_v[i] += srcpx[pitch * (h - 1) + i];
             }
         }
 
@@ -3022,13 +3022,13 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
         }
         if (repeat) {
             for (color = 0; color < nb; color++) {
-                sum_h[color] += (buf[color] * radius);
+                sum_h[color] += buf[color] * radius;
             }
         }
         for (x = 0; x < w; x++) {  // x
             for (color = 0; color < nb; color++) {
-                *(dstpx + pitch * y + nb * x + color) =
-                    (Uint8)MIN(sum_h[color] / (radius * 2 + 1), 255);
+                dstpx[pitch * y + nb * x + color] =
+                    sum_h[color] / (radius * 2 + 1);
 
                 // update horizontal sum
                 if (x - radius >= 0) {
