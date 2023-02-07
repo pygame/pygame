@@ -142,6 +142,7 @@ def set_cursor(*args):
 pygame.mouse.set_cursor = set_cursor
 del set_cursor  # cleanup namespace
 
+
 # Python side of the get_cursor function: C side in mouse.c
 def get_cursor():
     """get_cursor() -> pygame.cursors.Cursor

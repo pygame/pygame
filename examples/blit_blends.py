@@ -102,7 +102,6 @@ def main():
                 print(f"time to do:{t2 - t1}:")
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_t]:
-
                 for bkey in blits.keys():
                     t1 = time.time()
 
