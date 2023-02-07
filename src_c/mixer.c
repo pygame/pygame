@@ -1760,7 +1760,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 
     if (file != NULL) {
-        rw = pgRWops_FromObject(file);
+        rw = pgRWops_FromObject(file, NULL);
 
         if (rw == NULL) {
             if (obj) {

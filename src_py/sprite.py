@@ -279,7 +279,6 @@ class DirtySprite(Sprite):
     """
 
     def __init__(self, *groups):
-
         self.dirty = 1
 
         # referred to as special_flags in the documentation of Surface.blit
@@ -688,7 +687,7 @@ class OrderedUpdates(RenderUpdates):
         RenderUpdates.__init__(self, *sprites)
 
     def sprites(self):
-        return list(self._spritelist)
+        return self._spritelist.copy()
 
     def add_internal(self, sprite, layer=None):
         RenderUpdates.add_internal(self, sprite)
@@ -834,7 +833,7 @@ class LayeredUpdates(AbstractGroup):
         LayeredUpdates.sprites(): return sprites
 
         """
-        return list(self._spritelist)
+        return self._spritelist.copy()
 
     def draw(self, surface):
         """draw all sprites in the right order onto the passed surface
@@ -1675,7 +1674,6 @@ def spritecollide(sprite, group, dokill, collided=None):
     default_sprite_collide_func = sprite.rect.colliderect
 
     if dokill:
-
         crashed = []
         append = crashed.append
 

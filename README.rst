@@ -6,7 +6,7 @@
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
 |Python3| |GithubCommits| |BlackFormatBadge|
 
-pygame_ is a free and open-source cross-platform library
+Pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
 It uses the `Simple DirectMedia Layer library`_ and several other
 popular libraries to abstract the most common functions, making writing
@@ -31,9 +31,9 @@ If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
 entire library. Browse the documentation on the `docs page`_. You
-can also browse the documentation locally by running `python -m pygame.docs`
-in your terminal. If the docs aren't found locally, it'll launch the online
-website instead.
+can also browse the documentation locally by running
+``python -m pygame.docs`` in your terminal. If the docs aren't found
+locally, it'll launch the online website instead.
 
 The online documentation stays up to date with the development version
 of pygame on github.  This may be a bit newer than the version of pygame
@@ -128,13 +128,23 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 3.6 or PyPy3
-* SDL >= 2.0.4
-* SDL_mixer >= 2.0.0
-* SDL_image >= 2.0.2
-* SDL_ttf >= 2.0.11
-* SDL_gfx (optional, vendored in)
-* NumPy >= 1.6.2 (optional)
+
++----------+------------------------+
+| CPython  | >= 3.6 (Or use PyPy3)  |
++----------+------------------------+
+| SDL      | >= 2.0.8               |
++----------+------------------------+
+| SDL_mixer| >= 2.0.0               |
++----------+------------------------+
+| SDL_image| >= 2.0.2               |
++----------+------------------------+
+| SDL_ttf  | >= 2.0.11              |
++----------+------------------------+
+| SDL_gfx  | (Optional, vendored in)|
++----------+------------------------+
+| NumPy    | >= 1.6.2 (Optional)    |
++----------+------------------------+
+
 
 
 License
