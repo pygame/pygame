@@ -1952,7 +1952,6 @@ class RectTypeTest(unittest.TestCase):
                 collide_items = rect.collidedictall(d, invalid_param)
 
     def test_collidelist(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
 
         # Rect.collidelist(list): return index
@@ -1971,7 +1970,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.collidelist(f), -1)
 
     def test_collidelistall(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
 
         # Rect.collidelistall(list): return indices
@@ -2441,7 +2439,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
 
     def test_fit(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
 
         # Rect.fit(Rect): return Rect

@@ -540,16 +540,6 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     PyDict_SetItemString(dict, "shell_surface", tmp);
     Py_DECREF(tmp);
 #endif
-#if defined(SDL_VIDEO_DRIVER_MIR) /* no longer available, left for API/ABI \
-                                     compatibility. Remove in 2.1! */
-    tmp = PyCapsule_New(info.info.mir.connection, "connection", NULL);
-    PyDict_SetItemString(dict, "connection", tmp);
-    Py_DECREF(tmp);
-
-    tmp = PyCapsule_New(info.info.mir.surface, "surface", NULL);
-    PyDict_SetItemString(dict, "surface", tmp);
-    Py_DECREF(tmp);
-#endif
 #if defined(SDL_VIDEO_DRIVER_ANDROID)
     tmp = PyCapsule_New(info.info.android.window, "window", NULL);
     PyDict_SetItemString(dict, "window", tmp);
