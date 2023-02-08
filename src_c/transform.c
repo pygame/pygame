@@ -2980,10 +2980,6 @@ box_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
     Uint32 *sum_v = malloc(pitch * sizeof(Uint32));
     Uint32 *sum_h = malloc(nb * sizeof(Uint32));
 
-    if (radius > MIN(w, h)) {
-        radius = MIN(w, h) - 1;
-    }
-
     memset(sum_v, 0, pitch * sizeof(Uint32));
     for (y = 0; y <= radius; y++) {  // y-pre
         for (i = 0; i < pitch; i++) {
@@ -3060,67 +3056,69 @@ gaussian_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
     Uint8 nb = src->format->BytesPerPixel;
     int w = dst->w, h = dst->h, pitch = dst->pitch;
     int i, j, x, y, color;
-
-    if (radius > MIN(w, h)) {
-        radius = MIN(w, h) - 1;
-    }
     float *buf = malloc(pitch * sizeof(float));
     float *buf2 = malloc(pitch * sizeof(float));
-    float *lut = malloc((radius+1)*sizeof(float));
-    float lut_sum=0.0;
+    float *lut = malloc((radius + 1) * sizeof(float));
+    float lut_sum = 0.0;
 
-    for(i=0;i<=radius;i++){ // init lut
-        lut[i]=(float)radius*expf(-powf(i,2)/(2*powf(radius,2)))*0.3989422804014327;
-        lut_sum+=lut[i]*2;
+    for (i = 0; i <= radius; i++) {  // init gaussian lut
+        // Gaussian function, radius=2*sigma
+        lut[i] = (float)radius / 2 *
+                 expf(-powf(i, 2) / (2 * powf((float)radius / 2, 2))) *
+                 0.3989422804014327;
+        lut_sum += lut[i] * 2;
     }
-    lut_sum-=lut[0];
-    for(i=0;i<=radius;i++){
-        lut[i]/=lut_sum;
+    lut_sum -= lut[0];
+    for (i = 0; i <= radius; i++) {
+        lut[i] /= lut_sum;
     }
 
-    for(i=0;i<pitch;i++){
-            buf[i]=0.0;
-            buf2[i]=0.0;
-        }
+    for (i = 0; i < pitch; i++) {
+        buf[i] = 0.0;
+        buf2[i] = 0.0;
+    }
 
-    for(y=0;y<h;y++){
-        for(j=-radius;j<=radius;j++){
-            for(i=0;i<pitch;i++){
-                if(y+j>=0 && y+j<h){
-                    buf[i]+=(float)srcpx[pitch*(y+j)+i]*lut[abs(j)];
+    for (y = 0; y < h; y++) {
+        for (j = -radius; j <= radius; j++) {
+            for (i = 0; i < pitch; i++) {
+                if (y + j >= 0 && y + j < h) {
+                    buf[i] += (float)srcpx[pitch * (y + j) + i] * lut[abs(j)];
                 }
-                else if(repeat){
-                    if(y+j<0){
-                        buf[i]+=(float)srcpx[i]*lut[abs(j)];
+                else if (repeat) {
+                    if (y + j < 0) {
+                        buf[i] += (float)srcpx[i] * lut[abs(j)];
                     }
-                    else{
-                        buf[i]+=(float)srcpx[pitch*(h-1)+i]*lut[abs(j)];
+                    else {
+                        buf[i] +=
+                            (float)srcpx[pitch * (h - 1) + i] * lut[abs(j)];
                     }
                 }
             }
         }
 
-        for(x=0;x<w;x++){
-            for(j=-radius;j<=radius;j++){
-                for(color=0;color<nb;color++){
-                    if(x+j>=0 && x+j<w){
-                        buf2[nb*x+color]+=buf[nb*(x+j)+color]*lut[abs(j)];
+        for (x = 0; x < w; x++) {
+            for (j = -radius; j <= radius; j++) {
+                for (color = 0; color < nb; color++) {
+                    if (x + j >= 0 && x + j < w) {
+                        buf2[nb * x + color] +=
+                            buf[nb * (x + j) + color] * lut[abs(j)];
                     }
-                    else if(repeat){
-                        if(x+j<0){
-                            buf2[nb*x+color]+=buf[color]*lut[abs(j)];
+                    else if (repeat) {
+                        if (x + j < 0) {
+                            buf2[nb * x + color] += buf[color] * lut[abs(j)];
                         }
-                        else{
-                            buf2[nb*x+color]+=buf[nb*(w-1)+color]*lut[abs(j)];
+                        else {
+                            buf2[nb * x + color] +=
+                                buf[nb * (w - 1) + color] * lut[abs(j)];
                         }
                     }
                 }
             }
         }
-        for(i=0;i<pitch;i++){
-            dstpx[pitch*y+i]=(Uint8)buf2[i];
-            buf[i]=0.0;
-            buf2[i]=0.0;
+        for (i = 0; i < pitch; i++) {
+            dstpx[pitch * y + i] = (Uint8)buf2[i];
+            buf[i] = 0.0;
+            buf2[i] = 0.0;
         }
     }
 
@@ -3131,7 +3129,7 @@ gaussian_blur(SDL_Surface *src, SDL_Surface *dst, int radius, SDL_bool repeat)
 
 static SDL_Surface *
 blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius,
-     SDL_bool repeat)
+     SDL_bool repeat, char algorithm)
 {
     SDL_Surface *src = NULL;
     SDL_Surface *retsurf = NULL;
@@ -3163,13 +3161,21 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius,
             "Source and destination surfaces need the same format."));
     }
 
+    if (radius > MIN(src->w, src->h)) {
+        radius = MIN(src->w, src->h) - 1;
+    }
+
     SDL_LockSurface(retsurf);
     pgSurface_Lock(srcobj);
 
     Py_BEGIN_ALLOW_THREADS;
 
-    //box_blur(src, retsurf, radius, repeat);
-    gaussian_blur(src, retsurf, radius, repeat);
+    if (algorithm == 'b') {
+        box_blur(src, retsurf, radius, repeat);
+    }
+    else if (algorithm == 'g') {
+        gaussian_blur(src, retsurf, radius, repeat);
+    }
 
     Py_END_ALLOW_THREADS;
 
@@ -3180,7 +3186,7 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius,
 }
 
 static PyObject *
-surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
+surf_box_blur(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *dst_surf_obj = NULL;
     pgSurfaceObject *src_surf_obj;
@@ -3197,7 +3203,40 @@ surf_blur(PyObject *self, PyObject *args, PyObject *kwargs)
             &radius, &repeat_edge_pixels, &pgSurface_Type, &dst_surf_obj))
         return NULL;
 
-    new_surf = blur(src_surf_obj, dst_surf_obj, radius, repeat_edge_pixels);
+    new_surf =
+        blur(src_surf_obj, dst_surf_obj, radius, repeat_edge_pixels, 'b');
+    if (!new_surf) {
+        return NULL;
+    }
+
+    if (dst_surf_obj) {
+        Py_INCREF(dst_surf_obj);
+        return (PyObject *)dst_surf_obj;
+    }
+
+    return (PyObject *)pgSurface_New(new_surf);
+}
+
+static PyObject *
+surf_gaussian_blur(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    pgSurfaceObject *dst_surf_obj = NULL;
+    pgSurfaceObject *src_surf_obj;
+    SDL_Surface *new_surf = NULL;
+    SDL_bool repeat_edge_pixels = SDL_TRUE;
+
+    int radius;
+
+    static char *kwlist[] = {"surface", "radius", "repeat_edge_pixels",
+                             "dest_surface", 0};
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwargs, "O!i|pO!", kwlist, &pgSurface_Type, &src_surf_obj,
+            &radius, &repeat_edge_pixels, &pgSurface_Type, &dst_surf_obj))
+        return NULL;
+
+    new_surf =
+        blur(src_surf_obj, dst_surf_obj, radius, repeat_edge_pixels, 'g');
     if (!new_surf) {
         return NULL;
     }
@@ -3241,8 +3280,10 @@ static PyMethodDef _transform_methods[] = {
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGESURFACES},
     {"average_color", (PyCFunction)surf_average_color,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGECOLOR},
-    {"blur", (PyCFunction)surf_blur, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMETRANSFORMBLUR},
+    {"box_blur", (PyCFunction)surf_box_blur, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMBOXBLUR},
+    {"gaussian_blur", (PyCFunction)surf_gaussian_blur,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMGAUSSIANBLUR},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(transform)

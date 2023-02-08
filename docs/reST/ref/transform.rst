@@ -210,16 +210,28 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.laplacian ##
 
-.. function:: blur
+.. function:: box_blur
 
    | :sl:`make surface blur`
-   | :sg:`blur(surface, radius, repeat_edge_pixels=True, dest_surface=None) -> Surface`
+   | :sg:`box_blur(surface, radius, repeat_edge_pixels=True, dest_surface=None) -> Surface`
 
    Makes the surface blur using box blur algorithm.
 
    .. versionadded:: 2.1.4
 
-   .. ## pygame.transform.blur ##
+   .. ## pygame.transform.box_blur ##
+
+.. function:: gaussian_blur
+
+   | :sl:`make surface blur`
+   | :sg:`gaussian_blur(surface, radius, repeat_edge_pixels=True, dest_surface=None) -> Surface`
+
+   Makes the surface blur using gaussian blur algorithm.
+   Slower than `box_blur()`.
+
+   .. versionadded:: 2.1.4
+
+   .. ## pygame.transform.gaussian_blur ##
 
 .. function:: average_surfaces
 
