@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 
-def SysFont(name, size, bold=0, italic=0, constructor=None):
+def SysFont(name, size, bold=False, italic=False, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
     Create a pygame Font from system font resources.
 
