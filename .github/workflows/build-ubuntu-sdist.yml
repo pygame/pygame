@@ -72,7 +72,7 @@ jobs:
       run: python3 -m pygame.tests -v --exclude opengl,music,timing --time_out 300
     
     - name: Test typestubs
-      if: matrix.os == 'ubuntu-22.04' # run stubest only once
+      if: matrix.os == 'ubuntu-22.04' # run stubtest only once
       run: |
         cd buildconfig/stubs
         pip3 install mypy
