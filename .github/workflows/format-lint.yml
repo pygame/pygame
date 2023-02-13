@@ -13,7 +13,9 @@ on:
       - '**.rst'
 
   pull_request:
-    branches: main
+    branches:
+      - main
+      - 'v**'
     paths:
       - '**.h'
       - '**.c'
