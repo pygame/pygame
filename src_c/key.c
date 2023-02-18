@@ -88,6 +88,50 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
     return ret;
 }
 
+static PyObject *
+pg_iter_raise(PyObject *self)
+{
+    PyErr_SetString(PyExc_TypeError,
+                    "Iterating over key states is not supported");
+    return NULL;
+}
+
+/**
+ * There is an issue in PyPy that causes __iter__ to be called
+ * on creation of a ScandcodeWrapper. This stops this from
+ * happening.
+ */
+#ifdef PYPY_VERSION
+static PyObject *
+pg_scancodewrapper_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
+{
+    PyObject *tuple = NULL;
+    Py_ssize_t size = PyTuple_Size(args);
+    if (size == 1) {
+        tuple = PyTuple_GET_ITEM(args, 0);
+        if (PyTuple_Check(tuple)) {
+            size = PyTuple_Size(tuple);
+        }
+        else {
+            tuple = NULL;
+        }
+    }
+
+    pgScancodeWrapper *obj =
+        (pgScancodeWrapper *)(subtype->tp_alloc(subtype, size));
+
+    if (obj && tuple) {
+        for (Py_ssize_t i = 0; i < size; ++i) {
+            PyObject *item = PyTuple_GET_ITEM((PyObject *)tuple, i);
+            PyTuple_SET_ITEM((PyObject *)obj, i, item);
+        }
+        Py_DECREF(tuple);
+    }
+
+    return (PyObject *)obj;
+}
+#endif /* PYPY_VERSION */
+
 static PyMappingMethods pg_scancodewrapper_mapping = {
     .mp_subscript = (binaryfunc)pg_scancodewrapper_subscript,
 };
@@ -106,6 +150,11 @@ static PyTypeObject pgScancodeWrapper_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.key.ScancodeWrapper",
     .tp_repr = (reprfunc)pg_scancodewrapper_repr,
     .tp_as_mapping = &pg_scancodewrapper_mapping,
+    .tp_iter = (getiterfunc)pg_iter_raise,
+    .tp_iternext = (iternextfunc)pg_iter_raise,
+#ifdef PYPY_VERSION
+    .tp_new = pg_scancodewrapper_new,
+#endif
     .tp_flags =
         Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS | Py_TPFLAGS_BASETYPE,
 };

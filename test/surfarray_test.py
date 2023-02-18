@@ -134,7 +134,6 @@ class SurfarrayModuleTest(unittest.TestCase):
         return zeros(self.surf_size, dtype)
 
     def test_array2d(self):
-
         sources = [
             self._make_src_surface(8),
             self._make_src_surface(16),
@@ -174,7 +173,6 @@ class SurfarrayModuleTest(unittest.TestCase):
                 )
 
     def test_array3d(self):
-
         sources = [
             self._make_src_surface(16),
             self._make_src_surface(16, srcalpha=True),
@@ -204,7 +202,6 @@ class SurfarrayModuleTest(unittest.TestCase):
                 )
 
     def test_array_alpha(self):
-
         palette = [
             (0, 0, 0, 0),
             (10, 50, 100, 255),
@@ -271,7 +268,6 @@ class SurfarrayModuleTest(unittest.TestCase):
             surf.set_alpha(blanket_alpha)
 
     def test_array_colorkey(self):
-
         palette = [
             (0, 0, 0, 0),
             (10, 50, 100, 255),
@@ -352,7 +348,6 @@ class SurfarrayModuleTest(unittest.TestCase):
                 del arr
 
     def test_blit_array(self):
-
         s = pygame.Surface((10, 10), 0, 24)
         a = pygame.surfarray.array3d(s)
         pygame.surfarray.blit_array(s, a)
@@ -504,7 +499,6 @@ class SurfarrayModuleTest(unittest.TestCase):
 
     # this test should be removed soon, when the function is deleted
     def test_get_arraytypes(self):
-
         arraytypes = pygame.surfarray.get_arraytypes()
         self.assertIn("numpy", arraytypes)
 
@@ -512,7 +506,6 @@ class SurfarrayModuleTest(unittest.TestCase):
             self.assertEqual(atype, "numpy", f"unknown array type {atype}")
 
     def test_make_surface(self):
-
         # How does one properly test this with 2d arrays. It makes no sense
         # since the pixel format is not entirely dependent on element size.
         # Just make sure the surface pixel size is at least as large as the
@@ -547,7 +540,6 @@ class SurfarrayModuleTest(unittest.TestCase):
                         )
 
     def test_map_array(self):
-
         arr3d = self._make_src_array3d(uint8)
         targets = [
             self._make_surface(8),
@@ -583,7 +575,6 @@ class SurfarrayModuleTest(unittest.TestCase):
         )
 
     def test_pixels2d(self):
-
         sources = [
             self._make_surface(8),
             self._make_surface(16, srcalpha=True),
@@ -606,7 +597,6 @@ class SurfarrayModuleTest(unittest.TestCase):
         self.assertRaises(ValueError, pygame.surfarray.pixels2d, self._make_surface(24))
 
     def test_pixels3d(self):
-
         sources = [self._make_surface(24), self._make_surface(32)]
 
         for surf in sources:
@@ -636,7 +626,6 @@ class SurfarrayModuleTest(unittest.TestCase):
         self.assertRaises(ValueError, do_pixels3d, self._make_surface(16))
 
     def test_pixels_alpha(self):
-
         palette = [
             (0, 0, 0, 0),
             (127, 127, 127, 0),
