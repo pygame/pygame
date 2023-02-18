@@ -804,7 +804,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         Py_INCREF(file);
     if (!PG_CHECK_THREADS())
         goto end;
-    source = pgRWops_FromObject(file);
+    source = pgRWops_FromObject(file, NULL);
     if (!source) {
         goto end;
     }

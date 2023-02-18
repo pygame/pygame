@@ -421,6 +421,10 @@ _pxarray_get_dict(pgPixelArrayObject *self, void *closure)
 static pgSurfaceObject *
 _pxarray_get_surface(pgPixelArrayObject *self, void *closure)
 {
+    if (self->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
     Py_INCREF(self->surface);
     return self->surface;
 }
@@ -432,6 +436,11 @@ _pxarray_get_surface(pgPixelArrayObject *self, void *closure)
 static PyObject *
 _pxarray_get_itemsize(pgPixelArrayObject *self, void *closure)
 {
+    if (self->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
+
     SDL_Surface *surf = pgSurface_AsSurface(self->surface);
 
     return PyLong_FromLong((long)surf->format->BytesPerPixel);

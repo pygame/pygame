@@ -72,6 +72,8 @@ static const char resourcefunc_name[] = "getResource";
 #endif
 static const char font_defaultname[] = "freesansbold.ttf";
 
+static const int font_defaultsize = 12;
+
 /*
  */
 #if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
@@ -634,6 +636,39 @@ font_metrics(PyObject *self, PyObject *textobj)
     return list;
 }
 
+static PyObject *
+font_set_script(PyObject *self, PyObject *arg)
+{
+/*Sadly, SDL_TTF_VERSION_ATLEAST is new in SDL_ttf 2.0.15, still too
+ * new to use */
+#if SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, \
+                   SDL_TTF_PATCHLEVEL) >= SDL_VERSIONNUM(2, 20, 0)
+    TTF_Font *font = PyFont_AsFont(self);
+    Py_ssize_t size;
+    const char *script_code;
+
+    if (!PyUnicode_Check(arg)) {
+        return RAISE(PyExc_TypeError, "script code must be a string");
+    }
+
+    script_code = PyUnicode_AsUTF8AndSize(arg, &size);
+
+    if (size != 4) {
+        return RAISE(PyExc_ValueError,
+                     "script code must be exactly 4 characters");
+    }
+
+    if (TTF_SetFontScriptName(font, script_code) < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+#else
+    return RAISE(pgExc_SDLError,
+                 "pygame.font not compiled with a new enough SDL_ttf version. "
+                 "Needs SDL_ttf 2.20.0 or above.");
+#endif
+    Py_RETURN_NONE;
+}
+
 /**
  * Getters and setters for the pgFontObject.
  */
@@ -653,7 +688,6 @@ static PyMethodDef font_methods[] = {
     {"get_descent", font_get_descent, METH_NOARGS, DOC_FONTGETDESCENT},
     {"get_ascent", font_get_ascent, METH_NOARGS, DOC_FONTGETASCENT},
     {"get_linesize", font_get_linesize, METH_NOARGS, DOC_FONTGETLINESIZE},
-
     {"get_bold", font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
     {"set_bold", font_set_bold, METH_O, DOC_FONTSETBOLD},
     {"get_italic", font_get_italic, METH_NOARGS, DOC_FONTGETITALIC},
@@ -664,11 +698,10 @@ static PyMethodDef font_methods[] = {
      DOC_FONTGETSTRIKETHROUGH},
     {"set_strikethrough", font_set_strikethrough, METH_O,
      DOC_FONTSETSTRIKETHROUGH},
-
     {"metrics", font_metrics, METH_O, DOC_FONTMETRICS},
     {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
     {"size", font_size, METH_O, DOC_FONTSIZE},
-
+    {"set_script", font_set_script, METH_O, DOC_FONTSETSCRIPT},
     {NULL, NULL, 0, NULL}};
 
 /*font object internals*/
@@ -695,13 +728,16 @@ font_dealloc(PyFontObject *self)
 static int
 font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 {
-    int fontsize;
+    int fontsize = font_defaultsize;
     TTF_Font *font = NULL;
-    PyObject *obj;
+    PyObject *obj = Py_None;
     SDL_RWops *rw;
 
+    static char *kwlist[] = {"font", "size", NULL};
+
     self->font = NULL;
-    if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &obj,
+                                     &fontsize)) {
         return -1;
     }
 
@@ -732,7 +768,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         fontsize = (int)(fontsize * .6875);
     }
 
-    rw = pgRWops_FromObject(obj);
+    rw = pgRWops_FromObject(obj, NULL);
 
     if (rw == NULL && PyUnicode_Check(obj)) {
         if (!PyUnicode_CompareWithASCIIString(obj, font_defaultname)) {
@@ -755,7 +791,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
              * but this rewritten code aims to keep the exact behavior as the
              * old one */
 
-            rw = pgRWops_FromObject(obj);
+            rw = pgRWops_FromObject(obj, NULL);
         }
     }
 
