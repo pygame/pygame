@@ -11,12 +11,12 @@
 The pygame math module currently provides Vector classes in two and three
 dimensions, ``Vector2`` and ``Vector3`` respectively.
 
-They support the following numerical operations: ``vec+vec``, ``vec-vec``, 
-``vec*number``, ``number*vec``, ``vec/number``, ``vec//number``, ``vec+=vec``, 
-``vec-=vec``, ``vec*=number``, ``vec/=number``, ``vec//=number``. 
+They support the following numerical operations: ``vec + vec``, ``vec - vec``, 
+``vec * number``, ``number * vec``, ``vec / number``, ``vec // number``, ``vec += vec``, 
+``vec -= vec``, ``vec *= number``, ``vec /= number``, ``vec //= number``, ``round(vec, ndigits=0)``. 
 
 All these operations will be performed elementwise.
-In addition ``vec*vec`` will perform a scalar-product (a.k.a. dot-product). 
+In addition ``vec * vec`` will perform a scalar-product (a.k.a. dot-product). 
 If you want to multiply every element from vector v with every element from 
 vector w you can use the elementwise method: ``v.elementwise() * w``
 
@@ -46,7 +46,8 @@ Multiple coordinates can be set using slices or swizzling
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
-.. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
+.. versionchanged:: 1.9.4 :mod:`pygame.math` import not required. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
+.. versionchanged:: 2.2.0 `round` returns a new vector with components rounded to the specified digits.
 
 .. function:: clamp
 
@@ -66,7 +67,7 @@ Multiple coordinates can be set using slices or swizzling
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
-   | :sg:`Vector2() -> Vector2`
+   | :sg:`Vector2() -> Vector2(0, 0)`
    | :sg:`Vector2(int) -> Vector2`
    | :sg:`Vector2(float) -> Vector2`
    | :sg:`Vector2(Vector2) -> Vector2`
@@ -505,7 +506,7 @@ Multiple coordinates can be set using slices or swizzling
 .. class:: Vector3
 
    | :sl:`a 3-Dimensional Vector`
-   | :sg:`Vector3() -> Vector3`
+   | :sg:`Vector3() -> Vector3(0, 0, 0)`
    | :sg:`Vector3(int) -> Vector3`
    | :sg:`Vector3(float) -> Vector3`
    | :sg:`Vector3(Vector3) -> Vector3`

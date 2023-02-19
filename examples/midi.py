@@ -857,14 +857,12 @@ def main(mode="output", device_id=None):
 
 
 if __name__ == "__main__":
-
     try:
         device_id = int(sys.argv[-1])
     except ValueError:
         device_id = None
 
     if "--input" in sys.argv or "-i" in sys.argv:
-
         input_main(device_id)
 
     elif "--output" in sys.argv or "-o" in sys.argv:

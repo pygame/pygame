@@ -74,7 +74,6 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertIs(wq.queue.get(), STOP)
 
     def test_threadloop(self):
-
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.threadloop:
 
         # Loops until all of the tasks are finished.
@@ -102,7 +101,6 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertFalse(wq.pool[0].is_alive())
 
     def test_wait(self):
-
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.wait:
 
         # waits until all tasks are complete.

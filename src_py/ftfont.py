@@ -34,7 +34,7 @@ class Font(_Font):
     __unull = "\x00"
     __bnull = b"\x00"
 
-    def __init__(self, file, size=-1):
+    def __init__(self, file=None, size=-1):
         size = max(size, 1)
         if isinstance(file, str):
             try:

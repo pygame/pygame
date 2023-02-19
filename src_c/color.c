@@ -93,6 +93,8 @@ _color_set_length(pgColorObject *, PyObject *);
 static PyObject *
 _color_lerp(pgColorObject *, PyObject *, PyObject *);
 static PyObject *
+_color_grayscale(pgColorObject *);
+static PyObject *
 _premul_alpha(pgColorObject *, PyObject *);
 static PyObject *
 _color_update(pgColorObject *self, PyObject *const *args, Py_ssize_t nargs);
@@ -201,6 +203,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORSETLENGTH},
     {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
      DOC_COLORLERP},
+    {"grayscale", (PyCFunction)_color_grayscale, METH_VARARGS | METH_KEYWORDS,
+     DOC_COLORGRAYSCALE},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
     {"update", (PyCFunction)PG_FASTCALL_NAME(_color_update), PG_FASTCALL,
@@ -262,7 +266,7 @@ static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Color",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.color.Color",
     .tp_basicsize = sizeof(pgColorObject),
     .tp_dealloc = (destructor)_color_dealloc,
     .tp_repr = (reprfunc)_color_repr,
@@ -782,6 +786,24 @@ _color_correct_gamma(pgColorObject *color, PyObject *args)
                   ? 255
                   : ((frgba[3] < 0.0) ? 0 : (Uint8)(frgba[3] * 255 + .5));
     return (PyObject *)_color_new_internal(Py_TYPE(color), rgba);
+}
+
+/**
+ * color.grayscale()
+ */
+static PyObject *
+_color_grayscale(pgColorObject *self)
+{
+    Uint8 grayscale_pixel =
+        (Uint8)(0.299 * self->data[0] + 0.587 * self->data[1] +
+                0.114 * self->data[2]);
+
+    Uint8 new_rgba[4];
+    new_rgba[0] = grayscale_pixel;
+    new_rgba[1] = grayscale_pixel;
+    new_rgba[2] = grayscale_pixel;
+    new_rgba[3] = self->data[3];
+    return (PyObject *)_color_new_internal(Py_TYPE(self), new_rgba);
 }
 
 /**
