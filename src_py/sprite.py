@@ -536,10 +536,10 @@ class AbstractGroup:
         for sprite in self.sprites():
             sprite.update(*args, **kwargs)
 
-    def draw(self, surface):
+    def draw(self, surface, special_flags=0):
         """draw all sprites onto the surface
 
-        Group.draw(surface): return Rect_list
+        Group.draw(surface, special_flags=0): return Rect_list
 
         Draws all of the member sprites onto the given surface.
 
@@ -547,11 +547,11 @@ class AbstractGroup:
         sprites = self.sprites()
         if hasattr(surface, "blits"):
             self.spritedict.update(
-                zip(sprites, surface.blits((spr.image, spr.rect) for spr in sprites))
+                zip(sprites, surface.blits((spr.image, spr.rect, None, special_flags) for spr in sprites))
             )
         else:
             for spr in sprites:
-                self.spritedict[spr] = surface.blit(spr.image, spr.rect)
+                self.spritedict[spr] = surface.blit(spr.image, spr.rect, None, special_flags)
         self.lostsprites = []
         dirty = self.lostsprites
 
@@ -650,14 +650,14 @@ class RenderUpdates(Group):
 
     """
 
-    def draw(self, surface):
+    def draw(self, surface, special_flags=0):
         surface_blit = surface.blit
         dirty = self.lostsprites
         self.lostsprites = []
         dirty_append = dirty.append
         for sprite in self.sprites():
             old_rect = self.spritedict[sprite]
-            new_rect = surface_blit(sprite.image, sprite.rect)
+            new_rect = surface_blit(sprite.image, sprite.rect, None, special_flags)
             if old_rect:
                 if new_rect.colliderect(old_rect):
                     dirty_append(new_rect.union(old_rect))
@@ -835,10 +835,10 @@ class LayeredUpdates(AbstractGroup):
         """
         return self._spritelist.copy()
 
-    def draw(self, surface):
+    def draw(self, surface, special_flags=0):
         """draw all sprites in the right order onto the passed surface
 
-        LayeredUpdates.draw(surface): return Rect_list
+        LayeredUpdates.draw(surface, special_flags=0): return Rect_list
 
         """
         spritedict = self.spritedict
@@ -849,7 +849,7 @@ class LayeredUpdates(AbstractGroup):
         init_rect = self._init_rect
         for spr in self.sprites():
             rec = spritedict[spr]
-            newrect = surface_blit(spr.image, spr.rect)
+            newrect = surface_blit(spr.image, spr.rect, None, special_flags)
             if rec is init_rect:
                 dirty_append(newrect)
             else:
