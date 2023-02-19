@@ -56,7 +56,7 @@ jobs:
         if: steps.macdep-cache.outputs.cache-hit != 'true'
         run: |
           export MAC_ARCH="${{ matrix.macarch }}"
-          brew install coreutils
+          brew install coreutils pkg-config
           cd buildconfig/macdependencies
           bash ./build_mac_deps.sh
 
@@ -125,6 +125,7 @@ jobs:
       # Setup MacOS dependencies
       CIBW_BEFORE_ALL: |
         export MAC_ARCH="${{ matrix.macarch }}"
+        brew install pkg-config
         cd buildconfig/macdependencies
         bash ./install_mac_deps.sh
 
