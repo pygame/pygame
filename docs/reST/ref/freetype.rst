@@ -74,13 +74,17 @@ loaded. This module must be imported explicitly to be used. ::
 .. function:: get_version
 
    | :sl:`Return the FreeType version`
-   | :sg:`get_version() -> (int, int, int)`
+   | :sg:`get_version(linked=True) -> (int, int, int)`
 
-   Returns the version of the FreeType library in use by this module.
+   Returns the version of the FreeType library in use by this module. ``linked=True``
+   is the default behavior and returns the linked version of FreeType and ``linked=False``
+   returns the compiled version of FreeType.
 
    Note that the ``freetype`` module depends on the FreeType 2 library.
    It will not compile with the original FreeType 1.0. Hence, the first element
    of the tuple will always be "2".
+
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
 
 .. function:: init
 

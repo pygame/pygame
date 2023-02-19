@@ -84,7 +84,6 @@ def check_circle(mouse_pos_x, mouse_pos_y, center_x, center_y, radius):
 
 
 def main():
-
     pg.init()
     pg.display.set_caption("Cursors Example")
 
@@ -157,7 +156,6 @@ def main():
     clock = pg.time.Clock()
 
     while True:
-
         clock.tick(50)
 
         mouse_x, mouse_y = pg.mouse.get_pos()
@@ -250,7 +248,6 @@ def main():
             pressed = False
 
         for event in pg.event.get():
-
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit

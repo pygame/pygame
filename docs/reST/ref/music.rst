@@ -86,7 +86,7 @@ MP3 in most cases.
    | :sg:`rewind() -> None`
 
    Resets playback of the current music to the beginning. If :func:`pause` has
-   previoulsy been used to pause the music, the music will remain paused.
+   previously been used to pause the music, the music will remain paused.
    
    .. note:: :func:`rewind` supports a limited number of file types and notably
              ``WAV`` files are NOT supported. For unsupported file types use :func:`play`

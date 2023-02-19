@@ -8,7 +8,7 @@
 #define DOC_PYGAMEFONTGETFONTS "get_fonts() -> list of strings\nget all available fonts"
 #define DOC_PYGAMEFONTMATCHFONT "match_font(name, bold=False, italic=False) -> path\nfind a specific font on the system"
 #define DOC_PYGAMEFONTSYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
-#define DOC_PYGAMEFONTFONT "Font(filename, size) -> Font\nFont(pathlib.Path, size) -> Font\nFont(object, size) -> Font\ncreate a new Font object from a file"
+#define DOC_PYGAMEFONTFONT "Font(file_path=None, size=12) -> Font\nFont(file_path, size) -> Font\nFont(pathlib.Path, size) -> Font\nFont(object, size) -> Font\ncreate a new Font object from a file"
 #define DOC_FONTBOLD "bold -> bool\nGets or sets whether the font should be rendered in (faked) bold."
 #define DOC_FONTITALIC "italic -> bool\nGets or sets whether the font should be rendered in (faked) italics."
 #define DOC_FONTUNDERLINE "underline -> bool\nGets or sets whether the font should be rendered with an underline."
@@ -28,6 +28,7 @@
 #define DOC_FONTGETHEIGHT "get_height() -> int\nget the height of the font"
 #define DOC_FONTGETASCENT "get_ascent() -> int\nget the ascent of the font"
 #define DOC_FONTGETDESCENT "get_descent() -> int\nget the descent of the font"
+#define DOC_FONTSETSCRIPT "set_script(str) -> None\nset the script code for text shaping"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -70,7 +71,8 @@ pygame.font.SysFont
 create a Font object from the system fonts
 
 pygame.font.Font
- Font(filename, size) -> Font
+ Font(file_path=None, size=12) -> Font
+ Font(file_path, size) -> Font
  Font(pathlib.Path, size) -> Font
  Font(object, size) -> Font
 create a new Font object from a file
@@ -150,5 +152,9 @@ get the ascent of the font
 pygame.font.Font.get_descent
  get_descent() -> int
 get the descent of the font
+
+pygame.font.Font.set_script
+ set_script(str) -> None
+set the script code for text shaping
 
 */

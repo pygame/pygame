@@ -130,14 +130,20 @@ following formats.
 .. function:: get_sdl_image_version
 
    | :sl:`get version number of the SDL_Image library being used`
-   | :sg:`get_sdl_image_version() -> None`
-   | :sg:`get_sdl_image_version() -> (major, minor, patch)`
+   | :sg:`get_sdl_image_version(linked=True) -> None`
+   | :sg:`get_sdl_image_version(linked=True) -> (major, minor, patch)`
 
    If pygame is built with extended image formats, then this function will
    return the SDL_Image library's version number as a tuple of 3 integers
    ``(major, minor, patch)``. If not, then it will return ``None``.
 
+   ``linked=True`` is the default behavior and the function will return the
+   version of the library that Pygame is linked against, while ``linked=False``
+   will return the version of the library that Pygame is compiled against.
+
    .. versionadded:: 2.0.0
+
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
 
    .. ## pygame.image.get_sdl_image_version ##
 
@@ -221,8 +227,8 @@ following formats.
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
    
-   .. note:: this function is an alias for :func:`fromstring`. The use of this
-             function is recommended over :func:`fromstring` as of pygame 2.1.3.
+   .. note:: this function is an alias for :func:`tostring`. The use of this
+             function is recommended over :func:`tostring` as of pygame 2.1.3.
              This function was introduced so it matches nicely with other 
              libraries (PIL, numpy, etc), and with people's expectations.
 

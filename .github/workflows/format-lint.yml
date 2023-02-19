@@ -24,13 +24,13 @@ on:
 
 jobs:
   format-lint-code-check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3.0.2
 
       - name: Install deps
-        run: python3 -m pip install pylint==2.15.5 black==22.10.0 clang-format sphinx
+        run: python3 -m pip install pylint==2.15.5 black clang-format sphinx
 
       - name: Check code Formatting and Linting
         run: python3 setup.py lint

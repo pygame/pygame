@@ -5,7 +5,6 @@ import pygame
 
 class CursorsModuleTest(unittest.TestCase):
     def test_compile(self):
-
         # __doc__ (as of 2008-06-25) for pygame.cursors.compile:
 
         # pygame.cursors.compile(strings, black, white,xor) -> data, mask

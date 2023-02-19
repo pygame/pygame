@@ -264,7 +264,7 @@ static PyBufferProcs _pxarray_bufferprocs = {(getbufferproc)_pxarray_getbuffer,
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject pgPixelArray_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.PixelArray",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.pixelarray.PixelArray",
     .tp_basicsize = sizeof(pgPixelArrayObject),
     .tp_dealloc = (destructor)_pxarray_dealloc,
     .tp_repr = (reprfunc)_pxarray_repr,
@@ -421,6 +421,10 @@ _pxarray_get_dict(pgPixelArrayObject *self, void *closure)
 static pgSurfaceObject *
 _pxarray_get_surface(pgPixelArrayObject *self, void *closure)
 {
+    if (self->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
     Py_INCREF(self->surface);
     return self->surface;
 }
@@ -432,6 +436,11 @@ _pxarray_get_surface(pgPixelArrayObject *self, void *closure)
 static PyObject *
 _pxarray_get_itemsize(pgPixelArrayObject *self, void *closure)
 {
+    if (self->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
+
     SDL_Surface *surf = pgSurface_AsSurface(self->surface);
 
     return PyLong_FromLong((long)surf->format->BytesPerPixel);

@@ -4,7 +4,7 @@ import unittest
 import pathlib
 import platform
 
-from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
+from pygame.tests.test_utils import example_path
 
 import pygame
 from pygame import mixer
@@ -461,7 +461,6 @@ class MixerModuleTest(unittest.TestCase):
             self.assertRaises(BufferError, Importer, snd, buftools.PyBUF_F_CONTIGUOUS)
 
     def todo_test_fadeout(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
 
         # pygame.mixer.fadeout(time): return None
@@ -515,7 +514,6 @@ class MixerModuleTest(unittest.TestCase):
             self.assertIsNotNone(found_channel)
 
     def todo_test_get_busy(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.get_busy:
 
         # pygame.mixer.get_busy(): return bool
@@ -528,7 +526,6 @@ class MixerModuleTest(unittest.TestCase):
         self.fail()
 
     def todo_test_pause(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.pause:
 
         # pygame.mixer.pause(): return None
@@ -542,7 +539,6 @@ class MixerModuleTest(unittest.TestCase):
         self.fail()
 
     def test_set_reserved(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.set_reserved:
 
         # pygame.mixer.set_reserved(count): return count
@@ -569,7 +565,6 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(result, int(default_num_channels / 2))
 
     def todo_test_stop(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.stop:
 
         # pygame.mixer.stop(): return None
@@ -580,7 +575,6 @@ class MixerModuleTest(unittest.TestCase):
         self.fail()
 
     def todo_test_unpause(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.unpause:
 
         # pygame.mixer.unpause(): return None
@@ -655,7 +649,7 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 
-class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class ChannelTypeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initializing the mixer is slow, so minimize the times it is called.
@@ -696,7 +690,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             mixer.Channel(0)
 
     def todo_test_fadeout(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.fadeout:
 
         # Channel.fadeout(time): return None
@@ -722,7 +715,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_get_endevent(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_endevent:
 
         # Channel.get_endevent(): return type
@@ -736,7 +728,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_get_queue(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_queue:
 
         # Channel.get_queue(): return Sound
@@ -750,7 +741,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_get_sound(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_sound:
 
         # Channel.get_sound(): return Sound
@@ -776,7 +766,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_pause(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.pause:
 
         # Channel.pause(): return None
@@ -789,7 +778,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_play(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.play:
 
         # Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
@@ -811,7 +799,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_queue(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
 
         # Channel.queue(Sound): return None
@@ -830,7 +817,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_set_endevent(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_endevent:
 
         # Channel.set_endevent(): return None
@@ -858,7 +844,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_set_volume(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_volume:
 
         # Channel.set_volume(value): return None
@@ -887,7 +872,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_stop(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
 
         # Channel.stop(): return None
@@ -900,7 +884,6 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_unpause(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.unpause:
 
         # Channel.unpause(): return None
@@ -914,7 +897,7 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 ############################### SOUND CLASS TESTS ##############################
 
 
-class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+class SoundTypeTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         mixer.quit()
@@ -1006,7 +989,6 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 snd._samples_address
 
     def todo_test_fadeout(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.fadeout:
 
         # Sound.fadeout(time): return None
@@ -1083,7 +1065,6 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def todo_test_play(self):
-
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.play:
 
         # Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel

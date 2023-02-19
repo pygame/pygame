@@ -45,7 +45,6 @@
 
 #define PROXY_MODNAME "bufferproxy"
 #define PROXY_TYPE_NAME "BufferProxy"
-#define PROXY_TYPE_FULLNAME (IMPPREFIX PROXY_TYPE_NAME)
 
 #ifdef NDEBUG
 #define PyBUF_PG_VIEW PyBUF_RECORDS
@@ -525,7 +524,7 @@ static PyBufferProcs proxy_bufferprocs = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject pgBufproxy_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = PROXY_TYPE_FULLNAME,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.bufferproxy.BufferProxy",
     .tp_basicsize = sizeof(pgBufproxyObject),
     .tp_dealloc = (destructor)proxy_dealloc,
     .tp_repr = (reprfunc)proxy_repr,

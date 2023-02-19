@@ -52,7 +52,6 @@ def surf_same_image(a, b):
 
 
 class FreeTypeFontTest(unittest.TestCase):
-
     _fixed_path = os.path.join(FONTDIR, "test_fixed.otf")
     _sans_path = os.path.join(FONTDIR, "test_sans.ttf")
     _mono_path = os.path.join(FONTDIR, "PyGameMono.otf")
@@ -106,7 +105,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(font.name, "FreeSans")
 
     def test_freetype_Font_init(self):
-
         self.assertRaises(
             FileNotFoundError, ft.Font, os.path.join(FONTDIR, "nonexistent.ttf")
         )
@@ -234,14 +232,12 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertIsInstance(rect, pygame.Rect)
 
     def test_freetype_Font_scalable(self):
-
         f = self._TEST_FONTS["sans"]
         self.assertTrue(f.scalable)
 
         self.assertRaises(RuntimeError, lambda: nullfont().scalable)
 
     def test_freetype_Font_fixed_width(self):
-
         f = self._TEST_FONTS["sans"]
         self.assertFalse(f.fixed_width)
 
@@ -251,7 +247,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, lambda: nullfont().fixed_width)
 
     def test_freetype_Font_fixed_sizes(self):
-
         f = self._TEST_FONTS["sans"]
         self.assertEqual(f.fixed_sizes, 0)
         f = self._TEST_FONTS["bmp-8-75dpi"]
@@ -450,7 +445,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(exception, f.get_sized_glyph_height, 42)
 
     def test_freetype_Font_get_metrics(self):
-
         font = self._TEST_FONTS["sans"]
 
         metrics = font.get_metrics("ABCD", size=24)
@@ -478,7 +472,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, nullfont().get_metrics, "a", size=24)
 
     def test_freetype_Font_get_rect(self):
-
         font = self._TEST_FONTS["sans"]
 
         def test_rect(r):
@@ -539,7 +532,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(rect_y.height, rect24.height)
 
     def test_freetype_Font_height(self):
-
         f = self._TEST_FONTS["sans"]
         self.assertEqual(f.height, 2355)
 
@@ -549,7 +541,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, lambda: nullfont().height)
 
     def test_freetype_Font_name(self):
-
         f = self._TEST_FONTS["sans"]
         self.assertEqual(f.name, "Liberation Sans")
 
@@ -560,7 +551,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(nf.name, repr(nf))
 
     def test_freetype_Font_size(self):
-
         f = ft.Font(None, size=12)
         self.assertEqual(f.size, 12)
         f.size = 22
@@ -636,7 +626,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(pygame.error, f100.get_rect, "A", size=17)
 
     def test_freetype_Font_rotation(self):
-
         test_angles = [
             (30, 30),
             (360, 0),
@@ -751,7 +740,6 @@ class FreeTypeFontTest(unittest.TestCase):
         )
 
     def test_freetype_Font_render(self):
-
         font = self._TEST_FONTS["sans"]
 
         surf = pygame.Surface((800, 600))
@@ -982,7 +970,6 @@ class FreeTypeFontTest(unittest.TestCase):
             font.antialiased = save_antialiased
 
     def test_freetype_Font_render_raw(self):
-
         font = self._TEST_FONTS["sans"]
 
         text = "abc"
@@ -1016,7 +1003,6 @@ class FreeTypeFontTest(unittest.TestCase):
         rend = font.render_raw(text, size=10)
 
     def test_freetype_Font_render_raw_to(self):
-
         # This only checks that blits do not crash. It needs to check:
         # - int values
         # - invert option
@@ -1303,7 +1289,6 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertRaises(ValueError, font.render_raw_to, newbuf, "Hi", size=12)
 
     def test_freetype_Font_style(self):
-
         font = self._TEST_FONTS["sans"]
 
         # make sure STYLE_NORMAL is the default value
@@ -1793,6 +1778,18 @@ class FreeTypeTest(unittest.TestCase):
         error_msg = ft.get_error()
 
         self.assertIsNone(error_msg)
+
+    def test_get_version(self):
+        # Test that get_version() can be called before init()
+        # Also tests get_version
+        ft.quit()
+
+        # asserting not None just to have a test case
+        # there is no real fail condition other than
+        # raising an exception or a segfault, so a tuple of ints
+        # should be returned in all cases
+        self.assertIsNotNone(ft.get_version(linked=False))
+        self.assertIsNotNone(ft.get_version(linked=True))
 
 
 if __name__ == "__main__":

@@ -1018,7 +1018,7 @@ sound_dealloc(pgSoundObject *self)
 }
 
 static PyTypeObject pgSound_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Sound",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mixer.Sound",
     .tp_basicsize = sizeof(pgSoundObject),
     .tp_dealloc = (destructor)sound_dealloc,
     .tp_as_buffer = sound_as_buffer,
@@ -1338,7 +1338,7 @@ channel_init(pgChannelObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyTypeObject pgChannel_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Channel",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.mixer.Channel",
     .tp_basicsize = sizeof(pgChannelObject),
     .tp_dealloc = channel_dealloc,
     .tp_doc = DOC_PYGAMEMIXERCHANNEL,
@@ -1760,7 +1760,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 
     if (file != NULL) {
-        rw = pgRWops_FromObject(file);
+        rw = pgRWops_FromObject(file, NULL);
 
         if (rw == NULL) {
             if (obj) {
