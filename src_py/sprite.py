@@ -1113,7 +1113,7 @@ class LayeredDirty(LayeredUpdates):
     ):  # noqa pylint: disable=arguments-differ; unable to change public interface
         """draw all sprites in the right order onto the given surface
 
-        LayeredDirty.draw(surface, bgd=None): return Rect_list
+        LayeredDirty.draw(surface, bgd=None, special_flags=0): return Rect_list
 
         You can pass the background too. If a self.bgd is already set to some
         value that is not None, then the bgd argument has no effect.
