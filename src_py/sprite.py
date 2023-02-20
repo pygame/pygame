@@ -1109,7 +1109,7 @@ class LayeredDirty(LayeredUpdates):
         LayeredUpdates.add_internal(self, sprite, layer)
 
     def draw(
-        self, surface, bgd=None
+        self, surface, bgd=None, special_flags=0
     ):  # noqa pylint: disable=arguments-differ; unable to change public interface
         """draw all sprites in the right order onto the given surface
 
@@ -1157,7 +1157,7 @@ class LayeredDirty(LayeredUpdates):
             # clear using background
             if local_bgd is not None:
                 for rec in local_update:
-                    surf_blit_func(local_bgd, rec, rec)
+                    surf_blit_func(local_bgd, rec, rec, special_flags)
 
             # 2. draw
             self._draw_dirty_internal(
@@ -1166,7 +1166,7 @@ class LayeredDirty(LayeredUpdates):
             local_ret = list(local_update)
         else:  # flip, full screen mode
             if local_bgd is not None:
-                surf_blit_func(local_bgd, (0, 0))
+                surf_blit_func(local_bgd, (0, 0), None, special_flags)
             for spr in local_sprites:
                 if spr.visible:
                     local_old_rect[spr] = surf_blit_func(
