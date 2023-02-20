@@ -584,10 +584,12 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: draw
 
       | :sl:`draw all sprites in the right order onto the passed surface.`
-      | :sg:`draw(surface, bgd=None) -> Rect_list`
+      | :sg:`draw(surface, bgd=None, special_flags=0) -> Rect_list`
 
       You can pass the background too. If a background is already set, then the
-      bgd argument has no effect.
+      bgd argument has no effect. The ``special_flags`` argument if passed to
+      ``Surface.blit()`` when drawing the background. When drawing sprites,
+      ``DirtySprite.blendmode`` is passed to the ``Surface.blit()`` instead.
 
       .. ## LayeredDirty.draw ##
 
