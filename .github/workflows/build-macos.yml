@@ -19,7 +19,9 @@ on:
       - '!.github/workflows/build-macos.yml'
 
   pull_request:
-    branches: main
+    branches:
+      - main
+      - 'v**'
     paths-ignore:
       - 'docs/**'
       - 'examples/**'

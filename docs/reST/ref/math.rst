@@ -47,7 +47,7 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Removed experimental notice.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` import not required. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
-.. versionchanged:: 2.1.4 `round` returns a new vector with components rounded to the specified digits.
+.. versionchanged:: 2.2.0 `round` returns a new vector with components rounded to the specified digits.
 
 .. function:: clamp
 

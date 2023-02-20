@@ -579,7 +579,7 @@ required).
    A gamma value of ``1.0`` creates a linear color table. Lower values will
    darken the display and higher values will brighten.
 
-   .. deprecated:: 2.1.4
+   .. deprecated:: 2.2.0
 
    .. ## pygame.display.set_gamma ##
 
@@ -595,7 +595,7 @@ required).
    between ``0`` and ``0xffff``. Not all systems and hardware support gamma
    ramps, if the function succeeds it will return ``True``.
 
-   .. deprecated:: 2.1.4
+   .. deprecated:: 2.2.0
 
    .. ## pygame.display.set_gamma_ramp ##
 
