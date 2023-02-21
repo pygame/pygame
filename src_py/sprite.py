@@ -536,7 +536,7 @@ class AbstractGroup:
         for sprite in self.sprites():
             sprite.update(*args, **kwargs)
 
-    def draw(self, surface, special_flags=0):
+    def draw(self, surface, bgsurf, special_flags=0):
         """draw all sprites onto the surface
 
         Group.draw(surface, special_flags=0): return Rect_list
@@ -657,7 +657,7 @@ class RenderUpdates(Group):
 
     """
 
-    def draw(self, surface, special_flags=0):
+    def draw(self, surface, bgsurf, special_flags=0):
         surface_blit = surface.blit
         dirty = self.lostsprites
         self.lostsprites = []
@@ -842,7 +842,7 @@ class LayeredUpdates(AbstractGroup):
         """
         return self._spritelist.copy()
 
-    def draw(self, surface, special_flags=0):
+    def draw(self, surface, bgsurf, special_flags=0):
         """draw all sprites in the right order onto the passed surface
 
         LayeredUpdates.draw(surface, special_flags=0): return Rect_list
@@ -1116,14 +1116,17 @@ class LayeredDirty(LayeredUpdates):
         LayeredUpdates.add_internal(self, sprite, layer)
 
     def draw(
-        self, surface, bgd=None, special_flags=0
+        self, surface, bgsurf=None, special_flags=None
     ):  # noqa pylint: disable=arguments-differ; unable to change public interface
         """draw all sprites in the right order onto the given surface
 
-        LayeredDirty.draw(surface, bgd=None, special_flags=0): return Rect_list
+        LayeredDirty.draw(surface, bgsurf=None, special_flags=None): return Rect_list
 
         You can pass the background too. If a self.bgd is already set to some
-        value that is not None, then the bgd argument has no effect.
+        value that is not None, then the bgsurf argument has no effect.
+        Passing a value to special_flags will pass that value as the
+        special_flags argument to pass to all Surface.blit calls, overriding
+        the sprite.blendmode attribute
 
         """
         # functions and classes assigned locally to speed up loops
@@ -1138,8 +1141,8 @@ class LayeredDirty(LayeredUpdates):
         rect_type = Rect
 
         surf_blit_func = surface.blit
-        if bgd is not None:
-            self._bgd = bgd
+        if bgsurf is not None:
+            self._bgd = bgsurf
         local_bgd = self._bgd
 
         surface.set_clip(latest_clip)
@@ -1163,19 +1166,23 @@ class LayeredDirty(LayeredUpdates):
 
             # clear using background
             if local_bgd is not None:
+                flags = 0 if special_flags is None else special_flags
                 for rec in local_update:
                     surf_blit_func(local_bgd, rec, rec, special_flags)
 
             # 2. draw
             self._draw_dirty_internal(
-                local_old_rect, rect_type, local_sprites, surf_blit_func, local_update
+                local_old_rect, rect_type, local_sprites, surf_blit_func, local_update,
+                special_flags
             )
             local_ret = list(local_update)
         else:  # flip, full screen mode
             if local_bgd is not None:
+                flags = 0 if special_flags is None else special_flags
                 surf_blit_func(local_bgd, (0, 0), None, special_flags)
             for spr in local_sprites:
                 if spr.visible:
+                    flags = spr.blendmode if special_flags is None else special_flags
                     local_old_rect[spr] = surf_blit_func(
                         spr.image, spr.rect, spr.source_rect, spr.blendmode
                     )
@@ -1199,8 +1206,9 @@ class LayeredDirty(LayeredUpdates):
         return local_ret
 
     @staticmethod
-    def _draw_dirty_internal(_old_rect, _rect, _sprites, _surf_blit, _update):
+    def _draw_dirty_internal(_old_rect, _rect, _sprites, _surf_blit, _update, _special_flags):
         for spr in _sprites:
+            flags = spr.blendmode if _special_flags is None else _special_flags
             if spr.dirty < 1 and spr.visible:
                 # sprite not dirty; blit only the intersecting part
                 if spr.source_rect is not None:
@@ -1228,12 +1236,12 @@ class LayeredDirty(LayeredUpdates):
                             clip[2],
                             clip[3],
                         ),
-                        spr.blendmode,
+                        flags,
                     )
             else:  # dirty sprite
                 if spr.visible:
                     _old_rect[spr] = _surf_blit(
-                        spr.image, spr.rect, spr.source_rect, spr.blendmode
+                        spr.image, spr.rect, spr.source_rect, flags
                     )
                 if spr.dirty == 1:
                     spr.dirty = 0
