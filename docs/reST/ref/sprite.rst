@@ -294,11 +294,13 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: draw
 
       | :sl:`blit the Sprite images`
-      | :sg:`draw(Surface, special_flags=0) -> List[Rect]`
+      | :sg:`draw(Surface, bgsurf=None, special_flags=0) -> List[Rect]`
 
       Draws the contained Sprites to the Surface argument. This uses the
       ``Sprite.image`` attribute for the source surface, and ``Sprite.rect``
       for the position. ``special_flags`` is passed to ``Surface.blit()``.
+      ``bgsurf`` is unused in this method but ``LayeredDirty.draw()`` uses
+      it.
 
       The Group does not keep sprites in any order, so the draw order is
       arbitrary.
@@ -367,7 +369,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: draw
 
       | :sl:`blit the Sprite images and track changed areas`
-      | :sg:`draw(surface, special_flags=0) -> Rect_list`
+      | :sg:`draw(surface, bgsurf=None, special_flags=0) -> Rect_list`
 
       Draws all the Sprites to the surface, the same as ``Group.draw()``. This
       method also returns a list of Rectangular areas on the screen that have
@@ -436,7 +438,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: draw
 
       | :sl:`draw all sprites in the right order onto the passed surface.`
-      | :sg:`draw(surface, special_flags=0) -> Rect_list`
+      | :sg:`draw(surface, bgsurf=None, special_flags=0) -> Rect_list`
 
       .. ## LayeredUpdates.draw ##
 
@@ -584,12 +586,13 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: draw
 
       | :sl:`draw all sprites in the right order onto the passed surface.`
-      | :sg:`draw(surface, bgd=None, special_flags=0) -> Rect_list`
+      | :sg:`draw(surface, bgsurf=None, special_flags=None) -> Rect_list`
 
       You can pass the background too. If a background is already set, then the
-      bgd argument has no effect. The ``special_flags`` argument if passed to
-      ``Surface.blit()`` when drawing the background. When drawing sprites,
-      ``DirtySprite.blendmode`` is passed to the ``Surface.blit()`` instead.
+      bgsurf argument has no effect. If present, the ``special_flags`` argument is
+      always passed to ``Surface.blit()``, overriding ``DirtySprite.blendmode``. 
+      If ``special_flags`` is not present, ``DirtySprite.blendmode`` is passed
+      to the ``Surface.blit()`` instead.
 
       .. ## LayeredDirty.draw ##
 
