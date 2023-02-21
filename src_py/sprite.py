@@ -536,7 +536,7 @@ class AbstractGroup:
         for sprite in self.sprites():
             sprite.update(*args, **kwargs)
 
-    def draw(self, surface, bgsurf, special_flags=0):
+    def draw(self, surface, bgsurf=None, special_flags=0):
         """draw all sprites onto the surface
 
         Group.draw(surface, special_flags=0): return Rect_list
@@ -657,7 +657,7 @@ class RenderUpdates(Group):
 
     """
 
-    def draw(self, surface, bgsurf, special_flags=0):
+    def draw(self, surface, bgsurf=None, special_flags=0):
         surface_blit = surface.blit
         dirty = self.lostsprites
         self.lostsprites = []
@@ -842,7 +842,7 @@ class LayeredUpdates(AbstractGroup):
         """
         return self._spritelist.copy()
 
-    def draw(self, surface, bgsurf, special_flags=0):
+    def draw(self, surface, bgsurf=None, special_flags=0):
         """draw all sprites in the right order onto the passed surface
 
         LayeredUpdates.draw(surface, special_flags=0): return Rect_list
