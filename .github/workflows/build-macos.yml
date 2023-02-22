@@ -90,7 +90,7 @@ jobs:
           - { 
             name: "x86_64 (Python 3.7)",
             macarch: x86_64,
-            pyversions: "?p37-*"
+            pyversions: "cp37-*"
           }
 
           - { 
@@ -136,7 +136,7 @@ jobs:
         python setup.py docs
 
       CIBW_BEFORE_TEST: |
-        pip install numpy mypy
+        pip install mypy
 
       CIBW_TEST_COMMAND: >
         python -m pygame.tests -v --exclude opengl,timing --time_out 300 &&
