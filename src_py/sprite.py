@@ -1168,7 +1168,7 @@ class LayeredDirty(LayeredUpdates):
             if local_bgd is not None:
                 flags = 0 if special_flags is None else special_flags
                 for rec in local_update:
-                    surf_blit_func(local_bgd, rec, rec, special_flags)
+                    surf_blit_func(local_bgd, rec, rec, flags)
 
             # 2. draw
             self._draw_dirty_internal(
@@ -1183,12 +1183,12 @@ class LayeredDirty(LayeredUpdates):
         else:  # flip, full screen mode
             if local_bgd is not None:
                 flags = 0 if special_flags is None else special_flags
-                surf_blit_func(local_bgd, (0, 0), None, special_flags)
+                surf_blit_func(local_bgd, (0, 0), None, flags)
             for spr in local_sprites:
                 if spr.visible:
                     flags = spr.blendmode if special_flags is None else special_flags
                     local_old_rect[spr] = surf_blit_func(
-                        spr.image, spr.rect, spr.source_rect, spr.blendmode
+                        spr.image, spr.rect, spr.source_rect, flags
                     )
             # return only the part of the screen changed
             local_ret = [rect_type(latest_clip)]
