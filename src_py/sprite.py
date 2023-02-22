@@ -1115,9 +1115,7 @@ class LayeredDirty(LayeredUpdates):
 
         LayeredUpdates.add_internal(self, sprite, layer)
 
-    def draw(
-        self, surface, bgsurf=None, special_flags=None
-    ):  # noqa pylint: disable=arguments-differ; unable to change public interface
+    def draw(self, surface, bgsurf=None, special_flags=None):
         """draw all sprites in the right order onto the given surface
 
         LayeredDirty.draw(surface, bgsurf=None, special_flags=None): return Rect_list
