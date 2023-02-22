@@ -90,7 +90,7 @@ jobs:
           - { 
             name: "x86_64 (Python 3.7)",
             macarch: x86_64,
-            pyversions: "?p37-*"
+            pyversions: "cp37-*"
           }
 
           - { 
