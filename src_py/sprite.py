@@ -536,7 +536,9 @@ class AbstractGroup:
         for sprite in self.sprites():
             sprite.update(*args, **kwargs)
 
-    def draw(self, surface, bgsurf=None, special_flags=0):
+    def draw(
+        self, surface, bgsurf=None, special_flags=0
+    ):  # noqa pylint: disable=unused-argument; bgsurf arg used in LayeredDirty
         """draw all sprites onto the surface
 
         Group.draw(surface, special_flags=0): return Rect_list
