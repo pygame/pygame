@@ -16,13 +16,6 @@ environment:
       secure: FtHM0I+wubit/UWOzHsykHayL06KImKRZQznRUHUfzM=
 
   matrix:
-    - PYTHON: "pypy3.exe"
-      PYTHON_VERSION: "3.6.0"
-      PYTHON_SUFFIX: ""
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy3.6-v7.3.2-win32"
-      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
-
     - PYTHON: "C:\\Python36\\python"
       PYTHONPATH: "C:\\Python36"
       PYTHON_VERSION: "3.6.0"
@@ -106,6 +99,20 @@ environment:
       PYTHON_SUFFIX: ""
       PYTHON_ARCH: "64"
       USE_ANALYZE: ""
+
+    - PYTHON: "pypy3.exe"
+      PYTHON_VERSION: "3.8.0"
+      PYTHON_SUFFIX: ""
+      PYTHON_ARCH: "64"
+      PYPY_VERSION: "pypy3.8-v7.3.11-win64"
+      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
+
+    - PYTHON: "pypy3.exe"
+      PYTHON_VERSION: "3.8.0"
+      PYTHON_SUFFIX: ""
+      PYTHON_ARCH: "64"
+      PYPY_VERSION: "pypy3.9-v7.3.11-win64"
+      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
