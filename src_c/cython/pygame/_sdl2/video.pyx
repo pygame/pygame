@@ -443,7 +443,7 @@ cdef class Window:
 
     @borderless.setter
     def borderless(self, enabled):
-        SDL_SetWindowBordered(self._win, 1 if enabled else 0)
+        SDL_SetWindowBordered(self._win, 0 if enabled else 1)
 
     def set_icon(self, surface):
         """ Set the icon for the window.

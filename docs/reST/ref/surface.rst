@@ -940,7 +940,7 @@
       superior results when blitting an alpha surface onto another surface with alpha - assuming both
       surfaces contain pre-multiplied alpha colours.
 
-      .. versionadded:: 2.1.4
+      .. versionadded:: 2.2.0
 
       .. ## Surface.premul_alpha ##
 

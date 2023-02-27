@@ -143,7 +143,7 @@ following formats.
 
    .. versionadded:: 2.0.0
 
-   .. versionchanged:: 2.1.4 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
 
    .. ## pygame.image.get_sdl_image_version ##
 

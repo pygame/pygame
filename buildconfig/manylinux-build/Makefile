@@ -7,10 +7,10 @@ wheels-manylinux1-x86:
 	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_i686 /io/buildconfig/manylinux-build/build-wheels.sh
 
 wheels-manylinux2010-x64:
-	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux2010_base_x86_64 /io/buildconfig/manylinux-build/build-wheels.sh buildpypy
+	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux2010_base_x86_64 /io/buildconfig/manylinux-build/build-wheels.sh buildpypy10
 
 wheels-manylinux2010-x86:
-	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux2010_base_i686 /io/buildconfig/manylinux-build/build-wheels.sh buildpypy
+	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux2010_base_i686 /io/buildconfig/manylinux-build/build-wheels.sh buildpypy10
 
 wheels-manylinux2014-x64:
 	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux2014_base_x86_64 /io/buildconfig/manylinux-build/build-wheels.sh buildpypy

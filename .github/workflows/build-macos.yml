@@ -19,7 +19,9 @@ on:
       - '!.github/workflows/build-macos.yml'
 
   pull_request:
-    branches: main
+    branches:
+      - main
+      - 'v**'
     paths-ignore:
       - 'docs/**'
       - 'examples/**'
@@ -88,7 +90,7 @@ jobs:
           - { 
             name: "x86_64 (Python 3.7)",
             macarch: x86_64,
-            pyversions: "?p37-*"
+            pyversions: "cp37-*"
           }
 
           - { 
@@ -133,7 +135,12 @@ jobs:
         pip install requests numpy Sphinx
         python setup.py docs
 
-      CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+      CIBW_BEFORE_TEST: |
+        pip install mypy
+
+      CIBW_TEST_COMMAND: >
+        python -m pygame.tests -v --exclude opengl,timing --time_out 300 &&
+        python -m mypy {project}/examples/testsprite.py {project}/examples/sound.py {project}/examples/dropevent.py {project}/examples/stars.py
 
       # Increase pip debugging output
       CIBW_BUILD_VERBOSITY: 2

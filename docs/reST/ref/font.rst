@@ -490,7 +490,7 @@ solves no longer exists, it will likely be removed in the future.
       This method requires pygame built with SDL_ttf 2.20.0 or above. Otherwise the
       method will raise a pygame.error.
 
-      .. versionadded:: 2.1.4
+      .. versionadded:: 2.2.0
 
       .. ## Font.set_script ## 
 
