@@ -1794,7 +1794,7 @@ static PyObject *
 pg_set_gamma(PyObject *self, PyObject *arg)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.display.set_gamma deprecated since 2.1.4",
+                     "pygame.display.set_gamma deprecated since 2.2.0",
                      1) == -1) {
         return NULL;
     }
@@ -1886,7 +1886,7 @@ static PyObject *
 pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "pygame.display.set_gamma_ramp deprecated since 2.1.4",
+                     "pygame.display.set_gamma_ramp deprecated since 2.2.0",
                      1) == -1) {
         return NULL;
     }

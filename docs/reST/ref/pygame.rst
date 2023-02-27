@@ -119,7 +119,7 @@ object instead of the module, which can be used to test for availability.
 
    .. versionadded:: 1.7.0
 
-   .. versionchanged:: 2.1.4 ``linked`` keyword argument added
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added
 
    .. ## pygame.get_sdl_version ##
 

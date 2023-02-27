@@ -84,7 +84,7 @@ loaded. This module must be imported explicitly to be used. ::
    It will not compile with the original FreeType 1.0. Hence, the first element
    of the tuple will always be "2".
 
-   .. versionchanged:: 2.1.4 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
 
 .. function:: init
 

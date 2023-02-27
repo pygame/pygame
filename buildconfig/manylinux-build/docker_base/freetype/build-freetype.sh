@@ -26,40 +26,46 @@ cd $FREETYPE
 make
 make install  # this freetype is not installed to mac cache dir
 
-cd ..
 
-# 2. Compile harfbuzz with freetype support
-cd ${HARFBUZZ_NAME}
+# harfbuzz was not well tested, only enable on linux
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
-# harfbuzz has a load of optional dependencies but only freetype is important
-# to us.
-# Cairo and chafa are only needed for harfbuzz commandline utilities so we
-# don't use it. glib available is a bit old so we don't prefer it as of now.
-# we also don't compile-in icu so that harfbuzz uses built-in unicode handling
-# LDFLAGS are passed explicitly so that harfbuzz picks the freetype we
-# installed first
-./configure $ARCHS_CONFIG_FLAG --with-freetype=yes \
-    --with-cairo=no --with-chafa=no --with-glib=no --with-icu=no \
-    --disable-static LDFLAGS="-L/usr/local/lib"
-make
-make install
+    cd ..
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # Install to mac deps cache dir as well
-    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+    # 2. Compile harfbuzz with freetype support
+    cd ${HARFBUZZ_NAME}
+
+    # harfbuzz has a load of optional dependencies but only freetype is important
+    # to us.
+    # Cairo and chafa are only needed for harfbuzz commandline utilities so we
+    # don't use it. glib available is a bit old so we don't prefer it as of now.
+    # we also don't compile-in icu so that harfbuzz uses built-in unicode handling
+    # LDFLAGS are passed explicitly so that harfbuzz picks the freetype we
+    # installed first
+    ./configure $ARCHS_CONFIG_FLAG --with-freetype=yes \
+        --with-cairo=no --with-chafa=no --with-glib=no --with-icu=no \
+        --disable-static LDFLAGS="-L/usr/local/lib"
+    make
+    make install
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # Install to mac deps cache dir as well
+        make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+    fi
+
+    cd ..
+
+    # 3. Recompile freetype, and this time with harfbuzz support
+    cd $FREETYPE
+
+    # fully clean previous install
+    make clean
+
+    ./configure $ARCHS_CONFIG_FLAG --with-harfbuzz=yes
+    make
+    make install
+
 fi
-
-cd ..
-
-# 3. Recompile freetype, and this time with harfbuzz support
-cd $FREETYPE
-
-# fully clean previous install
-make clean
-
-./configure $ARCHS_CONFIG_FLAG --with-harfbuzz=yes
-make
-make install
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Install to mac deps cache dir as well
