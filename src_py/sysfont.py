@@ -99,8 +99,6 @@ def _parse_font_entry_win(name, font, fonts):
     :param name: The font name
     :param font: The font file path
     :param fonts: The pygame font dictionary
-
-    :return: Tuple of (bold, italic, name)
     """
     true_type_suffix = "(TrueType)"
     mods = ("demibold", "narrow", "light", "unicode", "bt", "mt")
