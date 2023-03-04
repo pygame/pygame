@@ -54,8 +54,8 @@ jobs:
       # install numpy from pip and not apt because the one from pip is newer,
       # and has typestubs
       run: |
-        sudo apt-get update --fix-missing
-        sudo apt-get upgrade
+        # sudo apt-get update --fix-missing
+        # sudo apt-get upgrade
         sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg-dev python3-setuptools python3-dev
         pip3 install sphinx numpy>=1.21.0
 
