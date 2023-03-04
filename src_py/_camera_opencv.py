@@ -57,9 +57,20 @@ def list_cameras_darwin():
 
 
 class Camera:
-    def __init__(self, device=0, size=(640, 480), mode="RGB"):
+    def __init__(self, device=0, size=(640, 480), mode="RGB", api_preference=None):
+        """
+        api_preference - cv2.CAP_DSHOW cv2.CAP_V4L2 cv2.CAP_MSMF and others
+
+        # See https://docs.opencv.org/3.4/d4/d15/group__videoio__flags__base.html
+        """
         self._device_index = device
         self._size = size
+
+        self.api_preference = api_preference
+        if api_preference is not None:
+            if sys.platform == "win32":
+                # seems more compatible on windows?
+                self.api_preference = cv2.CAP_DSHOW
 
         if mode == "RGB":
             self._fmt = cv2.COLOR_BGR2RGB
@@ -79,7 +90,7 @@ class Camera:
         if self._open:
             return
 
-        self._cam = cv2.VideoCapture(self._device_index)
+        self._cam = cv2.VideoCapture(self._device_index, self.api_preference)
 
         if not self._cam.isOpened():
             raise ValueError("Could not open camera.")
