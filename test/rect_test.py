@@ -1,9 +1,22 @@
 import math
 import unittest
 from collections.abc import Collection, Sequence
+import platform
+import random
+import unittest
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
+
+IS_PYPY = "PyPy" == platform.python_implementation()
+
+# todo can they be different on different platforms?
+_int_min = -2147483647 - 1  # min value of int in C
+_int_max = 2147483647  # max value of int in C
+
+
+def _random_int():
+    return random.randint(_int_min, _int_max)
 
 
 class RectTypeTest(unittest.TestCase):
@@ -1272,6 +1285,224 @@ class RectTypeTest(unittest.TestCase):
         r2.move_ip(move_x, move_y)
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
+
+    @unittest.skipIf(
+        IS_PYPY, "fails on pypy (but only for: bottom, right, centerx, centery)"
+    )
+    def test_set_float_values(self):
+        zero = 0
+        pos = 124
+        neg = -432
+        # (initial, increment, expected, other)
+        data_rows = [
+            (zero, 0.1, zero, _random_int()),
+            (zero, 0.4, zero, _random_int()),
+            (zero, 0.5, zero + 1, _random_int()),
+            (zero, 1.1, zero + 1, _random_int()),
+            (zero, 1.5, zero + 2, _random_int()),  # >0f
+            (zero, -0.1, zero, _random_int()),
+            (zero, -0.4, zero, _random_int()),
+            (zero, -0.5, zero - 1, _random_int()),
+            (zero, -0.6, zero - 1, _random_int()),
+            (zero, -1.6, zero - 2, _random_int()),  # <0f
+            (zero, 1, zero + 1, _random_int()),
+            (zero, 4, zero + 4, _random_int()),  # >0i
+            (zero, -1, zero - 1, _random_int()),
+            (zero, -4, zero - 4, _random_int()),  # <0i
+            (pos, 0.1, pos, _random_int()),
+            (pos, 0.4, pos, _random_int()),
+            (pos, 0.5, pos + 1, _random_int()),
+            (pos, 1.1, pos + 1, _random_int()),
+            (pos, 1.5, pos + 2, _random_int()),  # >0f
+            (pos, -0.1, pos, _random_int()),
+            (pos, -0.4, pos, _random_int()),
+            (pos, -0.5, pos, _random_int()),
+            (pos, -0.6, pos - 1, _random_int()),
+            (pos, -1.6, pos - 2, _random_int()),  # <0f
+            (pos, 1, pos + 1, _random_int()),
+            (pos, 4, pos + 4, _random_int()),  # >0i
+            (pos, -1, pos - 1, _random_int()),
+            (pos, -4, pos - 4, _random_int()),  # <0i
+            (neg, 0.1, neg, _random_int()),
+            (neg, 0.4, neg, _random_int()),
+            (neg, 0.5, neg, _random_int()),
+            (neg, 1.1, neg + 1, _random_int()),
+            (neg, 1.5, neg + 1, _random_int()),  # >0f
+            (neg, -0.1, neg, _random_int()),
+            (neg, -0.4, neg, _random_int()),
+            (neg, -0.5, neg - 1, _random_int()),
+            (neg, -0.6, neg - 1, _random_int()),
+            (neg, -1.6, neg - 2, _random_int()),  # <0f
+            (neg, 1, neg + 1, _random_int()),
+            (neg, 4, neg + 4, _random_int()),  # >0i
+            (neg, -1, neg - 1, _random_int()),
+            (neg, -4, neg - 4, _random_int()),  # <0i
+        ]
+
+        single_value_attribute_names = [
+            "x",
+            "y",
+            "w",
+            "h",
+            "width",
+            "height",
+            "top",
+            "left",
+            "bottom",
+            "right",
+            "centerx",
+            "centery",
+        ]
+
+        tuple_value_attribute_names = [
+            "topleft",
+            "topright",
+            "bottomleft",
+            "bottomright",
+            "midtop",
+            "midleft",
+            "midbottom",
+            "midright",
+            "size",
+            "center",
+        ]
+
+        for row in data_rows:
+            initial, inc, expected, other = row
+            new_value = initial + inc
+            for attribute_name in single_value_attribute_names:
+                with self.subTest(row=row, name=f"r.{attribute_name}"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, new_value)
+                    # assert
+                    self.assertEqual(expected, getattr(actual, attribute_name))
+
+            for attribute_name in tuple_value_attribute_names:
+                with self.subTest(row=row, name=f"r.{attribute_name}[0]"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, (new_value, other))
+                    # assert
+                    self.assertEqual((expected, other), getattr(actual, attribute_name))
+
+                with self.subTest(row=row, name=f"r.{attribute_name}[1]"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, (other, new_value))
+                    # assert
+                    self.assertEqual((other, expected), getattr(actual, attribute_name))
+
+    def test_set_out_of_range_number_raises_exception(self):
+        i = 0
+        # (initial, expected)
+        data_rows = [
+            (_int_max + 1, TypeError),
+            (_int_max + 0.00001, TypeError),
+            (_int_max, None),
+            (_int_max - 1, None),
+            (_int_max - 2, None),
+            (_int_max - 10, None),
+            (_int_max - 63, None),
+            (_int_max - 64, None),
+            (_int_max - 65, None),
+            (_int_min - 1, TypeError),
+            (_int_min - 0.00001, TypeError),
+            (_int_min, None),
+            (_int_min + 1, None),
+            (_int_min + 2, None),
+            (_int_min + 10, None),
+            (_int_min + 62, None),
+            (_int_min + 63, None),
+            (_int_min + 64, None),
+            (0, None),
+            (100000, None),
+            (-100000, None),
+        ]
+
+        single_attribute_names = [
+            "x",
+            "y",
+            "w",
+            "h",
+            "width",
+            "height",
+            "top",
+            "left",
+            "bottom",
+            "right",
+            "centerx",
+            "centery",
+        ]
+
+        tuple_value_attribute_names = [
+            "topleft",
+            "topright",
+            "bottomleft",
+            "bottomright",
+            "midtop",
+            "midleft",
+            "midbottom",
+            "midright",
+            "size",
+            "center",
+        ]
+
+        for row in data_rows:
+            for attribute_name in single_attribute_names:
+                value, expected = row
+                with self.subTest(row=row, name=f"r.{attribute_name}"):
+                    actual = Rect(0, 0, 0, 0)
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, value
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, value)
+                        # assert
+                        self.assertEqual(value, getattr(actual, attribute_name))
+            other = _random_int()
+
+            for attribute_name in tuple_value_attribute_names:
+                value, expected = row
+                with self.subTest(row=row, name=f"r.{attribute_name}[0]"):
+                    actual = Rect(0, 0, 0, 0)
+                    # act/ assert
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, (value, other)
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, (value, other))
+                        # assert
+                        self.assertEqual(
+                            (value, other), getattr(actual, attribute_name)
+                        )
+                with self.subTest(row=row, name=f"r.{attribute_name}[1]"):
+                    actual = Rect(0, 0, 0, 0)
+                    # act/ assert
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, (other, value)
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, (other, value))
+                        # assert
+                        self.assertEqual(
+                            (other, value), getattr(actual, attribute_name)
+                        )
 
     def test_update_XYWidthHeight(self):
         """Test update with 4 int values(x, y, w, h)"""
