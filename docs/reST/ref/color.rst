@@ -162,7 +162,7 @@
       | :sg:`hsla -> tuple`
 
       The ``HSLA`` representation of the Color. The ``HSLA`` components are in
-      the ranges ``H`` = [0, 360], ``S`` = [0, 100], ``V`` = [0, 100], A = [0,
+      the ranges ``H`` = [0, 360], ``S`` = [0, 100], ``L`` = [0, 100], A = [0,
       100]. Note that this will not return the absolutely exact ``HSL`` values
       for the set ``RGB`` values in all cases. Due to the ``RGB`` mapping from
       0-255 and the ``HSL`` mapping from 0-100 and 0-360 rounding errors may
@@ -225,6 +225,15 @@
       .. versionadded:: 1.9.0
 
       .. ## Color.set_length ##
+
+   .. method:: grayscale
+
+      | :sl:`returns the grayscale of a Color`
+      | :sg:`grayscale() -> Color`
+
+      Returns a Color which represents the grayscaled version of self using the luminosity formula which weights red, green and blue according to their wavelengths..
+
+      .. ## Color.grayscale ##
 
    .. method:: lerp
 

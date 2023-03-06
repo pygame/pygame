@@ -208,7 +208,7 @@ _ScrapGet(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
+    NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSPasteboardTypeString];
     PyObject *ret = NULL;
 
     if (info != nil)
@@ -263,8 +263,8 @@ _ScrapPut(PyObject *self, PyObject *args)
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     NSString *ndata = [NSString stringWithCString:(char *)data encoding:NSUTF8StringEncoding];
-    [pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
-    [pb setString:ndata forType: NSStringPboardType];
+    [pb declareTypes: [NSArray arrayWithObject:NSPasteboardTypeString] owner: pb];
+    [pb setString:ndata forType: NSPasteboardTypeString];
     [pool release];
 #endif
     Py_RETURN_NONE;
@@ -318,7 +318,7 @@ _ScrapLost(PyObject *self)
     PyObject *ret;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSArray *supportedTypes =
-            [NSArray arrayWithObjects: NSStringPboardType, nil];
+            [NSArray arrayWithObjects: NSPasteboardTypeString, nil];
     NSString *bestType = [[NSPasteboard generalPasteboard]
             availableTypeFromArray:supportedTypes];
     ret = (bestType == nil) ? Py_True : Py_False;
@@ -347,7 +347,7 @@ MODINIT_DEFINE (sdlmain_osx)
     /* create the module */
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
-        MODPREFIX "sdlmain_osx",
+        "sdlmain_osx",
         NULL,
         -1,
         macosx_builtins,

@@ -56,8 +56,8 @@
 
 /* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
-#define PG_MINOR_VERSION 1
-#define PG_PATCH_VERSION 3
+#define PG_MINOR_VERSION 3
+#define PG_PATCH_VERSION 0
 #define PG_VERSIONNUM(MAJOR, MINOR, PATCH) \
     (1000 * (MAJOR) + 100 * (MINOR) + (PATCH))
 #define PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)                             \
@@ -362,7 +362,7 @@ typedef struct pgEventObject pgEventObject;
  */
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define pgRWops_FromObject \
-    (*(SDL_RWops * (*)(PyObject *)) PYGAMEAPI_GET_SLOT(rwobject, 0))
+    (*(SDL_RWops * (*)(PyObject *, char **)) PYGAMEAPI_GET_SLOT(rwobject, 0))
 
 #define pgRWops_IsFileObject \
     (*(int (*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 1))
@@ -379,9 +379,6 @@ typedef struct pgEventObject pgEventObject;
 
 #define pgRWops_ReleaseObject \
     (*(int (*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 5))
-
-#define pgRWops_GetFileExtension \
-    (*(char *(*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 6))
 
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject)
 
@@ -477,3 +474,73 @@ PYGAMEAPI_EXTERN_SLOTS(math);
 #endif /* ~PYGAME_H */
 
 #endif /* PYGAME_H */
+
+/*  Use the end of this file for other cross module inline utility
+ *  functions There seems to be no good reason to stick to macro only
+ *  functions in Python 3.
+ */
+
+static PG_INLINE PyObject *
+pg_tuple_couple_from_values_int(int val1, int val2)
+{
+    /* This function turns two input integers into a python tuple object.
+     * Currently, 5th November 2022, this is faster than using Py_BuildValue
+     * to do the same thing.
+     */
+    PyObject *tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    return tup;
+}
+
+static PG_INLINE PyObject *
+pg_tuple_triple_from_values_int(int val1, int val2, int val3)
+{
+    /* This function turns three input integers into a python tuple object.
+     * Currently, 5th November 2022, this is faster than using Py_BuildValue
+     * to do the same thing.
+     */
+    PyObject *tup = PyTuple_New(3);
+    if (!tup) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 1, tmp);
+
+    tmp = PyLong_FromLong(val3);
+    if (!tmp) {
+        Py_DECREF(tup);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 2, tmp);
+
+    return tup;
+}

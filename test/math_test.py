@@ -148,6 +148,85 @@ class Vector2TypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, assign_nonfloat)
 
+    def test___round___basic(self):
+        self.assertEqual(round(pygame.Vector2(0.0, 0.0)), pygame.Vector2(0.0, 0.0))
+        self.assertEqual(type(round(pygame.Vector2(0.0, 0.0))), pygame.Vector2)
+        self.assertEqual(
+            round(pygame.Vector2(1.0, 1.0)), round(pygame.Vector2(1.0, 1.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector2(10.0, 10.0)), round(pygame.Vector2(10.0, 10.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector2(1000000000.0, 1000000000.0)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+        self.assertEqual(round(pygame.Vector2(1e20, 1e20)), pygame.Vector2(1e20, 1e20))
+
+        self.assertEqual(round(pygame.Vector2(-1.0, -1.0)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-10.0, -10.0)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1000000000.0, -1000000000.0)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1e20, -1e20)), pygame.Vector2(-1e20, -1e20)
+        )
+
+        self.assertEqual(round(pygame.Vector2(0.1, 0.1)), pygame.Vector2(0.0, 0.0))
+        self.assertEqual(round(pygame.Vector2(1.1, 1.1)), pygame.Vector2(1.0, 1.0))
+        self.assertEqual(round(pygame.Vector2(10.1, 10.1)), pygame.Vector2(10.0, 10.0))
+        self.assertEqual(
+            round(pygame.Vector2(1000000000.1, 1000000000.1)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(-1.1, -1.1)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-10.1, -10.1)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1000000000.1, -1000000000.1)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(0.9, 0.9)), pygame.Vector2(1.0, 1.0))
+        self.assertEqual(round(pygame.Vector2(9.9, 9.9)), pygame.Vector2(10.0, 10.0))
+        self.assertEqual(
+            round(pygame.Vector2(999999999.9, 999999999.9)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(-0.9, -0.9)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-9.9, -9.9)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-999999999.9, -999999999.9)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector2(-8.0, -8.0), -1), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), -1)), pygame.Vector2)
+
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), 0)), pygame.Vector2)
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), 1)), pygame.Vector2)
+
+        # Check even / odd rounding behaviour
+        self.assertEqual(round(pygame.Vector2(5.5, 5.5)), pygame.Vector2(6, 6))
+        self.assertEqual(round(pygame.Vector2(5.4, 5.4)), pygame.Vector2(5.0, 5.0))
+        self.assertEqual(round(pygame.Vector2(5.6, 5.6)), pygame.Vector2(6.0, 6.0))
+        self.assertEqual(round(pygame.Vector2(-5.5, -5.5)), pygame.Vector2(-6, -6))
+        self.assertEqual(round(pygame.Vector2(-5.4, -5.4)), pygame.Vector2(-5, -5))
+        self.assertEqual(round(pygame.Vector2(-5.6, -5.6)), pygame.Vector2(-6, -6))
+
+        self.assertRaises(TypeError, round, pygame.Vector2(1.0, 1.0), 1.5)
+        self.assertRaises(TypeError, round, pygame.Vector2(1.0, 1.0), "a")
+
     def testCopy(self):
         v_copy0 = Vector2(2004.0, 2022.0)
         v_copy1 = v_copy0.copy()
@@ -1019,18 +1098,77 @@ class Vector2TypeTest(unittest.TestCase):
     def test_clamp_mag_v2_max(self):
         v1 = Vector2(7, 2)
         v2 = v1.clamp_magnitude(5)
+        v3 = v1.clamp_magnitude(0, 5)
+        self.assertEqual(v2, v3)
+
         v1.clamp_magnitude_ip(5)
         self.assertEqual(v1, v2)
+
+        v1.clamp_magnitude_ip(0, 5)
+        self.assertEqual(v1, v2)
+
         expected_v2 = Vector2(4.807619738204116, 1.3736056394868903)
-        self.assertAlmostEqual(expected_v2.x, v2.x)
-        self.assertAlmostEqual(expected_v2.y, v2.y)
+        self.assertEqual(expected_v2, v2)
 
     def test_clamp_mag_v2_min(self):
         v1 = Vector2(1, 2)
         v2 = v1.clamp_magnitude(3, 5)
+        v1.clamp_magnitude_ip(3, 5)
         expected_v2 = Vector2(1.3416407864998738, 2.6832815729997477)
-        self.assertAlmostEqual(expected_v2.x, v2.x)
-        self.assertAlmostEqual(expected_v2.y, v2.y)
+        self.assertEqual(expected_v2, v2)
+        self.assertEqual(expected_v2, v1)
+
+    def test_clamp_mag_v2_no_change(self):
+        v1 = Vector2(1, 2)
+        for args in (
+            (1, 6),
+            (1.12, 3.55),
+            (0.93, 2.83),
+            (7.6,),
+        ):
+            with self.subTest(args=args):
+                v2 = v1.clamp_magnitude(*args)
+                v1.clamp_magnitude_ip(*args)
+                self.assertEqual(v1, v2)
+                self.assertEqual(v1, Vector2(1, 2))
+
+    def test_clamp_mag_v2_edge_cases(self):
+        v1 = Vector2(1, 2)
+        v2 = v1.clamp_magnitude(6, 6)
+        v1.clamp_magnitude_ip(6, 6)
+        self.assertEqual(v1, v2)
+        self.assertAlmostEqual(v1.length(), 6)
+
+        v2 = v1.clamp_magnitude(0)
+        v1.clamp_magnitude_ip(0, 0)
+        self.assertEqual(v1, v2)
+        self.assertEqual(v1, Vector2())
+
+    def test_clamp_mag_v2_errors(self):
+        v1 = Vector2(1, 2)
+        for invalid_args in (
+            ("foo", "bar"),
+            (1, 2, 3),
+            (342.234, "test"),
+        ):
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
+
+        for invalid_args in (
+            (-1,),
+            (4, 3),  # min > max
+            (-4, 10),
+            (-4, -2),
+        ):
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
+
+        # 0 vector
+        v2 = Vector2()
+        self.assertRaises(ValueError, v2.clamp_magnitude, 3)
+        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 4)
 
     def test_subclassing_v2(self):
         """Check if Vector2 is subclassable"""
@@ -1400,6 +1538,126 @@ class Vector3TypeTest(unittest.TestCase):
         for val in self.v1:
             self.assertEqual(val, self.v1[idx])
             idx += 1
+
+    def test___round___basic(self):
+        self.assertEqual(
+            round(pygame.Vector3(0.0, 0.0, 0.0)), pygame.Vector3(0.0, 0.0, 0.0)
+        )
+        self.assertEqual(type(round(pygame.Vector3(0.0, 0.0, 0.0))), pygame.Vector3)
+        self.assertEqual(
+            round(pygame.Vector3(1.0, 1.0, 1.0)), round(pygame.Vector3(1.0, 1.0, 1.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector3(10.0, 10.0, 10.0)),
+            round(pygame.Vector3(10.0, 10.0, 10.0)),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1e20, 1e20, 1e20)), pygame.Vector3(1e20, 1e20, 1e20)
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-1.0, -1.0, -1.0)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-10.0, -10.0, -10.0)),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1e20, -1e20, -1e20)),
+            pygame.Vector3(-1e20, -1e20, -1e20),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(0.1, 0.1, 0.1)), pygame.Vector3(0.0, 0.0, 0.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1.1, 1.1, 1.1)), pygame.Vector3(1.0, 1.0, 1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(10.1, 10.1, 10.1)), pygame.Vector3(10.0, 10.0, 10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1000000000.1, 1000000000.1, 1000000000.1)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-1.1, -1.1, -1.1)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-10.1, -10.1, -10.1)),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1000000000.1, -1000000000.1, -1000000000.1)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(0.9, 0.9, 0.9)), pygame.Vector3(1.0, 1.0, 1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(9.9, 9.9, 9.9)), pygame.Vector3(10.0, 10.0, 10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(999999999.9, 999999999.9, 999999999.9)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-0.9, -0.9, -0.9)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-9.9, -9.9, -9.9)), pygame.Vector3(-10.0, -10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-999999999.9, -999999999.9, -999999999.9)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-8.0, -8.0, -8.0), -1),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), -1)), pygame.Vector3
+        )
+
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), 0)), pygame.Vector3
+        )
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), 1)), pygame.Vector3
+        )
+
+        # Check even / odd rounding behaviour
+        self.assertEqual(round(pygame.Vector3(5.5, 5.5, 5.5)), pygame.Vector3(6, 6, 6))
+        self.assertEqual(
+            round(pygame.Vector3(5.4, 5.4, 5.4)), pygame.Vector3(5.0, 5.0, 5.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(5.6, 5.6, 5.6)), pygame.Vector3(6.0, 6.0, 6.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.5, -5.5, -5.5)), pygame.Vector3(-6, -6, -6)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.4, -5.4, -5.4)), pygame.Vector3(-5, -5, -5)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.6, -5.6, -5.6)), pygame.Vector3(-6, -6, -6)
+        )
+
+        self.assertRaises(TypeError, round, pygame.Vector3(1.0, 1.0, 1.0), 1.5)
+        self.assertRaises(TypeError, round, pygame.Vector3(1.0, 1.0, 1.0), "a")
 
     def test_rotate(self):
         v1 = Vector3(1, 0, 0)
@@ -2304,7 +2562,6 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v, 0.5 * self.e2)
 
     def test_inplace_operators(self):
-
         v = Vector3(1, 1, 1)
         v *= 2
         self.assertEqual(v, (2.0, 2.0, 2.0))
@@ -2479,18 +2736,77 @@ class Vector3TypeTest(unittest.TestCase):
     def test_clamp_mag_v3_max(self):
         v1 = Vector3(7, 2, 2)
         v2 = v1.clamp_magnitude(5)
+        v3 = v1.clamp_magnitude(0, 5)
+        self.assertEqual(v2, v3)
+
+        v1.clamp_magnitude_ip(5)
+        self.assertEqual(v1, v2)
+
+        v1.clamp_magnitude_ip(0, 5)
+        self.assertEqual(v1, v2)
+
         expected_v2 = Vector3(4.635863249727653, 1.3245323570650438, 1.3245323570650438)
-        self.assertAlmostEqual(expected_v2.x, v2.x)
-        self.assertAlmostEqual(expected_v2.y, v2.y)
-        self.assertAlmostEqual(expected_v2.z, v2.z)
+        self.assertEqual(expected_v2, v2)
 
     def test_clamp_mag_v3_min(self):
         v1 = Vector3(3, 1, 2)
         v2 = v1.clamp_magnitude(5, 10)
+        v1.clamp_magnitude_ip(5, 10)
         expected_v2 = Vector3(4.008918628686366, 1.3363062095621219, 2.6726124191242437)
-        self.assertAlmostEqual(expected_v2.x, v2.x)
-        self.assertAlmostEqual(expected_v2.y, v2.y)
-        self.assertAlmostEqual(expected_v2.z, v2.z)
+        self.assertEqual(expected_v2, v1)
+        self.assertEqual(expected_v2, v2)
+
+    def test_clamp_mag_v3_no_change(self):
+        v1 = Vector3(1, 2, 3)
+        for args in (
+            (1, 6),
+            (1.12, 5.55),
+            (0.93, 6.83),
+            (7.6,),
+        ):
+            with self.subTest(args=args):
+                v2 = v1.clamp_magnitude(*args)
+                v1.clamp_magnitude_ip(*args)
+                self.assertEqual(v1, v2)
+                self.assertEqual(v1, Vector3(1, 2, 3))
+
+    def test_clamp_mag_v3_edge_cases(self):
+        v1 = Vector3(1, 2, 1)
+        v2 = v1.clamp_magnitude(6, 6)
+        v1.clamp_magnitude_ip(6, 6)
+        self.assertEqual(v1, v2)
+        self.assertAlmostEqual(v1.length(), 6)
+
+        v2 = v1.clamp_magnitude(0)
+        v1.clamp_magnitude_ip(0, 0)
+        self.assertEqual(v1, v2)
+        self.assertEqual(v1, Vector3())
+
+    def test_clamp_mag_v3_errors(self):
+        v1 = Vector3(1, 2, 2)
+        for invalid_args in (
+            ("foo", "bar"),
+            (1, 2, 3),
+            (342.234, "test"),
+        ):
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(TypeError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(TypeError, v1.clamp_magnitude_ip, *invalid_args)
+
+        for invalid_args in (
+            (-1,),
+            (4, 3),  # min > max
+            (-4, 10),
+            (-4, -2),
+        ):
+            with self.subTest(invalid_args=invalid_args):
+                self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
+                self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
+
+        # 0 vector
+        v2 = Vector3()
+        self.assertRaises(ValueError, v2.clamp_magnitude, 3)
+        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 4)
 
     def test_subclassing_v3(self):
         """Check if Vector3 is subclassable"""

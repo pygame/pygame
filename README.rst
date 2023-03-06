@@ -4,9 +4,9 @@
 
 
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
-|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |BlackFormatBadge|
+|Python3| |GithubCommits| |BlackFormatBadge|
 
-pygame_ is a free and open-source cross-platform library
+Pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
 It uses the `Simple DirectMedia Layer library`_ and several other
 popular libraries to abstract the most common functions, making writing
@@ -30,7 +30,10 @@ Help
 If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
-entire library. Browse the documentation on the `docs page`_.
+entire library. Browse the documentation on the `docs page`_. You
+can also browse the documentation locally by running
+``python -m pygame.docs`` in your terminal. If the docs aren't found
+locally, it'll launch the online website instead.
 
 The online documentation stays up to date with the development version
 of pygame on github.  This may be a bit newer than the version of pygame
@@ -40,6 +43,31 @@ you are using. To upgrade to the latest full release, run
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
 
+Pygame is a powerful library for game development, offering a wide 
+range of features to simplify your coding journey. Let's delve into 
+what Pygame has to offer:
+
+Graphics: With Pygame, creating dynamic and engaging graphics has 
+never been easier. The library provides simple yet effective tools for
+2D graphics and animation, including support for images, rectangles, 
+and polygon shapes. Whether you're a seasoned game developer or just
+starting out, Pygame has you covered.
+
+Sound: Pygame also includes support for playing and manipulating sound 
+and music, making it easy to add sound effects and background music to
+your games. With support for WAV, MP3, and OGG file formats, you have 
+plenty of options to choose from.
+
+Input: Pygame provides intuitive functions for handling keyboard, mouse,
+and joystick input, allowing you to quickly and easily implement player
+controls in your games. No more struggling with complex input code, Pygame
+makes it simple.
+
+Game Development: Lastly, Pygame provides a comprehensive suite of tools
+and features specifically designed for game development. From collision 
+detection to sprite management, Pygame has everything you need to create
+exciting and engaging games. Whether you're building a platformer, puzzle
+game, or anything in between, Pygame has you covered.
 
 Building From Source
 --------------------
@@ -125,13 +153,23 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 3.6 or PyPy3
-* SDL >= 2.0.4
-* SDL_mixer >= 2.0.0
-* SDL_image >= 2.0.2
-* SDL_ttf >= 2.0.11
-* SDL_gfx (optional, vendored in)
-* NumPy >= 1.6.2 (optional)
+
++----------+------------------------+
+| CPython  | >= 3.6 (Or use PyPy3)  |
++----------+------------------------+
+| SDL      | >= 2.0.8               |
++----------+------------------------+
+| SDL_mixer| >= 2.0.0               |
++----------+------------------------+
+| SDL_image| >= 2.0.2               |
++----------+------------------------+
+| SDL_ttf  | >= 2.0.11              |
++----------+------------------------+
+| SDL_gfx  | (Optional, vendored in)|
++----------+------------------------+
+| NumPy    | >= 1.6.2 (Optional)    |
++----------+------------------------+
+
 
 
 License
@@ -164,15 +202,6 @@ See docs/licenses for licenses of dependencies.
 
 .. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
    :target: https://github.com/pygame/pygame/compare/2.1.2...main
-
-.. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
-
-.. |LGTMGradePython| image:: https://img.shields.io/lgtm/grade/python/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:python
-
-.. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/pygame/pygame/context:cpp
 
 .. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black

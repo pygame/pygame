@@ -22,7 +22,9 @@
  *
  * Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
  * This addresses bug 52:
- * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ * https://github.com/pygame/pygame/issues/52
+ * With this option, floats have consistent precision regardless of optimize
+ * level.
  *
  * Apparently, the same problem plagues pygame.color, as it failed the
  * test_hsva__all_elements_within_limits and
@@ -90,6 +92,8 @@ static PyObject *
 _color_set_length(pgColorObject *, PyObject *);
 static PyObject *
 _color_lerp(pgColorObject *, PyObject *, PyObject *);
+static PyObject *
+_color_grayscale(pgColorObject *);
 static PyObject *
 _premul_alpha(pgColorObject *, PyObject *);
 static PyObject *
@@ -199,6 +203,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORSETLENGTH},
     {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
      DOC_COLORLERP},
+    {"grayscale", (PyCFunction)_color_grayscale, METH_VARARGS | METH_KEYWORDS,
+     DOC_COLORGRAYSCALE},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
     {"update", (PyCFunction)PG_FASTCALL_NAME(_color_update), PG_FASTCALL,
@@ -260,7 +266,7 @@ static PyBufferProcs _color_as_buffer = {(getbufferproc)_color_getbuffer,
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Color",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.color.Color",
     .tp_basicsize = sizeof(pgColorObject),
     .tp_dealloc = (destructor)_color_dealloc,
     .tp_repr = (reprfunc)_color_repr,
@@ -780,6 +786,24 @@ _color_correct_gamma(pgColorObject *color, PyObject *args)
                   ? 255
                   : ((frgba[3] < 0.0) ? 0 : (Uint8)(frgba[3] * 255 + .5));
     return (PyObject *)_color_new_internal(Py_TYPE(color), rgba);
+}
+
+/**
+ * color.grayscale()
+ */
+static PyObject *
+_color_grayscale(pgColorObject *self)
+{
+    Uint8 grayscale_pixel =
+        (Uint8)(0.299 * self->data[0] + 0.587 * self->data[1] +
+                0.114 * self->data[2]);
+
+    Uint8 new_rgba[4];
+    new_rgba[0] = grayscale_pixel;
+    new_rgba[1] = grayscale_pixel;
+    new_rgba[2] = grayscale_pixel;
+    new_rgba[3] = self->data[3];
+    return (PyObject *)_color_new_internal(Py_TYPE(self), new_rgba);
 }
 
 /**

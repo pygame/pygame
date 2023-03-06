@@ -555,7 +555,6 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(quit_count, 1)
 
     def test_get_error(self):
-
         # __doc__ (as of 2008-08-02) for pygame.base.get_error:
 
         # pygame.get_error(): return errorstr
@@ -574,7 +573,6 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(pygame.get_error(), "")
 
     def test_set_error(self):
-
         # The first error could be all sorts of nonsense or empty.
         e = pygame.get_error()
         pygame.set_error("hi")

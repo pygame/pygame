@@ -216,7 +216,6 @@ class DisplayModuleTest(unittest.TestCase):
         'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
     )
     def test_gl_get_attribute(self):
-
         screen = display.set_mode((0, 0), pygame.OPENGL)
 
         # We create a list where we store the original values of the
@@ -341,7 +340,6 @@ class DisplayModuleTest(unittest.TestCase):
         'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
     )
     def test_gl_set_attribute(self):
-
         # __doc__ (as of 2008-08-02) for pygame.display.gl_set_attribute:
 
         # pygame.display.gl_set_attribute(flag, value): return None
@@ -514,6 +512,8 @@ class DisplayModuleTest(unittest.TestCase):
         gammas = [0.25, 0.5, 0.88, 1.0]
         for gamma in gammas:
             with self.subTest(gamma=gamma):
+                with self.assertWarns(DeprecationWarning):
+                    self.assertEqual(pygame.display.set_gamma(gamma), True)
                 self.assertEqual(pygame.display.set_gamma(gamma), True)
 
     @unittest.skipIf(
@@ -532,7 +532,6 @@ class DisplayModuleTest(unittest.TestCase):
         "Not all systems and hardware support gamma ramps",
     )
     def test_set_gamma_ramp(self):
-
         # __doc__ (as of 2008-08-02) for pygame.display.set_gamma_ramp:
 
         # change the hardware gamma ramps with a custom lookup
@@ -549,14 +548,14 @@ class DisplayModuleTest(unittest.TestCase):
         r = list(range(256))
         g = [number + 256 for number in r]
         b = [number + 256 for number in g]
-        isSupported = pygame.display.set_gamma_ramp(r, g, b)
+        with self.assertWarns(DeprecationWarning):
+            isSupported = pygame.display.set_gamma_ramp(r, g, b)
         if isSupported:
             self.assertTrue(pygame.display.set_gamma_ramp(r, g, b))
         else:
             self.assertFalse(pygame.display.set_gamma_ramp(r, g, b))
 
     def test_set_mode_kwargs(self):
-
         pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
 
     def test_set_mode_scaled(self):
@@ -781,11 +780,9 @@ class DisplayUpdateInteractiveTest(DisplayUpdateTest):
 
 
 class DisplayInteractiveTest(unittest.TestCase):
-
     __tags__ = ["interactive"]
 
     def test_set_icon_interactive(self):
-
         os.environ["SDL_VIDEO_WINDOW_POS"] = "100,250"
         pygame.display.quit()
         pygame.display.init()
@@ -803,7 +800,6 @@ class DisplayInteractiveTest(unittest.TestCase):
         pygame.display.quit()
 
     def test_set_gamma_ramp(self):
-
         os.environ["SDL_VIDEO_WINDOW_POS"] = "100,250"
         pygame.display.quit()
         pygame.display.init()

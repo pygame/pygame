@@ -1,3 +1,10 @@
+"""pygame.camera backend that uses OpenCV.
+
+Uses the cv2 module opencv for python.
+See https://pypi.org/project/opencv-python/ for wheels version.
+
+python3 -m pip install opencv-python --user
+"""
 import numpy
 import cv2
 import time
@@ -6,7 +13,24 @@ import pygame
 
 
 def list_cameras():
-    return [0]
+    """ """
+    index = 0
+    device_idx = []
+    failed = 0
+
+    # Sometimes there are gaps between the device index.
+    # We keep trying max_gaps times.
+    max_gaps = 3
+
+    while failed < max_gaps:
+        vcap = cv2.VideoCapture(index)
+        if not vcap.read()[0]:
+            failed += 1
+        else:
+            device_idx.append(index)
+        vcap.release()
+        index += 1
+    return device_idx
 
 
 def list_cameras_darwin():
@@ -33,9 +57,20 @@ def list_cameras_darwin():
 
 
 class Camera:
-    def __init__(self, device=0, size=(640, 480), mode="RGB"):
+    def __init__(self, device=0, size=(640, 480), mode="RGB", api_preference=None):
+        """
+        api_preference - cv2.CAP_DSHOW cv2.CAP_V4L2 cv2.CAP_MSMF and others
+
+        # See https://docs.opencv.org/3.4/d4/d15/group__videoio__flags__base.html
+        """
         self._device_index = device
         self._size = size
+
+        self.api_preference = api_preference
+        if api_preference is not None:
+            if sys.platform == "win32":
+                # seems more compatible on windows?
+                self.api_preference = cv2.CAP_DSHOW
 
         if mode == "RGB":
             self._fmt = cv2.COLOR_BGR2RGB
@@ -55,7 +90,7 @@ class Camera:
         if self._open:
             return
 
-        self._cam = cv2.VideoCapture(self._device_index)
+        self._cam = cv2.VideoCapture(self._device_index, self.api_preference)
 
         if not self._cam.isOpened():
             raise ValueError("Could not open camera.")
@@ -159,8 +194,7 @@ class Camera:
 
 
 class CameraMac(Camera):
-    def __init__(self, device=0, size=(640, 480), mode="RGB"):
-
+    def __init__(self, device=0, size=(640, 480), mode="RGB", api_preference=None):
         if isinstance(device, int):
             _dev = device
         elif isinstance(device, str):
@@ -171,4 +205,4 @@ class CameraMac(Camera):
                 str(type(device)),
             )
 
-        super().__init__(_dev, size, mode)
+        super().__init__(_dev, size, mode, api_preference)
