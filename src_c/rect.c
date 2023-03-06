@@ -435,6 +435,38 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
+{
+    float factor_x, factor_y = 0;
+
+    if (!PyArg_ParseTuple(args, "f|f", &factor_x, &factor_y)) {
+        return NULL;
+    }
+
+    factor_x = factor_x < 0 ? -factor_x : factor_x;
+    factor_y = factor_y < 0 ? -factor_y : factor_y;
+
+    factor_y = (factor_y > 0) ? factor_y : factor_x;
+
+    self->r.x =
+        (int)(self->r.x + (self->r.w / 2) - (self->r.w * factor_x / 2));
+    self->r.y =
+        (int)(self->r.y + (self->r.h / 2) - (self->r.h * factor_y / 2));
+    self->r.w = (int)(self->r.w * factor_x);
+    self->r.h = (int)(self->r.h * factor_y);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_rect_scale_by(pgRectObject *self, PyObject *args)
+{
+    pgRectObject *returnRect = (pgRectObject *)_pg_rect_subtype_new4(
+        Py_TYPE(self), self->r.x, self->r.y, self->r.w, self->r.h);
+    pg_rect_scale_by_ip(returnRect, args);
+    return (PyObject *)returnRect;
+}
+
+static PyObject *
 pg_rect_update(pgRectObject *self, PyObject *args)
 {
     SDL_Rect temp;
@@ -1358,6 +1390,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
     {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
+    {"scale_by", (PyCFunction)pg_rect_scale_by, METH_VARARGS, DOC_RECTSCALEBY},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
@@ -1365,6 +1398,8 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
+    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip, METH_VARARGS,
+     DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
      DOC_RECTUNIONALLIP},
