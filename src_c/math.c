@@ -295,7 +295,9 @@ vector2_angle_to(pgVector *self, PyObject *other);
 static PyObject *
 vector2_as_polar(pgVector *self, PyObject *args);
 static PyObject *
-vector2_from_polar(pgVector *self, PyObject *args);
+vector2_from_polar_cls(PyObject *self, PyObject *args);
+static PyObject *
+vector2_from_polar_obj(PyObject *self, PyObject *args);
 
 /* vector3 specific functions */
 static PyObject *
@@ -317,7 +319,9 @@ vector3_angle_to(pgVector *self, PyObject *other);
 static PyObject *
 vector3_as_spherical(pgVector *self, PyObject *args);
 static PyObject *
-vector3_from_spherical(pgVector *self, PyObject *args);
+vector3_from_spherical_cls(PyObject *self, PyObject *args);
+static PyObject *
+vector3_from_spherical_obj(PyObject *self, PyObject *args);
 
 /* vector iterator functions */
 static void
@@ -2456,18 +2460,42 @@ vector2_as_polar(pgVector *self, PyObject *_null)
 }
 
 static PyObject *
-vector2_from_polar(pgVector *self, PyObject *args)
+vector2_from_polar_cls(PyObject *self, PyObject *args)
 {
+    PyObject *type, *argList, *vec;
     double r, phi;
-    if (!PyArg_ParseTuple(args, "(dd):Vector2.from_polar", &r, &phi)) {
+    if (!PyArg_ParseTuple(args, "O(dd):Vector.fron_polar", &type, &r, &phi) ||
+        type == NULL) {
         return NULL;
     }
+
     phi = DEG2RAD(phi);
-    self->coords[0] = r * cos(phi);
-    self->coords[1] = r * sin(phi);
+    argList = Py_BuildValue("(dd)", r * cos(phi), r * sin(phi));
+    vec = PyObject_CallObject(type, argList);
+    Py_DECREF(argList);
+
+    return vec;
+}
+
+static PyObject *
+vector2_from_polar_obj(PyObject *self, PyObject *args)
+{
+    PyObject *obj;
+    pgVector *vec;
+    double r, phi;
+    if (!PyArg_ParseTuple(args, "O(dd):Vector2.from_polar", &obj, &r, &phi) ||
+        obj == NULL) {
+        return NULL;
+    }
+
+    vec = (pgVector *)obj;
+    phi = DEG2RAD(phi);
+    vec->coords[0] = r * cos(phi);
+    vec->coords[1] = r * sin(phi);
 
     Py_RETURN_NONE;
 }
+
 static PyObject *
 vector_getsafepickle(pgRectObject *self, void *_null)
 {
@@ -2528,8 +2556,8 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ELEMENTWISE},
     {"as_polar", (PyCFunction)vector2_as_polar, METH_NOARGS,
      DOC_VECTOR2ASPOLAR},
-    {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
-     DOC_VECTOR2FROMPOLAR},
+    /*{"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
+     DOC_VECTOR2FROMPOLAR},*/
     {"project", (PyCFunction)vector2_project, METH_O, DOC_VECTOR2PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR2COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
@@ -3342,19 +3370,43 @@ vector3_as_spherical(pgVector *self, PyObject *_null)
 }
 
 static PyObject *
-vector3_from_spherical(pgVector *self, PyObject *args)
+vector3_from_spherical_cls(PyObject *self, PyObject *args)
 {
+    PyObject *type, *argList, *vec;
     double r, theta, phi;
-
-    if (!PyArg_ParseTuple(args, "(ddd):vector3_from_spherical", &r, &theta,
-                          &phi)) {
+    if (!PyArg_ParseTuple(args, "O(ddd):Vector3.from_spherical", &type, &r,
+                          &theta, &phi) ||
+        type == NULL) {
         return NULL;
     }
+
     theta = DEG2RAD(theta);
     phi = DEG2RAD(phi);
-    self->coords[0] = r * sin(theta) * cos(phi);
-    self->coords[1] = r * sin(theta) * sin(phi);
-    self->coords[2] = r * cos(theta);
+    argList = Py_BuildValue("(ddd)", r * sin(theta) * cos(phi),
+                            r * sin(theta) * sin(phi), r * cos(theta));
+    vec = PyObject_CallObject(type, argList);
+
+    return vec;
+}
+
+static PyObject *
+vector3_from_spherical_obj(PyObject *self, PyObject *args)
+{
+    PyObject *obj;
+    pgVector *vec;
+    double r, theta, phi;
+    if (!PyArg_ParseTuple(args, "O(ddd):Vector3.from_spherical", &obj, &r,
+                          &theta, &phi) ||
+        obj == NULL) {
+        return NULL;
+    }
+
+    vec = (pgVector *)obj;
+    theta = DEG2RAD(theta);
+    phi = DEG2RAD(phi);
+    vec->coords[0] = r * sin(theta) * cos(phi);
+    vec->coords[1] = r * sin(theta) * sin(phi);
+    vec->coords[2] = r * cos(theta);
 
     Py_RETURN_NONE;
 }
@@ -3448,8 +3500,8 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3ELEMENTWISE},
     {"as_spherical", (PyCFunction)vector3_as_spherical, METH_NOARGS,
      DOC_VECTOR3ASSPHERICAL},
-    {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
-     DOC_VECTOR3FROMSPHERICAL},
+    /*{"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
+     DOC_VECTOR3FROMSPHERICAL},*/
     {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
     {"copy", (PyCFunction)vector_copy, METH_NOARGS, DOC_VECTOR3COPY},
     {"__copy__", (PyCFunction)vector_copy, METH_NOARGS, NULL},
@@ -4249,6 +4301,115 @@ static PyMethodDef _math_methods[] = {
      "Deprecated, will be removed in a future version."},
     {NULL, NULL, 0, NULL}};
 
+/********************************
+ * ClassObjectMethod Descriptor
+ ********************************/
+
+typedef struct {
+    PyObject_HEAD PyObject *cls_callable, *obj_callable;
+} ClassObjectMethod;
+
+static void
+com_dealloc(ClassObjectMethod *com)
+{
+    PyObject_GC_UnTrack((PyObject *)com);
+    Py_XDECREF(com->cls_callable);
+    Py_XDECREF(com->obj_callable);
+    Py_TYPE(com)->tp_free((PyObject *)com);
+}
+
+static int
+com_traverse(ClassObjectMethod *com, visitproc visit, void *arg)
+{
+    Py_VISIT(com->cls_callable);
+    Py_VISIT(com->obj_callable);
+    return 0;
+}
+
+static int
+com_clear(ClassObjectMethod *com)
+{
+    Py_CLEAR(com->cls_callable);
+    Py_CLEAR(com->obj_callable);
+    return 0;
+}
+
+static PyObject *
+com_descr_get(PyObject *self, PyObject *obj, PyObject *type)
+{
+    ClassObjectMethod *com = (ClassObjectMethod *)self;
+    if (com->cls_callable == NULL || com->obj_callable == NULL) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Uninitialized ClassObjectMethod object");
+        return NULL;
+    }
+    if (obj == NULL || Py_IsNone(obj)) {
+        if (type == NULL)
+            return NULL;
+        return PyMethod_New(com->cls_callable, type);
+    }
+    return PyMethod_New(com->obj_callable, obj);
+}
+
+static int
+com_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    ClassObjectMethod *com = (ClassObjectMethod *)self;
+    PyObject *cls_callable, *obj_callable;
+
+    if (!PyArg_UnpackTuple(args, "ClassObjectMethod", 2, 2, &cls_callable,
+                           &obj_callable))
+        return -1;
+    if (!_PyArg_NoKeywords("classmethod", kwds))
+        return -1;
+    Py_INCREF(cls_callable);
+    Py_INCREF(obj_callable);
+    com->cls_callable = cls_callable;
+    com->obj_callable = obj_callable;
+    return 0;
+}
+
+static PyTypeObject PyClassObjectMethod_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "classmethod",
+    .tp_basicsize = sizeof(ClassObjectMethod),
+    .tp_dealloc = (destructor)com_dealloc,
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    .tp_traverse = (traverseproc)com_traverse,
+    .tp_clear = (inquiry)com_clear,
+    .tp_descr_get = com_descr_get,
+    .tp_init = com_init,
+    .tp_alloc = PyType_GenericAlloc,
+    .tp_new = PyType_GenericNew,
+    .tp_free = PyObject_GC_Del,
+};
+
+PyObject *
+PyClassObjectMethod_New(PyObject *cls_callable, PyObject *obj_callable)
+{
+    ClassObjectMethod *com =
+        (ClassObjectMethod *)PyType_GenericAlloc(&PyClassObjectMethod_Type, 0);
+    if (com != NULL) {
+        Py_INCREF(cls_callable);
+        Py_INCREF(obj_callable);
+        com->cls_callable = cls_callable;
+        com->obj_callable = obj_callable;
+    }
+    return (PyObject *)com;
+}
+
+static PyMethodDef classobject_defs[] = {
+    {"from_polar", (PyCFunction)vector2_from_polar_cls, METH_VARARGS,
+     DOC_VECTOR2FROMPOLAR},
+    {"from_polar", (PyCFunction)vector2_from_polar_obj, METH_VARARGS,
+     DOC_VECTOR2FROMPOLAR},
+    {"from_spherical", (PyCFunction)vector3_from_spherical_cls, METH_VARARGS,
+     DOC_VECTOR3FROMSPHERICAL},
+    {"from_spherical", (PyCFunction)vector3_from_spherical_obj, METH_VARARGS,
+     DOC_VECTOR3FROMSPHERICAL},
+    {NULL} /* Sentinel */
+};
+
 /****************************
  * Module init function
  ****************************/
@@ -4261,6 +4422,8 @@ MODINIT_DEFINE(math)
 #endif
 {
     PyObject *module, *apiobj;
+    PyObject *from_polar_cls, *from_polar_obj, *from_spherical_cls,
+        *from_spherical_obj;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -4297,6 +4460,29 @@ MODINIT_DEFINE(math)
     /*
     Py_INCREF(&pgVector4_Type);
     */
+
+    /* from_polar */
+    from_polar_cls = PyCFunction_New(&classobject_defs[0], NULL);
+    from_polar_obj = PyCFunction_New(&classobject_defs[1], NULL);
+    Py_INCREF(from_polar_cls);
+    Py_INCREF(from_polar_obj);
+    PyDict_SetItemString(
+        pgVector2_Type.tp_dict, "from_polar",
+        PyClassObjectMethod_New(from_polar_cls, from_polar_obj));
+    Py_DECREF(from_polar_cls);
+    Py_DECREF(from_polar_obj);
+
+    /* from_spherical */
+    from_spherical_cls = PyCFunction_New(&classobject_defs[2], NULL);
+    from_spherical_obj = PyCFunction_New(&classobject_defs[3], NULL);
+    Py_INCREF(from_spherical_cls);
+    Py_INCREF(from_spherical_obj);
+    PyDict_SetItemString(
+        pgVector3_Type.tp_dict, "from_spherical",
+        PyClassObjectMethod_New(from_spherical_cls, from_spherical_obj));
+    Py_DECREF(from_spherical_cls);
+    Py_DECREF(from_spherical_obj);
+
     if ((PyModule_AddObject(module, "Vector2", (PyObject *)&pgVector2_Type) !=
          0) ||
         (PyModule_AddObject(module, "Vector3", (PyObject *)&pgVector3_Type) !=
