@@ -307,7 +307,6 @@ def run_test(
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
     if not args:
-
         if is_pygame_pkg:
             run_from = "pygame.tests.go"
         else:

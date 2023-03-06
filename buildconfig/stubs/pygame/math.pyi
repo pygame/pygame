@@ -12,6 +12,7 @@ from typing import (
     Union,
     final,
     overload,
+    Optional
 )
 
 if sys.version_info >= (3, 9):
@@ -19,9 +20,8 @@ if sys.version_info >= (3, 9):
 else:
     from typing import Collection
 
-# Math functions
-def lerp(a: float, b: float, weight: float, /) -> float: ...
-def clamp(value: float, min: float, max: float, /) -> float: ...
+def lerp(a: float, b: float, weight: float) -> float: ...
+def clamp(value: float, min: float, max: float) -> float: ...
 
 _TVec = TypeVar("_TVec", bound=_GenericVector)
 
@@ -106,12 +106,15 @@ class _GenericVector(Collection[float]):
     @overload
     def clamp_magnitude(self: _TVec, max_length: float) -> _TVec: ...
     @overload
-    def clamp_magnitude(self: _TVec, min_length: float, max_length: float) -> _TVec: ...
+    def clamp_magnitude(
+        self: _TVec, min_length: float, max_length: float
+    ) -> _TVec: ...
     @overload
     def clamp_magnitude_ip(self, max_length: float) -> None: ...
     @overload
     def clamp_magnitude_ip(self, min_length: float, max_length: float) -> None: ...
     def project(self: _TVec, other: Union[Sequence[float], _TVec]) -> _TVec: ...
+    def __round__(self: _TVec, ndigits: Optional[int]) -> _TVec: ...
 
 # VectorElementwiseProxy is a generic, it can be an elementwiseproxy object for
 # Vector2, Vector3 and vector subclass objects

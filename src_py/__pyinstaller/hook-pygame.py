@@ -17,6 +17,7 @@ pygame_folder = os.path.dirname(os.path.abspath(pygame_main_file))
 # datas is the variable that pyinstaller looks for while processing hooks
 datas = []
 
+
 # A helper to append the relative path of a resource to hook variable - datas
 def _append_to_datas(file_path):
     res_path = os.path.join(pygame_folder, file_path)

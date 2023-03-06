@@ -1048,6 +1048,11 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
 static PyObject *
 _transpose(pgPixelArrayObject *array, PyObject *args)
 {
+    if (array->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
+
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
     Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
     Py_ssize_t dim1 = array->shape[0];
@@ -1069,6 +1074,10 @@ https://docs.python.org/3/reference/datamodel.html#with-statement-context-manage
 static PyObject *
 _close_array(pgPixelArrayObject *array, PyObject *args)
 {
+    if (array->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return NULL;
+    }
     _cleanup_array(array);
     Py_RETURN_NONE;
 }
@@ -1076,6 +1085,7 @@ _close_array(pgPixelArrayObject *array, PyObject *args)
 static PyObject *
 _enter_context(pgPixelArrayObject *array, PyObject *args)
 {
+    Py_INCREF(array);
     return (PyObject *)array;
 }
 

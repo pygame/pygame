@@ -7,7 +7,6 @@ import pygame._sdl2.controller
 
 class JoystickTypeTest(unittest.TestCase):
     def todo_test_Joystick(self):
-
         # __doc__ (as of 2008-08-02) for pygame.joystick.Joystick:
 
         # pygame.joystick.Joystick(id): return Joystick
@@ -126,7 +125,6 @@ class JoystickModuleTest(unittest.TestCase):
 
 
 class JoystickInteractiveTest(unittest.TestCase):
-
     __tags__ = ["interactive"]
 
     def test_get_count_interactive(self):

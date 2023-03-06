@@ -17,7 +17,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     ./configure $ARCHS_CONFIG_FLAG
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Use CMake on MacOS because ./configure doesn't generate dylib
-    cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1
+    cmake . $PG_BASE_CMAKE_FLAGS
 fi
 
 make
@@ -36,7 +36,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     ./configure $ARCHS_CONFIG_FLAG
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Use CMake on MacOS because ./configure doesn't generate dylib
-    cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1
+    cmake . $PG_BASE_CMAKE_FLAGS
 fi
 make
 make install

@@ -2237,6 +2237,7 @@ class Reader:
 
         else:
             assert not meta["alpha"] and not meta["greyscale"]
+
             # RGB to RGBA
             def convert():
                 for row in pixels:

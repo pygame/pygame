@@ -19,7 +19,9 @@ on:
       - '!.github/workflows/build-macos.yml'
 
   pull_request:
-    branches: main
+    branches:
+      - main
+      - 'v**'
     paths-ignore:
       - 'docs/**'
       - 'examples/**'
@@ -56,7 +58,7 @@ jobs:
         if: steps.macdep-cache.outputs.cache-hit != 'true'
         run: |
           export MAC_ARCH="${{ matrix.macarch }}"
-          brew install coreutils
+          brew install coreutils pkg-config
           cd buildconfig/macdependencies
           bash ./build_mac_deps.sh
 
@@ -75,36 +77,39 @@ jobs:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         # Split job into 5 matrix builds, because GH actions provides 5 concurrent
-        # builds on macOS
+        # builds on macOS. This needs to be manually kept updated so that each
+        # of these builds take roughly the same time
         include:
           - { 
-            name: "x86_64 (cp36-cp310)",
+            name: "x86_64 (CPython 3.6 3.10 and above)",
             macarch: x86_64,
-            pyversions: cp36-* cp310-*
+            # pattern matches 6 or any 2 digit number
+            pyversions: "cp3{6,[1-9][0-9]}-*"
           }
 
           - { 
-            name: "x86_64 (cp37-pp37)",
+            name: "x86_64 (Python 3.7)",
             macarch: x86_64,
-            pyversions: cp37-* pp37-*
+            pyversions: "cp37-*"
           }
 
           - { 
-            name: "x86_64 (cp38-pp38)",
+            name: "x86_64 (Python 3.8)",
             macarch: x86_64,
-            pyversions: cp38-* pp38-*
+            pyversions: "?p38-*"
           }
 
           - { 
-            name: "x86_64 (cp39-pp39)",
+            name: "x86_64 (Python 3.9)",
             macarch: x86_64,
-            pyversions: cp39-* pp39-*
+            pyversions: "?p39-*"
           }
 
           - { 
-            name: "arm64 (cp38-cp39-cp310)",
+            name: "arm64 (CPython 3.8 and above)",
             macarch: arm64,
-            pyversions: cp38-* cp39-* cp310-*
+            # pattern matches any number from 8 to 99
+            pyversions: "cp3{8,9,[1-9][0-9]}-*"
           }
 
     env:
@@ -122,6 +127,7 @@ jobs:
       # Setup MacOS dependencies
       CIBW_BEFORE_ALL: |
         export MAC_ARCH="${{ matrix.macarch }}"
+        brew install pkg-config
         cd buildconfig/macdependencies
         bash ./install_mac_deps.sh
 
@@ -129,7 +135,12 @@ jobs:
         pip install requests numpy Sphinx
         python setup.py docs
 
-      CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+      CIBW_BEFORE_TEST: |
+        pip install mypy
+
+      CIBW_TEST_COMMAND: >
+        python -m pygame.tests -v --exclude opengl,timing --time_out 300 &&
+        python -m mypy {project}/examples/testsprite.py {project}/examples/sound.py {project}/examples/dropevent.py {project}/examples/stars.py
 
       # Increase pip debugging output
       CIBW_BUILD_VERBOSITY: 2
@@ -151,7 +162,7 @@ jobs:
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
 
       - name: Build and test wheels
-        uses: pypa/cibuildwheel@v2.5.0
+        uses: pypa/cibuildwheel@v2.10.2
 
       - uses: actions/upload-artifact@v3
         with:

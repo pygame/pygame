@@ -1,21 +1,8 @@
 #ifndef PGIMPORT_H
 #define PGIMPORT_H
 
-/* Prefix when initializing module */
-#define MODPREFIX ""
 /* Prefix when importing module */
 #define IMPPREFIX "pygame."
-
-#ifdef __SYMBIAN32__
-
-/* On Symbian there is no pygame package. The extensions are built-in or in
- * sys\bin. */
-#undef MODPREFIX
-#undef IMPPREFIX
-#define MODPREFIX "pygame_"
-#define IMPPREFIX "pygame_"
-
-#endif /* __SYMBIAN32__ */
 
 #include "pgcompat.h"
 

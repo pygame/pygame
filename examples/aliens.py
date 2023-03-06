@@ -304,7 +304,6 @@ def main(winstyle=0):
 
     # Run our main loop whilst the player is alive.
     while player.alive():
-
         # get input
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -375,7 +374,7 @@ def main(winstyle=0):
             Explosion(alien)
             SCORE = SCORE + 1
 
-        # See if alien boms hit the player.
+        # See if alien bombs hit the player.
         for bomb in pg.sprite.spritecollide(player, bombs, 1):
             if pg.mixer:
                 boom_sound.play()
