@@ -12,6 +12,26 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 class MathModuleTest(unittest.TestCase):
     """Math module tests."""
 
+    def test_lerp(self):
+        result = pygame.math.lerp(10, 100, 0.5)  # 55.0
+        self.assertAlmostEqual(result, 55.0)
+
+        result = pygame.math.lerp(10, 100, 0.0)  # 10
+        self.assertAlmostEqual(result, 10.0)
+
+        result = pygame.math.lerp(10, 100, 1.0)  # 100
+        self.assertAlmostEqual(result, 100.0)
+
+        # Not enough args
+        self.assertRaises(TypeError, pygame.math.lerp, 1)
+
+        # Wrong arg type
+        self.assertRaises(TypeError, pygame.math.lerp, "str", "str", "str")
+
+        # Percent outside range [0, 1]
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, 1.1)
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, -0.5)
+
     def test_clamp(self):
         """Test clamp function."""
 

@@ -20,6 +20,7 @@ if sys.version_info >= (3, 9):
 else:
     from typing import Collection
 
+def lerp(a: float, b: float, weight: float) -> float: ...
 def clamp(value: float, min: float, max: float) -> float: ...
 
 _TVec = TypeVar("_TVec", bound=_GenericVector)
