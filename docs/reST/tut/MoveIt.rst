@@ -549,6 +549,9 @@ sure we understand everything. ::
   ...     o = GameObject(entity, x*40, x)
   ...     objects.append(o)
   >>> while True:
+  ...     screen.blit(background, p.pos, p.pos)
+  ...     for o in objects:
+  ...         screen.blit(background, o.pos, o.pos)
   ...     keys = pygame.key.get_pressed()
   ...     if keys[pygame.K_UP]:
   ...         p.move(up=True)
@@ -561,8 +564,7 @@ sure we understand everything. ::
   ...     for event in pygame.event.get():
   ...         if event.type == pygame.QUIT:
   ...             sys.exit()
-  ...     for o in objects:
-  ...         screen.blit(background, o.pos, o.pos)
+  ...     screen.blit(p.image, p.pos)
   ...     for o in objects:
   ...         o.move()
   ...         screen.blit(o.image, o.pos)
