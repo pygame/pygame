@@ -2539,7 +2539,7 @@ class Vector3TypeTest(unittest.TestCase):
         v = Vector3()
         v.from_spherical(self.v1.as_spherical())
         self.assertEqual(self.v1, v)
-        self.assertEqula(self.v1, Vector2.from_spherical(self.v1.as_spherical()))
+        self.assertEqual(self.v1, Vector3.from_spherical(self.v1.as_spherical()))
         self.assertEqual(self.e1.as_spherical(), (1, 90, 0))
         self.assertEqual(self.e2.as_spherical(), (1, 90, 90))
         self.assertEqual(self.e3.as_spherical(), (1, 0, 0))
@@ -2558,8 +2558,8 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: Vector3.from_spherical(1, 2, 3))
         v.from_spherical((0.5, 90, 90))
         self.assertEqual(v, 0.5 * self.e2)
-        self.assertEqual(Vector2.from_spherical((0.5, 90, 90)), 0.5 * self.e2)
-        self.assertEqual(Vector2.from_spherical((0.5, 90, 90)), v)
+        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), 0.5 * self.e2)
+        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), v)
 
     def test_inplace_operators(self):
         v = Vector3(1, 1, 1)

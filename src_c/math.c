@@ -4343,7 +4343,7 @@ com_descr_get(PyObject *self, PyObject *obj, PyObject *type)
                         "Uninitialized ClassObjectMethod object");
         return NULL;
     }
-    if (obj == NULL || Py_IsNone(obj)) {
+    if (obj == NULL) {
         if (type == NULL)
             return NULL;
         return PyMethod_New(com->cls_callable, type);
