@@ -4369,7 +4369,7 @@ com_init(PyObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyTypeObject PyClassObjectMethod_Type = {
+static PyTypeObject pgClassObjectMethod_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "classmethod",
     .tp_basicsize = sizeof(ClassObjectMethod),
     .tp_dealloc = (destructor)com_dealloc,
@@ -4385,10 +4385,10 @@ static PyTypeObject PyClassObjectMethod_Type = {
 };
 
 PyObject *
-PyClassObjectMethod_New(PyObject *cls_callable, PyObject *obj_callable)
+pgClassObjectMethod_New(PyObject *cls_callable, PyObject *obj_callable)
 {
     ClassObjectMethod *com =
-        (ClassObjectMethod *)PyType_GenericAlloc(&PyClassObjectMethod_Type, 0);
+        (ClassObjectMethod *)PyType_GenericAlloc(&pgClassObjectMethod_Type, 0);
     if (com != NULL) {
         Py_INCREF(cls_callable);
         Py_INCREF(obj_callable);
@@ -4422,8 +4422,8 @@ MODINIT_DEFINE(math)
 #endif
 {
     PyObject *module, *apiobj;
-    PyObject *from_polar_cls, *from_polar_obj, *from_spherical_cls,
-        *from_spherical_obj;
+    PyObject *from_polar_cls, *from_polar_obj, *from_polar,
+        *from_spherical_cls, *from_spherical_obj, *from_spherical;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -4440,7 +4440,8 @@ MODINIT_DEFINE(math)
     if ((PyType_Ready(&pgVector2_Type) < 0) ||
         (PyType_Ready(&pgVector3_Type) < 0) ||
         (PyType_Ready(&pgVectorIter_Type) < 0) ||
-        (PyType_Ready(&pgVectorElementwiseProxy_Type) < 0) /*||
+        (PyType_Ready(&pgVectorElementwiseProxy_Type) < 0) ||
+        (PyType_Ready(&pgClassObjectMethod_Type) < 0) /*||
         (PyType_Ready(&pgVector4_Type) < 0)*/) {
         return NULL;
     }
@@ -4452,6 +4453,46 @@ MODINIT_DEFINE(math)
         return NULL;
     }
 
+    /* from_polar */
+    from_polar_cls = PyCFunction_New(&classobject_defs[0], NULL);
+    from_polar_obj = PyCFunction_New(&classobject_defs[1], NULL);
+    if (from_polar_cls == NULL || from_polar_obj == NULL) {
+        return NULL;
+    }
+    Py_INCREF(from_polar_cls);
+    Py_INCREF(from_polar_obj);
+    from_polar = pgClassObjectMethod_New(from_polar_cls, from_polar_obj);
+    if (from_polar == NULL) {
+        return NULL;
+    }
+    Py_INCREF(from_polar);
+    PyDict_SetItemString(pgVector2_Type.tp_dict, "from_polar", from_polar);
+    PyType_Modified(&pgVector2_Type);
+    Py_DECREF(from_polar);
+    Py_DECREF(from_polar_cls);
+    Py_DECREF(from_polar_obj);
+
+    /* from_spherical */
+    from_spherical_cls = PyCFunction_New(&classobject_defs[2], NULL);
+    from_spherical_obj = PyCFunction_New(&classobject_defs[3], NULL);
+    if (from_spherical_cls == NULL || from_spherical_obj == NULL) {
+        return NULL;
+    }
+    Py_INCREF(from_spherical_cls);
+    Py_INCREF(from_spherical_obj);
+    from_spherical =
+        pgClassObjectMethod_New(from_spherical_cls, from_spherical_obj);
+    if (from_spherical == NULL) {
+        return NULL;
+    }
+    Py_INCREF(from_spherical);
+    PyDict_SetItemString(pgVector3_Type.tp_dict, "from_spherical",
+                         from_spherical);
+    PyType_Modified(&pgVector3_Type);
+    Py_DECREF(from_spherical);
+    Py_DECREF(from_spherical_cls);
+    Py_DECREF(from_spherical_obj);
+
     /* add extension types to module */
     Py_INCREF(&pgVector2_Type);
     Py_INCREF(&pgVector3_Type);
@@ -4460,28 +4501,6 @@ MODINIT_DEFINE(math)
     /*
     Py_INCREF(&pgVector4_Type);
     */
-
-    /* from_polar */
-    from_polar_cls = PyCFunction_New(&classobject_defs[0], NULL);
-    from_polar_obj = PyCFunction_New(&classobject_defs[1], NULL);
-    Py_INCREF(from_polar_cls);
-    Py_INCREF(from_polar_obj);
-    PyDict_SetItemString(
-        pgVector2_Type.tp_dict, "from_polar",
-        PyClassObjectMethod_New(from_polar_cls, from_polar_obj));
-    Py_DECREF(from_polar_cls);
-    Py_DECREF(from_polar_obj);
-
-    /* from_spherical */
-    from_spherical_cls = PyCFunction_New(&classobject_defs[2], NULL);
-    from_spherical_obj = PyCFunction_New(&classobject_defs[3], NULL);
-    Py_INCREF(from_spherical_cls);
-    Py_INCREF(from_spherical_obj);
-    PyDict_SetItemString(
-        pgVector3_Type.tp_dict, "from_spherical",
-        PyClassObjectMethod_New(from_spherical_cls, from_spherical_obj));
-    Py_DECREF(from_spherical_cls);
-    Py_DECREF(from_spherical_obj);
 
     if ((PyModule_AddObject(module, "Vector2", (PyObject *)&pgVector2_Type) !=
          0) ||
