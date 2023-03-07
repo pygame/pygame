@@ -15,6 +15,7 @@ pg_neon_at_runtime_but_uncompiled();
 int
 pg_avx2_at_runtime_but_uncompiled();
 
+#if !defined(_M_ARM64)
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 void
 alphablit_alpha_sse2_argb_surf_alpha(SDL_BlitInfo *info);
@@ -82,3 +83,4 @@ void
 blit_blend_rgba_min_avx2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_avx2(SDL_BlitInfo *info);
+#endif /* !defined(_M_ARM64) */

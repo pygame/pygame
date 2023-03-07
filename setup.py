@@ -766,7 +766,6 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                             del e.sources[i]
                             return
 
-
         if not 'ARM64' in sys.version:
             replace_scale_mmx()
 

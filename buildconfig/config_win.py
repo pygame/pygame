@@ -11,6 +11,7 @@ except ImportError:
 import os, sys
 import re
 import logging
+import platform
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
@@ -20,6 +21,8 @@ def get_ptr_size():
 
 def as_machine_type(size):
     """Return pointer bit size as a Windows machine type"""
+    if platform.system() == 'Windows' and platform.machine() == 'ARM64':
+        return "ARM64"
     if size == 32:
         return "x86"
     if size == 64:
@@ -470,9 +473,10 @@ def main(auto_config=False):
     download_kwargs = {
         'x86': False,
         'x64': False,
+        'ARM64' : False,
     }
     download_kwargs[machine_type] = True
-
+    
     if not auto_download:
         if (not download_win_prebuilt.cached(**download_kwargs) or\
             not os.path.isdir(prebuilt_dir))\
