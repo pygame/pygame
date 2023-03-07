@@ -2464,7 +2464,7 @@ vector2_from_polar_cls(PyObject *self, PyObject *args)
 {
     PyObject *type, *argList, *vec;
     double r, phi;
-    if (!PyArg_ParseTuple(args, "O(dd):Vector.fron_polar", &type, &r, &phi) ||
+    if (!PyArg_ParseTuple(args, "O(dd):Vector.from_polar", &type, &r, &phi) ||
         type == NULL) {
         return NULL;
     }
@@ -4305,6 +4305,42 @@ static PyMethodDef _math_methods[] = {
  * ClassObjectMethod Descriptor
  ********************************/
 
+/* This is a descriptor for a method that have a different functionality
+ * when called from the class and when called from an object. Its
+ * funcionaliy and its use for implementing the from_polar method is
+ * equal to:
+
+    from math import cos, sin
+    from types import MethodType
+
+    class ClassObjectMethod:
+        def __init__(self, clsFunc, objFunc):
+            self.clsFunc = clsFunc
+            self.objFunc = objFunc
+        def __get__(self, obj, cls=None):
+            if obj is None:
+                return MethodType(self.clsFunc, cls)
+            return MethodType(self.objFunc, obj)
+
+    def from_polar_cls(cls, r, phi):
+        return cls(r*cos(phi), r*sin(phi))
+
+    def from_polar_obj(obj, r, phi):
+        obj.x = r*cos(phi)
+        obj.y = r*sin(phi)
+
+    class vec:
+        from_polar = ClassObjectMethod(from_polar_cls, from_polar_obj)
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+        def __str__(self):
+            return f'vec({self.x}, {self.y})'
+
+ * The C code is based on the implementation of the ClassMethod
+ * decorator, in cpython/Objects/funcobject.c
+ */
+
 typedef struct {
     PyObject_HEAD PyObject *cls_callable, *obj_callable;
 } ClassObjectMethod;
@@ -4360,7 +4396,7 @@ com_init(PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_UnpackTuple(args, "ClassObjectMethod", 2, 2, &cls_callable,
                            &obj_callable))
         return -1;
-    if (!_PyArg_NoKeywords("classmethod", kwds))
+    if (!_PyArg_NoKeywords("ClassObjectMethod", kwds))
         return -1;
     Py_INCREF(cls_callable);
     Py_INCREF(obj_callable);
@@ -4370,7 +4406,7 @@ com_init(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyTypeObject pgClassObjectMethod_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "classmethod",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "ClassObjectMethod",
     .tp_basicsize = sizeof(ClassObjectMethod),
     .tp_dealloc = (destructor)com_dealloc,
     .tp_getattro = PyObject_GenericGetAttr,
