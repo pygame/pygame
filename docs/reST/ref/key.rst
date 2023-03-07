@@ -266,6 +266,11 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
       translate these pushed keys into a fully translated character value. See
       the ``pygame.KEYDOWN`` events on the :mod:`pygame.event` queue for this
       functionality.
+   
+   .. versionadded:: 2.2.0
+      The collection of bools returned by ``get_pressed`` can not be iterated
+      over because the indexes of the internal tuple does not correpsond to the 
+      keycodes.
 
    .. ## pygame.key.get_pressed ##
 
@@ -332,9 +337,28 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 .. function:: name
 
    | :sl:`get the name of a key identifier`
-   | :sg:`name(key) -> string`
+   | :sg:`name(key, use_compat=True) -> str`
 
    Get the descriptive name of the button from a keyboard button id constant.
+   Returns an empty string (``""``) if the key is not found.
+
+   If ``use_compat`` argument is ``True`` (which is the default), this function
+   returns the legacy name of a key where applicable. The return value is
+   expected to be the same across different pygame versions (provided the
+   corresponding key constant exists and is unique). If the return value is
+   passed to the ``key_code`` function, the original constant will be returned.
+
+   **Experimental:** ``use_compat`` paramater still in development for testing and feedback. It may change.
+   `Please leave use_compat feedback with authors <https://github.com/pygame/pygame/pull/3312>`_
+
+   If this argument is ``False``, the returned name may be prettier to display
+   and may cover a wider range of keys than with ``use_compat``, but there are
+   no guarantees that this name will be the same across different pygame
+   versions. If the name returned is passed to the ``key_code`` function, the
+   original constant is returned back (this is an implementation detail which
+   may change later, do not rely on this)
+
+   .. versionchanged:: 2.1.3 Added ``use_compat`` argument and guaranteed API stability for it
 
    .. ## pygame.key.name ##
 
@@ -356,9 +380,6 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
         True
 
    :raises ValueError: if the key name is not known.
-   :raises NotImplementedError: if used with SDL 1.
-
-   .. ## pygame.key.key_code ##
 
    .. versionadded:: 2.0.0
 

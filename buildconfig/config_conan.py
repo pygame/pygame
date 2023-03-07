@@ -28,7 +28,7 @@ class Dependency:
                 for n in info["frameworks"]:
                     # -Xlinker is a weird thing for distutils.extension.read_setup_file
                     # so that it can pass things through to the linker from the Setup file.
-                    self.cflags += (' -Xlinker "-framework" -Xlinker "' + n + '"')
+                    self.cflags += (f' -Xlinker "-framework" -Xlinker "{n}"')
 
         if not extra_libs is None:
             self.libs.extend(extra_libs)

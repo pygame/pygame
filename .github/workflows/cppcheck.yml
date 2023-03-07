@@ -8,7 +8,9 @@ on:
       - 'src_c/**'
 
   pull_request:
-    branches: main
+    branches:
+      - main
+      - 'v**'
     paths:
       - 'src_c/**'
 

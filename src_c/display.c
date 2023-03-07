@@ -366,7 +366,7 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "VidInfo",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.display.VidInfo",
     .tp_basicsize = sizeof(pgVidInfoObject),
     .tp_dealloc = pg_vidinfo_dealloc,
     .tp_getattr = pg_vidinfo_getattr,
@@ -474,7 +474,6 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
     tmp = PyLong_FromLongLong((long long)info.info.win.hdc);
     PyDict_SetItemString(dict, "hdc", tmp);
     Py_DECREF(tmp);
-
     tmp = PyLong_FromLongLong((long long)info.info.win.hinstance);
     PyDict_SetItemString(dict, "hinstance", tmp);
     Py_DECREF(tmp);
@@ -539,16 +538,6 @@ pg_get_wm_info(PyObject *self, PyObject *_null)
 
     tmp = PyCapsule_New(info.info.wl.shell_surface, "shell_surface", NULL);
     PyDict_SetItemString(dict, "shell_surface", tmp);
-    Py_DECREF(tmp);
-#endif
-#if defined(SDL_VIDEO_DRIVER_MIR) /* no longer available, left for API/ABI \
-                                     compatibility. Remove in 2.1! */
-    tmp = PyCapsule_New(info.info.mir.connection, "connection", NULL);
-    PyDict_SetItemString(dict, "connection", tmp);
-    Py_DECREF(tmp);
-
-    tmp = PyCapsule_New(info.info.mir.surface, "surface", NULL);
-    PyDict_SetItemString(dict, "surface", tmp);
     Py_DECREF(tmp);
 #endif
 #if defined(SDL_VIDEO_DRIVER_ANDROID)
@@ -691,24 +680,20 @@ static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Window *pygame_window;
-    PyObject *self;
     _DisplayState *state;
     SDL_Window *window;
 
     if (event->type != SDL_WINDOWEVENT)
         return 0;
 
-    self = (PyObject *)userdata;
     pygame_window = pg_GetDefaultWindow();
-    state = DISPLAY_MOD_STATE(self);
+    state = DISPLAY_MOD_STATE((PyObject *)userdata);
 
     window = SDL_GetWindowFromID(event->window.windowID);
     if (window != pygame_window)
         return 0;
 
     if (pg_renderer != NULL) {
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-
         if (event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
             SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
         }
@@ -717,7 +702,6 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
                 pg_renderer, !(SDL_GetHintBoolean(
                                  "SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE)));
         }
-#endif
         return 0;
     }
 
@@ -761,15 +745,17 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
 }
 
 static PyObject *
-pg_display_set_autoresize(PyObject *self, PyObject *args)
+pg_display_set_autoresize(PyObject *self, PyObject *arg)
 {
-    SDL_bool do_resize;
+    int do_resize;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
 
-    if (!PyArg_ParseTuple(args, "p", &do_resize))
+    do_resize = PyObject_IsTrue(arg);
+    if (do_resize == -1) {
         return NULL;
+    }
 
-    state->auto_resize = do_resize;
+    state->auto_resize = (SDL_bool)do_resize;
     SDL_DelEventWatch(pg_ResizeEventWatch, self);
 
     if (do_resize) {
@@ -842,7 +828,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
        screen as the old one */
     int display = _get_display(win);
     char *title = state->title;
-    int init_flip = 0;
     char *scale_env;
 
     char *keywords[] = {"size", "flags", "depth", "display", "vsync", NULL};
@@ -1039,21 +1024,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_Rect display_bounds;
                 int fractional_scaling = SDL_FALSE;
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 if (0 !=
                     SDL_GetDisplayUsableBounds(display, &display_bounds)) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
-#else
-                display_bounds.w = display_mode.w - 80;
-                display_bounds.h = display_mode.h - 30;
-#endif
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 if (SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",
                                        SDL_FALSE))
                     fractional_scaling = SDL_TRUE;
-#endif
                 if (state->scaled_gl)
                     fractional_scaling = SDL_TRUE;
 
@@ -1097,10 +1075,18 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (!win) {
                 /*open window*/
-                win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
+
+                char *window_id = SDL_getenv("SDL_WINDOWID");
+                if (window_id) {
+                    long long win_long = SDL_strtol(window_id, NULL, 0);
+                    win = SDL_CreateWindowFrom((const void *)win_long);
+                }
+                else {
+                    win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
+                }
+
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                init_flip = 1;
             }
             else {
                 /* set min size to (1,1) to erase any previously set min size
@@ -1114,22 +1100,24 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-                SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
-#endif
-                SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
-
-                if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
-                    SDL_ShowWindow(win);
-                else if (flags & PGS_HIDDEN)
-                    SDL_HideWindow(win);
-
+                /* The window must be brought out of fullscreen before the
+                 * resize/bordered/hidden changes due to SDL ignoring those
+                 * changes if the window is fullscreen
+                 * See https://github.com/pygame/pygame/issues/2711 */
                 if (0 !=
                     SDL_SetWindowFullscreen(
                         win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
                                           SDL_WINDOW_FULLSCREEN_DESKTOP))) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
+
+                SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
+                SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
+
+                if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
+                    SDL_ShowWindow(win);
+                else if (flags & PGS_HIDDEN)
+                    SDL_HideWindow(win);
 
                 SDL_SetWindowPosition(win, x, y);
 
@@ -1169,18 +1157,22 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                where the driver lies to us because the user has configured
                vsync to be always on or always off, or vsync is on by default
                for the whole desktop because of wayland GL compositing. */
-            if (vsync) {
+            if (vsync == -1) {
                 if (SDL_GL_SetSwapInterval(-1) != 0) {
                     if (PyErr_WarnEx(PyExc_Warning,
                                      "adaptive vsync for OpenGL not "
-                                     "available, trying regular",
+                                     "available",
                                      1) != 0) {
                         _display_state_cleanup(state);
                         goto DESTROY_WINDOW;
                     }
+                }
+            }
+            else {
+                if (vsync == 1) {
                     if (SDL_GL_SetSwapInterval(1) != 0) {
                         if (PyErr_WarnEx(PyExc_Warning,
-                                         "regular vsync for OpenGL *also* not "
+                                         "regular vsync for OpenGL not "
                                          "available",
                                          1) != 0) {
                             _display_state_cleanup(state);
@@ -1188,9 +1180,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         }
                     }
                 }
-            }
-            else {
-                SDL_GL_SetSwapInterval(0);
+                else {
+                    SDL_GL_SetSwapInterval(0);
+                }
             }
         }
         else {
@@ -1219,8 +1211,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                                      "failed to create renderer");
                     }
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-
                     /* use whole screen with uneven pixels on fullscreen,
                        exact scale otherwise.
                        we chose the window size for this to work */
@@ -1229,7 +1219,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         !(flags & PGS_FULLSCREEN ||
                           SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",
                                              SDL_FALSE)));
-#endif
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
                     /* this must be called after creating the renderer!*/
                     SDL_SetWindowMinimumSize(win, w, h);
@@ -1310,11 +1299,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         pg_SetDefaultWindowSurface(surface);
         Py_DECREF(surface);
 
-        /* ensure window is initially black */
-        if (init_flip) {
-            SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
-            pg_flip_internal(state);
-        }
+        /* ensure window is always black after a set_mode call */
+        SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
+        pg_flip_internal(state);
     }
 
     /*set the window icon*/
@@ -1806,6 +1793,12 @@ pg_set_palette(PyObject *self, PyObject *args)
 static PyObject *
 pg_set_gamma(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma deprecated since 2.2.0",
+                     1) == -1) {
+        return NULL;
+    }
+
     float r, g, b;
     int result = 0;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -1862,14 +1855,29 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
         return 0;
     }
     for (i = 0; i < 256; i++) {
+        long ret;
         item = PySequence_GetItem(python_array, i);
+        if (!item) {
+            return 0;
+        }
         if (!PyLong_Check(item)) {
             PyErr_SetString(PyExc_ValueError,
                             "gamma ramp must contain integer elements");
             return 0;
         }
-        c_uint16_array[i] = (Uint16)PyLong_AsLong(item);
+        ret = PyLong_AsLong(item);
         Py_XDECREF(item);
+        if (ret < 0 || ret >= 0xFFFF) {
+            if (PyErr_Occurred()) {
+                /* Happens when PyLong_AsLong overflows */
+                return 0;
+            }
+            PyErr_SetString(
+                PyExc_ValueError,
+                "integers in gamma ramp must be between 0 and 0xFFFF");
+            return 0;
+        }
+        c_uint16_array[i] = (Uint16)ret;
     }
     return 1;
 }
@@ -1877,6 +1885,12 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
 static PyObject *
 pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.display.set_gamma_ramp deprecated since 2.2.0",
+                     1) == -1) {
+        return NULL;
+    }
+
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));
@@ -1959,13 +1973,14 @@ pg_get_caption(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_set_icon(PyObject *self, PyObject *arg)
+pg_set_icon(PyObject *self, PyObject *surface)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface;
-    if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
-        return NULL;
+    if (!pgSurface_Check(surface)) {
+        return RAISE(PyExc_TypeError,
+                     "Argument to set_icon must be a Surface");
+    }
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         if (!pg_display_init(NULL, NULL))
@@ -2071,7 +2086,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result, flags;
-    int window_w, window_h, w, h, window_display;
+    int window_w, window_h, w, h, window_display, x, y;
     SDL_DisplayMode display_mode;
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -2083,8 +2098,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    flags = SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP;
-    /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
+    flags = SDL_GetWindowFlags(win);
 
     SDL_VERSION(&wm_info.version);
     if (!SDL_GetWindowWMInfo(win, &wm_info)) {
@@ -2107,28 +2121,22 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         case SDL_SYSWM_WINDOWS:
         case SDL_SYSWM_X11:
         case SDL_SYSWM_COCOA:
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_WAYLAND:
-#endif
             break;
 
             // These probably have fullscreen/windowed, but not tested yet.
             // before merge, this section should be handled by moving items
             // into the "supported" category, or returning early.
 
-#if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
-#endif
             return PyLong_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
         // In the future, add consoles like xbone/switch here
         case SDL_SYSWM_DIRECTFB:
-        case SDL_SYSWM_UIKIT:  // iOS currently not supported by pygame
-#if SDL_VERSION_ATLEAST(2, 0, 4)
+        case SDL_SYSWM_UIKIT:    // iOS currently not supported by pygame
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
-#endif
             if (PyErr_WarnEx(PyExc_Warning,
                              "cannot leave FULLSCREEN on this platform",
                              1) != 0) {
@@ -2137,12 +2145,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             return PyLong_FromLong(-1);
 
             // Untested and unsupported platforms
-#if SDL_VERSION_ATLEAST(2, 0, 2)
         case SDL_SYSWM_MIR:  // nobody uses mir any more, wayland has won
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_SYSWM_VIVANTE:
-#endif
         case SDL_SYSWM_UNKNOWN:
         default:
             return RAISE(pgExc_SDLError, "Unsupported platform");
@@ -2152,6 +2156,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
+    SDL_GetWindowPosition(win, &x, &y);
     window_display = SDL_GetWindowDisplayIndex(win);
     if (SDL_GetDesktopDisplayMode(window_display, &display_mode) != 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2203,12 +2208,10 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             }
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
             /* use exact integer scale in windowed mode */
             SDL_RenderSetIntegerScale(
                 pg_renderer, !SDL_GetHintBoolean(
                                  "SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE));
-#endif
             SDL_SetWindowMinimumSize(win, w, h);
         }
         else if (state->using_gl) {
@@ -2268,7 +2271,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                              1) != 0) {
                 return NULL;
             }
-            win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+            flags &= ~SDL_WINDOW_FULLSCREEN_DESKTOP;
+            /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
+            win = SDL_CreateWindow(state->title, wx, wy, w, h, flags);
             if (win == NULL) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
@@ -2287,12 +2292,31 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
         }
         state->toggle_windowed_w = 0;
         state->toggle_windowed_h = 0;
+
+        x = state->fullscreen_backup_x;
+        y = state->fullscreen_backup_y;
+
+        // if the program goes into fullscreen first the "saved
+        // x and y" are "undefined position" that should be
+        // interpreted as a cue to center the window
+        if (x == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display))
+            x = SDL_WINDOWPOS_CENTERED_DISPLAY(window_display);
+        if (y == (int)SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display))
+            y = SDL_WINDOWPOS_CENTERED_DISPLAY(window_display);
+
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+        SDL_SetWindowResizable(win, flags & SDL_WINDOW_RESIZABLE);
+#endif
+        SDL_SetWindowBordered(win, (flags & SDL_WINDOW_BORDERLESS) == 0);
+
+        SDL_SetWindowPosition(win, x, y);
     }
     else {
         /* TOGGLE FULLSCREEN ON */
-
         state->toggle_windowed_w = w;
         state->toggle_windowed_h = h;
+        state->fullscreen_backup_x = x;
+        state->fullscreen_backup_y = y;
         if (pg_renderer != NULL) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -2318,9 +2342,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
             }
 
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
             SDL_RenderSetIntegerScale(pg_renderer, SDL_FALSE);
-#endif
         }
         else if (state->using_gl) {
             result =
@@ -2375,8 +2397,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *_null)
                 h != display_surface->surf->h) {
                 int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
-                win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+                win = SDL_CreateWindow(state->title, wx, wy, w, h, flags);
                 if (win == NULL) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+                if (0 != SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN)) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
                 display_surface->surf = SDL_GetWindowSurface(win);
@@ -2536,14 +2561,14 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
-    {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
+    {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
 
     {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
      DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
-    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_VARARGS,
+    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize, METH_O,
      "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "DEPRECATED, never officially supported, kept only for compatibility "

@@ -158,6 +158,51 @@ class TransformModuleTest(unittest.TestCase):
         dest = pygame.Surface((64, 48))
         pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
 
+    def test_grayscale(self):
+        s = pygame.Surface((32, 32))
+        s.fill((255, 0, 0))
+
+        s2 = pygame.transform.grayscale(s)
+        self.assertEqual(pygame.transform.average_color(s2)[0], 76)
+        self.assertEqual(pygame.transform.average_color(s2)[1], 76)
+        self.assertEqual(pygame.transform.average_color(s2)[2], 76)
+
+        dest = pygame.Surface((32, 32), depth=32)
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 76)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 76)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 76)
+
+        dest = pygame.Surface((32, 32), depth=32)
+        s.fill((34, 12, 65))
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 24)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 24)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 24)
+
+        dest = pygame.Surface((32, 32), depth=32)
+        s.fill((123, 123, 123))
+        pygame.transform.grayscale(s, dest)
+        self.assertIn(pygame.transform.average_color(dest)[0], [123, 122])
+        self.assertIn(pygame.transform.average_color(dest)[1], [123, 122])
+        self.assertIn(pygame.transform.average_color(dest)[2], [123, 122])
+
+        s = pygame.Surface((32, 32), depth=24)
+        s.fill((255, 0, 0))
+        dest = pygame.Surface((32, 32), depth=24)
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 76)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 76)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 76)
+
+        s = pygame.Surface((32, 32), depth=16)
+        s.fill((255, 0, 0))
+        dest = pygame.Surface((32, 32), depth=16)
+        pygame.transform.grayscale(s, dest)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 72)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 76)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 72)
+
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
 
@@ -478,7 +523,6 @@ class TransformModuleTest(unittest.TestCase):
 
     # XXX
     def test_threshold_non_src_alpha(self):
-
         result = pygame.Surface((10, 10))
         s1 = pygame.Surface((10, 10))
         s2 = pygame.Surface((10, 10))
@@ -866,7 +910,6 @@ class TransformModuleTest(unittest.TestCase):
         )
 
     def test_average_surfaces__24(self):
-
         SIZE = 32
         depth = 24
         s1 = pygame.Surface((SIZE, SIZE), 0, depth)
@@ -1068,7 +1111,6 @@ class TransformModuleTest(unittest.TestCase):
             self.assertTrue(s.get_at(pt) == color)
 
     def test_scale2x(self):
-
         # __doc__ (as of 2008-06-25) for pygame.transform.scale2x:
 
         # pygame.transform.scale2x(Surface, DestSurface = None): Surface
@@ -1116,16 +1158,19 @@ class TransformModuleTest(unittest.TestCase):
         # All machines should allow returning to original value.
         # Also check that keyword argument works.
         pygame.transform.set_smoothscale_backend(backend=original_type)
+
         # Something invalid.
         def change():
             pygame.transform.set_smoothscale_backend("mmx")
 
         self.assertRaises(ValueError, change)
+
         # Invalid argument keyword.
         def change():
             pygame.transform.set_smoothscale_backend(t="GENERIC")
 
         self.assertRaises(TypeError, change)
+
         # Invalid argument type.
         def change():
             pygame.transform.set_smoothscale_backend(1)
@@ -1205,7 +1250,6 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(test_surface.get_size(), (20, 20))
 
     def test_rotozoom(self):
-
         # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
 
         # pygame.transform.rotozoom(Surface, angle, scale): return Surface

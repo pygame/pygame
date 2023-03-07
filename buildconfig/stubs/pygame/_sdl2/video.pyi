@@ -66,7 +66,6 @@ class Window:
     size: Iterable[int]
     position: Union[int, Iterable[int]]
     opacity: float
-    brightness: float
     display_index: int
     def set_modal_for(self, Window) -> None: ...
 
@@ -138,7 +137,7 @@ class Renderer:
     def set_viewport(self, area: Optional[RectValue]) -> None: ...
     logical_size: Iterable[int]
     scale: Iterable[float]
-    target: Union[Texture, None]
+    target: Optional[Texture]
     def blit(
         self,
         source: Union[Texture, Image],

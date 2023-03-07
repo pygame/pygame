@@ -24,7 +24,7 @@ class TouchTest(unittest.TestCase):
     def test_get_device(self):
         touch.get_device(0)
 
-    def test_num_fingers__invalid(self):
+    def test_get_device__invalid(self):
         self.assertRaises(pygame.error, touch.get_device, -1234)
         self.assertRaises(TypeError, touch.get_device, "test")
 
@@ -38,7 +38,6 @@ class TouchTest(unittest.TestCase):
 
 
 class TouchInteractiveTest(unittest.TestCase):
-
     __tags__ = ["interactive"]
 
     @unittest.skipIf(not has_touchdevice, "no touch devices found")
@@ -75,7 +74,7 @@ class TouchInteractiveTest(unittest.TestCase):
                     for finger_index in range(0, num_fingers):
                         data = pygame._sdl2.touch.get_finger(first_device, finger_index)
                         render = font.render(
-                            "finger - " + str(data), True, pygame.Color("#000000")
+                            f"finger - {data}", True, pygame.Color("#000000")
                         )
 
                         finger_data_renders.append(render)

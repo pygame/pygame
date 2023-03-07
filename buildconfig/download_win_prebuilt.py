@@ -80,6 +80,8 @@ def get_urls(x86=True, x64=True, ARM64=True):
         [
         'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2-devel-2.0.22-VC.zip',
         '4606b4852ef71f316d96c9138d94eee27993bcb4',
+#        'https://www.libsdl.org/release/SDL2-devel-2.24.2-VC.zip',
+#        '19b1e9f5bcf700a402bb924c0194c96596283c32',
         ],
         [
         'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_image-devel-2.0.5-VC.zip',
@@ -92,6 +94,12 @@ def get_urls(x86=True, x64=True, ARM64=True):
         [
         'https://github.com/RockLakeGrass/SDL-Windows-ARM64/releases/download/SDL2-pygame-deps/SDL2_mixer-devel-2.6.0-VC.zip',
         '46df71b401cfb2a63a213a195b192118feaa98ad',
+#        'https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.1/SDL2_ttf-devel-2.20.1-VC.zip',
+#        '371606aceba450384428fd2852f73d2f6290b136'
+#        ],
+#        [
+#        'https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.2/SDL2_mixer-devel-2.6.2-VC.zip',
+#        '000e3ea8a50261d46dbd200fb450b93c59ed4482',
         ],
     ])
     if x86:
@@ -230,29 +238,29 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, ARM64=
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_mixer-2.6.0'
+                'SDL2_mixer-2.6.2'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_ttf-devel-2.20.0-VC/SDL2_ttf-2.20.0'
+                'SDL2_ttf-devel-2.20.1-VC/SDL2_ttf-2.20.1'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_ttf-2.20.0'
+                'SDL2_ttf-2.20.1'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.22-VC/SDL2-2.0.22'
+                'SDL2-devel-2.24.2-VC/SDL2-2.24.2'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.22'
+                'SDL2-2.24.2'
             )
         )
 

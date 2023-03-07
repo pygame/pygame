@@ -282,7 +282,7 @@ class Error(Exception):
     prefix = "Error"
 
     def __str__(self):
-        return self.prefix + ": " + " ".join(self.args)
+        return f'{self.prefix}: {" ".join(self.args)}'
 
 
 class FormatError(Error):
@@ -2042,7 +2042,7 @@ class Reader:
             meta["alpha"] = bool(self.trns)
             meta["bitdepth"] = 8
             meta["planes"] = 3 + bool(self.trns)
-            plte = self.palette()
+            plte = list(self.palette())
 
             def iterpal(pixels):
                 for row in pixels:
@@ -2237,6 +2237,7 @@ class Reader:
 
         else:
             assert not meta["alpha"] and not meta["greyscale"]
+
             # RGB to RGBA
             def convert():
                 for row in pixels:
@@ -2491,7 +2492,7 @@ class Test(unittest.TestCase):
             it = Reader(bytes=bytes)
             x, y, pixels, meta = it.read()
             pngi = topngbytes(
-                "adam7wn" + name + ".png",
+                f"adam7wn{name}.png",
                 pixels,
                 x=x,
                 y=y,
@@ -2505,7 +2506,7 @@ class Test(unittest.TestCase):
             it = Reader(bytes=bytes)
             x, y, pixels, meta = it.read()
             pngs = topngbytes(
-                "adam7wi" + name + ".png",
+                f"adam7wi{name}.png",
                 pixels,
                 x=x,
                 y=y,

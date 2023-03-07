@@ -40,6 +40,10 @@ the instance ID that was assigned to a Joystick on opening.
 The event queue needs to be pumped frequently for some of the methods to work.
 So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regularly.
 
+To be able to get joystick events and update the joystick objects while the window
+is not in focus, you may set the ``SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS`` environment
+variable. See :ref:`environment variables <environment-variables>` for more details.
+
 
 .. function:: init
 
@@ -359,25 +363,124 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
    Example code for joystick module.
 
-.. literalinclude:: code_examples/joystick_calls.py
+.. literalinclude:: ../../../examples/joystick.py
 
 .. _controller-mappings:
 
 
-**Common Controller Axis Mappings**
+Common Controller Axis Mappings
+===============================
 
 Controller mappings are drawn from the underlying SDL library which pygame uses and they differ
-between pygame 1 and pygame 2. Below are a couple of mappings for two popular game pads.
-
-
-**Pygame 2**
+between pygame 1 and pygame 2. Below are a couple of mappings for three popular controllers.
 
 Axis and hat mappings are listed from -1 to +1.
 
 
-**X-Box 360 Controller (name: "Xbox 360 Controller")**
+Nintendo Switch Left Joy-Con (pygame 2.x)
+*****************************************
 
-In pygame 2 the X360 controller mapping has 6 Axes, 11 buttons and 1 hat.
+The Nintendo Switch Left Joy-Con has 4 axes, 11 buttons, and 0 hats. The values for the 4 axes never change.
+The controller is recognized as "Wireless Gamepad"
+
+
+* **Buttons**::
+
+    D-pad Up        - Button 0
+    D-pad Down      - Button 1
+    D-pad Left      - Button 2
+    D-pad Right     - Button 3
+    SL              - Button 4
+    SR              - Button 5
+    -               - Button 8
+    Stick In        - Button 10
+    Capture         - Button 13
+    L               - Button 14
+    ZL              - Button 15
+
+* **Hat/JoyStick**::
+
+    Down -> Up      - Y Axis
+    Left -> Right   - X Axis
+
+
+Nintendo Switch Right Joy-Con (pygame 2.x)
+******************************************
+
+The Nintendo Switch Right Joy-Con has 4 axes, 11 buttons, and 0 hats. The values for the 4 axes never change.
+The controller is recognized as "Wireless Gamepad"
+
+
+* **Buttons**::
+
+    A Button        - Button 0
+    B Button        - Button 1
+    X Button        - Button 2
+    Y Button        - Button 3
+    SL              - Button 4
+    SR              - Button 5
+    +               - Button 9
+    Stick In        - Button 11
+    Home            - Button 12
+    R               - Button 14
+    ZR              - Button 15
+
+* **Hat/JoyStick**::
+
+    Down -> Up      - Y Axis
+    Left -> Right   - X Axis
+
+
+Nintendo Switch Pro Controller (pygame 2.x)
+*******************************************
+
+The Nintendo Switch Pro Controller has 6 axes, 16 buttons, and 0 hats.
+The controller is recognized as "Nintendo Switch Pro Controller".
+
+
+* **Left Stick**::
+
+    Left -> Right   - Axis 0
+    Up -> Down      - Axis 1
+
+* **Right Stick**::
+
+    Left -> Right   - Axis 2
+    Up -> Down      - Axis 3
+
+* **Left Trigger**::
+
+    Out -> In       - Axis 4
+
+* **Right Trigger**::
+
+    Out -> In       - Axis 5
+
+* **Buttons**::
+
+    A Button        - Button 0
+    B Button        - Button 1
+    X Button        - Button 2
+    Y Button        - Button 3
+    - Button        - Button 4
+    Home Button     - Button 5
+    + Button        - Button 6
+    L. Stick In     - Button 7
+    R. Stick In     - Button 8
+    Left Bumper     - Button 9
+    Right Bumper    - Button 10
+    D-pad Up        - Button 11
+    D-pad Down      - Button 12
+    D-pad Left      - Button 13
+    D-pad Right     - Button 14
+    Capture Button  - Button 15
+
+
+XBox 360 Controller (pygame 2.x)
+********************************
+
+The Xbox 360 controller mapping has 6 axes, 11 buttons and 1 hat.
+The controller is recognized as "Xbox 360 Controller".
 
 * **Left Stick**::
 
@@ -417,9 +520,11 @@ In pygame 2 the X360 controller mapping has 6 Axes, 11 buttons and 1 hat.
     Left -> Right   - X Axis
 
 
-**Playstation 4 Controller (name: "PS4 Controller")**
+Playstation 4 Controller (pygame 2.x)
+*************************************
 
-In pygame 2 the PS4 controller mapping has 6 Axes and 16 buttons.
+The PlayStation 4 controller mapping has 6 axes and 16 buttons.
+The controller is recognized as "PS4 Controller".
 
 * **Left Stick**::
 
@@ -458,14 +563,12 @@ In pygame 2 the PS4 controller mapping has 6 Axes and 16 buttons.
     D-pad Right     - Button 14
     Touch Pad Click - Button 15
 
-**Pygame 1**
 
-Axis and hat mappings are listed from -1 to +1.
+XBox 360 Controller (pygame 1.x)
+********************************
 
-
-**X-Box 360 Controller (name: "Controller (XBOX 360 For Windows)")**
-
-In pygame 1 the X360 controller mapping has 5 Axes, 10 buttons and 1 hat.
+The Xbox 360 controller mapping has 5 axes, 10 buttons, and 1 hat.
+The controller is recognized as "Controller (XBOX 360 For Windows)".
 
 * **Left Stick**::
 
@@ -500,9 +603,11 @@ In pygame 1 the X360 controller mapping has 5 Axes, 10 buttons and 1 hat.
     Left -> Right   - X Axis
 
 
-**Playstation 4 Controller (name: "Wireless Controller")**
+Playstation 4 Controller (pygame 1.x)
+*************************************
 
-In pygame 1 the PS4 controller mapping has 6 Axes and 14 buttons and 1 hat.
+The PlayStation 4 controller mapping has 6 axes, 14 buttons, and 1 hat.
+The controller is recognized as "Wireless Controller".
 
 * **Left Stick**::
 

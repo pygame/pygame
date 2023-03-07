@@ -60,8 +60,8 @@ class FrameworkDependency(Dependency):
                 self.found = 1
                 self.inc_dir = fmwk + 'Headers'
                 self.cflags = (
-                    '-Xlinker "-framework" -Xlinker "' + self.libs + '"' +
-                    ' -Xlinker "-F' + n + '"')
+                    f'-Xlinker "-framework" -Xlinker "{self.libs}"' +
+                    f' -Xlinker "-F{n}"')
                 self.origlib = self.libs
                 self.libs = ''
                 return

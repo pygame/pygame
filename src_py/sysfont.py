@@ -99,8 +99,6 @@ def _parse_font_entry_win(name, font, fonts):
     :param name: The font name
     :param font: The font file path
     :param fonts: The pygame font dictionary
-
-    :return: Tuple of (bold, italic, name)
     """
     true_type_suffix = "(TrueType)"
     mods = ("demibold", "narrow", "light", "unicode", "bt", "mt")
@@ -161,13 +159,13 @@ def _font_finder_darwin():
 
     username = os.getenv("USER")
     if username:
-        locations.append("/Users/" + username + "/Library/Fonts")
+        locations.append(f"/Users/{username}/Library/Fonts")
 
     strange_root = "/System/Library/Assets/com_apple_MobileAsset_Font3"
     if exists(strange_root):
         strange_locations = os.listdir(strange_root)
         for loc in strange_locations:
-            locations.append(strange_root + "/" + loc + "/AssetData")
+            locations.append(f"{strange_root}/{loc}/AssetData")
 
     fonts = {}
 
@@ -474,7 +472,7 @@ def get_fonts():
     return list(Sysfonts)
 
 
-def match_font(name, bold=0, italic=0):
+def match_font(name, bold=False, italic=False):
     """pygame.font.match_font(name, bold=0, italic=0) -> name
     find the filename for the named system font
 

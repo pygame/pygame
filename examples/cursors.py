@@ -69,7 +69,7 @@ thickarrow_strings = (
 bitmap_cursor1 = pg.cursors.Cursor(
     (24, 24),
     (0, 0),
-    *pg.cursors.compile(thickarrow_strings, black="X", white=".", xor="o")
+    *pg.cursors.compile(thickarrow_strings, black="X", white=".", xor="o"),
 )
 
 
@@ -84,7 +84,6 @@ def check_circle(mouse_pos_x, mouse_pos_y, center_x, center_y, radius):
 
 
 def main():
-
     pg.init()
     pg.display.set_caption("Cursors Example")
 
@@ -157,7 +156,6 @@ def main():
     clock = pg.time.Clock()
 
     while True:
-
         clock.tick(50)
 
         mouse_x, mouse_y = pg.mouse.get_pos()
@@ -200,7 +198,7 @@ def main():
 
         bg.fill((183, 201, 226), (0, 15, bg.get_width(), 50))
         text1 = font.render(
-            ("This is a " + pg.mouse.get_cursor().type + " cursor"), True, (0, 0, 0)
+            (f"This is a {pg.mouse.get_cursor().type} cursor"), True, (0, 0, 0)
         )
         text_rect1 = text1.get_rect(center=(bg.get_width() / 2, 40))
         bg.blit(text1, text_rect1)
@@ -250,7 +248,6 @@ def main():
             pressed = False
 
         for event in pg.event.get():
-
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit
