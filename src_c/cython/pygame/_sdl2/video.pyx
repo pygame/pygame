@@ -212,7 +212,7 @@ cdef class Window:
     }
 
     @classmethod
-    def from_foreign_window(cls, other):
+    def from_window(cls, other):
         cdef Window self = cls.__new__(cls)
         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
         cdef long long data = other
