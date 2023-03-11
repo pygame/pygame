@@ -989,6 +989,8 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                            ((pgSurfaceObject *)self)->subsurface);
 }
@@ -1392,6 +1394,9 @@ surf_get_blendmode(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
