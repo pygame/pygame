@@ -2,6 +2,7 @@ from cpython cimport PyObject
 from pygame._sdl2.sdl2 import error
 from pygame._sdl2.sdl2 import error as errorfnc
 from libc.stdlib cimport free, malloc
+import os
 
 
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
@@ -33,6 +34,7 @@ cdef extern from "SDL.h" nogil:
     void SDL_FreeFormat(SDL_PixelFormat *format)
     int SDL_SetSurfaceBlendMode(SDL_Surface * surface, SDL_BlendMode blendMode)
     int SDL_GetSurfaceBlendMode(SDL_Surface * surface, SDL_BlendMode *blendMode)
+    SDL_Window * SDL_CreateWindowFrom(const void *data)
 
 
 cdef extern from "pygame.h" nogil:
@@ -208,6 +210,18 @@ cdef class Window:
         'tooltip': _SDL_WINDOW_TOOLTIP,
         'popup_menu': _SDL_WINDOW_POPUP_MENU,
     }
+
+    @classmethod
+    def from_foreign_window(cls, other):
+        cdef Window self = cls.__new__(cls)
+        os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
+        cdef long long data = other
+        cdef void* data_ptr = <void*>data
+        cdef SDL_Window* window = SDL_CreateWindowFrom(data_ptr)
+        self._win = window
+        self._is_borrowed = 0
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
+        return self
 
     @classmethod
     def from_display_module(cls):
