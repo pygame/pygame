@@ -130,6 +130,9 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
@@ -191,6 +194,9 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -265,6 +271,9 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -399,6 +408,9 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
@@ -521,6 +533,9 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
@@ -595,6 +610,9 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -678,6 +696,9 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -767,6 +788,9 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
@@ -884,6 +908,8 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
