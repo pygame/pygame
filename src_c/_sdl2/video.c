@@ -2224,7 +2224,6 @@ static const char __pyx_k_max_texture_height[] = "max_texture_height";
 static const char __pyx_k_pygame__sdl2_video[] = "pygame._sdl2.video";
 static const char __pyx_k_WINDOWPOS_UNDEFINED[] = "WINDOWPOS_UNDEFINED";
 static const char __pyx_k_from_display_module[] = "from_display_module";
-static const char __pyx_k_from_foreign_window[] = "from_foreign_window";
 static const char __pyx_k_num_texture_formats[] = "num_texture_formats";
 static const char __pyx_k_unknown_parameter_s[] = "unknown parameter: %s";
 static const char __pyx_k_expected_a_rectangle[] = "expected a rectangle";
@@ -2322,7 +2321,6 @@ static PyObject *__pyx_n_s_flip_x;
 static PyObject *__pyx_n_s_flip_y;
 static PyObject *__pyx_n_s_foreign;
 static PyObject *__pyx_n_s_from_display_module;
-static PyObject *__pyx_n_s_from_foreign_window;
 static PyObject *__pyx_n_s_from_surface;
 static PyObject *__pyx_n_s_from_window;
 static PyObject *__pyx_n_s_fullscreen;
@@ -2454,7 +2452,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_18RendererDriverInfo___repr__(CY
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_get_drivers(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_3get_grabbed_window(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_title, PyObject *__pyx_v_message, struct __pyx_obj_6pygame_5_sdl2_5video_Window *__pyx_v_window, int __pyx_v_info, int __pyx_v_warn, int __pyx_v_error, PyObject *__pyx_v_buttons, PyObject *__pyx_v_return_button, PyObject *__pyx_v_escape_button); /* proto */
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTypeObject *__pyx_v_cls, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_window(PyTypeObject *__pyx_v_cls, PyObject *__pyx_v_other); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_2from_display_module(PyTypeObject *__pyx_v_cls); /* proto */
 static int __pyx_pf_6pygame_5_sdl2_5video_6Window_4__init__(struct __pyx_obj_6pygame_5_sdl2_5video_Window *__pyx_v_self, PyObject *__pyx_v_title, PyObject *__pyx_v_size, PyObject *__pyx_v_position, int __pyx_v_fullscreen, int __pyx_v_fullscreen_desktop, PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_4grab___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Window *__pyx_v_self); /* proto */
@@ -4169,25 +4167,25 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObje
 /* "pygame/_sdl2/video.pyx":215
  * 
  *     @classmethod
- *     def from_foreign_window(cls, other):             # <<<<<<<<<<<<<<
+ *     def from_window(cls, other):             # <<<<<<<<<<<<<<
  *         cdef Window self = cls.__new__(cls)
  *         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_foreign_window(PyObject *__pyx_v_cls, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_foreign_window(PyObject *__pyx_v_cls, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_window(PyObject *__pyx_v_cls, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_window(PyObject *__pyx_v_cls, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("from_foreign_window (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(((PyTypeObject*)__pyx_v_cls), ((PyObject *)__pyx_v_other));
+  __Pyx_RefNannySetupContext("from_window (wrapper)", 0);
+  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_6Window_from_window(((PyTypeObject*)__pyx_v_cls), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTypeObject *__pyx_v_cls, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_window(PyTypeObject *__pyx_v_cls, PyObject *__pyx_v_other) {
   struct __pyx_obj_6pygame_5_sdl2_5video_Window *__pyx_v_self = 0;
   PY_LONG_LONG __pyx_v_data;
   void *__pyx_v_data_ptr;
@@ -4201,11 +4199,11 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTy
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("from_foreign_window", 0);
+  __Pyx_RefNannySetupContext("from_window", 0);
 
   /* "pygame/_sdl2/video.pyx":216
  *     @classmethod
- *     def from_foreign_window(cls, other):
+ *     def from_window(cls, other):
  *         cdef Window self = cls.__new__(cls)             # <<<<<<<<<<<<<<
  *         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
  *         cdef long long data = other
@@ -4221,7 +4219,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTy
   __pyx_t_1 = 0;
 
   /* "pygame/_sdl2/video.pyx":217
- *     def from_foreign_window(cls, other):
+ *     def from_window(cls, other):
  *         cdef Window self = cls.__new__(cls)
  *         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))             # <<<<<<<<<<<<<<
  *         cdef long long data = other
@@ -4311,7 +4309,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTy
   /* "pygame/_sdl2/video.pyx":215
  * 
  *     @classmethod
- *     def from_foreign_window(cls, other):             # <<<<<<<<<<<<<<
+ *     def from_window(cls, other):             # <<<<<<<<<<<<<<
  *         cdef Window self = cls.__new__(cls)
  *         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
  */
@@ -4321,7 +4319,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_6Window_from_foreign_window(PyTy
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pygame._sdl2.video.Window.from_foreign_window", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pygame._sdl2.video.Window.from_window", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_self);
@@ -19285,7 +19283,7 @@ static PyObject *__pyx_getprop_6pygame_5_sdl2_5video_6Window_display_index(PyObj
 }
 
 static PyMethodDef __pyx_methods_6pygame_5_sdl2_5video_Window[] = {
-  {"from_foreign_window", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_foreign_window, METH_O, 0},
+  {"from_window", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_6Window_1from_window, METH_O, 0},
   {"from_display_module", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_6Window_3from_display_module, METH_NOARGS, 0},
   {"set_windowed", (PyCFunction)__pyx_pw_6pygame_5_sdl2_5video_6Window_7set_windowed, METH_NOARGS, __pyx_doc_6pygame_5_sdl2_5video_6Window_6set_windowed},
   {"set_fullscreen", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pygame_5_sdl2_5video_6Window_9set_fullscreen, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygame_5_sdl2_5video_6Window_8set_fullscreen},
@@ -20343,7 +20341,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_flip_y, __pyx_k_flip_y, sizeof(__pyx_k_flip_y), 0, 0, 1, 1},
   {&__pyx_n_s_foreign, __pyx_k_foreign, sizeof(__pyx_k_foreign), 0, 0, 1, 1},
   {&__pyx_n_s_from_display_module, __pyx_k_from_display_module, sizeof(__pyx_k_from_display_module), 0, 0, 1, 1},
-  {&__pyx_n_s_from_foreign_window, __pyx_k_from_foreign_window, sizeof(__pyx_k_from_foreign_window), 0, 0, 1, 1},
   {&__pyx_n_s_from_surface, __pyx_k_from_surface, sizeof(__pyx_k_from_surface), 0, 0, 1, 1},
   {&__pyx_n_s_from_window, __pyx_k_from_window, sizeof(__pyx_k_from_window), 0, 0, 1, 1},
   {&__pyx_n_s_fullscreen, __pyx_k_fullscreen, sizeof(__pyx_k_fullscreen), 0, 0, 1, 1},
@@ -21784,24 +21781,24 @@ if (!__Pyx_RefNanny) {
   /* "pygame/_sdl2/video.pyx":215
  * 
  *     @classmethod
- *     def from_foreign_window(cls, other):             # <<<<<<<<<<<<<<
+ *     def from_window(cls, other):             # <<<<<<<<<<<<<<
  *         cdef Window self = cls.__new__(cls)
  *         os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
  */
-  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Window, __pyx_n_s_from_foreign_window); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 215, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Window, __pyx_n_s_from_window); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "pygame/_sdl2/video.pyx":214
  *     }
  * 
  *     @classmethod             # <<<<<<<<<<<<<<
- *     def from_foreign_window(cls, other):
+ *     def from_window(cls, other):
  *         cdef Window self = cls.__new__(cls)
  */
   __pyx_t_2 = __Pyx_Method_ClassMethod(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Window->tp_dict, __pyx_n_s_from_foreign_window, __pyx_t_2) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_6pygame_5_sdl2_5video_Window->tp_dict, __pyx_n_s_from_window, __pyx_t_2) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_6pygame_5_sdl2_5video_Window);
 
