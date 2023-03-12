@@ -274,17 +274,6 @@ pgRWops_IsFileObject(SDL_RWops *rw)
     return rw->close == _pg_rw_close;
 }
 
-char *
-pgRWops_GetFileExtension(SDL_RWops *rw)
-{
-    if (pgRWops_IsFileObject(rw)) {
-        return NULL;
-    }
-    else {
-        return rw->hidden.unknown.data1;
-    }
-}
-
 static Sint64
 _pg_rw_size(SDL_RWops *context)
 {
@@ -468,9 +457,7 @@ pgRWops_FromFileObject(PyObject *obj)
     helper->file = obj;
     Py_INCREF(obj);
 
-    /* Adding a helper to the hidden data to support file-like object RWops
-     * RWops from actual files use this space to store the file extension
-     * for later use */
+    /* Adding a helper to the hidden data to support file-like object RWops */
     rw->hidden.unknown.data1 = (void *)helper;
     rw->size = _pg_rw_size;
     rw->seek = _pg_rw_seek;
@@ -527,7 +514,6 @@ pgRWops_ReleaseObject(SDL_RWops *context)
 #endif /* WITH_THREAD */
     }
     else {
-        free(context->hidden.unknown.data1);
         ret = SDL_RWclose(context);
         if (ret < 0)
             PyErr_SetString(PyExc_IOError, SDL_GetError());
@@ -671,11 +657,19 @@ end:
 }
 
 static SDL_RWops *
-_rwops_from_pystr(PyObject *obj)
+_rwops_from_pystr(PyObject *obj, char **extptr)
 {
     SDL_RWops *rw = NULL;
     PyObject *oencoded;
     char *encoded = NULL;
+
+    /* If a valid extptr has been passed, we want it to default to NULL
+     * to show that an extension hasn't been procured (if it has it will
+     * get set to that later) */
+    if (extptr) {
+        *extptr = NULL;
+    }
+
     if (!obj) {
         // forward any errors
         return NULL;
@@ -694,21 +688,26 @@ _rwops_from_pystr(PyObject *obj)
     rw = SDL_RWFromFile(encoded, "rb");
 
     if (rw) {
-        /* adding the extension to the hidden data for RWops from files */
-        /* this is necessary to support loading functions that rely on
-         * file extensions in a convenient way. File-like objects use this
-         * field for a helper object. */
-        char *extension = NULL;
-        char *ext = strrchr(encoded, '.');
-        if (ext && strlen(ext) > 1) {
-            ext++;
-            extension = malloc(strlen(ext) + 1);
-            if (!extension) {
-                return (SDL_RWops *)PyErr_NoMemory();
+        /* If a valid extptr has been passed, populate it with a dynamically
+         * allocated field for the file extension. */
+        if (extptr) {
+            char *ext = strrchr(encoded, '.');
+            if (ext && strlen(ext) > 1) {
+                ext++;
+                *extptr = malloc(strlen(ext) + 1);
+                if (!(*extptr)) {
+                    /* If out of memory, decref oencoded to be safe, and try
+                     * to close out `rw` as well. */
+                    Py_DECREF(oencoded);
+                    if (SDL_RWclose(rw) < 0) {
+                        PyErr_SetString(PyExc_IOError, SDL_GetError());
+                    }
+                    return (SDL_RWops *)PyErr_NoMemory();
+                }
+                strcpy(*extptr, ext);
             }
-            strcpy(extension, ext);
         }
-        rw->hidden.unknown.data1 = (void *)extension;
+
         Py_DECREF(oencoded);
         return rw;
     }
@@ -752,13 +751,13 @@ simple_case:
 }
 
 static SDL_RWops *
-pgRWops_FromObject(PyObject *obj)
+pgRWops_FromObject(PyObject *obj, char **extptr)
 {
 #if __EMSCRIPTEN__
     SDL_RWops *rw;
     int retry = 0;
 again:
-    rw = _rwops_from_pystr(obj);
+    rw = _rwops_from_pystr(obj, extptr);
     if (retry)
         Py_XDECREF(obj);
     if (!rw) {
@@ -782,7 +781,7 @@ fail:
     goto fail;
     // unreachable.
 #else
-    SDL_RWops *rw = _rwops_from_pystr(obj);
+    SDL_RWops *rw = _rwops_from_pystr(obj, extptr);
     if (!rw) {
         if (PyErr_Occurred())
             return NULL;
@@ -871,7 +870,6 @@ MODINIT_DEFINE(rwobject)
     c_api[3] = pg_EncodeString;
     c_api[4] = pgRWops_FromFileObject;
     c_api[5] = pgRWops_ReleaseObject;
-    c_api[6] = pgRWops_GetFileExtension;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_XDECREF(apiobj);

@@ -2,6 +2,7 @@
 #define DOC_PYGAMESDL2VIDEO "Experimental pygame module for porting new SDL video systems"
 #define DOC_PYGAMESDL2VIDEOWINDOW "Window(title="pygame", size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window\npygame object that represents a window"
 #define DOC_WINDOWFROMDISPLAYMODULE "from_display_module() -> Window\nCreates window using window created by pygame.display.set_mode()."
+#define DOC_WINDOWFROMWINDOW "from_window(other) -> Window\nCreate Window from another window. Could be from another UI toolkit."
 #define DOC_WINDOWGRAB "grab -> bool\nGets or sets whether the mouse is confined to the window."
 #define DOC_WINDOWRELATIVEMOUSE "relative_mouse -> bool\nGets or sets the window's relative mouse motion state."
 #define DOC_WINDOWSETWINDOWED "set_windowed() -> None\nEnable windowed mode (exit fullscreen)."
@@ -21,7 +22,6 @@
 #define DOC_WINDOWSIZE "size -> (int, int)\nGets and sets the window size."
 #define DOC_WINDOWPOSITION "position -> (int, int) or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED\nGets and sets the window position."
 #define DOC_WINDOWOPACITY "opacity -> float\nGets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque)."
-#define DOC_WINDOWBRIGHTNESS "brightness -> float\nGets and sets the brightness (gamma multiplier) for the display that owns the window."
 #define DOC_WINDOWDISPLAYINDEX "display_index -> int\nGet the index of the display that owns the window. *Read-only*"
 #define DOC_WINDOWSETMODALFOR "set_modal_for(Window) -> None\nSet the window as a modal for a parent window. This function is only supported on X11."
 #define DOC_PYGAMESDL2VIDEOTEXTURE "Texture(renderer, size, depth=0, static=False, streaming=False, target=False) -> Texture\npygame object that representing a Texture."
@@ -80,6 +80,10 @@ pygame object that represents a window
 pygame._sdl2.video.Window.from_display_module
  from_display_module() -> Window
 Creates window using window created by pygame.display.set_mode().
+
+pygame._sdl2.video.Window.from_window
+ from_window(other) -> Window
+Create Window from another window. Could be from another UI toolkit.
 
 pygame._sdl2.video.Window.grab
  grab -> bool
@@ -156,10 +160,6 @@ Gets and sets the window position.
 pygame._sdl2.video.Window.opacity
  opacity -> float
 Gets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque).
-
-pygame._sdl2.video.Window.brightness
- brightness -> float
-Gets and sets the brightness (gamma multiplier) for the display that owns the window.
 
 pygame._sdl2.video.Window.display_index
  display_index -> int

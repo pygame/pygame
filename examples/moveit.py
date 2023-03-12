@@ -23,6 +23,7 @@ HEIGHT = 480
 SPRITE_WIDTH = 80
 SPRITE_HEIGHT = 60
 
+
 # our game object class
 class GameObject:
     def __init__(self, image, height, speed):

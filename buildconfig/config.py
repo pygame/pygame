@@ -142,7 +142,7 @@ def writesetupfile(deps, basepath, additional_lines):
         for line in lines:
             useit = 1
             if not line.startswith('COPYLIB') and not (line and line[0]=='#'):
-                lineDeps = set(re.findall(r'\$\([a-z0-9\w]+\)', line, re.I))
+                lineDeps = set(re.findall(r'\$\([\w]+\)', line, re.I))
                 if lineDeps.difference(legalVars):
                     newsetup.write('#'+line)
                     useit = 0

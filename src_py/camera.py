@@ -126,7 +126,13 @@ def get_backends():
     possible_backends = []
 
     if sys.platform == "win32" and int(platform.win32_ver()[0].split(".")[0]) >= 8:
-        possible_backends.append("_camera (MSMF)")
+        try:
+            # If cv2 is installed, prefer that on windows.
+            import cv2
+
+            possible_backends.append("OpenCV")
+        except ImportError:
+            possible_backends.append("_camera (MSMF)")
 
     if "linux" in sys.platform:
         possible_backends.append("_camera (V4L2)")
@@ -134,7 +140,8 @@ def get_backends():
     if "darwin" in sys.platform:
         possible_backends.append("OpenCV-Mac")
 
-    possible_backends.append("OpenCV")
+    if "OpenCV" not in possible_backends:
+        possible_backends.append("OpenCV")
 
     if sys.platform == "win32":
         possible_backends.append("VideoCapture")

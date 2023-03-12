@@ -1,6 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
 #define DOC_PYGAMEMATHCLAMP "clamp(value, min, max) -> float\nreturns value clamped to min and max."
+#define DOC_PYGAMEMATHLERP "lerp(a, b, weight) -> float\ninterpolates between two values by a weight."
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2(0, 0)\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
@@ -28,7 +29,7 @@
 #define DOC_VECTOR2ROTATERADIP "rotate_rad_ip(angle) -> None\nrotates the vector by a given angle in radians in place."
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
-#define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
+#define DOC_VECTOR2FROMPOLAR "Vector2.from_polar((r, phi)) -> Vector2\nVector2().from_polar((r, phi)) -> None\nCreates a Vector2(x, y) or sets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2COPY "copy() -> Vector2\nReturns a copy of itself."
 #define DOC_VECTOR2CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector2\nclamp_magnitude(min_length, max_length) -> Vector2\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
@@ -77,7 +78,7 @@
 #define DOC_VECTOR3ROTATEZRADIP "rotate_z_rad_ip(angle) -> None\nrotates the vector around the z-axis by the angle in radians in place."
 #define DOC_VECTOR3ANGLETO "angle_to(Vector3) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR3ASSPHERICAL "as_spherical() -> (r, theta, phi)\nreturns a tuple with radial distance, inclination and azimuthal angle."
-#define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
+#define DOC_VECTOR3FROMSPHERICAL "Vector3.from_spherical((r, theta, phi)) -> Vector3\nVector3().from_spherical((r, theta, phi)) -> None\nCreates a Vector3(x, y, z) or sets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3PROJECT "project(Vector3) -> Vector3\nprojects a vector onto another."
 #define DOC_VECTOR3COPY "copy() -> Vector3\nReturns a copy of itself."
 #define DOC_VECTOR3CLAMPMAGNITUDE "clamp_magnitude(max_length) -> Vector3\nclamp_magnitude(min_length, max_length) -> Vector3\nReturns a copy of a vector with the magnitude clamped between max_length and min_length."
@@ -96,6 +97,10 @@ pygame module for vector classes
 pygame.math.clamp
  clamp(value, min, max) -> float
 returns value clamped to min and max.
+
+pygame.math.lerp
+ lerp(a, b, weight) -> float
+interpolates between two values by a weight.
 
 pygame.math.Vector2
  Vector2() -> Vector2(0, 0)
@@ -211,8 +216,9 @@ pygame.math.Vector2.as_polar
 returns a tuple with radial distance and azimuthal angle.
 
 pygame.math.Vector2.from_polar
- from_polar((r, phi)) -> None
-Sets x and y from a polar coordinates tuple.
+ Vector2.from_polar((r, phi)) -> Vector2
+ Vector2().from_polar((r, phi)) -> None
+Creates a Vector2(x, y) or sets x and y from a polar coordinates tuple.
 
 pygame.math.Vector2.project
  project(Vector2) -> Vector2
@@ -418,8 +424,9 @@ pygame.math.Vector3.as_spherical
 returns a tuple with radial distance, inclination and azimuthal angle.
 
 pygame.math.Vector3.from_spherical
- from_spherical((r, theta, phi)) -> None
-Sets x, y and z from a spherical coordinates 3-tuple.
+ Vector3.from_spherical((r, theta, phi)) -> Vector3
+ Vector3().from_spherical((r, theta, phi)) -> None
+Creates a Vector3(x, y, z) or sets x, y and z from a spherical coordinates 3-tuple.
 
 pygame.math.Vector3.project
  project(Vector3) -> Vector3
