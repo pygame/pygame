@@ -1611,30 +1611,32 @@ class GeneralSurfaceTests(unittest.TestCase):
         self.assertEqual(no_surf_alpha_col, surf_alpha_col)
 
     def todo_test_convert(self):
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
-
-        # Surface.convert(Surface): return Surface
-        # Surface.convert(depth, flags=0): return Surface
-        # Surface.convert(masks, flags=0): return Surface
-        # Surface.convert(): return Surface
-        # change the pixel format of an image
-        #
-        # Creates a new copy of the Surface with the pixel format changed. The
-        # new pixel format can be determined from another existing Surface.
-        # Otherwise depth, flags, and masks arguments can be used, similar to
-        # the pygame.Surface() call.
-        #
-        # If no arguments are passed the new Surface will have the same pixel
-        # format as the display Surface. This is always the fastest format for
-        # blitting. It is a good idea to convert all Surfaces before they are
-        # blitted many times.
-        #
-        # The converted Surface will have no pixel alphas. They will be
-        # stripped if the original had them. See Surface.convert_alpha() for
-        # preserving or creating per-pixel alphas.
-        #
-
         self.fail()
+
+    # Below should not use a display Surface, but create one and check it is converted
+    # to the depth of the display surface.
+
+    # def test_convert(self):
+    #     """Ensure to creates a new copy of the Surface with the pixel format changed"""
+    #     width = 23
+    #     height = 17
+    #     size = (width, height)
+    #     flags = 0
+    #     depth = 32
+    #     pygame.display.init()
+
+    #     try:
+    #         convert_surface = pygame.display.set_mode(size)
+    #         surface = pygame.surface.Surface.convert(convert_surface)
+    #         self.assertIsNot(surface, convert_surface)
+    #         self.assertNotEqual(surface.get_size(), size)
+
+    #         depth_surface = pygame.display.set_mode(size, flags, depth)
+    #         surface2 = pygame.surface.Surface.convert(depth_surface)
+    #         self.assertIsNot(surface2, depth_surface)
+    #         self.assertEqual(surface2.get_size(), size)
+    #     finally:
+    #         pygame.display.quit()
 
     def test_convert__pixel_format_as_surface_subclass(self):
         """Ensure convert accepts a Surface subclass argument."""

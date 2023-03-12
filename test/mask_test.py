@@ -1921,9 +1921,17 @@ class MaskTypeTest(unittest.TestCase):
 
                 self.assertEqual(centroid, expected_centroid)
 
-    def todo_test_angle(self):
+    def test_angle(self):
         """Ensure a mask's orientation angle is correctly calculated."""
-        self.fail()
+        expected_angle = -45.0
+        expected_size = (100, 100)
+        surface = pygame.Surface(expected_size)
+        mask = pygame.mask.from_surface(surface)
+
+        angle = mask.angle()  # Returns the orientation of the pixels
+
+        self.assertIsInstance(angle, float)
+        self.assertEqual(angle, expected_angle)
 
     def test_angle__empty_mask(self):
         """Ensure an empty mask's angle is correctly calculated."""
