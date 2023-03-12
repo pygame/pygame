@@ -3669,11 +3669,13 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             suboffsety += subdata->offsety;
         }
 
-        /* Only need to check the surface at the top (the non-subsurface)
-           as a subsurface can't be the display surface and only
-           a display surface can have the SDL_Surface being NULL */
-        if (!subsurface)
-            return RAISE(pgExc_SDLError, "display Surface quit");
+        /* Only need to check the surface at the outermost surface
+           (the non-subsurface) as a subsurface can't be the display surface
+            and only a display surface can have the SDL_Surface being NULL */
+        if (!subsurface) {
+            PyErr_SetString(pgExc_SDLError, "display Surface quit");
+            return 1;
+        }
 
         SDL_GetClipRect(subsurface, &orig_clip);
         SDL_GetClipRect(dst, &sub_clip);
