@@ -349,6 +349,8 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     dim0 = (Py_ssize_t)surf->w;
     dim1 = (Py_ssize_t)surf->h;
     stride0 = (Py_ssize_t)surf->format->BytesPerPixel;
@@ -442,6 +444,8 @@ _pxarray_get_itemsize(pgPixelArrayObject *self, void *closure)
     }
 
     SDL_Surface *surf = pgSurface_AsSurface(self->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     return PyLong_FromLong((long)surf->format->BytesPerPixel);
 }
@@ -541,7 +545,12 @@ _pxarray_getbuffer(pgPixelArrayObject *self, Py_buffer *view_p, int flags)
         return -1;
     }
 
-    itemsize = pgSurface_AsSurface(self->surface)->format->BytesPerPixel;
+    SDL_Surface *surf = pgSurface_AsSurface(self->surface);
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
+    itemsize = surf->format->BytesPerPixel;
 
     len = self->shape[0] * (ndim == 2 ? self->shape[1] : 1) * itemsize;
     view_p->obj = 0;
@@ -659,6 +668,8 @@ _pxarray_repr(pgPixelArrayObject *array)
     }
 
     surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     bpp = surf->format->BytesPerPixel;
 
     string = PyUnicode_FromString("PixelArray(");
@@ -935,6 +946,10 @@ _array_assign_array(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
 
     surf = pgSurface_AsSurface(array->surface);
     val_surf = pgSurface_AsSurface(val->surface);
+    if (!surf || !val_surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
 
     /* Broadcast length 1 val dimensions.*/
     if (val_dim0 == 1) {
@@ -1095,6 +1110,10 @@ _array_assign_sequence(pgPixelArrayObject *array, Py_ssize_t low,
         PyErr_SetString(PyExc_ValueError, "sequence size mismatch");
         return -1;
     }
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
 
     format = surf->format;
     bpp = format->BytesPerPixel;
@@ -1205,6 +1224,11 @@ _array_assign_slice(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
     Py_ssize_t x;
     Py_ssize_t y;
 
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
+
     bpp = surf->format->BytesPerPixel;
 
     if (!dim1) {
@@ -1295,6 +1319,11 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
+
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
 
     bpp = surf->format->BytesPerPixel;
 
@@ -1400,6 +1429,11 @@ _pxarray_ass_slice(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
     Uint32 color;
 
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
+
     if (low < 0) {
         low = 0;
     }
@@ -1450,6 +1484,11 @@ _pxarray_contains(pgPixelArrayObject *array, PyObject *value)
     Py_ssize_t x;
     Py_ssize_t y;
     int found = 0;
+
+    if (!surf) {
+        PyErr_SetString(pgExc_SDLError, "display Surface quit");
+        return -1;
+    }
 
     bpp = surf->format->BytesPerPixel;
 
@@ -1875,6 +1914,8 @@ pgPixelArray_New(PyObject *surfobj)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     dim0 = (Py_ssize_t)surf->w;
     dim1 = (Py_ssize_t)surf->h;
     stride0 = (Py_ssize_t)surf->format->BytesPerPixel;
