@@ -1458,6 +1458,8 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     if (argobject) {
         if (pgSurface_Check(argobject)) {
             src = pgSurface_AsSurface(argobject);
+            if (!src)
+                return RAISE(pgExc_SDLError, "display Surface quit");
             newsurf = SDL_ConvertSurface(surf, src->format, 0);
         }
         else {
@@ -3666,6 +3668,12 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             suboffsetx += subdata->offsetx;
             suboffsety += subdata->offsety;
         }
+
+        /* Only need to check the surface at the top (the non-subsurface)
+           as a subsurface can't be the display surface and only
+           a display surface can have the SDL_Surface being NULL */
+        if (!subsurface)
+            return RAISE(pgExc_SDLError, "display Surface quit");
 
         SDL_GetClipRect(subsurface, &orig_clip);
         SDL_GetClipRect(dst, &sub_clip);
