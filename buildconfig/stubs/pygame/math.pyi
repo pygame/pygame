@@ -12,8 +12,10 @@ from typing import (
     Union,
     final,
     overload,
-    Optional
+    Optional,
 )
+
+from typing_extensions import Protocol
 
 if sys.version_info >= (3, 9):
     from collections.abc import Collection
@@ -207,6 +209,10 @@ class VectorIterator:
     def __iter__(self) -> Iterator[float]: ...
     def __next__(self) -> float: ...
 
+# Not defined in code, only for type checking from_polar ClassObjectMethod
+class _from_polar_protocol(Protocol):
+    def __call__(self, value: Tuple[float, float]) -> Optional[_TVec]: ...
+
 class Vector2(_GenericVector):
     x: float
     y: float
@@ -214,6 +220,7 @@ class Vector2(_GenericVector):
     xy: Vector2
     yx: Vector2
     yy: Vector2
+    from_polar: _from_polar_protocol
     @overload
     def __init__(
         self: _TVec,
@@ -229,7 +236,6 @@ class Vector2(_GenericVector):
     def rotate_ip_rad(self, angle: float) -> None: ...
     def cross(self: _TVec, other: Union[Sequence[float], _TVec]) -> float: ...
     def as_polar(self) -> Tuple[float, float]: ...
-    def from_polar(self, polar_value: Sequence[float]) -> None: ...
     @overload
     def update(
         self: _TVec,
@@ -237,6 +243,10 @@ class Vector2(_GenericVector):
     ) -> None: ...
     @overload
     def update(self, x: float = 0, y: float = 0) -> None: ...
+
+# Not defined in code, only for type checking from_spherical ClassObjectMethod
+class _from_spherical_protocol(Protocol):
+    def __call__(self, value: Tuple[float, float, float]) -> Optional[_TVec]: ...
 
 class Vector3(_GenericVector):
     x: float
@@ -278,6 +288,7 @@ class Vector3(_GenericVector):
     zzx: Vector3
     zzy: Vector3
     zzz: Vector3
+    from_spherical: _from_spherical_protocol
     @overload
     def __init__(
         self: _TVec,
@@ -318,7 +329,6 @@ class Vector3(_GenericVector):
     def rotate_z_rad_ip(self, angle: float) -> None: ...
     def rotate_z_ip_rad(self, angle: float) -> None: ...
     def as_spherical(self) -> Tuple[float, float, float]: ...
-    def from_spherical(self, spherical: Tuple[float, float, float]) -> None: ...
     @overload
     def update(
         self: _TVec,
