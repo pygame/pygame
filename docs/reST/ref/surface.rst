@@ -769,8 +769,10 @@
 
       This is not needed for normal pygame usage.
 
-      .. note:: In SDL2, the masks are read-only and accordingly this method will raise
-                an AttributeError if called.
+      .. note:: Starting in pygame 2.0, the masks are read-only and
+         accordingly this method will raise a TypeError if called.
+
+      .. deprecated:: 2.0.0
 
       .. versionadded:: 1.8.1
 
@@ -795,8 +797,10 @@
 
       This is not needed for normal pygame usage.
 
-      .. note:: In SDL2, the shifts are read-only and accordingly this method will raise
-                an AttributeError if called.
+      .. note:: Starting in pygame 2.0, the shifts are read-only and
+         accordingly this method will raise a TypeError if called.
+
+      .. deprecated:: 2.0.0
 
       .. versionadded:: 1.8.1
 
@@ -902,4 +906,44 @@
 
       .. versionadded:: 1.9.2
 
+   .. method:: premul_alpha
+
+      | :sl:`returns a copy of the surface with the RGB channels pre-multiplied by the alpha channel.`
+      | :sg:`premul_alpha() -> Surface`
+
+      **Experimental:** feature still in development available for testing and feedback. It may change.
+      `Please leave premul_alpha feedback with authors <https://github.com/pygame/pygame/pull/3276>`_
+
+      Returns a copy of the initial surface with the red, green and blue color channels multiplied
+      by the alpha channel. This is intended to make it easier to work with the BLEND_PREMULTIPLED
+      blend mode flag of the blit() method. Surfaces which have called this method will only look
+      correct after blitting if the BLEND_PREMULTIPLED special flag is used.
+
+      It is worth noting that after calling this method, methods that return the colour of a pixel
+      such as get_at() will return the alpha multiplied colour values. It is not possible to fully
+      reverse an alpha multiplication of the colours in a surface as integer colour channel data
+      is generally reduced by the operation (e.g. 255 x 0 = 0, from there it is not possible to reconstruct
+      the original 255 from just the two remaining zeros in the colour and alpha channels).
+
+      If you call this method, and then call it again, it will multiply the colour channels by the alpha channel
+      twice. There are many possible ways to obtain a surface with the colour channels pre-multiplied by the
+      alpha channel in pygame, and it is not possible to tell the difference just from the information in the pixels.
+      It is completely possible to have two identical surfaces - one intended for pre-multiplied alpha blending and
+      one intended for normal blending. For this reason we do not store state on surfaces intended for pre-multiplied
+      alpha blending.
+
+      Surfaces without an alpha channel cannot use this method and will return an error if you use
+      it on them. It is best used on 32 bit surfaces (the default on most platforms) as the blitting
+      on these surfaces can be accelerated by SIMD versions of the pre-multiplied blitter.
+
+      In general pre-multiplied alpha blitting is faster then 'straight alpha' blitting and produces
+      superior results when blitting an alpha surface onto another surface with alpha - assuming both
+      surfaces contain pre-multiplied alpha colours.
+
+      .. versionadded:: 2.2.0
+
+      .. ## Surface.premul_alpha ##
+
    .. ## pygame.Surface ##
+
+

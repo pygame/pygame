@@ -239,11 +239,6 @@ cdef extern from "SDL.h" nogil:
                              float*      opacity)
     int SDL_SetWindowOpacity(SDL_Window* window,
                              float       opacity)
-    # https://wiki.libsdl.org/SDL_GetWindowBrightness
-    # https://wiki.libsdl.org/SDL_SetWindowBrightness
-    float SDL_GetWindowBrightness(SDL_Window* window)
-    int SDL_SetWindowBrightness(SDL_Window* window,
-                                float       brightness)
     # https://wiki.libsdl.org/SDL_GetWindowDisplayIndex
     # https://wiki.libsdl.org/SDL_GetGrabbedWindow
     # https://wiki.libsdl.org/SDL_GetWindowGrab

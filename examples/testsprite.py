@@ -19,12 +19,8 @@ import pygame as pg
 
 
 if "-psyco" in sys.argv:
-    try:
-        import psyco
-
-        psyco.full()
-    except Exception:
-        print("No psyco for you!  psyco failed to import and run.")
+    # psyco was a great, but now unsupported jit for pythons before 2.7
+    print("No psyco for you!  psyco failed to import and run.")
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")

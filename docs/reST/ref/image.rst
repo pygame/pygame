@@ -143,7 +143,7 @@ following formats.
 
    .. versionadded:: 2.0.0
 
-   .. versionchanged:: 2.1.4 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
+   .. versionchanged:: 2.2.0 ``linked`` keyword argument added and default behavior changed from returning compiled version to returning linked version
 
    .. ## pygame.image.get_sdl_image_version ##
 
@@ -227,8 +227,8 @@ following formats.
 
       * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
    
-   .. note:: this function is an alias for :func:`fromstring`. The use of this
-             function is recommended over :func:`fromstring` as of pygame 2.1.3.
+   .. note:: this function is an alias for :func:`tostring`. The use of this
+             function is recommended over :func:`tostring` as of pygame 2.1.3.
              This function was introduced so it matches nicely with other 
              libraries (PIL, numpy, etc), and with people's expectations.
 

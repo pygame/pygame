@@ -2,6 +2,7 @@ from cpython cimport PyObject
 from pygame._sdl2.sdl2 import error
 from pygame._sdl2.sdl2 import error as errorfnc
 from libc.stdlib cimport free, malloc
+import os
 
 
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
@@ -27,6 +28,13 @@ cdef extern from "SDL.h" nogil:
     SDL_Renderer* SDL_GetRenderer(SDL_Window* window)
     SDL_Window* SDL_GetWindowFromID(Uint32 id)
     SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format)
+    SDL_Surface* SDL_ConvertSurface(SDL_Surface * src, const SDL_PixelFormat * fmt, Uint32 flags)
+    void SDL_FreeSurface(SDL_Surface * surface)
+    SDL_PixelFormat * SDL_AllocFormat(Uint32 pixel_format)
+    void SDL_FreeFormat(SDL_PixelFormat *format)
+    int SDL_SetSurfaceBlendMode(SDL_Surface * surface, SDL_BlendMode blendMode)
+    int SDL_GetSurfaceBlendMode(SDL_Surface * surface, SDL_BlendMode *blendMode)
+    SDL_Window * SDL_CreateWindowFrom(const void *data)
 
 
 cdef extern from "pygame.h" nogil:
@@ -202,6 +210,18 @@ cdef class Window:
         'tooltip': _SDL_WINDOW_TOOLTIP,
         'popup_menu': _SDL_WINDOW_POPUP_MENU,
     }
+
+    @classmethod
+    def from_window(cls, other):
+        cdef Window self = cls.__new__(cls)
+        os.environ['SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT'] = str(hex(other))
+        cdef long long data = other
+        cdef void* data_ptr = <void*>data
+        cdef SDL_Window* window = SDL_CreateWindowFrom(data_ptr)
+        self._win = window
+        self._is_borrowed = 0
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
+        return self
 
     @classmethod
     def from_display_module(cls):
@@ -437,7 +457,7 @@ cdef class Window:
 
     @borderless.setter
     def borderless(self, enabled):
-        SDL_SetWindowBordered(self._win, 1 if enabled else 0)
+        SDL_SetWindowBordered(self._win, 0 if enabled else 1)
 
     def set_icon(self, surface):
         """ Set the icon for the window.
@@ -497,17 +517,6 @@ cdef class Window:
     @opacity.setter
     def opacity(self, opacity):
         if SDL_SetWindowOpacity(self._win, opacity):
-            raise error()
-
-    @property
-    def brightness(self):
-        """ The brightness (gamma multiplier) for the display that owns a given window.
-        0.0 is completely dark and 1.0 is normal brightness."""
-        return SDL_GetWindowBrightness(self._win)
-
-    @brightness.setter
-    def brightness(self, float value):
-        if SDL_SetWindowBrightness(self._win, value):
             raise error()
 
     @property
@@ -789,10 +798,38 @@ cdef class Texture:
         cdef SDL_Rect *rectptr = pgRect_FromObject(area, &rect)
         cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
 
+        # For converting the surface, if needed
+        cdef SDL_Surface *converted_surf = NULL;
+        cdef SDL_PixelFormat *pixel_format = NULL;
+        cdef SDL_BlendMode blend;
+
         if rectptr == NULL and area is not None:
             raise TypeError('area must be a rectangle or None')
 
-        res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
+        cdef Uint32 format_
+        if (SDL_QueryTexture(self._tex, &format_, NULL, NULL, NULL) != 0):
+            raise error()
+
+        if format_ != surf.format.format:
+            if (SDL_GetSurfaceBlendMode(surf, &blend) != 0):
+                raise error()
+
+            pixel_format = SDL_AllocFormat(format_)
+            if (pixel_format == NULL):
+                raise error()
+
+            converted_surf = SDL_ConvertSurface(surf, pixel_format, 0)
+            if (SDL_SetSurfaceBlendMode(converted_surf, blend) != 0):
+                SDL_FreeSurface(converted_surf)
+                SDL_FreeFormat(pixel_format)
+                raise error()
+
+            res = SDL_UpdateTexture(self._tex, rectptr, converted_surf.pixels, converted_surf.pitch)
+            SDL_FreeSurface(converted_surf)
+            SDL_FreeFormat(pixel_format)
+        else:
+            res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
+
         if res < 0:
             raise error()
 

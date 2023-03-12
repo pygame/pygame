@@ -28,7 +28,6 @@ def intensity(c, i):
 
 
 class GfxdrawDefaultTest(unittest.TestCase):
-
     is_started = False
 
     foreground_color = (128, 64, 8)

@@ -56,20 +56,21 @@ v4l2_list_cameras(int *num_devices)
             }
         }
 
-        fd = open(device, O_RDONLY);
+        fd = open(device, O_RDONLY | O_NONBLOCK);
         if (fd == -1) {
             free(device);
         }
         else {
+            /* First clean the opened file before putting the name into the
+             * array */
+            if (close(fd) == -1) {
+                /* Error while closing file */
+                goto error;
+            }
+
             /* 'device' is in array now, don't free it here */
             devices[num] = device;
             num++;
-        }
-        device = NULL;
-
-        if (close(fd) == -1) {
-            /* Error while closing file */
-            goto error;
         }
     }
 

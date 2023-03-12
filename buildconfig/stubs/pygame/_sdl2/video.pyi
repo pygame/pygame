@@ -47,6 +47,8 @@ class Window:
     ) -> None: ...
     @classmethod
     def from_display_module(cls) -> Window: ...
+    @classmethod
+    def from_window(cls, other: int) -> Window: ...
     grab: bool
     relative_mouse: bool
     def set_windowed(self) -> None: ...
@@ -66,7 +68,6 @@ class Window:
     size: Iterable[int]
     position: Union[int, Iterable[int]]
     opacity: float
-    brightness: float
     display_index: int
     def set_modal_for(self, Window) -> None: ...
 

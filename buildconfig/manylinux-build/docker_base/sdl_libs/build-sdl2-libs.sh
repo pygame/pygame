@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-SDL2="SDL2-2.0.22"
+SDL2="SDL2-2.24.2"
 IMG2="SDL2_image-2.0.5"
 TTF2="SDL2_ttf-2.20.1"
 MIX2="SDL2_mixer-2.6.2"
@@ -78,9 +78,14 @@ cd ..
 tar xzf ${TTF2}.tar.gz
 cd $TTF2
 
-# We already build freetype+harfbuzz for pygame.freetype
-# So we make SDL_ttf use that instead of SDL_ttf vendored copies
-./configure $ARCHS_CONFIG_FLAG --disable-freetype-builtin --disable-harfbuzz-builtin
+# harfbuzz was not well tested, only enable on linux
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # We already build freetype+harfbuzz for pygame.freetype
+    # So we make SDL_ttf use that instead of SDL_ttf vendored copies
+    DO_HARFBUZZ="--disable-freetype-builtin --disable-harfbuzz-builtin"
+fi
+
+./configure $ARCHS_CONFIG_FLAG $DO_HARFBUZZ
 make
 make install
 
