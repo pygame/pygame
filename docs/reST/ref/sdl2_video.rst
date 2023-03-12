@@ -23,6 +23,11 @@
       | :sl:`Creates window using window created by pygame.display.set_mode().`
       | :sg:`from_display_module() -> Window`
 
+   .. classmethod:: from_window
+
+      | :sl:`Create Window from another window. Could be from another UI toolkit.`
+      | :sg:`from_window(other) -> Window`
+
    .. attribute:: grab
 
       | :sl:`Gets or sets whether the mouse is confined to the window.`
