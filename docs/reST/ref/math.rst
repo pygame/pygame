@@ -411,11 +411,13 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: from_polar
 
-      | :sl:`Sets x and y from a polar coordinates tuple.`
-      | :sg:`from_polar((r, phi)) -> None`
+      | :sl:`Creates a Vector2(x, y) or sets x and y from a polar coordinates tuple.`
+      | :sg:`Vector2.from_polar((r, phi)) -> Vector2`
+      | :sg:`Vector2().from_polar((r, phi)) -> None`
 
-      Sets x and y from a tuple (r, phi) where r is the radial distance, and
-      phi is the azimuthal angle.
+      If used from the class creates a Vector2(x,y), else sets x and y.
+      The values of x and y are defined from a tuple ``(r, phi)`` where r
+      is the radial distance, and phi is the azimuthal angle.
 
       .. ## Vector2.from_polar ##
 
@@ -1038,10 +1040,12 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: from_spherical
 
-      | :sl:`Sets x, y and z from a spherical coordinates 3-tuple.`
-      | :sg:`from_spherical((r, theta, phi)) -> None`
+      | :sl:`Creates a Vector3(x, y, z) or sets x, y and z from a spherical coordinates 3-tuple.`
+      | :sg:`Vector3.from_spherical((r, theta, phi)) -> Vector3`
+      | :sg:`Vector3().from_spherical((r, theta, phi)) -> None`
 
-      Sets x, y and z from a tuple ``(r, theta, phi)`` where r is the radial
+      If used from the class creates a Vector3(x, y, z), else sets x, y, and z.
+      The values of x, y, and z are from a tuple ``(r, theta, phi)`` where r is the radial
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
       .. ## Vector3.from_spherical ##
