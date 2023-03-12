@@ -56,8 +56,8 @@
 
 /* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
-#define PG_MINOR_VERSION 1
-#define PG_PATCH_VERSION 4
+#define PG_MINOR_VERSION 3
+#define PG_PATCH_VERSION 0
 #define PG_VERSIONNUM(MAJOR, MINOR, PATCH) \
     (1000 * (MAJOR) + 100 * (MINOR) + (PATCH))
 #define PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)                             \
@@ -158,6 +158,15 @@ typedef struct pg_bufferinfo_s {
 
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
+
+#define pg_DoubleFromObj \
+    (*(int (*)(PyObject *, double *))PYGAMEAPI_GET_SLOT(base, 24))
+
+#define pg_DoubleFromObjIndex \
+    (*(int (*)(PyObject *, int, double *))PYGAMEAPI_GET_SLOT(base, 25))
+
+#define pg_TwoDoublesFromObj \
+    (*(int (*)(PyObject *, double *, double *))PYGAMEAPI_GET_SLOT(base, 26))
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
@@ -362,7 +371,7 @@ typedef struct pgEventObject pgEventObject;
  */
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define pgRWops_FromObject \
-    (*(SDL_RWops * (*)(PyObject *)) PYGAMEAPI_GET_SLOT(rwobject, 0))
+    (*(SDL_RWops * (*)(PyObject *, char **)) PYGAMEAPI_GET_SLOT(rwobject, 0))
 
 #define pgRWops_IsFileObject \
     (*(int (*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 1))
@@ -379,9 +388,6 @@ typedef struct pgEventObject pgEventObject;
 
 #define pgRWops_ReleaseObject \
     (*(int (*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 5))
-
-#define pgRWops_GetFileExtension \
-    (*(char *(*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 6))
 
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject)
 

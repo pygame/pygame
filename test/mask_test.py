@@ -1927,9 +1927,9 @@ class MaskTypeTest(unittest.TestCase):
         expected_size = (100, 100)
         surface = pygame.Surface(expected_size)
         mask = pygame.mask.from_surface(surface)
- 
-        angle = mask.angle() # Returns the orientation of the pixels
- 
+
+        angle = mask.angle()  # Returns the orientation of the pixels
+
         self.assertIsInstance(angle, float)
         self.assertEqual(angle, expected_angle)
 

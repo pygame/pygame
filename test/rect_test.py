@@ -1,9 +1,22 @@
 import math
 import unittest
 from collections.abc import Collection, Sequence
+import platform
+import random
+import unittest
 
 from pygame import Rect, Vector2
 from pygame.tests import test_utils
+
+IS_PYPY = "PyPy" == platform.python_implementation()
+
+# todo can they be different on different platforms?
+_int_min = -2147483647 - 1  # min value of int in C
+_int_max = 2147483647  # max value of int in C
+
+
+def _random_int():
+    return random.randint(_int_min, _int_max)
 
 
 class RectTypeTest(unittest.TestCase):
@@ -815,6 +828,182 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width - 4, r2.width)
         self.assertEqual(r.height - 6, r2.height)
 
+    def test_scale_by__larger_single_argument(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 6, 8)
+        r2 = r.scale_by(2)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.top - 4, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.bottom + 4, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 2, r2.height)
+
+    def test_scale_by__smaller_single_argument(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 8, 8)
+        r2 = r.scale_by(0.5)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left + 2, r2.left)
+        self.assertEqual(r.top + 2, r2.top)
+        self.assertEqual(r.right - 2, r2.right)
+        self.assertEqual(r.bottom - 2, r2.bottom)
+        self.assertEqual(r.width - 4, r2.width)
+        self.assertEqual(r.height - 4, r2.height)
+
+    def test_scale_by__larger(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(2, 4)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by__smaller(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 8, 8)
+        # act
+        r2 = r.scale_by(0.5, 0.25)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left + 2, r2.left)
+        self.assertEqual(r.centery - r.h / 4 / 2, r2.top)
+        self.assertEqual(r.right - 2, r2.right)
+        self.assertEqual(r.centery + r.h / 4 / 2, r2.bottom)
+        self.assertEqual(r.width - 4, r2.width)
+        self.assertEqual(r.height // 4, r2.height)
+
+    def test_scale_by__subzero(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 6, 8)
+        r.scale_by(0)
+        r.scale_by(-1)
+        r.scale_by(-0.000001)
+        r.scale_by(0.00001)
+
+        rx1 = r.scale_by(10, 1)
+        self.assertEqual(r.centerx - r.w * 10 / 2, rx1.x)
+        self.assertEqual(r.y, rx1.y)
+        self.assertEqual(r.w * 10, rx1.w)
+        self.assertEqual(r.h, rx1.h)
+        rx2 = r.scale_by(-10, 1)
+        self.assertEqual(rx1.x, rx2.x)
+        self.assertEqual(rx1.y, rx2.y)
+        self.assertEqual(rx1.w, rx2.w)
+        self.assertEqual(rx1.h, rx2.h)
+
+        ry1 = r.scale_by(1, 10)
+        self.assertEqual(r.x, ry1.x)
+        self.assertEqual(r.centery - r.h * 10 / 2, ry1.y)
+        self.assertEqual(r.w, ry1.w)
+        self.assertEqual(r.h * 10, ry1.h)
+        ry2 = r.scale_by(1, -10)
+        self.assertEqual(ry1.x, ry2.x)
+        self.assertEqual(ry1.y, ry2.y)
+        self.assertEqual(ry1.w, ry2.w)
+        self.assertEqual(ry1.h, ry2.h)
+
+        r1 = r.scale_by(10)
+        self.assertEqual(r.centerx - r.w * 10 / 2, r1.x)
+        self.assertEqual(r.centery - r.h * 10 / 2, r1.y)
+        self.assertEqual(r.w * 10, r1.w)
+        self.assertEqual(r.h * 10, r1.h)
+
+    def test_scale_by_identity(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(1, 1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_negative_identity(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(-1, -1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_identity_single_argument(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_negative_identity_single_argment(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        actual = r.scale_by(-1)
+        # assert
+        self.assertEqual(r.x, actual.x)
+        self.assertEqual(r.y, actual.y)
+        self.assertEqual(r.w, actual.w)
+        self.assertEqual(r.h, actual.h)
+
+    def test_scale_by_ip__larger(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 6, 8)
+        r2 = Rect(r)
+        r2.scale_by_ip(2)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.top - 4, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.bottom + 4, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 2, r2.height)
+
+    def test_scale_by_ip__smaller(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 8, 8)
+        r2 = Rect(r)
+        r2.scale_by_ip(0.5)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left + 2, r2.left)
+        self.assertEqual(r.top + 2, r2.top)
+        self.assertEqual(r.right - 2, r2.right)
+        self.assertEqual(r.bottom - 2, r2.bottom)
+        self.assertEqual(r.width / 2, r2.width)
+        self.assertEqual(r.height / 2, r2.height)
+
+    def test_scale_by_ip__subzero(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 6, 8)
+        r.scale_by_ip(0)
+        r.scale_by_ip(-1)
+        r.scale_by_ip(-0.000001)
+        r.scale_by_ip(0.00001)
+
     def test_clamp(self):
         r = Rect(10, 10, 10, 10)
         c = Rect(19, 12, 5, 5).clamp(r)
@@ -1272,6 +1461,224 @@ class RectTypeTest(unittest.TestCase):
         r2.move_ip(move_x, move_y)
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
+
+    @unittest.skipIf(
+        IS_PYPY, "fails on pypy (but only for: bottom, right, centerx, centery)"
+    )
+    def test_set_float_values(self):
+        zero = 0
+        pos = 124
+        neg = -432
+        # (initial, increment, expected, other)
+        data_rows = [
+            (zero, 0.1, zero, _random_int()),
+            (zero, 0.4, zero, _random_int()),
+            (zero, 0.5, zero + 1, _random_int()),
+            (zero, 1.1, zero + 1, _random_int()),
+            (zero, 1.5, zero + 2, _random_int()),  # >0f
+            (zero, -0.1, zero, _random_int()),
+            (zero, -0.4, zero, _random_int()),
+            (zero, -0.5, zero - 1, _random_int()),
+            (zero, -0.6, zero - 1, _random_int()),
+            (zero, -1.6, zero - 2, _random_int()),  # <0f
+            (zero, 1, zero + 1, _random_int()),
+            (zero, 4, zero + 4, _random_int()),  # >0i
+            (zero, -1, zero - 1, _random_int()),
+            (zero, -4, zero - 4, _random_int()),  # <0i
+            (pos, 0.1, pos, _random_int()),
+            (pos, 0.4, pos, _random_int()),
+            (pos, 0.5, pos + 1, _random_int()),
+            (pos, 1.1, pos + 1, _random_int()),
+            (pos, 1.5, pos + 2, _random_int()),  # >0f
+            (pos, -0.1, pos, _random_int()),
+            (pos, -0.4, pos, _random_int()),
+            (pos, -0.5, pos, _random_int()),
+            (pos, -0.6, pos - 1, _random_int()),
+            (pos, -1.6, pos - 2, _random_int()),  # <0f
+            (pos, 1, pos + 1, _random_int()),
+            (pos, 4, pos + 4, _random_int()),  # >0i
+            (pos, -1, pos - 1, _random_int()),
+            (pos, -4, pos - 4, _random_int()),  # <0i
+            (neg, 0.1, neg, _random_int()),
+            (neg, 0.4, neg, _random_int()),
+            (neg, 0.5, neg, _random_int()),
+            (neg, 1.1, neg + 1, _random_int()),
+            (neg, 1.5, neg + 1, _random_int()),  # >0f
+            (neg, -0.1, neg, _random_int()),
+            (neg, -0.4, neg, _random_int()),
+            (neg, -0.5, neg - 1, _random_int()),
+            (neg, -0.6, neg - 1, _random_int()),
+            (neg, -1.6, neg - 2, _random_int()),  # <0f
+            (neg, 1, neg + 1, _random_int()),
+            (neg, 4, neg + 4, _random_int()),  # >0i
+            (neg, -1, neg - 1, _random_int()),
+            (neg, -4, neg - 4, _random_int()),  # <0i
+        ]
+
+        single_value_attribute_names = [
+            "x",
+            "y",
+            "w",
+            "h",
+            "width",
+            "height",
+            "top",
+            "left",
+            "bottom",
+            "right",
+            "centerx",
+            "centery",
+        ]
+
+        tuple_value_attribute_names = [
+            "topleft",
+            "topright",
+            "bottomleft",
+            "bottomright",
+            "midtop",
+            "midleft",
+            "midbottom",
+            "midright",
+            "size",
+            "center",
+        ]
+
+        for row in data_rows:
+            initial, inc, expected, other = row
+            new_value = initial + inc
+            for attribute_name in single_value_attribute_names:
+                with self.subTest(row=row, name=f"r.{attribute_name}"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, new_value)
+                    # assert
+                    self.assertEqual(expected, getattr(actual, attribute_name))
+
+            for attribute_name in tuple_value_attribute_names:
+                with self.subTest(row=row, name=f"r.{attribute_name}[0]"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, (new_value, other))
+                    # assert
+                    self.assertEqual((expected, other), getattr(actual, attribute_name))
+
+                with self.subTest(row=row, name=f"r.{attribute_name}[1]"):
+                    actual = Rect(
+                        _random_int(), _random_int(), _random_int(), _random_int()
+                    )
+                    # act
+                    setattr(actual, attribute_name, (other, new_value))
+                    # assert
+                    self.assertEqual((other, expected), getattr(actual, attribute_name))
+
+    def test_set_out_of_range_number_raises_exception(self):
+        i = 0
+        # (initial, expected)
+        data_rows = [
+            (_int_max + 1, TypeError),
+            (_int_max + 0.00001, TypeError),
+            (_int_max, None),
+            (_int_max - 1, None),
+            (_int_max - 2, None),
+            (_int_max - 10, None),
+            (_int_max - 63, None),
+            (_int_max - 64, None),
+            (_int_max - 65, None),
+            (_int_min - 1, TypeError),
+            (_int_min - 0.00001, TypeError),
+            (_int_min, None),
+            (_int_min + 1, None),
+            (_int_min + 2, None),
+            (_int_min + 10, None),
+            (_int_min + 62, None),
+            (_int_min + 63, None),
+            (_int_min + 64, None),
+            (0, None),
+            (100000, None),
+            (-100000, None),
+        ]
+
+        single_attribute_names = [
+            "x",
+            "y",
+            "w",
+            "h",
+            "width",
+            "height",
+            "top",
+            "left",
+            "bottom",
+            "right",
+            "centerx",
+            "centery",
+        ]
+
+        tuple_value_attribute_names = [
+            "topleft",
+            "topright",
+            "bottomleft",
+            "bottomright",
+            "midtop",
+            "midleft",
+            "midbottom",
+            "midright",
+            "size",
+            "center",
+        ]
+
+        for row in data_rows:
+            for attribute_name in single_attribute_names:
+                value, expected = row
+                with self.subTest(row=row, name=f"r.{attribute_name}"):
+                    actual = Rect(0, 0, 0, 0)
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, value
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, value)
+                        # assert
+                        self.assertEqual(value, getattr(actual, attribute_name))
+            other = _random_int()
+
+            for attribute_name in tuple_value_attribute_names:
+                value, expected = row
+                with self.subTest(row=row, name=f"r.{attribute_name}[0]"):
+                    actual = Rect(0, 0, 0, 0)
+                    # act/ assert
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, (value, other)
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, (value, other))
+                        # assert
+                        self.assertEqual(
+                            (value, other), getattr(actual, attribute_name)
+                        )
+                with self.subTest(row=row, name=f"r.{attribute_name}[1]"):
+                    actual = Rect(0, 0, 0, 0)
+                    # act/ assert
+                    if expected:
+                        # act/ assert
+                        self.assertRaises(
+                            TypeError, setattr, actual, attribute_name, (other, value)
+                        )
+                    else:
+                        # act
+                        setattr(actual, attribute_name, (other, value))
+                        # assert
+                        self.assertEqual(
+                            (other, value), getattr(actual, attribute_name)
+                        )
 
     def test_update_XYWidthHeight(self):
         """Test update with 4 int values(x, y, w, h)"""
@@ -1952,7 +2359,6 @@ class RectTypeTest(unittest.TestCase):
                 collide_items = rect.collidedictall(d, invalid_param)
 
     def test_collidelist(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
 
         # Rect.collidelist(list): return index
@@ -1971,7 +2377,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.collidelist(f), -1)
 
     def test_collidelistall(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
 
         # Rect.collidelistall(list): return indices
@@ -2441,7 +2846,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collideobjectsall(f, key=lambda o: o.rect3))
 
     def test_fit(self):
-
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
 
         # Rect.fit(Rect): return Rect

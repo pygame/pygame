@@ -991,7 +991,6 @@ class ColorTypeTest(unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "PyPy has no ctypes")
     def test_arraystruct(self):
-
         import pygame.tests.test_utils.arrinter as ai
         import ctypes as ct
 
@@ -1110,6 +1109,31 @@ class ColorTypeTest(unittest.TestCase):
 
         self.assertRaises(TypeError, lambda: "string" in c)
         self.assertRaises(TypeError, lambda: 3.14159 in c)
+
+    def test_grayscale(self):
+        Color = pygame.color.Color
+
+        color = Color(255, 0, 0, 255)
+        self.assertEqual(color.grayscale(), Color(76, 76, 76, 255))
+        color = Color(3, 5, 7, 255)
+        self.assertEqual(color.grayscale(), Color(4, 4, 4, 255))
+        color = Color(3, 5, 70, 255)
+        self.assertEqual(color.grayscale(), Color(11, 11, 11, 255))
+        color = Color(3, 50, 70, 255)
+        self.assertEqual(color.grayscale(), Color(38, 38, 38, 255))
+        color = Color(30, 50, 70, 255)
+        self.assertEqual(color.grayscale(), Color(46, 46, 46, 255))
+
+        color = Color(255, 0, 0, 144)
+        self.assertEqual(color.grayscale(), Color(76, 76, 76, 144))
+        color = Color(3, 5, 7, 144)
+        self.assertEqual(color.grayscale(), Color(4, 4, 4, 144))
+        color = Color(3, 5, 70, 144)
+        self.assertEqual(color.grayscale(), Color(11, 11, 11, 144))
+        color = Color(3, 50, 70, 144)
+        self.assertEqual(color.grayscale(), Color(38, 38, 38, 144))
+        color = Color(30, 50, 70, 144)
+        self.assertEqual(color.grayscale(), Color(46, 46, 46, 144))
 
     def test_lerp(self):
         # setup

@@ -2981,7 +2981,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         check_both_directions((6, 4), (4, 6), [(5, 5)])
 
     def test_short_line_anti_aliasing(self):
-
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
 
@@ -6188,8 +6187,8 @@ class DrawArcMixin:
 
     def test_arc(self):
         """Ensure draw arc works correctly."""
-        black = pygame.Color('black')
-        red = pygame.Color('red')
+        black = pygame.Color("black")
+        red = pygame.Color("red")
 
         # create an image object of width 100, height 150, filled with black.
         surface = pygame.Surface((100, 150))

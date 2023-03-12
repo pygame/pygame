@@ -12,6 +12,26 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 class MathModuleTest(unittest.TestCase):
     """Math module tests."""
 
+    def test_lerp(self):
+        result = pygame.math.lerp(10, 100, 0.5)  # 55.0
+        self.assertAlmostEqual(result, 55.0)
+
+        result = pygame.math.lerp(10, 100, 0.0)  # 10
+        self.assertAlmostEqual(result, 10.0)
+
+        result = pygame.math.lerp(10, 100, 1.0)  # 100
+        self.assertAlmostEqual(result, 100.0)
+
+        # Not enough args
+        self.assertRaises(TypeError, pygame.math.lerp, 1)
+
+        # Wrong arg type
+        self.assertRaises(TypeError, pygame.math.lerp, "str", "str", "str")
+
+        # Percent outside range [0, 1]
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, 1.1)
+        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, -0.5)
+
     def test_clamp(self):
         """Test clamp function."""
 
@@ -127,6 +147,85 @@ class Vector2TypeTest(unittest.TestCase):
             v.x = "spam"
 
         self.assertRaises(TypeError, assign_nonfloat)
+
+    def test___round___basic(self):
+        self.assertEqual(round(pygame.Vector2(0.0, 0.0)), pygame.Vector2(0.0, 0.0))
+        self.assertEqual(type(round(pygame.Vector2(0.0, 0.0))), pygame.Vector2)
+        self.assertEqual(
+            round(pygame.Vector2(1.0, 1.0)), round(pygame.Vector2(1.0, 1.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector2(10.0, 10.0)), round(pygame.Vector2(10.0, 10.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector2(1000000000.0, 1000000000.0)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+        self.assertEqual(round(pygame.Vector2(1e20, 1e20)), pygame.Vector2(1e20, 1e20))
+
+        self.assertEqual(round(pygame.Vector2(-1.0, -1.0)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-10.0, -10.0)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1000000000.0, -1000000000.0)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1e20, -1e20)), pygame.Vector2(-1e20, -1e20)
+        )
+
+        self.assertEqual(round(pygame.Vector2(0.1, 0.1)), pygame.Vector2(0.0, 0.0))
+        self.assertEqual(round(pygame.Vector2(1.1, 1.1)), pygame.Vector2(1.0, 1.0))
+        self.assertEqual(round(pygame.Vector2(10.1, 10.1)), pygame.Vector2(10.0, 10.0))
+        self.assertEqual(
+            round(pygame.Vector2(1000000000.1, 1000000000.1)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(-1.1, -1.1)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-10.1, -10.1)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-1000000000.1, -1000000000.1)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(0.9, 0.9)), pygame.Vector2(1.0, 1.0))
+        self.assertEqual(round(pygame.Vector2(9.9, 9.9)), pygame.Vector2(10.0, 10.0))
+        self.assertEqual(
+            round(pygame.Vector2(999999999.9, 999999999.9)),
+            pygame.Vector2(1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(round(pygame.Vector2(-0.9, -0.9)), pygame.Vector2(-1.0, -1.0))
+        self.assertEqual(
+            round(pygame.Vector2(-9.9, -9.9)), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector2(-999999999.9, -999999999.9)),
+            pygame.Vector2(-1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector2(-8.0, -8.0), -1), pygame.Vector2(-10.0, -10.0)
+        )
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), -1)), pygame.Vector2)
+
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), 0)), pygame.Vector2)
+        self.assertEqual(type(round(pygame.Vector2(-8.0, -8.0), 1)), pygame.Vector2)
+
+        # Check even / odd rounding behaviour
+        self.assertEqual(round(pygame.Vector2(5.5, 5.5)), pygame.Vector2(6, 6))
+        self.assertEqual(round(pygame.Vector2(5.4, 5.4)), pygame.Vector2(5.0, 5.0))
+        self.assertEqual(round(pygame.Vector2(5.6, 5.6)), pygame.Vector2(6.0, 6.0))
+        self.assertEqual(round(pygame.Vector2(-5.5, -5.5)), pygame.Vector2(-6, -6))
+        self.assertEqual(round(pygame.Vector2(-5.4, -5.4)), pygame.Vector2(-5, -5))
+        self.assertEqual(round(pygame.Vector2(-5.6, -5.6)), pygame.Vector2(-6, -6))
+
+        self.assertRaises(TypeError, round, pygame.Vector2(1.0, 1.0), 1.5)
+        self.assertRaises(TypeError, round, pygame.Vector2(1.0, 1.0), "a")
 
     def testCopy(self):
         v_copy0 = Vector2(2004.0, 2022.0)
@@ -879,6 +978,7 @@ class Vector2TypeTest(unittest.TestCase):
         v = Vector2()
         v.from_polar(self.v1.as_polar())
         self.assertEqual(self.v1, v)
+        self.assertEqual(self.v1, Vector2.from_polar(self.v1.as_polar()))
         self.assertEqual(self.e1.as_polar(), (1, 0))
         self.assertEqual(self.e2.as_polar(), (1, 90))
         self.assertEqual((2 * self.e2).as_polar(), (2, 90))
@@ -888,10 +988,20 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: v.from_polar((1, 2, 3)))
         self.assertRaises(TypeError, lambda: v.from_polar((1,)))
         self.assertRaises(TypeError, lambda: v.from_polar(1, 2))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar((None, None)))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar("ab"))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar((None, 1)))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar((1, 2, 3)))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar((1,)))
+        self.assertRaises(TypeError, lambda: Vector2.from_polar(1, 2))
         v.from_polar((0.5, 90))
         self.assertEqual(v, 0.5 * self.e2)
+        self.assertEqual(Vector2.from_polar((0.5, 90)), 0.5 * self.e2)
+        self.assertEqual(Vector2.from_polar((0.5, 90)), v)
         v.from_polar((1, 0))
         self.assertEqual(v, self.e1)
+        self.assertEqual(Vector2.from_polar((1, 0)), self.e1)
+        self.assertEqual(Vector2.from_polar((1, 0)), v)
 
     def test_subclass_operation(self):
         class Vector(pygame.math.Vector2):
@@ -1439,6 +1549,126 @@ class Vector3TypeTest(unittest.TestCase):
         for val in self.v1:
             self.assertEqual(val, self.v1[idx])
             idx += 1
+
+    def test___round___basic(self):
+        self.assertEqual(
+            round(pygame.Vector3(0.0, 0.0, 0.0)), pygame.Vector3(0.0, 0.0, 0.0)
+        )
+        self.assertEqual(type(round(pygame.Vector3(0.0, 0.0, 0.0))), pygame.Vector3)
+        self.assertEqual(
+            round(pygame.Vector3(1.0, 1.0, 1.0)), round(pygame.Vector3(1.0, 1.0, 1.0))
+        )
+        self.assertEqual(
+            round(pygame.Vector3(10.0, 10.0, 10.0)),
+            round(pygame.Vector3(10.0, 10.0, 10.0)),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1e20, 1e20, 1e20)), pygame.Vector3(1e20, 1e20, 1e20)
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-1.0, -1.0, -1.0)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-10.0, -10.0, -10.0)),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1e20, -1e20, -1e20)),
+            pygame.Vector3(-1e20, -1e20, -1e20),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(0.1, 0.1, 0.1)), pygame.Vector3(0.0, 0.0, 0.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1.1, 1.1, 1.1)), pygame.Vector3(1.0, 1.0, 1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(10.1, 10.1, 10.1)), pygame.Vector3(10.0, 10.0, 10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(1000000000.1, 1000000000.1, 1000000000.1)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-1.1, -1.1, -1.1)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-10.1, -10.1, -10.1)),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-1000000000.1, -1000000000.1, -1000000000.1)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(0.9, 0.9, 0.9)), pygame.Vector3(1.0, 1.0, 1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(9.9, 9.9, 9.9)), pygame.Vector3(10.0, 10.0, 10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(999999999.9, 999999999.9, 999999999.9)),
+            pygame.Vector3(1000000000.0, 1000000000.0, 1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-0.9, -0.9, -0.9)), pygame.Vector3(-1.0, -1.0, -1.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-9.9, -9.9, -9.9)), pygame.Vector3(-10.0, -10.0, -10.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-999999999.9, -999999999.9, -999999999.9)),
+            pygame.Vector3(-1000000000.0, -1000000000.0, -1000000000.0),
+        )
+
+        self.assertEqual(
+            round(pygame.Vector3(-8.0, -8.0, -8.0), -1),
+            pygame.Vector3(-10.0, -10.0, -10.0),
+        )
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), -1)), pygame.Vector3
+        )
+
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), 0)), pygame.Vector3
+        )
+        self.assertEqual(
+            type(round(pygame.Vector3(-8.0, -8.0, -8.0), 1)), pygame.Vector3
+        )
+
+        # Check even / odd rounding behaviour
+        self.assertEqual(round(pygame.Vector3(5.5, 5.5, 5.5)), pygame.Vector3(6, 6, 6))
+        self.assertEqual(
+            round(pygame.Vector3(5.4, 5.4, 5.4)), pygame.Vector3(5.0, 5.0, 5.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(5.6, 5.6, 5.6)), pygame.Vector3(6.0, 6.0, 6.0)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.5, -5.5, -5.5)), pygame.Vector3(-6, -6, -6)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.4, -5.4, -5.4)), pygame.Vector3(-5, -5, -5)
+        )
+        self.assertEqual(
+            round(pygame.Vector3(-5.6, -5.6, -5.6)), pygame.Vector3(-6, -6, -6)
+        )
+
+        self.assertRaises(TypeError, round, pygame.Vector3(1.0, 1.0, 1.0), 1.5)
+        self.assertRaises(TypeError, round, pygame.Vector3(1.0, 1.0, 1.0), "a")
 
     def test_rotate(self):
         v1 = Vector3(1, 0, 0)
@@ -2329,6 +2559,7 @@ class Vector3TypeTest(unittest.TestCase):
         v = Vector3()
         v.from_spherical(self.v1.as_spherical())
         self.assertEqual(self.v1, v)
+        self.assertEqual(self.v1, Vector3.from_spherical(self.v1.as_spherical()))
         self.assertEqual(self.e1.as_spherical(), (1, 90, 0))
         self.assertEqual(self.e2.as_spherical(), (1, 90, 90))
         self.assertEqual(self.e3.as_spherical(), (1, 0, 0))
@@ -2339,11 +2570,18 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: v.from_spherical((1, 2, 3, 4)))
         self.assertRaises(TypeError, lambda: v.from_spherical((1, 2)))
         self.assertRaises(TypeError, lambda: v.from_spherical(1, 2, 3))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical((None, None, None)))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical("abc"))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical((None, 1, 2)))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical((1, 2, 3, 4)))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical((1, 2)))
+        self.assertRaises(TypeError, lambda: Vector3.from_spherical(1, 2, 3))
         v.from_spherical((0.5, 90, 90))
         self.assertEqual(v, 0.5 * self.e2)
+        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), 0.5 * self.e2)
+        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), v)
 
     def test_inplace_operators(self):
-
         v = Vector3(1, 1, 1)
         v *= 2
         self.assertEqual(v, (2.0, 2.0, 2.0))

@@ -23,6 +23,11 @@
       | :sl:`Creates window using window created by pygame.display.set_mode().`
       | :sg:`from_display_module() -> Window`
 
+   .. classmethod:: from_window
+
+      | :sl:`Create Window from another window. Could be from another UI toolkit.`
+      | :sg:`from_window(other) -> Window`
+
    .. attribute:: grab
 
       | :sl:`Gets or sets whether the mouse is confined to the window.`
@@ -117,11 +122,6 @@
 
       | :sl:`Gets and sets the window opacity. Between 0.0 (fully transparent) and 1.0 (fully opaque).`
       | :sg:`opacity -> float`
-
-   .. attribute:: brightness
-
-      | :sl:`Gets and sets the brightness (gamma multiplier) for the display that owns the window.`
-      | :sg:`brightness -> float`
 
    .. attribute:: display_index
 

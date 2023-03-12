@@ -13,7 +13,7 @@ dimensions, ``Vector2`` and ``Vector3`` respectively.
 
 They support the following numerical operations: ``vec + vec``, ``vec - vec``, 
 ``vec * number``, ``number * vec``, ``vec / number``, ``vec // number``, ``vec += vec``, 
-``vec -= vec``, ``vec *= number``, ``vec /= number``, ``vec //= number``. 
+``vec -= vec``, ``vec *= number``, ``vec /= number``, ``vec //= number``, ``round(vec, ndigits=0)``. 
 
 All these operations will be performed elementwise.
 In addition ``vec * vec`` will perform a scalar-product (a.k.a. dot-product). 
@@ -47,6 +47,7 @@ Multiple coordinates can be set using slices or swizzling
 .. versionchanged:: 1.9.4 Removed experimental notice.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` import not required. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
+.. versionchanged:: 2.2.0 `round` returns a new vector with components rounded to the specified digits.
 
 .. function:: clamp
 
@@ -62,6 +63,40 @@ Multiple coordinates can be set using slices or swizzling
    .. versionadded:: 2.1.3
 
    .. ## math.clamp ##
+
+.. function:: lerp
+
+   | :sl:`interpolates between two values by a weight.`
+   | :sg:`lerp(a, b, weight) -> float`
+
+   Linearly interpolates between ``a`` and ``b`` by ``weight`` using the formula ``a + (b-a) * weight``.
+   
+   If ``weight`` is ``0.5``, ``lerp`` will return the value half-way between ``a``
+   and ``b``. When ``a = 10`` and ``b = 20``, ``lerp(a, b, 0.5)`` will return ``15``. You
+   can think of weight as the percentage of interpolation from ``a`` to ``b``, ``0.0``
+   being 0% and ``1.0`` being 100%.
+
+   ``lerp`` can be used for many things. You could rotate a sprite by a weight with
+   ``angle = lerp(0, 360, weight)``. You could even scale an enemy's attack value
+   based on the level you're playing:
+
+   ::
+
+      FINAL_LEVEL = 10
+      current_level = 2
+
+      attack = lerp(10, 50, current_level/MAX_LEVEL) # 18
+
+   If you're on level 0, ``attack`` will be ``10``, if you're on level 10,
+   ``attack`` will be ``50``. If you're on level 5, the
+   result of ``current_level/MAX_LEVEL`` will be ``0.5``
+   which represents 50%, therefore ``attack`` will be ``30``, which is the midpoint of ``10`` and ``50``.
+
+   Raises a ValueError if ``weight`` is outside the range of ``[0, 1]``.
+
+   .. versionadded:: 2.1.3
+
+   .. ## math.lerp ##
 
 .. class:: Vector2
 
@@ -376,11 +411,13 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: from_polar
 
-      | :sl:`Sets x and y from a polar coordinates tuple.`
-      | :sg:`from_polar((r, phi)) -> None`
+      | :sl:`Creates a Vector2(x, y) or sets x and y from a polar coordinates tuple.`
+      | :sg:`Vector2.from_polar((r, phi)) -> Vector2`
+      | :sg:`Vector2().from_polar((r, phi)) -> None`
 
-      Sets x and y from a tuple (r, phi) where r is the radial distance, and
-      phi is the azimuthal angle.
+      If used from the class creates a Vector2(x,y), else sets x and y.
+      The values of x and y are defined from a tuple ``(r, phi)`` where r
+      is the radial distance, and phi is the azimuthal angle.
 
       .. ## Vector2.from_polar ##
 
@@ -1003,10 +1040,12 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: from_spherical
 
-      | :sl:`Sets x, y and z from a spherical coordinates 3-tuple.`
-      | :sg:`from_spherical((r, theta, phi)) -> None`
+      | :sl:`Creates a Vector3(x, y, z) or sets x, y and z from a spherical coordinates 3-tuple.`
+      | :sg:`Vector3.from_spherical((r, theta, phi)) -> Vector3`
+      | :sg:`Vector3().from_spherical((r, theta, phi)) -> None`
 
-      Sets x, y and z from a tuple ``(r, theta, phi)`` where r is the radial
+      If used from the class creates a Vector3(x, y, z), else sets x, y, and z.
+      The values of x, y, and z are from a tuple ``(r, theta, phi)`` where r is the radial
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
       .. ## Vector3.from_spherical ##

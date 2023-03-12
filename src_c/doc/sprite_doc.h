@@ -15,18 +15,18 @@
 #define DOC_GROUPREMOVE "remove(*sprites) -> None\nremove Sprites from the Group"
 #define DOC_GROUPHAS "has(*sprites) -> bool\ntest if a Group contains Sprites"
 #define DOC_GROUPUPDATE "update(*args, **kwargs) -> None\ncall the update method on contained Sprites"
-#define DOC_GROUPDRAW "draw(Surface) -> List[Rect]\nblit the Sprite images"
+#define DOC_GROUPDRAW "draw(Surface, bgsurf=None, special_flags=0) -> List[Rect]\nblit the Sprite images"
 #define DOC_GROUPCLEAR "clear(Surface_dest, background) -> None\ndraw a background over the Sprites"
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
 #define DOC_PYGAMESPRITERENDERPLAIN "Same as pygame.sprite.Group"
 #define DOC_PYGAMESPRITERENDERCLEAR "Same as pygame.sprite.Group"
 #define DOC_PYGAMESPRITERENDERUPDATES "RenderUpdates(*sprites) -> RenderUpdates\nGroup sub-class that tracks dirty updates."
-#define DOC_RENDERUPDATESDRAW "draw(surface) -> Rect_list\nblit the Sprite images and track changed areas"
+#define DOC_RENDERUPDATESDRAW "draw(surface, bgsurf=None, special_flags=0) -> Rect_list\nblit the Sprite images and track changed areas"
 #define DOC_PYGAMESPRITEORDEREDUPDATES "OrderedUpdates(*sprites) -> OrderedUpdates\nRenderUpdates sub-class that draws Sprites in order of addition."
 #define DOC_PYGAMESPRITELAYEREDUPDATES "LayeredUpdates(*sprites, **kwargs) -> LayeredUpdates\nLayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates."
 #define DOC_LAYEREDUPDATESADD "add(*sprites, **kwargs) -> None\nadd a sprite or sequence of sprites to a group"
 #define DOC_LAYEREDUPDATESSPRITES "sprites() -> sprites\nreturns a ordered list of sprites (first back, last top)."
-#define DOC_LAYEREDUPDATESDRAW "draw(surface) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
+#define DOC_LAYEREDUPDATESDRAW "draw(surface, bgsurf=None, special_flags=0) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
 #define DOC_LAYEREDUPDATESGETSPRITESAT "get_sprites_at(pos) -> colliding_sprites\nreturns a list with all sprites at that position."
 #define DOC_LAYEREDUPDATESGETSPRITE "get_sprite(idx) -> sprite\nreturns the sprite at the index idx from the groups sprites"
 #define DOC_LAYEREDUPDATESREMOVESPRITESOFLAYER "remove_sprites_of_layer(layer_nr) -> sprites\nremoves all sprites from a layer and returns them as a list."
@@ -41,7 +41,7 @@
 #define DOC_LAYEREDUPDATESGETSPRITESFROMLAYER "get_sprites_from_layer(layer) -> sprites\nreturns all sprites from a layer, ordered by how they where added"
 #define DOC_LAYEREDUPDATESSWITCHLAYER "switch_layer(layer1_nr, layer2_nr) -> None\nswitches the sprites from layer1 to layer2"
 #define DOC_PYGAMESPRITELAYEREDDIRTY "LayeredDirty(*sprites, **kwargs) -> LayeredDirty\nLayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates."
-#define DOC_LAYEREDDIRTYDRAW "draw(surface, bgd=None) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
+#define DOC_LAYEREDDIRTYDRAW "draw(surface, bgsurf=None, special_flags=None) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
 #define DOC_LAYEREDDIRTYCLEAR "clear(surface, bgd) -> None\nused to set background"
 #define DOC_LAYEREDDIRTYREPAINTRECT "repaint_rect(screen_rect) -> None\nrepaints the given area"
 #define DOC_LAYEREDDIRTYSETCLIP "set_clip(screen_rect=None) -> None\nclip the area where to draw. Just pass None (default) to reset the clip"
@@ -128,7 +128,7 @@ pygame.sprite.Group.update
 call the update method on contained Sprites
 
 pygame.sprite.Group.draw
- draw(Surface) -> List[Rect]
+ draw(Surface, bgsurf=None, special_flags=0) -> List[Rect]
 blit the Sprite images
 
 pygame.sprite.Group.clear
@@ -150,7 +150,7 @@ pygame.sprite.RenderUpdates
 Group sub-class that tracks dirty updates.
 
 pygame.sprite.RenderUpdates.draw
- draw(surface) -> Rect_list
+ draw(surface, bgsurf=None, special_flags=0) -> Rect_list
 blit the Sprite images and track changed areas
 
 pygame.sprite.OrderedUpdates
@@ -170,7 +170,7 @@ pygame.sprite.LayeredUpdates.sprites
 returns a ordered list of sprites (first back, last top).
 
 pygame.sprite.LayeredUpdates.draw
- draw(surface) -> Rect_list
+ draw(surface, bgsurf=None, special_flags=0) -> Rect_list
 draw all sprites in the right order onto the passed surface.
 
 pygame.sprite.LayeredUpdates.get_sprites_at
@@ -230,7 +230,7 @@ pygame.sprite.LayeredDirty
 LayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates.
 
 pygame.sprite.LayeredDirty.draw
- draw(surface, bgd=None) -> Rect_list
+ draw(surface, bgsurf=None, special_flags=None) -> Rect_list
 draw all sprites in the right order onto the passed surface.
 
 pygame.sprite.LayeredDirty.clear

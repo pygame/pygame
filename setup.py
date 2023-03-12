@@ -16,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name": "pygame",
-    "version": "2.1.4.dev1",
+    "version": "2.3.0.dev3",
     "license": "LGPL",
     "url": "https://www.pygame.org",
     "author": "A community project.",
@@ -767,7 +767,8 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
                             return
 
 
-        replace_scale_mmx()
+        if not 'ARM64' in sys.version:
+            replace_scale_mmx()
 
 # clean up the list of extensions
 for e in extensions[:]:
