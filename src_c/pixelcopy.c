@@ -478,6 +478,8 @@ array_to_surface(PyObject *self, PyObject *arg)
         return NULL;
     }
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     format = surf->format;
 
     if (pgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS_RO)) {
@@ -776,6 +778,8 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (pgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         pgSurface_Unlock(surfobj);
@@ -963,6 +967,8 @@ map_array(PyObject *self, PyObject *args)
     /* Determine source and destination pixel formats
      */
     format = pgSurface_AsSurface(format_surf)->format;
+    if (!format)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     pix_bytesize = format->BytesPerPixel;
     if (tar_itemsize < pix_bytesize) {
         PyErr_SetString(PyExc_ValueError,
