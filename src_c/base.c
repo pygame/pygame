@@ -1,6 +1,7 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
+  Copyright (C) 2023  Oracle and/or its affiliates
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -25,6 +26,7 @@
 #include "pygame.h"
 
 #include <signal.h>
+#include <string.h>
 #include "doc/pygame_doc.h"
 #include "pgarrinter.h"
 #include "pgcompat.h"
@@ -2022,19 +2024,41 @@ pg_install_parachute(void)
 {
 #ifdef HAVE_SIGNAL_H
     int i;
+#ifdef WIN32
     void (*ohandler)(int);
+#else
+    struct sigaction act;
+#endif
 
     if (parachute_installed) {
         return;
     }
     parachute_installed = 1;
 
-    /* Set a handler for any fatal signal not already handled */
+    /* Set a handler for any fatal signal not already handled.
+       Use sigaction to retrieve the current handler first, so
+       we don't mess with signal handlers in multi-threaded
+       runtimes without a GIL. This is still racy, but better
+       than using the signal function. On Windows this API
+       does not exist, so we have to accept using the more
+       dangerous signal API. */
     for (i = 0; fatal_signals[i]; ++i) {
+#ifdef WIN32
         ohandler = (void (*)(int))signal(fatal_signals[i], pygame_parachute);
         if (ohandler != SIG_DFL) {
             signal(fatal_signals[i], ohandler);
         }
+#else
+        sigaction(fatal_signals[i], NULL, &act);
+        if (act.sa_handler == SIG_DFL) {
+            memset(&act, 0, sizeof(struct sigaction));
+            sigemptyset(&act.sa_mask);
+            sigaddset(&act.sa_mask, fatal_signals[i]);
+            act.sa_handler = pygame_parachute;
+            act.sa_flags = SA_RESTART;
+            sigaction(fatal_signals[i], &act, NULL);
+        }
+#endif
     }
 
 #endif
