@@ -840,6 +840,9 @@ mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (surf->w < 0 || surf->h < 0) {
         return RAISE(PyExc_ValueError,
                      "cannot create mask with negative size");
@@ -1070,8 +1073,12 @@ mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     if (surfobj2) {
         surf2 = pgSurface_AsSurface(surfobj2);
+        if (!surf2)
+            return RAISE(pgExc_SDLError, "display Surface quit");
     }
 
     if (PyLong_Check(rgba_obj_color)) {
@@ -2161,6 +2168,9 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (Py_None != setsurfobj) {
         if (!pgSurface_Check(setsurfobj)) {
             PyErr_SetString(PyExc_TypeError, "invalid setsurface argument");
@@ -2168,6 +2178,9 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         setsurf = pgSurface_AsSurface(setsurfobj);
+
+        if (!setsurf)
+            return RAISE(pgExc_SDLError, "display Surface quit");
 
         if (0 == check_surface_pixel_format(surf, setsurf)) {
             /* Needs to have the same format settings as surface. */
@@ -2192,6 +2205,9 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         unsetsurf = pgSurface_AsSurface(unsetsurfobj);
+
+        if (!unsetsurf)
+            return RAISE(pgExc_SDLError, "display Surface quit");
 
         if (0 == check_surface_pixel_format(surf, unsetsurf)) {
             /* Needs to have the same format settings as surface. */
