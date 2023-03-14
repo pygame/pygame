@@ -134,6 +134,7 @@ Estas son las rutinas que se pueden usar para determinar el modo de
 visualización más apropiado.
 Pueden encontrar más información acerca de estas funciones en la
 documentación del modo de visualización.
+
   :func:`pygame.display.mode_ok(size, flags, depth) <pygame.display.mode_ok>`
 
     Esta función toma exactamente el mismo argumento que pygame.display.set_mode().

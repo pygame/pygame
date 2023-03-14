@@ -14,70 +14,70 @@ Crear Juegos con Pygame
 
 :Traducción al español: Estefanía Pivaral Serrano
 
-.. toctree::
-   :hidden:
-   :glob:
+.. .. toctree::
+..    :hidden:
+..    :glob:
 
-   tom_games2
-   tom_games3
-   tom_games4
-   tom_games5
-   tom_games6
+..    tom_games2
+..    tom_games3
+..    tom_games4
+..    tom_games5
+..    tom_games6
 
 Tabla de Contenido
 -------------------
 
-\1. :ref:`Introducción <makegames-1>`
+\1. :ref:`Introducción <crearjuegos-1>`
 
-  \1.1. :ref:`A note on coding styles <makegames-1-1>`
+  \1.1. :ref:`A note on coding styles <crearjuegos-1-1>`
 
-\2. :ref:`Revisión: Fundamentos de Pygame <makegames-2>`
+.. \2. :ref:`Revisión: Fundamentos de Pygame <crearjuegos-2>`
 
-  \2.1. :ref:`El juego básico de pygame <makegames-2-1>`
+..   \2.1. :ref:`El juego básico de pygame <crearjuegos-2-1>`
 
-  \2.2. :ref:`Objetos básicos de pygame <makegames-2-2>`
+..   \2.2. :ref:`Objetos básicos de pygame <crearjuegos-2-2>`
 
-  \2.3. :ref:`Blitting <makegames-2-3>`
+..   \2.3. :ref:`Blitting <crearjuegos-2-3>`
 
-  \2.4. :ref:`El evento en loop (búcle de evento) <makegames-2-4>`
+..   \2.4. :ref:`El evento en loop (búcle de evento) <crearjuegos-2-4>`
 
-  \2.5. :ref:`Ta-ra! <makegames-2-5>`
+..   \2.5. :ref:`Ta-ra! <crearjuegos-2-5>`
 
-\3. :ref:`Dandole inicio <makegames-3>`
+.. \3. :ref:`Dandole inicio <crearjuegos-3>`
 
-  \3.1. :ref:`Las primeras líneas y carga de módulos <makegames-3-1>`
+..   \3.1. :ref:`Las primeras líneas y carga de módulos <crearjuegos-3-1>`
 
-  \3.2. :ref:`Funciones de manejo de recursos <makegames-3-2>`
+..   \3.2. :ref:`Funciones de manejo de recursos <crearjuegos-3-2>`
 
-\4. :ref:`Clases de objeto de juego <makegames-4>`
+.. \4. :ref:`Clases de objeto de juego <crearjuegos-4>`
 
-  \4.1. :ref:`Una clase de pelota sencilla <makegames-4-1>`
+..   \4.1. :ref:`Una clase de pelota sencilla <crearjuegos-4-1>`
 
-    \4.1.1. :ref:`Desvío 1: Sprites <makegames-4-1-1>`
+..     \4.1.1. :ref:`Desvío 1: Sprites <crearjuegos-4-1-1>`
 
-    \4.1.2. :ref:`Desvío 2: Física vectorial <makegames-4-1-2>`
+..     \4.1.2. :ref:`Desvío 2: Física vectorial <crearjuegos-4-1-2>`
 
-\5. :ref:`Objetos controlable por el usuario <makegames-5>`
+.. \5. :ref:`Objetos controlable por el usuario <crearjuegos-5>`
 
-  \5.1. :ref:`Una clase de bate sencillo <makegames-5-1>`
+..   \5.1. :ref:`Una clase de bate sencillo <crearjuegos-5-1>`
 
-    \5.1.1. :ref:`Desvío 3: Eventos de Pygame <makegames-5-1-1>`
+..     \5.1.1. :ref:`Desvío 3: Eventos de Pygame <crearjuegos-5-1-1>`
 
-\6. :ref:`Ensamblando los elementos  <makegames-6>`
+.. \6. :ref:`Ensamblando los elementos  <crearjuegos-6>`
 
-  \6.1. :ref:`Deja que la pelota golpée los lados <makegames-6-1>`
+..   \6.1. :ref:`Deja que la pelota golpée los lados <crearjuegos-6-1>`
 
-  \6.2. :ref:`Deja que la pelota golpée el bate <makegames-6-2>`
+..   \6.2. :ref:`Deja que la pelota golpée el bate <crearjuegos-6-2>`
 
-  \6.3. :ref:`El producto final <makegames-6-3>`
+..   \6.3. :ref:`El producto final <crearjuegos-6-3>`
 
 
-.. _makegames-1:
+.. _crearjuegos-1:
 
 1. Introducción
 ---------------
 
-Antes que nada, asumo que han leído el tutorial :doc:`Line By Line Chimp <ChimpLineByLine>`,
+Antes que nada, asumo que han leído el tutorial :doc:`Chimpancé línea por línea <ChimpanceLineaporLinea>`,
 que presenta lo básico de Python y pygame. Denle una leida antes de leer este tutorial, ya 
 que no voy a repetir lo que ese tutorial dice (o al menos no en tanto detalle.) Este tutorial
 apunta a aquellos que entienden cómo hacer un "juego" ridiculamente simple, y a quien le 
@@ -94,27 +94,27 @@ Ahora, un breve resumen de los conceptos básicos de pygame. Un método común p
 de un juego es dividirlo en las siguientes seis secciones:
 
   - **Carga de módulos** que son requeridos por el juego. Cosas estándar, excepto que deberías recordar 
-   importar nombres locales de pygame, así como el propio módulo de pygame. 
+    importar nombres locales de pygame, así como el propio módulo de pygame.
 
   - **Funciones de manejo de recursos**; define algunas clases para el manejo de los recursos más básicos,
-   que estará cargando imágenes y sonidos, como también conectandose y desconectandose de y hacia redes, 
-   cargando partidas guardadas y cualquier otro recurso que puedas tener.
+    que estará cargando imágenes y sonidos, como también conectandose y desconectandose de y hacia redes, 
+    cargando partidas guardadas y cualquier otro recurso que puedas tener.
 
   - **Clases de objeto de juego**; define las clases de los objetos del juego. En el ejemplo de Pong, estos 
-   serían uno para el bate del jugador (que podrás inicializar varias veces, uno para cada jugador en el juego)
-   y otro para la pelota (que también podrá tener múltiples instancias). Si vas a tener un buen menú en el 
-   juego, también es una buena idea hacer una clase del menú.
+    serían uno para el bate del jugador (que podrás inicializar varias veces, uno para cada jugador en el juego)
+    y otro para la pelota (que también podrá tener múltiples instancias). Si vas a tener un buen menú en el 
+    juego, también es una buena idea hacer una clase del menú.
   
   - **Cualquier otra función del juego**; define otras funciones necesarias, como marcadores, manejo de menú, etc.
-   Cualquier código que se podría poner en la lógica principal del juego, pero que dificultaría la comprensión de dicha
-   lógica, deberá tener su propia función. Algo como trazar un marcador no es lógica del juego, entonces deberá moverse
-   a una función.  
+    Cualquier código que se podría poner en la lógica principal del juego, pero que dificultaría la comprensión de dicha
+    lógica, deberá tener su propia función. Algo como trazar un marcador no es lógica del juego, entonces deberá moverse
+    a una función.
 
   - **Inicializar el juego**,  incluyendo los propios objetos de pygame, el fondo, los objetos del juego (inicializando
-   instancias de las clases) y cualquier otro pequeño fragmento de código que desee agregar.
+    instancias de las clases) y cualquier otro pequeño fragmento de código que desee agregar.
 
   - **El loop (búcle) principal**, en el cual se puede poner cualquier manejo de entrada (es decir, pendiente de usuarios 
-   presionando teclas/botones), el código para actualizar los objetos del juego y finalmente para actualizar la pantalla.
+    presionando teclas/botones), el código para actualizar los objetos del juego y finalmente para actualizar la pantalla.
 
 Cada juego que hagas tendrá alguna o todas estas secciones, posiblemente con más de las propias. Para los propósitos de este
 tutorial, voy a escribir sobre como TomPong está planteado y las ideas sobre las que escribo pueden transferirse a casi 
@@ -124,7 +124,7 @@ Poner las clases de objeto en un archivo llamado ``objects.py``, por ejemplo, pu
 separada de los objetos del juego. Si tenés mucho código de manejo de recursos, también puede ser útil poner eso en ``resources.py``
 Luego podés usar :code:`from objects,resources import *` para importar todas las clases y funciones.
 
-.. _makegames-1-1:
+.. _crearjuegos-1-1:
 
 1.1. Una nota sobre estilos de codificación
 -------------------------------------------
