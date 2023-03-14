@@ -105,6 +105,8 @@ _get_single_pixel(pgPixelArrayObject *array, Py_ssize_t x, Py_ssize_t y)
 
     pixel_p = (array->pixels + x * array->strides[0] + y * array->strides[1]);
     surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     bpp = surf->format->BytesPerPixel;
 
@@ -165,6 +167,8 @@ _make_surface(pgPixelArrayObject *array, PyObject *args)
     }
 
     surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     bpp = surf->format->BytesPerPixel;
 
     /* Create the second surface. */
@@ -384,6 +388,8 @@ _replace_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
     surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|fO", keys, &delcolor,
                                      &replcolor, &distance, &weights)) {
@@ -593,6 +599,8 @@ _extract_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
     }
 
     surf = pgSurface_AsSurface(surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
     dim0 = new_array->shape[0];
@@ -801,6 +809,8 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
     surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys,
                                      &pgPixelArray_Type, &other_array,
@@ -826,6 +836,8 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
     other_surf = pgSurface_AsSurface(other_array->surface);
+    if (!other_surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     other_format = other_surf->format;
 
     if (other_format->BytesPerPixel != bpp) {
@@ -1054,6 +1066,8 @@ _transpose(pgPixelArrayObject *array, PyObject *args)
     }
 
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
     Py_ssize_t dim1 = array->shape[0];
     Py_ssize_t stride0;

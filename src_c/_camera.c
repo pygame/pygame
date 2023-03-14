@@ -108,6 +108,9 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (!surfobj2) {
         newsurf = SDL_CreateRGBSurface(
             0, surf->w, surf->h, surf->format->BitsPerPixel,
@@ -119,6 +122,8 @@ surf_colorspace(PyObject *self, PyObject *arg)
     }
     else {
         newsurf = pgSurface_AsSurface(surfobj2);
+        if (!newsurf)
+            return RAISE(pgExc_SDLError, "display Surface quit");
     }
 
     /* check to see if the size is the same. */

@@ -989,6 +989,8 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                            ((pgSurfaceObject *)self)->subsurface);
 }
@@ -1393,6 +1395,9 @@ surf_get_blendmode(PyObject *self, PyObject *_null)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
 
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
     if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
     return PyLong_FromLong((long)mode);
@@ -1453,6 +1458,8 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     if (argobject) {
         if (pgSurface_Check(argobject)) {
             src = pgSurface_AsSurface(argobject);
+            if (!src)
+                return RAISE(pgExc_SDLError, "display Surface quit");
             newsurf = SDL_ConvertSurface(surf, src->format, 0);
         }
         else {
@@ -3660,6 +3667,14 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             subsurface = pgSurface_AsSurface(owner);
             suboffsetx += subdata->offsetx;
             suboffsety += subdata->offsety;
+        }
+
+        /* Only need to check the surface at the outermost surface
+           (the non-subsurface) as a subsurface can't be the display surface
+            and only a display surface can have the SDL_Surface being NULL */
+        if (!subsurface) {
+            PyErr_SetString(pgExc_SDLError, "display Surface quit");
+            return 1;
         }
 
         SDL_GetClipRect(subsurface, &orig_clip);

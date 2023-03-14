@@ -349,6 +349,8 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
 
     surf = pgSurface_AsSurface(surfobj);
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
     pgSurface_Prep(surfobj);
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
