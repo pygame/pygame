@@ -214,6 +214,7 @@ The following strings can be converted into cursor bitmaps with
    correct size for the given width and height. Otherwise an exception is raised.
    
    .. method:: copy
+
       | :sl:`copy the current cursor`
       | :sg:`copy() -> Cursor`
       
