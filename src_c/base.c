@@ -24,7 +24,6 @@
 
 #include "pygame.h"
 
-#include <signal.h>
 #include "doc/pygame_doc.h"
 #include "pgarrinter.h"
 #include "pgcompat.h"
@@ -83,10 +82,6 @@ SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
 static char *pg_env_blend_alpha_SDL2 = NULL;
 
-static void
-pg_install_parachute(void);
-static void
-pg_uninstall_parachute(void);
 static void
 pg_atexit_quit(void);
 static int
@@ -416,8 +411,6 @@ _pg_quit(void)
         privatefuncs = pg_quit_functions;
         pg_quit_functions = NULL;
 
-        pg_uninstall_parachute(); /* Is this done here, or can it be done
-                                     below? */
         num = PyList_Size(privatefuncs);
 
         /*quit funcs in reverse order*/
@@ -2008,106 +2001,6 @@ pg_EnvShouldBlendAlphaSDL2(void)
     return pg_env_blend_alpha_SDL2;
 }
 
-/*error signal handlers(replacing SDL parachute)*/
-static void
-pygame_parachute(int sig)
-{
-#ifdef HAVE_SIGNAL_H
-    char *signaltype;
-
-    signal(sig, SIG_DFL);
-    switch (sig) {
-        case SIGSEGV:
-            signaltype = "(pygame parachute) Segmentation Fault";
-            break;
-#ifdef SIGBUS
-#if SIGBUS != SIGSEGV
-        case SIGBUS:
-            signaltype = "(pygame parachute) Bus Error";
-            break;
-#endif
-#endif
-#ifdef SIGFPE
-        case SIGFPE:
-            signaltype = "(pygame parachute) Floating Point Exception";
-            break;
-#endif
-#ifdef SIGQUIT
-        case SIGQUIT:
-            signaltype = "(pygame parachute) Keyboard Abort";
-            break;
-#endif
-        default:
-            signaltype = "(pygame parachute) Unknown Signal";
-            break;
-    }
-
-    _pg_quit();
-    Py_FatalError(signaltype);
-#endif
-}
-
-static int fatal_signals[] = {
-    SIGSEGV,
-#ifdef SIGBUS
-    SIGBUS,
-#endif
-#ifdef SIGFPE
-    SIGFPE,
-#endif
-#ifdef SIGQUIT
-    SIGQUIT,
-#endif
-    0 /*end of list*/
-};
-
-static int parachute_installed = 0;
-static void
-pg_install_parachute(void)
-{
-#ifdef HAVE_SIGNAL_H
-    int i;
-    void (*ohandler)(int);
-
-    if (parachute_installed) {
-        return;
-    }
-    parachute_installed = 1;
-
-    /* Set a handler for any fatal signal not already handled */
-    for (i = 0; fatal_signals[i]; ++i) {
-        ohandler = (void (*)(int))signal(fatal_signals[i], pygame_parachute);
-        if (ohandler != SIG_DFL) {
-            signal(fatal_signals[i], ohandler);
-        }
-    }
-
-#endif
-    return;
-}
-
-static void
-pg_uninstall_parachute(void)
-{
-#ifdef HAVE_SIGNAL_H
-    int i;
-    void (*ohandler)(int);
-
-    if (!parachute_installed) {
-        return;
-    }
-    parachute_installed = 0;
-
-    /* Remove a handler for any fatal signal handled */
-    for (i = 0; fatal_signals[i]; ++i) {
-        ohandler = (void (*)(int))signal(fatal_signals[i], SIG_DFL);
-        if (ohandler != pygame_parachute) {
-            signal(fatal_signals[i], ohandler);
-        }
-    }
-#endif
-}
-
 /* bind functions to python */
 
 static PyMethodDef _base_methods[] = {
@@ -2252,9 +2145,6 @@ MODINIT_DEFINE(base)
     }
     Py_DECREF(rval);
     Py_AtExit(pg_atexit_quit);
-#ifdef HAVE_SIGNAL_H
-    pg_install_parachute();
-#endif
 
     /* This must be called before calling any other SDL API */
     if (!pg_CheckSDLVersions()) {
