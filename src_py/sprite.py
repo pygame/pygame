@@ -85,7 +85,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
 
-from weakref import WeakSet
+from weakref import WeakKeyDictionary
 from warnings import warn
 
 import pygame
@@ -111,7 +111,7 @@ class Sprite:
     """
 
     def __init__(self, *groups):
-        self.__g = WeakSet()  # The groups the sprite is in
+        self.__g = WeakKeyDictionary()  # The groups the sprite is in
         if groups:
             self.add(*groups)
 
