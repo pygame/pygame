@@ -108,19 +108,19 @@ mouse_get_rel(PyObject *self, PyObject *_null)
     VIDEO_INIT_CHECK();
 
     SDL_GetRelativeMouseState(&x, &y);
-
-    /*
+    {
         SDL_Window *sdlWindow = pg_GetDefaultWindow();
         SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
-        if (sdlRenderer!=NULL){
+        if (sdlRenderer != NULL) {
+            SDL_Rect vprect;
             float scalex, scaley;
 
             SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
-
-            x/=scalex;
-            y/=scaley;
+            SDL_RenderGetViewport(sdlRenderer, &vprect);
+            x = (int)(x * scalex + vprect.x);
+            y = (int)(y * scaley + vprect.y);
         }
-    */
+    }
     return pg_tuple_couple_from_values_int(x, y);
 }
 
