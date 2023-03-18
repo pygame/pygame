@@ -86,6 +86,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # specialized cases.
 
 from warnings import warn
+from weakref import WeakKeyDictionary
 
 import pygame
 
@@ -110,7 +111,8 @@ class Sprite:
     """
 
     def __init__(self, *groups):
-        self.__g = {}  # The groups the sprite is in
+        self.__g = {}  # The groups the sprite is in with kill_unref off
+        self.__wg = WeakKeyDictionary()  # The groups the sprite is in with kill_unref on
         if groups:
             self.add(*groups)
 
@@ -124,9 +126,11 @@ class Sprite:
 
         """
         has = self.__g.__contains__
+        weak_has = self.__wg.__contains__
         for group in groups:
             if hasattr(group, "_spritegroup"):
-                if not has(group):
+                flag = weak_has(group) if group.kill_unref else has(group)
+                if not flag:
                     group.add_internal(self)
                     self.add_internal(group)
             else:
@@ -142,9 +146,11 @@ class Sprite:
 
         """
         has = self.__g.__contains__
+        weak_has = self.__wg.__contains__
         for group in groups:
             if hasattr(group, "_spritegroup"):
-                if has(group):
+                flag = weak_has(group) if group.kill_unref else has(group)
+                if flag:
                     group.remove_internal(self)
                     self.remove_internal(group)
             else:
@@ -156,7 +162,10 @@ class Sprite:
 
         :param group: The group we are adding to.
         """
-        self.__g[group] = 0
+        if group.kill_unref:
+            self.__wg[group] = 0
+        else:
+            self.__g[group] = 0
 
     def remove_internal(self, group):
         """
@@ -164,7 +173,10 @@ class Sprite:
 
         :param group: The group we are removing from.
         """
-        del self.__g[group]
+        if group.kill_unref:
+            del self.__wg[group]
+        else:
+            del self.__g[group]
 
     def update(self, *args, **kwargs):
         """method to control sprite behavior
@@ -356,9 +368,19 @@ class AbstractGroup:
     # dummy val to identify sprite groups, and avoid infinite recursion
     _spritegroup = True
 
+    # every group created takes the value of this on initialization
+    # groups with this on delete themselves if only referenced by their members
+    terminate_if_unref = False
+
     def __init__(self):
-        self.spritedict = {}
+        self.spritedict = None
         self.lostsprites = []
+        self.kill_unref = AbstractGroup.terminate_if_unref
+
+        if self.kill_unref:
+            self.spritedict = WeakKeyDictionary()
+        else:
+            self.spritedict = {}
 
     def sprites(self):
         """get a list of sprites in the group
