@@ -112,7 +112,9 @@ class Sprite:
 
     def __init__(self, *groups):
         self.__g = {}  # The groups the sprite is in with kill_unref off
-        self.__wg = WeakKeyDictionary()  # The groups the sprite is in with kill_unref on
+        self.__wg = (
+            WeakKeyDictionary()
+        )  # The groups the sprite is in with kill_unref on
         if groups:
             self.add(*groups)
 
