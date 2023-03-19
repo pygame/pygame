@@ -111,7 +111,7 @@ class Sprite:
     """
 
     def __init__(self, *groups):
-        self.__g = WeakSet()  # The groups the sprite is in
+        self.__g = set()  # The groups the sprite is in
         if groups:
             self.add(*groups)
 
@@ -247,6 +247,12 @@ class Sprite:
             )
 
 
+class WeakSprite(Sprite):
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.__dict__["_Sprite__g"] = WeakSet(self._Sprite__g)
+
+
 class DirtySprite(Sprite):
     """a more featureful subclass of Sprite with more attributes
 
@@ -340,6 +346,10 @@ class DirtySprite(Sprite):
         return (
             f"<{self.__class__.__name__} DirtySprite(in {len(self.groups())} groups)>"
         )
+
+
+class WeakDirtySprite(WeakSprite, DirtySprite):
+    pass
 
 
 class AbstractGroup:
