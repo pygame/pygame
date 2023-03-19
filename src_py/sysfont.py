@@ -184,16 +184,19 @@ def _font_finder_darwin():
 
 def initsysfonts_darwin():
     """Read the fonts on MacOS, and OS X."""
-    # if the X11 binary exists... try and use that.
-    #  Not likely to be there on pre 10.4.x ... or MacOS 10.10+
-    if exists("/usr/X11/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11/bin/fc-list")
-    # This fc-list path will work with the X11 from the OS X 10.3 installation
-    # disc
-    elif exists("/usr/X11R6/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
-    else:
-        # eventually this should probably be the preferred solution
+    #  fc-list is not likely to be there on pre 10.4.x, or MacOS 10.10+
+    fonts = {}
+
+    fclist_locations = [
+        "/usr/X11/bin/fc-list",  # apple x11
+        "/usr/X11R6/bin/fc-list",  # apple x11
+    ]
+    for bin_location in fclist_locations:
+        if exists(bin_location):
+            fonts = initsysfonts_unix(bin_location)
+            break
+
+    if len(fonts) == 0:
         fonts = _font_finder_darwin()
 
     return fonts
