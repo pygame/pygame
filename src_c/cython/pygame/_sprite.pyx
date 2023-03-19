@@ -88,14 +88,12 @@ Sprites are not thread safe, so lock them yourself if using threads.
 ## specific ones that aren't quite so general but fit into common
 ## specialized cases.
 
-from weakref import WeakSet
-
 import pygame
 from pygame import Rect
 from pygame.time import get_ticks
 
 from cpython cimport PyObject_CallFunctionObjArgs, PyDict_SetItem, \
-    PyObject, PyList_SetSlice
+    PyObject
 
 # Python 3 does not have the callable function, but an equivalent can be made
 # with the hasattr function.
@@ -141,14 +139,14 @@ cdef class Sprite:
 
     """
 
-    cdef public WeakSet __g
+    cdef public set __g
     cdef public object image
     cdef public Rect rect
     cdef dict __dict__
 
     def __cinit__(self):
         self.__dict__ = {}
-        self.__g = WeakSet() # The groups the sprite is in
+        self.__g = set() # The groups the sprite is in
 
     def __init__(self, *groups):
         if groups:
