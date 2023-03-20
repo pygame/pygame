@@ -100,6 +100,12 @@ RUN ["bash", "/glib_build/build-glib.sh"]
 ADD fluidsynth /fluidsynth_build/
 RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
+ADD libxml2 /libxml2_build/
+RUN ["bash", "/libxml2_build/build-libxml2.sh"]
+
+ADD wayland_libs /wayland_build/
+RUN ["bash", "/wayland_build/build-wayland-libs.sh"]
+
 # Build and install SDL
 ADD sdl_libs /sdl_build/
 RUN ["linux32", "bash", "/sdl_build/build-sdl2-libs.sh"]
