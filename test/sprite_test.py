@@ -1358,10 +1358,11 @@ class WeakSpriteTypeTest(SpriteTypeTest):
         We create a list of groups, add them to the sprite.
         When we then delete the groups, the sprite should be "dead"
         """
+        len_groups = len(self.sprite.groups())
         groups = [Group() for Group in self.Groups]
         self.sprite.add(groups)
         del groups
-        self.assertFalse(self.sprite.alive())
+        self.assertEqual(len(self.sprite.groups()), len_groups)
 
 
 class DirtyWeakSpriteTypeTest(DirtySpriteTypeTest, WeakSpriteTypeTest):
