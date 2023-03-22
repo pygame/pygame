@@ -232,12 +232,12 @@ class Sprite:
 
         :return: layer as an int, or raise AttributeError.
         """
-        return getattr(self, "_layer")
+        return self._layer
 
     @layer.setter
     def layer(self, value):
         if not self.alive():
-            setattr(self, "_layer", value)
+            self._layer = value
         else:
             raise AttributeError(
                 "Can't set layer directly after "
