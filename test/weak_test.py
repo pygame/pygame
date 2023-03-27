@@ -464,5 +464,7 @@ sprite = WeakSprite()
 group = Group(sprite)
 
 del group
+import gc
+gc.collect()
 
 assert not sprite.alive()
