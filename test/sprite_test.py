@@ -1217,7 +1217,7 @@ class LayeredDirtyTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
 # tests common between sprite classes
 
 
-class SpriteBase(unittest.TestCase):
+class SpriteBase:
     def setUp(self):
         self.groups = []
         for Group in self.Groups:
@@ -1327,7 +1327,7 @@ class SpriteBase(unittest.TestCase):
 ############################## SPRITE CLASS TESTS ##############################
 
 
-class SpriteTypeTest(SpriteBase):
+class SpriteTypeTest(SpriteBase, unittest.TestCase):
     Sprite = sprite.Sprite
 
     Groups = [
@@ -1338,7 +1338,7 @@ class SpriteTypeTest(SpriteBase):
     ]
 
 
-class DirtySpriteTypeTest(SpriteBase):
+class DirtySpriteTypeTest(SpriteBase, unittest.TestCase):
     Sprite = sprite.DirtySprite
 
     Groups = [
