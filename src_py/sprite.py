@@ -374,7 +374,7 @@ class AbstractGroup:
     def sprites(self):
         """get a list of sprites in the group
 
-        Group.sprite(): return list
+        Group.sprites(): return list
 
         Returns an object that can be looped over with a 'for' loop. (For now,
         it is always a list, but this could change in a future version of
