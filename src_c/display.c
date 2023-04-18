@@ -609,11 +609,14 @@ pg_get_surface(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_gl_set_attribute(PyObject *self, PyObject *arg)
+pg_gl_set_attribute(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     int flag, value, result;
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(arg, "ii", &flag, &value))
+
+    static char *kwids[] = {"flag", "value", NULL};
+
+    if (!PyArg_ParseTuple(arg, kwarg, "ii", kwids, &flag, &value))
         return NULL;
     if (flag == -1) /*an undefined/unsupported val, ignore*/
         Py_RETURN_NONE;
@@ -624,11 +627,13 @@ pg_gl_set_attribute(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_gl_get_attribute(PyObject *self, PyObject *arg)
+pg_gl_get_attribute(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     int flag, value, result;
+    static char *kwids[] = {"flag", NULL};
+
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(arg, "i", &flag))
+    if (!PyArg_ParseTuple(arg, kwarg, "i", kwids, &flag))
         return NULL;
     result = SDL_GL_GetAttribute(flag, &value);
     if (result == -1)
@@ -1697,7 +1702,7 @@ pg_update(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_set_palette(PyObject *self, PyObject *args)
+pg_set_palette(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf;
@@ -1707,8 +1712,10 @@ pg_set_palette(PyObject *self, PyObject *args)
     int i, len;
     Uint8 rgba[4];
 
+    static char *kwids[] = {"list", NULL};
+
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(args, "|O", &list))
+    if (!PyArg_ParseTuple(args, kwargs, "|O", kwids, &list))
         return NULL;
     if (!surface)
         return RAISE(pgExc_SDLError, "No display mode is set");
@@ -1791,7 +1798,7 @@ pg_set_palette(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_set_gamma(PyObject *self, PyObject *arg)
+pg_set_gamma(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.display.set_gamma deprecated since 2.2.0",
@@ -1805,7 +1812,9 @@ pg_set_gamma(PyObject *self, PyObject *arg)
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp;
 
-    if (!PyArg_ParseTuple(arg, "f|ff", &r, &g, &b))
+    static char *kwids[] = {"red", "green", "blue", NULL};
+
+    if (!PyArg_ParseTuple(arg, kwarg, "f|ff", kwids, &r, &g, &b))
         return NULL;
     if (PyTuple_Size(arg) == 1)
         g = b = r;
@@ -1883,7 +1892,7 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
 }
 
 static PyObject *
-pg_set_gamma_ramp(PyObject *self, PyObject *arg)
+pg_set_gamma_ramp(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     if (PyErr_WarnEx(PyExc_DeprecationWarning,
                      "pygame.display.set_gamma_ramp deprecated since 2.2.0",
@@ -1901,7 +1910,10 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
     r = gamma_ramp;
     g = gamma_ramp + 256;
     b = gamma_ramp + 512;
-    if (!PyArg_ParseTuple(arg, "O&O&O&", pg_convert_to_uint16, r,
+
+    static char *kwids[] = {"red", "green", "blue", NULL};
+
+    if (!PyArg_ParseTuple(arg, kwarg, "O&O&O&", kwids, pg_convert_to_uint16, r,
                           pg_convert_to_uint16, g, pg_convert_to_uint16, b)) {
         free(gamma_ramp);
         return NULL;
@@ -1925,7 +1937,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_set_caption(PyObject *self, PyObject *arg)
+pg_set_caption(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1937,7 +1949,9 @@ pg_set_caption(PyObject *self, PyObject *arg)
     __analysis_assume(title = "inited");
 #endif
 
-    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
+    static char *kwids = {"title", "icon_title", NULL};
+
+    if (!PyArg_ParseTuple(arg, kwargs, "s|s", kwids, &title, &icontitle))
         return NULL;
 
     if (state->title)
