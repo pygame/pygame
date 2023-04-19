@@ -1712,7 +1712,7 @@ pg_set_palette(PyObject *self, PyObject *args, PyObject *kwargs)
     int i, len;
     Uint8 rgba[4];
 
-    static char *kwids[] = {"list", NULL};
+    static char *kwids[] = {"palette", NULL};
 
     VIDEO_INIT_CHECK();
     if (!PyArg_ParseTuple(args, kwargs, "|O", kwids, &list))
@@ -1949,7 +1949,7 @@ pg_set_caption(PyObject *self, PyObject *arg, PyObject *kwarg)
     __analysis_assume(title = "inited");
 #endif
 
-    static char *kwids = {"title", "icon_title", NULL};
+    static char *kwids = {"title", "icontitle", NULL};
 
     if (!PyArg_ParseTuple(arg, kwargs, "s|s", kwids, &title, &icontitle))
         return NULL;
@@ -2567,12 +2567,15 @@ static PyMethodDef _pg_display_methods[] = {
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", (PyCFunction)pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
 
-    {"set_palette", pg_set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE},
-    {"set_gamma", pg_set_gamma, METH_VARARGS, DOC_PYGAMEDISPLAYSETGAMMA},
-    {"set_gamma_ramp", pg_set_gamma_ramp, METH_VARARGS,
+    {"set_palette", pg_set_palette, METH_VARARGS | METH_KEYWORDSMETH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETPALETTE},
+    {"set_gamma", pg_set_gamma, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETGAMMA},
+    {"set_gamma_ramp", pg_set_gamma_ramp, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETGAMMARAMP},
 
-    {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
+    {"set_caption", pg_set_caption, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
     {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
@@ -2594,9 +2597,9 @@ static PyMethodDef _pg_display_methods[] = {
     {"is_fullscreen", (PyCFunction)pg_is_fullscreen, METH_NOARGS,
      "provisional API, subject to change"},
 
-    {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,
+    {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYGLSETATTRIBUTE},
-    {"gl_get_attribute", pg_gl_get_attribute, METH_VARARGS,
+    {"gl_get_attribute", pg_gl_get_attribute, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYGLGETATTRIBUTE},
 
     {"get_allow_screensaver", (PyCFunction)pg_get_allow_screensaver,

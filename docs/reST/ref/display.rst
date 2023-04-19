@@ -412,6 +412,8 @@ required).
    it is a good idea to check the value of any requested OpenGL attributes. See
    ``pygame.display.gl_set_attribute()`` for a list of valid flags.
 
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
+
    .. ## pygame.display.gl_get_attribute ##
 
 .. function:: gl_set_attribute
@@ -489,6 +491,8 @@ required).
 
      Set to 1 to require hardware acceleration, or 0 to force software render.
      By default, both are allowed.
+
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
 
    .. ## pygame.display.gl_set_attribute ##
 
@@ -581,6 +585,8 @@ required).
 
    .. deprecated:: 2.2.0
 
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
+
    .. ## pygame.display.set_gamma ##
 
 .. function:: set_gamma_ramp
@@ -596,6 +602,8 @@ required).
    ramps, if the function succeeds it will return ``True``.
 
    .. deprecated:: 2.2.0
+
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
 
    .. ## pygame.display.set_gamma_ramp ##
 
@@ -629,6 +637,8 @@ required).
    window. In pygame 1.x, some systems supported an alternate shorter title to
    be used for minimized displays, but in pygame 2 ``icontitle`` does nothing.
 
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
+
    .. ## pygame.display.set_caption ##
 
 .. function:: get_caption
@@ -651,6 +661,8 @@ required).
    that is used to display the Surface. If no palette argument is passed, the
    system default palette will be restored. The palette is a sequence of
    ``RGB`` triplets.
+
+   .. versionchanged:: 2.3.1 Added support for keyword arguments.
 
    .. ## pygame.display.set_palette ##
 
