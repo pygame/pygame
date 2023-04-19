@@ -203,6 +203,8 @@
       Applies a certain gamma value to the Color and returns a new Color with
       the adjusted ``RGBA`` values.
 
+      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+
       .. ## Color.correct_gamma ##
 
    .. method:: set_length
@@ -221,6 +223,7 @@
       is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
       get the length of a Color do ``len(acolor)``.
 
+      .. versionchanged:: 2.3.1 Added support for keyword arguments.
       .. deprecated:: 2.1.3
       .. versionadded:: 1.9.0
 
