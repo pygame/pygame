@@ -563,6 +563,52 @@ The controller is recognized as "PS4 Controller".
     D-pad Right     - Button 14
     Touch Pad Click - Button 15
 
+Playstation 5 Controller (pygame 2.x)
+*************************************
+
+The PlayStation 5 controller mapping has 6 axes, 13 buttons, and 1 hat.
+The controller is recognized as "Sony Interactive Entertainment Wireless Controller".
+
+* **Left Stick**::
+
+    Left -> Right   - Axis 0
+    Up   -> Down    - Axis 1
+
+* **Right Stick**::
+
+    Left -> Right   - Axis 3
+    Up   -> Down    - Axis 4
+
+* **Left Trigger**::
+
+    Out -> In       - Axis 2
+
+* **Right Trigger**::
+
+    Out -> In       - Axis 5
+
+* **Buttons**::
+
+    Cross Button    - Button 0
+    Circle Button   - Button 1
+    Square Button   - Button 2
+    Triangle Button - Button 3
+    Left Bumper     - Button 4
+    Right Bumper    - Button 5
+    Left Trigger    - Button 6
+    Right Trigger   - Button 7
+    Share Button    - Button 8
+    Options Button  - Button 9
+    PS Button       - Button 10
+    Left Stick in   - Button 11
+    Right Stick in  - Button 12
+
+* **Hat/D-pad**::
+
+    Down -> Up      - Y Axis
+    Left -> Right   - X Axis
+
+
 
 XBox 360 Controller (pygame 1.x)
 ********************************
@@ -648,3 +694,4 @@ The controller is recognized as "Wireless Controller".
 
     Down -> Up      - Y Axis
     Left -> Right   - X Axis
+
