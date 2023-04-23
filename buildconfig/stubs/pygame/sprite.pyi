@@ -67,6 +67,9 @@ class Sprite(_SupportsSprite):
     def alive(self) -> bool: ...
     def groups(self) -> List[_Group]: ...
 
+class WeakSprite(Sprite):
+    ...
+
 # concrete dirty sprite implementation class
 class DirtySprite(_SupportsDirtySprite):
     dirty: int
@@ -76,6 +79,9 @@ class DirtySprite(_SupportsDirtySprite):
     _layer: int
     def _set_visible(self, val: int) -> None: ...
     def _get_visible(self) -> int: ...
+    
+class WeakDirtySprite(WeakSprite, DirtySprite):
+    ...
 
 # used as a workaround for typing.Self because it is added in python 3.11
 _TGroup = TypeVar("_TGroup", bound=AbstractGroup)
