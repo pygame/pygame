@@ -233,8 +233,8 @@ def get_device_info(an_id):
                                                 input, output,
                                                 opened)
 
-    interf - a text string describing the device interface, eg 'ALSA'.
-    name - a text string for the name of the device, eg 'Midi Through Port-0'
+    interf - a byte string describing the device interface, eg b'ALSA'.
+    name - a byte string for the name of the device, eg b'Midi Through Port-0'
     input - 0, or 1 if the device is an input device.
     output - 0, or 1 if the device is an output device.
     opened - 0, or 1 if the device is opened.
