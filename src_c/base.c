@@ -330,6 +330,9 @@ pg_mod_autoquit(const char *modname)
     Py_XDECREF(funcobj);
 }
 
+/**
+ * \brief Initialize all of the pygame modules.
+ */
 static PyObject *
 pg_init(PyObject *self, PyObject *_null)
 {
