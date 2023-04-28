@@ -576,6 +576,18 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * int and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \param val2 A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
