@@ -504,6 +504,10 @@ pg_quit(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+/**
+ * \brief Check if pygame is initialized.
+ * \returns True if pygame is initialized, False otherwise.
+ */
 static PyObject *
 pg_base_get_init(PyObject *self, PyObject *_null)
 {
