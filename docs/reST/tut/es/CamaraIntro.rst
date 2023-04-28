@@ -175,7 +175,7 @@ color, something we will look at later in the tutorial.
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "YUV")
 
-.. image:: camera_yuv.jpg
+.. image:: ../camera_yuv.jpg
    :class: trailing
 
 ::
