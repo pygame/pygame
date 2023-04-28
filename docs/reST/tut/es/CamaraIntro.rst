@@ -202,7 +202,7 @@ Consultá la documentación de referencia para más detalles de la función:
   self.snapshot = self.cam.get_image(self.snapshot)
   pygame.transform.threshold(self.thresholded,self.snapshot,(0,255,0),(90,170,170),(0,0,0),2)
 
-.. image:: camera_thresholded.jpg
+.. image:: ../camera_thresholded.jpg
    :class: trailing
 
 
