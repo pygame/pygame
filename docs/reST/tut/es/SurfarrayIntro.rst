@@ -302,7 +302,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_striped.png
+      .. image:: ../surfarray_striped.png
          :alt: striped
 
       ::
