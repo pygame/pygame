@@ -467,7 +467,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_xfade.png
+      .. image:: ../surfarray_xfade.png
          :alt: xfade
 
       ::
