@@ -258,7 +258,10 @@ pg_register_quit(PyObject *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
-/* init pygame modules, returns 1 if successful, 0 if fail, with PyErr set*/
+/**
+ * \brief Initialize all of the pygame modules.
+ * \returns 1 on success, 0 on failure with PyErr set.
+ */
 static int
 pg_mod_autoinit(const char *modname)
 {
