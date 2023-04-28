@@ -428,6 +428,9 @@ pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static void
 _pg_quit(void)
 {
@@ -491,6 +494,9 @@ _pg_quit(void)
     Py_END_ALLOW_THREADS;
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static PyObject *
 pg_quit(PyObject *self, PyObject *_null)
 {
