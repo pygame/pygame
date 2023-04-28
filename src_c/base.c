@@ -515,6 +515,17 @@ pg_base_get_init(PyObject *self, PyObject *_null)
 }
 
 /* internal C API utility functions */
+
+/**
+ * \brief Convert number like object *obj* to C int and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_IntFromObj(PyObject *obj, int *val)
 {
