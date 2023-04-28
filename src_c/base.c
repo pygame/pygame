@@ -293,7 +293,9 @@ pg_mod_autoinit(const char *modname)
     return ret;
 }
 
-/* try to quit pygame modules, errors silenced */
+/**
+ * \brief Quit all of the pygame modules.
+ */
 static void
 pg_mod_autoquit(const char *modname)
 {
