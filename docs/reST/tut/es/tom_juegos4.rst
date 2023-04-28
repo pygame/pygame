@@ -144,5 +144,5 @@ Si has estudiado trigonometría elemental antes, nada de esto debería ser nuevo
 hay algunas fórmulas útiles para recordar, que te ayudarán a visualizar los ángulos (a mi me resulta más fácil visualizar los 
 ángulos en grados que en radianes.
 
-.. image:: tom_formulae.png
+.. image:: ../tom_formulae.png
 
