@@ -283,7 +283,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_allblack.png
+      .. image:: ../surfarray_allblack.png
          :alt: allblack
 
       ::
