@@ -9,7 +9,7 @@
 .. currentmodule:: surfarray
 
 Introducción a Surfarray
-======================
+========================
 
 .. rst-class:: docinfo
 
