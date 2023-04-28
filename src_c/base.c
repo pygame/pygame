@@ -235,6 +235,13 @@ pg_RegisterQuit(void (*func)(void))
     }
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param value A callable object to be called when the interpreter exits.
+ * \returns None or NULL on failure.
+ */
 static PyObject *
 pg_register_quit(PyObject *self, PyObject *value)
 {
