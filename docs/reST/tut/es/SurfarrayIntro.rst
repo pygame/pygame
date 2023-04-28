@@ -433,7 +433,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_soften.png
+      .. image:: ../surfarray_soften.png
          :alt: soften
 
       ::
