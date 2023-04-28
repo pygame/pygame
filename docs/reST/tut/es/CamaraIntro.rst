@@ -232,7 +232,7 @@ a continuación.
       self.display.fill(self.ccolor, (0,0,50,50))
       pygame.display.flip()
 
-.. image:: camera_average.jpg
+.. image:: ../camera_average.jpg
    :class: trailing
 
 ::
