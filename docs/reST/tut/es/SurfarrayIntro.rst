@@ -348,7 +348,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_flipped.png
+      .. image:: ../surfarray_flipped.png
          :alt: flipped
 
       ::
@@ -366,7 +366,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_scaledown.png
+      .. image:: ../surfarray_scaledown.png
          :alt: scaledown
 
       ::
