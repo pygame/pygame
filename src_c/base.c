@@ -388,6 +388,10 @@ pg_atexit_quit(void)
     }
 }
 
+/**
+ * \brief Get the SDL version.
+ * \returns A tuple of the SDL version numbers (major, minor, patch).
+ */
 static PyObject *
 pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
