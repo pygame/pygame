@@ -372,6 +372,9 @@ pg_init(PyObject *self, PyObject *_null)
     return Py_BuildValue("(ii)", success, fail);
 }
 
+/**
+ * \brief Quit all of the pygame modules when the interpreter exits.
+ */
 static void
 pg_atexit_quit(void)
 {
