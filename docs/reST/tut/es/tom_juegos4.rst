@@ -127,7 +127,7 @@ Para empezar, notarás que la pelota tiene un atributo llamado ``vector``, que e
 pelota. Entonces, usando este vector, podemos determinar la dirección y velocidad de la pelota, y por lo tanto, cuánto se 
 moverá en los ejes x e y:
 
-.. image:: tom_radians.png
+.. image:: ../tom_radians.png
 
 El diagrama anterior ilustra las matemáticas básicas detrás de los vectores. En el diagrama de la izquierda, se puede ver el 
 movimiento proyectado de la pelota representado por una línea azul. La longitud de esa línea (z) representa su velocidad, y el 
