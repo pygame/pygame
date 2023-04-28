@@ -298,7 +298,7 @@ de ese objeto y usarlo para controlar un objeto en la pantalla.
           pygame.draw.circle(self.display, (0,255,0), coord, max(min(50,mask.count()/400),5))
       pygame.display.flip()
 
-.. image:: camera_mask.jpg
+.. image:: ../camera_mask.jpg
    :class: trailing
 
 
