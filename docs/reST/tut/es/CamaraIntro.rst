@@ -261,7 +261,7 @@ modelo de color HSV.
       self.display.blit(self.background, (0,0))
       pygame.display.flip()
 
-.. image:: camera_background.jpg
+.. image:: ../camera_background.jpg
    :class: trailing
 
 ::
