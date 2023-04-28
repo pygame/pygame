@@ -73,7 +73,8 @@ los array de NumPy se aplican para todos los valores del array. Esto se llama
 "element-wise operations" (operaciones elemento a elemento). Estos arrays 
 también pueden dividirse en listas normales. La sintaxis de la división es la 
 misma que se usa en objetos Python estándar.
-*(así que estudia si es necesario :] ) *.
+*(así que estudia si es necesario)*.
+
 Aquí hay algunos ejemplos más de arrays que funcionan. ::
 
   >>> len(a)                                 #obtener el tamaño del array
