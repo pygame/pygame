@@ -413,6 +413,15 @@ pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
 }
 
+/**
+ * \brief Get the SDL byte order.
+ * \returns The SDL byte order.
+ *
+ * SDL_BYTEORDER is SDL_LIL_ENDIAN for x86, x64, and similar systems that use
+ * the little endian byte order. SDL_BYTEORDER is SDL_BIG_ENDIAN for PowerPC
+ * and similar systems that use the big endian byte order.
+ *
+ */
 static PyObject *
 pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
