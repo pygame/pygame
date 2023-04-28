@@ -168,7 +168,7 @@ color, something we will look at later in the tutorial.
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "RGB")
 
-.. image:: camera_rgb.jpg
+.. image:: ../camera_rgb.jpg
    :class: trailing
 
 ::
