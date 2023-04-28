@@ -239,7 +239,7 @@ a continuación.
 
   pygame.transform.threshold(self.thresholded,self.snapshot,self.ccolor,(30,30,30),(0,0,0),2)
 
-.. image:: camera_thresh.jpg
+.. image:: ../camera_thresh.jpg
    :class: trailing
 
 
