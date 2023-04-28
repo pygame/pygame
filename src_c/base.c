@@ -208,6 +208,12 @@ pg_CheckSDLVersions(void)
     return 1;
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param func A function pointer to be called when the interpreter exits.
+ */
 void
 pg_RegisterQuit(void (*func)(void))
 {
