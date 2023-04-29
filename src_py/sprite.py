@@ -85,6 +85,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
 
+from weakref import WeakSet
 from warnings import warn
 
 import pygame
@@ -110,7 +111,7 @@ class Sprite:
     """
 
     def __init__(self, *groups):
-        self.__g = {}  # The groups the sprite is in
+        self.__g = set()  # The groups the sprite is in
         if groups:
             self.add(*groups)
 
@@ -156,7 +157,7 @@ class Sprite:
 
         :param group: The group we are adding to.
         """
-        self.__g[group] = 0
+        self.__g.add(group)
 
     def remove_internal(self, group):
         """
@@ -164,7 +165,7 @@ class Sprite:
 
         :param group: The group we are removing from.
         """
-        del self.__g[group]
+        self.__g.remove(group)
 
     def update(self, *args, **kwargs):
         """method to control sprite behavior
@@ -231,12 +232,12 @@ class Sprite:
 
         :return: layer as an int, or raise AttributeError.
         """
-        return getattr(self, "_layer")
+        return self._layer
 
     @layer.setter
     def layer(self, value):
         if not self.alive():
-            setattr(self, "_layer", value)
+            self._layer = value
         else:
             raise AttributeError(
                 "Can't set layer directly after "
@@ -244,6 +245,17 @@ class Sprite:
                 "group.change_layer(sprite, new_layer) "
                 "instead."
             )
+
+
+class WeakSprite(Sprite):
+    """A subclass of Sprite that references its Groups weakly. This
+    means that any group this belongs to that is not referenced anywhere
+    else is garbage collected automatically.
+    """
+
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.__dict__["_Sprite__g"] = WeakSet(self._Sprite__g)
 
 
 class DirtySprite(Sprite):
@@ -341,6 +353,12 @@ class DirtySprite(Sprite):
         )
 
 
+class WeakDirtySprite(WeakSprite, DirtySprite):
+    """A subclass of WeakSprite and DirtySprite that combines the benefits
+    of both classes.
+    """
+
+
 class AbstractGroup:
     """base class for containers of sprites
 
@@ -363,7 +381,7 @@ class AbstractGroup:
     def sprites(self):
         """get a list of sprites in the group
 
-        Group.sprite(): return list
+        Group.sprites(): return list
 
         Returns an object that can be looped over with a 'for' loop. (For now,
         it is always a list, but this could change in a future version of
