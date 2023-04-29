@@ -208,6 +208,12 @@ pg_CheckSDLVersions(void)
     return 1;
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param func A function pointer to be called when the interpreter exits.
+ */
 void
 pg_RegisterQuit(void (*func)(void))
 {
@@ -229,6 +235,13 @@ pg_RegisterQuit(void (*func)(void))
     }
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param value A callable object to be called when the interpreter exits.
+ * \returns None or NULL on failure.
+ */
 static PyObject *
 pg_register_quit(PyObject *self, PyObject *value)
 {
@@ -245,7 +258,10 @@ pg_register_quit(PyObject *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
-/* init pygame modules, returns 1 if successful, 0 if fail, with PyErr set*/
+/**
+ * \brief Initialize all of the pygame modules.
+ * \returns 1 on success, 0 on failure with PyErr set.
+ */
 static int
 pg_mod_autoinit(const char *modname)
 {
@@ -277,7 +293,9 @@ pg_mod_autoinit(const char *modname)
     return ret;
 }
 
-/* try to quit pygame modules, errors silenced */
+/**
+ * \brief Quit all of the pygame modules.
+ */
 static void
 pg_mod_autoquit(const char *modname)
 {
@@ -312,6 +330,9 @@ pg_mod_autoquit(const char *modname)
     Py_XDECREF(funcobj);
 }
 
+/**
+ * \brief Initialize all of the pygame modules.
+ */
 static PyObject *
 pg_init(PyObject *self, PyObject *_null)
 {
@@ -351,6 +372,9 @@ pg_init(PyObject *self, PyObject *_null)
     return Py_BuildValue("(ii)", success, fail);
 }
 
+/**
+ * \brief Quit all of the pygame modules when the interpreter exits.
+ */
 static void
 pg_atexit_quit(void)
 {
@@ -364,6 +388,10 @@ pg_atexit_quit(void)
     }
 }
 
+/**
+ * \brief Get the SDL version.
+ * \returns A tuple of the SDL version numbers (major, minor, patch).
+ */
 static PyObject *
 pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -385,12 +413,24 @@ pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
 }
 
+/**
+ * \brief Get the SDL byte order.
+ * \returns The SDL byte order.
+ *
+ * SDL_BYTEORDER is SDL_LIL_ENDIAN for x86, x64, and similar systems that use
+ * the little endian byte order. SDL_BYTEORDER is SDL_BIG_ENDIAN for PowerPC
+ * and similar systems that use the big endian byte order.
+ *
+ */
 static PyObject *
 pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static void
 _pg_quit(void)
 {
@@ -454,6 +494,9 @@ _pg_quit(void)
     Py_END_ALLOW_THREADS;
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static PyObject *
 pg_quit(PyObject *self, PyObject *_null)
 {
@@ -461,6 +504,10 @@ pg_quit(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+/**
+ * \brief Check if pygame is initialized.
+ * \returns True if pygame is initialized, False otherwise.
+ */
 static PyObject *
 pg_base_get_init(PyObject *self, PyObject *_null)
 {
@@ -468,6 +515,17 @@ pg_base_get_init(PyObject *self, PyObject *_null)
 }
 
 /* internal C API utility functions */
+
+/**
+ * \brief Convert number like object *obj* to C int and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_IntFromObj(PyObject *obj, int *val)
 {
@@ -492,11 +550,23 @@ pg_IntFromObj(PyObject *obj, int *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj*
+ * to C int and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
-pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
+pg_IntFromObjIndex(PyObject *obj, int i, int *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -507,6 +577,18 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * int and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \param val2 A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
@@ -523,6 +605,15 @@ pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C float and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_FloatFromObj(PyObject *obj, float *val)
 {
@@ -537,11 +628,22 @@ pg_FloatFromObj(PyObject *obj, float *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * float and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
-pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
+pg_FloatFromObjIndex(PyObject *obj, int i, float *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -552,6 +654,17 @@ pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * float and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \param val2 A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 {
@@ -568,6 +681,15 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C double and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_DoubleFromObj(PyObject *obj, double *val)
 {
@@ -582,11 +704,22 @@ pg_DoubleFromObj(PyObject *obj, double *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * double and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
-pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
+pg_DoubleFromObjIndex(PyObject *obj, int i, double *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -597,6 +730,15 @@ pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * double and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \param val2 A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
 {
@@ -613,6 +755,13 @@ pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C Uint32 and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
@@ -634,11 +783,20 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
     return 0;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * Uint32 and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
-pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
+pg_UintFromObjIndex(PyObject *obj, int i, Uint32 *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -649,6 +807,18 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     return result;
 }
 
+/**
+ * \brief Convert the color represented by object *obj* into a red, green,
+ * blue, alpha length 4 C array *RGBA*.
+ *
+ * The object must be a length 3 or 4 sequence of numbers having values between
+ * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
+ * assumed.
+ *
+ * \param obj The Python object to convert.
+ * \param RGBA A pointer to the C array to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
