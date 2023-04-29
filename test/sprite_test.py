@@ -1243,6 +1243,7 @@ class SpriteBase:
             self.assertFalse(g in self.sprite.groups())
 
     def test_update(self):
+        # What does this and the next test actually test?
         class test_sprite(pygame.sprite.Sprite):
             sink = []
 
@@ -1347,6 +1348,27 @@ class DirtySpriteTypeTest(SpriteBase, unittest.TestCase):
         sprite.OrderedUpdates,
         sprite.LayeredDirty,
     ]
+
+
+class WeakSpriteTypeTest(SpriteTypeTest):
+    Sprite = sprite.WeakSprite
+
+    def test_weak_group_ref(self):
+        """
+        We create a list of groups, add them to the sprite.
+        When we then delete the groups, the sprite should be "dead"
+        """
+        import gc
+
+        groups = [Group() for Group in self.Groups]
+        self.sprite.add(groups)
+        del groups
+        gc.collect()
+        self.assertFalse(self.sprite.alive())
+
+
+class DirtyWeakSpriteTypeTest(DirtySpriteTypeTest, WeakSpriteTypeTest):
+    Sprite = sprite.WeakDirtySprite
 
 
 ############################## BUG TESTS #######################################

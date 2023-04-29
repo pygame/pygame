@@ -93,7 +93,7 @@ from pygame import Rect
 from pygame.time import get_ticks
 
 from cpython cimport PyObject_CallFunctionObjArgs, PyDict_SetItem, \
-    PyObject, PyList_SetSlice
+    PyObject
 
 # Python 3 does not have the callable function, but an equivalent can be made
 # with the hasattr function.
@@ -139,14 +139,14 @@ cdef class Sprite:
 
     """
 
-    cdef public dict __g
+    cdef public set __g
     cdef public object image
     cdef public Rect rect
     cdef dict __dict__
 
     def __cinit__(self):
         self.__dict__ = {}
-        self.__g = {} # The groups the sprite is in
+        self.__g = set() # The groups the sprite is in
 
     def __init__(self, *groups):
         if groups:
@@ -189,10 +189,10 @@ cdef class Sprite:
                 self.remove(*group)
 
     cpdef void add_internal(self, group):
-        self.__g[group] = 0
+        self.__g.add(group)
 
     cpdef void remove_internal(self, group):
-        del self.__g[group]
+        self.__g.remove(group)
 
     def update(self, *args, **kwargs):
         """method to control sprite behavior
