@@ -1359,7 +1359,7 @@ class WeakSpriteTypeTest(SpriteTypeTest):
         When we then delete the groups, the sprite should be "dead"
         """
         import gc
-        
+
         groups = [Group() for Group in self.Groups]
         self.sprite.add(groups)
         del groups
