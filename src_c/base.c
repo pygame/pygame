@@ -604,6 +604,15 @@ pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C float and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_FloatFromObj(PyObject *obj, float *val)
 {
