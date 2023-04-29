@@ -730,6 +730,15 @@ pg_DoubleFromObjIndex(PyObject *obj, int i, double *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * double and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \param val2 A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
 {
