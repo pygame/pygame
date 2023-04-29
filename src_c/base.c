@@ -702,11 +702,22 @@ pg_DoubleFromObj(PyObject *obj, double *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * double and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
-pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
+pg_DoubleFromObjIndex(PyObject *obj, int i, double *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
