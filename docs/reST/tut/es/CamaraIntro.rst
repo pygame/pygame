@@ -168,21 +168,21 @@ color, something we will look at later in the tutorial.
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "RGB")
 
-.. image:: camera_rgb.jpg
+.. image:: ../camera_rgb.jpg
    :class: trailing
 
 ::
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "YUV")
 
-.. image:: camera_yuv.jpg
+.. image:: ../camera_yuv.jpg
    :class: trailing
 
 ::
 
   self.cam = pygame.camera.Camera(self.clist[0], self.size, "HSV")
 
-.. image:: camera_hsv.jpg
+.. image:: ../camera_hsv.jpg
    :class: trailing
 
 
@@ -202,7 +202,7 @@ Consultá la documentación de referencia para más detalles de la función:
   self.snapshot = self.cam.get_image(self.snapshot)
   pygame.transform.threshold(self.thresholded,self.snapshot,(0,255,0),(90,170,170),(0,0,0),2)
 
-.. image:: camera_thresholded.jpg
+.. image:: ../camera_thresholded.jpg
    :class: trailing
 
 
@@ -232,14 +232,14 @@ a continuación.
       self.display.fill(self.ccolor, (0,0,50,50))
       pygame.display.flip()
 
-.. image:: camera_average.jpg
+.. image:: ../camera_average.jpg
    :class: trailing
 
 ::
 
   pygame.transform.threshold(self.thresholded,self.snapshot,self.ccolor,(30,30,30),(0,0,0),2)
 
-.. image:: camera_thresh.jpg
+.. image:: ../camera_thresh.jpg
    :class: trailing
 
 
@@ -261,14 +261,14 @@ modelo de color HSV.
       self.display.blit(self.background, (0,0))
       pygame.display.flip()
 
-.. image:: camera_background.jpg
+.. image:: ../camera_background.jpg
    :class: trailing
 
 ::
 
   pygame.transform.threshold(self.thresholded,self.snapshot,(0,255,0),(30,30,30),(0,0,0),1,self.background)
 
-.. image:: camera_green.jpg
+.. image:: ../camera_green.jpg
    :class: trailing
 
 
@@ -298,7 +298,7 @@ de ese objeto y usarlo para controlar un objeto en la pantalla.
           pygame.draw.circle(self.display, (0,255,0), coord, max(min(50,mask.count()/400),5))
       pygame.display.flip()
 
-.. image:: camera_mask.jpg
+.. image:: ../camera_mask.jpg
    :class: trailing
 
 
