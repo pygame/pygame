@@ -783,11 +783,20 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
     return 0;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * Uint32 and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
-pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
+pg_UintFromObjIndex(PyObject *obj, int i, Uint32 *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -798,6 +807,18 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     return result;
 }
 
+/**
+ * \brief Convert the color represented by object *obj* into a red, green,
+ * blue, alpha length 4 C array *RGBA*.
+ *
+ * The object must be a length 3 or 4 sequence of numbers having values between
+ * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
+ * assumed.
+ *
+ * \param obj The Python object to convert.
+ * \param RGBA A pointer to the C array to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
