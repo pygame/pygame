@@ -555,6 +555,7 @@ pg_IntFromObj(PyObject *obj, int *val)
  * to C int and place in argument *val*.
  *
  * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
  * \param val A pointer to the C integer to store the result.
  * \returns 1 if the conversion was successful, 0 otherwise.
  *
@@ -562,10 +563,10 @@ pg_IntFromObj(PyObject *obj, int *val)
  * \note This function will convert floats to integers.
  */
 static int
-pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
+pg_IntFromObjIndex(PyObject *obj, int i, int *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -632,16 +633,17 @@ pg_FloatFromObj(PyObject *obj, float *val)
  * float and place in argument *val*.
  *
  * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
  * \param val A pointer to the C float to store the result.
  * \returns 1 if the conversion was successful, 0 otherwise.
  *
  * \note This function will clear any Python errors.
  */
 static int
-pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
+pg_FloatFromObjIndex(PyObject *obj, int i, float *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
