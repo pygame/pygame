@@ -9,7 +9,7 @@
 .. currentmodule:: surfarray
 
 Introducción a Surfarray
-======================
+========================
 
 .. rst-class:: docinfo
 
@@ -73,7 +73,8 @@ los array de NumPy se aplican para todos los valores del array. Esto se llama
 "element-wise operations" (operaciones elemento a elemento). Estos arrays 
 también pueden dividirse en listas normales. La sintaxis de la división es la 
 misma que se usa en objetos Python estándar.
-*(así que estudia si es necesario :] ) *.
+*(así que estudia si es necesario)*.
+
 Aquí hay algunos ejemplos más de arrays que funcionan. ::
 
   >>> len(a)                                 #obtener el tamaño del array
@@ -282,7 +283,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_allblack.png
+      .. image:: ../surfarray_allblack.png
          :alt: allblack
 
       ::
@@ -301,7 +302,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_striped.png
+      .. image:: ../surfarray_striped.png
          :alt: striped
 
       ::
@@ -323,7 +324,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_rgbarray.png
+      .. image:: ../surfarray_rgbarray.png
          :alt: rgbarray
 
       ::
@@ -347,7 +348,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_flipped.png
+      .. image:: ../surfarray_flipped.png
          :alt: flipped
 
       ::
@@ -365,7 +366,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_scaledown.png
+      .. image:: ../surfarray_scaledown.png
          :alt: scaledown
 
       ::
@@ -384,7 +385,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_scaleup.png
+      .. image:: ../surfarray_scaleup.png
          :alt: scaleup
 
       ::
@@ -412,7 +413,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_redimg.png
+      .. image:: ../surfarray_redimg.png
          :alt: redimg
 
       ::
@@ -432,7 +433,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_soften.png
+      .. image:: ../surfarray_soften.png
          :alt: soften
 
       ::
@@ -466,7 +467,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: surfarray_xfade.png
+      .. image:: ../surfarray_xfade.png
          :alt: xfade
 
       ::

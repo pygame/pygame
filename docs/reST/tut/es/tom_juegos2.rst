@@ -20,7 +20,7 @@ Por el bien de la revisión, y para asegurarme de que estés familiarizado/a con
 ejecutar brevemente un programa básico de Pygame, que mostrará no más que una ventana con un poco de texto en ella. Al final, debería 
 verse algo así (aunque claro que la decoración de la ventana será probablemente diferente en tu sistema):
 
-.. image:: tom_basic.png
+.. image:: ../tom_basic.png
 
 El código completo para este ejemplo se ve así::
 
