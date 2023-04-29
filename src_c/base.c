@@ -755,6 +755,13 @@ pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C Uint32 and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
