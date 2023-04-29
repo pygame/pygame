@@ -679,6 +679,15 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C double and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_DoubleFromObj(PyObject *obj, double *val)
 {
