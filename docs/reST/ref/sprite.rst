@@ -150,6 +150,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. ## pygame.sprite.Sprite ##
 
 .. class:: WeakSprite
+
    | :sl:`A subclass of Sprite that references its Groups weakly. This means that any group this belongs to that is not referenced anywhere else is garbage collected automatically.`
    | :sg:`WeakSprite(*groups) -> WeakSprite`
 
@@ -347,6 +348,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. ## pygame.sprite.Group ##
 
 .. class:: WeakDirtySprite
+
    | :sl:`A subclass of WeakSprite and DirtySprite that combines the benefits of both classes.`
    | :sg:`WeakDirtySprite(*groups) -> WeakDirtySprite`
 
