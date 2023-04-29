@@ -1,76 +1,132 @@
-.. TUTORIAL:Import and Initialize
 
-.. include:: common.txt
+```
+import pygame
+import random
 
-********************************************
-  Pygame Tutorials - Import and Initialize
-********************************************
- 
-Import and Initialize
-=====================
+# Initialize Pygame
+pygame.init()
 
-.. rst-class:: docinfo
+# Set the screen size
+screen_width = 640
+screen_height = 480
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Shape Shift Game")
 
-:Author: Pete Shinners
-:Contact: pete@shinners.org
+# Set the colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (255, 0, 0)
+green = (0, 255, 0)
 
+# Set the font
+font_style = pygame.font.SysFont(None, 30)
 
-Getting pygame imported and initialized is a very simple process. It is also
-flexible enough to give you control over what is happening. Pygame is a
-collection of different modules in a single python package. Some of the
-modules are written in C, and some are written in python. Some modules
-are also optional, and might not always be present.
+# Define the function to display the message
+def message(msg, color):
+    mesg = font_style.render(msg, True, color)
+    screen.blit(mesg, [screen_width / 6, screen_height / 6])
 
-This is just a quick introduction on what is going on when you import pygame.
-For a clearer explanation definitely see the pygame examples.
+# Define the function to generate a random shape
+def generate_shape():
+    shape_list = ["square", "circle", "triangle"]
+    return random.choice(shape_list)
 
+# Set the initial shape
+current_shape = generate_shape()
 
-Import
-------
+# Set the timer and score variables
+time_left = 10
+clock = pygame.time.Clock()
+start_ticks = pygame.time.get_ticks()
+score = 0
 
-First we must import the pygame package. Since pygame version 1.4 this
-has been updated to be much easier. Most games will import all of pygame like this. ::
+# Set the level variables
+level = 1
+shapes_per_level = 5
+shapes_remaining = shapes_per_level
 
-  import pygame
-  from pygame.locals import *
+# Set the power-up variables
+power_up_active = False
+power_up_time = 0
 
-The first line here is the only necessary one. It imports all the available pygame
-modules into the pygame package. The second line is optional, and puts a limited
-set of constants and functions into the global namespace of your script.
+# Set the game over variable
+game_over = False
 
-An important thing to keep in mind is that several pygame modules are optional.
-For example, one of these is the font module. When  you "import pygame", pygame
-will check to see if the font module is available. If the font module is available
-it will be imported as "pygame.font". If the module is not available, "pygame.font"
-will be set to None. This makes it fairly easy to later on test if the font module is available.
+# Set the game loop
+while not game_over:
 
+    # Check for events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                game_over = True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            if shape_rect.collidepoint(pos):
+                # Increase the score and generate a new shape
+                score += 1
+                shapes_remaining -= 1
+                current_shape = generate_shape()
+                # Activate the power-up if enough shapes have been completed
+                if shapes_remaining == 0:
+                    power_up_active = True
+                    power_up_time = pygame.time.get_ticks()
+                    shapes_per_level += 1
+                    shapes_remaining = shapes_per_level
+                    level += 1
 
-Init
-----
+    # Fill the screen with black
+    screen.fill(black)
 
-Before you can do much with pygame, you will need to initialize it. The most common
-way to do this is just make one call. ::
+    # Draw the shape
+    if current_shape == "square":
+        shape_rect = pygame.draw.rect(screen, white, [screen_width / 2 - 50, screen_height / 2 - 50, 100, 100])
+    elif current_shape == "circle":
+        shape_rect = pygame.draw.circle(screen, white, [screen_width / 2, screen_height / 2], 50)
+    elif current_shape == "triangle":
+        shape_rect = pygame.draw.polygon(screen, white, [(screen_width / 2 - 50, screen_height / 2 + 50), (screen_width / 2 + 50, screen_height / 2 + 50), (screen_width / 2, screen_height / 2 - 50)])
 
-  pygame.init()
+    # Draw the score and level
+    score_text = font_style.render("Score: " + str(score), True, white)
+    screen.blit(score_text, [10, 10])
+    level_text = font_style.render("Level: " + str(level), True, white)
+    screen.blit(level_text, [screen_width - 100, 10])
 
-This will attempt to initialize all the pygame modules for you. Not all pygame modules
-need to be initialized, but this will automatically initialize the ones that do. You can
-also easily initialize each pygame module by hand. For example to only initialize the
-font module you would just call. ::
+    # Draw the shapes remaining
+    shapes_remaining_text = font_style.render("Shapes Remaining: " + str(shapes_remaining), True, white)
+    screen.blit(shapes_remaining_text, [screen_width / 2 - 75, screen_height - 30])
 
-  pygame.font.init()
+    # Draw the power-up timer
+    if power_up_active:
+        power_up_time_left = 10 - (pygame.time.get_ticks() - power_up_time) / 1000
+        power_up_text = font_style.render("Power-up: " + str(int(power_up_time_left)) + "s", True, green)
+        screen.blit(power_up_text, [10, screen_height - 30])
+        if power_up_time_left <= 0:
+            power_up_active = False
 
-Note that if there is an error when you initialize with "pygame.init()", it will silently fail.
-When hand initializing modules like this, any errors will raise an exception. Any
-modules that must be initialized also have a "get_init()" function, which will return true
-if the module has been initialized.
+    # Draw the timer
+    seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
+    time_left = 10 - seconds_passed
+    if time_left <= 0:
+        time_left = 0
+        game_over = True
+    timer_text = font_style.render("Time Left: " + str(int(time_left)) + "s", True, red)
+    screen.blit(timer_text, [screen_width / 2 - 50, 10])
 
-It is safe to call the init() function for any module more than once.
+    # Update the screen
+    pygame.display.update()
 
+    # Set the FPS
+    clock.tick(60)
 
-Quit
-----
+# Display the game over message and score
+message("Game Over. Your score is " + str(score), red)
+pygame.display.update()
 
-Modules that are initialized also usually have a quit() function that will clean up.
-There is no need to explicitly call these, as pygame will cleanly quit all the
-initialized modules when python finishes.
+# Wait for 2 seconds before quitting
+pygame.time.wait(2000)
+
+# Quit Pygame
+pygame.quit()
