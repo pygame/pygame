@@ -6,7 +6,7 @@ Clases de objetos de juego
 
 .. role:: firstterm(emphasis)
 
-.. _makegames-4:
+.. _hacerjuegos-4:
 
 4. Clases de objetos de juego
 =============================
@@ -54,7 +54,7 @@ hace que agregar nuevos objetos y manipularlos sea más flexible. En lugar de ag
 podés simplemente crear instancias de la clase ``Ball`` para cada nuevo objeto de pelota. ¡Mágia!
 
 
-.. _makegames-4-1:
+.. _hacerjuegos-4-1:
 
 4.1. Una clase simple de pelota
 -------------------------------
@@ -92,7 +92,7 @@ del la clase. Estas cadenas son útiles no solo para ti mismo y otros programado
 las herramientas que analicen y documenten tu código. No harán mucha diferencia en programas pequeños, pero en los grandes 
 son invaluables, así que es una buena costumbre de adquirir.
 
-.. _makegames-4-1-1:
+.. _hacerjuegos-4-1-1:
 
 4.1.1. Digresión 1: Sprites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,7 +111,7 @@ colisionado. Normalmente, podrías simplemente comprobar en el bucle principal p
 implicaría mucho código, lo cual sería una pérdida de tiempo porque la clase ``Sprite`` proporciona dos funciones (``spritecollide`` 
 y ``groupcollide``) para hacer esto por vos.
 
-.. _makegames-4-1-2:
+.. _hacerjuegos-4-1-2:
 
 
 4.1.2. Digresión 2: Física de vectores

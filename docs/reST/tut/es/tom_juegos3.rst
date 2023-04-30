@@ -6,7 +6,7 @@
 
 .. role:: citetitle(emphasis)
 
-.. _makegames-3:
+.. _hacerjuegos-3:
 
 1. Dando Inicio
 ================
@@ -17,7 +17,7 @@ conexiones de red, reproducir música y así sucesivamente. También incluirán 
 personalización que desees proporcionar además de las funciones proporcionadas por los módulos como ``sys`` y ``pygame``.
 
 
-.. _makegames-3-1:
+.. _hacerjuegos-3-1:
 
 3.1. Primeras líneas y carga de módulos
 ---------------------------------------
@@ -52,7 +52,7 @@ molestaré en explicarlo.::
       sys.exit(2)
 
 
-.. _makegames-3-2:
+.. _hacerjuegos-3-2:
 
 3.2. Funciones de manejo de recursos
 ------------------------------------
