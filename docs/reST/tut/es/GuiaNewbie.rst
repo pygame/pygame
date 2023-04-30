@@ -72,7 +72,7 @@ o ``version``.
 
 
 Sepa qué es una Surface (superficie)
------------------------
+------------------------------------
 
 La parte más importante de pygame es la Surface (superficie). La Surface puede 
 pensarse como una hoja de papel en blanco. Se pueden hacer muchas cosas con la 
