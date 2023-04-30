@@ -60,7 +60,7 @@ será nada en comparación con el tiempo que ahorrarás al escribir código real
 
 
 Reconoce qué partes de pygame necesitás realmente.
-------------------------------------------------
+--------------------------------------------------
 
 Ver el revoltijo de clases en la parte superior de la documentación del índice
 de documentación de pygame puede ser confuso. Lo más importante es darse cuenta 
