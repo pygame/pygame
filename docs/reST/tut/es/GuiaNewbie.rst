@@ -292,9 +292,8 @@ como rectángulos. En cada proyecto descrubro algunos lugares nuevos donde usar
 rects donde nunca pensé que los necesitaría.
 
 
-No te molestes con la detección de colisión de píxel perfecto
-Don't bother with pixel-perfect collision detection.
--------------------------------------------------------------
+No te molestes con la detección de colisión de píxel perfecto.
+--------------------------------------------------------------
 
 Así que, tenés tus sprites moviendose y necesitás saber si se están chocando entre sí. Es tentador escribir algo como lo siguiente:ite something like the following:
 
