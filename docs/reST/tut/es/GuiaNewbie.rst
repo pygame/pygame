@@ -316,7 +316,7 @@ notice the imprecision.
 
 
 Gestión del subsistema de eventos.
----------------------------------
+----------------------------------
 
 El sistema de eventos de Pygame es un poco truculento. Hay en realidad dos formas 
 diferntes de saber qué está haciendo un dispositivo de entrada (teclado, mouse, 
