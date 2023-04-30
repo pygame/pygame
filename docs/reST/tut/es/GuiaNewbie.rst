@@ -146,8 +146,7 @@ formas de llamar a esta función:
 
 
  * ``pygame.display.update()`` -- Esto actualiza toda la ventana (o toda la pantalla para visualizaciones en pantalla completa).
- * ``pygame.display.flip()`` -- Esto hace lo mismo, y también hará lo correcto si estás usando ``double-buffered`` aceleración de hardware,
-  que no es así, entonces sigamos ...
+ * ``pygame.display.flip()`` -- Esto hace lo mismo, y también hará lo correcto si estás usando ``double-buffered`` aceleración de hardware, que no es así, entonces sigamos ...
  * ``pygame.display.update(a rectangle or some list of rectangles)`` -- Esto actualiza solo las áreas rectangulares de la pantalla que especifiques.
   
 
