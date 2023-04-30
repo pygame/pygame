@@ -57,7 +57,7 @@ molestaré en explicarlo.::
 3.2. Funciones de manejo de recursos
 ------------------------------------
 
-En el ejemplo :doc:`Line By Line Chimp <ChimpLineByLine>`, el primer código que se escribió fue para cargar imagenes y sonidos. 
+En el ejemplo :doc:`Chimpancé, Línea Por Línea <ChimpanceLineaporLinea>`, el primer código que se escribió fue para cargar imagenes y sonidos. 
 Como estos eran totalmente independiente de cualquier lógica de juego u objetos del juego, se los escribió como funciones separadas 
 y se escribieron primero para que el código posterior pudiera hacer uso de ellas. Generalmente, coloco todo mi código de esta 
 naturaleza primero, en sus propias funciones sin clase; estas serán, en términos generales, funciones de manejo de recursos. Por 
