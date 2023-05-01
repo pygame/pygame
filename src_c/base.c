@@ -101,9 +101,9 @@ pgObject_GetBuffer(PyObject *, pg_buffer *, int);
 static int
 pgGetArrayInterface(PyObject **, PyObject *);
 static int
-pgArrayStruct_AsBuffer(pg_buffer *, PyObject *, PyArrayInterface *, int);
+pgArrayStruct_AsBuffer(pg_buffer *, PyArrayInterface *, int);
 static int
-_pg_arraystruct_as_buffer(Py_buffer *, PyObject *, PyArrayInterface *, int);
+_pg_arraystruct_as_buffer(Py_buffer *, PyArrayInterface *, int);
 static int
 _pg_arraystruct_to_format(char *, PyArrayInterface *, int);
 static int
@@ -1388,7 +1388,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     }
 
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
-        if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
+        if (pgArrayStruct_AsBuffer(pg_view_p, inter_p, flags)) {
             Py_DECREF(cobj);
             return -1;
         }
@@ -1514,13 +1514,21 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     return 0;
 }
 
+/**
+ * \brief Get from inter_p array interface and store in pg_view_p buffer.
+ * 
+ * \param pg_view_p A pointer to a pg_buffer struct to fill in.
+ * \param inter_p A pointer to a PyArrayInterface struct to use.
+ * \param flags The buffer flags to use when filling in pg_view_p.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
-pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
-                       PyArrayInterface *inter_p, int flags)
+pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyArrayInterface *inter_p,
+                       int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, cobj, inter_p,
-                                  flags)) {
+    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, inter_p, flags)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
@@ -1528,8 +1536,8 @@ pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
 }
 
 static int
-_pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
-                          PyArrayInterface *inter_p, int flags)
+_pg_arraystruct_as_buffer(Py_buffer *view_p, PyArrayInterface *inter_p,
+                          int flags)
 {
     pgViewInternals *internal_p;
     Py_ssize_t sz =
