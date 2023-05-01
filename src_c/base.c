@@ -101,9 +101,9 @@ pgObject_GetBuffer(PyObject *, pg_buffer *, int);
 static int
 pgGetArrayInterface(PyObject **, PyObject *);
 static int
-pgArrayStruct_AsBuffer(pg_buffer *, PyObject *, PyArrayInterface *, int);
+pgArrayStruct_AsBuffer(pg_buffer *, PyArrayInterface *, int);
 static int
-_pg_arraystruct_as_buffer(Py_buffer *, PyObject *, PyArrayInterface *, int);
+_pg_arraystruct_as_buffer(Py_buffer *, PyArrayInterface *, int);
 static int
 _pg_arraystruct_to_format(char *, PyArrayInterface *, int);
 static int
@@ -859,12 +859,22 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
     return 1;
 }
 
+/**
+ * \brief Returns the SDL error message as a Python string.
+ * \returns The SDL error message as a Python string.
+ */
 static PyObject *
 pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }
 
+/**
+ * \brief Sets the SDL error message.
+ * \param s The module object.
+ * \param args errstring The error message to set.
+ * \returns None.
+ */
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
@@ -886,6 +896,17 @@ pg_set_error(PyObject *s, PyObject *args)
 
 /*array interface*/
 
+/**
+ * \brief Returns the array interface of the object.
+ *
+ * \param obj The object to get the array interface from.
+ * \param cobj_p A pointer to a PyObject pointer to store the array interface
+ * in.
+ * \param inter_p A pointer to a PyArrayInterface pointer to store the
+ * array interface in.
+ *
+ * \returns -1 if an error occurred, 0 otherwise.
+ */
 static int
 pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
 {
@@ -915,6 +936,15 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
     return 0;
 }
 
+/**
+ * \brief Given a PyArrayInterface, return a python dictionary representing the
+ * array interface.
+ *
+ * \param inter_p A pointer to the PyArrayInterface to convert.
+ *
+ * \returns A Python string representing the typekind of the array interface,
+ * or 0 if an error occurred.
+ */
 static PyObject *
 pgArrayStruct_AsDict(PyArrayInterface *inter_p)
 {
@@ -943,6 +973,14 @@ pgArrayStruct_AsDict(PyArrayInterface *inter_p)
     return dictobj;
 }
 
+/**
+ * \brief Given a Py_buffer, return a python dictionary representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a dictionary.
+ *
+ * \returns A Python dictionary representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayInterface(Py_buffer *view_p)
 {
@@ -953,6 +991,14 @@ pgBuffer_AsArrayInterface(Py_buffer *view_p)
                          pg_view_get_data_obj(view_p));
 }
 
+/**
+ * \brief Given a Py_buffer, return a python capsule representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a capsule.
+ *
+ * \returns A Python capsule representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayStruct(Py_buffer *view_p)
 {
@@ -970,6 +1016,13 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     return capsule;
 }
 
+/**
+ * \brief Given a Py_buffer, return an allocated pgCapsuleInterface struct.
+ *
+ * \param view_p A pointer to the Py_buffer to get the pgCapsuleInterface from.
+ *
+ * \returns A capsule containing a pgCapsuleInterface struct.
+ */
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *view_p)
 {
@@ -1335,7 +1388,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     }
 
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
-        if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
+        if (pgArrayStruct_AsBuffer(pg_view_p, inter_p, flags)) {
             Py_DECREF(cobj);
             return -1;
         }
@@ -1428,6 +1481,16 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     return 0;
 }
 
+/**
+ * \brief Get the "__array_interface__" from an object and store it in the dict
+ * argument.
+ *
+ * \param dict A pointer to a PyObject pointer.  On success, this will be set
+ * to a new reference to the array interface dict.
+ * \param obj The object to get the array interface from.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
 pgGetArrayInterface(PyObject **dict, PyObject *obj)
 {
@@ -1451,13 +1514,21 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     return 0;
 }
 
+/**
+ * \brief Get from inter_p array interface and store in pg_view_p buffer.
+ *
+ * \param pg_view_p A pointer to a pg_buffer struct to fill in.
+ * \param inter_p A pointer to a PyArrayInterface struct to use.
+ * \param flags The buffer flags to use when filling in pg_view_p.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
-pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
-                       PyArrayInterface *inter_p, int flags)
+pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyArrayInterface *inter_p,
+                       int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, cobj, inter_p,
-                                  flags)) {
+    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, inter_p, flags)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
@@ -1465,8 +1536,8 @@ pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
 }
 
 static int
-_pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
-                          PyArrayInterface *inter_p, int flags)
+_pg_arraystruct_as_buffer(Py_buffer *view_p, PyArrayInterface *inter_p,
+                          int flags)
 {
     pgViewInternals *internal_p;
     Py_ssize_t sz =
@@ -1684,6 +1755,16 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     return 0;
 }
 
+/**
+ * \brief Write the array interface dictionary buffer description *dict* into a
+ * Pygame buffer description struct *pg_view_p*.
+ *
+ * \param pg_view_p The Pygame buffer description struct to write into.
+ * \param dict The array interface dictionary to read from.
+ * \param flags The PyBUF flags describing the view type requested.
+ *
+ * \returns 0 on success, or -1 on failure.
+ */
 static int
 pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
 {
@@ -2126,13 +2207,25 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-/*Default window(display)*/
+/**
+ * \brief Get the default SDL window created by a pygame.display.set_mode()
+ * call, or *NULL*.
+ *
+ * \return The default window, or *NULL* if no window has been created.
+ */
 static SDL_Window *
 pg_GetDefaultWindow(void)
 {
     return pg_default_window;
 }
 
+/**
+ * \brief Set the default SDL window created by a pygame.display.set_mode()
+ * call. The previous window, if any, is destroyed. Argument *win* may be
+ * *NULL*. This function is called by pygame.display.set_mode().
+ *
+ * \param win The new default window. May be NULL.
+ */
 static void
 pg_SetDefaultWindow(SDL_Window *win)
 {
@@ -2146,6 +2239,12 @@ pg_SetDefaultWindow(SDL_Window *win)
     pg_default_window = win;
 }
 
+/**
+ * \brief Return a borrowed reference to the Pygame default window display
+ * surface, or *NULL* if no default window is open.
+ *
+ * \return The default renderer, or *NULL* if no renderer has been created.
+ */
 static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void)
 {
@@ -2153,6 +2252,13 @@ pg_GetDefaultWindowSurface(void)
     return pg_default_screen;
 }
 
+/**
+ * \brief Set the Pygame default window display surface. The previous
+ * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
+ * function is called by pygame.display.set_mode().
+ *
+ * \param screen The new default window display surface. May be NULL.
+ */
 static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 {
@@ -2165,6 +2271,10 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     pg_default_screen = screen;
 }
 
+/**
+ * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
+ * set, otherwise returns a pointer to the environment variable.
+ */
 static char *
 pg_EnvShouldBlendAlphaSDL2(void)
 {
