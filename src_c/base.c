@@ -2252,6 +2252,13 @@ pg_GetDefaultWindowSurface(void)
     return pg_default_screen;
 }
 
+/**
+ * \brief Set the Pygame default window display surface. The previous
+ * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
+ * function is called by pygame.display.set_mode().
+ *
+ * \param screen The new default window display surface. May be NULL.
+ */
 static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 {
