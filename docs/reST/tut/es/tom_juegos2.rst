@@ -6,12 +6,12 @@
 
 .. role:: firstterm(emphasis)
 
-.. _makegames-2:
+.. _hacerjuegos-2:
 
 2. Revisión: Fundamentos de Pygame
 ==================================
 
-.. _makegames-2-1:
+.. _hacerjuegos-2-1:
 
 2.1. El juego básico de Pygame
 ------------------------------
@@ -64,7 +64,7 @@ El código completo para este ejemplo se ve así::
   if __name__ == '__main__': main()
 
 
-.. _makegames-2-2:
+.. _hacerjuegos-2-2:
 
 2.2. Objetos Pygame Básicos
 ---------------------------
@@ -93,7 +93,7 @@ el texto estará centrado en la pantalla en el eje x). También podríamos estab
 dejé el texto en la parte superior de la pantalla. Como la pantalla es pequeña de todas formas, no parecía necesario.
 
 
-.. _makegames-2-3:
+.. _hacerjuegos-2-3:
 
 2.3. Blitting
 -------------
@@ -110,7 +110,7 @@ pelota en cada cuadro, lo que cubriría la posición anterior de la pelota y ren
 lento. Una mejor solución es blittear el fondo en el área que la pelota ocupó previamente, lo que se puede encontrar en el 
 rectángulo anterior de la pelota, y luego blittear la pelota, para que solo estés blitteando dos áreas pequeñas.
 
-.. _makegames-2-4:
+.. _hacerjuegos-2-4:
 
 2.4. Evento en Bucle
 --------------------
@@ -125,7 +125,7 @@ Luego, simplemente necesitamos volver a dibujar (re-blit) el fondo, y actualizar
 nada se mueve o sucede, en este ejemplo, estrictamente hablando no necesitamos volver a dibujar el fondo en cada iteración, pero lo 
 incluí porque cuando las cosas se mueven en la pantalla, necesitarás hacer todo tu dibujado (blitting) aquí.
 
-.. _makegames-2-5:
+.. _hacerjuegos-2-5:
 
 2.5. Ta-da!
 -----------

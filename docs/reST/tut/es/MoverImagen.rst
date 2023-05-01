@@ -7,7 +7,7 @@ Tutoriales de Pygame - ¡Ayuda! ¿Cómo Muevo Una Imagen?
 *********************************************************
 
 ¡Ayuda! ¿Cómo Muevo Una Imagen?
-=============================
+===============================
 
 .. rst-class:: docinfo
 
