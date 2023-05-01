@@ -1016,6 +1016,13 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     return capsule;
 }
 
+/**
+ * \brief Given a Py_buffer, return an allocated pgCapsuleInterface struct.
+ *
+ * \param view_p A pointer to the Py_buffer to get the pgCapsuleInterface from.
+ *
+ * \returns A capsule containing a pgCapsuleInterface struct.
+ */
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *view_p)
 {
