@@ -1481,6 +1481,16 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     return 0;
 }
 
+/**
+ * \brief Get the "__array_interface__" from an object and store it in the dict
+ * argument.
+ *
+ * \param dict A pointer to a PyObject pointer.  On success, this will be set
+ * to a new reference to the array interface dict.
+ * \param obj The object to get the array interface from.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
 pgGetArrayInterface(PyObject **dict, PyObject *obj)
 {
