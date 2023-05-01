@@ -2239,6 +2239,12 @@ pg_SetDefaultWindow(SDL_Window *win)
     pg_default_window = win;
 }
 
+/**
+ * \brief Return a borrowed reference to the Pygame default window display
+ * surface, or *NULL* if no default window is open.
+ *
+ * \return The default renderer, or *NULL* if no renderer has been created.
+ */
 static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void)
 {
