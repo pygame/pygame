@@ -2271,6 +2271,10 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     pg_default_screen = screen;
 }
 
+/**
+ * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
+ * set, otherwise returns a pointer to the environment variable.
+ */
 static char *
 pg_EnvShouldBlendAlphaSDL2(void)
 {
