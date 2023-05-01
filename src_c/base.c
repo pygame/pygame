@@ -859,6 +859,10 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
     return 1;
 }
 
+/**
+ * \brief Returns the SDL error message as a Python string.
+ * \returns The SDL error message as a Python string.
+ */
 static PyObject *
 pg_get_error(PyObject *self, PyObject *_null)
 {
