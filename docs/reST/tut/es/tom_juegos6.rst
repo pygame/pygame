@@ -4,7 +4,7 @@
   Juntando Todo
 ********************
 
-.. _makegames-6:
+.. _hacerjuegos-6:
 
 1. Juntando todo
 ================
@@ -17,7 +17,7 @@ golpear la pelota, de lo contrario no habrá mucho juego involucrado. Hacemos es
 Pygame: :meth:`collision <pygame.Rect.collidepoint>`.
 
 
-.. _makegames-6-1:
+.. _hacerjuegos-6-1:
 
 6.1. Dejá que la pelota golpee los lados
 ----------------------------------------
@@ -56,7 +56,7 @@ Finalmente, recompilamos el vector en función del nuevo ángulo. Y eso es todo.
 las paredes y saldrá de la cancha con gracia.
 
 
-.. _makegames-6-2:
+.. _hacerjuegos-6-2:
 
 6.2. Let the ball hit bats
 --------------------------
@@ -115,7 +115,7 @@ solo lo hagas una vez después de la declaración condicional ``if-else``. ¡Y e
 pelota golpee los lados y los bates.
 
 
-.. _makegames-6-3:
+.. _hacerjuegos-6-3:
 
 6.3. El producto final
 ----------------------

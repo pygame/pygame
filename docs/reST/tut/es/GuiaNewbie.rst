@@ -60,7 +60,7 @@ será nada en comparación con el tiempo que ahorrarás al escribir código real
 
 
 Reconoce qué partes de pygame necesitás realmente.
-------------------------------------------------
+--------------------------------------------------
 
 Ver el revoltijo de clases en la parte superior de la documentación del índice
 de documentación de pygame puede ser confuso. Lo más importante es darse cuenta 
@@ -72,7 +72,7 @@ o ``version``.
 
 
 Sepa qué es una Surface (superficie)
------------------------
+------------------------------------
 
 La parte más importante de pygame es la Surface (superficie). La Surface puede 
 pensarse como una hoja de papel en blanco. Se pueden hacer muchas cosas con la 
@@ -146,8 +146,7 @@ formas de llamar a esta función:
 
 
  * ``pygame.display.update()`` -- Esto actualiza toda la ventana (o toda la pantalla para visualizaciones en pantalla completa).
- * ``pygame.display.flip()`` -- Esto hace lo mismo, y también hará lo correcto si estás usando ``double-buffered`` aceleración de hardware,
-  que no es así, entonces sigamos ...
+ * ``pygame.display.flip()`` -- Esto hace lo mismo, y también hará lo correcto si estás usando ``double-buffered`` aceleración de hardware, que no es así, entonces sigamos ...
  * ``pygame.display.update(a rectangle or some list of rectangles)`` -- Esto actualiza solo las áreas rectangulares de la pantalla que especifiques.
   
 
@@ -292,9 +291,8 @@ como rectángulos. En cada proyecto descrubro algunos lugares nuevos donde usar
 rects donde nunca pensé que los necesitaría.
 
 
-No te molestes con la detección de colisión de píxel perfecto
-Don't bother with pixel-perfect collision detection.
--------------------------------------------------------------
+No te molestes con la detección de colisión de píxel perfecto.
+--------------------------------------------------------------
 
 Así que, tenés tus sprites moviendose y necesitás saber si se están chocando entre sí. Es tentador escribir algo como lo siguiente:ite something like the following:
 
@@ -317,7 +315,7 @@ notice the imprecision.
 
 
 Gestión del subsistema de eventos.
----------------------------------
+----------------------------------
 
 El sistema de eventos de Pygame es un poco truculento. Hay en realidad dos formas 
 diferntes de saber qué está haciendo un dispositivo de entrada (teclado, mouse, 

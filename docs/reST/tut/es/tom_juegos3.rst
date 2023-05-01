@@ -6,7 +6,7 @@
 
 .. role:: citetitle(emphasis)
 
-.. _makegames-3:
+.. _hacerjuegos-3:
 
 1. Dando Inicio
 ================
@@ -17,7 +17,7 @@ conexiones de red, reproducir música y así sucesivamente. También incluirán 
 personalización que desees proporcionar además de las funciones proporcionadas por los módulos como ``sys`` y ``pygame``.
 
 
-.. _makegames-3-1:
+.. _hacerjuegos-3-1:
 
 3.1. Primeras líneas y carga de módulos
 ---------------------------------------
@@ -52,12 +52,12 @@ molestaré en explicarlo.::
       sys.exit(2)
 
 
-.. _makegames-3-2:
+.. _hacerjuegos-3-2:
 
 3.2. Funciones de manejo de recursos
 ------------------------------------
 
-En el ejemplo :doc:`Line By Line Chimp <ChimpLineByLine>`, el primer código que se escribió fue para cargar imagenes y sonidos. 
+En el ejemplo :doc:`Chimpancé, Línea Por Línea <ChimpanceLineaporLinea>`, el primer código que se escribió fue para cargar imagenes y sonidos. 
 Como estos eran totalmente independiente de cualquier lógica de juego u objetos del juego, se los escribió como funciones separadas 
 y se escribieron primero para que el código posterior pudiera hacer uso de ellas. Generalmente, coloco todo mi código de esta 
 naturaleza primero, en sus propias funciones sin clase; estas serán, en términos generales, funciones de manejo de recursos. Por 

@@ -4,7 +4,7 @@
 Objetos controlables por los usuarios
 *************************************
 
-.. _makegames-5:
+.. _hacerjuegos-5:
 
 5. Objetos controlables por los usuarios
 ========================================
@@ -16,7 +16,7 @@ plataforma como Mario, en cuyo caso necesitarás más física) Los objetos contr
 gracias al sistema de cola de Pygame, como ya verás.
 
 
-.. _makegames-5-1:
+.. _hacerjuegos-5-1:
 
 5.1. Una clase simple de bate
 -----------------------------
@@ -85,7 +85,7 @@ se establecerá de nuevo en "still" y el atributo ``movepos`` volverá a estable
 llame a la función ``update``, ya no movera el bate. Así que cuando el jugador suelta la tecla, el bate se detiene. ¡Simple!
 
 
-.. _makegames-5-1-1:
+.. _hacerjuegos-5-1-1:
 
 5.1.1. Digresión 3: Eventos de Pygame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
