@@ -936,6 +936,15 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
     return 0;
 }
 
+/**
+ * \brief Given a PyArrayInterface, return a python dictionary representing the
+ * array interface.
+ *
+ * \param inter_p A pointer to the PyArrayInterface to convert.
+ *
+ * \returns A Python string representing the typekind of the array interface,
+ * or 0 if an error occurred.
+ */
 static PyObject *
 pgArrayStruct_AsDict(PyArrayInterface *inter_p)
 {
