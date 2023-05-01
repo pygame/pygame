@@ -1516,7 +1516,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
 
 /**
  * \brief Get from inter_p array interface and store in pg_view_p buffer.
- * 
+ *
  * \param pg_view_p A pointer to a pg_buffer struct to fill in.
  * \param inter_p A pointer to a PyArrayInterface struct to use.
  * \param flags The buffer flags to use when filling in pg_view_p.
@@ -1755,6 +1755,16 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     return 0;
 }
 
+/**
+ * \brief Write the array interface dictionary buffer description *dict* into a
+ * Pygame buffer description struct *pg_view_p*.
+ *
+ * \param pg_view_p The Pygame buffer description struct to write into.
+ * \param dict The array interface dictionary to read from.
+ * \param flags The PyBUF flags describing the view type requested.
+ *
+ * \returns 0 on success, or -1 on failure.
+ */
 static int
 pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
 {
