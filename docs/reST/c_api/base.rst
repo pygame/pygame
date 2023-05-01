@@ -157,8 +157,6 @@ C header: src_c/include/pygame.h
    Return the Pygame default SDL window created by a
    pygame.display.set_mode() call, or *NULL*.
 
-   Availability: SDL 2.
-
 .. c:function:: void pg_SetDefaultWindow(SDL_Window *win)
 
    Replace the Pygame default window with *win*.
@@ -166,14 +164,10 @@ C header: src_c/include/pygame.h
    Argument *win* may be *NULL*.
    This function is called by pygame.display.set_mode().
 
-   Availability: SDL 2.
-
 .. c:function:: pgSurfaceObject* pg_GetDefaultWindowSurface(void)
 
    Return a borrowed reference to the Pygame default window display surface,
    or *NULL* if no default window is open.
-
-   Availability: SDL 2.
 
 .. c:function:: void pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 
@@ -181,5 +175,3 @@ C header: src_c/include/pygame.h
    The previous surface object, if any, is invalidated.
    Argument *screen* may be *NULL*.
    This functions is called by pygame.display.set_mode().
-
-   Availability: SDL 2.
