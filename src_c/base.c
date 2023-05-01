@@ -896,6 +896,17 @@ pg_set_error(PyObject *s, PyObject *args)
 
 /*array interface*/
 
+/**
+ * \brief Returns the array interface of the object.
+ *
+ * \param obj The object to get the array interface from.
+ * \param cobj_p A pointer to a PyObject pointer to store the array interface
+ * in.
+ * \param inter_p A pointer to a PyArrayInterface pointer to store the
+ * array interface in.
+ *
+ * \returns -1 if an error occurred, 0 otherwise.
+ */
 static int
 pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
 {
