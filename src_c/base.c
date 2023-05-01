@@ -973,6 +973,14 @@ pgArrayStruct_AsDict(PyArrayInterface *inter_p)
     return dictobj;
 }
 
+/**
+ * \brief Given a Py_buffer, return a python dictionary representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a dictionary.
+ *
+ * \returns A Python dictionary representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayInterface(Py_buffer *view_p)
 {
