@@ -869,6 +869,12 @@ pg_get_error(PyObject *self, PyObject *_null)
     return PyUnicode_FromString(SDL_GetError());
 }
 
+/**
+ * \brief Sets the SDL error message.
+ * \param s The module object.
+ * \param args errstring The error message to set.
+ * \returns None.
+ */
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
