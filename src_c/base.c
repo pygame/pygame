@@ -2207,7 +2207,12 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-/*Default window(display)*/
+/**
+ * \brief Get the default SDL window created by a pygame.display.set_mode()
+ * call, or *NULL*.
+ *
+ * \return The default window, or *NULL* if no window has been created.
+ */
 static SDL_Window *
 pg_GetDefaultWindow(void)
 {
