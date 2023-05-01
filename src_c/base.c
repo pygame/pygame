@@ -991,6 +991,14 @@ pgBuffer_AsArrayInterface(Py_buffer *view_p)
                          pg_view_get_data_obj(view_p));
 }
 
+/**
+ * \brief Given a Py_buffer, return a python capsule representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a capsule.
+ *
+ * \returns A Python capsule representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayStruct(Py_buffer *view_p)
 {
