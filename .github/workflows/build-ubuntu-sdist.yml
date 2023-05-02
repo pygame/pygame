@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-20.04, ubuntu-22.04]
 
     steps:
     - uses: actions/checkout@v3.0.2

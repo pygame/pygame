@@ -145,7 +145,7 @@
       one will increase the size of the rectangle, whereas values between
       zero and one will decrease the size of the rectangle.
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.scale_by ##
 
@@ -157,7 +157,8 @@
 
       Same as the ``Rect.scale_by()`` method, but operates in place.
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
+
 
       .. ## Rect.scale_by_ip ##
 
@@ -294,7 +295,7 @@
 
       Returns the union of one rectangle with a sequence of many rectangles.
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.unionall ##
 
@@ -305,7 +306,7 @@
 
       The same as the ``Rect.unionall()`` method, but operates in place.
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.unionall_ip ##
 
@@ -378,7 +379,7 @@
       The index of the first collision found is returned. If no collisions are
       found an index of -1 is returned.
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.collidelist ##
 
@@ -434,7 +435,7 @@
           ]
           indices5 = r.collidelistall(list_of_object_with_callable_rect)
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.collidelistall ##
 
@@ -580,7 +581,7 @@
          hashable), so they must be converted to a tuple.
          e.g. ``rect.collidedict({tuple(key_rect) : value})``
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.collidedict ##
 
@@ -600,7 +601,7 @@
          hashable), so they must be converted to a tuple.
          e.g. ``rect.collidedictall({tuple(key_rect) : value})``
 
-      .. versionchanged:: 2.3.1 Added support for keyword arguments.
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
       .. ## Rect.collidedictall ##
 

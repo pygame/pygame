@@ -583,9 +583,8 @@ required).
    A gamma value of ``1.0`` creates a linear color table. Lower values will
    darken the display and higher values will brighten.
 
+   .. versionchanged:: 2.5.0 Added support for keyword arguments.
    .. deprecated:: 2.2.0
-
-   .. versionchanged:: 2.3.1 Added support for keyword arguments.
 
    .. ## pygame.display.set_gamma ##
 
@@ -600,10 +599,10 @@ required).
    argument should be sequence of 256 integers. The integers should range
    between ``0`` and ``0xffff``. Not all systems and hardware support gamma
    ramps, if the function succeeds it will return ``True``.
-
+   
+   .. versionchanged:: 2.5.0 Added support for keyword arguments.
    .. deprecated:: 2.2.0
-
-   .. versionchanged:: 2.3.1 Added support for keyword arguments.
+   
 
    .. ## pygame.display.set_gamma_ramp ##
 

@@ -101,9 +101,9 @@ pgObject_GetBuffer(PyObject *, pg_buffer *, int);
 static int
 pgGetArrayInterface(PyObject **, PyObject *);
 static int
-pgArrayStruct_AsBuffer(pg_buffer *, PyObject *, PyArrayInterface *, int);
+pgArrayStruct_AsBuffer(pg_buffer *, PyArrayInterface *, int);
 static int
-_pg_arraystruct_as_buffer(Py_buffer *, PyObject *, PyArrayInterface *, int);
+_pg_arraystruct_as_buffer(Py_buffer *, PyArrayInterface *, int);
 static int
 _pg_arraystruct_to_format(char *, PyArrayInterface *, int);
 static int
@@ -208,6 +208,12 @@ pg_CheckSDLVersions(void)
     return 1;
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param func A function pointer to be called when the interpreter exits.
+ */
 void
 pg_RegisterQuit(void (*func)(void))
 {
@@ -229,6 +235,13 @@ pg_RegisterQuit(void (*func)(void))
     }
 }
 
+/**
+ * Use this function to register a function to be called when the interpreter
+ * exits.
+ *
+ * \param value A callable object to be called when the interpreter exits.
+ * \returns None or NULL on failure.
+ */
 static PyObject *
 pg_register_quit(PyObject *self, PyObject *value)
 {
@@ -245,7 +258,10 @@ pg_register_quit(PyObject *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
-/* init pygame modules, returns 1 if successful, 0 if fail, with PyErr set*/
+/**
+ * \brief Initialize all of the pygame modules.
+ * \returns 1 on success, 0 on failure with PyErr set.
+ */
 static int
 pg_mod_autoinit(const char *modname)
 {
@@ -277,7 +293,9 @@ pg_mod_autoinit(const char *modname)
     return ret;
 }
 
-/* try to quit pygame modules, errors silenced */
+/**
+ * \brief Quit all of the pygame modules.
+ */
 static void
 pg_mod_autoquit(const char *modname)
 {
@@ -312,6 +330,9 @@ pg_mod_autoquit(const char *modname)
     Py_XDECREF(funcobj);
 }
 
+/**
+ * \brief Initialize all of the pygame modules.
+ */
 static PyObject *
 pg_init(PyObject *self, PyObject *_null)
 {
@@ -351,6 +372,9 @@ pg_init(PyObject *self, PyObject *_null)
     return Py_BuildValue("(ii)", success, fail);
 }
 
+/**
+ * \brief Quit all of the pygame modules when the interpreter exits.
+ */
 static void
 pg_atexit_quit(void)
 {
@@ -364,6 +388,10 @@ pg_atexit_quit(void)
     }
 }
 
+/**
+ * \brief Get the SDL version.
+ * \returns A tuple of the SDL version numbers (major, minor, patch).
+ */
 static PyObject *
 pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -385,12 +413,24 @@ pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
 }
 
+/**
+ * \brief Get the SDL byte order.
+ * \returns The SDL byte order.
+ *
+ * SDL_BYTEORDER is SDL_LIL_ENDIAN for x86, x64, and similar systems that use
+ * the little endian byte order. SDL_BYTEORDER is SDL_BIG_ENDIAN for PowerPC
+ * and similar systems that use the big endian byte order.
+ *
+ */
 static PyObject *
 pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static void
 _pg_quit(void)
 {
@@ -454,6 +494,9 @@ _pg_quit(void)
     Py_END_ALLOW_THREADS;
 }
 
+/**
+ * \brief Quit all pygame modules.
+ */
 static PyObject *
 pg_quit(PyObject *self, PyObject *_null)
 {
@@ -461,6 +504,10 @@ pg_quit(PyObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+/**
+ * \brief Check if pygame is initialized.
+ * \returns True if pygame is initialized, False otherwise.
+ */
 static PyObject *
 pg_base_get_init(PyObject *self, PyObject *_null)
 {
@@ -468,6 +515,17 @@ pg_base_get_init(PyObject *self, PyObject *_null)
 }
 
 /* internal C API utility functions */
+
+/**
+ * \brief Convert number like object *obj* to C int and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_IntFromObj(PyObject *obj, int *val)
 {
@@ -492,11 +550,23 @@ pg_IntFromObj(PyObject *obj, int *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj*
+ * to C int and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
-pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
+pg_IntFromObjIndex(PyObject *obj, int i, int *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -507,6 +577,18 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * int and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \param val2 A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 static int
 pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
@@ -523,6 +605,15 @@ pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C float and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_FloatFromObj(PyObject *obj, float *val)
 {
@@ -537,11 +628,22 @@ pg_FloatFromObj(PyObject *obj, float *val)
     return 1;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * float and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
-pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
+pg_FloatFromObjIndex(PyObject *obj, int i, float *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -552,6 +654,17 @@ pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
     return result;
 }
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * float and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \param val2 A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 static int
 pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 {
@@ -568,6 +681,87 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
     return 1;
 }
 
+/**
+ * \brief Convert number like object *obj* to C double and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
+static int
+pg_DoubleFromObj(PyObject *obj, double *val)
+{
+    double d = (double)PyFloat_AsDouble(obj);
+
+    if (d == -1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        return 0;
+    }
+
+    *val = d;
+    return 1;
+}
+
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * double and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
+static int
+pg_DoubleFromObjIndex(PyObject *obj, int i, double *val)
+{
+    int result = 0;
+    PyObject *item = PySequence_GetItem(obj, i);
+
+    if (!item) {
+        PyErr_Clear();
+        return 0;
+    }
+    result = pg_DoubleFromObj(item, val);
+    Py_DECREF(item);
+    return result;
+}
+
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * double and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \param val2 A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
+static int
+pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
+{
+    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
+        return pg_TwoDoublesFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
+    }
+    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
+        return 0;
+    }
+    if (!pg_DoubleFromObjIndex(obj, 0, val1) ||
+        !pg_DoubleFromObjIndex(obj, 1, val2)) {
+        return 0;
+    }
+    return 1;
+}
+
+/**
+ * \brief Convert number like object *obj* to C Uint32 and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_DoubleFromObj(PyObject *obj, double *val)
 {
@@ -634,11 +828,20 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
     return 0;
 }
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * Uint32 and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
-pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
+pg_UintFromObjIndex(PyObject *obj, int i, Uint32 *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, i);
 
     if (!item) {
         PyErr_Clear();
@@ -649,6 +852,18 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     return result;
 }
 
+/**
+ * \brief Convert the color represented by object *obj* into a red, green,
+ * blue, alpha length 4 C array *RGBA*.
+ *
+ * The object must be a length 3 or 4 sequence of numbers having values between
+ * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
+ * assumed.
+ *
+ * \param obj The Python object to convert.
+ * \param RGBA A pointer to the C array to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 static int
 pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
@@ -689,12 +904,22 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
     return 1;
 }
 
+/**
+ * \brief Returns the SDL error message as a Python string.
+ * \returns The SDL error message as a Python string.
+ */
 static PyObject *
 pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }
 
+/**
+ * \brief Sets the SDL error message.
+ * \param s The module object.
+ * \param args errstring The error message to set.
+ * \returns None.
+ */
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
@@ -716,6 +941,17 @@ pg_set_error(PyObject *s, PyObject *args)
 
 /*array interface*/
 
+/**
+ * \brief Returns the array interface of the object.
+ *
+ * \param obj The object to get the array interface from.
+ * \param cobj_p A pointer to a PyObject pointer to store the array interface
+ * in.
+ * \param inter_p A pointer to a PyArrayInterface pointer to store the
+ * array interface in.
+ *
+ * \returns -1 if an error occurred, 0 otherwise.
+ */
 static int
 pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
 {
@@ -745,6 +981,15 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
     return 0;
 }
 
+/**
+ * \brief Given a PyArrayInterface, return a python dictionary representing the
+ * array interface.
+ *
+ * \param inter_p A pointer to the PyArrayInterface to convert.
+ *
+ * \returns A Python string representing the typekind of the array interface,
+ * or 0 if an error occurred.
+ */
 static PyObject *
 pgArrayStruct_AsDict(PyArrayInterface *inter_p)
 {
@@ -773,6 +1018,14 @@ pgArrayStruct_AsDict(PyArrayInterface *inter_p)
     return dictobj;
 }
 
+/**
+ * \brief Given a Py_buffer, return a python dictionary representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a dictionary.
+ *
+ * \returns A Python dictionary representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayInterface(Py_buffer *view_p)
 {
@@ -783,6 +1036,14 @@ pgBuffer_AsArrayInterface(Py_buffer *view_p)
                          pg_view_get_data_obj(view_p));
 }
 
+/**
+ * \brief Given a Py_buffer, return a python capsule representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a capsule.
+ *
+ * \returns A Python capsule representing the array interface of the object.
+ */
 static PyObject *
 pgBuffer_AsArrayStruct(Py_buffer *view_p)
 {
@@ -800,6 +1061,13 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     return capsule;
 }
 
+/**
+ * \brief Given a Py_buffer, return an allocated pgCapsuleInterface struct.
+ *
+ * \param view_p A pointer to the Py_buffer to get the pgCapsuleInterface from.
+ *
+ * \returns A capsule containing a pgCapsuleInterface struct.
+ */
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *view_p)
 {
@@ -1165,7 +1433,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     }
 
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
-        if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
+        if (pgArrayStruct_AsBuffer(pg_view_p, inter_p, flags)) {
             Py_DECREF(cobj);
             return -1;
         }
@@ -1258,6 +1526,16 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     return 0;
 }
 
+/**
+ * \brief Get the "__array_interface__" from an object and store it in the dict
+ * argument.
+ *
+ * \param dict A pointer to a PyObject pointer.  On success, this will be set
+ * to a new reference to the array interface dict.
+ * \param obj The object to get the array interface from.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
 pgGetArrayInterface(PyObject **dict, PyObject *obj)
 {
@@ -1281,13 +1559,21 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     return 0;
 }
 
+/**
+ * \brief Get from inter_p array interface and store in pg_view_p buffer.
+ *
+ * \param pg_view_p A pointer to a pg_buffer struct to fill in.
+ * \param inter_p A pointer to a PyArrayInterface struct to use.
+ * \param flags The buffer flags to use when filling in pg_view_p.
+ *
+ * \returns -1 on error, 0 on success.
+ */
 static int
-pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
-                       PyArrayInterface *inter_p, int flags)
+pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyArrayInterface *inter_p,
+                       int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, cobj, inter_p,
-                                  flags)) {
+    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, inter_p, flags)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
@@ -1295,8 +1581,8 @@ pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
 }
 
 static int
-_pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
-                          PyArrayInterface *inter_p, int flags)
+_pg_arraystruct_as_buffer(Py_buffer *view_p, PyArrayInterface *inter_p,
+                          int flags)
 {
     pgViewInternals *internal_p;
     Py_ssize_t sz =
@@ -1514,6 +1800,16 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     return 0;
 }
 
+/**
+ * \brief Write the array interface dictionary buffer description *dict* into a
+ * Pygame buffer description struct *pg_view_p*.
+ *
+ * \param pg_view_p The Pygame buffer description struct to write into.
+ * \param dict The array interface dictionary to read from.
+ * \param flags The PyBUF flags describing the view type requested.
+ *
+ * \returns 0 on success, or -1 on failure.
+ */
 static int
 pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
 {
@@ -1956,13 +2252,25 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-/*Default window(display)*/
+/**
+ * \brief Get the default SDL window created by a pygame.display.set_mode()
+ * call, or *NULL*.
+ *
+ * \return The default window, or *NULL* if no window has been created.
+ */
 static SDL_Window *
 pg_GetDefaultWindow(void)
 {
     return pg_default_window;
 }
 
+/**
+ * \brief Set the default SDL window created by a pygame.display.set_mode()
+ * call. The previous window, if any, is destroyed. Argument *win* may be
+ * *NULL*. This function is called by pygame.display.set_mode().
+ *
+ * \param win The new default window. May be NULL.
+ */
 static void
 pg_SetDefaultWindow(SDL_Window *win)
 {
@@ -1976,6 +2284,12 @@ pg_SetDefaultWindow(SDL_Window *win)
     pg_default_window = win;
 }
 
+/**
+ * \brief Return a borrowed reference to the Pygame default window display
+ * surface, or *NULL* if no default window is open.
+ *
+ * \return The default renderer, or *NULL* if no renderer has been created.
+ */
 static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void)
 {
@@ -1983,6 +2297,13 @@ pg_GetDefaultWindowSurface(void)
     return pg_default_screen;
 }
 
+/**
+ * \brief Set the Pygame default window display surface. The previous
+ * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
+ * function is called by pygame.display.set_mode().
+ *
+ * \param screen The new default window display surface. May be NULL.
+ */
 static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 {
@@ -1995,6 +2316,10 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     pg_default_screen = screen;
 }
 
+/**
+ * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
+ * set, otherwise returns a pointer to the environment variable.
+ */
 static char *
 pg_EnvShouldBlendAlphaSDL2(void)
 {

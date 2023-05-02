@@ -716,6 +716,13 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         width = radius;
     }
 
+    if (posx > surf->clip_rect.x + surf->clip_rect.w + radius ||
+        posx < surf->clip_rect.x - radius ||
+        posy > surf->clip_rect.y + surf->clip_rect.h + radius ||
+        posy < surf->clip_rect.y - radius) {
+        return pgRect_New4(posx, posy, 0, 0);
+    }
+
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
@@ -743,12 +750,14 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
-        drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
+        drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN) {
         return pgRect_New4(drawn_area[0], drawn_area[1],
                            drawn_area[2] - drawn_area[0] + 1,
                            drawn_area[3] - drawn_area[1] + 1);
-    else
+    }
+    else {
         return pgRect_New4(posx, posy, 0, 0);
+    }
 }
 
 static PyObject *
