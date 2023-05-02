@@ -1715,7 +1715,7 @@ pg_set_palette(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwids[] = {"palette", NULL};
 
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(args, kwargs, "|O", kwids, &list))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwids, &list))
         return NULL;
     if (!surface)
         return RAISE(pgExc_SDLError, "No display mode is set");
@@ -1814,7 +1814,7 @@ pg_set_gamma(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     static char *kwids[] = {"red", "green", "blue", NULL};
 
-    if (!PyArg_ParseTuple(arg, kwarg, "f|ff", kwids, &r, &g, &b))
+    if (!PyArg_ParseTupleAndKeywords(arg, kwarg, "f|ff", kwids, &r, &g, &b))
         return NULL;
     if (PyTuple_Size(arg) == 1)
         g = b = r;
@@ -1913,8 +1913,9 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     static char *kwids[] = {"red", "green", "blue", NULL};
 
-    if (!PyArg_ParseTuple(arg, kwarg, "O&O&O&", kwids, pg_convert_to_uint16, r,
-                          pg_convert_to_uint16, g, pg_convert_to_uint16, b)) {
+    if (!PyArg_ParseTupleAndKeywords(
+            arg, kwarg, "O&O&O&", kwids, pg_convert_to_uint16, r,
+            pg_convert_to_uint16, g, pg_convert_to_uint16, b)) {
         free(gamma_ramp);
         return NULL;
     }
@@ -1949,9 +1950,10 @@ pg_set_caption(PyObject *self, PyObject *arg, PyObject *kwarg)
     __analysis_assume(title = "inited");
 #endif
 
-    static char *kwids = {"title", "icontitle", NULL};
+    static char *kwids[] = {"title", "icontitle", NULL};
 
-    if (!PyArg_ParseTuple(arg, kwargs, "s|s", kwids, &title, &icontitle))
+    if (!PyArg_ParseTupleAndKeywords(arg, kwarg, "s|s", kwids, &title,
+                                     &icontitle))
         return NULL;
 
     if (state->title)
@@ -2567,7 +2569,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", (PyCFunction)pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
 
-    {"set_palette", pg_set_palette, METH_VARARGS | METH_KEYWORDSMETH_KEYWORDS,
+    {"set_palette", pg_set_palette, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETPALETTE},
     {"set_gamma", pg_set_gamma, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETGAMMA},

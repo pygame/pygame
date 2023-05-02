@@ -439,9 +439,10 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     float factor_x, factor_y = 0;
 
-    static char *keywords[] = {"scalar", "scale_x", "scale_y", NULL};
+    static char *keywords[] = {"scale_x", "scale_y", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "f|f", keywords, &factor_x, &factor_y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "f|f", keywords, &factor_x,
+                          &factor_y)) {
         return NULL;
     }
 
@@ -521,7 +522,7 @@ pg_rect_union_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_unionall(pgRectObject *self, PyObject *args)
+pg_rect_unionall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop, size;
@@ -530,7 +531,7 @@ pg_rect_unionall(pgRectObject *self, PyObject *args)
 
     static char *keywords[] = {"Rect_sequence", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O", keywords, &list)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
     if (!PySequence_Check(list)) {
@@ -578,7 +579,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"Rect_sequence", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O", keywords, &list)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
     if (!PySequence_Check(list)) {
@@ -737,7 +738,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"list", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O", keywords, &list)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
 
@@ -781,7 +782,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"list", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O", keywords, &list)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
 
@@ -994,7 +995,7 @@ pg_rect_collidedict(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"dict", "use_values", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O|i", keywords, &dict, &values)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &dict, &values)) {
         return NULL;
     }
 
@@ -1038,7 +1039,7 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"dict", "use_values", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O|i", keywords, &dict, &values)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &dict, &values)) {
         return NULL;
     }
 
@@ -1159,7 +1160,8 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"x1", "y1", "x2", "y2", NULL};
 
-    if (!PyArg_ParseTuple(args, kwargs, "O|OOO", keywords, &arg1, &arg2, &arg3, &arg4)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", keywords, &arg1, &arg2, &arg3,
+                          &arg4)) {
         return NULL; /* Exception already set. */
     }
 
@@ -1410,33 +1412,33 @@ static struct PyMethodDef pg_rect_methods[] = {
      DOC_RECTSCALEBY},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
-    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
+    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS | METH_KEYWORDS,
      DOC_RECTUNIONALL},
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS | METH_KEYWORDS,
      DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTSCALEBYIP},
+    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
-    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
+    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS | METH_KEYWORDS,
      DOC_RECTUNIONALLIP},
-    {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTCOLLIDEPOINT},
+    {"collidepoint", (PyCFunction)pg_rect_collidepoint,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEPOINT},
     {"colliderect", (PyCFunction)PG_FASTCALL_NAME(pg_rect_colliderect),
      PG_FASTCALL, DOC_RECTCOLLIDERECT},
-    {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTCOLLIDELIST},
-    {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTCOLLIDELISTALL},
+    {"collidelist", (PyCFunction)pg_rect_collidelist,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELIST},
+    {"collidelistall", (PyCFunction)pg_rect_collidelistall,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELISTALL},
     {"collideobjectsall", (PyCFunction)pg_rect_collideobjectsall,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTSALL},
     {"collideobjects", (PyCFunction)pg_rect_collideobjects,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTS},
-    {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTCOLLIDEDICT},
-    {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS | METH_KEYWORDS,
-     DOC_RECTCOLLIDEDICTALL},
+    {"collidedict", (PyCFunction)pg_rect_collidedict,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEDICT},
+    {"collidedictall", (PyCFunction)pg_rect_collidedictall,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEDICTALL},
     {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
      DOC_RECTCONTAINS},
     {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
