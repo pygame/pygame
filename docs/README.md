@@ -9,7 +9,7 @@ but the documentation can also be launched with `python -m pygame.docs`
 
 Steps:
 - Have Python 3.6 or higher
-- install Sphinx (`pip install Sphinx==3.5.4`)
+- install Sphinx (`pip install Sphinx==4.2.2`)
 - fork the pygame repository, download and navigate to it in the terminal
 - run `python setup.py docs`
 
