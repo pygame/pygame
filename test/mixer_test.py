@@ -1246,6 +1246,14 @@ class TestGetBusy(unittest.TestCase):
         time.sleep(0.2)
         self.assertFalse(pygame.mixer.get_busy())
 
+    def test_sound_fading_out(self):
+        """Tests that get_busy() returns True when a sound is fading out"""
+        sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        sound.play(fade_ms=1000)
+        time.sleep(1.1)
+        self.assertTrue(pygame.mixer.get_busy())
+        sound.stop()
+
 ##################################### MAIN #####################################
 
 if __name__ == "__main__":
