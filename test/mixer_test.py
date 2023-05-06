@@ -1178,7 +1178,7 @@ class SoundTypeTest(unittest.TestCase):
 
 class TestGetBusy(unittest.TestCase):
     """Test pygame.mixer.get_busy.
-    
+
     |tags:slow|
     """
 
@@ -1253,6 +1253,7 @@ class TestGetBusy(unittest.TestCase):
         time.sleep(1.1)
         self.assertTrue(pygame.mixer.get_busy())
         sound.stop()
+
 
 ##################################### MAIN #####################################
 
