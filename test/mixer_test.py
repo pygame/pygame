@@ -754,17 +754,21 @@ class ChannelTypeTest(unittest.TestCase):
         """Ensure a channel's volume can be retrieved while playing."""
         self.fail()
 
-    def todo_test_pause(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.pause:
-
-        # Channel.pause(): return None
-        # temporarily stop playback of a channel
-        #
-        # Temporarily stop the playback of sound on a channel. It can be
-        # resumed at a later time with Channel.unpause()
-        #
-
-        self.fail()
+    def test_pause_unpause(self):
+        """
+        Test if the Channel can be paused and unpaused.
+        """
+        sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        channel = sound.play()
+        channel.pause()
+        self.assertTrue(
+            channel.get_busy(), msg="Channel should be paused but it's not."
+        )
+        channel.unpause()
+        self.assertTrue(
+            channel.get_busy(), msg="Channel should be unpaused but it's not."
+        )
+        sound.stop()
 
     def todo_test_play(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.play:
@@ -869,16 +873,6 @@ class ChannelTypeTest(unittest.TestCase):
         # Stop sound playback on a channel. After playback is stopped the
         # channel becomes available for new Sounds to play on it.
         #
-
-        self.fail()
-
-    def todo_test_unpause(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.unpause:
-
-        # Channel.unpause(): return None
-        # resume pause playback of a channel
-        #
-        # Resume the playback on a paused channel.
 
         self.fail()
 
