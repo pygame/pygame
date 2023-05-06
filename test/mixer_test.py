@@ -1178,7 +1178,7 @@ class SoundTypeTest(unittest.TestCase):
 
 class TestGetBusy(unittest.TestCase):
     """Test pygame.mixer.get_busy.
-    
+
     |tags:slow|
     """
 
@@ -1193,6 +1193,16 @@ class TestGetBusy(unittest.TestCase):
         Test that get_busy returns False when no sound is playing.
         """
         self.assertFalse(pygame.mixer.get_busy())
+
+    def test_one_sound_playing(self):
+        """
+        Test that get_busy returns True when one sound is playing.
+        """
+        sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        sound.play()
+        time.sleep(0.2)
+        self.assertTrue(pygame.mixer.get_busy())
+        sound.stop()
 
 
 ##################################### MAIN #####################################
