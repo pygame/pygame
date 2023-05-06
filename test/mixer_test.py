@@ -3,6 +3,7 @@ import os
 import unittest
 import pathlib
 import platform
+import time
 
 from pygame.tests.test_utils import example_path
 
@@ -512,18 +513,6 @@ class MixerModuleTest(unittest.TestCase):
                 channel.stop()
             found_channel = mixer.find_channel()
             self.assertIsNotNone(found_channel)
-
-    def todo_test_get_busy(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.get_busy:
-
-        # pygame.mixer.get_busy(): return bool
-        # test if any sound is being mixed
-        #
-        # Returns True if the mixer is busy mixing any channels. If the mixer
-        # is idle then this return False.
-        #
-
-        self.fail()
 
     def todo_test_pause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.pause:
@@ -1185,6 +1174,25 @@ class SoundTypeTest(unittest.TestCase):
         incorrect = IncorrectSuclass()
 
         self.assertRaises(RuntimeError, incorrect.get_volume)
+
+
+class TestGetBusy(unittest.TestCase):
+    """Test pygame.mixer.get_busy.
+    
+    |tags:slow|
+    """
+
+    def setUp(self):
+        pygame.mixer.init()
+
+    def tearDown(self):
+        pygame.mixer.quit()
+
+    def test_no_sound_playing(self):
+        """
+        Test that get_busy returns False when no sound is playing.
+        """
+        self.assertFalse(pygame.mixer.get_busy())
 
 
 ##################################### MAIN #####################################
