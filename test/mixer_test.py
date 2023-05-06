@@ -1231,7 +1231,20 @@ class TestGetBusy(unittest.TestCase):
         time.sleep(0.2)
         self.assertFalse(pygame.mixer.get_busy())
 
-
+    def test_all_sounds_stopped_with_fadeout(self):
+        """
+        Test that get_busy returns False when all sounds are stopped with
+        fadeout.
+        """
+        sound1 = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        sound2 = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        sound1.play()
+        sound2.play()
+        time.sleep(0.2)
+        sound1.fadeout(100)
+        sound2.fadeout(100)
+        time.sleep(0.2)
+        self.assertFalse(pygame.mixer.get_busy())
 
 ##################################### MAIN #####################################
 
