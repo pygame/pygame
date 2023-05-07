@@ -33,7 +33,7 @@ if [[ "$MAC_ARCH" == "arm64" ]]; then
 fi
 
 cd $SDL2
-./configure --disable-video-vulkan $ARCHS_CONFIG_FLAG $M1_MAC_EXTRA_FLAGS
+./configure --disable-video-vulkan --enable-video-wayland $ARCHS_CONFIG_FLAG $M1_MAC_EXTRA_FLAGS
 make
 make install
 
