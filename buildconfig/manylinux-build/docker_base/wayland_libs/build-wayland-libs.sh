@@ -46,9 +46,11 @@ ninja install
 
 cd ../..
 
-# pkg-config --exists 'wayland-client >= 1.18'
-# pkg-config --exists wayland-scanner
-# pkg-config --exists wayland-egl
-# pkg-config --exists wayland-cursor
-# pkg-config --exists egl
-# pkg-config --exists 'xkbcommon >= 0.5.0'
+
+
+pkg-config --exists 'wayland-client >= 1.18'
+pkg-config --exists wayland-scanner
+pkg-config --exists wayland-egl
+pkg-config --exists wayland-cursor
+pkg-config --exists egl
+pkg-config --exists 'xkbcommon >= 0.5.0'

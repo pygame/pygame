@@ -21,6 +21,9 @@ RUN yum install -y zlib-devel libX11-devel\
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN yum install -y libcap-devel libxkbcommon-devel
 
+# wayland libs
+RUN yum install -y libffi-devel libxml2-devel libxslt-devel mesa-libEGL-devel mesa-libGLES-devel wayland-devel
+
 # With this we
 # 1) Force install prefix to /usr/local
 # 2) use lib directory within /usr/local (and not lib64)
