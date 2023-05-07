@@ -21,6 +21,9 @@ RUN yum install -y zlib-devel libX11-devel\
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN yum install -y libcap-devel libxkbcommon-devel
 
+# wayland libs
+RUN yum install -y libffi-devel libxml2-devel libxslt-devel mesa-libEGL-devel mesa-libGLES-devel wayland-devel
+
 # With this we
 # 1) Force install prefix to /usr/local
 # 2) use lib directory within /usr/local (and not lib64)
@@ -101,9 +104,6 @@ RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
 ADD libxml2 /libxml2_build/
 RUN ["bash", "/libxml2_build/build-libxml2.sh"]
-
-ADD wayland_libs /wayland_build/
-RUN ["bash", "/wayland_build/build-wayland-libs.sh"]
 
 ADD sdl_libs /sdl_build/
 RUN ["bash", "/sdl_build/build-sdl2-libs.sh"]
