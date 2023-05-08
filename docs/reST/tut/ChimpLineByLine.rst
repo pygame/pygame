@@ -33,7 +33,17 @@ rendering text, and basic event and mouse handling.
 
 The program and images can be found inside the standard source distribution
 of pygame. You can run it by running `python -m pygame.examples.chimp` in
-your terminal.
+your terminal. 
+
+If you want to follow along by writing your own version, you will first need
+to create a directory named "data" in the same folder as your program. Then,
+find your local pygame/examples/data directory. This is usually where python
+is installed (eg. python/site-packages/pygame). Copy the following files into 
+your new "data" directory:
+"chimp.png"
+"fist.png"
+"whiff.wav"
+"punch.wav"
 
 This tutorial will go through the code block by block. Explaining how
 the code works. There will also be mention of how the code could be improved
@@ -74,7 +84,7 @@ It also checks for the availability of some of the optional pygame modules. ::
     data_dir = os.path.join(main_dir, "data")
 
 
-First, we import the standard "os" python module. This allow
+First, we import the standard "os" python module. This allows
 us to do things like create platform independent file paths.
 
 In the next line, we import the pygame package. In our case, we import
@@ -89,9 +99,12 @@ a nice warning message if the :mod:`font<pygame.font>` or
 
 Lastly, we prepare two paths for the rest of the code to use.
 ``main_dir`` uses the `os.path` module and the `__file__` variable provided
-by Python to locate the game's python file, and extract the folder from
-that path. It then prepares the variable ``data_dir`` to tell the
-loading functions exactly where to look.
+by Python to locate the game's python file and extract the folder from that 
+path. `os.path.abspath()` returns the full path of the current file while 
+`os.path.split()` returns a tuple with the directory and the file name. 
+`os.path.join()` then prepares the variable ``data_dir`` by appending
+``/data`` to ``main_dir`` to tell the loading functions exactly where to look 
+for images and sound.
 
 
 Loading Resources
@@ -139,9 +152,10 @@ by a scalar, we can get the size and scale the x and y by the scalar.
 Last, we set the colorkey for the image. If the user supplied an argument
 for the colorkey argument we use that value as the colorkey for the image.
 This would usually just be a color RGB value, like (255, 255, 255) for
-white.  You can also pass a value of -1 as the colorkey. In this case the
-function will lookup the color at the topleft pixel of the image, and use
-that color for the colorkey. ::
+white. This color will be rendered as transparent and is used to render only the
+shape inside the rectangular image file. You can also pass a value of -1 as
+the colorkey. In this case the function will lookup the color at the topleft 
+pixel of the image, and use that color for the colorkey. ::
 
     def load_sound(name):
         class NoneSound:
@@ -341,8 +355,9 @@ window.
 
 Last we set the window title and turn off the mouse cursor for our
 window. Very basic to do, and now we have a small black window ready to
-do our bidding. Usually the cursor defaults to visible, so there is no need
-to really set the state unless we want to hide it.
+do our bidding. Note that the window will only appear momentarily at this point. 
+Usually the cursor defaults to visible, so there is no need to really set the 
+state unless we want to hide it.
 
 
 Create The Background
