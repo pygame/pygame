@@ -84,6 +84,28 @@ auto-configure, build, and install pygame.
 Much more information about installing and compiling is available
 on the `Compilation wiki page`_.
 
+Contribute
+----------
+| Thank you for thinking of contributing!
+|
+| To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/gezeebeezee/pygame-docs-contribution/tree/main/docs>`_.
+|
+| New to contributing to Open Source Free Libre software? 
+| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in python for pygame, which is very similar to how you would do it for other projects. 
+|
+| Want or need to compile pygame from source?
+| `Head here <https://www.pygame.org/wiki/Compilation>`_ for more detailed instructions.
+|
+| For a detailed developer guide on "How to Hack Pygame":
+| Head to the `Hacking Page <https://www.pygame.org/wiki/Hacking>`_.
+|
+| Beginner developers looking for ways to contribute to the project can look at issues labeled `"good first issue" <https://github.com/pygame/pygame/labels/good%20first%20issue>`_ or `"Difficulty: Easy" <https://github.com/pygame/pygame/issues?q=is%3Aopen+is%3Aissue+label%3A%22Difficulty%3A+Easy%22>`_. 
+|
+| To submit patches and report bugs:
+| Visit the `Bugs & Patches <https://www.pygame.org/wiki/patchesandbugs>`_ page for detailed instructions.
+| 
+| `Head here <https://www.pygame.org/wiki/info>`_ more ways to get in touch with the Pygame team.
+
 
 Credits
 -------
