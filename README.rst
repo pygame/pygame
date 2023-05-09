@@ -140,6 +140,28 @@ Lots of thanks to James Paige for hosting the pygame bugzilla.
 Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
 excellent hosting.
 
+Community
+--------------------
+
+Pygame has a thriving community, feel free to indulge in one of the following:
+
+- A `Community Dashboard <https://www.pygame.org/dashboard>`_ Community Dashboard.
+- A `Subreddit <https://www.reddit.com/r/pygame/>`_ for community engagement.
+- A `Twitter Page <https://twitter.com/pygame_org>`_ for those that prefer Twitter for community interaction.
+- A `stackoverflow Q&A <https://stackoverflow.com/questions/tagged/pygame>`_ Q&A tagged Pygame stackoverflow posts.
+- A `Mailing List information <https://www.pygame.org/wiki/info>`_ Information on how to join our Mailing List.
+
+Community
+--------------------
+
+Pygame has a thriving community, feel free to indulge in one of the following:
+
+- A `Community Dashboard <https://www.pygame.org/dashboard>`_ Community Dashboard.
+- A `Subreddit <https://www.reddit.com/r/pygame/>`_ for community engagement.
+- A `Twitter Page <https://twitter.com/pygame_org>`_ for those that prefer Twitter for community interaction.
+- A `stackoverflow Q&A <https://stackoverflow.com/questions/tagged/pygame>`_ Q&A tagged Pygame stackoverflow posts.
+- A `Mailing List information <https://www.pygame.org/wiki/info>`_ Information on how to join our Mailing List.
+
 Dependencies
 ------------
 
