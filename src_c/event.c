@@ -1592,6 +1592,47 @@ get_grab(PyObject *self, PyObject *_null)
     return PyBool_FromLong(mode);
 }
 
+static PyObject *
+set_keyboard_grab(PyObject *self, PyObject *arg)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 16)
+    VIDEO_INIT_CHECK();
+
+    int doit = PyObject_IsTrue(arg);
+    if (doit == -1)
+        return NULL;
+
+    SDL_Window *win = pg_GetDefaultWindow();
+    if (win) {
+        if (doit) {
+            SDL_SetWindowKeyboardGrab(win, SDL_TRUE);
+        }
+        else {
+            SDL_SetWindowKeyboardGrab(win, SDL_FALSE);
+        }
+    }
+
+#endif
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+get_keyboard_grab(PyObject *self, PyObject *_null)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 16)
+    SDL_Window *win;
+    SDL_bool mode = SDL_FALSE;
+
+    VIDEO_INIT_CHECK();
+    win = pg_GetDefaultWindow();
+    if (win)
+        mode = SDL_GetWindowKeyboardGrab(win);
+    return PyBool_FromLong(mode);
+#else
+    Py_RETURN_NONE;
+#endif
+}
+
 static void
 _pg_event_pump(int dopump)
 {
@@ -2217,6 +2258,10 @@ static PyMethodDef _event_methods[] = {
 
     {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"set_keyboard_grab", set_keyboard_grab, METH_O,
+     DOC_PYGAMEEVENTSETKEYBOARDGRAB},
+    {"get_keyboard_grab", (PyCFunction)get_keyboard_grab, METH_NOARGS,
+     DOC_PYGAMEEVENTGETKEYBOARDGRAB},
 
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
     {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS,

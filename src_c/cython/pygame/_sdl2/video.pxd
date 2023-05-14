@@ -243,6 +243,8 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_GetGrabbedWindow
     # https://wiki.libsdl.org/SDL_GetWindowGrab
     # https://wiki.libsdl.org/SDL_SetWindowGrab
+    # https://wiki.libsdl.org/SDL_GetWindowKeyboardGrab
+    # https://wiki.libsdl.org/SDL_SetWindowKeyboardGrab
     # https://wiki.libsdl.org/SDL_SetWindowFullscreen
     # https://wiki.libsdl.org/SDL_SetWindowModalFor
     int SDL_GetWindowDisplayIndex(SDL_Window* window)
@@ -250,6 +252,9 @@ cdef extern from "SDL.h" nogil:
     SDL_bool SDL_GetWindowGrab(SDL_Window* window)
     void SDL_SetWindowGrab(SDL_Window* window,
                            SDL_bool    grabbed)
+    SDL_bool SDL_GetWindowKeyboardGrab(SDL_Window* window)
+    void SDL_SetWindowKeyboardGrab(SDL_Window* window,
+                                   SDL_bool    grabbed)
     int SDL_SetWindowFullscreen(SDL_Window* window,
                                 Uint32      flags)
     int SDL_SetWindowModalFor(SDL_Window* modal_window,

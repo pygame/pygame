@@ -12,6 +12,8 @@
 #define DOC_PYGAMEEVENTGETBLOCKED "get_blocked(type) -> bool\nget_blocked(typelist) -> bool\ntest if a type of event is blocked from the queue"
 #define DOC_PYGAMEEVENTSETGRAB "set_grab(bool) -> None\ncontrol the sharing of input devices with other applications"
 #define DOC_PYGAMEEVENTGETGRAB "get_grab() -> bool\ntest if the program is sharing input devices"
+#define DOC_PYGAMEEVENTSETKEYBOARDGRAB "set_keyboard_grab(bool) -> None\ngrab enables capture of system keyboard shortcuts like Alt+Tab or the Meta/Super key."
+#define DOC_PYGAMEEVENTGETKEYBOARDGRAB "get_keyboard_grab() -> bool\nget the current keyboard grab state"
 #define DOC_PYGAMEEVENTPOST "post(Event) -> bool\nplace a new event on the queue"
 #define DOC_PYGAMEEVENTCUSTOMTYPE "custom_type() -> int\nmake custom user event type"
 #define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> Event\nEvent(type, **attributes) -> Event\npygame object for representing events"
@@ -83,6 +85,14 @@ control the sharing of input devices with other applications
 pygame.event.get_grab
  get_grab() -> bool
 test if the program is sharing input devices
+
+pygame.event.set_keyboard_grab
+ set_keyboard_grab(bool) -> None
+grab enables capture of system keyboard shortcuts like Alt+Tab or the Meta/Super key.
+
+pygame.event.get_keyboard_grab
+ get_keyboard_grab() -> bool
+get the current keyboard grab state
 
 pygame.event.post
  post(Event) -> bool

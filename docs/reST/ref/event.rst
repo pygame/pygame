@@ -427,6 +427,30 @@ On Android, the following events can be generated
 
    .. ## pygame.event.get_grab ##
 
+.. function:: set_keyboard_grab
+
+   | :sl:`grab enables capture of system keyboard shortcuts like Alt+Tab or the Meta/Super key.`
+   | :sg:`set_keyboard_grab(bool) -> None`
+
+   Keyboard grab enables capture of system keyboard shortcuts like Alt+Tab or the Meta/Super key.
+   Note that not all system keyboard shortcuts can be captured by applications (one example is Ctrl+Alt+Del on Windows).
+   This is primarily intended for specialized applications such as VNC clients or VM frontends. Normal games should not use keyboard grab.
+
+   .. versionadded:: 2.5.0
+
+   .. ## pygame.event.set_keyboard_grab ##
+
+.. function:: get_keyboard_grab
+
+   | :sl:`get the current keyboard grab state`
+   | :sg:`get_keyboard_grab() -> bool`
+
+   Returns ``True`` when keyboard grab is enabled.
+
+   .. versionadded:: 2.5.0
+
+   .. ## pygame.event.get_keyboard_grab ##
+
 .. function:: post
 
    | :sl:`place a new event on the queue`
