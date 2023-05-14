@@ -792,27 +792,6 @@ class ChannelTypeTest(unittest.TestCase):
         )
         sound.stop()
 
-    def todo_test_play(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.play:
-
-        # Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
-        # play a Sound on a specific Channel
-        #
-        # This will begin playback of a Sound on a specific Channel. If the
-        # Channel is currently playing any other Sound it will be stopped.
-        #
-        # The loops argument has the same meaning as in Sound.play(): it is
-        # the number of times to repeat the sound after the first time. If it
-        # is 3, the sound will be played 4 times (the first time, then three
-        # more). If loops is -1 then the playback will repeat indefinitely.
-        #
-        # As in Sound.play(), the maxtime argument can be used to stop
-        # playback of the Sound after a given number of milliseconds.
-        #
-        # As in Sound.play(), the fade_ms argument can be used fade in the sound.
-
-        self.fail()
-
     def todo_test_queue(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
 
