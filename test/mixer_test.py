@@ -536,7 +536,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(channel.get_busy())
 
     def test_set_reserved(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.set_reserved:
+        """Ensure pygame.mixer.set_reserved() reserves the given number of channels."""
 
         # pygame.mixer.set_reserved(count): return count
         mixer.init()
