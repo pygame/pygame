@@ -1151,35 +1151,6 @@ class SoundTypeTest(unittest.TestCase):
         """Ensure a sound's volume can be retrieved while playing."""
         self.fail()
 
-    def todo_test_play(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.play:
-
-        # Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel
-        # begin sound playback
-        #
-        # Begin playback of the Sound (i.e., on the computer's speakers) on an
-        # available Channel. This will forcibly select a Channel, so playback
-        # may cut off a currently playing sound if necessary.
-        #
-        # The loops argument controls how many times the sample will be
-        # repeated after being played the first time. A value of 5 means that
-        # the sound will be played once, then repeated five times, and so is
-        # played a total of six times. The default value (zero) means the
-        # Sound is not repeated, and so is only played once. If loops is set
-        # to -1 the Sound will loop indefinitely (though you can still call
-        # stop() to stop it).
-        #
-        # The maxtime argument can be used to stop playback after a given
-        # number of milliseconds.
-        #
-        # The fade_ms argument will make the sound start playing at 0 volume
-        # and fade up to full volume over the time given. The sample may end
-        # before the fade-in is complete.
-        #
-        # This returns the Channel object for the channel that was selected.
-
-        self.fail()
-
     def test_set_volume(self):
         """Ensure a sound's volume can be set."""
         try:
