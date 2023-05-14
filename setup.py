@@ -442,6 +442,11 @@ for e in extensions:
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
 
+    if "rwobject" in e.name:
+        if sys.platform != "win32":
+            # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
+            e.extra_compile_args.append("-Wno-error=deprecated-declarations")
+
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here
         if sysconfig.get_config_var("MAINCC") != "clang":        
