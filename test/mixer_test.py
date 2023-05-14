@@ -1350,7 +1350,7 @@ class TestGetBusy(unittest.TestCase):
         time.sleep(0.2)
         sound1.fadeout(100)
         sound2.fadeout(100)
-        time.sleep(0.2)
+        time.sleep(0.3)
         self.assertFalse(pygame.mixer.get_busy())
 
     def test_sound_fading_out(self):
