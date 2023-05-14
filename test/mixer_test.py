@@ -892,6 +892,98 @@ class ChannelEndEventTest(unittest.TestCase):
 ############################### SOUND CLASS TESTS ##############################
 
 
+class TestSoundPlay(unittest.TestCase):
+    def setUp(self):
+        mixer.init()
+        self.filename = example_path(os.path.join("data", "house_lo.wav"))
+        self.sound = mixer.Sound(file=self.filename)
+
+    def tearDown(self):
+        mixer.quit()
+
+    def test_play_once(self):
+        """Test playing a sound once."""
+        channel = self.sound.play()
+        self.assertIsInstance(channel, pygame.mixer.Channel)
+        self.assertTrue(channel.get_busy())
+
+    def test_play_multiple_times(self):
+        """Test playing a sound multiple times."""
+
+        # create a sound 100ms long
+        frequency, format, channels = mixer.get_init()
+        sound_length_in_ms = 100
+        bytes_per_ms = int((frequency / 1000) * channels * (abs(format) // 8))
+        sound = mixer.Sound(b"\x00" * int(sound_length_in_ms * bytes_per_ms))
+
+        self.assertAlmostEqual(
+            sound.get_length(), sound_length_in_ms / 1000.0, places=2
+        )
+
+        num_loops = 5
+        channel = sound.play(loops=num_loops)
+        self.assertIsInstance(channel, pygame.mixer.Channel)
+
+        # the sound should be playing
+        pygame.time.wait((sound_length_in_ms * num_loops) - 50)
+        self.assertTrue(channel.get_busy())
+
+        # the sound should not be playing anymore
+        pygame.time.wait(sound_length_in_ms + 100)
+        self.assertFalse(channel.get_busy())
+
+    def test_play_indefinitely(self):
+        """Test playing a sound indefinitely."""
+        frequency, format, channels = mixer.get_init()
+        sound_length_in_ms = 100
+        bytes_per_ms = int((frequency / 1000) * channels * (abs(format) // 8))
+        sound = mixer.Sound(b"\x00" * int(sound_length_in_ms * bytes_per_ms))
+
+        channel = sound.play(loops=-1)
+        self.assertIsInstance(channel, pygame.mixer.Channel)
+
+        # we can't wait forever... so we wait 2 loops
+        for _ in range(2):
+            self.assertTrue(channel.get_busy())
+            pygame.time.wait(sound_length_in_ms)
+
+    def test_play_with_maxtime(self):
+        """Test playing a sound with maxtime."""
+        channel = self.sound.play(maxtime=200)
+        self.assertIsInstance(channel, pygame.mixer.Channel)
+        self.assertTrue(channel.get_busy())
+        pygame.time.wait(200 + 50)
+        self.assertFalse(channel.get_busy())
+
+    def test_play_with_fade_ms(self):
+        """Test playing a sound with fade_ms."""
+        channel = self.sound.play(fade_ms=500)
+        self.assertIsInstance(channel, pygame.mixer.Channel)
+        self.assertTrue(channel.get_busy())
+        pygame.time.wait(250)
+        self.assertGreater(channel.get_volume(), 0.4)
+        self.assertLess(channel.get_volume(), 0.55)
+        pygame.time.wait(250)
+        self.assertGreater(channel.get_volume(), 0.85)
+        pygame.time.wait(50)
+        self.assertEqual(channel.get_volume(), 1.0)
+
+    def test_play_with_invalid_loops(self):
+        """Test playing a sound with invalid loops."""
+        with self.assertRaises(TypeError):
+            self.sound.play(loops="invalid")
+
+    def test_play_with_invalid_maxtime(self):
+        """Test playing a sound with invalid maxtime."""
+        with self.assertRaises(TypeError):
+            self.sound.play(maxtime="invalid")
+
+    def test_play_with_invalid_fade_ms(self):
+        """Test playing a sound with invalid fade_ms."""
+        with self.assertRaises(TypeError):
+            self.sound.play(fade_ms="invalid")
+
+
 class SoundTypeTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
