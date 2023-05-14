@@ -746,17 +746,20 @@ class ChannelTypeTest(unittest.TestCase):
         # Now there is nothing on the queue.
         self.assertIsNone(channel.get_queue())
 
-    def todo_test_get_sound(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_sound:
+    def test_get_sound(self):
+        """Ensure Channel.get_sound() returns the currently playing Sound."""
+        channel = mixer.Channel(0)
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        channel.play(sound)
 
-        # Channel.get_sound(): return Sound
-        # get the currently playing Sound
-        #
-        # Return the actual Sound object currently playing on this channel. If
-        # the channel is idle None is returned.
-        #
+        # Ensure the correct Sound object is returned.
+        got_sound = channel.get_sound()
+        self.assertEqual(got_sound, sound)
 
-        self.fail()
+        # Stop the sound and ensure None is returned.
+        channel.stop()
+        got_sound = channel.get_sound()
+        self.assertIsNone(got_sound)
 
     def test_get_volume(self):
         """Ensure a channel's volume can be retrieved."""
