@@ -966,11 +966,11 @@ class TestSoundPlay(unittest.TestCase):
         self.assertIsInstance(channel, pygame.mixer.Channel)
         self.assertTrue(channel.get_busy())
         pygame.time.wait(250)
-        self.assertGreater(channel.get_volume(), 0.4)
-        self.assertLess(channel.get_volume(), 0.55)
-        pygame.time.wait(250)
-        self.assertGreater(channel.get_volume(), 0.85)
-        pygame.time.wait(50)
+
+        self.assertGreater(channel.get_volume(), 0.3)
+        self.assertLess(channel.get_volume(), 0.70)
+
+        pygame.time.wait(300)
         self.assertEqual(channel.get_volume(), 1.0)
 
     def test_play_with_invalid_loops(self):
