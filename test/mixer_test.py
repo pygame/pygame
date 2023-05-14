@@ -515,18 +515,25 @@ class MixerModuleTest(unittest.TestCase):
             found_channel = mixer.find_channel()
             self.assertIsNotNone(found_channel)
 
-    def todo_test_pause(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.pause:
+    @unittest.expectedFailure
+    def test_pause(self):
+        """Ensure pygame.mixer.pause() temporarily stops playback of all sound channels."""
+        if mixer.get_init() is None:
+            mixer.init()
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        channel = mixer.find_channel()
+        channel.play(sound)
 
-        # pygame.mixer.pause(): return None
-        # temporarily stop playback of all sound channels
-        #
-        # This will temporarily stop all playback on the active mixer
-        # channels. The playback can later be resumed with
-        # pygame.mixer.unpause()
-        #
+        mixer.pause()
 
-        self.fail()
+        # TODO: this currently fails?
+        # Ensure the channel is paused
+        self.assertFalse(channel.get_busy())
+
+        mixer.unpause()
+
+        # Ensure the channel is no longer paused
+        self.assertTrue(channel.get_busy())
 
     def test_set_reserved(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.set_reserved:
