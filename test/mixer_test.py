@@ -461,18 +461,19 @@ class MixerModuleTest(unittest.TestCase):
         else:
             self.assertRaises(BufferError, Importer, snd, buftools.PyBUF_F_CONTIGUOUS)
 
-    def todo_test_fadeout(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
+    def test_fadeout(self):
+        """Ensure pygame.mixer.fadeout() stops playback after fading out the sound."""
+        if mixer.get_init() is None:
+            mixer.init()
+        sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        channel = pygame.mixer.find_channel()
+        channel.play(sound)
+        fadeout_time = 200  # milliseconds
+        channel.fadeout(fadeout_time)
+        pygame.time.wait(fadeout_time + 30)
 
-        # pygame.mixer.fadeout(time): return None
-        # fade out the volume on all sounds before stopping
-        #
-        # This will fade out the volume on all active channels over the time
-        # argument in milliseconds. After the sound is muted the playback will
-        # stop.
-        #
-
-        self.fail()
+        # Ensure the channel is no longer busy
+        self.assertFalse(channel.get_busy())
 
     def test_find_channel(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.find_channel:
