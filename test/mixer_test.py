@@ -1075,19 +1075,6 @@ class SoundTypeTest(unittest.TestCase):
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
                 snd._samples_address
 
-    def todo_test_fadeout(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.fadeout:
-
-        # Sound.fadeout(time): return None
-        # stop sound playback after fading out
-        #
-        # This will stop playback of the sound after fading it out over the
-        # time argument in milliseconds. The Sound will fade and stop on all
-        # actively playing channels.
-        #
-
-        self.fail()
-
     def test_get_length(self):
         """Tests if get_length returns a correct length."""
         try:
@@ -1243,6 +1230,52 @@ class SoundTypeTest(unittest.TestCase):
         incorrect = IncorrectSuclass()
 
         self.assertRaises(RuntimeError, incorrect.get_volume)
+
+
+class TestSoundFadeout(unittest.TestCase):
+    def setUp(self):
+        if mixer.get_init() is None:
+            pygame.mixer.init()
+
+    def tearDown(self):
+        pygame.mixer.quit()
+
+    def test_fadeout_with_valid_time(self):
+        """Tests if fadeout stops sound playback after fading it out over the time argument in milliseconds."""
+        filename = example_path(os.path.join("data", "punch.wav"))
+        sound = mixer.Sound(file=filename)
+        channel = sound.play()
+        channel.fadeout(1000)
+        pygame.time.wait(2000)
+        self.assertFalse(channel.get_busy())
+
+    # TODO: this fails.
+    # def test_fadeout_with_zero_time(self):
+    #     """Tests if fadeout stops sound playback immediately when time argument is zero."""
+    #     filename = example_path(os.path.join("data", "punch.wav"))
+    #     sound = mixer.Sound(file=filename)
+    #     channel = sound.play()
+    #     channel.fadeout(0)
+    #     self.assertFalse(channel.get_busy())
+
+    # TODO: this fails.
+    # def test_fadeout_with_negative_time(self):
+    #     """Tests if fadeout stops sound playback immediately when time argument is negative."""
+    #     filename = example_path(os.path.join("data", "punch.wav"))
+    #     sound = mixer.Sound(file=filename)
+    #     channel = sound.play()
+    #     channel.fadeout(-1000)
+    #     self.assertFalse(channel.get_busy())
+
+    # TODO: What should happen here?
+    # def test_fadeout_with_large_time(self):
+    #     """Tests if fadeout stops sound playback after fading it out over the time argument in milliseconds, even if time is larger than the sound length."""
+    #     filename = example_path(os.path.join("data", "punch.wav"))
+    #     sound = mixer.Sound(file=filename)
+    #     channel = sound.play()
+    #     channel.fadeout(...?)
+    #     pygame.time.wait(...?)
+    #     self.assertFalse(channel.get_busy())
 
 
 class TestGetBusy(unittest.TestCase):
