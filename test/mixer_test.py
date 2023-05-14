@@ -778,6 +778,8 @@ class ChannelTypeTest(unittest.TestCase):
         """
         Test if the Channel can be paused and unpaused.
         """
+        if mixer.get_init() is None:
+            mixer.init()
         sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
         channel = sound.play()
         channel.pause()
