@@ -278,7 +278,8 @@ _pg_put_event_unicode(SDL_Event *event, char *uni)
 static PyObject *
 _pg_get_event_unicode(SDL_Event *event)
 {
-    char c;
+    char c[20];
+
     int i;
     for (i = 0; i < MAX_SCAN_UNICODE; i++) {
         if (scanunicode[i].key == event->key.keysym.scancode) {
@@ -292,8 +293,8 @@ _pg_get_event_unicode(SDL_Event *event)
     }
     /* fallback to function that determines unicode from the event.
      * We try to get the unicode attribute, and store it in memory*/
-    c = _pg_unicode_from_event(event);
-    if (_pg_put_event_unicode(event, &c))
+    c[0] = _pg_unicode_from_event(event);
+    if (_pg_put_event_unicode(event, &c[0]))
         return _pg_get_event_unicode(event);
     return PyUnicode_FromString("");
 }

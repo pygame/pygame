@@ -103,7 +103,7 @@ get_hash(const NodeKey *key)
     FT_UInt32 c2 = 0x1B873593;
 
     FT_UInt32 k1;
-    const FT_UInt32 *blocks = key->dwords - 1;
+    const FT_UInt32 *blocks = key->dwords;
 
     int i;
 
