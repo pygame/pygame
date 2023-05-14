@@ -824,33 +824,6 @@ class ChannelTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_endevent:
-
-        # Channel.set_endevent(): return None
-        # Channel.set_endevent(type): return None
-        # have the channel send an event when playback stops
-        #
-        # When an endevent is set for a channel, it will send an event to the
-        # pygame queue every time a sound finishes playing on that channel
-        # (not just the first time). Use pygame.event.get() to retrieve the
-        # endevent once it's sent.
-        #
-        # Note that if you called Sound.play(n) or Channel.play(sound,n), the
-        # end event is sent only once: after the sound has been played "n+1"
-        # times (see the documentation of Sound.play).
-        #
-        # If Channel.stop() or Channel.play() is called while the sound was
-        # still playing, the event will be posted immediately.
-        #
-        # The type argument will be the event id sent to the queue. This can
-        # be any valid event type, but a good choice would be a value between
-        # pygame.locals.USEREVENT and pygame.locals.NUMEVENTS. If no type
-        # argument is given then the Channel will stop sending endevents.
-        #
-
-        self.fail()
-
     def todo_test_set_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_volume:
 
@@ -890,6 +863,39 @@ class ChannelTypeTest(unittest.TestCase):
         #
 
         self.fail()
+
+
+class ChannelEndEventTest(unittest.TestCase):
+    def setUp(self):
+        pygame.display.init()
+        pygame.display.set_mode((40, 40))
+        if mixer.get_init() is None:
+            mixer.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+        mixer.quit()
+
+    def test_get_endevent(self):
+        """Ensure Channel.get_endevent() returns the correct event type."""
+        channel = mixer.Channel(0)
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        channel.play(sound)
+
+        # Set the end event for the channel.
+        END_EVENT = pygame.USEREVENT + 1
+        channel.set_endevent(END_EVENT)
+        got_end_event = channel.get_endevent()
+        self.assertEqual(got_end_event, END_EVENT)
+
+        # Wait for the sound to finish playing.
+        channel.stop()
+        while channel.get_busy():
+            pygame.time.wait(10)
+
+        # Check that the end event was sent.
+        events = pygame.event.get(got_end_event)
+        self.assertTrue(len(events) > 0)
 
 
 ############################### SOUND CLASS TESTS ##############################
