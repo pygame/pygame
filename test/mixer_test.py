@@ -561,25 +561,16 @@ class MixerModuleTest(unittest.TestCase):
         # should still be default
         self.assertEqual(result, int(default_num_channels / 2))
 
-    def todo_test_stop(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.stop:
-
-        # pygame.mixer.stop(): return None
-        # stop playback of all sound channels
-        #
-        # This will stop all playback of all active mixer channels.
-
-        self.fail()
-
-    def todo_test_unpause(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.unpause:
-
-        # pygame.mixer.unpause(): return None
-        # resume paused playback of sound channels
-        #
-        # This will resume all active sound channels after they have been paused.
-
-        self.fail()
+    def test_stop(self):
+        """Stops playback of all active sound channels."""
+        if mixer.get_init() is None:
+            mixer.init()
+        sound = pygame.mixer.Sound(example_path("data/house_lo.wav"))
+        channel = pygame.mixer.Channel(0)
+        channel.play(sound)
+        pygame.mixer.stop()
+        for i in range(pygame.mixer.get_num_channels()):
+            self.assertFalse(pygame.mixer.Channel(i).get_busy())
 
     def test_get_sdl_mixer_version(self):
         """Ensures get_sdl_mixer_version works correctly with no args."""
