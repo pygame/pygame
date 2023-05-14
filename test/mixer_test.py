@@ -770,10 +770,6 @@ class ChannelTypeTest(unittest.TestCase):
 
         self.assertAlmostEqual(volume, expected_volume)
 
-    def todo_test_get_volume__while_playing(self):
-        """Ensure a channel's volume can be retrieved while playing."""
-        self.fail()
-
     def test_pause_unpause(self):
         """
         Test if the Channel can be paused and unpaused.
