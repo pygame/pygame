@@ -792,6 +792,20 @@ class ChannelTypeTest(unittest.TestCase):
         )
         sound.stop()
 
+    def test_pause_unpause__before_init(self):
+        """
+        Ensure exception for Channel.pause() with non-init mixer.
+        """
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        channel = sound.play()
+        mixer.quit()
+
+        with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
+            channel.pause()
+
+        with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
+            channel.unpause()
+
     def todo_test_queue(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
 
