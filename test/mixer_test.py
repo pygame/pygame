@@ -820,34 +820,6 @@ class ChannelTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_volume(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_volume:
-
-        # Channel.set_volume(value): return None
-        # Channel.set_volume(left, right): return None
-        # set the volume of a playing channel
-        #
-        # Set the volume (loudness) of a playing sound. When a channel starts
-        # to play its volume value is reset. This only affects the current
-        # sound. The value argument is between 0.0 and 1.0.
-        #
-        # If one argument is passed, it will be the volume of both speakers.
-        # If two arguments are passed and the mixer is in stereo mode, the
-        # first argument will be the volume of the left speaker and the second
-        # will be the volume of the right speaker. (If the second argument is
-        # None, the first argument will be the volume of both speakers.)
-        #
-        # If the channel is playing a Sound on which set_volume() has also
-        # been called, both calls are taken into account. For example:
-        #
-        #     sound = pygame.mixer.Sound("s.wav")
-        #     channel = s.play()      # Sound plays at full volume by default
-        #     sound.set_volume(0.9)   # Now plays at 90% of full volume.
-        #     sound.set_volume(0.6)   # Now plays at 60% (previous value replaced).
-        #     channel.set_volume(0.5) # Now plays at 30% (0.6 * 0.5).
-
-        self.fail()
-
     def todo_test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
 
@@ -859,6 +831,29 @@ class ChannelTypeTest(unittest.TestCase):
         #
 
         self.fail()
+
+
+class ChannelSetVolumeTest(unittest.TestCase):
+    def setUp(self):
+        mixer.init()
+        self.channel = pygame.mixer.Channel(0)
+        self.sound = pygame.mixer.Sound(example_path("data/boom.wav"))
+
+    def tearDown(self):
+        mixer.quit()
+
+    def test_set_volume_with_one_argument(self):
+        self.channel.play(self.sound)
+        self.channel.set_volume(0.5)
+        self.assertEqual(self.channel.get_volume(), 0.5)
+
+    @unittest.expectedFailure
+    def test_set_volume_with_two_arguments(self):
+        # TODO: why doesn't this work? Seems to ignore stereo setting.
+        #    https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel.set_volume
+        self.channel.play(self.sound)
+        self.channel.set_volume(0.3, 0.7)
+        self.assertEqual(self.channel.get_volume(), (0.3, 0.7))
 
 
 class ChannelEndEventTest(unittest.TestCase):
