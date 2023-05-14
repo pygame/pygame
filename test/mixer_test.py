@@ -677,17 +677,19 @@ class ChannelTypeTest(unittest.TestCase):
         with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
             mixer.Channel(0)
 
-    def todo_test_fadeout(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.fadeout:
+    def test_fadeout(self):
+        """Ensure Channel.fadeout() stops playback after fading out."""
+        channel = mixer.Channel(0)
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        channel.play(sound)
 
-        # Channel.fadeout(time): return None
-        # stop playback after fading channel out
-        #
-        # Stop playback of a channel after fading out the sound over the given
-        # time argument in milliseconds.
-        #
+        fadeout_time = 1000
+        channel.fadeout(fadeout_time)
 
-        self.fail()
+        # Wait for the fadeout to complete.
+        pygame.time.wait(fadeout_time + 100)
+
+        self.assertFalse(channel.get_busy())
 
     def test_get_busy(self):
         """Ensure an idle channel's busy state is correct."""
