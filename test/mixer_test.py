@@ -87,19 +87,24 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
-    def test_get_init__returns_exact_values_used_for_init(self):
-        # TODO: size 32 fails in this test (maybe SDL_mixer bug)
+    # def test_get_init__returns_exact_values_used_for_init(self):
+    #     # TODO: size 32 fails in this test (maybe SDL_mixer bug)
 
-        for init_conf in CONFIGS:
-            frequency, size, channels = init_conf.values()
-            if (frequency, size) == (22050, 16):
-                continue
-            mixer.init(frequency, size, channels)
+    #     # TODO: 2) When you start the mixer, you request the settings.
+    #     #   But it can be that a sound system doesn’t support what you request…
+    #     #   and it gives you back something close to what you request but not equal.
+    #     #   So, you can’t test for equality.
+    #     #   See allowedchanges
 
-            mixer_conf = mixer.get_init()
+    #     for init_conf in CONFIGS:
+    #         frequency, size, channels = init_conf.values()
+    #         if (frequency, size) == (22050, 16):
+    #             continue
+    #         mixer.init(frequency, size, channels)
 
-            self.assertEqual(tuple(init_conf.values()), mixer_conf)
-            mixer.quit()
+    #         mixer_conf = mixer.get_init()
+    #         self.assertEqual(tuple(init_conf.values()), mixer_conf)
+    #         mixer.quit()
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
         self.assertIsNone(mixer.get_init())
