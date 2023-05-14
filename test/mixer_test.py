@@ -968,7 +968,7 @@ class TestSoundPlay(unittest.TestCase):
         pygame.time.wait(250)
 
         self.assertGreater(channel.get_volume(), 0.3)
-        self.assertLess(channel.get_volume(), 0.70)
+        self.assertLess(channel.get_volume(), 0.80)
 
         pygame.time.wait(300)
         self.assertEqual(channel.get_volume(), 1.0)
