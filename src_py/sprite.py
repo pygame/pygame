@@ -88,8 +88,9 @@ Sprites are not thread safe, so lock them yourself if using threads.
 from weakref import WeakSet
 from warnings import warn
 
-import pygame
 
+import pygame
+from pygame import display
 from pygame.rect import Rect
 from pygame.time import get_ticks
 from pygame.mask import from_surface
@@ -1208,6 +1209,14 @@ class LayeredDirty(LayeredUpdates):
                     local_old_rect[spr] = surf_blit_func(
                         spr.image, spr.rect, spr.source_rect, flags
                     )
+                    spr.dirty = 0  # Set Sprite.dirty to 0
+            if self._time_threshold > 0:  # Check the time threshold
+                pygame.display.flip()  # Use flip mode
+            else:
+                dirty = [spr.rect for spr in local_sprites if spr.dirty]
+                if local_bgd is not None and local_bgd.dirty:
+                    dirty.append(local_bgd.rect)
+                pygame.display.update(dirty)
             # return only the part of the screen changed
             local_ret = [rect_type(latest_clip)]
 
