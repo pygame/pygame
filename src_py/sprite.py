@@ -90,7 +90,7 @@ from warnings import warn
 
 
 import pygame
-from pygame import display
+
 from pygame.rect import Rect
 from pygame.time import get_ticks
 from pygame.mask import from_surface
