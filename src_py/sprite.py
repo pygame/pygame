@@ -85,13 +85,15 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
 
-from warnings import warn
 from weakref import WeakSet
+from warnings import warn
+
 
 import pygame
-from pygame.mask import from_surface
+from pygame import display
 from pygame.rect import Rect
 from pygame.time import get_ticks
+from pygame.mask import from_surface
 
 
 class Sprite:
@@ -393,8 +395,7 @@ class AbstractGroup:
     def add_internal(
         self,
         sprite,
-        layer=None,
-        # noqa pylint: disable=unused-argument; supporting legacy derived classes that override in non-pythonic way
+        layer=None,  # noqa pylint: disable=unused-argument; supporting legacy derived classes that override in non-pythonic way
     ):
         """
         For adding a sprite to this group internally.
@@ -570,8 +571,7 @@ class AbstractGroup:
                 zip(
                     sprites,
                     surface.blits(
-                        (spr.image, spr.rect, None, special_flags) for spr in
-                        sprites
+                        (spr.image, spr.rect, None, special_flags) for spr in sprites
                     ),
                 )
             )
@@ -685,8 +685,7 @@ class RenderUpdates(Group):
         dirty_append = dirty.append
         for sprite in self.sprites():
             old_rect = self.spritedict[sprite]
-            new_rect = surface_blit(sprite.image, sprite.rect, None,
-                                    special_flags)
+            new_rect = surface_blit(sprite.image, sprite.rect, None, special_flags)
             if old_rect:
                 if new_rect.colliderect(old_rect):
                     dirty_append(new_rect.union(old_rect))
@@ -1110,8 +1109,7 @@ class LayeredDirty(LayeredUpdates):
 
         self._bgd = None
         for key, val in kwargs.items():
-            if key in ["_use_update", "_time_threshold",
-                       "_default_layer"] and hasattr(
+            if key in ["_use_update", "_time_threshold", "_default_layer"] and hasattr(
                 self, key
             ):
                 setattr(self, key, val)
@@ -1167,8 +1165,8 @@ class LayeredDirty(LayeredUpdates):
         local_bgd = self._bgd
 
         surface.set_clip(latest_clip)
-
-        # Check the time threshold and decide whether to use update or flip
+        # -------
+        # 0. decide whether to render with update or flip
         start_time = get_ticks()
         if self._use_update:  # dirty rects mode
             # 1. find dirty area on screen and put the rects into
@@ -1213,14 +1211,6 @@ class LayeredDirty(LayeredUpdates):
                     )
                     spr.dirty = 0  # Set Sprite.dirty to 0
 
-            dirty = [spr.rect for spr in local_sprites if spr.dirty]
-            if local_bgd is not None and local_bgd.dirty:
-                dirty.append(local_bgd.rect)
-            pygame.display.update(dirty)
-
-            # return only the part of the screen changed
-            local_ret = [rect_type(latest_clip)]
-
         # timing for switching modes
         # How may a good threshold be found? It depends on the hardware.
         end_time = get_ticks()
@@ -1232,6 +1222,7 @@ class LayeredDirty(LayeredUpdates):
         # empty dirty rects list
         local_update[:] = []
 
+        # -------
         # restore original clip
         surface.set_clip(orig_clip)
         return local_ret
@@ -1540,14 +1531,12 @@ class collide_rect_ratio:  # noqa pylint: disable=invalid-name; this is a functi
         leftrect = left.rect
         width = leftrect.width
         height = leftrect.height
-        leftrect = leftrect.inflate(width * ratio - width,
-                                    height * ratio - height)
+        leftrect = leftrect.inflate(width * ratio - width, height * ratio - height)
 
         rightrect = right.rect
         width = rightrect.width
         height = rightrect.height
-        rightrect = rightrect.inflate(width * ratio - width,
-                                      height * ratio - height)
+        rightrect = rightrect.inflate(width * ratio - width, height * ratio - height)
 
         return leftrect.colliderect(rightrect)
 
@@ -1571,7 +1560,7 @@ def collide_circle(left, right):
 
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
-    distancesquared = xdistance ** 2 + ydistance ** 2
+    distancesquared = xdistance**2 + ydistance**2
 
     try:
         leftradius = left.radius
@@ -1579,8 +1568,7 @@ def collide_circle(left, right):
         leftrect = left.rect
         # approximating the radius of a square by using half of the diagonal,
         # might give false positives (especially if its a long small rect)
-        leftradius = 0.5 * (
-            (leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+        leftradius = 0.5 * ((leftrect.width**2 + leftrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         left.radius = leftradius
 
@@ -1590,8 +1578,7 @@ def collide_circle(left, right):
         rightrect = right.rect
         # approximating the radius of a square by using half of the diagonal
         # might give false positives (especially if its a long small rect)
-        rightradius = 0.5 * (
-            (rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+        rightradius = 0.5 * ((rightrect.width**2 + rightrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         right.radius = rightradius
     return distancesquared <= (leftradius + rightradius) ** 2
@@ -1651,14 +1638,13 @@ class collide_circle_ratio:  # noqa pylint: disable=invalid-name; this is a func
         ratio = self.ratio
         xdistance = left.rect.centerx - right.rect.centerx
         ydistance = left.rect.centery - right.rect.centery
-        distancesquared = xdistance ** 2 + ydistance ** 2
+        distancesquared = xdistance**2 + ydistance**2
 
         try:
             leftradius = left.radius
         except AttributeError:
             leftrect = left.rect
-            leftradius = 0.5 * (
-                (leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+            leftradius = 0.5 * ((leftrect.width**2 + leftrect.height**2) ** 0.5)
             # store the radius on the sprite for next time
             left.radius = leftradius
         leftradius *= ratio
@@ -1667,8 +1653,7 @@ class collide_circle_ratio:  # noqa pylint: disable=invalid-name; this is a func
             rightradius = right.radius
         except AttributeError:
             rightrect = right.rect
-            rightradius = 0.5 * (
-                (rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+            rightradius = 0.5 * ((rightrect.width**2 + rightrect.height**2) ** 0.5)
             # store the radius on the sprite for next time
             right.radius = rightradius
         rightradius *= ratio
@@ -1745,8 +1730,7 @@ def spritecollide(sprite, group, dokill, collided=None):
 
     if collided is not None:
         return [
-            group_sprite for group_sprite in group if
-            collided(sprite, group_sprite)
+            group_sprite for group_sprite in group if collided(sprite, group_sprite)
         ]
 
     return [
@@ -1780,15 +1764,13 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
     sprite_collide_func = spritecollide
     if dokilla:
         for group_a_sprite in groupa.sprites():
-            collision = sprite_collide_func(group_a_sprite, groupb, dokillb,
-                                            collided)
+            collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
             if collision:
                 crashed[group_a_sprite] = collision
                 group_a_sprite.kill()
     else:
         for group_a_sprite in groupa:
-            collision = sprite_collide_func(group_a_sprite, groupb, dokillb,
-                                            collided)
+            collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
             if collision:
                 crashed[group_a_sprite] = collision
     return crashed
