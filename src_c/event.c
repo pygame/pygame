@@ -2258,7 +2258,8 @@ static PyMethodDef _event_methods[] = {
     {"_internal_mod_quit", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
-    {"event_name", event_name, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTEVENTNAME},
+    {"event_name", event_name, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
