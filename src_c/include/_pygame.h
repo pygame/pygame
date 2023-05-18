@@ -228,6 +228,14 @@ typedef struct pg_bufferinfo_s {
 #define pg_RGBAFromObj \
     (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(base, 12))
 
+/**
+ * \brief Given a Py_buffer, return a python dictionary representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a dictionary.
+ *
+ * \returns A Python dictionary representing the array interface of the object.
+ */
 #define pgBuffer_AsArrayInterface \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 13))
 
