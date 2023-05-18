@@ -97,6 +97,16 @@ typedef struct pg_bufferinfo_s {
 #define pg_RegisterQuit \
     (*(void (*)(void (*)(void)))PYGAMEAPI_GET_SLOT(base, 1))
 
+/**
+ * \brief Convert number like object *obj* to C int and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 #define pg_IntFromObj \
     (*(int (*)(PyObject *, int *))PYGAMEAPI_GET_SLOT(base, 2))
 
