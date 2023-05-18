@@ -333,6 +333,10 @@ typedef struct pg_bufferinfo_s {
 #define pg_SetDefaultWindowSurface \
     (*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(base, 22))
 
+/**
+ * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
+ * set, otherwise returns a pointer to the environment variable.
+ */
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
