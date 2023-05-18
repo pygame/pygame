@@ -250,6 +250,22 @@ typedef struct pg_bufferinfo_s {
 #define pgBuffer_AsArrayStruct \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 14))
 
+/**
+ * \brief Get a buffer object from a given Python object.
+ *
+ * \param obj The Python object to get the buffer from.
+ * \param pg_view_p A pointer to a pg_buffer struct to store the buffer in.
+ * \param flags The desired buffer access mode.
+ *
+ * \returns 0 on success, -1 on failure.
+ *
+ * \note This function attempts to get a buffer object from a given Python
+ * object. If the object supports the buffer protocol, it will be used to
+ * create the buffer. If not, it will try to get an array interface or
+ * dictionary representation of the object and use that to create the buffer.
+ * If none of these methods work, it will raise a ValueError.
+ *
+ */
 #define pgObject_GetBuffer \
     (*(int (*)(PyObject *, pg_buffer *, int))PYGAMEAPI_GET_SLOT(base, 15))
 
