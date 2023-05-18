@@ -340,6 +340,15 @@ typedef struct pg_bufferinfo_s {
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
+/**
+ * \brief Convert number like object *obj* to C double and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_DoubleFromObj \
     (*(int (*)(PyObject *, double *))PYGAMEAPI_GET_SLOT(base, 24))
 
