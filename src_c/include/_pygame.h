@@ -239,6 +239,14 @@ typedef struct pg_bufferinfo_s {
 #define pgBuffer_AsArrayInterface \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 13))
 
+/**
+ * \brief Given a Py_buffer, return a python capsule representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a capsule.
+ *
+ * \returns A Python capsule representing the array interface of the object.
+ */
 #define pgBuffer_AsArrayStruct \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 14))
 
