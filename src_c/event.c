@@ -1543,14 +1543,14 @@ pgEvent_New2(int type, PyObject *dict)
 /* event module functions */
 
 static PyObject *
-event_name(PyObject *self, PyObject *arg, PyObject *kwargs)
+event_name(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int type;
     static char *keywords[] = {
         "type",
         NULL,
     };
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "i", keywords, &type))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i", keywords, &type))
         return NULL;
 
     return PyUnicode_FromString(_pg_name_from_eventtype(type));
@@ -2258,7 +2258,7 @@ static PyMethodDef _event_methods[] = {
     {"_internal_mod_quit", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
-    {"event_name", event_name, METH_VARARGS | METH_KEYWORDS,
+    {"event_name", (PyCFunction)event_name, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
