@@ -152,6 +152,17 @@ typedef struct pg_bufferinfo_s {
 #define pg_FloatFromObj \
     (*(int (*)(PyObject *, float *))PYGAMEAPI_GET_SLOT(base, 5))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * float and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_FloatFromObjIndex \
     (*(int (*)(PyObject *, int, float *))PYGAMEAPI_GET_SLOT(base, 6))
 
