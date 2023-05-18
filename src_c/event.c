@@ -1543,10 +1543,14 @@ pgEvent_New2(int type, PyObject *dict)
 /* event module functions */
 
 static PyObject *
-event_name(PyObject *self, PyObject *arg)
+event_name(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     int type;
-    if (!PyArg_ParseTuple(arg, "i", &type))
+    static char *keywords[] = {
+        "type",
+        NULL,
+    };
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "i", keywords, &type))
         return NULL;
 
     return PyUnicode_FromString(_pg_name_from_eventtype(type));
