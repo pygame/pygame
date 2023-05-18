@@ -269,6 +269,15 @@ typedef struct pg_bufferinfo_s {
 #define pgObject_GetBuffer \
     (*(int (*)(PyObject *, pg_buffer *, int))PYGAMEAPI_GET_SLOT(base, 15))
 
+/**
+ * \brief Release a pg_buffer object.
+ *
+ * \param pg_view_p The pg_buffer object to release.
+ *
+ * \note This function releases a pg_buffer object.
+ * \note some calls to this function expect this function to not clear
+ * previously set errors.
+ */
 #define pgBuffer_Release (*(void (*)(pg_buffer *))PYGAMEAPI_GET_SLOT(base, 16))
 
 #define pgDict_AsBuffer \
