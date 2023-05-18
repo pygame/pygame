@@ -357,7 +357,9 @@ On Android, the following events can be generated
    "UserEvent" is returned for all values in the user event id range.
    "Unknown" is returned when the event type does not exist.
 
+   .. versionchanged:: 2.5.0 Added support for keyword arguments.
    .. ## pygame.event.event_name ##
+
 
 .. function:: set_blocked
 
