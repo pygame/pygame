@@ -280,6 +280,16 @@ typedef struct pg_bufferinfo_s {
  */
 #define pgBuffer_Release (*(void (*)(pg_buffer *))PYGAMEAPI_GET_SLOT(base, 16))
 
+/**
+ * \brief Write the array interface dictionary buffer description *dict* into a
+ * Pygame buffer description struct *pg_view_p*.
+ *
+ * \param pg_view_p The Pygame buffer description struct to write into.
+ * \param dict The array interface dictionary to read from.
+ * \param flags The PyBUF flags describing the view type requested.
+ *
+ * \returns 0 on success, or -1 on failure.
+ */
 #define pgDict_AsBuffer \
     (*(int (*)(pg_buffer *, PyObject *, int))PYGAMEAPI_GET_SLOT(base, 17))
 
