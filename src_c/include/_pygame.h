@@ -190,6 +190,15 @@ typedef struct pg_bufferinfo_s {
 #define pg_UintFromObj \
     (*(int (*)(PyObject *, Uint32 *))PYGAMEAPI_GET_SLOT(base, 8))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * Uint32 and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_UintFromObjIndex \
     (*(int (*)(PyObject *, int, Uint32 *))PYGAMEAPI_GET_SLOT(base, 9))
 
