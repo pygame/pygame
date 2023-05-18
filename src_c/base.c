@@ -1440,6 +1440,15 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     return 0;
 }
 
+/**
+ * \brief Release a pg_buffer object.
+ *
+ * \param pg_view_p The pg_buffer object to release.
+ *
+ * \note This function releases a pg_buffer object.
+ * \note some calls to this function expect this function to not clear
+ * previously set errors.
+ */
 static void
 pgBuffer_Release(pg_buffer *pg_view_p)
 {
