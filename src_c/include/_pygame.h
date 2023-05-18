@@ -295,6 +295,12 @@ typedef struct pg_bufferinfo_s {
 
 #define pgExc_BufferError ((PyObject *)PYGAMEAPI_GET_SLOT(base, 18))
 
+/**
+ * \brief Get the default SDL window created by a pygame.display.set_mode()
+ * call, or *NULL*.
+ *
+ * \return The default window, or *NULL* if no window has been created.
+ */
 #define pg_GetDefaultWindow \
     (*(SDL_Window * (*)(void)) PYGAMEAPI_GET_SLOT(base, 19))
 
