@@ -323,6 +323,13 @@ typedef struct pg_bufferinfo_s {
 #define pg_GetDefaultWindowSurface \
     (*(pgSurfaceObject * (*)(void)) PYGAMEAPI_GET_SLOT(base, 21))
 
+/**
+ * \brief Set the Pygame default window display surface. The previous
+ * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
+ * function is called by pygame.display.set_mode().
+ *
+ * \param screen The new default window display surface. May be NULL.
+ */
 #define pg_SetDefaultWindowSurface \
     (*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(base, 22))
 
