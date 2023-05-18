@@ -213,6 +213,18 @@ typedef struct pg_bufferinfo_s {
  */
 #define pg_mod_autoquit (*(void (*)(const char *))PYGAMEAPI_GET_SLOT(base, 11))
 
+/**
+ * \brief Convert the color represented by object *obj* into a red, green,
+ * blue, alpha length 4 C array *RGBA*.
+ *
+ * The object must be a length 3 or 4 sequence of numbers having values between
+ * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
+ * assumed.
+ *
+ * \param obj The Python object to convert.
+ * \param RGBA A pointer to the C array to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_RGBAFromObj \
     (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(base, 12))
 
