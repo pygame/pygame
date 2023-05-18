@@ -180,6 +180,13 @@ typedef struct pg_bufferinfo_s {
 #define pg_TwoFloatsFromObj \
     (*(int (*)(PyObject *, float *, float *))PYGAMEAPI_GET_SLOT(base, 7))
 
+/**
+ * \brief Convert number like object *obj* to C Uint32 and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_UintFromObj \
     (*(int (*)(PyObject *, Uint32 *))PYGAMEAPI_GET_SLOT(base, 8))
 
