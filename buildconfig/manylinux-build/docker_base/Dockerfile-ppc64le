@@ -108,6 +108,9 @@ RUN ["bash", "/libxml2_build/build-libxml2.sh"]
 ADD wayland_libs /wayland_build/
 RUN ["bash", "/wayland_build/build-wayland-libs.sh"]
 
+ADD libsamplerate /libsamplerate_build/
+RUN ["bash", "/libsamplerate_build/build-samplerate.sh"]
+
 ADD sdl_libs /sdl_build/
 RUN ["bash", "/sdl_build/build-sdl2-libs.sh"]
 
