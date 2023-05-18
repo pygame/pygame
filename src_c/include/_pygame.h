@@ -304,6 +304,13 @@ typedef struct pg_bufferinfo_s {
 #define pg_GetDefaultWindow \
     (*(SDL_Window * (*)(void)) PYGAMEAPI_GET_SLOT(base, 19))
 
+/**
+ * \brief Set the default SDL window created by a pygame.display.set_mode()
+ * call. The previous window, if any, is destroyed. Argument *win* may be
+ * *NULL*. This function is called by pygame.display.set_mode().
+ *
+ * \param win The new default window. May be NULL.
+ */
 #define pg_SetDefaultWindow \
     (*(void (*)(SDL_Window *))PYGAMEAPI_GET_SLOT(base, 20))
 
