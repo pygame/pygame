@@ -1291,6 +1291,22 @@ pg_get_array_interface(PyObject *self, PyObject *arg)
     return dictobj;
 }
 
+/**
+ * \brief Get a buffer object from a given Python object.
+ *
+ * \param obj The Python object to get the buffer from.
+ * \param pg_view_p A pointer to a pg_buffer struct to store the buffer in.
+ * \param flags The desired buffer access mode.
+ *
+ * \returns 0 on success, -1 on failure.
+ *
+ * \note This function attempts to get a buffer object from a given Python
+ * object. If the object supports the buffer protocol, it will be used to
+ * create the buffer. If not, it will try to get an array interface or
+ * dictionary representation of the object and use that to create the buffer.
+ * If none of these methods work, it will raise a ValueError.
+ *
+ */
 static int
 pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
 {
