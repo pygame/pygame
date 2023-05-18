@@ -314,6 +314,12 @@ typedef struct pg_bufferinfo_s {
 #define pg_SetDefaultWindow \
     (*(void (*)(SDL_Window *))PYGAMEAPI_GET_SLOT(base, 20))
 
+/**
+ * \brief Return a borrowed reference to the Pygame default window display
+ * surface, or *NULL* if no default window is open.
+ *
+ * \return The default renderer, or *NULL* if no renderer has been created.
+ */
 #define pg_GetDefaultWindowSurface \
     (*(pgSurfaceObject * (*)(void)) PYGAMEAPI_GET_SLOT(base, 21))
 
