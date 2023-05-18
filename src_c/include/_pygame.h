@@ -208,6 +208,9 @@ typedef struct pg_bufferinfo_s {
  */
 #define pg_mod_autoinit (*(int (*)(const char *))PYGAMEAPI_GET_SLOT(base, 10))
 
+/**
+ * \brief Quit all of the pygame modules.
+ */
 #define pg_mod_autoquit (*(void (*)(const char *))PYGAMEAPI_GET_SLOT(base, 11))
 
 #define pg_RGBAFromObj \
