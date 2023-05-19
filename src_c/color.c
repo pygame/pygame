@@ -87,7 +87,7 @@ _color_iter(pgColorObject *);
 static PyObject *
 _color_normalize(pgColorObject *, PyObject *);
 static PyObject *
-_color_correct_gamma(pgColorObject *, PyObject *);
+_color_correct_gamma(pgColorObject *, PyObject *, PyObject *);
 static PyObject *
 _color_set_length(pgColorObject *, PyObject *);
 static PyObject *
