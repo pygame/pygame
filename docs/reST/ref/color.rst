@@ -203,6 +203,8 @@
       Applies a certain gamma value to the Color and returns a new Color with
       the adjusted ``RGBA`` values.
 
+      .. versionchanged:: 2.5.0 Added support for keyword arguments.
+
       .. ## Color.correct_gamma ##
 
    .. method:: set_length
