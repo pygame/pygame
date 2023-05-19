@@ -609,11 +609,15 @@ pg_get_surface(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_gl_set_attribute(PyObject *self, PyObject *arg)
+pg_gl_set_attribute(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     int flag, value, result;
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(arg, "ii", &flag, &value))
+
+    static char *keywords[] = {"flag", "value", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "ii", keywords, &flag,
+                                     &value))
         return NULL;
     if (flag == -1) /*an undefined/unsupported val, ignore*/
         Py_RETURN_NONE;
@@ -624,11 +628,14 @@ pg_gl_set_attribute(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_gl_get_attribute(PyObject *self, PyObject *arg)
+pg_gl_get_attribute(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     int flag, value, result;
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(arg, "i", &flag))
+
+    static char *keywords[] = {"flag", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "i", keywords, &flag))
         return NULL;
     result = SDL_GL_GetAttribute(flag, &value);
     if (result == -1)
@@ -1697,7 +1704,7 @@ pg_update(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_set_palette(PyObject *self, PyObject *args)
+pg_set_palette(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf;
@@ -1708,7 +1715,10 @@ pg_set_palette(PyObject *self, PyObject *args)
     Uint8 rgba[4];
 
     VIDEO_INIT_CHECK();
-    if (!PyArg_ParseTuple(args, "|O", &list))
+
+    static char *keywords[] = {"palette", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "|O", keywords, &list))
         return NULL;
     if (!surface)
         return RAISE(pgExc_SDLError, "No display mode is set");
@@ -1901,6 +1911,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
     r = gamma_ramp;
     g = gamma_ramp + 256;
     b = gamma_ramp + 512;
+
     if (!PyArg_ParseTuple(arg, "O&O&O&", pg_convert_to_uint16, r,
                           pg_convert_to_uint16, g, pg_convert_to_uint16, b)) {
         free(gamma_ramp);
@@ -1925,7 +1936,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_set_caption(PyObject *self, PyObject *arg)
+pg_set_caption(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1937,7 +1948,10 @@ pg_set_caption(PyObject *self, PyObject *arg)
     __analysis_assume(title = "inited");
 #endif
 
-    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
+    static char *keywords[] = {"title", "icontitle", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "s|s", keywords, &title,
+                                     &icontitle))
         return NULL;
 
     if (state->title)
@@ -2553,12 +2567,14 @@ static PyMethodDef _pg_display_methods[] = {
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", (PyCFunction)pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
 
-    {"set_palette", pg_set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE},
+    {"set_palette", (PyCFunction)pg_set_palette, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETPALETTE},
     {"set_gamma", pg_set_gamma, METH_VARARGS, DOC_PYGAMEDISPLAYSETGAMMA},
     {"set_gamma_ramp", pg_set_gamma_ramp, METH_VARARGS,
      DOC_PYGAMEDISPLAYSETGAMMARAMP},
 
-    {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
+    {"set_caption", (PyCFunction)pg_set_caption, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETCAPTION},
     {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
     {"set_icon", pg_set_icon, METH_O, DOC_PYGAMEDISPLAYSETICON},
@@ -2580,10 +2596,10 @@ static PyMethodDef _pg_display_methods[] = {
     {"is_fullscreen", (PyCFunction)pg_is_fullscreen, METH_NOARGS,
      "provisional API, subject to change"},
 
-    {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,
-     DOC_PYGAMEDISPLAYGLSETATTRIBUTE},
-    {"gl_get_attribute", pg_gl_get_attribute, METH_VARARGS,
-     DOC_PYGAMEDISPLAYGLGETATTRIBUTE},
+    {"gl_set_attribute", (PyCFunction)pg_gl_set_attribute,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYGLSETATTRIBUTE},
+    {"gl_get_attribute", (PyCFunction)pg_gl_get_attribute,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYGLGETATTRIBUTE},
 
     {"get_allow_screensaver", (PyCFunction)pg_get_allow_screensaver,
      METH_NOARGS, DOC_PYGAMEDISPLAYGETALLOWSCREENSAVER},

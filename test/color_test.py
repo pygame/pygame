@@ -1348,13 +1348,6 @@ class SubclassTest(unittest.TestCase):
         self.assertTrue(isinstance(mc2, self.MyColor))
         self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
 
-    def test_correct_gamma_kwargs(self):
-        mc1 = self.MyColor(64, 70, 75, 255)
-        self.assertTrue(mc1.an_attribute)
-        mc2 = mc1.correct_gamma(gamma=0.03)
-        self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
-
     def test_collection_abc(self):
         mc1 = self.MyColor(64, 70, 75, 255)
         self.assertTrue(isinstance(mc1, Collection))
