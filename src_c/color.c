@@ -198,7 +198,7 @@ static PyMethodDef _color_methods[] = {
     {"normalize", (PyCFunction)_color_normalize, METH_NOARGS,
      DOC_COLORNORMALIZE},
     {"correct_gamma", (PyCFunction)_color_correct_gamma, METH_VARARGS,
-    DOC_COLORCORRECTGAMMA},
+     DOC_COLORCORRECTGAMMA},
     {"set_length", (PyCFunction)_color_set_length, METH_VARARGS,
      DOC_COLORSETLENGTH},
     {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
