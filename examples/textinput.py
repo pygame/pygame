@@ -7,6 +7,7 @@ Shows how to use the TEXTEDITING and TEXTINPUT events.
 """
 import sys
 import os
+from typing import List
 
 import pygame
 import pygame as pg
@@ -24,16 +25,19 @@ class TextInput:
 
     # Add font name for each language,
     # otherwise some text can't be correctly displayed.
-    FONT_NAMES = [
-        "notosanscjktcregular",
-        "notosansmonocjktcregular",
-        "notosansregular,",
-        "microsoftjhengheimicrosoftjhengheiuilight",
-        "microsoftyaheimicrosoftyaheiuilight",
-        "msgothicmsuigothicmspgothic",
-        "msmincho",
-        "Arial",
-    ]
+    FONT_NAMES = ",".join(
+        str(x)
+        for x in [
+            "notosanscjktcregular",
+            "notosansmonocjktcregular",
+            "notosansregular,",
+            "microsoftjhengheimicrosoftjhengheiuilight",
+            "microsoftyaheimicrosoftyaheiuilight",
+            "msgothicmsuigothicmspgothic",
+            "msmincho",
+            "Arial",
+        ]
+    )
 
     def __init__(
         self, prompt: str, pos, screen_dimensions, print_event: bool, text_color="white"
@@ -50,12 +54,11 @@ class TextInput:
         self._ime_text_pos = 0
         self._ime_editing_text = ""
         self._ime_editing_pos = 0
-        self.chat_list = []
+        self.chat_list: List[str] = []
 
         # Freetype
         # The font name can be a comma separated list
         # of font names to search for.
-        self.FONT_NAMES = ",".join(str(x) for x in self.FONT_NAMES)
         self.font = freetype.SysFont(self.FONT_NAMES, 24)
         self.font_small = freetype.SysFont(self.FONT_NAMES, 16)
         self.text_color = text_color
