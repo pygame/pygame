@@ -140,7 +140,7 @@ jobs:
 
       CIBW_TEST_COMMAND: >
         python -m pygame.tests -v --exclude opengl,timing --time_out 300 &&
-        python -m mypy {project}/examples/testsprite.py {project}/examples/sound.py {project}/examples/dropevent.py {project}/examples/stars.py
+        python -m mypy {project}/examples/testsprite.py {project}/examples/sound.py {project}/examples/dropevent.py {project}/examples/stars.py {project}/examples/aliens.py {project}/examples/eventlist.py
 
       # Increase pip debugging output
       CIBW_BUILD_VERBOSITY: 2
