@@ -726,8 +726,8 @@ class ChannelTypeTest(unittest.TestCase):
         """Ensure Channel.get_queue() returns any queued Sound."""
         channel = mixer.Channel(0)
         frequency, format, channels = mixer.get_init()
-        sound_length_in_ms = 100
-        sound_length_in_ms_2 = 200
+        sound_length_in_ms = 200
+        sound_length_in_ms_2 = 400
         bytes_per_ms = int((frequency / 1000) * channels * (abs(format) // 8))
         sound1 = mixer.Sound(b"\x00" * int(sound_length_in_ms * bytes_per_ms))
         sound2 = mixer.Sound(b"\x00" * (int(sound_length_in_ms_2 * bytes_per_ms)))
@@ -738,7 +738,7 @@ class ChannelTypeTest(unittest.TestCase):
         # Ensure the second queued sound is returned.
         self.assertEqual(channel.get_queue().get_length(), sound2.get_length())
         # TODO: should sound1.stop() clear it from the queue too? Currently it doesn't.
-        pygame.time.wait(sound_length_in_ms + 50)
+        pygame.time.wait(sound_length_in_ms + 100)
 
         # TODO: I think here there should be nothing queued.
         #     Because the sound should be off the queue. Currently it doesn't do this.
@@ -746,7 +746,7 @@ class ChannelTypeTest(unittest.TestCase):
 
         # the second sound is now playing
         self.assertEqual(channel.get_sound().get_length(), sound2.get_length())
-        pygame.time.wait((sound_length_in_ms_2) + 50)
+        pygame.time.wait((sound_length_in_ms_2) + 100)
 
         # Now there is nothing on the queue.
         self.assertIsNone(channel.get_queue())
