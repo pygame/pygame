@@ -20,12 +20,15 @@ Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 # This typehint is used when a function would return an RGBA tuble
 RGBAOutput = Tuple[int, int, int, int]
 ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]
+from typing import Union
 
+def my_function(my_var: Union[int, float, complex]) -> None:
+    print(my_var)
 _CanBeRect = Union[
     Rect,
-    Tuple[int, int, int, int],
+    Tuple[Union[float, int], Union[float, int], Union[float, int], Union[float, int]],
     Tuple[Coordinate, Coordinate],
-    Sequence[int],
+    Sequence[Union[float, int]],
     Sequence[Coordinate],
 ]
 
