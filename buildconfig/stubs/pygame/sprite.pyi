@@ -6,6 +6,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
     SupportsFloat,
     Tuple,
@@ -263,14 +264,14 @@ def collide_mask(
 def spritecollide(
     sprite: _HasRect,
     group: AbstractGroup[_TSprite],
-    dokill: bool,
+    dokill: bool | Literal[1] | Literal[0],
     collided: Optional[Callable[[_HasRect, _TSprite], bool]] = None,
 ) -> List[_TSprite]: ...
 def groupcollide(
     groupa: AbstractGroup[_TSprite],
     groupb: AbstractGroup[_TSprite2],
-    dokilla: bool,
-    dokillb: bool,
+    dokilla: bool | Literal[1] | Literal[0],
+    dokillb: bool | Literal[1] | Literal[0],
     collided: Optional[Callable[[_TSprite, _TSprite2], bool]] = None,
 ) -> Dict[_TSprite, List[_TSprite2]]: ...
 def spritecollideany(
