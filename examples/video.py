@@ -52,6 +52,7 @@ except:
 win = Window("asdf", resizable=True)
 renderer = Renderer(win)
 tex = Texture.from_surface(renderer, load_img("alien1.gif"))
+img = Image(tex)
 
 running = True
 
@@ -74,9 +75,6 @@ renderer2.present()
 del tex2
 
 full = 0
-
-tex = Image(tex)
-
 
 surf = pg.Surface((64, 64))
 streamtex = Texture(renderer, (64, 64), streaming=True)
@@ -140,7 +138,7 @@ while running:
         next_tex_update = curtime + tex_update_interval
     streamtex.draw(dstrect=pg.Rect(64, 128, 64, 64))
 
-    tex.draw(dstrect=(x, y))
+    img.draw(dstrect=(x, y))
 
     # TODO: should these be?
     # - line instead of draw_line
