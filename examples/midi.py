@@ -12,7 +12,7 @@ python -m pygame.examples.midi --input
 
 import sys
 import os
-from typing import Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pygame as pg
 import pygame.midi
@@ -278,7 +278,7 @@ class NullKey:
 null_key = NullKey()
 
 
-def key_class(updates, image_strip, image_rects: list[pg.Rect], is_white_key=True):
+def key_class(updates, image_strip, image_rects: List[pg.Rect], is_white_key=True):
     """Return a keyboard key widget class
 
     Arguments:
@@ -363,13 +363,13 @@ def key_class(updates, image_strip, image_rects: list[pg.Rect], is_white_key=Tru
     # along with corresponding image, for the related event. If no redrawing
     # is required for the state change then the image rect is simply None.
     #
-    c_event_down: dict[int, tuple[int, pygame.Rect]] = {
+    c_event_down: Dict[int, Tuple[int, pygame.Rect]] = {
         down_state_none: (down_state_self, image_rects[1])
     }
-    c_event_up: dict[int, tuple[int, pygame.Rect]] = {
+    c_event_up: Dict[int, Tuple[int, pygame.Rect]] = {
         down_state_self: (down_state_none, image_rects[0])
     }
-    c_event_right_white_down: dict[int, tuple[int, pygame.Rect | None]] = {
+    c_event_right_white_down: Dict[int, Tuple[int, Union[pygame.Rect, None]]] = {
         down_state_none: (down_state_none, None),
         down_state_self: (down_state_self, None),
     }
@@ -569,7 +569,7 @@ def key_class(updates, image_strip, image_rects: list[pg.Rect], is_white_key=Tru
     return Key
 
 
-def key_images() -> tuple[pg.Surface, dict[str, pg.Rect]]:
+def key_images() -> Tuple[pg.Surface, Dict[str, pg.Rect]]:
     """Return a keyboard keys image strip and a mapping of image locations
 
     The return tuple is a pygame.Surface and a dictionary keyed by key name and valued by a pygame.Rect.
@@ -643,7 +643,7 @@ class Keyboard:
     white_key_width, white_key_height = _rects["white none"].size
     black_key_width, black_key_height = _rects["black none"].size
 
-    _updates: set[Any] = set()
+    _updates: Set[Any] = set()
 
     # There are five key classes, representing key shape:
     # black key (BlackKey), plain white key (WhiteKey), white key to the left
