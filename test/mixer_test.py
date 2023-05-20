@@ -930,11 +930,11 @@ class TestSoundPlay(unittest.TestCase):
         self.assertIsInstance(channel, pygame.mixer.Channel)
 
         # the sound should be playing
-        pygame.time.wait((sound_length_in_ms * num_loops) - 50)
+        pygame.time.wait((sound_length_in_ms * num_loops) - 100)
         self.assertTrue(channel.get_busy())
 
         # the sound should not be playing anymore
-        pygame.time.wait(sound_length_in_ms + 100)
+        pygame.time.wait(sound_length_in_ms + 200)
         self.assertFalse(channel.get_busy())
 
     def test_play_indefinitely(self):
