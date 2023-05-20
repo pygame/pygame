@@ -33,18 +33,21 @@ for driver in get_drivers():
 
 import random
 
-answer = messagebox(
-    "I will open two windows! Continue?",
-    "Hello!",
-    info=True,
-    buttons=("Yes", "No", "Chance"),
-    return_button=0,
-    escape_button=1,
-)
-if answer == 1 or (answer == 2 and random.random() < 0.5):
-    import sys
+try:
+    answer = messagebox(
+        "I will open two windows! Continue?",
+        "Hello!",
+        info=True,
+        buttons=("Yes", "No", "Chance"),
+        return_button=0,
+        escape_button=1,
+    )
+    if answer == 1 or (answer == 2 and random.random() < 0.5):
+        import sys
 
-    sys.exit(0)
+        sys.exit(0)
+except:
+    pass
 
 win = Window("asdf", resizable=True)
 renderer = Renderer(win)
