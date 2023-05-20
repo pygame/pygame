@@ -1,10 +1,9 @@
 from typing import Any, Generator, Iterable, Optional, Tuple, Union
 
-from pygame.color import Color
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from .._common import RectValue, Literal
+from .._common import RectValue, Literal, ColorValue
 
 WINDOWPOS_UNDEFINED: int
 WINDOWPOS_CENTERED: int
@@ -87,7 +86,7 @@ class Texture:
     height: int
     alpha: int
     blend_mode: int
-    color: Color
+    color: ColorValue
     def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
         self,
@@ -114,7 +113,7 @@ class Image:
     origin: Optional[Iterable[float]]
     flip_x: bool
     flip_y: bool
-    color: Color
+    color: ColorValue
     alpha: float
     blend_mode: int
     texture: Texture
@@ -132,7 +131,7 @@ class Renderer:
     @classmethod
     def from_window(cls, window: Window) -> Renderer: ...
     draw_blend_mode: int
-    draw_color: Color
+    draw_color: ColorValue
     def clear(self) -> None: ...
     def present(self) -> None: ...
     def get_viewport(self) -> Rect: ...
