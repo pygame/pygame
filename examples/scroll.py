@@ -22,7 +22,7 @@ from pygame.transform import scale
 
 main_dir = os.path.dirname(os.path.abspath(__file__))
 
-# game constants
+
 DIR_UP = 1
 DIR_DOWN = 2
 DIR_LEFT = 3
@@ -31,7 +31,7 @@ DIR_RIGHT = 4
 zoom_factor = 8
 
 
-def draw_arrow(surf, color, posn, direction):
+def draw_arrow(surf, color, posn, direction: int):
     x, y = posn
     if direction == DIR_UP:
         pointlist = ((x - 29, y + 30), (x + 30, y + 30), (x + 1, y - 29), (x, y - 29))
@@ -49,8 +49,9 @@ def add_arrow_button(screen, regions, posn, direction):
     draw_arrow(regions, (direction, 0, 0), posn, direction)
 
 
-def scroll_view(screen, image, direction, view_rect):
+def scroll_view(screen, image: pg.Surface, direction: int, view_rect):
     src_rect = None
+    dst_rect = None
     zoom_view_rect = screen.get_clip()
     image_w, image_h = image.get_size()
     if direction == DIR_UP:
@@ -89,7 +90,8 @@ def scroll_view(screen, image, direction, view_rect):
             dst_rect = zoom_view_rect.copy()
             dst_rect.w = zoom_factor
             dst_rect.right = zoom_view_rect.right
-    if src_rect is not None:
+
+    if src_rect is not None and dst_rect is not None:
         scale(image.subsurface(src_rect), dst_rect.size, screen.subsurface(dst_rect))
         pg.display.update(zoom_view_rect)
 
@@ -177,6 +179,7 @@ def main(image_file=None):
                 # handle mouse button presses on arrows.
                 elif e.type == pg.MOUSEBUTTONDOWN:
                     direction = regions.get_at(e.pos)[0]
+
                 elif e.type == pg.MOUSEBUTTONUP:
                     direction = None
 
@@ -190,8 +193,5 @@ def main(image_file=None):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        image_file = sys.argv[1]
-    else:
-        image_file = None
+    image_file = sys.argv[1] if len(sys.argv) > 1 else None
     main(image_file)
