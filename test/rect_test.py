@@ -841,6 +841,20 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
+    def test_scale_by__larger_single_argument_kwarg(self):
+        """The scale method scales around the center of the rectangle using
+        keyword arguments"""
+        r = Rect(2, 4, 6, 8)
+        r2 = r.scale_by(x=2)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.top - 4, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.bottom + 4, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 2, r2.height)
+
     def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 8, 8)
@@ -860,6 +874,21 @@ class RectTypeTest(unittest.TestCase):
         r = Rect(2, 4, 6, 8)
         # act
         r2 = r.scale_by(2, 4)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by__larger_kwargs(self):
+        """The scale method scales around the center of the rectangle"""
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(x=2, y=4)
         # assert
         self.assertEqual(r.center, r2.center)
         self.assertEqual(r.left - 3, r2.left)
@@ -967,21 +996,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.y, actual.y)
         self.assertEqual(r.w, actual.w)
         self.assertEqual(r.h, actual.h)
-
-    def test_scale_by__kwargs(self):
-        """The scale method scales around the center of the rectangle"""
-        # arrange
-        r = Rect(2, 4, 6, 8)
-        # act
-        r2 = r.scale_by(x=2, y=4)
-        # assert
-        self.assertEqual(r.center, r2.center)
-        self.assertEqual(r.left - 3, r2.left)
-        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
-        self.assertEqual(r.right + 3, r2.right)
-        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
-        self.assertEqual(r.width * 2, r2.width)
-        self.assertEqual(r.height * 4, r2.height)
 
     def test_scale_by_ip__larger(self):
         """The scale method scales around the center of the rectangle"""
@@ -1106,6 +1120,28 @@ class RectTypeTest(unittest.TestCase):
                 self.assertIsInstance(clipped_line, tuple)
                 self.assertTupleEqual(clipped_line, expected_line)
 
+    def test_clipline__two_sequences_kwarg(self):
+        """Ensures clipline handles a sequence of two sequences using kwargs.
+
+        Tests the clipline((x1, y1), (x2, y2)) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                clipped_line = rect.clipline(x1=endpt1, x2=inner_seq2(pt2))
+
+                self.assertIsInstance(clipped_line, tuple)
+                self.assertTupleEqual(clipped_line, expected_line)
+
     def test_clipline__sequence_of_four_ints(self):
         """Ensures clipline handles a sequence of four ints.
 
@@ -1118,6 +1154,22 @@ class RectTypeTest(unittest.TestCase):
 
         for outer_seq in (list, tuple):
             clipped_line = rect.clipline(outer_seq(line))
+
+            self.assertIsInstance(clipped_line, tuple)
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__sequence_of_four_ints_kwargs(self):
+        """Ensures clipline handles a sequence of four ints using kwargs.
+
+        Tests the clipline((x1, y1, x2, y2)) format.
+        Tests the sequence as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        line = (5, 6, 11, 19)
+        expected_line = ((line[0], line[1]), (line[2], line[3]))
+
+        for outer_seq in (list, tuple):
+            clipped_line = rect.clipline(x1=outer_seq(line))
 
             self.assertIsInstance(clipped_line, tuple)
             self.assertTupleEqual(clipped_line, expected_line)
@@ -1147,6 +1199,31 @@ class RectTypeTest(unittest.TestCase):
                     self.assertIsInstance(clipped_line, tuple)
                     self.assertTupleEqual(clipped_line, expected_line)
 
+    def test_clipline__sequence_of_two_sequences_kwargs(self):
+        """Ensures clipline handles a sequence of two sequences using kwargs.
+
+        Tests the clipline(((x1, y1), (x2, y2))) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                endpt2 = inner_seq2(pt2)
+
+                for outer_seq in (list, tuple):
+                    clipped_line = rect.clipline(x1=outer_seq((endpt1, endpt2)))
+
+                    self.assertIsInstance(clipped_line, tuple)
+                    self.assertTupleEqual(clipped_line, expected_line)
+
     def test_clipline__floats(self):
         """Ensures clipline handles float parameters."""
         rect = Rect((1, 2), (35, 40))
@@ -1162,6 +1239,28 @@ class RectTypeTest(unittest.TestCase):
         )
 
         clipped_line = rect.clipline(x1, y1, x2, y2)
+
+        self.assertIsInstance(clipped_line, tuple)
+        self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__floats_kwargs(self):
+        """Ensures clipline handles four float parameters.
+
+        Tests the clipline(x1, y1, x2, y2) format.
+        """
+        rect = Rect((1, 2), (35, 40))
+        x1 = 5.9
+        y1 = 6.9
+        x2 = 11.9
+        y2 = 19.9
+
+        # Floats are truncated.
+        expected_line = (
+            (math.floor(x1), math.floor(y1)),
+            (math.floor(x2), math.floor(y2)),
+        )
+
+        clipped_line = rect.clipline(x1=x1, x2=y1, x3=x2, x4=y2)
 
         self.assertIsInstance(clipped_line, tuple)
         self.assertTupleEqual(clipped_line, expected_line)
@@ -1474,23 +1573,6 @@ class RectTypeTest(unittest.TestCase):
 
             with self.assertRaises(TypeError):
                 clipped_line = rect.clipline(*line)
-
-    def test_clipline__kwargs(self):
-        """Ensures clipline handles four int parameters.
-
-        Tests the clipline(x1, y1, x2, y2) format.
-        """
-        rect = Rect((1, 2), (35, 40))
-        x1 = 5
-        y1 = 6
-        x2 = 11
-        y2 = 19
-        expected_line = ((x1, y1), (x2, y2))
-
-        clipped_line = rect.clipline(x1=x1, y1=y1, x2=x2, y2=y2)
-
-        self.assertIsInstance(clipped_line, tuple)
-        self.assertTupleEqual(clipped_line, expected_line)
 
     def test_move(self):
         r = Rect(1, 2, 3, 4)
