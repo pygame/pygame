@@ -441,6 +441,30 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     static char *keywords[] = {"x", "y", NULL};
 
+    if (kwargs) {
+        auto *scale_by = PyDict_GetItemString(kwargs, "scale_by");
+
+        if (scale_by) {
+            if (PyDict_Size(kwargs) > 1) {
+                return RAISE(PyExc_TypeError,
+                             "The 'scale_by' keyword cannot be combined with "
+                             "other arguments.");
+            }
+            else if (!PyTuple_Check(scale_by)) {
+                return RAISE(
+                    PyExc_TypeError,
+                    "The 'scale_by' keyword argument must be a tuple.");
+            }
+            else {
+                PyDict_SetItemString(kwargs, "x",
+                                     PyTuple_GET_ITEM(scale_by, 0));
+                PyDict_SetItemString(kwargs, "y",
+                                     PyTuple_GET_ITEM(scale_by, 1));
+                PyDict_DelItemString(kwargs, "scale_by");
+            }
+        }
+    }
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "f|f", keywords, &factor_x,
                                      &factor_y)) {
         return NULL;
@@ -577,7 +601,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *list, *obj;
     int t, l, b, r;
 
-    static char *keywords[] = {"rect_sequence", NULL};
+    static char *keywords[] = {"rects", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
@@ -736,7 +760,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
-    static char *keywords[] = {"rect_list", NULL};
+    static char *keywords[] = {"rects", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;

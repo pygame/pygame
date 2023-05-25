@@ -843,7 +843,7 @@ class RectTypeTest(unittest.TestCase):
 
     def test_scale_by__larger_single_argument_kwarg(self):
         """The scale method scales around the center of the rectangle using
-        keyword arguments"""
+        keyword arguments 'x' and 'y'"""
         r = Rect(2, 4, 6, 8)
         r2 = r.scale_by(x=2)
 
@@ -854,6 +854,14 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.bottom + 4, r2.bottom)
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
+
+    def test_scale_by__larger_single_argument_kwarg_scale_by(self):
+        """The scale method scales around the center of the rectangle using
+        keyword argument 'scale_by'"""
+        r = Rect(2, 4, 6, 8)
+
+        with self.assertRaises(SystemError) as cm:
+            r.scale_by(scale_by=2)
 
     def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
@@ -883,8 +891,29 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 4, r2.height)
 
+    def test_scale_by__larger_kwargs_scale_by(self):
+        """
+        The scale method scales around the center of the rectangle
+        Uses 'scale_by' kwarg.
+        """
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(scale_by=(2, 4))
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
     def test_scale_by__larger_kwargs(self):
-        """The scale method scales around the center of the rectangle"""
+        """
+        The scale method scales around the center of the rectangle
+        Uses 'x' and 'y' kwargs.
+        """
         # arrange
         r = Rect(2, 4, 6, 8)
         # act
@@ -2786,8 +2815,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertFalse(r.collidelistall(f))
 
     def test_collidelistall__kwargs(self):
-        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
-
         # Rect.collidelistall(list): return indices
         # test if all rectangles in a list intersect using keyword arguments.
         #
