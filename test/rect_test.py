@@ -860,8 +860,11 @@ class RectTypeTest(unittest.TestCase):
         keyword argument 'scale_by'"""
         r = Rect(2, 4, 6, 8)
 
-        with self.assertRaises(SystemError) as cm:
+        with self.assertRaises(SystemError):
             r.scale_by(scale_by=2)
+
+        with self.assertRaises(SystemError):
+            r.scale_by(scale_by=(1, 2), y=1)
 
     def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
