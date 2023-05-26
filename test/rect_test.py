@@ -855,9 +855,9 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
-    def test_scale_by__larger_single_argument_kwarg_scale_by(self):
+    def test_scale_by__kwarg_exceptions(self):
         """The scale method scales around the center of the rectangle using
-        keyword argument 'scale_by'"""
+        keyword argument 'scale_by'. Tests for incorrect keyword args"""
         r = Rect(2, 4, 6, 8)
 
         with self.assertRaises(SystemError):
@@ -1169,7 +1169,9 @@ class RectTypeTest(unittest.TestCase):
             endpt1 = inner_seq1(pt1)
 
             for inner_seq2 in INNER_SEQUENCES:
-                clipped_line = rect.clipline(x1=endpt1, x2=inner_seq2(pt2))
+                clipped_line = rect.clipline(
+                    first_coordinate=endpt1, second_coordinate=inner_seq2(pt2)
+                )
 
                 self.assertIsInstance(clipped_line, tuple)
                 self.assertTupleEqual(clipped_line, expected_line)
@@ -1201,7 +1203,7 @@ class RectTypeTest(unittest.TestCase):
         expected_line = ((line[0], line[1]), (line[2], line[3]))
 
         for outer_seq in (list, tuple):
-            clipped_line = rect.clipline(x1=outer_seq(line))
+            clipped_line = rect.clipline(rect_arg=outer_seq(line))
 
             self.assertIsInstance(clipped_line, tuple)
             self.assertTupleEqual(clipped_line, expected_line)
@@ -1296,6 +1298,25 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertIsInstance(clipped_line, tuple)
         self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__kwarg_exceptions(self):
+        """Ensure clipline handles incorrect keyword arguments"""
+        r = Rect(2, 4, 6, 8)
+
+        with self.assertRaises(TypeError):
+            r.clipline(x1=0)
+
+        with self.assertRaises(TypeError):
+            r.clipline(first_coordinate=(1, 3, 5, 4), second_coordinate=(1, 2))
+
+        with self.assertRaises(TypeError):
+            r.clipline(first_coordinate=(1, 3), second_coordinate=(2, 2), x1=1)
+
+        with self.assertRaises(TypeError):
+            r.clipline(rect_arg=(1, 3, 5))
+
+        with self.assertRaises(TypeError):
+            r.clipline(rect_arg=(1, 3, 5, 4), second_coordinate=(2, 2))
 
     def test_clipline__no_overlap(self):
         """Ensures lines that do not overlap the rect are not clipped."""
@@ -1940,7 +1961,7 @@ class RectTypeTest(unittest.TestCase):
         r2 = Rect(-2, -2, 1, 1)
         r3 = Rect(2, 2, 1, 1)
 
-        r1.unionall_ip(rect_sequence=[r2, r3])
+        r1.unionall_ip(rects=[r2, r3])
         self.assertEqual(Rect(-2, -2, 5, 5), r1)
 
         # Bug for an empty list. Would return a Rect instead of None.
@@ -2620,8 +2641,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.collidelist(f), -1)
 
     def test_collidelist__kwargs(self):
-        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
-
         # Rect.collidelist(list): return index
         # test if one rectangle in a list intersects
         #
@@ -2636,7 +2655,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.collidelist(l), 1)
 
         f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
-        self.assertEqual(r.collidelist(rect_list=f), -1)
+        self.assertEqual(r.collidelist(rects=f), -1)
 
     def test_collidelistall(self):
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
@@ -2836,7 +2855,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.collidelistall(l), [0, 1, 3])
 
         f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
-        self.assertFalse(r.collidelistall(rect_list=f))
+        self.assertFalse(r.collidelistall(rects=f))
 
     def test_collideobjects_call_variants(self):
         # arrange

@@ -442,7 +442,8 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"x", "y", NULL};
 
     if (kwargs) {
-        PyTupleObject *scale_by = PyDict_GetItemString(kwargs, "scale_by");
+        PyObject *scale_by = PyDict_GetItemString(kwargs, "scale_by");
+        int temp_x, temp_y = 0;
 
         if (scale_by) {
             if (PyDict_Size(kwargs) > 1) {
@@ -450,18 +451,13 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
                              "The 'scale_by' keyword cannot be combined with "
                              "other arguments.");
             }
-            else if (!PyTuple_Check(scale_by)) {
-                return RAISE(
-                    PyExc_TypeError,
-                    "The 'scale_by' keyword argument must be a tuple.");
+            if (!pg_TwoIntsFromObj(scale_by, &temp_x, &temp_y)) {
+                PyErr_SetString(PyExc_TypeError, "number pair expected");
+                return 0;
             }
-            else {
-                PyDict_SetItemString(kwargs, "x",
-                                     PyTuple_GET_ITEM(scale_by, 0));
-                PyDict_SetItemString(kwargs, "y",
-                                     PyTuple_GET_ITEM(scale_by, 1));
-                PyDict_DelItemString(kwargs, "scale_by");
-            }
+            PyDict_SetItemString(kwargs, "x", PyLong_FromLong(temp_x));
+            PyDict_SetItemString(kwargs, "y", PyLong_FromLong(temp_y));
+            PyDict_DelItemString(kwargs, "scale_by");
         }
     }
 
@@ -804,7 +800,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
-    static char *keywords[] = {"rect_list", NULL};
+    static char *keywords[] = {"rects", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
@@ -1185,6 +1181,64 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
     int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
     static char *keywords[] = {"x1", "x2", "x3", "x4", NULL};
+
+    if (kwargs) {
+        int temp_x1 = 0, temp_x2 = 0, temp_x3 = 0, temp_x4 = 0;
+
+        // Handles 'first_coord' and 'second_coord' scenarios
+        PyObject *first_coord =
+            PyDict_GetItemString(kwargs, "first_coordinate");
+        PyObject *second_coord =
+            PyDict_GetItemString(kwargs, "second_coordinate");
+
+        if (first_coord && second_coord) {
+            if (PyDict_Size(kwargs) > 2) {
+                return RAISE(
+                    PyExc_TypeError,
+                    "Only 2 keyword argument can be passed when "
+                    "using 'first_coordinate' and 'second_coordinate'");
+            }
+
+            if (!pg_TwoIntsFromObj(first_coord, &temp_x1, &temp_x2)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "number pair expected for first argument");
+                return 0;
+            }
+
+            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
+            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
+            PyDict_DelItemString(kwargs, "first_coordinate");
+
+            if (!pg_TwoIntsFromObj(second_coord, &temp_x3, &temp_x4)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "number pair expected for second argument");
+                return 0;
+            }
+
+            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
+            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
+            PyDict_DelItemString(kwargs, "second_coordinate");
+        }
+        // Handles 'rect_arg' scenarios
+        PyObject *rect_arg = PyDict_GetItemString(kwargs, "rect_arg");
+
+        if (rect_arg) {
+            if (PyDict_Size(kwargs) > 1) {
+                return RAISE(PyExc_TypeError,
+                             "Only 1 keyword argument can be passed when "
+                             "using 'rect_arg");
+            }
+            else if (!four_ints_from_obj(rect_arg, &temp_x1, &temp_x2,
+                                         &temp_x3, &temp_x4)) {
+                return 0;  // Exception already set
+            }
+            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
+            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
+            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
+            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
+            PyDict_DelItemString(kwargs, "rect_arg");
+        }
+    }
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", keywords, &arg1,
                                      &arg2, &arg3, &arg4)) {
