@@ -442,7 +442,7 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"x", "y", NULL};
 
     if (kwargs) {
-        auto *scale_by = PyDict_GetItemString(kwargs, "scale_by");
+        PyTupleObject *scale_by = PyDict_GetItemString(kwargs, "scale_by");
 
         if (scale_by) {
             if (PyDict_Size(kwargs) > 1) {
