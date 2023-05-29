@@ -197,21 +197,21 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.assertEqual(before_unpause, after_unpause)
 
-#    def todo_test_stop(self):
+    def todo_test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
         # Stops the music playback if it is currently playing.
-#        filename = example_path(os.path.join("data", "house_lo.mp3"))
-#        pygame.mixer.music.load(filename)
-#        pygame.mixer.music.play()
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
         
 
         # if (pygame.mixer.music.get_busy() == False):
         #     self.fail()
 
- #       pygame.mixer.music.stop()
- #       self.assertEqual(pygame.mixer.music.get_busy() == True)
- #       self.fail()             
+        pygame.mixer.music.stop()
+        self.assertEqual(pygame.mixer.music.get_busy() == True)
+        self.fail()             
        
 
     def todo_test_rewind(self):
