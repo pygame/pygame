@@ -204,14 +204,13 @@ class MixerMusicModuleTest(unittest.TestCase):
         filename = example_path(os.path.join("data", "house_lo.mp3"))
         pygame.mixer.music.load(filename)
         pygame.mixer.music.play()
-        
 
         # if (pygame.mixer.music.get_busy() == False):
-        #     self.fail()
+        self.fail()
 
         pygame.mixer.music.stop()
-        self.assertEqual(pygame.mixer.music.get_busy() == True)
-        self.fail()             
+        self.assertEqual(pygame.mixer.music.get_busy(), False)
+
        
 
     def todo_test_rewind(self):
@@ -239,12 +238,12 @@ class MixerMusicModuleTest(unittest.TestCase):
         # the specified time (measured in milliseconds).
         #
         # Note, that this function blocks until the music has faded out.
+        pass
 
-
-    @unittest.skipIf(
-        os.environ.get("SDL_AUDIODRIVER") == "disk",
-        'disk audio driver "playback" writing to disk is slow',
-    )
+#    @unittest.skipIf(
+#        os.environ.get("SDL_AUDIODRIVER") == "disk",
+#        'disk audio driver "playback" writing to disk is slow',
+#    )
     def test_play__start_time(self):
         pygame.display.init()
 
