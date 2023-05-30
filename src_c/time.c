@@ -28,15 +28,36 @@
 
 #define WORST_CLOCK_ACCURACY 12
 
+/**
+ * Linked list structure to hold timer data.
+ */
 typedef struct pgEventTimer {
-    struct pgEventTimer *next;
-    intptr_t timer_id;
-    pgEventObject *event;
-    int repeat;
+    struct pgEventTimer
+        *next;            /** Pointer to the next timer in the linked list. */
+    intptr_t timer_id;    /** The ID of the timer. */
+    pgEventObject *event; /** The event object associated with the timer. */
+    int repeat;           /** The number of times the timer should repeat. */
 } pgEventTimer;
 
+/**
+ * pg_event_timer is a pointer to the first timer in a linked list of
+ * pgEventTimer structures. Each pgEventTimer structure represents a timer that
+ * has been created using pygame.time.set_timer. The linked list is used to
+ * keep track of all the timers that have been created. If no timers have been
+ * created, pg_event_timer is NULL.
+ */
 static pgEventTimer *pg_event_timer = NULL;
+
+/**
+ * timermutex is a mutex used to protect the pg_event_timer linked list.
+ * It is created when pygame.time.autoinit is called, and destroyed when
+ * pygame.time.autoquit is called.
+ */
 static SDL_mutex *timermutex = NULL;
+
+/**
+ * pg_timer_id is an integer that is incremented each time a timer is created.
+ */
 static intptr_t pg_timer_id = 0;
 
 static PyObject *
@@ -102,6 +123,8 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 
     pg_timer_id++;
 
+    Py_XINCREF(ev);
+
     new->next = pg_event_timer;
     new->timer_id = pg_timer_id;
     new->event = ev;
@@ -113,48 +136,75 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
     return new->timer_id;
 }
 
+/**
+ * \brief Removes the pgEventTimer struct associated with the given
+ * pgEventObject from the linked list of timers.
+ *
+ * \param ev The pgEventObject to remove from the linked list of timers.
+ *
+ * \note Requires GIL.
+ * \note Requires locking of timermutex.
+ */
 static void
 _pg_remove_event_timer(pgEventObject *ev)
 {
     pgEventTimer *hunt, *prev = NULL;
-
-    SDL_LockMutex(timermutex);
-    if (pg_event_timer) {
-        hunt = pg_event_timer;
-        while (hunt->event->type != ev->type) {
-            prev = hunt;
-            hunt = hunt->next;
-            if (!hunt) {
-                /* Reached end without finding a match, quit early */
-                SDL_UnlockMutex(timermutex);
-                return;
-            }
-        }
-        if (prev)
-            prev->next = hunt->next;
-        else
-            pg_event_timer = hunt->next;
-        Py_DECREF(hunt->event);
-        PyMem_Del(hunt);
+    if (!pg_event_timer) {
+        /* No timers, quit early */
+        return;
     }
+
+    if (SDL_LockMutex(timermutex) < 0)
+        return;
+
+    hunt = pg_event_timer;
+    while (hunt->event->type != ev->type) {
+        prev = hunt;
+        hunt = hunt->next;
+        if (!hunt) {
+            /* Reached end without finding a match, quit early */
+            SDL_UnlockMutex(timermutex);
+            return;
+        }
+    }
+    if (prev)
+        prev->next = hunt->next;
+    else
+        pg_event_timer = hunt->next;
+    Py_DECREF(hunt->event);
+    PyMem_Del(hunt);
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
 }
 
+/**
+ * Returns the pgEventTimer struct associated with the given timer_id.
+ * Decrements the repeat counter of the timer by 1 if it is greater than or
+ * equal to 0.
+ *
+ * \param timer_id The ID of the timer to retrieve.
+ * \returns A pointer to the pgEventTimer struct associated with the given
+ * timer_id, or NULL if not found.
+ *
+ * \note No GIL required
+ * \note Requires timermutex lock
+ */
 static pgEventTimer *
 _pg_get_event_on_timer(intptr_t timer_id)
 {
-    pgEventTimer *hunt;
+    pgEventTimer *hunt, *found;
 
     if (SDL_LockMutex(timermutex) < 0)
         return NULL;
 
     hunt = pg_event_timer;
+    found = NULL;
     while (hunt) {
         if (hunt->timer_id == timer_id) {
             if (hunt->repeat >= 0) {
                 hunt->repeat--;
             }
+            found = hunt;
             break;
         }
         hunt = hunt->next;
@@ -162,7 +212,7 @@ _pg_get_event_on_timer(intptr_t timer_id)
 
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
-    return hunt;
+    return found;
 }
 
 static Uint32
@@ -288,8 +338,6 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 
     static char *kwids[] = {"event", "millis", "loops", NULL};
 
-    /* do not allow set_timer to work on WASM for now... this needs some more
-     * testing and fixes that are WIP on other PRs */
 #ifdef __EMSCRIPTEN__
     return RAISE(PyExc_NotImplementedError,
                  "set_timer is not implemented on WASM yet");
