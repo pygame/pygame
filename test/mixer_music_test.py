@@ -197,16 +197,13 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.assertEqual(before_unpause, after_unpause)
 
-    def todo_test_stop(self):
+    def test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
         # Stops the music playback if it is currently playing.
         filename = example_path(os.path.join("data", "house_lo.mp3"))
         pygame.mixer.music.load(filename)
         pygame.mixer.music.play()
-
-        # if (pygame.mixer.music.get_busy() == False):
-        self.fail()
 
         pygame.mixer.music.stop()
         self.assertEqual(pygame.mixer.music.get_busy(), False)
@@ -240,10 +237,10 @@ class MixerMusicModuleTest(unittest.TestCase):
         # Note, that this function blocks until the music has faded out.
         pass
 
-#    @unittest.skipIf(
-#        os.environ.get("SDL_AUDIODRIVER") == "disk",
-#        'disk audio driver "playback" writing to disk is slow',
-#    )
+    @unittest.skipIf(
+        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        'disk audio driver "playback" writing to disk is slow',
+    )
     def test_play__start_time(self):
         pygame.display.init()
 
