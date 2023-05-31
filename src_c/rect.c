@@ -443,7 +443,7 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     if (kwargs) {
         PyObject *scale_by = PyDict_GetItemString(kwargs, "scale_by");
-        int temp_x, temp_y = 0;
+        float temp_x, temp_y = 0;
 
         if (scale_by) {
             if (PyDict_Size(kwargs) > 1) {
@@ -451,18 +451,19 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
                              "The 'scale_by' keyword cannot be combined with "
                              "other arguments.");
             }
-            if (!pg_TwoIntsFromObj(scale_by, &temp_x, &temp_y)) {
+            if (!pg_TwoFloatsFromObj(scale_by, &temp_x, &temp_y)) {
                 PyErr_SetString(PyExc_TypeError, "number pair expected");
                 return 0;
             }
-            PyDict_SetItemString(kwargs, "x", PyLong_FromLong(temp_x));
-            PyDict_SetItemString(kwargs, "y", PyLong_FromLong(temp_y));
+            PyDict_SetItemString(kwargs, "x", PyFloat_FromDouble(temp_x));
+            PyDict_SetItemString(kwargs, "y", PyFloat_FromDouble(temp_y));
             PyDict_DelItemString(kwargs, "scale_by");
         }
     }
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "f|f", keywords, &factor_x,
                                      &factor_y)) {
+        PyErr_SetString(PyExc_TypeError, "Float values expected.");
         return NULL;
     }
 
@@ -1497,7 +1498,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip,
+    {"scale_by_ip", (PyCFunction)(void (*)(void))pg_rect_scale_by_ip,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip,

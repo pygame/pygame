@@ -855,17 +855,6 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
-    def test_scale_by__kwarg_exceptions(self):
-        """The scale method scales around the center of the rectangle using
-        keyword argument 'scale_by'. Tests for incorrect keyword args"""
-        r = Rect(2, 4, 6, 8)
-
-        with self.assertRaises(SystemError):
-            r.scale_by(scale_by=2)
-
-        with self.assertRaises(SystemError):
-            r.scale_by(scale_by=(1, 2), y=1)
-
     def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 8, 8)
@@ -1079,6 +1068,17 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by_ip__kwarg_exceptions(self):
+        """The scale method scales around the center of the rectangle using
+        keyword argument 'scale_by'. Tests for incorrect keyword args"""
+        r = Rect(2, 4, 6, 8)
+
+        with self.assertRaises(TypeError):
+            r.scale_by_ip(scale_by=2)
+
+        with self.assertRaises(TypeError):
+            r.scale_by_ip(scale_by=(1, 2), y=1)
 
     def test_clamp(self):
         r = Rect(10, 10, 10, 10)
