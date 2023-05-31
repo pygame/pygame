@@ -1498,7 +1498,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"scale_by_ip", (PyCFunction)(void (*)(void))pg_rect_scale_by_ip,
+    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip,
