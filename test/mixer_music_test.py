@@ -207,9 +207,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.stop()
         self.assertEqual(pygame.mixer.music.get_busy(), False)
-
-       
-
+        
     def todo_test_rewind(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
 
