@@ -235,7 +235,8 @@ class MixerMusicModuleTest(unittest.TestCase):
         # the specified time (measured in milliseconds).
         #
         # Note, that this function blocks until the music has faded out.
-        pass
+        
+        self.fail()
 
     @unittest.skipIf(
         os.environ.get("SDL_AUDIODRIVER") == "disk",
