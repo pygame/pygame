@@ -435,11 +435,35 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
+pg_rect_scale_by_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     float factor_x, factor_y = 0;
 
-    if (!PyArg_ParseTuple(args, "f|f", &factor_x, &factor_y)) {
+    static char *keywords[] = {"x", "y", NULL};
+
+    if (kwargs) {
+        PyObject *scale_by = PyDict_GetItemString(kwargs, "scale_by");
+        float temp_x, temp_y = 0;
+
+        if (scale_by) {
+            if (PyDict_Size(kwargs) > 1) {
+                return RAISE(PyExc_TypeError,
+                             "The 'scale_by' keyword cannot be combined with "
+                             "other arguments.");
+            }
+            if (!pg_TwoFloatsFromObj(scale_by, &temp_x, &temp_y)) {
+                PyErr_SetString(PyExc_TypeError, "number pair expected");
+                return 0;
+            }
+            PyDict_SetItemString(kwargs, "x", PyFloat_FromDouble(temp_x));
+            PyDict_SetItemString(kwargs, "y", PyFloat_FromDouble(temp_y));
+            PyDict_DelItemString(kwargs, "scale_by");
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "f|f", keywords, &factor_x,
+                                     &factor_y)) {
+        PyErr_SetString(PyExc_TypeError, "Float values expected.");
         return NULL;
     }
 
@@ -458,11 +482,11 @@ pg_rect_scale_by_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_scale_by(pgRectObject *self, PyObject *args)
+pg_rect_scale_by(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     pgRectObject *returnRect = (pgRectObject *)_pg_rect_subtype_new4(
         Py_TYPE(self), self->r.x, self->r.y, self->r.w, self->r.h);
-    pg_rect_scale_by_ip(returnRect, args);
+    pg_rect_scale_by_ip(returnRect, args, kwargs);
     return (PyObject *)returnRect;
 }
 
@@ -519,14 +543,16 @@ pg_rect_union_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_unionall(pgRectObject *self, PyObject *args)
+pg_rect_unionall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop, size;
     PyObject *list, *obj;
     int t, l, b, r;
 
-    if (!PyArg_ParseTuple(args, "O", &list)) {
+    static char *keywords[] = {"rect", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
     if (!PySequence_Check(list)) {
@@ -565,14 +591,16 @@ pg_rect_unionall(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
+pg_rect_unionall_ip(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop, size;
     PyObject *list, *obj;
     int t, l, b, r;
 
-    if (!PyArg_ParseTuple(args, "O", &list)) {
+    static char *keywords[] = {"rects", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
     if (!PySequence_Check(list)) {
@@ -721,7 +749,7 @@ pg_rect_colliderect(pgRectObject *self, PyObject *const *args,
 PG_WRAP_FASTCALL_FUNC(pg_rect_colliderect, pgRectObject)
 
 static PyObject *
-pg_rect_collidelist(pgRectObject *self, PyObject *args)
+pg_rect_collidelist(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t size;
@@ -729,7 +757,9 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
-    if (!PyArg_ParseTuple(args, "O", &list)) {
+    static char *keywords[] = {"rects", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
 
@@ -763,7 +793,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_collidelistall(pgRectObject *self, PyObject *args)
+pg_rect_collidelistall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t size;
@@ -771,7 +801,9 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
-    if (!PyArg_ParseTuple(args, "O", &list)) {
+    static char *keywords[] = {"rects", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &list)) {
         return NULL;
     }
 
@@ -974,7 +1006,7 @@ pg_rect_collideobjects(pgRectObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-pg_rect_collidedict(pgRectObject *self, PyObject *args)
+pg_rect_collidedict(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop = 0;
@@ -982,7 +1014,10 @@ pg_rect_collidedict(pgRectObject *self, PyObject *args)
     PyObject *dict, *key, *val;
     PyObject *ret = NULL;
 
-    if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
+    static char *keywords[] = {"rect_dict", "values", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &dict,
+                                     &values)) {
         return NULL;
     }
 
@@ -1016,7 +1051,7 @@ pg_rect_collidedict(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_collidedictall(pgRectObject *self, PyObject *args)
+pg_rect_collidedictall(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Rect *argrect, temp;
     Py_ssize_t loop = 0;
@@ -1024,7 +1059,10 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
     PyObject *dict, *key, *val;
     PyObject *ret = NULL;
 
-    if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
+    static char *keywords[] = {"rect_dict", "values", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &dict,
+                                     &values)) {
         return NULL;
     }
 
@@ -1137,13 +1175,74 @@ nointersect:
  *         () - empty tuple, if no intersection
  */
 static PyObject *
-pg_rect_clipline(pgRectObject *self, PyObject *args)
+pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *arg1 = NULL, *arg2 = NULL, *arg3 = NULL, *arg4 = NULL;
     SDL_Rect *rect = &self->r, *rect_copy = NULL;
     int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
-    if (!PyArg_ParseTuple(args, "O|OOO", &arg1, &arg2, &arg3, &arg4)) {
+    static char *keywords[] = {"x1", "x2", "x3", "x4", NULL};
+
+    if (kwargs) {
+        int temp_x1 = 0, temp_x2 = 0, temp_x3 = 0, temp_x4 = 0;
+
+        // Handles 'first_coord' and 'second_coord' scenarios
+        PyObject *first_coord =
+            PyDict_GetItemString(kwargs, "first_coordinate");
+        PyObject *second_coord =
+            PyDict_GetItemString(kwargs, "second_coordinate");
+
+        if (first_coord && second_coord) {
+            if (PyDict_Size(kwargs) > 2) {
+                return RAISE(
+                    PyExc_TypeError,
+                    "Only 2 keyword argument can be passed when "
+                    "using 'first_coordinate' and 'second_coordinate'");
+            }
+
+            if (!pg_TwoIntsFromObj(first_coord, &temp_x1, &temp_x2)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "number pair expected for first argument");
+                return 0;
+            }
+
+            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
+            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
+            PyDict_DelItemString(kwargs, "first_coordinate");
+
+            if (!pg_TwoIntsFromObj(second_coord, &temp_x3, &temp_x4)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "number pair expected for second argument");
+                return 0;
+            }
+
+            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
+            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
+            PyDict_DelItemString(kwargs, "second_coordinate");
+        }
+        // Handles 'rect_arg' scenarios
+        PyObject *rect_arg = PyDict_GetItemString(kwargs, "rect_arg");
+
+        if (rect_arg) {
+            if (PyDict_Size(kwargs) > 1) {
+                return RAISE(PyExc_TypeError,
+                             "Only 1 keyword argument can be passed when "
+                             "using 'rect_arg");
+            }
+            else if (!four_ints_from_obj(rect_arg, &temp_x1, &temp_x2,
+                                         &temp_x3, &temp_x4)) {
+                return 0;  // Exception already set
+            }
+            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
+            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
+            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
+            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
+            PyDict_DelItemString(kwargs, "rect_arg");
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", keywords, &arg1,
+                                     &arg2, &arg3, &arg4)) {
         return NULL; /* Exception already set. */
     }
 
@@ -1382,7 +1481,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
      DOC_RECTNORMALIZE},
     {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
-    {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS,
+    {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS | METH_KEYWORDS,
      DOC_RECTCLIPLINE},
     {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
     {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
@@ -1390,35 +1489,36 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
     {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
-    {"scale_by", (PyCFunction)pg_rect_scale_by, METH_VARARGS, DOC_RECTSCALEBY},
+    {"scale_by", (PyCFunction)pg_rect_scale_by, METH_VARARGS | METH_KEYWORDS,
+     DOC_RECTSCALEBY},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
-    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
+    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS | METH_KEYWORDS,
      DOC_RECTUNIONALL},
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
-    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip, METH_VARARGS,
-     DOC_RECTSCALEBYIP},
+    {"scale_by_ip", (PyCFunction)pg_rect_scale_by_ip,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTSCALEBYIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
-    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
-     DOC_RECTUNIONALLIP},
+    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTUNIONALLIP},
     {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
      DOC_RECTCOLLIDEPOINT},
     {"colliderect", (PyCFunction)PG_FASTCALL_NAME(pg_rect_colliderect),
      PG_FASTCALL, DOC_RECTCOLLIDERECT},
-    {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
-     DOC_RECTCOLLIDELIST},
-    {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
-     DOC_RECTCOLLIDELISTALL},
+    {"collidelist", (PyCFunction)pg_rect_collidelist,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELIST},
+    {"collidelistall", (PyCFunction)pg_rect_collidelistall,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDELISTALL},
     {"collideobjectsall", (PyCFunction)pg_rect_collideobjectsall,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTSALL},
     {"collideobjects", (PyCFunction)pg_rect_collideobjects,
      METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEOBJECTS},
-    {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
-     DOC_RECTCOLLIDEDICT},
-    {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
-     DOC_RECTCOLLIDEDICTALL},
+    {"collidedict", (PyCFunction)pg_rect_collidedict,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEDICT},
+    {"collidedictall", (PyCFunction)pg_rect_collidedictall,
+     METH_VARARGS | METH_KEYWORDS, DOC_RECTCOLLIDEDICTALL},
     {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
      DOC_RECTCONTAINS},
     {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
