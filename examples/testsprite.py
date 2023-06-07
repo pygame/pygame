@@ -14,13 +14,9 @@ import os
 
 from random import randint
 from time import time
+from typing import List
 
 import pygame as pg
-
-
-if "-psyco" in sys.argv:
-    # psyco was a great, but now unsupported jit for pythons before 2.7
-    print("No psyco for you!  psyco failed to import and run.")
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
@@ -74,10 +70,7 @@ if "-width" in sys.argv:
     i = sys.argv.index("-width")
     screen_dims[0] = int(sys.argv[i + 1])
 
-if "-alpha" in sys.argv:
-    use_alpha = True
-else:
-    use_alpha = False
+use_alpha = "-alpha" in sys.argv
 
 print(screen_dims)
 
@@ -103,7 +96,7 @@ print(screen_dims)
 
 
 class Thingy(pg.sprite.DirtySprite):
-    images = None
+    images: List[pg.Surface] = []
 
     def __init__(self):
         ##        pg.sprite.Sprite.__init__(self)
@@ -126,21 +119,21 @@ class Thingy(pg.sprite.DirtySprite):
 
 
 class Static(pg.sprite.DirtySprite):
-    images = None
+    images: List[pg.Surface] = []
 
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
         self.image = Static.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x = randint(0, 3 * screen_dims[0] / 4)
-        self.rect.y = randint(0, 3 * screen_dims[1] / 4)
+        self.rect.x = randint(0, 3 * screen_dims[0] // 4)
+        self.rect.y = randint(0, 3 * screen_dims[1] // 4)
 
 
 def main(
     update_rects=True,
     use_static=False,
     use_layered_dirty=False,
-    screen_dims=[640, 480],
+    screen_dims=(640, 480),
     use_alpha=False,
     flags=0,
 ):
