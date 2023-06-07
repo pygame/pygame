@@ -14,6 +14,7 @@ import os
 
 from random import randint
 from time import time
+from typing import List
 
 import pygame as pg
 
@@ -69,10 +70,7 @@ if "-width" in sys.argv:
     i = sys.argv.index("-width")
     screen_dims[0] = int(sys.argv[i + 1])
 
-if "-alpha" in sys.argv:
-    use_alpha = True
-else:
-    use_alpha = False
+use_alpha = "-alpha" in sys.argv
 
 print(screen_dims)
 
@@ -98,7 +96,7 @@ print(screen_dims)
 
 
 class Thingy(pg.sprite.DirtySprite):
-    images = []
+    images: List[pg.Surface] = []
 
     def __init__(self):
         ##        pg.sprite.Sprite.__init__(self)
@@ -121,7 +119,7 @@ class Thingy(pg.sprite.DirtySprite):
 
 
 class Static(pg.sprite.DirtySprite):
-    images = []
+    images: List[pg.Surface] = []
 
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
@@ -135,7 +133,7 @@ def main(
     update_rects=True,
     use_static=False,
     use_layered_dirty=False,
-    screen_dims=[640, 480],
+    screen_dims=(640, 480),
     use_alpha=False,
     flags=0,
 ):
