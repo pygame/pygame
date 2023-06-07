@@ -62,7 +62,7 @@ def main():
 
         surf.fill((0, 0, 0))
         surf.blit(spr_file_text, spr_file_text_rect)
-        if spr_file_image:
+        if spr_file_image and spr_file_image_rect is not None:
             surf.blit(spr_file_image, spr_file_image_rect)
 
         pg.display.flip()
