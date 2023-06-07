@@ -17,11 +17,6 @@ from time import time
 
 import pygame as pg
 
-
-if "-psyco" in sys.argv:
-    # psyco was a great, but now unsupported jit for pythons before 2.7
-    print("No psyco for you!  psyco failed to import and run.")
-
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
@@ -103,7 +98,7 @@ print(screen_dims)
 
 
 class Thingy(pg.sprite.DirtySprite):
-    images = None
+    images = []
 
     def __init__(self):
         ##        pg.sprite.Sprite.__init__(self)
@@ -126,14 +121,14 @@ class Thingy(pg.sprite.DirtySprite):
 
 
 class Static(pg.sprite.DirtySprite):
-    images = None
+    images = []
 
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
         self.image = Static.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x = randint(0, 3 * screen_dims[0] / 4)
-        self.rect.y = randint(0, 3 * screen_dims[1] / 4)
+        self.rect.x = randint(0, 3 * screen_dims[0] // 4)
+        self.rect.y = randint(0, 3 * screen_dims[1] // 4)
 
 
 def main(
