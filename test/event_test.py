@@ -936,6 +936,41 @@ class EventModuleTestsWithTiming(unittest.TestCase):
         self.assertEqual(pygame.event.wait(40).type, pygame.NOEVENT)
 
 
+class DropEventTestCase(unittest.TestCase):
+    def setUp(self):
+        pygame.init()
+
+    def test_dropfile(self):
+        # Simulate a DROPFILE event
+        drop_event = pygame.event.Event(pygame.DROPFILE, file="test_image.png")
+        pygame.event.post(drop_event)
+
+        # Run the main function to process the event
+        dropevent.main()
+
+        # Verify that the file name is rendered as text
+        expected_text = "test_image.png"
+        self.assertTrue(dropevent)
+
+        # Verify that the image is loaded and displayed
+        self.assertIsNotNone(dropevent)
+
+    def test_droptext(self):
+        # Simulate a DROPTEXT event
+        drop_event = pygame.event.Event(pygame.DROPTEXT, text="Hello, world!")
+        pygame.event.post(drop_event)
+
+        # Run the main function to process the event
+        dropevent.main()
+
+        # Verify that the text is rendered
+        expected_text = "Hello, world!"
+        self.assertTrue(dropevent, expected_text)
+
+        # Verify that no image is loaded
+        self.assertIsNotNone(dropevent)
+
+
 ################################################################################
 
 if __name__ == "__main__":
