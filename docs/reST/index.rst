@@ -10,7 +10,6 @@ Pygame Front Page
    tut/*
    tut/en/**/*
    tut/ko/**/*
-   tut/es/*
    c_api
    filepaths
    logos
