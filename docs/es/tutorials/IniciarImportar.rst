@@ -1,6 +1,6 @@
 .. TUTORIAL:Import and Initialize
 
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 ***********************************************
   Tutoriales de Pygame - Importar e Inicializar

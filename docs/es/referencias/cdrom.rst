@@ -1,4 +1,4 @@
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 :mod:`pygame.cdrom`
 ===================
@@ -9,11 +9,10 @@
 | :sl:`pygame module for audio cdrom control`
 
 .. warning::
-	Este módulo no es funcional en pygame 2.0 y versiones superiores, a menos que hayas compilado manualmente 
-   pygame con SDL1.
-   Este módulo no estará soportado en el futuro.
-   Una alternativa para la funcionalidad de cdrom de Python es `pycdio <https://pypi.org/project/pycdio/>`_.
-	
+	Este módulo no es funcional en pygame 2.0 y versiones superiores, a menos que hayas compilado manualmente pygame con SDL1.
+	Este módulo no estará soportado en el futuro.
+	Una alternativa para la funcionalidad de cdrom de Python es `pycdio <https://pypi.org/project/pycdio/>`_.
+
 El módulo cdrom administra las unidades de ``CD`` y ``DVD`` en la computadora.
 También puede controlar la reproducción de CD de audio. Este módulo debe 
 inicializarse antes de poder hacer algo. Cada objeto ``CD``que crees 

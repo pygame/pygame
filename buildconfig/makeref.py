@@ -4,14 +4,37 @@ import sys
 import os
 import subprocess
 
-rst_dir = 'docs'
-rst_source_dir = os.path.join(rst_dir, 'reST')
-rst_build_dir = os.path.join('docs', 'generated')
-rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
-c_header_dir = os.path.join('src_c', 'doc')
+# rst_dir = 'docs'
+# rst_source_dir = os.path.join(rst_dir, 'reST')
+# rst_build_dir = os.path.join('docs', 'generated')
+
+# rst_source_dir = os.path.join(rst_dir, 'es')
+# rst_build_dir = os.path.join('docs', 'generated', 'es')
+
+# rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
+# c_header_dir = os.path.join('src_c', 'doc')
 
 
 def run():
+    global rst_dir, rst_source_dir, rst_build_dir, rst_doctree_dir, c_header_dir
+    rst_dir = 'docs'
+    rst_source_dir = os.path.join(rst_dir, 'reST')
+    rst_build_dir = os.path.join('docs', 'generated')
+
+    rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
+    c_header_dir = os.path.join('src_c', 'doc')
+    print("Generating:", rst_source_dir, rst_build_dir)
+    runit()
+
+
+    rst_source_dir = os.path.join(rst_dir, 'es')
+    rst_build_dir = os.path.join('docs', 'generated', 'es')
+    rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
+    print("Generating:", rst_source_dir, rst_build_dir)
+    runit()
+
+
+def runit():
     full_generation_flag = False
     for argument in sys.argv[1:]:
         if argument == 'full_generation':

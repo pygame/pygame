@@ -1,4 +1,4 @@
-.. include:: common.txt
+.. include:: ../reST/common.txt
 
 Colores Nombrados
 =================

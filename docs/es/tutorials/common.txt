@@ -1,6 +1,6 @@
 .. Common definitions for tutorials
 
-.. include:: ../../common.txt
+.. include:: ../../../../reST/common.txt
 
 .. role:: codelineref
 

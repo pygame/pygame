@@ -1,4 +1,4 @@
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 **************************
 Clases de objetos de juego
@@ -127,7 +127,7 @@ Para empezar, notarás que la pelota tiene un atributo llamado ``vector``, que e
 pelota. Entonces, usando este vector, podemos determinar la dirección y velocidad de la pelota, y por lo tanto, cuánto se 
 moverá en los ejes x e y:
 
-.. image:: ../tom_radians.png
+.. image:: ../../reST/tut/tom_radians.png
 
 El diagrama anterior ilustra las matemáticas básicas detrás de los vectores. En el diagrama de la izquierda, se puede ver el 
 movimiento proyectado de la pelota representado por una línea azul. La longitud de esa línea (z) representa su velocidad, y el 
@@ -144,5 +144,5 @@ Si has estudiado trigonometría elemental antes, nada de esto debería ser nuevo
 hay algunas fórmulas útiles para recordar, que te ayudarán a visualizar los ángulos (a mi me resulta más fácil visualizar los 
 ángulos en grados que en radianes.
 
-.. image:: ../tom_formulae.png
+.. image:: ../../reST/tut/tom_formulae.png
 
