@@ -1,4 +1,4 @@
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 :mod:`pygame.camera`
 ====================
@@ -22,27 +22,27 @@ La función de Bayer a ``RGB`` se basa en:
 
 ::
 
- las rutinas básicas de la interfaz de la cámara web
- Sonix SN9C101. 
+ Sonix SN9C101 based webcam basic I/F routines
  Copyright (C) 2004 Takafumi Mizuno <taka-qce@ls-a.jp>
- Se permite la redistribución y uso en forma de código fuente y binario
- con o sin modificaciones, siempre que se cumplan las siguientes condiciones:
- 1. Las redistribuciones del código fuente deben conservar el aviso de 
-   copyright anterior, esta lista de condiciones y el siguiente aviso legal.
- 2. Las redistribuciones en forma binaria deben reproducir el aviso de 
-   copyright anterior, esta lista de condiciones y el siguiente aviso legal 
-   en la documentación y/u otros materiales proporcionados con la distribución.
-ESTE SOFTWARE SE PROPORCIONA "TAL CUAL" POR EL AUTOR Y COLABORADORES Y CUALQUIER 
-GARANTÍA EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITANDO A, LAS GARANTÍAS 
-IMPLÍCITAS DE COMERCIABILIDAD Y APTITUD PARA UN PROPÓSITO PARTICULAR, SON 
-RECHAZADAS. EN NINGÚN CASO EL AUTOR O LOS COLABORADORES SERÁN RESPONSABLES 
-DE NINGÚN DAÑO DIRECTO, INDIRECTO, INCIDENTAL, ESPECIAL, EJEMPLAR O CONSECUENTE
-(INCLUYENDO, PERO NO LIMITANDO A, LA ADQUISICIÓN DE BIENES O SERVICIOS 
-SUSTITUTOS, LA PÉRDIDA DE USO, DATOS O BENEFICIOS, O INTERRUPCIÓN DEL NEGOCIO)
-CAUSADOS Y SOBRE CUALQUIER TEORÍA DE RESPONSABILIDAD, YA SEA EN CONTRATO, 
-RESPONSABILIDAD ESTRICTA O AGRAVIO (INCLUYENDO NEGLIGENCIA O DE OTRO MODO) 
-QUE SURJA DE CUALQUIER MANERA DEL USO DE ESTE SOFTWARE, INCLUSO SI SE HA 
-ADVERTIDO DE LA POSIBILIDAD DE TALES DAÑOS.
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
 
 Nuevo en pygame 1.9.0.
 

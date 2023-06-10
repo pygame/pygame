@@ -1,4 +1,4 @@
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 :mod:`pygame.cursors`
 =====================
@@ -260,4 +260,4 @@ Las siguientes cadenas de caracteres se pueden convertir en mapas de bits de cur
 
 Código de ejemplo para crear y establecer cursores. (Click en el mouse para cambiar el cursor)
 
-.. literalinclude:: code_examples/cursors_module_example.py
+.. literalinclude:: ../../reST/ref/code_examples/cursors_module_example.py

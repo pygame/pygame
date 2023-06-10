@@ -1,6 +1,6 @@
 .. TUTORIAL:Introduction to the surfarray module
 
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 *************************************************
   Tutoriales de Pygame - Introducción a Surfarray
@@ -283,7 +283,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_allblack.png
+      .. image:: ../../reST/tut/surfarray_allblack.png
          :alt: allblack
 
       ::
@@ -302,7 +302,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_striped.png
+      .. image:: ../../reST/tut/surfarray_striped.png
          :alt: striped
 
       ::
@@ -324,7 +324,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_rgbarray.png
+      .. image:: ../../reST/tut/surfarray_rgbarray.png
          :alt: rgbarray
 
       ::
@@ -348,7 +348,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_flipped.png
+      .. image:: ../../reST/tut/surfarray_flipped.png
          :alt: flipped
 
       ::
@@ -366,7 +366,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_scaledown.png
+      .. image:: ../../reST/tut/surfarray_scaledown.png
          :alt: scaledown
 
       ::
@@ -385,7 +385,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_scaleup.png
+      .. image:: ../../reST/tut/surfarray_scaleup.png
          :alt: scaleup
 
       ::
@@ -413,7 +413,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_redimg.png
+      .. image:: ../../reST/tut/surfarray_redimg.png
          :alt: redimg
 
       ::
@@ -433,7 +433,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_soften.png
+      .. image:: ../../reST/tut/surfarray_soften.png
          :alt: soften
 
       ::
@@ -467,7 +467,7 @@ se encuentran en el ejemplo arraydemo.py. Hay una función simple llamada
 
    .. container:: example
 
-      .. image:: ../surfarray_xfade.png
+      .. image:: ../../reST/tut/surfarray_xfade.png
          :alt: xfade
 
       ::

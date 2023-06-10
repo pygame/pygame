@@ -1,6 +1,6 @@
 .. TUTORIAL:¡Ayuda! ¿Cómo Muevo Una Imagen?
 
-.. include:: common.txt
+.. include:: ../../reST/common.txt
 
 *********************************************************
 Tutoriales de Pygame - ¡Ayuda! ¿Cómo Muevo Una Imagen?
