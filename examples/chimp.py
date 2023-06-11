@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """ pygame.examples.chimp
-
 This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
 Note there are comments here, but for the full explanation,
@@ -8,196 +7,228 @@ follow along in the tutorial.
 """
 
 
-# Import Modules
-import os
+from pathlib import Path  # Platform independent file paths.
+import sys  # sys.exit()
 import pygame as pg
 
-if not pg.font:
-    print("Warning, fonts disabled")
-if not pg.mixer:
-    print("Warning, sound disabled")
 
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, "data")
+class FpsCounter(pg.sprite.Sprite):
+
+    def __init__(self,
+                 bg_color=pg.Color(127,127,27),
+                 fg_color=pg.Color(255,255,255)):
+        
+        pg.sprite.Sprite.__init__(self)
+
+        self.bg_color = bg_color
+        self.fg_color = fg_color
+        self.font = pg.font.SysFont((), 64)
+        
+        self.update()  # Generate surface image
+        self.rect = self.image.get_rect()
+        
+        self.FPS_EVENT = pg.event.custom_type()
+        pg.time.set_timer(pg.event.Event(self.FPS_EVENT, {}), 256)
+
+        self.add(Game.allsprites)
+
+    def update(self, *nevermint):
+        # Generate surface image
+        self.image = self.font.render(Game.clock.get_fps().__int__().__str__(),
+                                      False,
+                                      self.fg_color,
+                                      self.bg_color)
 
 
-# functions to create our resources
-def load_image(name, colorkey=None, scale=1):
-    fullname = os.path.join(data_dir, name)
-    image = pg.image.load(fullname)
-    image = image.convert()
+class Media():
 
-    size = image.get_size()
-    size = (size[0] * scale, size[1] * scale)
-    image = pg.transform.scale(image, size)
+    def load_image(filename, colorkey=None, scale=1):
+        filename = Path('data').joinpath(filename)
+        image = pg.image.load(filename).convert()
 
-    if colorkey is not None:
+        x, y = image.get_size()
+        x = x * scale
+        y = y * scale
+        image = pg.transform.scale(image, (x,y))
+
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
+
         image.set_colorkey(colorkey, pg.RLEACCEL)
-    return image, image.get_rect()
+
+        return image, image.get_rect()
+
+    def load_sound(filename):
+        if not pg.mixer or not pg.mixer.get_init():
+            print("Warning, sound disabled")
+
+            class NoneSound:
+                def play(self):
+                    pass
+
+            return NoneSound()
+        else:
+            filename = Path('data').joinpath(filename)
+            return pg.mixer.Sound(filename)
 
 
-def load_sound(name):
-    class NoneSound:
-        def play(self):
-            pass
-
-    if not pg.mixer or not pg.mixer.get_init():
-        return NoneSound()
-
-    fullname = os.path.join(data_dir, name)
-    sound = pg.mixer.Sound(fullname)
-
-    return sound
-
-
-# classes for our game objects
 class Fist(pg.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
+    """Clenched fist (follows mouse)"""
 
     def __init__(self):
-        pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.image, self.rect = load_image("fist.png", -1)
-        self.fist_offset = (-235, -80)
-        self.punching = False
+        pg.sprite.Sprite.__init__(self)  # Call before adding sprite to groups.
+        self.image, self.rect = Media.load_image("fist.png", colorkey=-1)
+        self.whiff_sound = Media.load_sound("whiff.wav")
+        self.punch_sound = Media.load_sound("punch.wav")
+        self.state = self.FIST_RETRACTED = (-235, -80)
+        self.FIST_PUNCHING = (-220, -55)
+        self.add(Game.allsprites)
 
-    def update(self):
-        """move the fist based on the mouse position"""
-        pos = pg.mouse.get_pos()
-        self.rect.topleft = pos
-        self.rect.move_ip(self.fist_offset)
-        if self.punching:
-            self.rect.move_ip(15, 25)
+    def update(self, mouse_buttons):
+        # Move fist to mouse position
+        self.rect.topleft = pg.mouse.get_pos()
+        self.rect.move_ip(self.state)
+        
+        # Handle punches
+        for event in mouse_buttons:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.state = self.FIST_PUNCHING
+                self.rect.move_ip((15, 25))
+                self.punch()
+            if event.type == pg.MOUSEBUTTONUP:
+                self.state = self.FIST_RETRACTED
+                self.rect.move_ip((-15, -25))
 
-    def punch(self, target):
-        """returns true if the fist collides with the target"""
-        if not self.punching:
-            self.punching = True
-            hitbox = self.rect.inflate(-5, -5)
-            return hitbox.colliderect(target.rect)
-
-    def unpunch(self):
-        """called to pull the fist back"""
-        self.punching = False
+    def punch(self):
+        punched = pg.sprite.spritecollide(
+                      self,
+                      Game.punchables,
+                      False,
+                      collided=pg.sprite.collide_rect_ratio(.9))
+        
+        if len(punched) == 0:
+            self.whiff_sound.play()
+        else:
+            for each in punched:
+                each.get_punched(self)
+                self.punch_sound.play()
 
 
 class Chimp(pg.sprite.Sprite):
-    """moves a monkey critter across the screen. it can spin the
-    monkey when it is punched."""
+    """Monkey (moves across the screen)
+    Spins when punched.
+    """
 
-    def __init__(self):
-        pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.image, self.rect = load_image("chimp.png", -1, 4)
-        screen = pg.display.get_surface()
-        self.area = screen.get_rect()
-        self.rect.topleft = 10, 90
-        self.move = 18
-        self.dizzy = False
+    def __init__(self, topleft=(10,90)):
+        pg.sprite.Sprite.__init__(self)
+        self.image, self.rect = Media.load_image("chimp.png", colorkey=-1, scale=4)
+        self.image_original = self.image
+        self.rect.topleft = topleft
+        self.rotation = 0
+        self.delta = 18
+        self.move = self._walk
+        self.add((Game.allsprites, Game.punchables))
 
-    def update(self):
-        """walk or spin, depending on the monkeys state"""
-        if self.dizzy:
-            self._spin()
-        else:
-            self._walk()
+    def update(self, *nevermint):
+        """Walk or spin, depending on state"""
+        self.move()
 
     def _walk(self):
-        """move the monkey across the screen, and turn at the ends"""
-        newpos = self.rect.move((self.move, 0))
-        if not self.area.contains(newpos):
-            if self.rect.left < self.area.left or self.rect.right > self.area.right:
-                self.move = -self.move
-                newpos = self.rect.move((self.move, 0))
-                self.image = pg.transform.flip(self.image, True, False)
+        """Move monkey across screen (turning at ends)"""
+        newpos = self.rect.move((self.delta, 0))
+        if not Game.screen_rect.contains(newpos):
+            self.delta = -self.delta
+            newpos = self.rect.move((self.delta, 0))
+            self.image = pg.transform.flip(self.image, True, False)
+
         self.rect = newpos
 
     def _spin(self):
-        """spin the monkey image"""
+        """Spin monkey image"""
         center = self.rect.center
-        self.dizzy = self.dizzy + 12
-        if self.dizzy >= 360:
-            self.dizzy = False
-            self.image = self.original
+        self.rotation += 12
+        if self.rotation >= 360:
+            self.rotation = 0
+            self.move = self._walk
+            self.image = self.image_original
         else:
             rotate = pg.transform.rotate
-            self.image = rotate(self.original, self.dizzy)
+            self.image = rotate(self.image_original, self.rotation)
+
         self.rect = self.image.get_rect(center=center)
 
-    def punched(self):
-        """this will cause the monkey to start spinning"""
-        if not self.dizzy:
-            self.dizzy = True
-            self.original = self.image
+    def get_punched(self, obj):
+        """Cause monkey to spin"""
+        self.move = self._spin
+
+        
+class Game:
+
+    def initialize():
+        pg.init()
+        Game.screen = pg.display.set_mode((1280, 480))
+        Game.screen_rect = Game.screen.get_rect()
+        pg.display.set_caption("Monkey Fever")
+        pg.mouse.set_visible(False)
+
+        Game.create_background()
+        Game.set_background_text()
+        Game.prepare_game_objects()
+
+        return Game
+
+    def create_background():
+        Game.background = pg.Surface(Game.screen.get_size())
+        Game.background = Game.background.convert()
+        Game.background.fill((170, 238, 187))
+
+    def set_background_text():
+        if pg.font:
+            font = pg.font.Font(None, 64)
+            text = font.render("Pummel The Chimp, And Win $$$",
+                               True,
+                               (10, 10, 10))
+            # Centered
+            textpos = text.get_rect(
+                    centerx=Game.background.get_width() / 2,
+                    y=10)
+            Game.background.blit(text, textpos)
+        else:
+            print("Warning, fonts disabled")
+
+    def prepare_game_objects():
+        Game.allsprites = pg.sprite.RenderPlain()
+        Game.punchables = pg.sprite.Group()
+        Game.chimp = Chimp()
+        #Game.chimp2 = Chimp((90,10))
+        Game.fist = Fist()
+        Game.clock = pg.time.Clock()
+
+    def execute():
+        while True:
+            Game.clock.tick(60)
+
+            # Handle Input Events
+            mouse_buttons = pg.event.get(
+                                eventtype=(pg.MOUSEBUTTONDOWN,
+                                           pg.MOUSEBUTTONUP))
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                elif (event.type == pg.KEYDOWN
+                      and event.key == pg.K_ESCAPE):
+                    pg.quit()
+                    sys.exit()
+
+            Game.allsprites.update(mouse_buttons)
+
+            # Draw Everything
+            Game.screen.blit(Game.background, (0, 0))
+            Game.allsprites.draw(Game.screen)
+            pg.display.flip()
 
 
-def main():
-    """this function is called when the program starts.
-    it initializes everything it needs, then runs in
-    a loop until the function returns."""
-    # Initialize Everything
-    pg.init()
-    screen = pg.display.set_mode((1280, 480), pg.SCALED)
-    pg.display.set_caption("Monkey Fever")
-    pg.mouse.set_visible(False)
-
-    # Create The Background
-    background = pg.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((170, 238, 187))
-
-    # Put Text On The Background, Centered
-    if pg.font:
-        font = pg.font.Font(None, 64)
-        text = font.render("Pummel The Chimp, And Win $$$", True, (10, 10, 10))
-        textpos = text.get_rect(centerx=background.get_width() / 2, y=10)
-        background.blit(text, textpos)
-
-    # Display The Background
-    screen.blit(background, (0, 0))
-    pg.display.flip()
-
-    # Prepare Game Objects
-    whiff_sound = load_sound("whiff.wav")
-    punch_sound = load_sound("punch.wav")
-    chimp = Chimp()
-    fist = Fist()
-    allsprites = pg.sprite.RenderPlain((chimp, fist))
-    clock = pg.time.Clock()
-
-    # Main Loop
-    going = True
-    while going:
-        clock.tick(60)
-
-        # Handle Input Events
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                going = False
-            elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-                going = False
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                if fist.punch(chimp):
-                    punch_sound.play()  # punch
-                    chimp.punched()
-                else:
-                    whiff_sound.play()  # miss
-            elif event.type == pg.MOUSEBUTTONUP:
-                fist.unpunch()
-
-        allsprites.update()
-
-        # Draw Everything
-        screen.blit(background, (0, 0))
-        allsprites.draw(screen)
-        pg.display.flip()
-
-    pg.quit()
-
-
-# Game Over
-
-
-# this calls the 'main' function when this script is executed
 if __name__ == "__main__":
-    main()
+    Game.initialize().execute()
