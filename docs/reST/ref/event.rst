@@ -148,7 +148,7 @@ is defined, the direction of x and y will be opposite.
 input method in a GUI and starts typing
 
 The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio 
-devices that are added.
+devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list. 
 
 |
 
