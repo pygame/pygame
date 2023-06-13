@@ -94,6 +94,17 @@ the use of this older API.
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
 
+A keyboard event occurs when a key is pressed (``KEYDOWN``) and when a key is released (``KEYUP``) 
+The ``key`` attribute of keyboard events contains the value of what key was pressed or released.
+The ``mod`` attribute contains information about the state of keyboard modifiers (SHIFT, CTRL, ALT, etc.).
+The ``unicode`` attribute stores the 16-bit unicode value of the key that was pressed or released.
+The ``scancode`` attribute represents the physical location of a key on the keyboard.
+
+The ``ACTIVEEVENT`` contains information about the application gaining or losing focus. The ``gain`` attribute
+will be 1 if the mouse enters the window, otherwise ``gain`` will be 0.  The ``state`` attribute will have a 
+value of ``SDL_APPMOUSEFOCUS`` if mouse focus was gained/lost, ``SDL_APPINPUTFOCUS`` if the application loses
+or gains keyboard focus, or ``SDL_APPACTIVE`` if the application is minimized (``gain`` will be 0) or restored.
+
 |
 
 When compiled with SDL2, pygame has these additional events and their
@@ -123,6 +134,22 @@ already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
 
 .. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
 
+``MOUSEWHEEL`` event occurs whenever the mouse wheel is moved. 
+The ``which`` attribute determines if the event was generated from a touch input device vs an actual 
+mousewheel. 
+The ``preciseX`` attribute contains a float with the amount scrolled horizontally (positive to the right,
+negative to the left).
+The ``preciseY`` attribute contains a float with the amount scrolled vertically (positive away from user,
+negative towards user).
+The ``flipped`` attribute determines if the values in x and y will be opposite or not. If ``SDL_MOUSEWHEEL_FLIPPED``
+is defined, the direction of x and y will be opposite.
+
+``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an 
+input method in a GUI and starts typing
+
+The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio 
+devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list. 
+
 |
 
 Many new events were introduced in pygame 2.
@@ -132,6 +159,9 @@ is dropped, ``DROPFILE`` event will be sent, ``file`` will be its path.
 The ``DROPTEXT`` event is only supported on X11.
 
 ``MIDIIN`` and ``MIDIOUT`` are events reserved for :mod:`pygame.midi` use.
+``MIDI*`` events differ from ``AUDIODEVICE*`` events in that AUDIODEVICE 
+events are triggered when there is a state change related to an audio 
+input/output device. 
 
 pygame 2 also supports controller hot-plugging
 
