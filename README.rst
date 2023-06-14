@@ -104,7 +104,7 @@ Contribute
 | To submit patches and report bugs:
 | Visit the `Bugs & Patches <https://www.pygame.org/wiki/patchesandbugs>`_ page for detailed instructions.
 | 
-| `Head here <https://www.pygame.org/wiki/info>`_ more ways to get in touch with the Pygame team.
+| `Head here <https://www.pygame.org/wiki/info>`_ for more info and ways to get in touch with the Pygame team.
 
 
 Credits
