@@ -63,7 +63,7 @@ version of that same thing. This should be simple enough to follow
 along, and a complete breakdown follows.
 
 .. image:: intro_ball.gif
-.. image:: intro_snippet.png
+.. image:: introsnippet.png
 
 This is as simple as you can get for a bouncing animation.
 First we see importing and initializing pygame is nothing noteworthy.
