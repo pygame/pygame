@@ -13,7 +13,8 @@ import pygame
 
 
 def list_cameras():
-    """ """
+    """ Checks the computer for available cameras and returns a list of strings of camera names, ready to be fed into pygame.camera.Cameraload a camera.
+    """
     index = 0
     device_idx = []
     failed = 0
