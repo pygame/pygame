@@ -1,7 +1,4 @@
-import os
-import platform
-import sys
-import warnings
+import os, platform, sys, warnings
 from abc import ABC, abstractmethod
 
 from pygame import error

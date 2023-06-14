@@ -1,19 +1,19 @@
 .. include:: ../../reST/common.txt
 
 *********************************
-  Revisión: Fundamentos de Pygame
+  Revisión: Fundamentos de Pygame.
 *********************************
 
 .. role:: firstterm(emphasis)
 
 .. _hacerjuegos-2:
 
-2. Revisión: Fundamentos de Pygame
+2. Revisión: Fundamentos de Pygame.
 ==================================
 
 .. _hacerjuegos-2-1:
 
-2.1. El juego básico de Pygame
+2.1. El juego básico de Pygame.
 ------------------------------
 
 Por el bien de la revisión, y para asegurarme de que estés familiarizado/a con la estrucutra de un programa básico de Pygame, voy a 
@@ -66,7 +66,7 @@ El código completo para este ejemplo se ve así::
 
 .. _hacerjuegos-2-2:
 
-2.2. Objetos Pygame Básicos
+2.2. Objetos Pygame Básicos.
 ---------------------------
 
 Como pueden ver, el código consiste de tres objetos proncipales: la pantalla, el fondo y el texto. Cada uno de estos objetos está 
@@ -95,7 +95,7 @@ dejé el texto en la parte superior de la pantalla. Como la pantalla es pequeña
 
 .. _hacerjuegos-2-3:
 
-2.3. Blitting
+2.3. Blitting.
 -------------
 
 Ahora que hemos creado nuestros objetos de juego, necesitamos renderizarlos. Si no lo hiciéramos, y ejecutáramos el programa, 
@@ -112,7 +112,7 @@ rectángulo anterior de la pelota, y luego blittear la pelota, para que solo est
 
 .. _hacerjuegos-2-4:
 
-2.4. Evento en Bucle
+2.4. Evento en Bucle.
 --------------------
 
 Una vez que ya hayas configurado el juego, necesitás ponerlo en un bucle para que se ejecute cotninuamente hasta que el usuario 
