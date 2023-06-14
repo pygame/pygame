@@ -102,10 +102,10 @@ class CollectInfo(Visitor):
         if not file_name:
             raise self.skip_node
         head, dir_name = os.path.split(head)
-        if dir_name != "ref":
+        if not (dir_name == "ref" or dir_name == "referencias"):
             raise self.skip_node
         head, dir_name = os.path.split(head)
-        if dir_name != "reST":
+        if not (dir_name == "reST" or dir_name == "es"):
             raise self.skip_node
         head, dir_name = os.path.split(head)
         if dir_name != "docs":

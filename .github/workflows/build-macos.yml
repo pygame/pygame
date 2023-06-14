@@ -136,11 +136,10 @@ jobs:
         python setup.py docs
 
       CIBW_BEFORE_TEST: |
-        pip install mypy
+        pip install mypy pyright pytype
 
       CIBW_TEST_COMMAND: >
-        python -m pygame.tests -v --exclude opengl,timing --time_out 300 &&
-        python -m mypy {project}/examples/testsprite.py {project}/examples/sound.py {project}/examples/dropevent.py {project}/examples/stars.py
+        python -m pygame.tests -v --exclude opengl,timing --time_out 300
 
       # Increase pip debugging output
       CIBW_BUILD_VERBOSITY: 2

@@ -20,33 +20,29 @@ WINCENTER = [320, 240]
 NUMSTARS = 150
 
 
-def init_star():
+def init_star(steps=-1):
     "creates new star values"
     dir = random.randrange(100000)
-    velmult = random.random() * 0.6 + 0.4
+    steps_velocity = 1 if steps == -1 else steps * 0.09
+    velmult = steps_velocity * (random.random() * 0.6 + 0.4)
     vel = [math.sin(dir) * velmult, math.cos(dir) * velmult]
-    return vel, WINCENTER[:]
+
+    if steps is None:
+        return [vel, [WINCENTER[0] + (vel[0] * steps), WINCENTER[1] + (vel[1] * steps)]]
+    return [vel, WINCENTER[:]]
 
 
 def initialize_stars():
     "creates a new starfield"
-    stars = []
-    for x in range(NUMSTARS):
-        star = init_star()
-        vel, pos = star
-        steps = random.randint(0, WINCENTER[0])
-        pos[0] = pos[0] + (vel[0] * steps)
-        pos[1] = pos[1] + (vel[1] * steps)
-        vel[0] = vel[0] * (steps * 0.09)
-        vel[1] = vel[1] * (steps * 0.09)
-        stars.append(star)
+    random.seed()
+    stars = [init_star(steps=random.randint(0, WINCENTER[0])) for _ in range(NUMSTARS)]
     move_stars(stars)
     return stars
 
 
 def draw_stars(surface, stars, color):
     "used to draw (and clear) the stars"
-    for vel, pos in stars:
+    for _, pos in stars:
         pos = (int(pos[0]), int(pos[1]))
         surface.set_at(pos, color)
 
@@ -66,9 +62,8 @@ def move_stars(stars):
 def main():
     "This is the starfield code"
     # create our starfield
-    random.seed()
     stars = initialize_stars()
-    clock = pg.time.Clock()
+
     # initialize and prepare screen
     pg.init()
     screen = pg.display.set_mode(WINSIZE)
@@ -76,6 +71,8 @@ def main():
     white = 255, 240, 200
     black = 20, 20, 40
     screen.fill(black)
+
+    clock = pg.time.Clock()
 
     # main game loop
     done = 0
@@ -88,13 +85,13 @@ def main():
             if e.type == pg.QUIT or (e.type == pg.KEYUP and e.key == pg.K_ESCAPE):
                 done = 1
                 break
-            elif e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
+            if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
                 WINCENTER[:] = list(e.pos)
         clock.tick(50)
     pg.quit()
 
 
-# if python says run, then we should run
+# So `python -m pygame.example.stars` will work.
 if __name__ == "__main__":
     main()
 

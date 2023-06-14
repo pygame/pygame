@@ -278,7 +278,8 @@ _pg_put_event_unicode(SDL_Event *event, char *uni)
 static PyObject *
 _pg_get_event_unicode(SDL_Event *event)
 {
-    char c;
+    char c[20];
+
     int i;
     for (i = 0; i < MAX_SCAN_UNICODE; i++) {
         if (scanunicode[i].key == event->key.keysym.scancode) {
@@ -292,8 +293,8 @@ _pg_get_event_unicode(SDL_Event *event)
     }
     /* fallback to function that determines unicode from the event.
      * We try to get the unicode attribute, and store it in memory*/
-    c = _pg_unicode_from_event(event);
-    if (_pg_put_event_unicode(event, &c))
+    c[0] = _pg_unicode_from_event(event);
+    if (_pg_put_event_unicode(event, &c[0]))
         return _pg_get_event_unicode(event);
     return PyUnicode_FromString("");
 }
@@ -1542,10 +1543,14 @@ pgEvent_New2(int type, PyObject *dict)
 /* event module functions */
 
 static PyObject *
-event_name(PyObject *self, PyObject *arg)
+event_name(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int type;
-    if (!PyArg_ParseTuple(arg, "i", &type))
+    static char *keywords[] = {
+        "type",
+        NULL,
+    };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i", keywords, &type))
         return NULL;
 
     return PyUnicode_FromString(_pg_name_from_eventtype(type));
@@ -1589,6 +1594,47 @@ get_grab(PyObject *self, PyObject *_null)
     if (win)
         mode = SDL_GetWindowGrab(win);
     return PyBool_FromLong(mode);
+}
+
+static PyObject *
+set_keyboard_grab(PyObject *self, PyObject *arg)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 16)
+    VIDEO_INIT_CHECK();
+
+    int doit = PyObject_IsTrue(arg);
+    if (doit == -1)
+        return NULL;
+
+    SDL_Window *win = pg_GetDefaultWindow();
+    if (win) {
+        if (doit) {
+            SDL_SetWindowKeyboardGrab(win, SDL_TRUE);
+        }
+        else {
+            SDL_SetWindowKeyboardGrab(win, SDL_FALSE);
+        }
+    }
+
+#endif
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+get_keyboard_grab(PyObject *self, PyObject *_null)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 16)
+    SDL_Window *win;
+    SDL_bool mode = SDL_FALSE;
+
+    VIDEO_INIT_CHECK();
+    win = pg_GetDefaultWindow();
+    if (win)
+        mode = SDL_GetWindowKeyboardGrab(win);
+    return PyBool_FromLong(mode);
+#else
+    Py_RETURN_NONE;
+#endif
 }
 
 static void
@@ -2212,10 +2258,15 @@ static PyMethodDef _event_methods[] = {
     {"_internal_mod_quit", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
      "auto quit for event module"},
 
-    {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
+    {"event_name", (PyCFunction)event_name, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_O, DOC_PYGAMEEVENTSETGRAB},
     {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"set_keyboard_grab", set_keyboard_grab, METH_O,
+     DOC_PYGAMEEVENTSETKEYBOARDGRAB},
+    {"get_keyboard_grab", (PyCFunction)get_keyboard_grab, METH_NOARGS,
+     DOC_PYGAMEEVENTGETKEYBOARDGRAB},
 
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
     {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS,

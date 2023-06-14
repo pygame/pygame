@@ -841,6 +841,20 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r.width * 2, r2.width)
         self.assertEqual(r.height * 2, r2.height)
 
+    def test_scale_by__larger_single_argument_kwarg(self):
+        """The scale method scales around the center of the rectangle using
+        keyword arguments 'x' and 'y'"""
+        r = Rect(2, 4, 6, 8)
+        r2 = r.scale_by(x=2)
+
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.top - 4, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.bottom + 4, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 2, r2.height)
+
     def test_scale_by__smaller_single_argument(self):
         """The scale method scales around the center of the rectangle"""
         r = Rect(2, 4, 8, 8)
@@ -860,6 +874,42 @@ class RectTypeTest(unittest.TestCase):
         r = Rect(2, 4, 6, 8)
         # act
         r2 = r.scale_by(2, 4)
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by__larger_kwargs_scale_by(self):
+        """
+        The scale method scales around the center of the rectangle
+        Uses 'scale_by' kwarg.
+        """
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(scale_by=(2, 4))
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by__larger_kwargs(self):
+        """
+        The scale method scales around the center of the rectangle
+        Uses 'x' and 'y' kwargs.
+        """
+        # arrange
+        r = Rect(2, 4, 6, 8)
+        # act
+        r2 = r.scale_by(x=2, y=4)
         # assert
         self.assertEqual(r.center, r2.center)
         self.assertEqual(r.left - 3, r2.left)
@@ -1004,6 +1054,32 @@ class RectTypeTest(unittest.TestCase):
         r.scale_by_ip(-0.000001)
         r.scale_by_ip(0.00001)
 
+    def test_scale_by_ip__kwargs(self):
+        """The scale method scales around the center of the rectangle"""
+        r = Rect(2, 4, 6, 8)
+        r2 = Rect(r)
+        r2.scale_by_ip(x=2, y=4)
+
+        # assert
+        self.assertEqual(r.center, r2.center)
+        self.assertEqual(r.left - 3, r2.left)
+        self.assertEqual(r.centery - r.h * 4 / 2, r2.top)
+        self.assertEqual(r.right + 3, r2.right)
+        self.assertEqual(r.centery + r.h * 4 / 2, r2.bottom)
+        self.assertEqual(r.width * 2, r2.width)
+        self.assertEqual(r.height * 4, r2.height)
+
+    def test_scale_by_ip__kwarg_exceptions(self):
+        """The scale method scales around the center of the rectangle using
+        keyword argument 'scale_by'. Tests for incorrect keyword args"""
+        r = Rect(2, 4, 6, 8)
+
+        with self.assertRaises(TypeError):
+            r.scale_by_ip(scale_by=2)
+
+        with self.assertRaises(TypeError):
+            r.scale_by_ip(scale_by=(1, 2), y=1)
+
     def test_clamp(self):
         r = Rect(10, 10, 10, 10)
         c = Rect(19, 12, 5, 5).clamp(r)
@@ -1076,6 +1152,30 @@ class RectTypeTest(unittest.TestCase):
                 self.assertIsInstance(clipped_line, tuple)
                 self.assertTupleEqual(clipped_line, expected_line)
 
+    def test_clipline__two_sequences_kwarg(self):
+        """Ensures clipline handles a sequence of two sequences using kwargs.
+
+        Tests the clipline((x1, y1), (x2, y2)) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                clipped_line = rect.clipline(
+                    first_coordinate=endpt1, second_coordinate=inner_seq2(pt2)
+                )
+
+                self.assertIsInstance(clipped_line, tuple)
+                self.assertTupleEqual(clipped_line, expected_line)
+
     def test_clipline__sequence_of_four_ints(self):
         """Ensures clipline handles a sequence of four ints.
 
@@ -1088,6 +1188,22 @@ class RectTypeTest(unittest.TestCase):
 
         for outer_seq in (list, tuple):
             clipped_line = rect.clipline(outer_seq(line))
+
+            self.assertIsInstance(clipped_line, tuple)
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__sequence_of_four_ints_kwargs(self):
+        """Ensures clipline handles a sequence of four ints using kwargs.
+
+        Tests the clipline((x1, y1, x2, y2)) format.
+        Tests the sequence as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        line = (5, 6, 11, 19)
+        expected_line = ((line[0], line[1]), (line[2], line[3]))
+
+        for outer_seq in (list, tuple):
+            clipped_line = rect.clipline(rect_arg=outer_seq(line))
 
             self.assertIsInstance(clipped_line, tuple)
             self.assertTupleEqual(clipped_line, expected_line)
@@ -1117,6 +1233,31 @@ class RectTypeTest(unittest.TestCase):
                     self.assertIsInstance(clipped_line, tuple)
                     self.assertTupleEqual(clipped_line, expected_line)
 
+    def test_clipline__sequence_of_two_sequences_kwargs(self):
+        """Ensures clipline handles a sequence of two sequences using kwargs.
+
+        Tests the clipline(((x1, y1), (x2, y2))) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                endpt2 = inner_seq2(pt2)
+
+                for outer_seq in (list, tuple):
+                    clipped_line = rect.clipline(x1=outer_seq((endpt1, endpt2)))
+
+                    self.assertIsInstance(clipped_line, tuple)
+                    self.assertTupleEqual(clipped_line, expected_line)
+
     def test_clipline__floats(self):
         """Ensures clipline handles float parameters."""
         rect = Rect((1, 2), (35, 40))
@@ -1135,6 +1276,47 @@ class RectTypeTest(unittest.TestCase):
 
         self.assertIsInstance(clipped_line, tuple)
         self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__floats_kwargs(self):
+        """Ensures clipline handles four float parameters.
+
+        Tests the clipline(x1, y1, x2, y2) format.
+        """
+        rect = Rect((1, 2), (35, 40))
+        x1 = 5.9
+        y1 = 6.9
+        x2 = 11.9
+        y2 = 19.9
+
+        # Floats are truncated.
+        expected_line = (
+            (math.floor(x1), math.floor(y1)),
+            (math.floor(x2), math.floor(y2)),
+        )
+
+        clipped_line = rect.clipline(x1=x1, x2=y1, x3=x2, x4=y2)
+
+        self.assertIsInstance(clipped_line, tuple)
+        self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__kwarg_exceptions(self):
+        """Ensure clipline handles incorrect keyword arguments"""
+        r = Rect(2, 4, 6, 8)
+
+        with self.assertRaises(TypeError):
+            r.clipline(x1=0)
+
+        with self.assertRaises(TypeError):
+            r.clipline(first_coordinate=(1, 3, 5, 4), second_coordinate=(1, 2))
+
+        with self.assertRaises(TypeError):
+            r.clipline(first_coordinate=(1, 3), second_coordinate=(2, 2), x1=1)
+
+        with self.assertRaises(TypeError):
+            r.clipline(rect_arg=(1, 3, 5))
+
+        with self.assertRaises(TypeError):
+            r.clipline(rect_arg=(1, 3, 5, 4), second_coordinate=(2, 2))
 
     def test_clipline__no_overlap(self):
         """Ensures lines that do not overlap the rect are not clipped."""
@@ -1755,12 +1937,31 @@ class RectTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 Rect(0, 0, 1, 1).unionall(invalid_rects)
 
+    def test_unionall__kwargs(self):
+        r1 = Rect(0, 0, 1, 1)
+        r2 = Rect(-2, -2, 1, 1)
+        r3 = Rect(2, 2, 1, 1)
+
+        r4 = r1.unionall(rect=[r2, r3])
+        self.assertEqual(Rect(-2, -2, 5, 5), r4)
+
     def test_unionall_ip(self):
         r1 = Rect(0, 0, 1, 1)
         r2 = Rect(-2, -2, 1, 1)
         r3 = Rect(2, 2, 1, 1)
 
         r1.unionall_ip([r2, r3])
+        self.assertEqual(Rect(-2, -2, 5, 5), r1)
+
+        # Bug for an empty list. Would return a Rect instead of None.
+        self.assertTrue(r1.unionall_ip([]) is None)
+
+    def test_unionall_ip__kwargs(self):
+        r1 = Rect(0, 0, 1, 1)
+        r2 = Rect(-2, -2, 1, 1)
+        r3 = Rect(2, 2, 1, 1)
+
+        r1.unionall_ip(rects=[r2, r3])
         self.assertEqual(Rect(-2, -2, 5, 5), r1)
 
         # Bug for an empty list. Would return a Rect instead of None.
@@ -2091,6 +2292,38 @@ class RectTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 collide_item = rect.collidedict(d, invalid_param)
 
+    def test_collidedict__kwargs(self):
+        """Ensures collidedict detects collisions via keyword arguments."""
+        rect = Rect(1, 1, 10, 10)
+
+        collide_item1 = ("collide 1", rect.copy())
+        collide_item2 = ("collide 2", Rect(5, 5, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(60, 60, 10, 10))
+        no_collide_item2 = ("no collide 2", Rect(70, 70, 10, 10))
+
+        # Dict to check collisions with values.
+        rect_values = dict(
+            (collide_item1, collide_item2, no_collide_item1, no_collide_item2)
+        )
+        value_collide_items = (collide_item1, collide_item2)
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
+        key_collide_items = tuple((tuple(v), k) for k, v in value_collide_items)
+
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
+
+            collide_item = rect.collidedict(rect_dict=d, values=use_values)
+
+            # The detected collision could be any of the possible items.
+            self.assertIn(collide_item, expected_items)
+
     def test_collidedictall(self):
         """Ensures collidedictall detects collisions."""
         rect = Rect(1, 1, 10, 10)
@@ -2358,6 +2591,37 @@ class RectTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 collide_items = rect.collidedictall(d, invalid_param)
 
+    def test_collidedictall__kwargs(self):
+        """Ensures collidedictall detects collisions via keyword arguments."""
+        rect = Rect(1, 1, 10, 10)
+
+        collide_item1 = ("collide 1", rect.copy())
+        collide_item2 = ("collide 2", Rect(5, 5, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(60, 60, 20, 20))
+        no_collide_item2 = ("no collide 2", Rect(70, 70, 20, 20))
+
+        # Dict to check collisions with values.
+        rect_values = dict(
+            (collide_item1, collide_item2, no_collide_item1, no_collide_item2)
+        )
+        value_collide_items = [collide_item1, collide_item2]
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
+        key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
+
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
+
+            collide_items = rect.collidedictall(rect_dict=d, values=use_values)
+
+            self._assertCountEqual(collide_items, expected_items)
+
     def test_collidelist(self):
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
 
@@ -2375,6 +2639,23 @@ class RectTypeTest(unittest.TestCase):
 
         f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
         self.assertEqual(r.collidelist(f), -1)
+
+    def test_collidelist__kwargs(self):
+        # Rect.collidelist(list): return index
+        # test if one rectangle in a list intersects
+        #
+        # Test whether the rectangle collides with any in a sequence of
+        # rectangles using keyword arguments. The index of the first collision
+        # found is returned. If no collisions are found an index
+        # of -1 is returned.
+
+        r = Rect(1, 1, 10, 10)
+        l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
+
+        self.assertEqual(r.collidelist(l), 1)
+
+        f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
+        self.assertEqual(r.collidelist(rects=f), -1)
 
     def test_collidelistall(self):
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
@@ -2554,6 +2835,27 @@ class RectTypeTest(unittest.TestCase):
             self._ObjectWithRectProperty(Rect(20, 20, 5, 5)),
         ]
         self.assertFalse(r.collidelistall(f))
+
+    def test_collidelistall__kwargs(self):
+        # Rect.collidelistall(list): return indices
+        # test if all rectangles in a list intersect using keyword arguments.
+        #
+        # Returns a list of all the indices that contain rectangles that
+        # collide with the Rect. If no intersecting rectangles are found, an
+        # empty list is returned.
+
+        r = Rect(1, 1, 10, 10)
+
+        l = [
+            Rect(1, 1, 10, 10),
+            Rect(5, 5, 10, 10),
+            Rect(15, 15, 1, 1),
+            Rect(2, 2, 1, 1),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
+        self.assertFalse(r.collidelistall(rects=f))
 
     def test_collideobjects_call_variants(self):
         # arrange

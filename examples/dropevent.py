@@ -12,29 +12,26 @@ Uses these events:
 """
 import pygame as pg
 
-if pg.get_sdl_version() < (2, 0, 0):
-    raise Exception("This example requires SDL2.")
-
-pg.init()
-
 
 def main():
-    Running = True
+    pg.init()
+
+    going = True
     surf = pg.display.set_mode((640, 480))
     font = pg.font.SysFont("Arial", 24)
     clock = pg.time.Clock()
 
-    spr_file_text = font.render("Feed me some file or image!", 1, (255, 255, 255))
+    spr_file_text = font.render("Drag and drop a file or image!", 1, (255, 255, 255))
     spr_file_text_rect = spr_file_text.get_rect()
     spr_file_text_rect.center = surf.get_rect().center
 
     spr_file_image = None
     spr_file_image_rect = None
 
-    while Running:
+    while going:
         for ev in pg.event.get():
             if ev.type == pg.QUIT:
-                Running = False
+                going = False
             elif ev.type == pg.DROPBEGIN:
                 print(ev)
                 print("File drop begin!")
@@ -62,7 +59,7 @@ def main():
 
         surf.fill((0, 0, 0))
         surf.blit(spr_file_text, spr_file_text_rect)
-        if spr_file_image:
+        if spr_file_image and spr_file_image_rect is not None:
             surf.blit(spr_file_image, spr_file_image_rect)
 
         pg.display.flip()

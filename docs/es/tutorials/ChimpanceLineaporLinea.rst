@@ -16,7 +16,7 @@ Chimpancé, Línea Por Línea
 .. toctree::
    :hidden:
 
-   ../chimp.py
+   chimpance.py
 
 
 Introducción
@@ -51,7 +51,7 @@ del chimpancé para ti mismo en el directorio de ejemplos.
    .. image:: chimpshot.gif
       :alt: chimp game banner
 
-   :doc:`Full Source <../chimp.py>`
+   :doc:`Full Source <chimpance.py>`
 
 
 Importación de Módulos

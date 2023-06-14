@@ -97,74 +97,284 @@ typedef struct pg_bufferinfo_s {
 #define pg_RegisterQuit \
     (*(void (*)(void (*)(void)))PYGAMEAPI_GET_SLOT(base, 1))
 
+/**
+ * \brief Convert number like object *obj* to C int and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 #define pg_IntFromObj \
     (*(int (*)(PyObject *, int *))PYGAMEAPI_GET_SLOT(base, 2))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj*
+ * to C int and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 #define pg_IntFromObjIndex \
     (*(int (*)(PyObject *, int, int *))PYGAMEAPI_GET_SLOT(base, 3))
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * int and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C integer to store the result.
+ * \param val2 A pointer to the C integer to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ * \note This function will convert floats to integers.
+ */
 #define pg_TwoIntsFromObj \
     (*(int (*)(PyObject *, int *, int *))PYGAMEAPI_GET_SLOT(base, 4))
 
+/**
+ * \brief Convert number like object *obj* to C float and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_FloatFromObj \
     (*(int (*)(PyObject *, float *))PYGAMEAPI_GET_SLOT(base, 5))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * float and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_FloatFromObjIndex \
     (*(int (*)(PyObject *, int, float *))PYGAMEAPI_GET_SLOT(base, 6))
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * float and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C float to store the result.
+ * \param val2 A pointer to the C float to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_TwoFloatsFromObj \
     (*(int (*)(PyObject *, float *, float *))PYGAMEAPI_GET_SLOT(base, 7))
 
+/**
+ * \brief Convert number like object *obj* to C Uint32 and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_UintFromObj \
     (*(int (*)(PyObject *, Uint32 *))PYGAMEAPI_GET_SLOT(base, 8))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * Uint32 and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C int to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_UintFromObjIndex \
     (*(int (*)(PyObject *, int, Uint32 *))PYGAMEAPI_GET_SLOT(base, 9))
 
+/**
+ * \brief Initialize all of the pygame modules.
+ * \returns 1 on success, 0 on failure with PyErr set.
+ */
 #define pg_mod_autoinit (*(int (*)(const char *))PYGAMEAPI_GET_SLOT(base, 10))
 
+/**
+ * \brief Quit all of the pygame modules.
+ */
 #define pg_mod_autoquit (*(void (*)(const char *))PYGAMEAPI_GET_SLOT(base, 11))
 
+/**
+ * \brief Convert the color represented by object *obj* into a red, green,
+ * blue, alpha length 4 C array *RGBA*.
+ *
+ * The object must be a length 3 or 4 sequence of numbers having values between
+ * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
+ * assumed.
+ *
+ * \param obj The Python object to convert.
+ * \param RGBA A pointer to the C array to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_RGBAFromObj \
     (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(base, 12))
 
+/**
+ * \brief Given a Py_buffer, return a python dictionary representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a dictionary.
+ *
+ * \returns A Python dictionary representing the array interface of the object.
+ */
 #define pgBuffer_AsArrayInterface \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 13))
 
+/**
+ * \brief Given a Py_buffer, return a python capsule representing the array
+ * interface.
+ *
+ * \param view_p A pointer to the Py_buffer to convert to a capsule.
+ *
+ * \returns A Python capsule representing the array interface of the object.
+ */
 #define pgBuffer_AsArrayStruct \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 14))
 
+/**
+ * \brief Get a buffer object from a given Python object.
+ *
+ * \param obj The Python object to get the buffer from.
+ * \param pg_view_p A pointer to a pg_buffer struct to store the buffer in.
+ * \param flags The desired buffer access mode.
+ *
+ * \returns 0 on success, -1 on failure.
+ *
+ * \note This function attempts to get a buffer object from a given Python
+ * object. If the object supports the buffer protocol, it will be used to
+ * create the buffer. If not, it will try to get an array interface or
+ * dictionary representation of the object and use that to create the buffer.
+ * If none of these methods work, it will raise a ValueError.
+ *
+ */
 #define pgObject_GetBuffer \
     (*(int (*)(PyObject *, pg_buffer *, int))PYGAMEAPI_GET_SLOT(base, 15))
 
+/**
+ * \brief Release a pg_buffer object.
+ *
+ * \param pg_view_p The pg_buffer object to release.
+ *
+ * \note This function releases a pg_buffer object.
+ * \note some calls to this function expect this function to not clear
+ * previously set errors.
+ */
 #define pgBuffer_Release (*(void (*)(pg_buffer *))PYGAMEAPI_GET_SLOT(base, 16))
 
+/**
+ * \brief Write the array interface dictionary buffer description *dict* into a
+ * Pygame buffer description struct *pg_view_p*.
+ *
+ * \param pg_view_p The Pygame buffer description struct to write into.
+ * \param dict The array interface dictionary to read from.
+ * \param flags The PyBUF flags describing the view type requested.
+ *
+ * \returns 0 on success, or -1 on failure.
+ */
 #define pgDict_AsBuffer \
     (*(int (*)(pg_buffer *, PyObject *, int))PYGAMEAPI_GET_SLOT(base, 17))
 
 #define pgExc_BufferError ((PyObject *)PYGAMEAPI_GET_SLOT(base, 18))
 
+/**
+ * \brief Get the default SDL window created by a pygame.display.set_mode()
+ * call, or *NULL*.
+ *
+ * \return The default window, or *NULL* if no window has been created.
+ */
 #define pg_GetDefaultWindow \
     (*(SDL_Window * (*)(void)) PYGAMEAPI_GET_SLOT(base, 19))
 
+/**
+ * \brief Set the default SDL window created by a pygame.display.set_mode()
+ * call. The previous window, if any, is destroyed. Argument *win* may be
+ * *NULL*. This function is called by pygame.display.set_mode().
+ *
+ * \param win The new default window. May be NULL.
+ */
 #define pg_SetDefaultWindow \
     (*(void (*)(SDL_Window *))PYGAMEAPI_GET_SLOT(base, 20))
 
+/**
+ * \brief Return a borrowed reference to the Pygame default window display
+ * surface, or *NULL* if no default window is open.
+ *
+ * \return The default renderer, or *NULL* if no renderer has been created.
+ */
 #define pg_GetDefaultWindowSurface \
     (*(pgSurfaceObject * (*)(void)) PYGAMEAPI_GET_SLOT(base, 21))
 
+/**
+ * \brief Set the Pygame default window display surface. The previous
+ * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
+ * function is called by pygame.display.set_mode().
+ *
+ * \param screen The new default window display surface. May be NULL.
+ */
 #define pg_SetDefaultWindowSurface \
     (*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(base, 22))
 
+/**
+ * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
+ * set, otherwise returns a pointer to the environment variable.
+ */
 #define pg_EnvShouldBlendAlphaSDL2 \
     (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
+/**
+ * \brief Convert number like object *obj* to C double and in *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_DoubleFromObj \
     (*(int (*)(PyObject *, double *))PYGAMEAPI_GET_SLOT(base, 24))
 
+/**
+ * \brief Convert number like object at position *i* in sequence *obj* to C
+ * double and place in argument *val*.
+ *
+ * \param obj The Python object to convert.
+ * \param i The index of the object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ *
+ * \note This function will clear any Python errors.
+ */
 #define pg_DoubleFromObjIndex \
     (*(int (*)(PyObject *, int, double *))PYGAMEAPI_GET_SLOT(base, 25))
 
+/**
+ * \brief Convert the two number like objects in length 2 sequence *obj* to C
+ * double and place in arguments *val1* and *val2*.
+ *
+ * \param obj The Python two element sequence object to convert.
+ * \param val A pointer to the C double to store the result.
+ * \param val2 A pointer to the C double to store the result.
+ * \returns 1 if the conversion was successful, 0 otherwise.
+ */
 #define pg_TwoDoublesFromObj \
     (*(int (*)(PyObject *, double *, double *))PYGAMEAPI_GET_SLOT(base, 26))
 

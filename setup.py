@@ -16,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name": "pygame",
-    "version": "2.5.0.dev1",
+    "version": "2.5.0.dev3",
     "license": "LGPL",
     "url": "https://www.pygame.org",
     "author": "A community project.",
@@ -441,6 +441,11 @@ for e in extensions:
     if "surface" in e.name and sys.platform == "darwin":
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
+
+    if "rwobject" in e.name:
+        if sys.platform != "win32":
+            # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
+            e.extra_compile_args.append("-Wno-error=deprecated-declarations")
 
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here

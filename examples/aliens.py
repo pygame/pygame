@@ -25,6 +25,7 @@ Controls
 
 import random
 import os
+from typing import List
 
 # import basic pygame modules
 import pygame as pg
@@ -82,10 +83,10 @@ class Player(pg.sprite.Sprite):
     speed = 10
     bounce = 24
     gun_offset = -11
-    images = []
+    images: List[pg.Surface] = []
 
-    def __init__(self):
-        pg.sprite.Sprite.__init__(self, self.containers)
+    def __init__(self, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=SCREENRECT.midbottom)
         self.reloading = 0
@@ -113,10 +114,10 @@ class Alien(pg.sprite.Sprite):
 
     speed = 13
     animcycle = 12
-    images = []
+    images: List[pg.Surface] = []
 
-    def __init__(self):
-        pg.sprite.Sprite.__init__(self, self.containers)
+    def __init__(self, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect()
         self.facing = random.choice((-1, 1)) * Alien.speed
@@ -139,10 +140,10 @@ class Explosion(pg.sprite.Sprite):
 
     defaultlife = 12
     animcycle = 3
-    images = []
+    images: List[pg.Surface] = []
 
-    def __init__(self, actor):
-        pg.sprite.Sprite.__init__(self, self.containers)
+    def __init__(self, actor, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect(center=actor.rect.center)
         self.life = self.defaultlife
@@ -165,10 +166,10 @@ class Shot(pg.sprite.Sprite):
     """a bullet the Player sprite fires."""
 
     speed = -11
-    images = []
+    images: List[pg.Surface] = []
 
-    def __init__(self, pos):
-        pg.sprite.Sprite.__init__(self, self.containers)
+    def __init__(self, pos, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=pos)
 
@@ -186,12 +187,13 @@ class Bomb(pg.sprite.Sprite):
     """A bomb the aliens drop."""
 
     speed = 9
-    images = []
+    images: List[pg.Surface] = []
 
-    def __init__(self, alien):
-        pg.sprite.Sprite.__init__(self, self.containers)
+    def __init__(self, alien, explosion_group, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=alien.rect.move(0, 5).midbottom)
+        self.explosion_group = explosion_group
 
     def update(self):
         """called every time around the game loop.
@@ -204,15 +206,15 @@ class Bomb(pg.sprite.Sprite):
         """
         self.rect.move_ip(0, self.speed)
         if self.rect.bottom >= 470:
-            Explosion(self)
+            Explosion(self, self.explosion_group)
             self.kill()
 
 
 class Score(pg.sprite.Sprite):
     """to keep track of the score."""
 
-    def __init__(self):
-        pg.sprite.Sprite.__init__(self)
+    def __init__(self, *groups):
+        pg.sprite.Sprite.__init__(self, *groups)
         self.font = pg.font.Font(None, 20)
         self.font.set_italic(1)
         self.color = "white"
@@ -282,14 +284,6 @@ def main(winstyle=0):
     all = pg.sprite.RenderUpdates()
     lastalien = pg.sprite.GroupSingle()
 
-    # assign default groups to each sprite class
-    Player.containers = all
-    Alien.containers = aliens, all, lastalien
-    Shot.containers = shots, all
-    Bomb.containers = bombs, all
-    Explosion.containers = all
-    Score.containers = all
-
     # Create Some Starting Values
     global score
     alienreload = ALIEN_RELOAD
@@ -297,10 +291,12 @@ def main(winstyle=0):
 
     # initialize our starting sprites
     global SCORE
-    player = Player()
-    Alien()  # note, this 'lives' because it goes into a sprite group
+    player = Player(all)
+    Alien(
+        aliens, all, lastalien
+    )  # note, this 'lives' because it goes into a sprite group
     if pg.font:
-        all.add(Score())
+        all.add(Score(all))
 
     # Run our main loop whilst the player is alive.
     while player.alive():
@@ -342,8 +338,8 @@ def main(winstyle=0):
         player.move(direction)
         firing = keystate[pg.K_SPACE]
         if not player.reloading and firing and len(shots) < MAX_SHOTS:
-            Shot(player.gunpos())
-            if pg.mixer:
+            Shot(player.gunpos(), shots, all)
+            if pg.mixer and shoot_sound is not None:
                 shoot_sound.play()
         player.reloading = firing
 
@@ -351,35 +347,35 @@ def main(winstyle=0):
         if alienreload:
             alienreload = alienreload - 1
         elif not int(random.random() * ALIEN_ODDS):
-            Alien()
+            Alien(aliens, all, lastalien)
             alienreload = ALIEN_RELOAD
 
         # Drop bombs
         if lastalien and not int(random.random() * BOMB_ODDS):
-            Bomb(lastalien.sprite)
+            Bomb(lastalien.sprite, all, bombs, all)
 
         # Detect collisions between aliens and players.
         for alien in pg.sprite.spritecollide(player, aliens, 1):
-            if pg.mixer:
+            if pg.mixer and boom_sound is not None:
                 boom_sound.play()
-            Explosion(alien)
-            Explosion(player)
+            Explosion(alien, all)
+            Explosion(player, all)
             SCORE = SCORE + 1
             player.kill()
 
         # See if shots hit the aliens.
         for alien in pg.sprite.groupcollide(aliens, shots, 1, 1).keys():
-            if pg.mixer:
+            if pg.mixer and boom_sound is not None:
                 boom_sound.play()
-            Explosion(alien)
+            Explosion(alien, all)
             SCORE = SCORE + 1
 
         # See if alien bombs hit the player.
         for bomb in pg.sprite.spritecollide(player, bombs, 1):
-            if pg.mixer:
+            if pg.mixer and boom_sound is not None:
                 boom_sound.play()
-            Explosion(player)
-            Explosion(bomb)
+            Explosion(player, all)
+            Explosion(bomb, all)
             player.kill()
 
         # draw the scene

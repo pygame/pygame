@@ -46,9 +46,16 @@ jobs:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
+        python-version: [ "3.10" ]
 
     steps:
     - uses: actions/checkout@v3.0.2
+
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
 
     - name: Install deps
       # install numpy from pip and not apt because the one from pip is newer,
@@ -57,15 +64,15 @@ jobs:
         sudo apt-get update --fix-missing
         sudo apt-get upgrade
         sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg-dev python3-setuptools python3-dev
-        pip3 install sphinx numpy>=1.21.0
-
+        python3 -m pip install sphinx numpy>=1.21.0
+        
     - name: Make sdist and install it
       env:
         PIP_CONFIG_FILE: "buildconfig/pip_config.ini"
       run: |
         python3 setup.py docs
         python3 setup.py sdist
-        pip3 install dist/pygame-*.tar.gz -vv
+        python3 -m pip install dist/pygame-*.tar.gz -vv
 
     - name: Run tests
       env:
@@ -74,15 +81,23 @@ jobs:
       run: python3 -m pygame.tests -v --exclude opengl,music,timing --time_out 300
     
     - name: Test typestubs
-      if: matrix.os == 'ubuntu-22.04' # run stubtest only once
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.10' # run stubtest only once
       run: |
         cd buildconfig/stubs
-        pip3 install mypy==0.982
+        python3 -m pip install mypy==0.982
         python3 -m mypy.stubtest pygame --allowlist mypy_allow_list.txt
+
+    - name: Typecheck examples
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.10' # run typecheckers only once
+      run: |
+        python3 -m pip install pyright pytype
+        python3 -m mypy examples/testsprite.py examples/sound.py examples/dropevent.py examples/stars.py examples/aliens.py examples/eventlist.py examples/midi.py examples/video.py examples/scroll.py
+        python3 -m pyright examples/testsprite.py examples/sound.py examples/dropevent.py examples/stars.py examples/aliens.py examples/eventlist.py examples/midi.py examples/video.py examples/scroll.py
+        python3 -m pytype examples/testsprite.py examples/sound.py examples/dropevent.py examples/stars.py examples/aliens.py examples/eventlist.py examples/midi.py examples/video.py examples/scroll.py
 
     # We upload the generated files under github actions assets
     - name: Upload sdist
-      if: matrix.os == 'ubuntu-20.04' # upload sdist only once
+      if: matrix.os == 'ubuntu-20.04' && matrix.python-version == '3.10' # upload sdist only once
       uses: actions/upload-artifact@v3
       with:
         name: pygame-sdist

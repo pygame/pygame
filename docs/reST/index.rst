@@ -10,7 +10,6 @@ Pygame Front Page
    tut/*
    tut/en/**/*
    tut/ko/**/*
-   tut/es/*
    c_api
    filepaths
    logos
@@ -109,11 +108,6 @@ Tutorials
 
 :doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/개요>`
   빨간블록 검은블록
-
-:doc:`Tutorial de Pygame - Ejemplo del Chimpancé, Línea Por Línea <tut/es/ChimpanceLineaporLinea>`
-  Los ejemplos de pygame incluyen un sencillo programa con un puño interactivo y un chimpancé.
-  Está inspirado en el molesto banner de flash de principios de la década de 2000.
-  Este tutorial examina cada línea de código utilizada en el ejemplo.
 
 
 Reference

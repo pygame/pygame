@@ -1,11 +1,15 @@
-from typing import Optional, Sequence, Union
+from typing import Literal, Optional, Sequence, Union
 
 from pygame.color import Color
 from pygame.surface import Surface
 
 from ._common import ColorValue, Coordinate, RectValue
 
-def flip(surface: Surface, flip_x: bool, flip_y: bool) -> Surface: ...
+def flip(
+    surface: Surface,
+    flip_x: bool | Literal[0] | Literal[1],
+    flip_y: bool | Literal[0] | Literal[1],
+) -> Surface: ...
 def scale(
     surface: Surface,
     size: Coordinate,

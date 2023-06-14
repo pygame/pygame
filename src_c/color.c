@@ -87,7 +87,7 @@ _color_iter(pgColorObject *);
 static PyObject *
 _color_normalize(pgColorObject *, PyObject *);
 static PyObject *
-_color_correct_gamma(pgColorObject *, PyObject *);
+_color_correct_gamma(pgColorObject *, PyObject *, PyObject *);
 static PyObject *
 _color_set_length(pgColorObject *, PyObject *);
 static PyObject *
@@ -197,8 +197,8 @@ pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[]);
 static PyMethodDef _color_methods[] = {
     {"normalize", (PyCFunction)_color_normalize, METH_NOARGS,
      DOC_COLORNORMALIZE},
-    {"correct_gamma", (PyCFunction)_color_correct_gamma, METH_VARARGS,
-     DOC_COLORCORRECTGAMMA},
+    {"correct_gamma", (PyCFunction)_color_correct_gamma,
+     METH_VARARGS | METH_KEYWORDS, DOC_COLORCORRECTGAMMA},
     {"set_length", (PyCFunction)_color_set_length, METH_VARARGS,
      DOC_COLORSETLENGTH},
     {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
@@ -756,13 +756,15 @@ _color_normalize(pgColorObject *color, PyObject *_null)
  * color.correct_gamma(x)
  */
 static PyObject *
-_color_correct_gamma(pgColorObject *color, PyObject *args)
+_color_correct_gamma(pgColorObject *color, PyObject *args, PyObject *kwargs)
 {
     double frgba[4];
     Uint8 rgba[4];
     double _gamma;
 
-    if (!PyArg_ParseTuple(args, "d", &_gamma)) {
+    static char *keywords[] = {"gamma", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "d", keywords, &_gamma)) {
         return NULL;
     }
 
