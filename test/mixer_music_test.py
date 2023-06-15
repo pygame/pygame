@@ -226,15 +226,22 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_fadeout(self):
+    def test_fadeout(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.fadeout:
 
         # This will stop the music playback after it has been faded out over
         # the specified time (measured in milliseconds).
         #
         # Note, that this function blocks until the music has faded out.
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        
+        pygame.mixer.music.fadeout(50)
+        time.sleep(.06) 
+        self.assertEqual(pygame.mixer.music.get_busy(), False)
 
-        self.fail()
+        # self.fail()
 
     @unittest.skipIf(
         os.environ.get("SDL_AUDIODRIVER") == "disk",
