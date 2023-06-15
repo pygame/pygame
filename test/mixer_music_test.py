@@ -269,7 +269,7 @@ class MixerMusicModuleTest(unittest.TestCase):
                 self.assertEqual(time_to_finish, 1)
                 running = False
 
-    def todo_test_play(self):
+    def test_play(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.play:
 
         # This will play the loaded music stream. If the music is already
@@ -286,8 +286,13 @@ class MixerMusicModuleTest(unittest.TestCase):
         # MOD music it is the pattern order number. Passing a startpos will
         # raise a NotImplementedError if it cannot set the start position
         #
-
-        self.fail()
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+ 
+        self.assertTrue(pygame.mixer.music.get_busy())
+        
+        pygame.mixer.music.stop()
 
     def todo_test_load(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
