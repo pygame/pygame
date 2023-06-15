@@ -62,75 +62,59 @@ This is the code that imports all the needed modules into your program.
 It also checks for the availability of some of the optional pygame modules. ::
 
     # Import Modules
-    import os
+    from pathlib import Path
+    import sys
     import pygame as pg
 
-    if not pg.font:
-        print("Warning, fonts disabled")
-    if not pg.mixer:
-        print("Warning, sound disabled")
 
-    main_dir = os.path.split(os.path.abspath(__file__))[0]
-    data_dir = os.path.join(main_dir, "data")
+First, we import the ``Path`` class from the standard ``pathlib`` python
+module. This allows us to do things like create platform independent file
+paths. In the next line, we import ``sys`` module in order to use
+``sys.exit()``.
 
-
-First, we import the standard "os" python module. This allow
-us to do things like create platform independent file paths.
-
-In the next line, we import the pygame package. In our case, we import
-pygame as ``pg``, so that all of the functionality of pygame is able to
-be referenced from the namespace ``pg``.
-
-Some pygame modules are optional, and if they aren't found,
-they evaluate to ``False``. Because of that, we decide to print
-a nice warning message if the :mod:`font<pygame.font>` or
-:mod:`mixer <pygame.mixer>` modules in pygame are not available.
-(Although they will only be unavailable in very uncommon situations). 
-
-Lastly, we prepare two paths for the rest of the code to use.
-``main_dir`` uses the `os.path` module and the `__file__` variable provided
-by Python to locate the game's python file, and extract the folder from
-that path. It then prepares the variable ``data_dir`` to tell the
-loading functions exactly where to look.
+Finally we import the ``pygame`` package as ``pg``, so that all of the
+functionality of pygame is able to be referenced from the namespace ``pg``.
 
 
 Loading Resources
 -----------------
 
-Here we have two functions we can use to load images and sounds. We will
-look at each function individually in this section. ::
+Here we have two static methods we can use to load images and sounds. We will
+look at each method individually in this section. ::
 
-    def load_image(name, colorkey=None, scale=1):
-        fullname = os.path.join(data_dir, name)
-        image = pg.image.load(fullname)
+    def load_image(filename, colorkey=None, scale=1):
+        filename = Path('data').joinpath(filename)
+        image = pg.image.load(filename).convert()
 
-        size = image.get_size()
-        size = (size[0] * scale, size[1] * scale)
-        image = pg.transform.scale(image, size)
+        x, y = image.get_size()
+        x = x * scale
+        y = y * scale
+        image = pg.transform.scale(image, (x,y))
 
-        image = image.convert()
-        if colorkey is not None:
-            if colorkey == -1:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, pg.RLEACCEL)
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+
+        image.set_colorkey(colorkey, pg.RLEACCEL)
+
         return image, image.get_rect()
 
 
-This function takes the name of an image to load. It also optionally
-takes an argument it can use to set a colorkey for the image, and an argument
-to scale the image. A colorkey is used in graphics to represent a color of the
-image that is transparent.
+This method takes the name of an image to load. It also optionally takes an
+argument it can use to set a colorkey for the image, and an argument to scale
+the image. A colorkey is used in graphics to represent a color of the image
+that is transparent.
 
-The first thing this function does is create a full pathname to the file.
+The first thing this function does is create a full Path to the filename.
 In this example all the resources are in a "data" subdirectory. By using
-the `os.path.join` function, a pathname will be created that works for whatever
-platform the game is running on.
+the ``Path`` class with the ``joinpath`` method, a Path will be created
+that works for whatever platform the game is running on.
 
-Next we load the image using the :func:`pygame.image.load` function.
-After the image is loaded, we make an important
-call to the `convert()` function. This makes a new copy of a Surface and converts
-its color format and depth to match the display. This means blitting the
-image to the screen will happen as quickly as possible.
+Next we load the image using the :func:`pygame.image.load` function. We also
+chain an important call to the `convert()` method, which gets called on the
+Surface object, immediately after the image is loaded. This makes a new copy
+of a Surface and converts its color format and depth to match the display.
+This means blitting the image to the screen will happen as quickly as
+possible.
 
 We then scale the image, using the :func:`pygame.transform.scale` function.
 This function takes a Surface and the size it should be scaled to. To scale
@@ -139,33 +123,33 @@ by a scalar, we can get the size and scale the x and y by the scalar.
 Last, we set the colorkey for the image. If the user supplied an argument
 for the colorkey argument we use that value as the colorkey for the image.
 This would usually just be a color RGB value, like (255, 255, 255) for
-white.  You can also pass a value of -1 as the colorkey. In this case the
+white. You can also pass a value of -1 as the colorkey. In this case the
 function will lookup the color at the topleft pixel of the image, and use
 that color for the colorkey. ::
 
-    def load_sound(name):
-        class NoneSound:
-            def play(self):
-                pass
-
+    def load_sound(filename):
         if not pg.mixer or not pg.mixer.get_init():
+            print("Warning, sound disabled")
+
+            class NoneSound:
+                def play(self):
+                    pass
+
             return NoneSound()
-
-        fullname = os.path.join(data_dir, name)
-        sound = pg.mixer.Sound(fullname)
-
-        return sound
+        else:
+            filename = Path('data').joinpath(filename)
+            return pg.mixer.Sound(filename)
 
 
-Next is the function to load a sound file. The first thing this function
-does is check to see if the :mod:`pygame.mixer` module was imported correctly.
-If not, it returns a small class instance that has a dummy play method.
-This will act enough like a normal Sound object for this game to run without
-any extra error checking.
+Next is the method to load a sound file. The first thing this method does is
+check to see if the :mod:`pygame.mixer` module was imported correctly. If not,
+it creates & returns a small class instance that has a dummy play method. This
+will act enough like a normal Sound object for this game to run without any
+extra error checking.
 
-This function is similar to the image loading function, but handles some
-different problems. First we create a full path to the sound image, and
-load the sound file. Then we simply return the loaded Sound object.
+This method is similar to the image loading method, but handles some different
+problems. First we create a full Path to the sound image, and load the sound
+file. Then we simply return the loaded Sound object.
 
 
 Game Object Classes
@@ -175,102 +159,118 @@ Here we create two classes to represent the objects in our game. Almost
 all the logic for the game goes into these two classes. We will look over
 them one at a time here. ::
 
-    class Fist(pg.sprite.Sprite):
-        """moves a clenched fist on the screen, following the mouse"""
+class Fist(pg.sprite.Sprite):
+    """Clenched fist (follows mouse)"""
 
-        def __init__(self):
-            pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-            self.image, self.rect = load_image("fist.png", -1)
-            self.fist_offset = (-235, -80)
-            self.punching = False
+    def __init__(self):
+        pg.sprite.Sprite.__init__(self)
+        self.image, self.rect = Media.load_image("fist.png", colorkey=-1)
+        self.whiff_sound = Media.load_sound("whiff.wav")
+        self.punch_sound = Media.load_sound("punch.wav")
+        self.state = self.FIST_RETRACTED = (-235, -80)
+        self.FIST_PUNCHING = (-220, -55)
+        self.add(Game.allsprites)
 
-        def update(self):
-            """move the fist based on the mouse position"""
-            pos = pg.mouse.get_pos()
-            self.rect.topleft = pos
-            self.rect.move_ip(self.fist_offset)
-            if self.punching:
-                self.rect.move_ip(15, 25)
+    def update(self, mouse_buttons):
+        # Move fist to mouse position
+        self.rect.topleft = pg.mouse.get_pos()
+        self.rect.move_ip(self.state)
 
-        def punch(self, target):
-            """returns true if the fist collides with the target"""
-            if not self.punching:
-                self.punching = True
-                hitbox = self.rect.inflate(-5, -5)
-                return hitbox.colliderect(target.rect)
+        # Handle punches
+        for event in mouse_buttons:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.state = self.FIST_PUNCHING
+                self.rect.move_ip((15, 25))
+                self.punch()
+            if event.type == pg.MOUSEBUTTONUP:
+                self.state = self.FIST_RETRACTED
+                self.rect.move_ip((-15, -25))
 
-        def unpunch(self):
-            """called to pull the fist back"""
-            self.punching = False
+    def punch(self):
+        punched = pg.sprite.spritecollide(
+                      self,
+                      Game.punchables,
+                      False,
+                      collided=pg.sprite.collide_rect_ratio(.9))
+
+        if len(punched) == 0:
+            self.whiff_sound.play()
+        else:
+            for each in punched:
+                each.get_punched(self)
+                self.punch_sound.play()
 
 
-Here we create a class to represent the players fist. It is derived from
-the `Sprite` class included in the :mod:`pygame.sprite` module. The `__init__` function
-is called when new instances of this class are created. The first thing
-we do is be sure to call the `__init__` function for our base class. This
-allows the Sprite's `__init__` function to prepare our object for use as a
-sprite.  This game uses one of the sprite drawing Group classes. These classes
-can draw sprites that have an "image" and "rect" attribute. By simply changing
-these two attributes, the renderer will draw the current image at the current
+Here we create a class to represent the players fist. It is derived from the
+`Sprite` class included in the :mod:`pygame.sprite` module. The `__init__`
+method is called when new instances of this class are created. The first thing
+we do is be sure to call the `__init__` method for our base class. This allows
+the Sprite's `__init__` method to prepare our object for use as a sprite.
+This game uses one of the sprite drawing Group classes. These classes can draw
+sprites that have an "image" and "rect" attribute. By simply changing these
+two attributes, the renderer will draw the current image at the current
 position.
 
-All sprites have an `update()` method. This function is typically called
-once per frame. It is where you should put code that moves and updates
-the variables for the sprite. The `update()` method for the fist moves the
-fist to the location of the mouse pointer. It also offsets the fist position
-slightly if the fist is in the "punching" state.
+All sprites have an `update()` method. This method is typically called once
+per frame. It is where you should put code that moves and updates the
+variables for the sprite. The `update()` method for the fist moves the fist to
+the location of the mouse pointer. It also changes the punching state of the
+fist, based on the state of the mouse buttons, which offsets the fist position
+slightly if the fist is in the "FIST_PUNCHING" state and restores it in the
+"FIST_RETRACTED" state.
 
-The following two functions `punch()` and `unpunch()` change the punching
-state for the fist. The `punch()` method also returns a true value if the fist
-is colliding with the given target sprite. ::
+The `punch()` method checks if the fist Sprite has collided with any of the
+sprites in the `Game.punchables` sprite Group and stores the result in the
+`punched` list. If the `punched` list is empty then a wiff sound is played.
+Otherwise each sprite gets punched via its `get_punched` method, causing it to
+react, and a punch sound is played. ::
 
-    class Chimp(pg.sprite.Sprite):
-        """moves a monkey critter across the screen. it can spin the
-        monkey when it is punched."""
+class Chimp(pg.sprite.Sprite):
+    """Monkey (moves across the screen)
+    Spins when punched.
+    """
 
-        def __init__(self):
-            pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-            self.image, self.rect = load_image("chimp.png", -1, 4)
-            screen = pg.display.get_surface()
-            self.area = screen.get_rect()
-            self.rect.topleft = 10, 90
-            self.move = 18
-            self.dizzy = False
+    def __init__(self, topleft=(10,90)):
+        pg.sprite.Sprite.__init__(self)
+        self.image, self.rect = Media.load_image("chimp.png", colorkey=-1, scale=4)
+        self.image_original = self.image
+        self.rect.topleft = topleft
+        self.rotation = 0
+        self.delta = 18
+        self.move = self._walk
+        self.add((Game.allsprites, Game.punchables))
 
-        def update(self):
-            """walk or spin, depending on the monkeys state"""
-            if self.dizzy:
-                self._spin()
-            else:
-                self._walk()
+    def update(self, *nevermint):
+        """Walk or spin, depending on state"""
+        self.move()
 
-        def _walk(self):
-            """move the monkey across the screen, and turn at the ends"""
-            newpos = self.rect.move((self.move, 0))
-            if not self.area.contains(newpos):
-                if self.rect.left < self.area.left or self.rect.right > self.area.right:
-                    self.move = -self.move
-                    newpos = self.rect.move((self.move, 0))
-                    self.image = pg.transform.flip(self.image, True, False)
-            self.rect = newpos
+    def _walk(self):
+        """Move monkey across screen (turning at ends)"""
+        newpos = self.rect.move((self.delta, 0))
+        if not Game.screen_rect.contains(newpos):
+            self.delta = -self.delta
+            newpos = self.rect.move((self.delta, 0))
+            self.image = pg.transform.flip(self.image, True, False)
 
-        def _spin(self):
-            """spin the monkey image"""
-            center = self.rect.center
-            self.dizzy = self.dizzy + 12
-            if self.dizzy >= 360:
-                self.dizzy = False
-                self.image = self.original
-            else:
-                rotate = pg.transform.rotate
-                self.image = rotate(self.original, self.dizzy)
-            self.rect = self.image.get_rect(center=center)
+        self.rect = newpos
 
-        def punched(self):
-            """this will cause the monkey to start spinning"""
-            if not self.dizzy:
-                self.dizzy = True
-                self.original = self.image
+    def _spin(self):
+        """Spin monkey image"""
+        center = self.rect.center
+        self.rotation += 12
+        if self.rotation >= 360:
+            self.rotation = 0
+            self.move = self._walk
+            self.image = self.image_original
+        else:
+            rotate = pg.transform.rotate
+            self.image = rotate(self.image_original, self.rotation)
+
+        self.rect = self.image.get_rect(center=center)
+
+    def get_punched(self, obj):
+        """Cause monkey to spin"""
+        self.move = self._spin
 
 
 The `Chimp` class is doing a little more work than the fist, but nothing
@@ -278,25 +278,28 @@ more complex. This class will move the chimp back and forth across the
 screen.  When the monkey is punched, he will spin around to exciting effect.
 This class is also derived from the base :class:`Sprite <pygame.sprite.Sprite>`
 class, and is initialized the same as the fist. While initializing, the class
-also sets the attribute "area" to be the size of the display screen.
+also makes a copy of the original `image` named `image_original`. Finally, it
+sets its `move` attribute to `_walk` and then adds itself to the Game's
+`allsprites` and `punchables` groups. 
 
-The `update` function for the chimp simply looks at the current "dizzy"
-state, which is true when the monkey is spinning from a punch. It calls either
-the `_spin` or `_walk` method. These functions are prefixed with an underscore.
-This is just a standard python idiom which suggests these methods should
-only be used by the `Chimp` class. We could go so far as to give them a double
-underscore, which would tell python to really try to make them private
-methods, but we don't need such protection. :)
+The `update` function for the chimp effectively calls the method that's
+currently assigned to the `move` attribute. The method assigned to the `move`
+attribute represents either a walking or spinning state. These `_walk` and
+`_spin` methods are prefixed with an underscore, following a standard python
+idiom, which suggests these methods should only be used by the `Chimp` class.
+We could go so far as to give them a double underscore, which would tell
+python to really try to make them private methods, but we don't need such
+protection. :)
 
 The `_walk` method creates a new position for the monkey by moving the current
-rect by a given offset. If this new position crosses outside the display
-area of the screen, it reverses the movement offset. It also mirrors the
-image using the :func:`pygame.transform.flip` function. This is a crude effect
-that makes the monkey look like he's turning the direction he is moving.
+rect by a given offset. If this new position crosses outside the display area
+of the screen, it reverses the `delta` attribute. It also mirrors the image
+using the :func:`pygame.transform.flip` function. This is a crude effect that
+makes the monkey look like he's turning the direction he is moving.
 
-The `_spin` method is called when the monkey is currently "dizzy". The dizzy
-attribute is used to store the current amount of rotation. When the monkey
-has rotated all the way around (360 degrees) it resets the monkey image
+The `_spin` method is called when the monkey is currently "dizzy". The
+`rotation` attribute is used to store the current amount of rotation. When the
+monkey has rotated all the way around (360 degrees) it resets the monkey image
 back to the original, non-rotated version. Before calling the
 :func:`pygame.transform.rotate` function, you'll see the code makes a local
 reference to the function simply named "rotate". There is no need to do that
@@ -309,9 +312,8 @@ change. This is because the corners of the image will be rotated out, making
 the image bigger. We make sure the center of the new image matches the center
 of the old image, so it rotates without moving.
 
-The last method is `punched()` which tells the sprite to enter its dizzy
-state.  This will cause the image to start spinning. It also makes a copy
-of the current image named "original".
+The last method is `get_punched()` which tells the sprite to enter its dizzy
+state. This will cause the image to start spinning.
 
 
 Initialize Everything
@@ -319,10 +321,11 @@ Initialize Everything
 
 Before we can do much with pygame, we need to make sure its modules
 are initialized. In this case we will also open a simple graphics window.
-Now we are in the `main()` function of the program, which actually runs everything. ::
+Now we are in the `Game` class of the program, which actually runs everything. ::
 
     pg.init()
-    screen = pg.display.set_mode((1280, 480), pg.SCALED)
+    Game.screen = pg.display.set_mode((1280, 480))
+    Game.screen_rect = Game.screen.get_rect()
     pg.display.set_caption("Monkey Fever")
     pg.mouse.set_visible(False)
 
@@ -335,9 +338,9 @@ type of control is generally not needed, but is available if you desire.
 
 Next we set up the display graphics mode. Note that the :mod:`pygame.display`
 module is used to control all the display settings. In this case we are
-asking for a 1280 by 480 window, with the ``SCALED`` display flag.
-This automatically scales up the window for displays much larger than the
-window. 
+asking for a 1280 by 480 window. We could add the ``SCALED`` display flag
+which automatically scales up the window for displays much larger than the
+window.
 
 Last we set the window title and turn off the mouse cursor for our
 window. Very basic to do, and now we have a small black window ready to
@@ -352,9 +355,9 @@ Our program is going to have text message in the background. It would
 be nice for us to create a single surface to represent the background and
 repeatedly use that. The first step is to create the surface. ::
 
-    background = pg.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((170, 238, 187))
+    Game.background = pg.Surface(Game.screen.get_size())
+    Game.background = Game.background.convert()
+    Game.background.fill((170, 238, 187))
 
 This creates a new surface for us that is the same size as the display
 window. Note the extra call to `convert()` after creating the Surface. The
@@ -375,9 +378,15 @@ If not, we just skip this section. ::
 
     if pg.font:
         font = pg.font.Font(None, 64)
-        text = font.render("Pummel The Chimp, And Win $$$", True, (10, 10, 10))
-        textpos = text.get_rect(centerx=background.get_width() / 2, y=10)
-        background.blit(text, textpos)
+        text = font.render("Pummel The Chimp, And Win $$$",
+                           True,
+                           (10, 10, 10))
+        # Centered
+        textpos = text.get_rect(centerx=Game.background.get_width() / 2,
+                                y=10)
+        Game.background.blit(text, textpos)
+    else:
+        print("Warning, fonts disabled")
 
 As you see, there are a couple steps to getting this done. First we
 must create the font object and render it into a new surface. We then find
@@ -400,6 +409,11 @@ easily assign it to the screen center.
 Finally we blit (blit is like a copy or paste) the text onto the background
 image.
 
+Some pygame modules are optional, and if they aren't found, they evaluate to
+``False``. Because of that, we decide to print a nice warning message if the
+:mod:`font<pygame.font>` module in pygame is not available. (Although they
+will only be unavailable in very uncommon situations).
+
 
 Display The Background While Setup Finishes
 -------------------------------------------
@@ -407,8 +421,8 @@ Display The Background While Setup Finishes
 We still have a black window on the screen. Lets show our background
 while we wait for the other resources to load. ::
 
-  screen.blit(background, (0, 0))
-  pg.display.flip()
+    Game.screen.blit(Game.background, (0, 0))
+    pg.display.flip()
 
 This will blit our entire background onto the display window. The
 blit is self explanatory, but what about this flip routine?
@@ -425,39 +439,32 @@ Prepare Game Object
 Here we create all the objects that the game is going to need.
 
 ::
-    
-    whiff_sound = load_sound("whiff.wav")
-    punch_sound = load_sound("punch.wav")
-    chimp = Chimp()
-    fist = Fist()
-    allsprites = pg.sprite.RenderPlain((chimp, fist))
-    clock = pg.time.Clock()
 
-First we load two sound effects using the `load_sound` function we defined
-above. Then we create an instance of each of our sprite classes. And lastly
-we create a sprite :class:`Group <pygame.sprite.Group>` which will contain all
-our sprites.
+    Game.allsprites = pg.sprite.RenderPlain()
+    Game.punchables = pg.sprite.Group()
+    Game.chimp = Chimp()
+    Game.fist = Fist()
+    Game.clock = pg.time.Clock()
 
-We actually use a special sprite group named :class:`RenderPlain
-<pygame.sprite.RenderPlain>`. This sprite group can draw all the sprites it
-contains to the screen. It is called `RenderPlain` because there are actually
-more advanced Render groups. But for our game, we just need simple drawing. We
-create the group named "allsprites" by passing a list with all the sprites that
-should belong in the group. We could later on add or remove sprites from this
-group, but in this game we won't need to.
+First we create a sprite :class:`Group <pygame.sprite.Group>` which will
+contain all our sprites. We actually use a special sprite group named
+:class:`RenderPlain<pygame.sprite.RenderPlain>`. This sprite group can draw
+all the sprites it contains to the screen. It is called `RenderPlain` because
+there are actually more advanced Render groups. But for our game, we just need
+simple drawing.
 
-The `clock` object we create will be used to help control our game's framerate.
-we will use it in the main loop of our game to make sure it doesn't run too fast.
+Next we we create an instance of each of our sprite classes.  And lastly we
+create a `clock` object to help control our game's framerate. we will use it
+in the main loop of our game to make sure it doesn't run too fast.
 
 
-Main Loop
+Game Loop
 ---------
 
 Nothing much here, just an infinite loop. ::
 
-    going = True
-    while going:
-        clock.tick(60)
+    while True:
+        Game.clock.tick(60)
 
 All games run in some sort of loop. The usual order of things is to
 check on the state of the computer and user input, move and update the
@@ -473,29 +480,27 @@ Handle All Input Events
 
 This is an extremely simple case of working the event queue. ::
 
+    mouse_buttons = pg.event.get(
+            eventtype=(pg.MOUSEBUTTONDOWN,
+                       pg.MOUSEBUTTONUP))
+
     for event in pg.event.get():
         if event.type == pg.QUIT:
-            going = False
-        elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-            going = False
-        elif event.type == pg.MOUSEBUTTONDOWN:
-            if fist.punch(chimp):
-                punch_sound.play()  # punch
-                chimp.punched()
-            else:
-                whiff_sound.play()  # miss
-        elif event.type == pg.MOUSEBUTTONUP:
-            fist.unpunch()
+            pg.quit()
+            sys.exit()
+        elif (event.type == pg.KEYDOWN
+              and event.key == pg.K_ESCAPE):
+            pg.quit()
+            sys.exit()
 
-First we get all the available Events from pygame and loop through each
-of them. The first two tests see if the user has quit our game, or pressed
-the escape key. In these cases we just set ``going`` to ``False``, allowing
-us out of the infinite loop.
+First we get any mouse button Events from pygame and save them. Then we loop
+through each of the remaining events. The first two tests see if the user has
+quit our game, or pressed the escape key. In these cases we just quit & exit,
+allowing us out of the infinite loop.
 
-Next we just check to see if the mouse button was pressed or released.
-If the button was pressed, we ask the fist object if it has collided with
-the chimp. We play the appropriate sound effect, and if the monkey was hit,
-we tell him to start spinning (by calling his `punched()` method).
+Cleaning up the running game in *pygame* is extremely simple.
+Since all variables are automatically destructed, we don't really have to do
+anything, but calling `pg.quit()` explicitly cleans up pygame's internals.
 
 
 Update the Sprites
@@ -503,7 +508,7 @@ Update the Sprites
 
 ::
 
-  allsprites.update()
+    Game.allsprites.update(mouse_buttons)
 
 Sprite groups have an `update()` method, which simply calls the update method
 for all the sprites it contains. Each of the objects will move around, depending
@@ -516,9 +521,9 @@ Draw The Entire Scene
 
 Now that all the objects are in the right place, time to draw them. ::
 
-  screen.blit(background, (0, 0))
-  allsprites.draw(screen)
-  pg.display.flip()
+    Game.screen.blit(Game.background, (0, 0))
+    Game.allsprites.draw(Game.screen)
+    pg.display.flip()
 
 The first blit call will draw the background onto the entire screen. This
 erases everything we saw from the previous frame (slightly inefficient, but
@@ -527,15 +532,3 @@ container. Since this sprite container is really an instance of the "RenderPlain
 sprite group, it knows how to draw our sprites. Lastly, we `flip()` the contents
 of pygame's software double buffer to the screen. This makes everything we've
 drawn visible all at once.
-
-
-Game Over
----------
-
-User has quit, time to clean up. ::
-
-    pg.quit()
-
-Cleaning up the running game in *pygame* is extremely simple.
-Since all variables are automatically destructed, we don't really have to do
-anything, but calling `pg.quit()` explicitly cleans up pygame's internals.
