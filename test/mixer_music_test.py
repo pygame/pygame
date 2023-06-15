@@ -302,14 +302,21 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_volume(self):
+    def test_get_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
 
         # Returns the current volume for the mixer. The value will be between
         # 0.0 and 1.0.
         #
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        
+        vol = pygame.mixer.music.get_volume()
+        self.assertGreaterEqual(vol, 0)
+        self.assertLessEqual(vol, 1)
 
-        self.fail()
+        pygame.mixer.music.stop()
 
     def todo_test_set_endevent(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
@@ -365,14 +372,21 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_volume(self):
+    def test_set_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_volume:
 
         # Set the volume of the music playback. The value argument is between
         # 0.0 and 1.0. When new music is loaded the volume is reset.
         #
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        
+        pygame.mixer.music.set_volume(.5)
+        vol = pygame.mixer.music.get_volume()
+        self.assertEqual(vol, 0.5)
 
-        self.fail()
+        pygame.mixer.music.stop()
 
     def todo_test_set_pos(self):
         # __doc__ (as of 2010-24-05) for pygame.mixer_music.set_pos:
