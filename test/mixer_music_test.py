@@ -241,7 +241,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         time.sleep(.06) 
         self.assertEqual(pygame.mixer.music.get_busy(), False)
 
-        # self.fail()
 
     @unittest.skipIf(
         os.environ.get("SDL_AUDIODRIVER") == "disk",
