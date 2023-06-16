@@ -88,7 +88,7 @@ Contribute
 ----------
 | Thank you for thinking of contributing!
 |
-| To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/gezeebeezee/pygame-docs-contribution/tree/main/docs>`_.
+| To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/pygame/pygame/tree/main/docs>`_.
 |
 | New to contributing to Open Source Free Libre software? 
 | There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in python for pygame, which is very similar to how you would do it for other projects. 
