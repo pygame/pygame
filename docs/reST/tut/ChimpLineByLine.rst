@@ -159,46 +159,46 @@ Here we create two classes to represent the objects in our game. Almost
 all the logic for the game goes into these two classes. We will look over
 them one at a time here. ::
 
-class Fist(pg.sprite.Sprite):
-    """Clenched fist (follows mouse)"""
+    class Fist(pg.sprite.Sprite):
+        """Clenched fist (follows mouse)"""
 
-    def __init__(self):
-        pg.sprite.Sprite.__init__(self)
-        self.image, self.rect = Media.load_image("fist.png", colorkey=-1)
-        self.whiff_sound = Media.load_sound("whiff.wav")
-        self.punch_sound = Media.load_sound("punch.wav")
-        self.state = self.FIST_RETRACTED = (-235, -80)
-        self.FIST_PUNCHING = (-220, -55)
-        self.add(Game.allsprites)
+        def __init__(self):
+            pg.sprite.Sprite.__init__(self)
+            self.image, self.rect = Media.load_image("fist.png", colorkey=-1)
+            self.whiff_sound = Media.load_sound("whiff.wav")
+            self.punch_sound = Media.load_sound("punch.wav")
+            self.state = self.FIST_RETRACTED = (-235, -80)
+            self.FIST_PUNCHING = (-220, -55)
+            self.add(Game.allsprites)
 
-    def update(self, mouse_buttons):
-        # Move fist to mouse position
-        self.rect.topleft = pg.mouse.get_pos()
-        self.rect.move_ip(self.state)
+        def update(self, mouse_buttons):
+            # Move fist to mouse position
+            self.rect.topleft = pg.mouse.get_pos()
+            self.rect.move_ip(self.state)
 
-        # Handle punches
-        for event in mouse_buttons:
-            if event.type == pg.MOUSEBUTTONDOWN:
-                self.state = self.FIST_PUNCHING
-                self.rect.move_ip((15, 25))
-                self.punch()
-            if event.type == pg.MOUSEBUTTONUP:
-                self.state = self.FIST_RETRACTED
-                self.rect.move_ip((-15, -25))
+            # Handle punches
+            for event in mouse_buttons:
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    self.state = self.FIST_PUNCHING
+                    self.rect.move_ip((15, 25))
+                    self.punch()
+                if event.type == pg.MOUSEBUTTONUP:
+                    self.state = self.FIST_RETRACTED
+                    self.rect.move_ip((-15, -25))
 
-    def punch(self):
-        punched = pg.sprite.spritecollide(
-                      self,
-                      Game.punchables,
-                      False,
-                      collided=pg.sprite.collide_rect_ratio(.9))
+        def punch(self):
+            punched = pg.sprite.spritecollide(
+                          self,
+                          Game.punchables,
+                          False,
+                          collided=pg.sprite.collide_rect_ratio(.9))
 
-        if len(punched) == 0:
-            self.whiff_sound.play()
-        else:
-            for each in punched:
-                each.get_punched(self)
-                self.punch_sound.play()
+            if len(punched) == 0:
+                self.whiff_sound.play()
+            else:
+                for each in punched:
+                    each.get_punched(self)
+                    self.punch_sound.play()
 
 
 Here we create a class to represent the players fist. It is derived from the
@@ -225,52 +225,52 @@ sprites in the `Game.punchables` sprite Group and stores the result in the
 Otherwise each sprite gets punched via its `get_punched` method, causing it to
 react, and a punch sound is played. ::
 
-class Chimp(pg.sprite.Sprite):
-    """Monkey (moves across the screen)
-    Spins when punched.
-    """
+    class Chimp(pg.sprite.Sprite):
+        """Monkey (moves across the screen)
+        Spins when punched.
+        """
 
-    def __init__(self, topleft=(10,90)):
-        pg.sprite.Sprite.__init__(self)
-        self.image, self.rect = Media.load_image("chimp.png", colorkey=-1, scale=4)
-        self.image_original = self.image
-        self.rect.topleft = topleft
-        self.rotation = 0
-        self.delta = 18
-        self.move = self._walk
-        self.add((Game.allsprites, Game.punchables))
-
-    def update(self, *nevermint):
-        """Walk or spin, depending on state"""
-        self.move()
-
-    def _walk(self):
-        """Move monkey across screen (turning at ends)"""
-        newpos = self.rect.move((self.delta, 0))
-        if not Game.screen_rect.contains(newpos):
-            self.delta = -self.delta
-            newpos = self.rect.move((self.delta, 0))
-            self.image = pg.transform.flip(self.image, True, False)
-
-        self.rect = newpos
-
-    def _spin(self):
-        """Spin monkey image"""
-        center = self.rect.center
-        self.rotation += 12
-        if self.rotation >= 360:
+        def __init__(self, topleft=(10,90)):
+            pg.sprite.Sprite.__init__(self)
+            self.image, self.rect = Media.load_image("chimp.png", colorkey=-1, scale=4)
+            self.image_original = self.image
+            self.rect.topleft = topleft
             self.rotation = 0
+            self.delta = 18
             self.move = self._walk
-            self.image = self.image_original
-        else:
-            rotate = pg.transform.rotate
-            self.image = rotate(self.image_original, self.rotation)
+            self.add((Game.allsprites, Game.punchables))
 
-        self.rect = self.image.get_rect(center=center)
+        def update(self, *nevermint):
+            """Walk or spin, depending on state"""
+            self.move()
 
-    def get_punched(self, obj):
-        """Cause monkey to spin"""
-        self.move = self._spin
+        def _walk(self):
+            """Move monkey across screen (turning at ends)"""
+            newpos = self.rect.move((self.delta, 0))
+            if not Game.screen_rect.contains(newpos):
+                self.delta = -self.delta
+                newpos = self.rect.move((self.delta, 0))
+                self.image = pg.transform.flip(self.image, True, False)
+
+            self.rect = newpos
+
+        def _spin(self):
+            """Spin monkey image"""
+            center = self.rect.center
+            self.rotation += 12
+            if self.rotation >= 360:
+                self.rotation = 0
+                self.move = self._walk
+                self.image = self.image_original
+            else:
+                rotate = pg.transform.rotate
+                self.image = rotate(self.image_original, self.rotation)
+
+            self.rect = self.image.get_rect(center=center)
+
+        def get_punched(self, obj):
+            """Cause monkey to spin"""
+            self.move = self._spin
 
 
 The `Chimp` class is doing a little more work than the fist, but nothing
