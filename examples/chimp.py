@@ -12,34 +12,6 @@ import sys  # sys.exit()
 import pygame as pg
 
 
-class FpsCounter(pg.sprite.Sprite):
-
-    def __init__(self,
-                 bg_color=pg.Color(127,127,27),
-                 fg_color=pg.Color(255,255,255)):
-        
-        pg.sprite.Sprite.__init__(self)
-
-        self.bg_color = bg_color
-        self.fg_color = fg_color
-        self.font = pg.font.SysFont((), 64)
-        
-        self.update()  # Generate surface image
-        self.rect = self.image.get_rect()
-        
-        self.FPS_EVENT = pg.event.custom_type()
-        pg.time.set_timer(pg.event.Event(self.FPS_EVENT, {}), 256)
-
-        self.add(Game.allsprites)
-
-    def update(self, *nevermint):
-        # Generate surface image
-        self.image = self.font.render(Game.clock.get_fps().__int__().__str__(),
-                                      False,
-                                      self.fg_color,
-                                      self.bg_color)
-
-
 class Media():
 
     def load_image(filename, colorkey=None, scale=1):
