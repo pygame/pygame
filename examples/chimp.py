@@ -14,6 +14,7 @@ import pygame as pg
 
 class Media():
 
+    @staticmethod
     def load_image(filename, colorkey=None, scale=1):
         filename = Path('data').joinpath(filename)
         image = pg.image.load(filename).convert()
@@ -30,6 +31,7 @@ class Media():
 
         return image, image.get_rect()
 
+    @staticmethod
     def load_sound(filename):
         if not pg.mixer or not pg.mixer.get_init():
             print("Warning, sound disabled")
@@ -136,6 +138,7 @@ class Chimp(pg.sprite.Sprite):
         
 class Game:
 
+    @staticmethod
     def initialize():
         pg.init()
         Game.screen = pg.display.set_mode((1280, 480))
@@ -149,11 +152,13 @@ class Game:
 
         return Game
 
+    @staticmethod
     def create_background():
         Game.background = pg.Surface(Game.screen.get_size())
         Game.background = Game.background.convert()
         Game.background.fill((170, 238, 187))
 
+    @staticmethod
     def set_background_text():
         if pg.font:
             font = pg.font.Font(None, 64)
@@ -168,6 +173,7 @@ class Game:
         else:
             print("Warning, fonts disabled")
 
+    @staticmethod
     def prepare_game_objects():
         Game.allsprites = pg.sprite.RenderPlain()
         Game.punchables = pg.sprite.Group()
@@ -176,6 +182,7 @@ class Game:
         Game.fist = Fist()
         Game.clock = pg.time.Clock()
 
+    @staticmethod
     def execute():
         while True:
             Game.clock.tick(60)
