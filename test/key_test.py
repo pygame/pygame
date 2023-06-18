@@ -234,13 +234,13 @@ class KeyModuleTest(unittest.TestCase):
         states = pygame.key.get_pressed()
         self.assertEqual(states[pygame.K_RIGHT], 0)
 
-    def test_get_pressed_not_iter(self):
-        states = pygame.key.get_pressed()
-        with self.assertRaises(TypeError):
-            next(states)
-        with self.assertRaises(TypeError):
-            for k in states:
-                pass
+    # def test_get_pressed_not_iter(self):
+    #     states = pygame.key.get_pressed()
+    #     with self.assertRaises(TypeError):
+    #         next(states)
+    #     with self.assertRaises(TypeError):
+    #         for k in states:
+    #             pass
 
     def test_name_and_key_code(self):
         for const_name in dir(pygame):
