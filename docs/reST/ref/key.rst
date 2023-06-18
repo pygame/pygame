@@ -272,6 +272,10 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
       over because the indexes of the internal tuple does not correpsond to the 
       keycodes.
 
+   .. versionadded:: 2.5.0
+      Iteration over the collection of bools returned by ``get_pressed`` is now
+      restored. However it still does not make sense to iterate over it. Currently.
+
    .. ## pygame.key.get_pressed ##
 
 .. function:: get_mods
