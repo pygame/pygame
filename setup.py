@@ -72,56 +72,56 @@ import os
 from setuptools import setup
 import distutils
 
-import distutils.ccompiler
 
-avx2_filenames = ['simd_blitters_avx2']
+if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
+    import distutils.ccompiler
 
-compiler_options = {
-    'unix': ('-mavx2',),
-    'msvc': ('/arch:AVX2',)
-}
+    avx2_filenames = ['simd_blitters_avx2']
 
+    compiler_options = {
+        'unix': ('-mavx2',),
+        'msvc': ('/arch:AVX2',)
+    }
 
-def spawn(self, cmd, **kwargs):
-    should_use_avx2 = False
-    # try to be thorough in detecting that we are on a platform that potentially supports AVX2
-    machine_name = platform.machine()
-    if ((machine_name.startswith(("x86", "i686")) or
-        machine_name.lower() == "amd64") and
-            os.environ.get("MAC_ARCH") != "arm64"):
-        should_use_avx2 = True
+    def spawn(self, cmd, **kwargs):
+        should_use_avx2 = os.environ.get('PYGAME_DETECT_AVX2', '') != ''
+        # try to be thorough in detecting that we are on a platform that potentially supports AVX2
+        machine_name = platform.machine()
+        if ((machine_name.startswith(("x86", "i686")) or
+            machine_name.lower() == "amd64") and
+                os.environ.get("MAC_ARCH") != "arm64"):
+            should_use_avx2 = True
 
-    if should_use_avx2:
-        extra_options = compiler_options.get(self.compiler_type)
-        if extra_options is not None:
-            # filenames are closer to the end of command line
-            for argument in reversed(cmd):
-                # Check if argument contains a filename. We must check for all
-                # possible extensions; checking for target extension is faster.
-                if not argument.endswith(self.obj_extension):
-                    continue
+        if should_use_avx2:
+            extra_options = compiler_options.get(self.compiler_type)
+            if extra_options is not None:
+                # filenames are closer to the end of command line
+                for argument in reversed(cmd):
+                    # Check if argument contains a filename. We must check for all
+                    # possible extensions; checking for target extension is faster.
+                    if not argument.endswith(self.obj_extension):
+                        continue
 
-                # check for a filename only to avoid building a new string
-                # with variable extension
-                for filename in avx2_filenames:
-                    off_end = -len(self.obj_extension)
-                    off_start = -len(filename) + off_end
-                    if argument.endswith(filename, off_start, off_end):
-                        if self.compiler_type == 'bcpp':
-                            # Borland accepts a source file name at the end,
-                            # insert the options before it
-                            cmd[-1:-1] = extra_options
-                        else:
-                            cmd += extra_options
+                    # check for a filename only to avoid building a new string
+                    # with variable extension
+                    for filename in avx2_filenames:
+                        off_end = -len(self.obj_extension)
+                        off_start = -len(filename) + off_end
+                        if argument.endswith(filename, off_start, off_end):
+                            if self.compiler_type == 'bcpp':
+                                # Borland accepts a source file name at the end,
+                                # insert the options before it
+                                cmd[-1:-1] = extra_options
+                            else:
+                                cmd += extra_options
 
-                # filename is found, no need to search any further
-                break
+                    # filename is found, no need to search any further
+                    break
 
-    distutils.ccompiler.spawn(cmd, dry_run=self.dry_run, **kwargs)
+        distutils.ccompiler.spawn(cmd, dry_run=self.dry_run, **kwargs)
 
-
-distutils.ccompiler.CCompiler.__spawn = distutils.ccompiler.CCompiler.spawn
-distutils.ccompiler.CCompiler.spawn = spawn
+    distutils.ccompiler.CCompiler.__spawn = distutils.ccompiler.CCompiler.spawn
+    distutils.ccompiler.CCompiler.spawn = spawn
 
 # A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
 # This is due to the fact that distutils uses command line args to 

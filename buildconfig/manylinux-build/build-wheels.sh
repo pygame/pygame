@@ -14,7 +14,7 @@ else
     fi
 fi
 
-
+export PYGAME_DETECT_AVX2="yes-why-not"
 export PORTMIDI_INC_PORTTIME=1
 
 # To 'solve' this issue:
