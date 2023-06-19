@@ -394,7 +394,6 @@
       Not only Rects are valid arguments, but these are all valid calls:
 
       .. code-block:: python
-          :linenos:
     
           Rect = pygame.Rect
           r = Rect(0, 0, 10, 10)
@@ -457,7 +456,6 @@
       of them.
 
       .. code-block:: python
-          :linenos:
 
           r = Rect(1, 1, 10, 10)
 
@@ -518,7 +516,6 @@
       of them.
 
       .. code-block:: python
-          :linenos:
 
           r = Rect(1, 1, 10, 10)
 
