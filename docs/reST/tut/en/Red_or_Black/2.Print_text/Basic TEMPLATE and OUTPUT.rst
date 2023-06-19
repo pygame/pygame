@@ -20,7 +20,6 @@ As I said, Pygame is based on GUI environment. Furthermore, Pygame is good for m
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -53,7 +52,6 @@ As I said, Pygame is based on GUI environment. Furthermore, Pygame is good for m
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
