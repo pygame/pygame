@@ -16,7 +16,6 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -51,7 +50,6 @@ As we know, every kind of game has 3 sections (Because game is a subgroup of pro
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -88,7 +86,6 @@ Yes. Pygame can solve that. Pygame is an external library of **Python** which en
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()

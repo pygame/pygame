@@ -20,7 +20,6 @@ Previous project looks like a single image instead of game. Because there is no 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -53,7 +52,6 @@ Previous project looks like a single image instead of game. Because there is no 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()

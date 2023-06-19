@@ -16,7 +16,6 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -48,7 +47,6 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -80,7 +78,6 @@ Actually, everything doesn’t seem like a game. Now, we will insert a rule into
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
