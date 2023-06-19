@@ -20,7 +20,6 @@ Usually, we learn how to output something first (Think about Hello World!), lear
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -53,7 +52,6 @@ Usually, we learn how to output something first (Think about Hello World!), lear
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
