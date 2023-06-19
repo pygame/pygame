@@ -66,30 +66,29 @@ along, and a complete breakdown follows.
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
-
+      
    import sys, pygame
    pygame.init()
-
+   
    size = width, height = 320, 240
    speed = [2, 2]
    black = 0, 0, 0
-
+   
    screen = pygame.display.set_mode(size)
-
+   
    ball = pygame.image.load("intro_ball.gif")
    ballrect = ball.get_rect()
-
+   
    while True:
        for event in pygame.event.get():
            if event.type == pygame.QUIT: sys.exit()
-
+   
        ballrect = ballrect.move(speed)
        if ballrect.left < 0 or ballrect.right > width:
            speed[0] = -speed[0]
        if ballrect.top < 0 or ballrect.bottom > height:
            speed[1] = -speed[1]
-
+       
        screen.fill(black)
        screen.blit(ball, ballrect)
        pygame.display.flip()
@@ -99,7 +98,11 @@ First we see importing and initializing pygame is nothing noteworthy.
 The ``import pygame`` imports the package with all the available
 pygame modules.
 The call to ``pygame.init()`` initializes each of these modules.
-
+Make sure the gif file of the bouncing ball is in the same folder
+as the code block.
+On :clr:`line 4` we set the size of the display window, for best
+results yo can change these numbers to match your own monitor's
+resolution.
 On :clr:`line 8` we create a
 graphical window with the call to ``pygame.display.set_mode()``.
 Pygame and SDL make this easy by defaulting to the best graphics modes
