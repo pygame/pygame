@@ -16,7 +16,6 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -48,7 +47,6 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -80,7 +78,6 @@ First, Let’s print visualized geometry, not text. How about HP bar? If max HP 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -114,7 +111,6 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -146,7 +142,6 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -178,7 +173,6 @@ Yeah, just re-rendering text when certain variable is changed. How to change var
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
