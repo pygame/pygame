@@ -16,7 +16,6 @@ Even if KEYDOWN event is used, it seems like this is not entirely GUI game becau
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -48,7 +47,6 @@ Even if KEYDOWN event is used, it seems like this is not entirely GUI game becau
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -82,7 +80,6 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -114,7 +111,6 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -146,7 +142,6 @@ Okay, making two buttons is simple. Look at the button, they have unique visual 
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
