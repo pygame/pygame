@@ -16,7 +16,6 @@ KEYDOWN이 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -48,7 +47,6 @@ KEYDOWN이 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -82,7 +80,6 @@ KEYDOWN이 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -114,7 +111,6 @@ KEYDOWN이 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -146,7 +142,6 @@ KEYDOWN이 사용되었지만, 아직도 이 게임이 완전한 GUI가 아닌 �
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()

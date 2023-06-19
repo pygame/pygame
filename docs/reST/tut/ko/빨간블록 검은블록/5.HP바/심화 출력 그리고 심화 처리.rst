@@ -16,7 +16,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -48,7 +47,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -80,7 +78,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -114,7 +111,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -146,7 +142,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
@@ -178,7 +173,6 @@ Contact: rumia0601@gmail.com
    :class: inlined-right
 
 .. code-block:: python
-   :linenos:
 
    import sys, pygame
    pygame.init()
