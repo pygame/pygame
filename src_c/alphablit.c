@@ -3010,7 +3010,10 @@ premul_surf_color_by_alpha_non_simd(SDL_Surface *src, SDL_Surface *dst)
                 PyExc_RuntimeWarning,                                 \
                 "Your system is " #s " capable but pygame was not "   \
                 "built with support for it. The performance of some " \
-                "of your blits could be adversely affected",          \
+                "of your blits could be adversely affected. Consider" \
+                " enabling compile time detection with environment "  \
+                "variables like PYGAME_DETECT_AVX2=1 if you are "     \
+                "compiling without cross compilation.",               \
                 1) < 0) {                                             \
             return -1;                                                \
         }                                                             \
