@@ -84,7 +84,7 @@ if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
     }
 
     def spawn(self, cmd, **kwargs):
-        should_use_avx2 = os.environ.get('PYGAME_DETECT_AVX2', '') != ''
+        should_use_avx2 = False
         # try to be thorough in detecting that we are on a platform that potentially supports AVX2
         machine_name = platform.machine()
         if ((machine_name.startswith(("x86", "i686")) or
