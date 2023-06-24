@@ -197,12 +197,16 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.assertEqual(before_unpause, after_unpause)
 
-    def todo_test_stop(self):
+    def test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
         # Stops the music playback if it is currently playing.
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-        self.fail()
+        pygame.mixer.music.stop()
+        self.assertEqual(pygame.mixer.music.get_busy(), False)
 
     def todo_test_rewind(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
@@ -222,15 +226,14 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_fadeout(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.fadeout:
+    # def test_fadeout(self):
+    #     filename = example_path(os.path.join("data", "house_lo.mp3"))
+    #     pygame.mixer.music.load(filename)
+    #     pygame.mixer.music.play()
 
-        # This will stop the music playback after it has been faded out over
-        # the specified time (measured in milliseconds).
-        #
-        # Note, that this function blocks until the music has faded out.
-
-        self.fail()
+    #     pygame.mixer.music.fadeout(50)
+    #     time.sleep(0.3)
+    #     self.assertEqual(pygame.mixer.music.get_busy(), False)
 
     @unittest.skipIf(
         os.environ.get("SDL_AUDIODRIVER") == "disk",
@@ -259,7 +262,7 @@ class MixerMusicModuleTest(unittest.TestCase):
                 self.assertEqual(time_to_finish, 1)
                 running = False
 
-    def todo_test_play(self):
+    def test_play(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.play:
 
         # This will play the loaded music stream. If the music is already
@@ -276,8 +279,13 @@ class MixerMusicModuleTest(unittest.TestCase):
         # MOD music it is the pattern order number. Passing a startpos will
         # raise a NotImplementedError if it cannot set the start position
         #
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-        self.fail()
+        self.assertTrue(pygame.mixer.music.get_busy())
+
+        pygame.mixer.music.stop()
 
     def todo_test_load(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
@@ -292,14 +300,21 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_volume(self):
+    def test_get_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
 
         # Returns the current volume for the mixer. The value will be between
         # 0.0 and 1.0.
         #
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-        self.fail()
+        vol = pygame.mixer.music.get_volume()
+        self.assertGreaterEqual(vol, 0)
+        self.assertLessEqual(vol, 1)
+
+        pygame.mixer.music.stop()
 
     def todo_test_set_endevent(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
@@ -315,14 +330,18 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_pause(self):
+    def test_pause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.pause:
 
         # Temporarily stop playback of the music stream. It can be resumed
         # with the pygame.mixer.music.unpause() function.
         #
-
-        self.fail()
+        self.music_load("ogg")
+        self.assertFalse(pygame.mixer.music.get_busy())
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+        pygame.mixer.music.pause()
+        self.assertFalse(pygame.mixer.music.get_busy())
 
     def test_get_busy(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_busy:
@@ -348,21 +367,41 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_unpause(self):
+    def test_unpause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
 
         # This will resume the playback of a music stream after it has been paused.
 
-        self.fail()
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+        time.sleep(0.1)
+        pygame.mixer.music.pause()
+        self.assertFalse(pygame.mixer.music.get_busy())
+        before = pygame.mixer.music.get_pos()
+        pygame.mixer.music.unpause()
+        after = pygame.mixer.music.get_pos()
+        self.assertTrue(pygame.mixer.music.get_busy())
+        self.assertEqual(before, after)
 
-    def todo_test_set_volume(self):
+        pygame.mixer.music.stop()
+
+    def test_set_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_volume:
 
         # Set the volume of the music playback. The value argument is between
         # 0.0 and 1.0. When new music is loaded the volume is reset.
         #
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-        self.fail()
+        pygame.mixer.music.set_volume(0.5)
+        vol = pygame.mixer.music.get_volume()
+        self.assertEqual(vol, 0.5)
+
+        pygame.mixer.music.stop()
 
     def todo_test_set_pos(self):
         # __doc__ (as of 2010-24-05) for pygame.mixer_music.set_pos:
