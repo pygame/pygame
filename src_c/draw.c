@@ -563,10 +563,17 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     width = MIN(width, MIN(rect->w, rect->h) / 2);
 
-    for (loop = 0; loop < width; ++loop) {
+    if (rect->w / rect->h >= 1) {
+        ellipse_ratio = rect->w / rect->h;
+    } else {
+        ellipse_ratio = rect->h / rect->w;
+    }
+
+    for (loop = 0; loop * (2 * ellipse_ratio) < width; ++loop) {
         draw_arc(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
-                 rect->w / 2 - loop, rect->h / 2 - loop, angle_start,
-                 angle_stop, color, drawn_area);
+                 rect->w / 2 - loop / (2 * ellipse_ratio),
+                 rect->h / 2 - loop / (2 * ellipse_ratio),
+                 angle_start, angle_stop, color, drawn_area);
     }
 
     if (!pgSurface_Unlock(surfobj)) {
