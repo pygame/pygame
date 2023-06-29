@@ -14,7 +14,7 @@ cd $SAMPLERATE
 
 ./configure --prefix=/usr/local/ \
             --disable-static     \
-            --docdir=/usr/share/doc/${SAMPLERATE} &&
+            --docdir=/usr/local/share/doc/${SAMPLERATE} &&
 make
 make install
 
