@@ -12,8 +12,8 @@ sha512sum -c samplerate.sha512
 tar xf ${SAMPLERATE}.tar.xz
 cd $SAMPLERATE
 
-./configure --prefix=/usr    \
-            --disable-static \
+./configure --prefix=/usr/local/ \
+            --disable-static     \
             --docdir=/usr/share/doc/${SAMPLERATE} &&
 make
 make install
