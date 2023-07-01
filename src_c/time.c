@@ -222,18 +222,22 @@ timer_callback(Uint32 interval, void *param)
     SDL_Event event;
     PyGILState_STATE gstate;
 
-    evtimer = _pg_get_event_on_timer((intptr_t)param);
-    if (!evtimer)
-        return 0;
-
     /* This function runs in a separate thread, so we acquire the GIL,
      * pgEvent_FillUserEvent and _pg_remove_event_timer do python API calls */
     gstate = PyGILState_Ensure();
 
+    evtimer = _pg_get_event_on_timer((intptr_t)param);
+    if (evtimer == NULL) {
+        PyGILState_Release(gstate);
+        return 0;
+    }
+
     if (SDL_WasInit(SDL_INIT_VIDEO)) {
-        pgEvent_FillUserEvent(evtimer->event, &event);
-        if (SDL_PushEvent(&event) <= 0)
-            Py_DECREF(evtimer->event->dict);
+        if (evtimer->event && evtimer->event->dict) {
+            pgEvent_FillUserEvent(evtimer->event, &event);
+            if (SDL_PushEvent(&event) <= 0)
+                Py_DECREF(evtimer->event->dict);
+        }
     }
     else
         evtimer->repeat = 0;
