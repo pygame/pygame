@@ -23,6 +23,8 @@ rm -rf /usr/local/lib/libgthread*
 rm -rf /usr/local/lib/libintl*
 rm -rf /usr/local/lib/libbrotlidec*
 rm -rf /usr/local/lib/libopus*
+rm -rf /usr/local/lib/libomp*
+rm -rf /usr/local/lib/libmp3lame*
 rm -rf /usr/local/opt/freetype
 
 rm -rf /usr/local/Cellar/libtiff
@@ -33,6 +35,8 @@ rm -rf /usr/local/Cellar/pcre
 rm -rf /usr/local/Cellar/opusfile
 rm -rf /usr/local/Cellar/opus
 rm -rf /usr/local/Cellar/freetype
+rm -rf /usr/local/Cellar/libomp
+rm -rf /usr/local/Cellar/lame
 
 rm -rf /usr/local/share/doc/tiff-*
 rm -rf /usr/local/share/doc/libsndfile
@@ -47,3 +51,4 @@ rm -rf /usr/local/share/bash-completion
 rm -rf /usr/local/include/glib-2.0
 rm -rf /usr/local/include/gio-unix-2.0
 rm -rf /usr/local/include/brotli
+rm -rf /usr/local/include/lame
