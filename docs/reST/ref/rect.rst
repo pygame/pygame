@@ -14,12 +14,12 @@
 
    Pygame uses Rect objects to store and manipulate rectangular areas. A Rect
    can be created from a combination of left, top, width, and height values.
-   Rects can also be created from python objects that are already a Rect or
+   Rects can also be created from Python objects that are already a Rect or
    have an attribute named "rect".
 
-   Any pygame function that requires a Rect argument also accepts any of these
+   Any Pygame function that requires a Rect argument also accepts any of these
    values to construct a Rect. This makes it easier to create Rects on the fly
-   as arguments to functions.
+   as arguments for functions.
 
    The Rect functions that change the position or size of a Rect return a new
    copy of the Rect with the affected changes. The original Rect is not
