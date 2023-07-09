@@ -57,7 +57,7 @@ def load_image(file):
 
 
 def load_sound(file):
-    """because pygame can be be compiled without mixer."""
+    """because pygame can be compiled without mixer."""
     if not pg.mixer:
         return None
     file = os.path.join(main_dir, "data", file)
