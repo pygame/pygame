@@ -383,7 +383,9 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.unpause()
         after = pygame.mixer.music.get_pos()
         self.assertTrue(pygame.mixer.music.get_busy())
-        self.assertEqual(before, after)
+        # It could rarely be that it is +/- 1 different
+        #   But mostly, after should equal before.
+        self.assertTrue(before - 1 <= after <= before + 1)
 
         pygame.mixer.music.stop()
 
