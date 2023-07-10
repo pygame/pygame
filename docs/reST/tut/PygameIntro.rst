@@ -101,7 +101,7 @@ The call to ``pygame.init()`` initializes each of these modules.
 Make sure the gif file of the bouncing ball is in the same folder
 as the code block.
 On :clr:`line 4` we set the size of the display window, for best
-results yo can change these numbers to match your own monitor's
+results you can change these numbers to match your own monitor's
 resolution.
 On :clr:`line 8` we create a
 graphical window with the call to ``pygame.display.set_mode()``.
