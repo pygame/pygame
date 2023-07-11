@@ -188,10 +188,10 @@ cdef class Sprite:
             else:
                 self.remove(*group)
 
-    cpdef void add_internal(self, group):
+    cpdef void add_internal(self, group) noexcept:
         self.__g.add(group)
 
-    cpdef void remove_internal(self, group):
+    cpdef void remove_internal(self, group) noexcept:
         self.__g.remove(group)
 
     def update(self, *args, **kwargs):
@@ -346,16 +346,16 @@ cdef class AbstractGroup:
         """
         return list(self.spritedict)
 
-    cpdef void add_internal(self, sprite):
+    cpdef void add_internal(self, sprite) noexcept:
         self.spritedict[sprite] = 0
 
-    cpdef void remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite) noexcept:
         r = self.spritedict[sprite]
         if r:
             self.lostsprites.append(r)
         del self.spritedict[sprite]
 
-    cpdef bint has_internal(self, sprite):
+    cpdef bint has_internal(self, sprite) noexcept:
         return sprite in self.spritedict
 
     def copy(self):
@@ -650,11 +650,11 @@ cdef class OrderedUpdates(RenderUpdates):
     cpdef list sprites(self):
         return list(self._spritelist)
 
-    cpdef void add_internal(self, sprite):
+    cpdef void add_internal(self, sprite) noexcept:
         RenderUpdates.add_internal(self, sprite)
         self._spritelist.append(sprite)
 
-    cpdef void remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite) noexcept:
         RenderUpdates.remove_internal(self, sprite)
         self._spritelist.remove(sprite)
 
@@ -697,7 +697,7 @@ cdef class LayeredUpdates(AbstractGroup):
 
         self.add(*sprites, **kwargs)
 
-    cpdef void add_internal(self, sprite, layer=None):
+    cpdef void add_internal(self, sprite, layer=None) noexcept:
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -779,7 +779,7 @@ cdef class LayeredUpdates(AbstractGroup):
                         self.add_internal(sprite, layer)
                         sprite.add_internal(self)
 
-    cpdef void remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite) noexcept:
         """Do not use this method directly.
 
         The group uses it to add a sprite.
@@ -1059,7 +1059,7 @@ cdef class LayeredDirty(LayeredUpdates):
                 if hasattr(self, key):
                     setattr(self, key, val)
 
-    cpdef void add_internal(self, sprite, layer=None):
+    cpdef void add_internal(self, sprite, layer=None) noexcept:
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -1333,7 +1333,7 @@ cdef class GroupSingle(AbstractGroup):
         else:
             return []
 
-    cpdef void add_internal(self, sprite):
+    cpdef void add_internal(self, sprite) noexcept:
         if self.__sprite is not None:
             self.__sprite.remove_internal(self)
             self.remove_internal(<Sprite>self.__sprite)
@@ -1355,13 +1355,13 @@ cdef class GroupSingle(AbstractGroup):
                       None,
                       "The sprite contained in this group")
 
-    cpdef void remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite) noexcept:
         if sprite is self.__sprite:
             self.__sprite = None
         if sprite in self.spritedict:
             AbstractGroup.remove_internal(self, sprite)
 
-    cpdef bint has_internal(self, sprite):
+    cpdef bint has_internal(self, sprite) noexcept:
         return self.__sprite is sprite
 
     # Optimizations...

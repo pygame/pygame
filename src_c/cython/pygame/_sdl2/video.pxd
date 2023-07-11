@@ -430,7 +430,7 @@ cdef class Texture:
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
                        bint flip_x=*, bint flip_y=*)
     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
-                    bint flip_x=*, bint flip_y=*)
+                    bint flip_x=*, bint flip_y=*) noexcept
 
 cdef class Image:
     cdef Color _color
@@ -445,4 +445,4 @@ cdef class Image:
     cdef public Texture texture
     cdef public Rect srcrect
 
-    cpdef void draw(self, srcrect=*, dstrect=*)
+    cpdef void draw(self, srcrect=*, dstrect=*) noexcept

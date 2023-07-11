@@ -14,7 +14,7 @@ import traceback
 # Mix_SetPostMix(noEffect, NULL);
 
 
-cdef void recording_cb(void* userdata, Uint8* stream, int len) nogil:
+cdef void recording_cb(void* userdata, Uint8* stream, int len) noexcept nogil:
     """ This is called in a thread made by SDL.
         So we need the python GIL to do python stuff.
     """

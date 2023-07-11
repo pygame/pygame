@@ -731,7 +731,7 @@ cdef class Texture:
             raise error()
 
     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
-                    bint flip_x=False, bint flip_y=False):
+                    bint flip_x=False, bint flip_y=False) noexcept:
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
@@ -904,7 +904,7 @@ cdef class Image:
     def get_rect(self):
         return pgRect_New(&self.srcrect.r)
 
-    cpdef void draw(self, srcrect=None, dstrect=None):
+    cpdef void draw(self, srcrect=None, dstrect=None) noexcept:
         """ Copy a portion of the image to the rendering target.
 
         :param srcrect: source rectangle specifying a sub-image, or None for the entire image.
