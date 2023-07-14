@@ -215,7 +215,7 @@ class LayeredUpdates(AbstractGroup[_TSprite]):
 class LayeredDirty(LayeredUpdates[_TDirtySprite]):
     def __init__(self, *sprites: _TDirtySprite, **kwargs: Any) -> None: ...
     def draw(
-        self, surface: Surface, bgsurf: Optional[Surface] = None, special_flags: int = None
+        self, surface: Surface, bgsurf: Optional[Surface] = None, special_flags: Optional[int] = None
     ) -> List[Rect]: ...
     # clear breaks Liskov substitution principle in code
     def clear(self, surface: Surface, bgd: Surface) -> None: ...  # type: ignore[override]
