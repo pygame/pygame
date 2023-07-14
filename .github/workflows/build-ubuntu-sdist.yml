@@ -84,7 +84,7 @@ jobs:
       if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.10' # run stubtest only once
       run: |
         cd buildconfig/stubs
-        python3 -m pip install mypy==0.982
+        python3 -m pip install mypy==1.4.1
         python3 -m mypy.stubtest pygame --allowlist mypy_allow_list.txt
 
     - name: Typecheck examples
