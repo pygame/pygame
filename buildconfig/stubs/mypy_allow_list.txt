@@ -12,6 +12,8 @@ pygame\._sdl2\..*\.__test__
 # cython classes have some special dunders for internal use, ignore that in 
 # stubtest
 pygame\._sdl2\..*\.__pyx_.*__
+pygame\._sdl2\..*\.__setstate_cython__
+pygame\._sdl2\..*\.__reduce_cython__
 
 # don't look for stubs for examples or for tests
 pygame\.examples.*
