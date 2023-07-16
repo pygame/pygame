@@ -68,7 +68,7 @@ class Window:
     position: Union[int, Iterable[int]]
     opacity: float
     display_index: int
-    def set_modal_for(self, Window) -> None: ...
+    def set_modal_for(self, parent: Window) -> None: ...
 
 class Texture:
     def __init__(
@@ -92,7 +92,7 @@ class Texture:
         self,
         srcrect: Optional[RectValue] = None,
         dstrect: Optional[RectValue] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         origin: Optional[Iterable[int]] = None,
         flip_x: bool = False,
         flip_y: bool = False,

@@ -901,8 +901,12 @@ cdef class Image:
         else:
             self._originptr = NULL
 
-    def get_rect(self):
-        return pgRect_New(&self.srcrect.r)
+    def get_rect(self, **kwargs):
+        rect = pgRect_New(&self.srcrect.r)
+        for key in kwargs:
+            setattr(rect, key, kwargs[key])
+
+        return rect
 
     cpdef void draw(self, srcrect=None, dstrect=None) noexcept:
         """ Copy a portion of the image to the rendering target.
