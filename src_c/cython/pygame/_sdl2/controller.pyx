@@ -17,14 +17,14 @@ def _gamecontroller_init_check():
     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         raise error("gamecontroller system not initialized")
 
-cdef bint _controller_autoinit():
+cdef bint _controller_autoinit() noexcept:
     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         if SDL_InitSubSystem(_SDL_INIT_GAMECONTROLLER):
             return False
         #pg_RegisterQuit(_controller_autoquit)
     return True
 
-cdef void _controller_autoquit():
+cdef void _controller_autoquit() noexcept:
     cdef Controller controller
     for c in Controller._controllers:
         controller = c

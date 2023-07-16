@@ -101,8 +101,8 @@ cdef extern from "../controllercompat.c" nogil:
                                 Uint16 high_frequency_rumble,
                                 Uint32 duration_ms)
 
-cdef bint _controller_autoinit()
-cdef void _controller_autoquit()
+cdef bint _controller_autoinit() noexcept
+cdef void _controller_autoquit() noexcept
 
 cdef class Controller:
     cdef SDL_GameController* _controller
