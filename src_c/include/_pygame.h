@@ -475,6 +475,10 @@ typedef struct {
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
 
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
+/**
+ * \brief The pgVidInfoObject object Python type.
+ * \note pgVideoInfo_Type is used for the `pygame.display.Info()` object.
+ */
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
 /**
