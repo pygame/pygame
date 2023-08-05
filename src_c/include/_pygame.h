@@ -453,16 +453,53 @@ typedef struct {
     int current_h;
 } pg_VideoInfo;
 
+/**
+ * A pygame object that wraps an SDL_VideoInfo struct.
+ * The object returned by `pygame.display.Info()`
+ */
 typedef struct {
     PyObject_HEAD pg_VideoInfo info;
 } pgVidInfoObject;
 
+/**
+ * \brief Convert a pgVidInfoObject to an SDL_VideoInfo.
+ *
+ * \note SDL_VideoInfo pgVidInfo_AsVidInfo(PyObject *obj)
+ *
+ * \returns the SDL_VideoInfo field of *obj*, a pgVidInfo_Type instance.
+ * \param obj A pgVidInfo_Type instance.
+ *
+ * \note Does not check that *obj* is not `NULL` or an `pgVidInfoObject`
+ * object.
+ */
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
 
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
+/**
+ * \brief The pgVidInfoObject object Python type.
+ * \note pgVideoInfo_Type is used for the `pygame.display.Info()` object.
+ */
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
+/**
+ * \brief Check if *obj* is a pgVidInfoObject.
+ *
+ * \returns true if *x* is a `pgVidInfo_Type` instance
+ * \note Will return false if *x* is a subclass of `pgVidInfo_Type`.
+ * \note This macro does not check that *x* is not ``NULL``.
+ * \note int pgVidInfo_Check(PyObject *x)
+ */
 #define pgVidInfo_Check(x) ((x)->ob_type == &pgVidInfo_Type)
+
+/**
+ * \brief Create a new pgVidInfoObject.
+ *
+ * \param i A pointer to an SDL_VideoInfo struct.
+ * \returns a new `pgVidInfoObject` object for the SDL_VideoInfo *i*.
+ *
+ * \note PyObject* pgVidInfo_New(SDL_VideoInfo *i)
+ * \note On failure, raise a Python exception and return `NULL`.
+ */
 #define pgVidInfo_New \
     (*(PyObject * (*)(pg_VideoInfo *)) PYGAMEAPI_GET_SLOT(display, 1))
 
