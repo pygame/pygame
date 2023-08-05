@@ -478,6 +478,16 @@ typedef struct {
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
 #define pgVidInfo_Check(x) ((x)->ob_type == &pgVidInfo_Type)
+
+/**
+ * \brief Create a new pgVidInfoObject.
+ *
+ * \param i A pointer to an SDL_VideoInfo struct.
+ * \returns a new `pgVidInfoObject` object for the SDL_VideoInfo *i*.
+ *
+ * \note PyObject* pgVidInfo_New(SDL_VideoInfo *i)
+ * \note On failure, raise a Python exception and return `NULL`.
+ */
 #define pgVidInfo_New \
     (*(PyObject * (*)(pg_VideoInfo *)) PYGAMEAPI_GET_SLOT(display, 1))
 
