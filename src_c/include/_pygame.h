@@ -477,6 +477,14 @@ typedef struct {
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
+/**
+ * \brief Check if *obj* is a pgVidInfoObject.
+ *
+ * \returns true if *x* is a `pgVidInfo_Type` instance
+ * \note Will return false if *x* is a subclass of `pgVidInfo_Type`.
+ * \note This macro does not check that *x* is not ``NULL``.
+ * \note int pgVidInfo_Check(PyObject *x)
+ */
 #define pgVidInfo_Check(x) ((x)->ob_type == &pgVidInfo_Type)
 
 /**
