@@ -461,6 +461,17 @@ typedef struct {
     PyObject_HEAD pg_VideoInfo info;
 } pgVidInfoObject;
 
+/**
+ * \brief Convert a pgVidInfoObject to an SDL_VideoInfo.
+ *
+ * \note SDL_VideoInfo pgVidInfo_AsVidInfo(PyObject *obj)
+ *
+ * \returns the SDL_VideoInfo field of *obj*, a pgVidInfo_Type instance.
+ * \param obj A pgVidInfo_Type instance.
+ *
+ * \note Does not check that *obj* is not `NULL` or an `pgVidInfoObject`
+ * object.
+ */
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
 
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
