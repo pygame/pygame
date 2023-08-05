@@ -453,6 +453,10 @@ typedef struct {
     int current_h;
 } pg_VideoInfo;
 
+/**
+ * A pygame object that wraps an SDL_VideoInfo struct.
+ * The object returned by `pygame.display.Info()`
+ */
 typedef struct {
     PyObject_HEAD pg_VideoInfo info;
 } pgVidInfoObject;
