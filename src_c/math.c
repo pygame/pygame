@@ -2437,7 +2437,7 @@ vector2_angle_to(pgVector *self, PyObject *other)
     double other_coords[2];
 
     if (!pgVectorCompatible_Check(other, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "expected an vector.");
+        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
         return NULL;
     }
 
@@ -3337,7 +3337,7 @@ vector3_angle_to(pgVector *self, PyObject *other)
     double other_coords[VECTOR_MAX_SIZE];
 
     if (!pgVectorCompatible_Check(other, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "expected an vector.");
+        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
         return NULL;
     }
 
