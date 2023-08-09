@@ -226,7 +226,7 @@ class Score(pg.sprite.Sprite):
         """We only update the score in update() when it has changed."""
         if SCORE != self.lastscore:
             self.lastscore = SCORE
-            msg = "Score: %d" % SCORE
+            msg = f"Score: {SCORE}"
             self.image = self.font.render(msg, 0, self.color)
 
 
@@ -291,7 +291,9 @@ def main(winstyle=0):
     # initialize our starting sprites
     global SCORE
     player = Player(all)
-    Alien(aliens, all, lastalien)  # note, this 'lives' because it goes into a sprite group
+    Alien(
+        aliens, all, lastalien
+    )  # note, this 'lives' because it goes into a sprite group
     if pg.font:
         all.add(Score(all))
 
@@ -303,17 +305,21 @@ def main(winstyle=0):
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
-            elif event.type == pg.KEYDOWN:
+            if event.type == pg.KEYDOWN:
                 if event.key == pg.K_f:
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
                         screen_backup = screen.copy()
-                        screen = pg.display.set_mode(SCREENRECT.size, winstyle | pg.FULLSCREEN, bestdepth)
+                        screen = pg.display.set_mode(
+                            SCREENRECT.size, winstyle | pg.FULLSCREEN, bestdepth
+                        )
                         screen.blit(screen_backup, (0, 0))
                     else:
                         print("Changing to windowed mode")
                         screen_backup = screen.copy()
-                        screen = pg.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
+                        screen = pg.display.set_mode(
+                            SCREENRECT.size, winstyle, bestdepth
+                        )
                         screen.blit(screen_backup, (0, 0))
                     pg.display.flip()
                     fullscreen = not fullscreen
