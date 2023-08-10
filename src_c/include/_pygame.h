@@ -552,6 +552,9 @@ typedef struct {
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
 
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
+/**
+ * \brief The `pygame.Surface` object Python type.
+ */
 #define pgSurface_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(surface, 0))
 
 #define pgSurface_Check(x) \
