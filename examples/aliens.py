@@ -23,8 +23,8 @@ Controls
 
 """
 
-import random
 import os
+import random
 from typing import List
 
 # import basic pygame modules
@@ -226,7 +226,7 @@ class Score(pg.sprite.Sprite):
         """We only update the score in update() when it has changed."""
         if SCORE != self.lastscore:
             self.lastscore = SCORE
-            msg = "Score: %d" % SCORE
+            msg = f"Score: {SCORE}"
             self.image = self.font.render(msg, 0, self.color)
 
 
@@ -285,7 +285,6 @@ def main(winstyle=0):
     lastalien = pg.sprite.GroupSingle()
 
     # Create Some Starting Values
-    global score
     alienreload = ALIEN_RELOAD
     clock = pg.time.Clock()
 
@@ -306,7 +305,7 @@ def main(winstyle=0):
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
-            elif event.type == pg.KEYDOWN:
+            if event.type == pg.KEYDOWN:
                 if event.key == pg.K_f:
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
