@@ -557,8 +557,19 @@ typedef struct {
  */
 #define pgSurface_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(surface, 0))
 
+/**
+ * \brief Check if *x* is a `pygame.Surface` instance.
+ *
+ * \param x The object to check.
+ * \returns true if *x* is a `pygame.Surface` instance
+ *
+ * \note Will return false if *x* is a subclass of `pygame.Surface`.
+ * \note This macro does not check that *x* is not ``NULL``.
+ * \note int pgSurface_Check(PyObject *x)
+ */
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
+
 #define pgSurface_New2                            \
     (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
          PYGAMEAPI_GET_SLOT(surface, 1))
