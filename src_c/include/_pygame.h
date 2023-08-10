@@ -512,13 +512,32 @@ typedef struct {
 struct pgSubSurface_Data;
 struct SDL_Surface;
 
+/**
+ * \brief A pygame object that wraps an SDL_Surface. A `pygame.Surface`
+ * instance.
+ */
 typedef struct {
     PyObject_HEAD struct SDL_Surface *surf;
+    /**
+     * \brief If true, the surface will be freed when the python object is
+     * destroyed.
+     */
     int owner;
-    struct pgSubSurface_Data *subsurface; /* ptr to subsurface data (if a
-                                           * subsurface)*/
+    /**
+     * \brief The subsurface data for this surface (if a subsurface).
+     */
+    struct pgSubSurface_Data *subsurface;
+    /**
+     * \brief A list of weak references to this surface.
+     */
     PyObject *weakreflist;
+    /**
+     * \brief A list of locks for this surface.
+     */
     PyObject *locklist;
+    /**
+     * \brief Usually a buffer object which the surface gets its data from.
+     */
     PyObject *dependency;
 } pgSurfaceObject;
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
