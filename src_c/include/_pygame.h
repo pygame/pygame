@@ -584,6 +584,17 @@ typedef struct {
     (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
          PYGAMEAPI_GET_SLOT(surface, 1))
 
+/**
+ * \brief Sets the SDL surface for a `pygame.Surface` instance.
+ *
+ * \param self The `pygame.Surface` instance to set the surface for.
+ * \param s The SDL surface to set.
+ * \param owner If true, the surface will be freed when the python object is
+ * destroyed. \returns 0 on success, -1 on failure.
+ *
+ * \note int pgSurface_SetSurface(pgSurfaceObject *self, SDL_Surface *s, int
+ * owner)
+ */
 #define pgSurface_SetSurface                                              \
     (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))PYGAMEAPI_GET_SLOT( \
         surface, 3))
