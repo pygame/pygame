@@ -570,6 +570,16 @@ typedef struct {
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
+/**
+ * \brief Create a new `pygame.Surface` instance.
+ *
+ * \param s The SDL surface to wrap in a python object.
+ * \param owner If true, the surface will be freed when the python object is
+ * destroyed. \returns A new new pygame surface instance for SDL surface *s*.
+ * Returns *NULL* on error.
+ *
+ * \note pgSurfaceObject* pgSurface_New2(SDL_Surface *s, int owner)
+ */
 #define pgSurface_New2                            \
     (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
          PYGAMEAPI_GET_SLOT(surface, 1))
