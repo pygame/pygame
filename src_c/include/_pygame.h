@@ -540,6 +540,15 @@ typedef struct {
      */
     PyObject *dependency;
 } pgSurfaceObject;
+
+/**
+ * \brief Convert a `pygame.Surface` instance to an SDL_Surface.
+ *
+ * \param x A `pygame.Surface` instance.
+ * \returns the SDL_Surface field of *x*, a `pygame.Surface` instance.
+ *
+ * \note SDL_Surface* pgSurface_AsSurface(PyObject *x)
+ */
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
 
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
