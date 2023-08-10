@@ -3637,7 +3637,18 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     return dstoffset < span || dstoffset > src->pitch - span;
 }
 
-/*this internal blit function is accessible through the C api*/
+/**
+ * \brief Blit one surface onto another.
+ *
+ * \param dstobj The destination surface.
+ * \param srcobj The source surface.
+ * \param dstrect The destination rectangle.
+ * \param srcrect The source rectangle.
+ * \param the_args The blit flags.
+ * \return 0 for success, -1 or -2 for error.
+ *
+ * \note Is accessible through the C api.
+ */
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
                SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args)

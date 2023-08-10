@@ -599,6 +599,20 @@ typedef struct {
     (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))PYGAMEAPI_GET_SLOT( \
         surface, 3))
 
+/**
+ * \brief Blit one surface onto another.
+ *
+ * \param dstobj The destination surface.
+ * \param srcobj The source surface.
+ * \param dstrect The destination rectangle.
+ * \param srcrect The source rectangle.
+ * \param the_args The blit flags.
+ * \return 0 for success, -1 or -2 for error.
+ *
+ * \note Is accessible through the C api.
+ * \note int pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect
+ * *dstrect, SDL_Rect *srcrect, int the_args)
+ */
 #define pgSurface_Blit                                                       \
     (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, SDL_Rect *, SDL_Rect *, \
                int))PYGAMEAPI_GET_SLOT(surface, 2))
