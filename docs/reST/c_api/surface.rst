@@ -62,4 +62,4 @@ Header file: src_c/include/pygame.h
    by the blit.
 
    The C version of the :py:meth:`pygame.Surface.blit` method.
-   Return ``1`` on success, ``0`` on an exception.
+   Return ``0`` on success, ``-1`` or ``-2``` on an exception.
