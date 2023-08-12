@@ -34,6 +34,12 @@ Header file: src_c/include/pygame.h
    Return a new new pygame surface instance for SDL surface *s*.
    Return *NULL* on error.
 
+.. c:function:: pgSurfaceObject* pgSurface_New2(SDL_Surface *s, int owner)
+
+   Return a new new pygame surface instance for SDL surface *s*.
+   If owner is true, the surface will be freed when the python object is destroyed.
+   Return *NULL* on error.
+
 .. c:function:: SDL_Surface* pgSurface_AsSurface(PyObject *x)
 
    Return a pointer the SDL surface represented by the pygame Surface instance
@@ -56,4 +62,4 @@ Header file: src_c/include/pygame.h
    by the blit.
 
    The C version of the :py:meth:`pygame.Surface.blit` method.
-   Return ``1`` on success, ``0`` on an exception.
+   Return ``0`` on success, ``-1`` or ``-2``` on an exception.
