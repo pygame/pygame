@@ -32,9 +32,12 @@ The tags module has the global __tags__, a list of tag names. For example,
 ``cdrom_test.py`` has a tag file ``cdrom_tags.py`` containing a tags list that
 has the 'interactive' string. The 'interactive' tag indicates ``cdrom_test.py``
 expects user input. It is excluded from a ``run_tests.py`` or
-``pygame.tests.go`` run. Two other tags that are excluded are 'ignore' and
-'subprocess_ignore'. These two tags indicate unit tests that will not run on a
-particular platform, or for which no corresponding pygame module is available.
+``pygame.tests.go`` run. 
+
+Two other tags that are excluded are 'ignore' and 'subprocess_ignore'. These
+two tags indicate unit tests that will not run on a particular platform, or
+for which no corresponding pygame module is available.
+
 The test runner will list each excluded module along with the tag responsible.
 
 .. function:: run
@@ -85,15 +88,17 @@ The test runner will list each excluded module along with the tag responsible.
    By default individual test modules are run in separate subprocesses. This
    recreates normal pygame usage where ``pygame.init()`` and ``pygame.quit()``
    are called only once per program execution, and avoids unfortunate
-   interactions between test modules. Also, a time limit is placed on test
-   execution, so frozen tests are killed when their time allotment expired. Use
-   the single process option if threading is not working properly or if tests
-   are taking too long. It is not guaranteed that all tests will pass in single
-   process mode.
+   interactions between test modules. 
+   
+   A time limit is placed on test execution ensuring that any frozen tests
+   processes are killed when their time allotment is expired. Use the single
+   process option if threading is not working properly or if tests are taking
+   too long. It is not guaranteed that all tests will pass in single process
+   mode.
 
    Tests are run in a randomized order if the randomize argument is True or a
    seed argument is provided. If no seed integer is provided then the system
-   time is used.
+   time is used for the randomization seed value.
 
    Individual test modules may have a __tags__ attribute, a list of tag strings
    used to selectively omit modules from a run. By default only 'interactive'
