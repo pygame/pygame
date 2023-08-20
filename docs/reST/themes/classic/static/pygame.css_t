@@ -164,7 +164,7 @@ div.document {
 
 .toc td {
     display:block;
-    width: 200%;
+    width: min(200%, 100vw - 132px);
 }
 
 .toc td:last-child {
