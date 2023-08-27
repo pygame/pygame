@@ -1,4 +1,5 @@
-"""pygame.camera backend that uses OpenCV.
+"""
+pygame.camera backend that uses OpenCV.
 
 Uses the cv2 module opencv for python.
 See https://pypi.org/project/opencv-python/ for wheels version.
@@ -13,7 +14,10 @@ import pygame
 
 
 def list_cameras():
-    """ """
+    """ 
+    Documentation for VideoCapture.
+    See https://docs.opencv.org/3.4/d8/dfe/classcv_1_1VideoCapture.html
+    """
     index = 0
     device_idx = []
     failed = 0
