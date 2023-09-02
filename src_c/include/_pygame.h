@@ -426,6 +426,17 @@ typedef struct {
  */
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
+/**
+ * \brief Create a new `pygame.Rect` instance from x, y, w, h.
+ *
+ * \param x The x coordinate of the rectangle.
+ * \param y The y coordinate of the rectangle.
+ * \param w The width of the rectangle.
+ * \param h The height of the rectangle.
+ * \returns a new `pygame.Rect` object. Returns *NULL* on error.
+ *
+ * \note PyObject* pgRect_New4(int x, int y, int w, int h)
+ */
 #define pgRect_New4 \
     (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
 
