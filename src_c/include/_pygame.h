@@ -392,6 +392,14 @@ typedef struct {
     PyObject *weakreflist;
 } pgRectObject;
 
+/**
+ * \brief Convert a pgRectObject to an SDL_Rect.
+ *
+ * \param obj A pgRectObject instance.
+ * \returns the SDL_Rect field of *obj*, a pgRect_Type instance.
+ *
+ * \note SDL_Rect pgRect_AsRect(PyObject *obj)
+ */
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
