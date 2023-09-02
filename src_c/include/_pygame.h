@@ -382,7 +382,13 @@ typedef struct pg_bufferinfo_s {
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
 typedef struct {
+    /**
+     * \brief The SDL rect wrapped by this object.
+     */
     PyObject_HEAD SDL_Rect r;
+    /**
+     * \brief A list of weak references to this rect.
+     */
     PyObject *weakreflist;
 } pgRectObject;
 
