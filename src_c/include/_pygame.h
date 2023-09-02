@@ -408,7 +408,13 @@ typedef struct {
  */
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
 
-#define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
+/**
+ * \brief Check if *obj* is a `pygame.Rect` instance.
+ *
+ * \returns true if *obj* is a `pygame.Rect` instance
+ */
+#define pgRect_Check(obj) ((obj)->ob_type == &pgRect_Type)
+
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
 #define pgRect_New4 \
