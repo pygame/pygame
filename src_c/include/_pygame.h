@@ -402,6 +402,10 @@ typedef struct {
  */
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
+
+/**
+ * \brief The Pygame rectangle object type pygame.Rect.
+ */
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
 
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
