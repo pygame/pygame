@@ -518,6 +518,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     double angle_start, angle_stop;
     static char *keywords[] = {"surface",    "color", "rect", "start_angle",
                                "stop_angle", "width", NULL};
+    // float ellipse_ratio;
 
     if (!PyArg_ParseTupleAndKeywords(
             arg, kwargs, "O!OOdd|i", keywords, &pgSurface_Type, &surfobj,
@@ -563,10 +564,21 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     width = MIN(width, MIN(rect->w, rect->h) / 2);
 
-    for (loop = 0; loop < width; ++loop) {
+    if (width == 1) {
         draw_arc(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
-                 rect->w / 2 - loop, rect->h / 2 - loop, angle_start,
-                 angle_stop, color, drawn_area);
+                 rect->w / 2, rect->h / 2, angle_start, angle_stop, color,
+                 drawn_area);
+    }
+    else {
+        for (loop = 0; loop < width; ++loop) {
+            draw_arc(surf, (rect->x + rect->w / 2) - 1,
+                     (rect->y + rect->h / 2) - 1, (rect->w / 2 - loop) - 1,
+                     (rect->h / 2 - loop) - 1, angle_start, angle_stop, color,
+                     drawn_area);
+            draw_arc(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
+                     rect->w / 2 - loop, rect->h / 2 - loop, angle_start,
+                     angle_stop, color, drawn_area);
+        }
     }
 
     if (!pgSurface_Unlock(surfobj)) {
