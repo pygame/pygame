@@ -401,6 +401,7 @@ typedef struct {
  * \note SDL_Rect pgRect_AsRect(PyObject *obj)
  */
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+
 #ifndef PYGAMEAPI_RECT_INTERNAL
 
 /**
@@ -459,6 +460,15 @@ typedef struct {
 #define pgRect_FromObject \
     (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
+/**
+ * \brief Normalize a `pygame.Rect` instance. A rect with a negative size
+ * (negative width and/or height) will be adjusted to have a positive size.
+ *
+ * \param rect A pointer to a `pygame.Rect` instance.
+ * \returns *rect* normalized with positive values only.
+ *
+ * \note void pgRect_Normalize(SDL_Rect *rect)
+ */
 #define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)
