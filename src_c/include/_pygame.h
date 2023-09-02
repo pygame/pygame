@@ -415,6 +415,15 @@ typedef struct {
  */
 #define pgRect_Check(obj) ((obj)->ob_type == &pgRect_Type)
 
+/**
+ * \brief Create a new `pygame.Rect` instance.
+ *
+ * \param r A pointer to an SDL_Rect struct.
+ * \returns a new `pygame.Rect` object for the SDL_Rect *r*.
+ * Returns *NULL* on error.
+ *
+ * \note PyObject* pgRect_New(SDL_Rect *r)
+ */
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
 #define pgRect_New4 \
