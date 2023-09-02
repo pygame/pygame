@@ -382,23 +382,93 @@ typedef struct pg_bufferinfo_s {
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
 typedef struct {
+    /**
+     * \brief The SDL rect wrapped by this object.
+     */
     PyObject_HEAD SDL_Rect r;
+    /**
+     * \brief A list of weak references to this rect.
+     */
     PyObject *weakreflist;
 } pgRectObject;
 
+/**
+ * \brief Convert a pgRectObject to an SDL_Rect.
+ *
+ * \param obj A pgRectObject instance.
+ * \returns the SDL_Rect field of *obj*, a pgRect_Type instance.
+ *
+ * \note SDL_Rect pgRect_AsRect(PyObject *obj)
+ */
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+
 #ifndef PYGAMEAPI_RECT_INTERNAL
+
+/**
+ * \brief The Pygame rectangle object type pygame.Rect.
+ */
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
 
-#define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
+/**
+ * \brief Check if *obj* is a `pygame.Rect` instance.
+ *
+ * \returns true if *obj* is a `pygame.Rect` instance
+ */
+#define pgRect_Check(obj) ((obj)->ob_type == &pgRect_Type)
+
+/**
+ * \brief Create a new `pygame.Rect` instance.
+ *
+ * \param r A pointer to an SDL_Rect struct.
+ * \returns a new `pygame.Rect` object for the SDL_Rect *r*.
+ * Returns *NULL* on error.
+ *
+ * \note PyObject* pgRect_New(SDL_Rect *r)
+ */
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
+/**
+ * \brief Create a new `pygame.Rect` instance from x, y, w, h.
+ *
+ * \param x The x coordinate of the rectangle.
+ * \param y The y coordinate of the rectangle.
+ * \param w The width of the rectangle.
+ * \param h The height of the rectangle.
+ * \returns a new `pygame.Rect` object. Returns *NULL* on error.
+ *
+ * \note PyObject* pgRect_New4(int x, int y, int w, int h)
+ */
 #define pgRect_New4 \
     (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
 
+/**
+ * \brief Convert a Python object to a `pygame.Rect` instance.
+ *
+ * \param obj A Python object.
+ * A rectangle can be a length 4 sequence integers (x, y, w, h), or a length 2
+ * sequence of position (x, y) and size (w, h), or a length 1 tuple containing
+ * a rectangle representation, or have a method *rect* that returns a
+ * rectangle.
+ *
+ * \param temp A pointer to an SDL_Rect struct to store the result in.
+ * \returns a pointer to the SDL_Rect field of the `pygame.Rect` instance
+ * *obj*. Returns *NULL* on error.
+ *
+ * \note This function will clear any Python errors.
+ * \note SDL_Rect* pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
+ */
 #define pgRect_FromObject \
     (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
+/**
+ * \brief Normalize a `pygame.Rect` instance. A rect with a negative size
+ * (negative width and/or height) will be adjusted to have a positive size.
+ *
+ * \param rect A pointer to a `pygame.Rect` instance.
+ * \returns *rect* normalized with positive values only.
+ *
+ * \note void pgRect_Normalize(SDL_Rect *rect)
+ */
 #define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)

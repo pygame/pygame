@@ -55,3 +55,7 @@ Header file: src_c/include/pygame.h
 
    Normalize the given rect. A rect with a negative size (negative width and/or
    height) will be adjusted to have a positive size.
+
+.. c:function:: SDL_Rect pgRect_Check(PyObject *obj)
+
+   A macro to check if *obj* is a :py:class:`pygame.Rect` instance.
