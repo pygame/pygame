@@ -440,6 +440,22 @@ typedef struct {
 #define pgRect_New4 \
     (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
 
+/**
+ * \brief Convert a Python object to a `pygame.Rect` instance.
+ *
+ * \param obj A Python object.
+ * A rectangle can be a length 4 sequence integers (x, y, w, h), or a length 2
+ * sequence of position (x, y) and size (w, h), or a length 1 tuple containing
+ * a rectangle representation, or have a method *rect* that returns a
+ * rectangle.
+ *
+ * \param temp A pointer to an SDL_Rect struct to store the result in.
+ * \returns a pointer to the SDL_Rect field of the `pygame.Rect` instance
+ * *obj*. Returns *NULL* on error.
+ *
+ * \note This function will clear any Python errors.
+ * \note SDL_Rect* pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
+ */
 #define pgRect_FromObject \
     (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
