@@ -6,6 +6,7 @@
 # To configure, compile, install, just run this script.
 #     python setup.py install
 
+import glob
 import platform
 import sysconfig
 
@@ -219,13 +220,23 @@ if consume_arg('cython_only'):
     compile_cython = True
     cython_only = True
 
+# If there is no generated C code, compile the cython/.pyx files
+if any(x in ["build_ext", "build", "sdist", "bdist_wheel"] for x in sys.argv) and (
+    not glob.glob(os.path.join("src_c", "_sdl2", "audio.c"))
+    or not glob.glob(os.path.join("src_c", "pypm.c"))
+):
+    compile_cython = True
+    print ("Compiling Cython files")
+else:
+    print ("Skipping Cython compilation")
+
 if compile_cython:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
         from Cython.Build.Dependencies import cythonize_one
     except ImportError:
-        print("You need cython. https://cython.org/, pip install cython --user")
+        print("You need cython. https://cython.org/, python -m pip install cython --user")
         sys.exit(1)
 
     from Cython.Build.Dependencies import create_extension_list
@@ -242,8 +253,6 @@ if compile_cython:
 
         c_options = CompilationOptions(default_options)
         ctx = c_options.create_context()
-
-    import glob
 
     pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
                 glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
