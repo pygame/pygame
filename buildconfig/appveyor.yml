@@ -161,7 +161,7 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
-  - "%PYTHON% -m pip install -U setuptools wheel pip twine requests Sphinx"
+  - "%PYTHON% -m pip install -U setuptools wheel pip twine requests Sphinx Cython==3.0.0"
   - "%PYTHON% setup.py docs"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig"
   - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
