@@ -117,7 +117,7 @@ in his new position. This is exactly the reason we need to "erase" the hero
 in his old position before we draw him in the new position. To erase him,
 we need to change that value in the list back to what it was before the hero
 was there. That means we need to keep track of the values on the screen before
-the hero replaced them. There's several way you could do this, but the easiest
+the hero replaced them. There's several ways you could do this, but the easiest
 is usually to keep a separate copy of the screen background. This means
 we  need to make some changes to our little game.
 
