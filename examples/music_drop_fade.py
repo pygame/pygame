@@ -15,6 +15,7 @@ Keyboard Controls:
 * Press any other button to skip to the next music file in the list
 """
 
+from typing import List
 import pygame as pg
 import os, sys
 
@@ -146,7 +147,7 @@ data_dir = os.path.join(main_dir, "data")
 
 starting_pos = 0  # needed to fast forward and rewind
 volume = 0.75
-music_file_list = []
+music_file_list: List[str] = []
 music_file_types = ("mp3", "ogg", "mid", "mod", "it", "xm", "wav")
 music_can_seek = ("mp3", "ogg", "mod", "it", "xm")
 
@@ -169,7 +170,8 @@ def main():
 
     pg.scrap.init()
     pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8")
+    scrap_get = pg.scrap.get(pg.SCRAP_TEXT)
+    clipped = "" if scrap_get is None else scrap_get.decode("UTF-8")
     # store the current text from the clipboard TODO remove decode
 
     # add the command line arguments to the  music_file_list
@@ -234,7 +236,9 @@ def main():
             print("volume:", volume)
 
         # TODO remove decode when SDL2 scrap is fixed
-        new_text = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8")
+        scrap_get = pg.scrap.get(pg.SCRAP_TEXT)
+        new_text = "" if scrap_get is None else scrap_get.decode("UTF-8")
+
         if new_text != clipped:  # has the clipboard changed?
             clipped = new_text
             play_file(clipped)  # try to play the file if it has
