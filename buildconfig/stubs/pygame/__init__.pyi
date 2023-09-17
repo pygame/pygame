@@ -71,7 +71,7 @@ from .rwobject import (
     encode_string as encode_string,
 )
 
-from .version import SDL as SDL, rev as rev, ver as ver, vernum as vernum
+from .version import SDL as SDL, rev as rev, ver as ver, vernum as vernum, ver as __version__
 from .constants import (
     ACTIVEEVENT as ACTIVEEVENT,
     ANYFORMAT as ANYFORMAT,
