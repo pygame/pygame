@@ -8,6 +8,9 @@
 
 | :sl:`pygame module for camera use`
 
+.. note::
+   Use import pygame.camera before using this module.
+
 Pygame currently supports Linux (V4L2) and Windows (MSMF) cameras natively,
 with wider platform support available via an integrated OpenCV backend.
 
