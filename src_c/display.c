@@ -931,11 +931,11 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (flags & PGS_SCALED) {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             }
-            else if (w == display_mode.w && h == display_mode.h) {
-                /* No need to change physical resolution.
-               Borderless fullscreen is preferred when possible */
-                sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-            }
+            // else if (w == display_mode.w && h == display_mode.h) {
+            //     /* No need to change physical resolution.
+            //    Borderless fullscreen is preferred when possible */
+            //     sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            // }
             else {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
