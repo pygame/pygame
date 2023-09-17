@@ -10,9 +10,10 @@ python -m pygame.examples.midi --input
 python -m pygame.examples.midi --input
 """
 
+from dataclasses import dataclass
 import sys
 import os
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple, Union
 
 import pygame as pg
 import pygame.midi
@@ -278,6 +279,168 @@ class NullKey:
 null_key = NullKey()
 
 
+@dataclass
+class KeyData:
+    """Used for passing in data to subclasses of the Key class."""
+
+    is_white_key: bool
+    c_width: int
+    c_height: int
+    c_down_state_initial: int
+    c_down_state_rect_initial: pg.Rect
+    c_notify_down_method: str
+    c_notify_up_method: str
+    c_updates: Set[Any]
+    c_event_down: Dict[int, Tuple[int, pg.Rect]]
+    c_event_up: Dict[int, Tuple[int, pg.Rect]]
+    c_image_strip: pg.Surface
+    c_event_right_white_down: Dict[int, Tuple[int, Union[pg.Rect, None]]]
+    c_event_right_white_up: Dict[int, Tuple[int, Union[pg.Rect, None]]]
+    c_event_right_black_down: Dict[int, Tuple[int, Union[pg.Rect, None]]]
+    c_event_right_black_up: Dict[int, Tuple[int, Union[pg.Rect, None]]]
+
+
+class Key:
+    """A key widget, maintains key state and draws the key's image
+
+    Constructor arguments:
+    ident - A unique key identifier. Any immutable type suitable as a key.
+    posn - The location of the key on the display surface.
+    key_left - Optional, the adjacent white key to the left. Changes in
+        up and down state are propagated to that key.
+
+    A key has an associated position and state. Related to state is the
+    image drawn. State changes are managed with method calls, one method
+    per event type. The up and down event methods are public. Other
+    internal methods are for passing on state changes to the key_left
+    key instance.
+
+    """
+
+    key_data: KeyData
+
+    def __init__(self, ident, posn, key_left=None):
+        """Return a new Key instance
+
+        The initial state is up, with all adjacent keys to the right also
+        up.
+
+        """
+        if key_left is None:
+            key_left = null_key
+        rect = pg.Rect(posn[0], posn[1], self.key_data.c_width, self.key_data.c_height)
+        self.rect = rect
+        self._state = self.key_data.c_down_state_initial
+        self._source_rect = self.key_data.c_down_state_rect_initial
+        self._ident = ident
+        self._hash = hash(ident)
+        self._notify_down = getattr(key_left, self.key_data.c_notify_down_method)
+        self._notify_up = getattr(key_left, self.key_data.c_notify_up_method)
+        self._key_left = key_left
+        self._background_rect = pg.Rect(
+            rect.left, rect.bottom - 10, self.key_data.c_width, 10
+        )
+        self.key_data.c_updates.add(self)
+        self.is_white = self.key_data.is_white_key
+
+    def down(self):
+        """Signal that this key has been depressed (is down)"""
+
+        self._state, source_rect = self.key_data.c_event_down[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+            self._notify_down()
+
+    def up(self):
+        """Signal that this key has been released (is up)"""
+
+        self._state, source_rect = self.key_data.c_event_up[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+            self._notify_up()
+
+    def _right_white_down(self):
+        """Signal that the adjacent white key has been depressed
+
+        This method is for internal propagation of events between
+        key instances.
+
+        """
+
+        self._state, source_rect = self.key_data.c_event_right_white_down[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+
+    def _right_white_up(self):
+        """Signal that the adjacent white key has been released
+
+        This method is for internal propagation of events between
+        key instances.
+
+        """
+
+        self._state, source_rect = self.key_data.c_event_right_white_up[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+
+    def _right_black_down(self):
+        """Signal that the adjacent black key has been depressed
+
+        This method is for internal propagation of events between
+        key instances.
+
+        """
+
+        self._state, source_rect = self.key_data.c_event_right_black_down[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+
+    def _right_black_up(self):
+        """Signal that the adjacent black key has been released
+
+        This method is for internal propagation of events between
+        key instances.
+
+        """
+
+        self._state, source_rect = self.key_data.c_event_right_black_up[self._state]
+        if source_rect is not None:
+            self._source_rect = source_rect
+            self.key_data.c_updates.add(self)
+
+    def __eq__(self, other):
+        """True if same identifiers"""
+
+        return self._ident == other._ident
+
+    def __hash__(self):
+        """Return the immutable hash value"""
+
+        return self._hash
+
+    def __str__(self):
+        """Return the key's identifier and position as a string"""
+
+        return "<Key %s at (%d, %d)>" % (self._ident, self.rect.top, self.rect.left)
+
+    def draw(self, surf, background, dirty_rects):
+        """Redraw the key on the surface surf
+
+        The background is redrawn. The altered region is added to the
+        dirty_rects list.
+
+        """
+
+        surf.blit(background, self._background_rect, self._background_rect)
+        surf.blit(self.key_data.c_image_strip, self.rect, self._source_rect)
+        dirty_rects.append(self.rect)
+
+
 def key_class(updates, image_strip, image_rects: List[pg.Rect], is_white_key=True):
     """Return a keyboard key widget class
 
@@ -429,144 +592,26 @@ def key_class(updates, image_strip, image_rects: List[pg.Rect], is_white_key=Tru
         )
         c_event_right_black_up[down_state_all] = (down_state_self_white, image_rects[2])
 
-    class Key:
-        """A key widget, maintains key state and draws the key's image
+    class OurKey(Key):
+        key_data = KeyData(
+            is_white_key,
+            c_width,
+            c_height,
+            c_down_state_initial,
+            c_down_state_rect_initial,
+            c_notify_down_method,
+            c_notify_up_method,
+            c_updates,
+            c_event_down,
+            c_event_up,
+            c_image_strip,
+            c_event_right_white_down,
+            c_event_right_white_up,
+            c_event_right_black_down,
+            c_event_right_black_up,
+        )
 
-        Constructor arguments:
-        ident - A unique key identifier. Any immutable type suitable as a key.
-        posn - The location of the key on the display surface.
-        key_left - Optional, the adjacent white key to the left. Changes in
-            up and down state are propagated to that key.
-
-        A key has an associated position and state. Related to state is the
-        image drawn. State changes are managed with method calls, one method
-        per event type. The up and down event methods are public. Other
-        internal methods are for passing on state changes to the key_left
-        key instance.
-
-        """
-
-        is_white = is_white_key
-
-        def __init__(self, ident, posn, key_left=None):
-            """Return a new Key instance
-
-            The initial state is up, with all adjacent keys to the right also
-            up.
-
-            """
-            if key_left is None:
-                key_left = null_key
-            rect = pg.Rect(posn[0], posn[1], c_width, c_height)
-            self.rect = rect
-            self._state = c_down_state_initial
-            self._source_rect = c_down_state_rect_initial
-            self._ident = ident
-            self._hash = hash(ident)
-            self._notify_down = getattr(key_left, c_notify_down_method)
-            self._notify_up = getattr(key_left, c_notify_up_method)
-            self._key_left = key_left
-            self._background_rect = pg.Rect(rect.left, rect.bottom - 10, c_width, 10)
-            c_updates.add(self)
-
-        def down(self):
-            """Signal that this key has been depressed (is down)"""
-
-            self._state, source_rect = c_event_down[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-                self._notify_down()
-
-        def up(self):
-            """Signal that this key has been released (is up)"""
-
-            self._state, source_rect = c_event_up[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-                self._notify_up()
-
-        def _right_white_down(self):
-            """Signal that the adjacent white key has been depressed
-
-            This method is for internal propagation of events between
-            key instances.
-
-            """
-
-            self._state, source_rect = c_event_right_white_down[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-
-        def _right_white_up(self):
-            """Signal that the adjacent white key has been released
-
-            This method is for internal propagation of events between
-            key instances.
-
-            """
-
-            self._state, source_rect = c_event_right_white_up[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-
-        def _right_black_down(self):
-            """Signal that the adjacent black key has been depressed
-
-            This method is for internal propagation of events between
-            key instances.
-
-            """
-
-            self._state, source_rect = c_event_right_black_down[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-
-        def _right_black_up(self):
-            """Signal that the adjacent black key has been released
-
-            This method is for internal propagation of events between
-            key instances.
-
-            """
-
-            self._state, source_rect = c_event_right_black_up[self._state]
-            if source_rect is not None:
-                self._source_rect = source_rect
-                c_updates.add(self)
-
-        def __eq__(self, other):
-            """True if same identifiers"""
-
-            return self._ident == other._ident
-
-        def __hash__(self):
-            """Return the immutable hash value"""
-
-            return self._hash
-
-        def __str__(self):
-            """Return the key's identifier and position as a string"""
-
-            return "<Key %s at (%d, %d)>" % (self._ident, self.rect.top, self.rect.left)
-
-        def draw(self, surf, background, dirty_rects):
-            """Redraw the key on the surface surf
-
-            The background is redrawn. The altered region is added to the
-            dirty_rects list.
-
-            """
-
-            surf.blit(background, self._background_rect, self._background_rect)
-            surf.blit(c_image_strip, self.rect, self._source_rect)
-            dirty_rects.append(self.rect)
-
-    return Key
+    return OurKey
 
 
 def key_images() -> Tuple[pg.Surface, Dict[str, pg.Rect]]:
@@ -692,14 +737,14 @@ class Keyboard:
         ],
     )
 
-    def __init__(self, start_note, n_notes):
+    def __init__(self, start_note: int, n_notes: int):
         """Return a new Keyboard instance with n_note keys"""
 
         self._start_note = start_note
         self._end_note = start_note + n_notes - 1
         self._add_keys()
 
-    def _add_keys(self):
+    def _add_keys(self) -> None:
         """Populate the keyboard with key instances
 
         Set the _keys and rect attributes.
@@ -711,7 +756,7 @@ class Keyboard:
         # note positions should never be accessed, so are set None to ensure
         # the bug is quickly detected.
         #
-        key_map: list[Any] = [None] * 128
+        key_map: list[Key | Literal[None]] = [None] * 128
 
         start_note = self._start_note
         end_note = self._end_note
@@ -745,7 +790,11 @@ class Keyboard:
             key_map[note] = key
         self._keys = key_map
 
-        kb_width = key_map[self._end_note].rect.right
+        the_key = key_map[self._end_note]
+        if the_key is None:
+            kb_width = 0
+        else:
+            kb_width = the_key.rect.right
         kb_height = self.white_key_height
         self.rect = pg.Rect(0, 0, kb_width, kb_height)
 
@@ -765,12 +814,13 @@ class Keyboard:
         black_keys = []
         for note in range(self._start_note, self._end_note + 1):
             key = self._keys[note]
-            if key.is_white:
+            if key is not None and key.is_white:
                 fill_region(regions, note, key.rect, cutoff)
             else:
                 black_keys.append((note, key))
         for note, key in black_keys:
-            fill_region(regions, note, key.rect, cutoff)
+            if key is not None:
+                fill_region(regions, note, key.rect, cutoff)
 
     def draw(self, surf, background, dirty_rects):
         """Redraw all altered keyboard keys"""
@@ -781,13 +831,15 @@ class Keyboard:
 
     def key_down(self, note):
         """Signal a key down event for note"""
-
-        self._keys[note].down()
+        key = self._keys[note]
+        if key is not None:
+            key.down()
 
     def key_up(self, note):
         """Signal a key up event for note"""
-
-        self._keys[note].up()
+        key = self._keys[note]
+        if key is not None:
+            key.up()
 
 
 def fill_region(regions, note, rect, cutoff):
