@@ -46,7 +46,6 @@
 #endif
 
 /* on openbsd and netbsd we need to include videoio.h */
-
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/videoio.h>
 #endif
