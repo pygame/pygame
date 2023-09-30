@@ -51,10 +51,6 @@
 #include <sys/videoio.h>
 #endif
 
-// #ifdef __NetBSD__
-// #include <sys/videoio.h>
-// #endif
-
 #ifdef __FreeBSD__
 #include <linux/videodev2.h>
 #endif
