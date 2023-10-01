@@ -40,10 +40,17 @@
 #include <sys/ioctl.h>
 
 /* on freebsd there is no asm/types */
-#ifdef linux
+#ifdef __linux__
 #include <asm/types.h> /* for videodev2.h */
+#include <linux/videodev2.h>
 #endif
 
+/* on openbsd and netbsd we need to include videoio.h */
+#if defined(__OpenBSD__) || defined(__NetBSD__)
+#include <sys/videoio.h>
+#endif
+
+#ifdef __FreeBSD__
 #include <linux/videodev2.h>
 #endif
 
@@ -250,3 +257,4 @@ windows_init_device(pgCameraObject *self);
 #endif
 
 #endif /* !CAMERA_H */
+#endif
