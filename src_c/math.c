@@ -92,8 +92,8 @@ static PyTypeObject pgVectorIter_Type;
 #define _vector_subtype_new(x) \
     ((pgVector *)(Py_TYPE(x)->tp_new(Py_TYPE(x), NULL, NULL)))
 
-#define DEG2RAD(angle) ((angle)*M_PI / 180.)
-#define RAD2DEG(angle) ((angle)*180. / M_PI)
+#define DEG2RAD(angle) ((angle) * M_PI / 180.)
+#define RAD2DEG(angle) ((angle) * 180. / M_PI)
 
 typedef struct {
     PyObject_HEAD double *coords; /* Coordinates */
