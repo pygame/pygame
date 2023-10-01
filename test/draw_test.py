@@ -4278,6 +4278,27 @@ class DrawPolygonMixin:
                     self.assertEqual(surface.get_at(pt), expected_color, pt)
 
                 surface.unlock()
+    def test_polygon_large_coords(self):
+        """ Test polygon creation with larger coordinates.
+            Ensures it works with solid shapes and non-solid shapes
+        """
+        pointA = (600, 50)
+        pointB = (50, 600)
+        pointC = (58000,-100000) # problem line (extreme coords)
+        surfw = surfh = 650
+        surface = pygame.Surface((surfw, surfh))
+        green = (0, 255, 0)
+        red = (255,0,0)
+        thickness = 2
+
+        self.draw_polygon(surface, green, (pointA,pointB,pointC))
+        self.assertEqual(surface.get_at(pointA), green)
+        self.assertEqual(surface.get_at(pointB), green)
+
+        self.draw_polygon(surface, red, (pointA,pointB,pointC),thickness)
+        self.assertEqual(surface.get_at(pointA), red)
+        self.assertEqual(surface.get_at(pointB), red)
+
 
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
