@@ -1,0 +1,66 @@
+name: OpenBSD
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-openbsd.yml'
+
+  pull_request:
+    branches:
+      - main
+      - 'v**'
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - '.gitignore'
+      - '*.rst'
+      - '*.md'
+      - '.github/workflows/*.yml'
+      # re-include current file to not be excluded
+      - '!.github/workflows/build-openbsd.yml'
+
+jobs:
+  build:
+    runs-on: macos-12
+    name: A job to run test in OpenBSD
+    # env:
+    #   MYTOKEN: ${{ secrets.MYTOKEN }}
+    #   MYTOKEN2: "value2"
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Test in OpenBSD
+      id: test
+      uses: vmactions/openbsd-vm@v0
+      with:
+        # envs: 'MYTOKEN MYTOKEN2'
+        usesh: true
+        prepare: |
+          pkg_add python%3.9
+          pkg_add gmake
+          pkg_add curl
+          pkg_add sdl2 sdl2-image sdl2-mixer sdl2-ttf
+          pkg_add py3-numpy
+          pkg_add py3-pip
+          pkg_add git
+          # Add other dependencies as needed
+
+        run: |
+          python3 -m pip install sphinx numpy>=1.21.0 Cython==3.0.0
+          python3 setup.py docs
+          python3 setup.py sdist
+          python3 -m pip install dist/pygame-*.tar.gz -vv
+          SDL_VIDEODRIVER="dummy" SDL_AUDIODRIVER="disk" python3 -m pygame.tests -v --exclude opengl,music,timing --time_out 300
