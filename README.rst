@@ -2,6 +2,8 @@
   :alt: pygame
   :target: https://www.pygame.org/
 
+  I change the README 
+
 
 |AppVeyorBuild| |PyPiVersion| |PyPiLicense|
 |Python3| |GithubCommits| |BlackFormatBadge|
