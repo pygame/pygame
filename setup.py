@@ -139,13 +139,14 @@ def compilation_help():
     """ On failure point people to a web page for help.
     """
     the_system = platform.system()
-    if the_system == 'Linux':
-        if hasattr(platform, 'linux_distribution'):
-            distro = platform.linux_distribution()
-            if distro[0].lower() == 'ubuntu':
-                the_system = 'Ubuntu'
-            elif distro[0].lower() == 'debian':
-                the_system = 'Debian'
+    if the_system == 'Linux' and hasattr(platform, 'linux_distribution'):
+        distro_name = platform.linux_distribution()[0].lower()
+        distro_mapping = {
+            'ubuntu': 'Ubuntu',
+            'debian': 'Debian'
+        }
+        the_system = distro_mapping.get(distro_name, the_system)
+
 
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
@@ -451,10 +452,9 @@ for e in extensions:
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
 
-    if "rwobject" in e.name:
-        if sys.platform != "win32":
-            # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
-            e.extra_compile_args.append("-Wno-error=deprecated-declarations")
+    if "rwobject" in e.name and sys.platform != "win32":
+        # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
+        e.extra_compile_args.append("-Wno-error=deprecated-declarations")
 
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here
