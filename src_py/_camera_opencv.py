@@ -67,10 +67,9 @@ class Camera:
         self._size = size
 
         self.api_preference = api_preference
-        if api_preference is not None:
-            if sys.platform == "win32":
-                # seems more compatible on windows?
-                self.api_preference = cv2.CAP_DSHOW
+        if api_preference is not None and sys.platform == "win32":
+            # seems more compatible on windows?
+            self.api_preference = cv2.CAP_DSHOW
 
         if mode == "RGB":
             self._fmt = cv2.COLOR_BGR2RGB
