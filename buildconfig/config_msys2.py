@@ -493,11 +493,7 @@ def main(auto_config=False):
     # binary, this Python has no notion of MSYS2 or MinGW paths, so
     # we convert the prebuilt dir to a Windows absolute path.
     # e.g. /mingw64 (MSYS2)  ->  C:/msys64/mingw64 (Windows)
-    prebuilt_msys_dir = {
-        'x86': '/mingw32',
-        'x64': '/mingw64'
-    }
-    prebuilt_dir = get_absolute_win_path(prebuilt_msys_dir[machine_type])
+    prebuilt_dir = get_absolute_win_path(os.environ['MINGW_PREFIX'])
     return setup_prebuilt_sdl2(prebuilt_dir)
 
 
