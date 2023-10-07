@@ -59,6 +59,12 @@
 #if defined(__WIN32__)
 #define PYGAME_WINDOWS_CAMERA 1
 
+#ifdef __MINGW32__
+#undef WINVER
+/** _WIN32_WINNT_WINBLUE sets minimum platform SDK to Windows 8.1. */
+#define WINVER _WIN32_WINNT_WINBLUE
+#endif
+
 #include <mfapi.h>
 #include <mfobjects.h>
 #include <mfidl.h>
