@@ -165,7 +165,6 @@ class EventTypeTest(unittest.TestCase):
         self.assertNotEqual(d, c)  # Different type and different attributes
 
 
-
 race_condition_notification = """
 This test is dependent on timing. The event queue is cleared in preparation for
 tests. There is a small window where outside events from the OS may have effected
