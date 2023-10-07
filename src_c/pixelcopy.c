@@ -767,6 +767,9 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     Uint8 opaque = 255;
     Uint8 clear = 0;
     SDL_Surface *surf;
+    PyObject *type = NULL;
+    PyObject *value = NULL;
+    PyObject *traceback = NULL;
     char *keywords[] = {"array", "surface", "kind", "opaque", "clear", 0};
 
     if (!PyArg_ParseTupleAndKeywords(
@@ -794,8 +797,16 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     if (view_p->ndim == 2) {
         if (view_kind == VIEWKIND_RGB) {
             if (_copy_mapped(view_p, surf)) {
+                if (PyErr_Occurred()) {
+                    PyErr_Fetch(&type, &value, &traceback);
+                    PyErr_Clear();
+                }
+
                 pgBuffer_Release(&pg_view);
                 pgSurface_Unlock(surfobj);
+                if (type) {
+                    PyErr_Restore(type, value, traceback);
+                }
                 return 0;
             }
         }
@@ -876,6 +887,8 @@ map_array(PyObject *self, PyObject *args)
     _pc_pixel_t pixel = {0};
     int pix_bytesize;
     Py_ssize_t i;
+    PyObject *type = NULL;
+    PyObject *value, *traceback;
 
     if (!PyArg_ParseTuple(args, "OOO!", &tar_array, &src_array,
                           &pgSurface_Type, &format_surf)) {
@@ -889,6 +902,11 @@ map_array(PyObject *self, PyObject *args)
     /* Determine array shapes and check validity
      */
     if (pgObject_GetBuffer(tar_array, &tar_pg_view, PyBUF_RECORDS)) {
+        if (PyErr_Occurred()) {
+            PyErr_Fetch(&type, &value, &traceback);
+            PyErr_Clear();
+        }
+
         goto fail;
     }
     is_tar_alloc = 1;
@@ -912,6 +930,10 @@ map_array(PyObject *self, PyObject *args)
         goto fail;
     }
     if (pgObject_GetBuffer(src_array, &src_pg_view, PyBUF_RECORDS_RO)) {
+        if (PyErr_Occurred()) {
+            PyErr_Fetch(&type, &value, &traceback);
+            PyErr_Clear();
+        }
         goto fail;
     }
     is_src_alloc = 1;
@@ -1134,6 +1156,11 @@ fail:
         pgBuffer_Release(&tar_pg_view);
     }
     pgSurface_Unlock(format_surf);
+
+    if (type != NULL) {
+        PyErr_Restore(type, value, traceback);
+    }
+
     return 0;
 }
 
