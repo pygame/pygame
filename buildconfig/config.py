@@ -125,12 +125,11 @@ def writesetupfile(deps, basepath, additional_lines):
             parts = l.split()
             for al in additional_lines:
                 aparts = al.split()
-                if aparts and parts:
-                    if aparts[0] == parts[0]:
-                        #print('the same!' + repr(aparts) + repr(parts))
-                        #the same, we should not add the old one.
-                        #It will be overwritten by the new one.
-                        addit = 0
+                if (aparts and parts) and (aparts[0] == parts[0]):
+                    #print('the same!' + repr(aparts) + repr(parts))
+                    #the same, we should not add the old one.
+                    #It will be overwritten by the new one.
+                    addit = 0
             if addit:
                 new_lines.append(l)
 
@@ -160,6 +159,9 @@ def writesetupfile(deps, basepath, additional_lines):
 def main(auto=False):
     additional_platform_setup = []
     conan = "-conan" in sys.argv
+
+    setup_path = os.path.join(BASE_PATH, 'Setup')
+    backup_path = os.path.join(BASE_PATH, 'Setup.bak')
 
     if '-sdl2' in sys.argv:
         sys.argv.remove('-sdl2')
@@ -223,10 +225,13 @@ Only SDL2 is supported now.""")
             os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in")).readlines()
 
 
-    if os.path.isfile('Setup'):
-        if auto:
+    if os.path.isfile(setup_path) and auto:
+        try:
             logging.info('Backing up existing "Setup" file into Setup.bak')
-            shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
+            shutil.copyfile(setup_path, backup_path)
+        except Exception as e:
+            logging.error(f"Failed to backup 'Setup' file: {e}")
+        
 
     deps = CFG.main(**kwds, auto_config=auto)
     if '-conan' in sys.argv:
