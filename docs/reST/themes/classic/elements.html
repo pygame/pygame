@@ -11,7 +11,7 @@
 	<div class="flex-container">
 	<div class="logo">
 	  <a href="{{ theme_home_uri }}">
-	    <img src="{{logo_url}}"/>
+	    <img src="{{logo_url}}" alt="logo image"/>
 	  </a>
 	  <h5>pygame documentation</h5>
 	</div>
@@ -36,7 +36,7 @@ We render three sets of items based on how useful to most apps.
 {%- set advanced = ['BufferProxy', 'freetype', 'gfxdraw', 'midi', 'PixelArray', 'pixelcopy', 'sndarray', 'surfarray', 'cursors', 'joystick', 'mask', 'math', 'sprite', 'transform'] %}
 {%- set hidden = ['Overlay', 'cdrom', 'sdl2_video', 'sdl2_controller'] %}
 {%-   if pyg_sections %}
-	  <p class="bottom"><b>Most useful stuff</b>:
+	  <p class="bottom"><strong>Most useful stuff</strong>:
 {%      set sep = joiner(" | \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
@@ -52,7 +52,7 @@ We render three sets of items based on how useful to most apps.
 {%-     endfor %}
 	  </p>
 
-	  <p class="bottom"><b>Advanced stuff</b>:
+	  <p class="bottom"><strong>Advanced stuff</strong>:
 {%      set sep = joiner(" | \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
@@ -68,7 +68,7 @@ We render three sets of items based on how useful to most apps.
 {%-     endfor %}
 	  </p>
 
-	  <p class="bottom"><b>Other</b>:
+	  <p class="bottom"><strong>Other</strong>:
 {%      set sep = joiner(" | \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
