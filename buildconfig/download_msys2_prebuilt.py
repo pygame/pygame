@@ -66,6 +66,12 @@ def get_packages(arch: str) -> list:
         "{}-opus",
         "{}-opusfile",
         "{}-freetype",
+        "{}-python-build",
+        "{}-python-installer",
+        "{}-python-setuptools",
+        "{}-python-wheel",
+        "{}-cc",
+        "{}-cython",
     ]
 
     full_arch_names = {
