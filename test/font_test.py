@@ -70,7 +70,7 @@ class FontModuleTest(unittest.TestCase):
         o = pygame_font.SysFont("thisisnotafont", 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))
         
-    def test_SysFont(self):
+    def test_SysFont_with_kwargs(self):
         #Check if sysfont accepts keyword arguments
         if "arial" in fonts:
             font_name = "arial"
