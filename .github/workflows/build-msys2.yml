@@ -1,0 +1,77 @@
+name: MSYS2 Windows
+
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - ".gitignore"
+      - "*.rst"
+      - "*.md"
+      - ".github/workflows/*.yml"
+      # re-include current file to not be excluded
+      - "!.github/workflows/build-msys2.yml"
+
+  pull_request:
+    branches:
+      - main
+      - "v**"
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - ".gitignore"
+      - "*.rst"
+      - "*.md"
+      - ".github/workflows/*.yml"
+      # re-include current file to not be excluded
+      - "!.github/workflows/build-msys2.yml"
+
+jobs:
+  build:
+    name: ${{ matrix.sys }} [${{ matrix.env }}]
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          # - { sys: mingw32, env: i686 }
+          # - { sys: ucrt64,  env: ucrt-x86_64 }
+          # - { sys: clang64, env: clang-x86_64 }
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          # update: true
+          msystem: ${{matrix.sys}}
+          install: >-
+            mingw-w64-${{matrix.env}}-python
+
+      - name: Install deps
+        shell: msys2 {0}
+        run: |
+          python buildconfig/download_msys2_prebuilt.py
+  
+      - name: Compile Python Extension using MSYS2
+        shell: msys2 {0}
+        run: |
+          mkdir -p ./wheelhouse
+          # export PIP_CONFIG_FILE=buildconfig/pip_config.ini
+          echo "\nBuilding pygame wheel\n"
+          python setup.py docs
+          python -m pip wheel . --wheel-dir ./wheelhouse -vvv
+          echo "\nInstalling wheel\n"
+          python -m pip install --force-reinstall ./wheelhouse/pygame*.whl
+          echo "\nRun tests\n"
+          export SDL_VIDEODRIVER=dummy
+          export SDL_AUDIODRIVER=disk
+          python -m test -v --exclude opengl,music,timing --time_out 300
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pygame-msys2-wheels
+          path: ~/wheelhouse/*.whl
