@@ -70,6 +70,10 @@ def get_packages(arch: str) -> list:
         "{}-python-installer",
         "{}-python-setuptools",
         "{}-python-wheel",
+        "{}-python-pip",
+        "{}-python-numpy",
+        "{}-python-sphinx",
+        "{}-cmake",
         "{}-cc",
         "{}-cython",
     ]
