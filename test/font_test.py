@@ -72,6 +72,7 @@ class FontModuleTest(unittest.TestCase):
         
     def test_SysFont_with_kwargs(self):
         #Check if sysfont accepts keyword arguments
+        fonts = pygame_font.get_fonts()
         if "arial" in fonts:
             font_name = "arial"
         else:
