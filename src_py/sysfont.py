@@ -389,8 +389,8 @@ def font_constructor(fontpath, size, bold, italic):
 # the exported functions
 
 
-def SysFont(name, size, bold=False, italic=False, constructor=None):
-    """pygame.font.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
+def SysFont(name, size, bold=False, italic=False, constructor=None, **kwargs):
+    """pygame.font.SysFont(name, size, bold=False, italic=False, constructor=None, **kwargs) -> Font
     Create a pygame Font from system font resources.
 
     This will search the system fonts for the given font
