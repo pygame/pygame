@@ -54,8 +54,16 @@
 #include <linux/videodev2.h>
 #endif
 
+#endif /* defined(__unix__) */
+
 #if defined(__WIN32__)
 #define PYGAME_WINDOWS_CAMERA 1
+
+#ifdef __MINGW32__
+#undef WINVER
+/** _WIN32_WINNT_WINBLUE sets minimum platform SDK to Windows 8.1. */
+#define WINVER _WIN32_WINNT_WINBLUE
+#endif
 
 #include <mfapi.h>
 #include <mfobjects.h>
@@ -257,4 +265,3 @@ windows_init_device(pgCameraObject *self);
 #endif
 
 #endif /* !CAMERA_H */
-#endif

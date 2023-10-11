@@ -145,9 +145,12 @@ class ImageModuleTest(unittest.TestCase):
 
         # Assume pygame.image.Load works correctly as it is handled by the
         # third party SDL_image library.
-        f_path = tempfile.mktemp(suffix=".jpg")
-        pygame.image.save(surf, f_path)
-        jpg_surf = pygame.image.load(f_path)
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            temp_filename = f.name
+
+        pygame.image.save(surf, temp_filename)
+        jpg_surf = pygame.image.load(temp_filename)
 
         # Allow for small differences in the restored colors.
         def approx(c):
@@ -159,7 +162,7 @@ class ImageModuleTest(unittest.TestCase):
             posn = rect.move((offset, offset)).topleft
             self.assertEqual(approx(jpg_surf.get_at(posn)), approx(color))
 
-        os.remove(f_path)
+        os.remove(temp_filename)
 
     def testSavePNG32(self):
         """see if we can save a png with color values in the proper channels."""
@@ -175,12 +178,14 @@ class ImageModuleTest(unittest.TestCase):
         surf.set_at((0, 2), bluish_pixel)
         surf.set_at((0, 3), greyish_pixel)
 
-        f_path = tempfile.mktemp(suffix=".png")
-        pygame.image.save(surf, f_path)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_filename = f.name
+
+        pygame.image.save(surf, temp_filename)
 
         try:
             # Read the PNG file and verify that pygame saved it correctly
-            reader = png.Reader(filename=f_path)
+            reader = png.Reader(filename=temp_filename)
             width, height, pixels, metadata = reader.asRGBA8()
 
             # pixels is a generator
@@ -194,7 +199,7 @@ class ImageModuleTest(unittest.TestCase):
             if not reader.file.closed:
                 reader.file.close()
             del reader
-            os.remove(f_path)
+            os.remove(temp_filename)
 
     def testSavePNG24(self):
         """see if we can save a png with color values in the proper channels."""
@@ -210,12 +215,14 @@ class ImageModuleTest(unittest.TestCase):
         surf.set_at((0, 2), bluish_pixel)
         surf.set_at((0, 3), greyish_pixel)
 
-        f_path = tempfile.mktemp(suffix=".png")
-        pygame.image.save(surf, f_path)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_filename = f.name
+
+        pygame.image.save(surf, temp_filename)
 
         try:
             # Read the PNG file and verify that pygame saved it correctly
-            reader = png.Reader(filename=f_path)
+            reader = png.Reader(filename=temp_filename)
             width, height, pixels, metadata = reader.asRGB8()
 
             # pixels is a generator
@@ -229,7 +236,7 @@ class ImageModuleTest(unittest.TestCase):
             if not reader.file.closed:
                 reader.file.close()
             del reader
-            os.remove(f_path)
+            os.remove(temp_filename)
 
     def testSavePNG8(self):
         """see if we can save an 8 bit png correctly"""
@@ -241,12 +248,14 @@ class ImageModuleTest(unittest.TestCase):
         for cnt, pix in enumerate(set_pixels):
             surf.set_at((0, cnt), pix)
 
-        f_path = tempfile.mktemp(suffix=".png")
-        pygame.image.save(surf, f_path)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_filename = f.name
+
+        pygame.image.save(surf, temp_filename)
 
         try:
             # Read the PNG file and verify that pygame saved it correctly
-            reader = png.Reader(filename=f_path)
+            reader = png.Reader(filename=temp_filename)
             width, height, pixels, _ = reader.asRGB8()
 
             self.assertEqual(size, (width, height))
@@ -259,7 +268,7 @@ class ImageModuleTest(unittest.TestCase):
             if not reader.file.closed:
                 reader.file.close()
             del reader
-            os.remove(f_path)
+            os.remove(temp_filename)
 
     def testSavePaletteAsPNG8(self):
         """see if we can save a png with color values in the proper channels."""
@@ -277,11 +286,13 @@ class ImageModuleTest(unittest.TestCase):
         surf.set_palette_at(2, bluish_pixel)
         surf.set_palette_at(3, greyish_pixel)
 
-        f_path = tempfile.mktemp(suffix=".png")
-        pygame.image.save(surf, f_path)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_filename = f.name
+
+        pygame.image.save(surf, temp_filename)
         try:
             # Read the PNG file and verify that pygame saved it correctly
-            reader = png.Reader(filename=f_path)
+            reader = png.Reader(filename=temp_filename)
             reader.read()
             palette = reader.palette()
 
@@ -296,7 +307,7 @@ class ImageModuleTest(unittest.TestCase):
             if not reader.file.closed:
                 reader.file.close()
             del reader
-            os.remove(f_path)
+            os.remove(temp_filename)
 
     def test_save(self):
         s = pygame.Surface((10, 10))

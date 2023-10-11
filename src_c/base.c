@@ -309,11 +309,13 @@ pg_mod_autoquit(const char *modname)
 
     funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
 
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
     /* If we could not load _internal_mod_quit, load quit function */
     if (!funcobj)
         funcobj = PyObject_GetAttrString(module, "quit");
 
-    /* Silence errors */
     if (PyErr_Occurred())
         PyErr_Clear();
 
@@ -322,7 +324,6 @@ pg_mod_autoquit(const char *modname)
         Py_XDECREF(temp);
     }
 
-    /* Silence errors */
     if (PyErr_Occurred())
         PyErr_Clear();
 

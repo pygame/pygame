@@ -20,7 +20,7 @@ environment:
     - PYTHON: "C:\\Python312\\python"
       PYTHONPATH: "C:\\Python312"
       PYTHON_VERSION: "3.12.0"
-      PYTHON_SUFFIX: "b2"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "32"
       USE_ANALYZE: ""
 
@@ -76,7 +76,7 @@ environment:
     - PYTHON: "C:\\Python312-x64\\python"
       PYTHONPATH: "C:\\Python312-x64"
       PYTHON_VERSION: "3.12.0"
-      PYTHON_SUFFIX: "b2"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "64"
       USE_ANALYZE: ""
 
