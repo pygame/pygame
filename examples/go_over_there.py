@@ -40,8 +40,7 @@ def reset():
     balls = []
     for x in range(MAX_BALLS):
         pos = pg.Vector2(
-            random.randint(0, int(SCREEN_SIZE.x)),
-            random.randint(0, int(SCREEN_SIZE.y))
+            random.randint(0, int(SCREEN_SIZE.x)), random.randint(0, int(SCREEN_SIZE.y))
         )
         speed = random.uniform(MIN_SPEED, MAX_SPEED)
 
