@@ -1007,13 +1007,14 @@ class Vector2TypeTest(unittest.TestCase):
         class Vector(pygame.math.Vector2):
             pass
 
-        vec = Vector()
-
         vec_a = Vector(2, 0)
         vec_b = Vector(0, 1)
 
-        vec_a + vec_b
+        result_add = vec_a + vec_b
+        self.assertEqual(result_add, Vector(2, 1))
+
         vec_a *= 2
+        self.assertEqual(vec_a, Vector(4, 0))
 
     def test_project_v2_onto_x_axis(self):
         """Project onto x-axis, e.g. get the component pointing in the x-axis direction."""

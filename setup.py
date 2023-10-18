@@ -133,19 +133,20 @@ from distutils.command.build_ext import build_ext
 build_ext.get_export_symbols = lambda self, ext: []
 
 IS_PYPY = '__pypy__' in sys.builtin_module_names
-
+IS_MSC = sys.platform == "win32" and "MSC" in sys.version
 
 def compilation_help():
     """ On failure point people to a web page for help.
     """
     the_system = platform.system()
-    if the_system == 'Linux':
-        if hasattr(platform, 'linux_distribution'):
-            distro = platform.linux_distribution()
-            if distro[0].lower() == 'ubuntu':
-                the_system = 'Ubuntu'
-            elif distro[0].lower() == 'debian':
-                the_system = 'Debian'
+    if the_system == 'Linux' and hasattr(platform, 'linux_distribution'):
+        distro_name = platform.linux_distribution()[0].lower()
+        distro_mapping = {
+            'ubuntu': 'Ubuntu',
+            'debian': 'Debian'
+        }
+        the_system = distro_mapping.get(distro_name, the_system)
+
 
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
@@ -442,26 +443,23 @@ for e in extensions:
 
     e.extra_compile_args.extend(
         # some warnings are skipped here
-        ("/W3", "/wd4142", "/wd4996")
-        if sys.platform == "win32"
-        else ("-Wall", "-Wno-error=unknown-pragmas")
+        ("/W3", "/wd4142", "/wd4996") if IS_MSC else ("-Wall", "-Wno-error=unknown-pragmas")
     )
 
     if "surface" in e.name and sys.platform == "darwin":
         # skip -Werror on alphablit because sse2neon is used on arm mac
         continue
 
-    if "rwobject" in e.name:
-        if sys.platform != "win32":
-            # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
-            e.extra_compile_args.append("-Wno-error=deprecated-declarations")
+    if "rwobject" in e.name and not IS_MSC:
+        # because Py_FileSystemDefaultEncoding is deprecated in 3.12.0a7
+        e.extra_compile_args.append("-Wno-error=deprecated-declarations")
 
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here
         if sysconfig.get_config_var("MAINCC") != "clang":        
             e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
 
-    if "mask" in e.name and sys.platform == "win32":
+    if "mask" in e.name and IS_MSC:
         # skip analyze warnings that pop up a lot in mask for now. TODO fix
         e.extra_compile_args.extend(("/wd6385", "/wd6386"))
 
@@ -471,7 +469,7 @@ for e in extensions:
             and e.name not in ("pypm", "_sprite", "gfxdraw")
     ):
         # Do -Werror only on CI, and exclude -Werror on Cython C files and gfxdraw
-        e.extra_compile_args.append("/WX" if sys.platform == "win32" else "-Werror")
+        e.extra_compile_args.append("/WX" if IS_MSC else "-Wundef")
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
@@ -742,8 +740,7 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         return [flag for flag in flags if has_flag(compiler, flag)]
 
 
-    # Only on win32, not MSYS2
-    if 'MSYSTEM' not in os.environ:
+    if IS_MSC:
         @add_command('build_ext')
         class WinBuildExt(build_ext):
             """This build_ext sets necessary environment variables for MinGW"""

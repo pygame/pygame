@@ -3771,24 +3771,9 @@ class SurfaceBlendTest(unittest.TestCase):
 
         # 16 bit colour has less precision
         s2 = pygame.Surface((100, 100), pygame.SRCALPHA, 16)
-        s2.fill(
-            pygame.Color(
-                int(15 / 15 * 255),
-                int(15 / 15 * 255),
-                int(15 / 15 * 255),
-                int(10 / 15 * 255),
-            )
-        )
+        s2.fill(pygame.Color(255, 255, 255, 170))
         s2_alpha = s2.premul_alpha()
-        self.assertEqual(
-            s2_alpha.get_at((50, 50)),
-            pygame.Color(
-                int(10 / 15 * 255),
-                int(10 / 15 * 255),
-                int(10 / 15 * 255),
-                int(10 / 15 * 255),
-            ),
-        )
+        self.assertEqual(s2_alpha.get_at((50, 50)), pygame.Color(170, 170, 170, 170))
 
         # invalid surface - we need alpha to pre-multiply
         invalid_surf = pygame.Surface((100, 100), 0, 32)
