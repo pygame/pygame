@@ -4279,46 +4279,45 @@ class DrawPolygonMixin:
 
                 surface.unlock()
     def test_polygon_large_coords(self):
-        """ Ensures draw polygon works correctly with large points
-
-            Testing the drawings of filled polygons
         """
-        pointA = (600, 50)
-        pointB = (50, 600)
-        extreme_points = (58000,100000)
-        extreme_negative_points = (-58000,-100000)
-        extreme_negative_x = (-58000,100000)
-        extreme_negative_y = (58000,-100000)
+        Ensures draw polygon works correctly with large points.
+    
+        Testing the drawings of filled polygons.
+        """
+        point_a = (600, 50)
+        point_b = (50, 600)
+        extreme_points = (58000, 100000)
+        extreme_negative_points = (-58000, -100000)
+        extreme_negative_x = (-58000, 100000)
+        extreme_negative_y = (58000, -100000)
 
-        surfw = surfh = 650
-        surface = pygame.Surface((surfw, surfh))
+        surf_w = surf_h = 650
+        surface = pygame.Surface((surf_w, surf_h))
 
         green = (0, 255, 0)
         white = (0, 0, 0, 255)
 
-        # Checks the surface point to ensure the polygon has been drawn correctly
+        # Checks the surface point to ensure the polygon has been drawn correctly.
 
         # Extreme points case
-        self.draw_polygon(surface, green, (pointA,pointB,extreme_points))
-        self.assertEqual(surface.get_at((640,50)), white)
-        self.assertEqual(surface.get_at((50,640)), white)
+        self.draw_polygon(surface, green, (point_a, point_b, extreme_points))
+        self.assertEqual(surface.get_at((640, 50)), white)
+        self.assertEqual(surface.get_at((50, 640)), white)
 
         # Extreme negative points case
-        self.draw_polygon(surface, green, (pointA,pointB,extreme_negative_points))
-        self.assertEqual(surface.get_at((600,25)), white)
-        self.assertEqual(surface.get_at((0,0)), green)
+        self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_points))
+        self.assertEqual(surface.get_at((600, 25)), white)
+        self.assertEqual(surface.get_at((5, 5)), green)
 
         # Extreme negative x case
-        self.draw_polygon(surface, green, (pointA,pointB,extreme_negative_x))
-        self.assertEqual(surface.get_at((600,600)), white)
-        self.assertEqual(surface.get_at((300,640)), green)
+        self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_x))
+        self.assertEqual(surface.get_at((600, 600)), white)
+        self.assertEqual(surface.get_at((100, 640)), green)
 
         # Extreme negative y case
-        self.draw_polygon(surface, green, (pointA,pointB,extreme_negative_y))
-        self.assertEqual(surface.get_at((600,600)), white)
-        self.assertEqual(surface.get_at((300,300)), green) 
-
-
+        self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_y))
+        self.assertEqual(surface.get_at((600, 600)), white)
+        self.assertEqual(surface.get_at((300, 300)), green)
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """Test draw module function polygon.
