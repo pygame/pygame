@@ -1160,6 +1160,46 @@ nointersect:
     return _pg_rect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
+/* Check if a point is inside a rectangle */
+static int point_inside_rect(int x, int y, SDL_Rect *rect)
+{
+    return (x >= rect->x) && (x <= rect->x + rect->w) && 
+           (y >= rect->y) && (y <= rect->y + rect->h);
+}
+
+/* Check if two line segments intersect and find the intersection point */
+static int line_intersects_line(int l1_x1, int l1_y1, int l1_x2, int l1_y2, 
+                                int l2_x1, int l2_y1, int l2_x2, int l2_y2, 
+                                int *int_x, int *int_y)
+{
+    // Calculate directions
+    int d1, d2, d3, d4;
+    d1 = direction(l1_x1, l1_y1, l1_x2, l1_y2, l2_x1, l2_y1);
+    d2 = direction(l1_x1, l1_y1, l1_x2, l1_y2, l2_x2, l2_y2);
+    d3 = direction(l2_x1, l2_y1, l2_x2, l2_y2, l1_x1, l1_y1);
+    d4 = direction(l2_x1, l2_y1, l2_x2, l2_y2, l1_x2, l1_y2);
+
+    // Check if the line segments straddle each other
+    if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)))
+    {
+        // If the line segments straddle each other, calculate the intersection point
+        float s, t;
+        s = (-l1_y1 * (l1_x2 - l1_x1) + l1_x1 * (l1_y2 - l1_y1)) / 
+            (-(l2_x1 - l2_x2) * (l1_y2 - l1_y1) + (l1_x2 - l1_x1) * (l2_y1 - l2_y2));
+        t = (l2_x1 * (l2_y1 - l2_y2) - l2_y1 * (l2_x1 - l2_x2)) / 
+            (-(l2_x1 - l2_x2) * (l1_y2 - l1_y1) + (l1_x2 - l1_x1) * (l2_y1 - l2_y2));
+
+        *int_x = (int)(l1_x1 + (t * (l1_x2 - l1_x1)));
+        *int_y = (int)(l1_y1 + (t * (l1_y2 - l1_y1)));
+
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
 /* clipline() - crops the given line within the rect
  *
  * Supported argument formats:
@@ -1319,10 +1359,59 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
         rect = rect_copy;
     }
 
-    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
-        Py_XDECREF(rect_copy);
-        return PyTuple_New(0);
+    // Copy and normalize the rectangle to avoid negative width or height
+    SDL_Rect temp_rect = self->r;
+    pgRect_Normalize(&temp_rect);
+
+    // Create variables to store the intersection points
+    int int_x1, int_y1, int_x2, int_y2;
+    int found_intersection = 0;
+
+    // Check if the endpoints of the line segment are within the rectangle
+    if (point_inside_rect(x1, y1, &temp_rect))
+    {
+        int_x1 = x1;
+        int_y1 = y1;
+        found_intersection++;
     }
+
+    if (point_inside_rect(x2, y2, &temp_rect))
+    {
+        if (found_intersection)
+        {
+            int_x2 = x2;
+            int_y2 = y2;
+        }
+        else
+        {
+            int_x1 = x2;
+            int_y1 = y2;
+        }
+        found_intersection++;
+    }
+
+    // If no intersection points are found, check if the line segment intersects the boundaries of the rectangle
+    if (found_intersection < 2)
+    {
+        // The four sides of the rectangle
+        if (line_intersects_line(x1, y1, x2, y2, temp_rect.x, temp_rect.y, temp_rect.x + temp_rect.w, temp_rect.y, &int_x2, &int_y2))
+            found_intersection++;
+        if (found_intersection < 2 && line_intersects_line(x1, y1, x2, y2, temp_rect.x + temp_rect.w, temp_rect.y, temp_rect.x + temp_rect.w, temp_rect.y + temp_rect.h, &int_x2, &int_y2))
+            found_intersection++;
+        if (found_intersection < 2 && line_intersects_line(x1, y1, x2, y2, temp_rect.x + temp_rect.w, temp_rect.y + temp_rect.h, temp_rect.x, temp_rect.y + temp_rect.h, &int_x2, &int_y2))
+            found_intersection++;
+        if (found_intersection < 2 && line_intersects_line(x1, y1, x2, y2, temp_rect.x, temp_rect.y + temp_rect.h, temp_rect.x, temp_rect.y, &int_x2, &int_y2))
+            found_intersection++;
+    }
+
+    // Return results based on the found intersection points
+    if (found_intersection == 0)
+        Py_RETURN_NONE;
+    else if (found_intersection == 1)
+        return Py_BuildValue("(ii)", int_x1, int_y1);
+    else
+        return Py_BuildValue("((ii)(ii))", int_x1, int_y1, int_x2, int_y2);
+
 
     Py_XDECREF(rect_copy);
     return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
