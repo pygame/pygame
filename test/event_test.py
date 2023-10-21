@@ -143,14 +143,26 @@ class EventTypeTest(unittest.TestCase):
         c = pygame.event.Event(EVENT_TYPES[1], a=1)
         d = pygame.event.Event(EVENT_TYPES[0], a=2)
 
-        self.assertTrue(a == a)
-        self.assertFalse(a != a)
-        self.assertTrue(a == b)
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
-        self.assertFalse(a == c)
-        self.assertTrue(a != d)
-        self.assertFalse(a == d)
+        # Comparing event a
+        self.assertEqual(a, a)  # Event is equal to itself
+        self.assertEqual(a, b)  # Same type and attributes
+        self.assertNotEqual(a, c)  # Different type but same attributes
+        self.assertNotEqual(a, d)  # Same type but different attributes
+
+        # Comparing event b
+        self.assertEqual(b, a)  # Same type and attributes
+        self.assertNotEqual(b, c)  # Different type but same attributes
+        self.assertNotEqual(b, d)  # Same type but different attributes
+
+        # Comparing event c
+        self.assertNotEqual(c, a)  # Different type but same attributes
+        self.assertNotEqual(c, b)  # Different type but same attributes
+        self.assertNotEqual(c, d)  # Different type and different attributes
+
+        # Comparing event d
+        self.assertNotEqual(d, a)  # Same type but different attributes
+        self.assertNotEqual(d, b)  # Same type but different attributes
+        self.assertNotEqual(d, c)  # Different type and different attributes
 
 
 race_condition_notification = """

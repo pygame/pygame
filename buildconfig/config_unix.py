@@ -34,6 +34,8 @@ class DependencyProg:
             config = (os.popen(command + ' ' + version_flag).readlines() +
                       os.popen(command + ' --cflags').readlines() +
                       os.popen(command + ' --libs').readlines())
+            if not config or len(config) < 3:
+                raise ValueError(f'Unexpected output from "{command}"')
             flags = ' '.join(config[1:]).split()
 
             # remove this GNU_SOURCE if there... since python has it already,
