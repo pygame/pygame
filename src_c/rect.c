@@ -1369,7 +1369,7 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
         rect = rect_copy;
     }
 
-    if (accurate_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)==0) {
+    if (!accurate_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
         Py_XDECREF(rect_copy);
         return PyTuple_New(0);
     }
