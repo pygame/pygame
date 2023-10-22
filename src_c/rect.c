@@ -1209,6 +1209,7 @@ int accurate_IntersectRectAndLine(SDL_Rect *rect, int *X1, int *Y1, int *X2, int
     *Y2 = y1 + (int)(t_y_intersect * dy);
 
     return 1; 
+}
 
 /* clipline() - crops the given line within the rect
  *
