@@ -4281,7 +4281,6 @@ class DrawPolygonMixin:
     def test_polygon_large_coords(self):
         """
         Ensures draw polygon works correctly with large points.
-
         Testing the drawings of filled polygons
         """
         point_a = (600, 50)
@@ -4343,7 +4342,6 @@ class DrawPolygonMixin:
         self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_y))
         extreme_y_pass(self)
         extreme_y_fail(self)
-
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """Test draw module function polygon.
