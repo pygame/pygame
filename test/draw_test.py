@@ -3691,7 +3691,7 @@ CROSS = (
     [0, 2],
     [2, 2],
 )
-
+    
 
 class DrawPolygonMixin:
     """Mixin tests for drawing polygons.
