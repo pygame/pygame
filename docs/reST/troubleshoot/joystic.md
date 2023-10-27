@@ -1,5 +1,7 @@
 ## Pygame Joystick Troubleshooting
 
+# Ubuntu System
+
 In certain systems, Pygame fails to detect joystick devices which is caused due to the system encountering Advanced Linux Sound Architecture (ALSA) related issues. The ALSA errors suggest that there might be an issue with the in-built sound card configuration. 
 
 
