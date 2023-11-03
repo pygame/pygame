@@ -205,7 +205,7 @@ Example ::
         self.assertEqual(change, expected)
         self.assertEqual(change_ip, expected)
 
-Would become:
+Would become ::
 
     def test_move_towards_does_not_go_past(self):
         """It should stop at the destination vector and not go past it."""
@@ -232,4 +232,4 @@ Would become:
         self.assertEqual(origin, destination, "it changed in place")
         self.assertNotEqual(origin_distance, distance_too_far, "we didn't go that far")
 
-**Note** Example based off issue 3410 on pygame, act component technically has to function calls
+**Note** Example based off issue 3410 on pygame, act component technically has two function calls
