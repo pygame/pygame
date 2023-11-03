@@ -192,8 +192,7 @@ private methods.
 
 Avoid conditional branching within tests.
 
-Example
--------
+Example ::
 
     def test_move_towards_max_distance(self):
         expected = Vector3(12.30, 2021, 42.5)
