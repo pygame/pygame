@@ -156,3 +156,81 @@ some convenience functions ::
 
     example_path(pth)
         Likewise but paths are relative to trunk\examples
+
+Test Writing Guidelines
+***********************
+
+To facilitate easier reading of tests, refer to the following guidelines.
+
+Basic Design - 3A
+------------
+
+**Arrange**: Set up the test case. Keyword arguments should be used to pass
+into function calls. Variable names should be short, descriptive, and consistent 
+between tests. 
+
+**Act**: Test target behavior. Each test should be focused on a single target 
+behavior and act independently of other tests. This section should be short.
+
+**Assert**: If multiple assertations are to be made, assertation messages should
+be written to specify errors in behavior. Avoid testing target behavior within the 
+assert for readability. 
+
+Documentation
+-------------
+
+As well as abiding by test naming conventions as specified above, usage of 
+doc strings add clarity to test functions. Docs and messages should illustrate
+clearly what the failed assertation means for the test.
+
+General
+-------
+
+If you note that the 'Arrange' section of your testing is taking up a significant
+portion of your test, consider extracting the common arrangements into 
+private methods.
+
+Avoid conditional branching within tests.
+
+Example
+-------
+
+    def test_move_towards_max_distance(self):
+        expected = Vector3(12.30, 2021, 42.5)
+        origin = Vector3(7.22, 2004.0, 17.5)
+        change_ip = origin.copy()
+
+        change = origin.move_towards(expected, 100)
+        change_ip.move_towards_ip(expected, 100)
+
+        self.assertEqual(change, expected)
+        self.assertEqual(change_ip, expected)
+
+Would become:
+
+    def test_move_towards_does_not_go_past(self):
+        """It should stop at the destination vector and not go past it."""
+        origin = Vector3(7.22, 2004.0, 17.5)
+        destination = Vector3(12.30, 2021, 42.5)
+        distance_too_far = 100
+
+        change = origin.move_towards(destination, distance_too_far)
+        origin_distance = origin.distance_to(destination)
+
+        self.assertEqual(change, destination)
+        self.assertNotEqual(origin_distance, distance_too_far, "we didn't go that far")
+
+    def test_move_towards_does_not_go_past_ip(self):
+        """It should stop at the destination vector and not go past it. In place operation."""
+        origin = Vector3(7.22, 2004.0, 17.5)
+        destination = Vector3(12.30, 2021, 42.5)
+        distance_too_far = 100
+
+        change = origin.move_towards_ip(destination, distance_too_far)
+        origin_distance = origin.distance_to(destination)
+
+        origin.move_towards_ip(destination, distance_too_far)
+        self.assertEqual(origin, destination, "it changed in place")
+        self.assertNotEqual(origin_distance, distance_too_far, "we didn't go that far")
+
+**Note** Example based off issue 3410 on pygame, act component technically has to function calls
