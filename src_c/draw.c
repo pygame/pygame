@@ -76,9 +76,8 @@ draw_fillpoly(SDL_Surface *surf, int *vx, int *vy, Py_ssize_t n, Uint32 color,
 static void
 draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
           Uint32 color);
-
 static void
-draw_aarect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
+draw_aarect(SDL_Surface *surf, int x1, int y1, int x2, int y2,
           Uint32 color);
 static void
 draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
@@ -895,131 +894,6 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    pgSurfaceObject *surfobj;
-    PyObject *colorobj, *rectobj;
-    SDL_Rect *rect = NULL, temp;
-    SDL_Surface *surf = NULL;
-    Uint8 rgba[4];
-    Uint32 color;
-    int width = 0, radius = 0; /* Default values. */
-    int top_left_radius = -1, top_right_radius = -1, bottom_left_radius = -1,
-        bottom_right_radius = -1;
-    SDL_Rect sdlrect;
-    SDL_Rect cliprect;
-    int result;
-    SDL_Rect clipped;
-    int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
-                         INT_MIN}; /* Used to store bounding box values */
-    static char *keywords[] = {"surface",
-                               "color",
-                               "rect",
-                               "width",
-                               "border_radius",
-                               "border_top_left_radius",
-                               "border_top_right_radius",
-                               "border_bottom_left_radius",
-                               "border_bottom_right_radius",
-                               NULL};
-    if (!PyArg_ParseTupleAndKeywords(
-            args, kwargs, "O!OO|iiiiii", keywords, &pgSurface_Type, &surfobj,
-            &colorobj, &rectobj, &width, &radius, &top_left_radius,
-            &top_right_radius, &bottom_left_radius, &bottom_right_radius)) {
-        return NULL; /* Exception already set. */
-    }
-
-    if (!(rect = pgRect_FromObject(rectobj, &temp))) {
-        return RAISE(PyExc_TypeError, "rect argument is invalid");
-    }
-
-    surf = pgSurface_AsSurface(surfobj);
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
-        return PyErr_Format(PyExc_ValueError,
-                            "unsupported surface bit depth (%d) for drawing",
-                            surf->format->BytesPerPixel);
-    }
-
-    CHECK_LOAD_COLOR(colorobj)
-
-    if (width < 0) {
-        return pgRect_New4(rect->x, rect->y, 0, 0);
-    }
-
-    /* If there isn't any rounded rect-ness OR the rect is really thin in one
-       direction. The "really thin in one direction" check is necessary because
-       draw_round_rect fails (draws something bad) on rects with a dimension
-       that is 0 or 1 pixels across.*/
-    if ((radius <= 0 && top_left_radius <= 0 && top_right_radius <= 0 &&
-         bottom_left_radius <= 0 && bottom_right_radius <= 0) ||
-        abs(rect->w) < 2 || abs(rect->h) < 2) {
-        sdlrect.x = rect->x;
-        sdlrect.y = rect->y;
-        sdlrect.w = rect->w;
-        sdlrect.h = rect->h;
-        SDL_GetClipRect(surf, &cliprect);
-        /* SDL_FillRect respects the clip rect already, but in order to
-            return the drawn area, we need to do this here, and keep the
-            pointer to the result in clipped */
-        if (!SDL_IntersectRect(&sdlrect, &cliprect, &clipped)) {
-            return pgRect_New4(rect->x, rect->y, 0, 0);
-        }
-        if (width > 0 && (width * 2) < clipped.w && (width * 2) < clipped.h) {
-            draw_rect(surf, sdlrect.x, sdlrect.y, sdlrect.x + sdlrect.w - 1,
-                      sdlrect.y + sdlrect.h - 1, width, color);
-        }
-        else {
-            pgSurface_Prep(surfobj);
-            pgSurface_Lock(surfobj);
-            result = SDL_FillRect(surf, &clipped, color);
-            pgSurface_Unlock(surfobj);
-            pgSurface_Unprep(surfobj);
-            if (result != 0)
-                return RAISE(pgExc_SDLError, SDL_GetError());
-        }
-        return pgRect_New(&clipped);
-    }
-    else {
-        if (!pgSurface_Lock(surfobj)) {
-            return RAISE(PyExc_RuntimeError, "error locking surface");
-        }
-
-        /* Little bit to normalize the rect: this matters for the rounded
-           rects, despite not mattering for the normal rects. */
-        if (rect->w < 0) {
-            rect->x += rect->w;
-            rect->w = -rect->w;
-        }
-        if (rect->h < 0) {
-            rect->y += rect->h;
-            rect->h = -rect->h;
-        }
-
-        if (width > rect->w / 2 || width > rect->h / 2) {
-            width = MAX(rect->w / 2, rect->h / 2);
-        }
-
-        draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1,
-                        rect->y + rect->h - 1, radius, width, color,
-                        top_left_radius, top_right_radius, bottom_left_radius,
-                        bottom_right_radius, drawn_area);
-        if (!pgSurface_Unlock(surfobj)) {
-            return RAISE(PyExc_RuntimeError, "error unlocking surface");
-        }
-    }
-
-    if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
-        drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
-        return pgRect_New4(drawn_area[0], drawn_area[1],
-                           drawn_area[2] - drawn_area[0] + 1,
-                           drawn_area[3] - drawn_area[1] + 1);
-    else
-        return pgRect_New4(rect->x, rect->y, 0, 0);
-}
-
-static PyObject *
-aa_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     PyObject *colorobj, *rectobj;
@@ -2167,6 +2041,41 @@ draw_circle_quadrant(SDL_Surface *surf, int x0, int y0, int radius,
 }
 
 static void
+draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
+                   int *drawn_area)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+
+    while (x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
+
+        /* optimisation to avoid overdrawing and repeated return rect checks:
+           only draw a line if y-step is about to be decreased. */
+        if (f >= 0) {
+            drawhorzlineclipbounding(surf, color, x0 - x, y0 + y - 1,
+                                     x0 + x - 1, drawn_area);
+            drawhorzlineclipbounding(surf, color, x0 - x, y0 - y, x0 + x - 1,
+                                     drawn_area);
+        }
+        drawhorzlineclipbounding(surf, color, x0 - y, y0 + x - 1, x0 + y - 1,
+                                 drawn_area);
+        drawhorzlineclipbounding(surf, color, x0 - y, y0 - x, x0 + y - 1,
+                                 drawn_area);
+    }
+}
+
+static void
 draw_ellipse_filled(SDL_Surface *surf, int x0, int y0, int width, int height,
                     Uint32 color, int *drawn_area)
 {
@@ -2537,15 +2446,12 @@ draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
     }
 }
 
-static void
+    static void
 draw_aarect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
           Uint32 color)
 {
     aalines(surf, color, TRUE, [(x1,y1),(x2,y1),(x2,y2),(x1,y2)], 1);
 }
-
-
-
 
 static void
 draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
