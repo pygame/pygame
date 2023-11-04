@@ -62,7 +62,7 @@ display of its type and members. The function :func:`pygame.event.event_name()`
 can be used to get a string representing the name of the event type.
 
 Events that come from the system will have a guaranteed set of member
-attributes based on the type. The following is a list event types with their
+attributes based on the type. The following is a list of event types with their
 specific attributes.
 
 ::
