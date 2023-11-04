@@ -3691,7 +3691,7 @@ CROSS = (
     [0, 2],
     [2, 2],
 )
-
+    
 
 class DrawPolygonMixin:
     """Mixin tests for drawing polygons.
@@ -4279,6 +4279,73 @@ class DrawPolygonMixin:
 
                 surface.unlock()
 
+    # Test cases for Issue #3989
+    # This tests the fill polygon bug to avoid
+    # Uncomment this code when working on this bug (commented to be built)
+    # def test_polygon_large_coords(self):
+    #     """
+    #     Ensures draw polygon works correctly with large points.
+    #     Testing the drawings of filled polygons
+    #     """
+    #     point_a = (600, 50)
+    #     point_b = (50, 600)
+    #     extreme_points_coords = (58000, 100000)
+    #     extreme_negative_coords = (-58000, -100000)
+    #     extreme_negative_x = (-58000, 100000)
+    #     extreme_negative_y = (58000, -100000)
+
+    #     surf_w = surf_h = 650
+    #     surface = pygame.Surface((surf_w, surf_h))
+
+    #     green = (0, 255, 0)
+    #     white = (0, 0, 0, 255)
+
+    #     # Extreme points case
+    #     def extreme_points(self):
+    #         self.assertEqual(surface.get_at((640, 50)), white)
+    #         self.assertEqual(surface.get_at((50, 640)), white)
+
+    #     # Extreme negative points case
+    #     def extreme_negative_pass(self):
+    #         self.assertEqual(surface.get_at((600, 25)), white)
+
+    #     @unittest.expectedFailure
+    #     def extreme_negative_fail(self):
+    #         self.assertEqual(surface.get_at((5, 5)), white)
+
+    #     # Extreme negative x case
+    #     def extreme_x_pass(self):
+    #         self.assertEqual(surface.get_at((600, 600)), white)
+
+    #     @unittest.expectedFailure
+    #     def extreme_x_fail(self):
+    #         self.assertEqual(surface.get_at((100, 640)), white)
+
+    #     # Extreme negative y case
+    #     def extreme_y_pass(self):
+    #         self.assertEqual(surface.get_at((600, 600)), white)
+
+    #     @unittest.expectedFailure
+    #     def extreme_y_fail(self):
+    #         self.assertEqual(surface.get_at((300, 300)), white)
+
+    
+    #     # Checks the surface point to ensure the polygon has been drawn correctly.
+    #     # Uses multiple passing and failing test cases depending on the polygon
+    #     self.draw_polygon(surface, green, (point_a, point_b, extreme_points_coords))
+    #     extreme_points(self)
+
+    #     self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_coords))
+    #     extreme_negative_pass(self)
+    #     extreme_negative_fail(self)
+
+    #     self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_x))
+    #     extreme_x_pass(self)
+    #     extreme_x_fail(self)
+
+    #     self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_y))
+    #     extreme_y_pass(self)
+    #     extreme_y_fail(self)
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """Test draw module function polygon.
