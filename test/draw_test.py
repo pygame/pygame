@@ -3691,7 +3691,7 @@ CROSS = (
     [0, 2],
     [2, 2],
 )
-    
+
 
 class DrawPolygonMixin:
     """Mixin tests for drawing polygons.
@@ -4329,7 +4329,6 @@ class DrawPolygonMixin:
     #     def extreme_y_fail(self):
     #         self.assertEqual(surface.get_at((300, 300)), white)
 
-    
     #     # Checks the surface point to ensure the polygon has been drawn correctly.
     #     # Uses multiple passing and failing test cases depending on the polygon
     #     self.draw_polygon(surface, green, (point_a, point_b, extreme_points_coords))
@@ -4346,6 +4345,7 @@ class DrawPolygonMixin:
     #     self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_y))
     #     extreme_y_pass(self)
     #     extreme_y_fail(self)
+
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """Test draw module function polygon.
