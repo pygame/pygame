@@ -12,14 +12,14 @@ It uses the `Simple DirectMedia Layer library`_ and several other
 popular libraries to abstract the most common functions, making writing
 these programs a more intuitive task.
 
-`We need your help`_ to make Pygame the best it can be!
+`We need your help`_ to make pygame the best it can be!
 New contributors are welcome.
 
 
 Installation
 ------------
 
-Before installing Pygame, you must check that Python is installed
+Before installing pygame, you must check that Python is installed
 on your machine. To find out, open a command prompt (if you have
 Windows) or a terminal (if you have MacOS or Linux) and type this:
 ::
@@ -42,7 +42,7 @@ command:
 
 
 If a message such as "pip 20.0.2 from /usr/lib/python3/dist-packages/pip
-(python 3.8)" appears, you are ready to install Pygame! To install
+(python 3.8)" appears, you are ready to install pygame! To install
 it, enter this command:
 ::
 
@@ -52,7 +52,7 @@ it, enter this command:
 Help
 ----
 
-If you are just getting started with Pygame, you should be able to
+If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
 entire library. Browse the documentation on the `docs page`_. You
@@ -61,7 +61,7 @@ can also browse the documentation locally by running
 locally, it'll launch the online website instead.
 
 The online documentation stays up to date with the development version
-of Pygame on GitHub.  This may be a bit newer than the version of Pygame
+of pygame on GitHub.  This may be a bit newer than the version of pygame
 you are using. To upgrade to the latest full release, run 
 ``pip install pygame --upgrade`` in your terminal.
 
@@ -70,41 +70,41 @@ which can get you started playing with the code right away.
 
 Pygame is a powerful library for game development, offering a wide 
 range of features to simplify your coding journey. Let's delve into 
-what Pygame has to offer:
+what pygame has to offer:
 
-Graphics: With Pygame, creating dynamic and engaging graphics has 
+Graphics: With pygame, creating dynamic and engaging graphics has
 never been easier. The library provides simple yet effective tools for
 2D graphics and animation, including support for images, rectangles, 
 and polygon shapes. Whether you're a seasoned game developer or just
-starting out, Pygame has you covered.
+starting out, pygame has you covered.
 
-Sound: Pygame also includes support for playing and manipulating sound 
+Sound: Pygame also includes support for playing and manipulating sound
 and music, making it easy to add sound effects and background music to
 your games. With support for WAV, MP3, and OGG file formats, you have 
 plenty of options to choose from.
 
 Input: Pygame provides intuitive functions for handling keyboard, mouse,
 and joystick input, allowing you to quickly and easily implement player
-controls in your games. No more struggling with complex input code, Pygame
+controls in your games. No more struggling with complex input code, pygame
 makes it simple.
 
-Game Development: Lastly, Pygame provides a comprehensive suite of tools
+Game Development: Lastly, pygame provides a comprehensive suite of tools
 and features specifically designed for game development. From collision 
-detection to sprite management, Pygame has everything you need to create
+detection to sprite management, pygame has everything you need to create
 exciting and engaging games. Whether you're building a platformer, puzzle
-game, or anything in between, Pygame has you covered.
+game, or anything in between, pygame has you covered.
 
 Building From Source
 --------------------
 
 If you want to use features that are currently in development,
-or you want to contribute to Pygame, you will need to build Pygame
+or you want to contribute to pygame, you will need to build pygame
 locally from its source code, rather than pip installing it.
 
 Installing from source is fairly automated. The most work will
-involve compiling and installing all the Pygame dependencies.  Once
+involve compiling and installing all the pygame dependencies.  Once
 that is done, run the ``setup.py`` script which will attempt to
-auto-configure, build, and install Pygame.
+auto-configure, build, and install pygame.
 
 Much more information about installing and compiling is available
 on the `Compilation wiki page`_.
@@ -116,9 +116,9 @@ Contribute
 | To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/pygame/pygame/tree/main/docs>`_.
 |
 | New to contributing to Open Source Free Libre software? 
-| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in Python for Pygame, which is very similar to how you would do it for other projects.
+| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in Python for pygame, which is very similar to how you would do it for other projects.
 |
-| Want or need to compile Pygame from source?
+| Want or need to compile pygame from source?
 | `See the compilation page <https://www.pygame.org/wiki/Compilation>`_ for more detailed instructions.
 |
 | For a detailed developer guide on "How to Hack Pygame":
@@ -182,7 +182,7 @@ pygame.org wiki.
 Also many thanks for people creating games and putting them on the
 pygame.org website for others to learn from and enjoy.
 
-Lots of thanks to James Paige for hosting the Pygame bugzilla.
+Lots of thanks to James Paige for hosting the pygame bugzilla.
 
 Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
 excellent hosting.
@@ -226,10 +226,10 @@ This library is distributed under `GNU LGPL version 2.1`_, which can
 be found in the file ``docs/LGPL.txt``.  We reserve the right to place
 future versions of this library under a different license.
 
-This basically means you can use Pygame in any project you want,
-but if you make any changes or additions to Pygame itself, those
+This basically means you can use pygame in any project you want,
+but if you make any changes or additions to pygame itself, those
 must be released with a compatible license (preferably submitted
-back to the Pygame project).  Closed source and commercial games are fine.
+back to the pygame project).  Closed source and commercial games are fine.
 
 The programs in the ``examples`` subdirectory are in the public domain.
 
