@@ -71,19 +71,19 @@ bash brotli/build-brotli.sh
 bash bzip2/build-bzip2.sh
 bash freetype/build-freetype.sh
 
-# sdl_mixer deps
-bash libmodplug/build-libmodplug.sh
-bash ogg/build-ogg.sh
-bash flac/build-flac.sh
-bash mpg123/build-mpg123.sh
-bash opus/build-opus.sh # needs libogg (which is a container format)
-bash libsamplerate/build-samplerate.sh
-
 # fluidsynth (for sdl_mixer)
 bash gettext/build-gettext.sh
 bash glib/build-glib.sh # depends on gettext
 bash sndfile/build-sndfile.sh
 bash fluidsynth/build-fluidsynth.sh
+
+# sdl_mixer deps
+bash ogg/build-ogg.sh
+bash flac/build-flac.sh
+bash mpg123/build-mpg123.sh
+bash opus/build-opus.sh # needs libogg (which is a container format)
+bash libsamplerate/build-samplerate.sh
+bash libmodplug/build-libmodplug.sh
 
 bash sdl_libs/build-sdl2-libs.sh
 
