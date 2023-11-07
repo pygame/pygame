@@ -1413,6 +1413,9 @@ surf_copy(pgSurfaceObject *self, PyObject *_null)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
+    /* SDL_ConvertSurface does not work on empty surface,
+     * meaning all pixels are black (255).
+     */
     pgSurface_Prep(self);
     newsurf = SDL_ConvertSurface(surf, surf->format, 0);
     pgSurface_Unprep(self);
