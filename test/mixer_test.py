@@ -811,7 +811,7 @@ class ChannelTypeTest(unittest.TestCase):
         with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
             channel.unpause()
 
-    def todo_test_queue(self):
+    def test_queue(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
 
         # Channel.queue(Sound): return None
@@ -826,8 +826,13 @@ class ChannelTypeTest(unittest.TestCase):
         # If there is no sound actively playing on the Channel then the Sound
         # will begin playing immediately.
         #
+        channel = mixer.Channel(0)
+        sound = mixer.Sound(example_path("data/house_lo.wav"))
+        sound2 = mixer.Sound(example_path("data/boom.wav"))
+        channel.queue(sound)
+        self.assertTrue(channel.get_busy())
+        self.assertEqual(channel.get_sound(),sound)
 
-        self.fail()
 
     def test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
