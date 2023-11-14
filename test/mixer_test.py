@@ -4,7 +4,7 @@ import unittest
 import pathlib
 import platform
 import time
-import numpy
+from array import array
 
 from pygame.tests.test_utils import example_path
 
@@ -1062,7 +1062,7 @@ class SoundTypeTest(unittest.TestCase):
 
     def test_sound__from_array(self):
         """Ensure Sound() creation with an array works."""
-        array1 = numpy.array(example_path(os.path.join("data", "house_lo.wav")))
+        array1 = array('u', example_path(os.path.join("data", "house_lo.wav")))
         sound1 = mixer.Sound(array1)
         self.assertIsInstance(sound1, mixer.Sound)
 
