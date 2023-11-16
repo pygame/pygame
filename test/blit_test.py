@@ -20,7 +20,7 @@ class BlitTest(unittest.TestCase):
         self.assertEqual(s.get_at((0, 0)), d.get_at((0, 0)))
 
     def test_SRCALPHA_2(self):
-        """Blend(s, 255, d) = s"""
+        """blend(s, 255, d) = s"""
         s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((123, 0, 0, 255))
         s1 = pygame.Surface((1, 1), SRCALPHA, 32)
@@ -54,14 +54,7 @@ class BlitTest(unittest.TestCase):
         d.fill((0, 0, 255, 255))
 
         s.blit(d, (0, 0), None, BLEND_ADD)
-
-        # print("d %s" % (d.get_at((0,0)),))
-        # print(s.get_at((0,0)))
-        # self.assertEqual(s.get_at((0,0))[2], 255 )
-        # self.assertEqual(s.get_at((0,0))[3], 0 )
-
         s.blit(d, (0, 0), None, BLEND_RGBA_ADD)
-        # print(s.get_at((0,0)))
 
         self.assertEqual(s.get_at((0, 0))[3], 255)
 
@@ -90,7 +83,7 @@ class BlitTest(unittest.TestCase):
         self.assertEqual(s.get_at((0, 0))[0], 10)
 
     def test_BLEND_overflow(self):
-        """ Tests for no overflow in sub blend"""
+        """Tests for no overflow in sub blend"""
         s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((20, 255, 255, 0))
         d = pygame.Surface((1, 1), SRCALPHA, 32)
@@ -125,7 +118,7 @@ class BlitTest(unittest.TestCase):
                 dst.blit(surface, dest)
 
         t0 = time()
-        results = blits(blit_list)
+        blits(blit_list)
         t1 = time()
         if PRINT_TIMING:
             print(f"python blits: {t1 - t0}")
@@ -153,7 +146,7 @@ class BlitTest(unittest.TestCase):
         self.assertEqual(results, None)
 
         t0 = time()
-        results = dst.blits(((surf, dest) for surf, dest in blit_list))
+        dst.blits(((surf, dest) for surf, dest in blit_list))
         t1 = time()
         if PRINT_TIMING:
             print(f"Surface.blits generator: {t1 - t0}")
