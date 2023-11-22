@@ -741,12 +741,9 @@ class ChannelTypeTest(unittest.TestCase):
 
         # Ensure the second queued sound is returned.
         self.assertEqual(channel.get_queue().get_length(), sound2.get_length())
-        # TODO: should sound1.stop() clear it from the queue too? Currently it doesn't.
+        
         pygame.time.wait(sound_length_in_ms + 100)
-
-        # TODO: I think here there should be nothing queued.
-        #     Because the sound should be off the queue. Currently it doesn't do this.
-        # self.assertIsNone(channel.get_queue())
+        self.assertIsNone(channel.get_queue())
 
         # the second sound is now playing
         self.assertEqual(channel.get_sound().get_length(), sound2.get_length())
