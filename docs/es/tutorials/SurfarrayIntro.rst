@@ -35,15 +35,14 @@ principio aquí para ir avanzando.
 
 Ahora bien, no voy a engañarte para que pienses que todo va a ser muy sencillo. 
 Lograr efectos avanzados modificando los valores de píxeles puede ser complicado.
-Solo dominar Numeric Python, NumPy, (el paquete de matrices original de 
-SciPy era Numeric, el predecesor de NumPy) requiere aprendizaje. En este tutorial 
-me centraré en lo básico y utilizaré muchos ejemplos en un intento de sembrar las 
-semillas de la sabiduría. Después de haber terminado el tutorial, deberías tener 
-una comprensión básica de cómo funciona el surfarray.
+Solo dominar NumPy requiere aprendizaje. En este tutorial me centraré en lo
+básico y utilizaré muchos ejemplos en un intento de sembrar las semillas de la
+sabiduría. Después de haber terminado el tutorial, deberías tener una comprensión
+básica de cómo funciona el surfarray.
 
 
-Numeric Python
---------------
+NumPy
+-----
 
 Si no tenés instalado el paquete NumPy de python, 
 necesitarás hacerlo. Podés descargar el paquete dede la página de 
@@ -596,7 +595,7 @@ truncación indefinida.
 Graduación
 ----------
 
-Bueno, ahí está. Mi breve introducción a Numeric Python y surfarray.
+Bueno, ahí está. Mi breve introducción a NumPy y surfarray.
 Espero que ahora veas lo que es posible, y aunque nunca los uses por 
 ti mismo, no tengas miedo cuando veas código que los use. Echale un 
 vistazo al ejemplo vgrade para ver más sobre los arrays numéricos. También, 

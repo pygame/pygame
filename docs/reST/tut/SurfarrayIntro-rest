@@ -103,7 +103,7 @@ between 0 and 255, or you will get some undefined truncating.
 Graduation
 ==========
 
-Well there you have it. My quick primer on Numeric Python and surfarray.
+Well there you have it. My quick primer on NumPy and surfarray.
 Hopefully now you see what is possible, and even if you never use them for
 yourself, you do not have to be afraid when you see code that does. Look into
 the vgrade example for more numeric array action. There are also some *"flame"*

@@ -33,14 +33,13 @@ to work your way up.
 
 Now I won't try to fool you into thinking everything is very easy. To get
 more advanced effects by modifying pixel values is very tricky. Just mastering
-Numeric Python (SciPy's original array package was Numeric, the predecessor of NumPy)
-takes a lot of learning. In this tutorial I'll be sticking with
+NumPy takes a lot of learning. In this tutorial I'll be sticking with
 the basics and using a lot of examples in an attempt to plant seeds of wisdom.
 After finishing the tutorial you should have a basic handle on how the surfarray
 works.
 
 
-Numeric Python
+NumPy
 --------------
 
 If you do not have the python NumPy package installed,
@@ -569,7 +568,7 @@ between 0 and 255, or you will get some undefined truncating.
 Graduation
 ----------
 
-Well there you have it. My quick primer on Numeric Python and surfarray.
+Well there you have it. My quick primer on NumPy and surfarray.
 Hopefully now you see what is possible, and even if you never use them for
 yourself, you do not have to be afraid when you see code that does. Look into
 the vgrade example for more numeric array action. There are also some *"flame"*
