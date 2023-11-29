@@ -126,10 +126,11 @@ for things, and we don't do corporate sponsors.
 
 Project Examples
 --------------------
-* `[SnoSnow](https://github.com/bar-ji/SnoSnow-Source)`
-* `[Space Invaders](https://www.youtube.com/watch?v=Q-__8Xw9KTM)`
-* `[RPG Game](https://youtu.be/QU1pPzEGrqw?si=3VAxsN9zDV94OWXN)`
-* `[Stardew Valley Inspired Game](https://youtu.be/T4IX36sP_0c?si=pCqRtEQPtQex9qXC)`
+* `SnoSnow <https://github.com/bar-ji/SnoSnow-Source>`_
+* `Space Invaders <https://www.youtube.com/watch?v=Q-__8Xw9KTM>`_
+* `RPG Game <https://youtu.be/QU1pPzEGrqw?si=3VAxsN9zDV94OWXN>`_
+* `Stardew Valley Inspired Game <https://youtu.be/T4IX36sP_0c?si=pCqRtEQPtQex9qXC>`_
+
 
 
 Building From Source
