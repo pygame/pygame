@@ -94,6 +94,46 @@ detection to sprite management, pygame has everything you need to create
 exciting and engaging games. Whether you're building a platformer, puzzle
 game, or anything in between, pygame has you covered.
 
+Getting Started With Your First Project
+--------------------
+```shell
+$ python
+```
+
+```python
+import pygame
+
+pygame.init()
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+run = True
+while run:
+   for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+         run = False
+
+pygame.quit()
+```
+This example of code shows how you can get started with creating your first
+Pygame project. This will create a window with a black screen, and you can
+use any of the other functions included in Pygame to add on to this project.
+
+Funding
+--------------------
+As Pygame is a hobby project made by volunteers, we don't have a big budget
+for things, and we don't do corporate sponsors.
+
+Project Examples
+--------------------
+[SnoSnow](https://github.com/bar-ji/SnoSnow-Source)
+[Space Invaders](https://www.youtube.com/watch?v=Q-__8Xw9KTM)
+[RPG Game](https://youtu.be/QU1pPzEGrqw?si=3VAxsN9zDV94OWXN)
+[Stardew Valley Inspired Game](https://youtu.be/T4IX36sP_0c?si=pCqRtEQPtQex9qXC)
+
 Building From Source
 --------------------
 
