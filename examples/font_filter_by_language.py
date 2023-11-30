@@ -10,9 +10,9 @@ import pygame
 
 
 def enum_font_from_lang(lang) -> Iterator[str]:
-    '''
+    """
     Enumerates fonts that are suitable for a specified language.
-    '''
+    """
     text = DISCRIMINANTS[lang]
     for font_name in get_fonts():
         if can_render_text(font_name, text):
@@ -20,9 +20,9 @@ def enum_font_from_lang(lang) -> Iterator[str]:
 
 
 def can_render_text(font_name, text, *, font_size=14) -> bool:
-    '''
+    """
     Whether a specified font is capable of rendering a specified text.
-    '''
+    """
     try:
         font = freetype.SysFont(font_name, font_size)
     except AttributeError as e:
@@ -41,17 +41,17 @@ def can_render_text(font_name, text, *, font_size=14) -> bool:
 
 
 DISCRIMINANTS = {
-    'ja': '経伝説あAB',
-    'ko': '안녕조AB',
-    'zh-Hans': '哪经传说AB',
-    'zh-Hant': '哪經傳說AB',
-    'zh': '哪經傳說经传说AB',
+    "ja": "経伝説あAB",
+    "ko": "안녕조AB",
+    "zh-Hans": "哪经传说AB",
+    "zh-Hant": "哪經傳說AB",
+    "zh": "哪經傳說经传说AB",
 }
-'''
+"""
 You may have noticed the 'AB' in the values of this dictionary.
 If you don't include ASCII characters, you might choose a font that cannot render them, such as a fallback font,
 which is probably not what you want.
-'''
+"""
 
 
 def main():
@@ -61,7 +61,7 @@ def main():
     screen.fill("white")
     x, y = 40, 10
     spacing = 10
-    for font_name in enum_font_from_lang('ja'):
+    for font_name in enum_font_from_lang("ja"):
         font = freetype.SysFont(font_name, 30)
         rect = font.render_to(screen, (x, y), "経伝説 한글 经传说 ABC 經傳說 あいう")
         y = y + rect.height + spacing
