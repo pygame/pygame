@@ -443,5 +443,17 @@ class MixerMusicModuleTest(unittest.TestCase):
                 os.remove(tempcopy)
 
 
+class MixerMusicEndEventTest(unittest.TestCase):
+    def setUp(self):
+        pygame.display.init()
+        pygame.display.set_mode((40, 40))
+        if pygame.mixer.get_init() is None:
+            pygame.mixer.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+        pygame.mixer.quit()
+
+
 if __name__ == "__main__":
     unittest.main()
