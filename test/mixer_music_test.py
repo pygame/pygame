@@ -324,20 +324,6 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.stop()
 
-    def todo_test_set_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
-
-        # This causes Pygame to signal (by means of the event queue) when the
-        # music is done playing. The argument determines the type of event
-        # that will be queued.
-        #
-        # The event will be queued every time the music finishes, not just the
-        # first time. To stop the event from being queued, call this method
-        # with no argument.
-        #
-
-        self.fail()
-
     def test_pause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.pause:
 
@@ -461,6 +447,26 @@ class MixerMusicEndEventTest(unittest.TestCase):
         pygame.mixer_music.set_endevent(event_type)
         end_event = pygame.mixer_music.get_endevent()
         self.assertEqual(event_type, end_event)
+
+    def test_set_endevent(self):
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
+
+        # This causes Pygame to signal (by means of the event queue) when the
+        # music is done playing. The argument determines the type of event
+        # that will be queued.
+        #
+        # The event will be queued every time the music finishes, not just the
+        # first time. To stop the event from being queued, call this method
+        # with no argument.
+        #
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        event_type = pygame.USEREVENT
+        pygame.mixer_music.set_endevent(event_type)
+        end_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(event_type, end_event)
+
 
 if __name__ == "__main__":
     unittest.main()
