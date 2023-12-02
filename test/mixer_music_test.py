@@ -287,7 +287,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.stop()
 
-    def todo_test_load(self):
+    def test_load(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
 
         # This will load a music file and prepare it for playback. If a music
@@ -298,7 +298,15 @@ class MixerMusicModuleTest(unittest.TestCase):
         # like the other pygame loading functions.
         #
 
-        self.fail()
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        self.assertFalse(pygame.mixer.music.get_busy())
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        pygame.mixer.music.load(filename)
+        self.assertFalse(pygame.mixer.music.get_busy())
 
     def test_get_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
