@@ -365,16 +365,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.pause()
         self.assertFalse(pygame.mixer.music.get_busy())
 
-    def todo_test_get_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
-
-        # Returns the event type to be sent every time the music finishes
-        # playback. If there is no endevent the function returns
-        # pygame.NOEVENT.
-        #
-
-        self.fail()
-
     def test_unpause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
 
@@ -454,6 +444,23 @@ class MixerMusicEndEventTest(unittest.TestCase):
         pygame.display.quit()
         pygame.mixer.quit()
 
+    def test_get_endevent(self):
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
+
+        # Returns the event type to be sent every time the music finishes
+        # playback. If there is no endevent the function returns
+        # pygame.NOEVENT.
+        #
+        filename = example_path(os.path.join("data", "car_door.wav"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        no_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(pygame.NOEVENT, no_event)
+
+        event_type = pygame.USEREVENT
+        pygame.mixer_music.set_endevent(event_type)
+        end_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(event_type, end_event)
 
 if __name__ == "__main__":
     unittest.main()
