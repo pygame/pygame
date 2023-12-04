@@ -166,7 +166,7 @@ surf_convert(pgSurfaceObject *self, PyObject *args);
 static PyObject *
 surf_convert_alpha(pgSurfaceObject *self, PyObject *args);
 static PyObject *
-surf_set_clip(PyObject *self, PyObject *args);
+surf_set_clip(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_clip(PyObject *self, PyObject *args);
 static PyObject *
@@ -335,7 +335,7 @@ static struct PyMethodDef surface_methods[] = {
     {"convert_alpha", (PyCFunction)surf_convert_alpha, METH_VARARGS,
      DOC_SURFACECONVERTALPHA},
 
-    {"set_clip", surf_set_clip, METH_VARARGS, DOC_SURFACESETCLIP},
+    {"set_clip", (PyCFunction)surf_set_clip, METH_VARARGS | METH_KEYWORDS, DOC_SURFACESETCLIP},
     {"get_clip", surf_get_clip, METH_NOARGS, DOC_SURFACEGETCLIP},
 
     {"fill", (PyCFunction)surf_fill, METH_VARARGS | METH_KEYWORDS,
@@ -1691,7 +1691,7 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_clip(PyObject *self, PyObject *args)
+surf_set_clip(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *item;
@@ -1701,24 +1701,24 @@ surf_set_clip(PyObject *self, PyObject *args)
 
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
-    if (PyTuple_Size(args)) {
-        item = PyTuple_GET_ITEM(args, 0);
-        if (item == Py_None && PyTuple_Size(args) == 1) {
-            result = SDL_SetClipRect(surf, NULL);
-        }
-        else {
-            rect = pgRect_FromObject(args, &temp);
-            if (!rect)
-                return RAISE(PyExc_ValueError, "invalid rectstyle object");
-            sdlrect.x = rect->x;
-            sdlrect.y = rect->y;
-            sdlrect.h = rect->h;
-            sdlrect.w = rect->w;
-            result = SDL_SetClipRect(surf, &sdlrect);
-        }
+
+    static char *keywords[] = {"rect", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &item)) {
+        return NULL;
+    }
+
+    if (item == Py_None) {
+        result = SDL_SetClipRect(surf, NULL);
     }
     else {
-        result = SDL_SetClipRect(surf, NULL);
+        rect = pgRect_FromObject(args, &temp);
+        if (!rect)
+            return RAISE(PyExc_ValueError, "invalid rectstyle object");
+        sdlrect.x = rect->x;
+        sdlrect.y = rect->y;
+        sdlrect.h = rect->h;
+        sdlrect.w = rect->w;
+        result = SDL_SetClipRect(surf, &sdlrect);
     }
 
     if (result == -1) {
