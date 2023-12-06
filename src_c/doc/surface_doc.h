@@ -23,8 +23,8 @@
 #define DOC_SURFACEGETPALETTEAT "get_palette_at(index) -> RGB\nget the color for a single entry in a palette"
 #define DOC_SURFACESETPALETTE "set_palette([RGB, RGB, RGB, ...]) -> None\nset the color palette for an 8-bit Surface"
 #define DOC_SURFACESETPALETTEAT "set_palette_at(index, RGB) -> None\nset the color for a single index in an 8-bit Surface palette"
-#define DOC_SURFACEMAPRGB "map_rgb(Color) -> mapped_int\nconvert a color into a mapped color value"
-#define DOC_SURFACEUNMAPRGB "unmap_rgb(mapped_int) -> Color\nconvert a mapped integer color value into a Color"
+#define DOC_SURFACEMAPRGB "map_rgb(Color=(0, 0, 0)) -> mapped_int\nconvert a color into a mapped color value"
+#define DOC_SURFACEUNMAPRGB "unmap_rgb(mapped_int=0) -> Color\nconvert a mapped integer color value into a Color"
 #define DOC_SURFACESETCLIP "set_clip(rect) -> None\nset_clip(None) -> None\nset the current clipping area of the Surface"
 #define DOC_SURFACEGETCLIP "get_clip() -> Rect\nget the current clipping area of the Surface"
 #define DOC_SURFACESUBSURFACE "subsurface(Rect) -> Surface\ncreate a new surface that references its parent"
@@ -161,11 +161,11 @@ pygame.Surface.set_palette_at
 set the color for a single index in an 8-bit Surface palette
 
 pygame.Surface.map_rgb
- map_rgb(Color) -> mapped_int
+ map_rgb(Color=(0, 0, 0)) -> mapped_int
 convert a color into a mapped color value
 
 pygame.Surface.unmap_rgb
- unmap_rgb(mapped_int) -> Color
+ unmap_rgb(mapped_int=0) -> Color
 convert a mapped integer color value into a Color
 
 pygame.Surface.set_clip
