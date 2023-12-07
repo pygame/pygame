@@ -8,6 +8,9 @@
 
 | :sl:`Pygame module for interacting with joysticks, gamepads, and trackballs.`
 
+.. note::
+   Use import pygame.joystic before using this module.
+
 The joystick module manages the joystick devices on a computer.
 Joystick devices include trackballs and video-game-style
 gamepads, and the module allows the use of multiple buttons and "hats".
