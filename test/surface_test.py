@@ -36,7 +36,7 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertIsNot(surface, depth_surface)
         self.assertIsInstance(surface, pygame.Surface)
         self.assertNotIsInstance(surface, SurfaceSubclass)
-        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_size(), expesurf_cted_size)
         self.assertEqual(surface.get_flags(), expected_flags)
         self.assertEqual(surface.get_bitsize(), expected_depth)
 
@@ -54,6 +54,18 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((800, 600))
         r = pygame.Rect(10, 10, 10, 10)
         s.set_clip(r)
+        r.move_ip(10, 0)
+        s.set_clip(None)
+        res = s.get_clip()
+        # this was garbled before.
+        self.assertEqual(res[0], 0)
+        self.assertEqual(res[2], 800)
+    
+    def test_set_clip_kwargs(self):
+        """see if surface.set_clip(None) works correctly."""
+        s = pygame.Surface((800, 600))
+        r = pygame.Rect(10, 10, 10, 10)
+        s.set_clip(rect=r)
         r.move_ip(10, 0)
         s.set_clip(None)
         res = s.get_clip()
