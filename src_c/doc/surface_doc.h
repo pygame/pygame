@@ -25,7 +25,7 @@
 #define DOC_SURFACESETPALETTEAT "set_palette_at(index, RGB) -> None\nset the color for a single index in an 8-bit Surface palette"
 #define DOC_SURFACEMAPRGB "map_rgb(Color) -> mapped_int\nconvert a color into a mapped color value"
 #define DOC_SURFACEUNMAPRGB "unmap_rgb(mapped_int) -> Color\nconvert a mapped integer color value into a Color"
-#define DOC_SURFACESETCLIP "set_clip(rect) -> None\nset_clip(None) -> None\nset the current clipping area of the Surface"
+#define DOC_SURFACESETCLIP "set_clip(rect=None) -> None\nset_clip(None) -> None\nset the current clipping area of the Surface"
 #define DOC_SURFACEGETCLIP "get_clip() -> Rect\nget the current clipping area of the Surface"
 #define DOC_SURFACESUBSURFACE "subsurface(Rect) -> Surface\ncreate a new surface that references its parent"
 #define DOC_SURFACEGETPARENT "get_parent() -> Surface\nfind the parent of a subsurface"
