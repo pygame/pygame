@@ -335,7 +335,8 @@ static struct PyMethodDef surface_methods[] = {
     {"convert_alpha", (PyCFunction)surf_convert_alpha, METH_VARARGS,
      DOC_SURFACECONVERTALPHA},
 
-    {"set_clip", (PyCFunction)surf_set_clip, METH_VARARGS | METH_KEYWORDS, DOC_SURFACESETCLIP},
+    {"set_clip", (PyCFunction)surf_set_clip, METH_VARARGS | METH_KEYWORDS, 
+     DOC_SURFACESETCLIP},
     {"get_clip", surf_get_clip, METH_NOARGS, DOC_SURFACEGETCLIP},
 
     {"fill", (PyCFunction)surf_fill, METH_VARARGS | METH_KEYWORDS,
