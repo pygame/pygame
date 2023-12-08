@@ -7,20 +7,21 @@ from pygame.locals import *
 
 class BlitTest(unittest.TestCase):
     def test_SRCALPHA_1(self):
-        """Ostensibly mimic a blend, blend(s, 0 ,d) = d. Uses SRCALPHA flag to
-        request a per pixel alpha. S used colloquially for surface / source,
-        d for destination."""
-        s = pygame.Surface((1, 1), SRCALPHA, 32)  # requests per pixel alpha
+        """Uses the SRCALPHA flag to request a per pixel alpha.
+        blend(s, 0, d) = d -> Any surface s with opacity 0 with
+        a blit of any surface d will take the values of d."""
+        s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((255, 255, 255, 0))
         d = pygame.Surface((1, 1), SRCALPHA, 32)
         d.fill((0, 0, 255, 255))
 
         s.blit(d, (0, 0))
 
-        self.assertEqual(s.get_at((0, 0)), d.get_at((0, 0)))
+        self.assertTrue(s.get_at((0, 0)), d.get_at((0, 0)))
 
     def test_SRCALPHA_2(self):
-        """blend(s, 255, d) = s"""
+        """blend(s, 255, d) = s - > Any surface s with opacity
+        255 with a blit of any surface d will take the value s."""
         s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((123, 0, 0, 255))
         s1 = pygame.Surface((1, 1), SRCALPHA, 32)
@@ -32,18 +33,47 @@ class BlitTest(unittest.TestCase):
 
         self.assertEqual(s.get_at((0, 0)), s1.get_at((0, 0)))
 
-    def test_SRCALPHA_3(selfs):
-        # TODO: these should be true too.
-        """blend(0, sA, 0) = 0"""
-        pass
+    def test_SRCALPHA_3(self):
+        """blend(0, sA, 0) = 0 -> A surface s with RGB (0, 0, 0)
+        at any opacity with a blit of surface d with RGB (0, 0, 0)
+        will maintain its RGB value regardless of opacity"""
+        sA = 160
+        s = pygame.Surface((1, 1), SRCALPHA, 32)
+        s.fill((0, 0, 0, sA))
+        d = pygame.Surface((1, 1), SRCALPHA, 32)
+        d.fill((0, 0, 0, sA))
+
+        s.blit(d, (0, 0))
+
+        self.assertEqual(s.get_at((0, 0))[:3], (0, 0, 0))
 
     def test_SRCALPHA_4(self):
-        """blend(255, sA, 255) = 255"""
-        pass
+        """blend(255, sA, 255) = 255 -> A surface s with RGB (255, 255, 255)
+        at any opacity with a blit of surface d with RGB (255, 255, 255)
+        will maintain its RGB value regardless of opacity"""
+        sA = 160
+        s = pygame.Surface((1, 1), SRCALPHA, 32)
+        s.fill((255, 255, 255, sA))
+        d = pygame.Surface((1, 1), SRCALPHA, 32)
+        d.fill((255, 255, 255, sA))
+
+        s.blit(d, (0, 0))
+
+        self.assertEqual(s.get_at((0, 0))[:3], (255, 255, 255))
 
     def test_SRCALPHA_5(self):
-        """blend(s, sA, d) <= 255"""
-        pass
+        """blend(s, sA, d) <= 255 -> Any surface s blitted with any
+        surface d, regardless of opacity, should return an RGB value
+        in the accepted value range of 0 to 255."""
+        sA = 145
+        s = pygame.Surface((1, 1), SRCALPHA, 32)
+        s.fill((50, 255, 140, sA))
+        d = pygame.Surface((1, 1), SRCALPHA, 32)
+        d.fill((255, 0, 25, sA))
+
+        s.blit(d, (0, 0))
+
+        self.assertLessEqual(s.get_at((0, 0))[:3], (255, 255, 255))
 
     def test_BLEND_saturated(self):
         """Test that no overflow occurs, and that surface is saturated.
