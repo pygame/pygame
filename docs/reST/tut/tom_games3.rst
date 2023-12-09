@@ -46,7 +46,7 @@ a nasty traceback, which non-programmers won't understand. The code is fairly si
       import pygame
       from socket import *
       from pygame.locals import *
-  except ImportError, err:
+  except ImportError as err:
       print(f"couldn't load module. {err}")
       sys.exit(2)
 
