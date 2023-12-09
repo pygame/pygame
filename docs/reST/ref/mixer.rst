@@ -292,7 +292,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    it and the Sound object.
 
    For now buffer and array support is consistent with ``sndarray.make_sound``
-   for Numeric arrays, in that sample sign and byte order are ignored. This
+   for NumPy arrays, in that sample sign and byte order are ignored. This
    will change, either by correctly handling sign and byte order, or by raising
    an exception when different. Also, source samples are truncated to fit the
    audio sample size. This will not change.
