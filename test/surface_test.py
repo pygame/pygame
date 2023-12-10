@@ -167,13 +167,13 @@ class SurfaceTypeTest(unittest.TestCase):
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.width, 0)
         self.assertEqual(bound_rect.height, 0)
-        surf.set_at((30, 30), (255, 255, 255, 1))
+        surf.set_at((x=30, y=30), color=(255, 255, 255, 1))
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.left, 30)
         self.assertEqual(bound_rect.top, 30)
         self.assertEqual(bound_rect.width, 1)
         self.assertEqual(bound_rect.height, 1)
-        surf.set_at((29, 29), (255, 255, 255, 1))
+        surf.set_at((x=29, y=29), color=(255, 255, 255, 1))
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.left, 29)
         self.assertEqual(bound_rect.top, 29)
@@ -190,13 +190,13 @@ class SurfaceTypeTest(unittest.TestCase):
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.width, 0)
         self.assertEqual(bound_rect.height, 0)
-        surf.set_at((30, 30), (255, 255, 255))
+        surf.set_at((x=30, y=30), color=(255, 255, 255))
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.left, 30)
         self.assertEqual(bound_rect.top, 30)
         self.assertEqual(bound_rect.width, 1)
         self.assertEqual(bound_rect.height, 1)
-        surf.set_at((60, 60), (255, 255, 255))
+        surf.set_at((x=60, y=60), color=(255, 255, 255))
         bound_rect = surf.get_bounding_rect()
         self.assertEqual(bound_rect.left, 30)
         self.assertEqual(bound_rect.top, 30)
@@ -1806,10 +1806,10 @@ class GeneralSurfaceTests(unittest.TestCase):
         c01 = pygame.Color(5, 10, 15)
         c10 = pygame.Color(100, 50, 0)
         c11 = pygame.Color(4, 5, 6)
-        surf.set_at((0, 0), c00)
-        surf.set_at((0, 1), c01)
-        surf.set_at((1, 0), c10)
-        surf.set_at((1, 1), c11)
+        surf.set_at((x=0, y=0), color=c00)
+        surf.set_at((x=0, y=1), color=c01)
+        surf.set_at((x=1, y=0), color=c10)
+        surf.set_at((x=1, y=1), color=c11)
         c = surf.get_at((0, 0))
         self.assertIsInstance(c, pygame.Color)
         self.assertEqual(c, c00)
@@ -2274,7 +2274,7 @@ class GeneralSurfaceTests(unittest.TestCase):
 
         surf.fill((0, 0, 0, 0))
         self.assertEqual(surf.get_at((0, 0)), (0, 0, 0, 0))
-        surf.set_at((0, 0), c)
+        surf.set_at((x=0, y=0), color=c)
         self.assertEqual(surf.get_at((0, 0)), color)
 
     def test_mustlock(self):
@@ -2329,7 +2329,7 @@ class GeneralSurfaceTests(unittest.TestCase):
     def test_palette_colorkey_set_px(self):
         surf = pygame.image.load(example_path(os.path.join("data", "alien2.png")))
         key = surf.get_colorkey()
-        surf.set_at((0, 0), key)
+        surf.set_at((x=0,y=0), color=key)
         self.assertEqual(surf.get_at((0, 0)), key)
 
     def test_palette_colorkey_fill(self):
@@ -2374,7 +2374,7 @@ class GeneralSurfaceTests(unittest.TestCase):
 
         # calling set_at on a palettized surface should set the pixel to
         # the closest color in the palette.
-        surf.set_at((0, 0), (60, 50, 40))
+        surf.set_at((x=0, y=0), color=(60, 50, 40))
         self.assertEqual(surf.get_at((0, 0)), (50, 40, 30, 255))
         self.assertEqual(surf.get_at((1, 0)), (10, 20, 30, 255))
 
@@ -2551,7 +2551,7 @@ class GeneralSurfaceTests(unittest.TestCase):
         spot_color = (0, 255, 0, 128)
         surf = pygame.Surface((4, 4), pygame.SRCALPHA, 32)
         surf.fill((255, 0, 0, 255))
-        surf.set_at((1, 1), spot_color)
+        surf.set_at((x=1, y=1), color=spot_color)
         surf.scroll(dx=1)
         self.assertEqual(surf.get_at((2, 1)), spot_color)
         surf.scroll(dy=1)
