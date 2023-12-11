@@ -130,23 +130,23 @@ class BlitTest(unittest.TestCase):
 
     def test_blits_not_sequence(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        self.assertRaises(ValueError, dst.blits, None)
+        with self.assertRaises(ValueError):
+            dst.blits(None)
 
     def test_blits_wrong_length(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        self.assertRaises(
-            ValueError, dst.blits, [pygame.Surface((10, 10), SRCALPHA, 32)]
-        )
+        with self.assertRaises(ValueError):
+            dst.blits([pygame.Surface((10, 10), SRCALPHA, 32)])
 
     def test_blits_bad_surf_args(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        self.assertRaises(TypeError, dst.blits, [(None, None)])
+        with self.assertRaises(TypeError):
+            dst.blits([(None, None)])
 
     def test_blits_bad_dest(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        self.assertRaises(
-            TypeError, dst.blits, [(pygame.Surface((10, 10), SRCALPHA, 32), None)]
-        )
+        with self.assertRaises(TypeError):
+            dst.blits([(pygame.Surface((10, 10), SRCALPHA, 32), None)])
 
 
 if __name__ == "__main__":
