@@ -252,6 +252,7 @@
          clipped_line = rect.clipline(line)
 
          if clipped_line:
+             # Based on Cohen–Sutherland line clipping algorithm
              # If clipped_line is not an empty tuple then the line
              # collides/overlaps with the rect. The returned value contains
              # the endpoints of the clipped line.
