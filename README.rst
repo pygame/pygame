@@ -68,31 +68,36 @@ you are using. To upgrade to the latest full release, run
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
 
+
+Features
+----------
+
 Pygame is a powerful library for game development, offering a wide
 range of features to simplify your coding journey. Let's delve into
 what pygame has to offer:
 
-Graphics: With pygame, creating dynamic and engaging graphics has
+* Graphics - With pygame, creating dynamic and engaging graphics has
 never been easier. The library provides simple yet effective tools for
 2D graphics and animation, including support for images, rectangles,
 and polygon shapes. Whether you're a seasoned game developer or just
 starting out, pygame has you covered.
 
-Sound: Pygame also includes support for playing and manipulating sound
+* Sound - Pygame also includes support for playing and manipulating sound
 and music, making it easy to add sound effects and background music to
 your games. With support for WAV, MP3, and OGG file formats, you have
 plenty of options to choose from.
 
-Input: Pygame provides intuitive functions for handling keyboard, mouse,
+* Input - Pygame provides intuitive functions for handling keyboard, mouse,
 and joystick input, allowing you to quickly and easily implement player
 controls in your games. No more struggling with complex input code, pygame
 makes it simple.
 
-Game Development: Lastly, pygame provides a comprehensive suite of tools
+* Game Development - Lastly, pygame provides a comprehensive suite of tools
 and features specifically designed for game development. From collision
 detection to sprite management, pygame has everything you need to create
 exciting and engaging games. Whether you're building a platformer, puzzle
 game, or anything in between, pygame has you covered.
+
 
 Building From Source
 --------------------
