@@ -2,8 +2,8 @@
 
 ### Accessing Documentation
 
-Obviously you can visit pygame.org/docs to see the documentation, 
-but the documentation can also be launched with `python -m pygame.docs`
+While you can visit pygame.org/docs to see the documentation, 
+the documentation can also be launched with `python -m pygame.docs`
 
 ### Generating the Documentation
 
@@ -43,22 +43,22 @@ https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
 Contributing steps:
 - Have an idea to improve the docs, perhaps create an issue on Github
-- Find the file you want to edit: it will most likely be in `docs/reST/ref`.
+- Find the file you want to edit: it will most likely be in `docs/reST/ref`
 OR
 - Pygame docs pages have an "Edit on Github" button, which will show you the file
-- Download the pygame source from Github locally.  
+- Download the pygame source from Github locally
      ^ One way to do this is to fork and use a Git client to make that a local repository
-- Implement your idea.
+- Implement your idea
 - Follow the steps in "Generating the Documentation"
-     ^ This is important to test your changes work well
+     ^ This is important to test that your changes work well
 - Commit your changes, create a pull request
 
 ## Documentation Style
 
-The pygame documentation files have developed the convention of a 79 character
+The pygame documentation files have developed the convention of a 79-character
 line limit, from PEP8.
 
-They also use a 3 space indent.
+They also use a 3-space indent.
 
 ## Pygame Documentation Implementation Details
 
@@ -68,7 +68,7 @@ in the future.
 ### Hidden modules
 
 Pygame still has documentation for the old cdrom and Overlay modules, which
-are discontinued in SDL2 based pygame (pygame 2). It just doesn't show them,
+are discontinued in SDL2-based pygame (pygame 2). It just doesn't show them,
 because `docs/reST/themes/classic/elements.html` now has a list of
 "blacklisted" modules to not put into the top bar. It also uses this for the
 experimental sdl2_video docs.

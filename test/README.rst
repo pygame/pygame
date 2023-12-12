@@ -28,7 +28,7 @@ properly ::
 Writing New Tests
 *****************
 
-See test/util/gen_stubs.py for automatic creation of test stubs and follow the naming convention
+See test/util/gen_stubs.py for the automatic creation of test stubs and follow the naming convention
 
 gen_stubs.py
 ************
@@ -39,7 +39,7 @@ The gen_stubs.py utility will inspect pygame, and compile stubs of each of the
 module's callables (funcs, methods, getter/setters). It will include in the
 test's comment the __doc__ and the documentation found in the relevant xxxx.doc
 files. There is a naming convention in place that maps test names to callables
-in a one to one manner. If there are no untested (or unstubbed) callables then
+in a one-to-one manner. If there are no untested (or unstubbed) callables then
 gen_stubs.py will output nothing.
 
 ``gen_stubs.py --help``
@@ -79,7 +79,7 @@ Each test should be named in the form, test_$funcname__$comment ::
 Tagging
 *******
 
-There are three levels of tagging available, module level, TestCase level and
+There are three levels of tagging available, module level, TestCase level, and
 individual test level.
 
 For class and module level tagging assign a tag attribute ``__tags__ = []``
@@ -101,7 +101,7 @@ these module level tags.
 Class Level Tags
 ----------------
 
-If you want to override a specifig tag then you can use negation. ::
+If you want to override a specific tag then you can use negation. ::
 
     class SomeTest(unittest.TestCase):
         __tags__ = ['-interactive']
@@ -122,7 +122,7 @@ The tags for individual tests are specified in the __doc__ for the test. ::
 
 **NOTE** By default 'interactive' tags are not run
 
-run_tests.py --exclude display,slow for exclusion of tags
+run_tests.py --exclude display, slow for exclusion of tags
 
 However if you do python test/some_module_test.py all of the tests will run.
 

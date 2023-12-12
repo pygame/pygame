@@ -116,7 +116,7 @@ Contribute
 | To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/pygame/pygame/tree/main/docs>`_.
 |
 | New to contributing to Open Source Free Libre software? 
-| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in Python for pygame, which is very similar to how you would do it for other projects.
+| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step-by-step guide on how to write your first unit test in Python for pygame, which is very similar to how you would do it for other projects.
 |
 | Want or need to compile pygame from source?
 | `See the compilation page <https://www.pygame.org/wiki/Compilation>`_ for more detailed instructions.
@@ -138,14 +138,14 @@ Credits
 Thanks to everyone who has helped contribute to this library.
 Special thanks are also in order.
 
-* Marcus Von Appen: many changes, and fixes, 1.7.1+ freebsd maintainer
-* Lenard Lindstrom: the 1.8+ windows maintainer, many changes, and fixes
-* Brian Fisher for svn auto builder, bug tracker and many contributions
+* Marcus Von Appen: many changes, and fixes, 1.7.1+ FreeBSD maintainer
+* Lenard Lindstrom: the 1.8+ Windows maintainer, many changes, and fixes
+* Brian Fisher for SVN auto builder, bug tracker, and many contributions
 * Rene Dudfield: many changes, and fixes, 1.7+ release manager/maintainer
 * Phil Hassey for his work on the pygame.org website
 * DR0ID for his work on the sprite module
 * Richard Goedeken for his smoothscale function
-* Ulf Ekström for his pixel perfect collision detection code
+* Ulf Ekström for his pixel-perfect collision detection code
 * Pete Shinners: original author
 * David Clark for filling the right-hand-man position
 * Ed Boraas and Francis Irving: Debian packages
@@ -173,13 +173,13 @@ And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
 Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck,
 Michael Benfield, David Lau
 
-There's many more folks out there who've submitted helpful ideas, kept
+There are many more folks out there who've submitted helpful ideas, kept
 this project going, and basically made our life easier.  Thanks!
 
 Many thank you's for people making documentation comments, and adding to the
 pygame.org wiki.
 
-Also many thanks for people creating games and putting them on the
+Also many thanks to the people who created games and put them on the
 pygame.org website for others to learn from and enjoy.
 
 Lots of thanks to James Paige for hosting the pygame bugzilla.
@@ -190,7 +190,7 @@ excellent hosting.
 Dependencies
 ------------
 
-Pygame is obviously strongly dependent on SDL and Python.  It also
+Pygame is strongly dependent on SDL and Python.  It also
 links to and embeds several other smaller libraries.  The font
 module relies on SDL_ttf, which is dependent on freetype.  The mixer
 (and mixer.music) modules depend on SDL_mixer.  The image module
@@ -229,7 +229,7 @@ future versions of this library under a different license.
 This basically means you can use pygame in any project you want,
 but if you make any changes or additions to pygame itself, those
 must be released with a compatible license (preferably submitted
-back to the pygame project).  Closed source and commercial games are fine.
+back to the pygame project).  Closed-source and commercial games are fine.
 
 The programs in the ``examples`` subdirectory are in the public domain.
 
