@@ -46,33 +46,35 @@ https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 GitHub.
 
 - **Step 2:** Find the file you want to edit: it will most likely be in 
-`docs/reST/ref`. OR, you can navigate through GitHub: Pygame docs pages have 
-an "Edit on GitHub" button, which will show you the file.
+`docs/reST/ref`. You can edit the file locally using Step 3, which is a 
+good practice. OR, you can navigate through GitHub for the file and use 
+the "Edit on GitHub" button to make changes. This will create a branch on
+your repository.
 
 - **Step 3:** Download the Pygame source from Github locally. One way to do 
-this is to fork and use a Git client to make that a local repository with the 
-following steps:
+this is to fork the pygame repository and clone. If you are new to git, 
+a simple way to do this is to:
 
    - 1: Install [git](https://git-scm.com/downloads)
    - 2: Install [GitHub Desktop app](https://desktop.github.com/)
    - 3: Open a web browser. Navigate to [GitHub](https://github.com/). Log 
-       into your GitHub account.
+   into your GitHub account.
    - 4: After logging onto your account. Go to 
-       [Pygame's repository](https://github.com/pygame/pygame). Near the 
-       top of the screen, click on the fork button.
+   [Pygame's repository](https://github.com/pygame/pygame). Near the 
+   top of the screen, click on the fork button.
    - 5: Open your GitHub Desktop app. You need to clone this repository onto 
-       your computer. This can be done by selecting File > Clone Repository. 
-       Select the repository you just forked. Choose a local path to save 
-       the files. Click "Clone" button.
+   your computer. This can be done by selecting File > Clone Repository. 
+   Select the repository you just forked. Choose a local path to save 
+   the files. Click "Clone" button.
    - 6: Next, you'd want to create a branch on this main repository since you 
-       should NOT work on main or master. Near the top of the GitHub Desktop 
-       app screen are three dropdown menus. The middle label reads "Current 
-       branch." Left-click on this menu. Click on New Branch button. Name 
-       your branch something relevant to the changes you have in mind.
+   should NOT work on main or master. Near the top of the GitHub Desktop 
+   app screen are three dropdown menus. The middle label reads "Current 
+   branch." Left-click on this menu. Click on New Branch button. Name 
+   your branch something relevant to the changes you have in mind.
    - 7: The Current Branch should now point to your newly created branch 
-       instead of main or master.
+   instead of main or master.
    - 8: Using the GitHub Desktop app, publish your newly created branch to 
-       your repository.
+   your repository.
 
 - **Step 4:** Implement your idea.
 
