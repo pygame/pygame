@@ -1,5 +1,4 @@
 import unittest
-from numpy import result_type
 
 import pygame
 from pygame.locals import *
