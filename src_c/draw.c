@@ -2607,6 +2607,7 @@ int side(Point a, Point b, Point c) {
 // Returns a Line struct representing the parallel line.
 Line find_parallel_line(Point pt1, Point pt2, Point pt3, int distance) {
     // Calculate direction vector, normalize it, and find the perpendicular vector.
+    Point direction_vector = {pt2.x - pt1.x, pt2.y - pt1.y};
     float magnitude = sqrt(direction_vector.x * direction_vector.x + direction_vector.y * direction_vector.y);
     Point normalized_direction = {direction_vector.x / magnitude, direction_vector.y / magnitude};
     
