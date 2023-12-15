@@ -2625,8 +2625,7 @@ Line find_parallel_line(Point pt1, Point pt2, Point pt3, int distance) {
 
 // Function to project a point onto a line segment defined by 'segment_start' and 'segment_end'.
 // Returns the projected point on the line segment.
-Point project_point_onto_segment(Point point, Point segment_start,
-                                 Point segment_end) {
+Point project_point_onto_segment(Point point, Point segment_start, Point segment_end) {
     // Calculate vectors, find the parameter 't' for projection, and calculate the projection.
     Point segment_vector;
     segment_vector.x = segment_end.x - segment_start.x;
@@ -2685,7 +2684,6 @@ double angle(Point center, Point point) {
 // Define a function to draw a rounded polygon on an SDL surface
 static void
 draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius, int num_points, Uint32 color, int *drawn_area) {
-
 
     // Define arrays to store path points and circle information
     Point path[2 * num_points];
