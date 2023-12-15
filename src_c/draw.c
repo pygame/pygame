@@ -2682,7 +2682,7 @@ double angle(Point center, Point point) {
     return -atan2(y, x);
 }
 
-// Define a function to draw a rounded polygon on an SDL surface
+// Define a function to draw a rounded polygon 
 static void
 draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius, int num_points, Uint32 color, int *drawn_area) {
 
