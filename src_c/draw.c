@@ -785,15 +785,16 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     Uint32 color;
     int *xlist = NULL, *ylist = NULL;
     int width = 0; /* Default width. */
+    int border_radius = 0; /* Default border_radius. */
     int x, y, result, l, t;
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
     Py_ssize_t loop, length;
-    static char *keywords[] = {"surface", "color", "points", "width", NULL};
+    static char *keywords[] = {"surface", "color", "points", "width", "border_radius", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OO|i", keywords,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OO|ii", keywords,
                                      &pgSurface_Type, &surfobj, &colorobj,
-                                     &points, &width)) {
+                                     &points, &width, &border_radius)) {
         return NULL; /* Exception already set. */
     }
 
@@ -875,7 +876,11 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    draw_fillpoly(surf, xlist, ylist, length, color, drawn_area);
+    if(border_radius != 0 && width==0){ 
+        draw_round_polygon(surf, xlist, ylist, border_radius, length, color, drawn_area);
+    } else {
+        draw_fillpoly(surf, xlist, ylist, length, color, drawn_area);
+    }
     PyMem_Free(xlist);
     PyMem_Free(ylist);
 
@@ -2564,6 +2569,96 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                              y2 - bottom_right + 1, bottom_right, width, color,
                              0, 0, 0, 1, drawn_area);
     }
+}
+
+typedef struct {
+    double x;
+    double y;
+} Point;
+
+typedef struct {
+    Point center;
+    double radius;
+} Circle;
+
+typedef struct {
+    Point start;
+    Point end;
+} Line;
+
+int side(Point a, Point b, Point c) {
+    double det =
+        (a.x * b.y + b.x * c.y + c.x * a.y) - (a.y * b.x + b.y * c.x + c.y * a.x);
+    if (det > 0) {
+        return 1;
+    } else if (det < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+Line find_parallel_line(Point pt1, Point pt2, Point pt3, int distance) {
+    Point direction_vector = {pt2.x - pt1.x, pt2.y - pt1.y};
+    float magnitude = sqrt(direction_vector.x * direction_vector.x + direction_vector.y * direction_vector.y);
+    Point normalized_direction = {direction_vector.x / magnitude, direction_vector.y / magnitude};
+    Point perpendicular_vector = {-normalized_direction.y, normalized_direction.x};
+    if (side(pt1, pt2, pt3) == -1) {
+        perpendicular_vector.x *= -1;
+        perpendicular_vector.y *= -1;
+    }
+    Point offset_vector = {perpendicular_vector.x * distance, perpendicular_vector.y * distance};
+    Line parallel_line = {{pt1.x + offset_vector.x, pt1.y + offset_vector.y}, {pt2.x + offset_vector.x, pt2.y + offset_vector.y}};
+    return parallel_line;
+}
+
+Point project_point_onto_segment(Point point, Point segment_start,
+                                 Point segment_end) {
+    Point segment_vector;
+    segment_vector.x = segment_end.x - segment_start.x;
+    segment_vector.y = segment_end.y - segment_start.y;
+
+    Point point_vector;
+    point_vector.x = point.x - segment_start.x;
+    point_vector.y = point.y - segment_start.y;
+
+    double t =
+        (point_vector.x * segment_vector.x + point_vector.y * segment_vector.y) /
+        (segment_vector.x * segment_vector.x +
+        segment_vector.y * segment_vector.y);
+    t = fmax(0, fmin(1, t));
+
+    Point projection;
+    projection.x = segment_start.x + t * segment_vector.x;
+    projection.y = segment_start.y + t * segment_vector.y;
+
+    return projection;
+}
+
+Point intersection(Point line1_start, Point line1_end, Point line2_start,
+                   Point line2_end) {
+    double A1 = line1_end.y - line1_start.y;
+    double B1 = line1_start.x - line1_end.x;
+    double C1 = A1 * line1_start.x + B1 * line1_start.y;
+
+    double A2 = line2_end.y - line2_start.y;
+    double B2 = line2_start.x - line2_end.x;
+    double C2 = A2 * line2_start.x + B2 * line2_start.y;
+
+    double det = A1 * B2 - A2 * B1;
+    if (det == 0) {
+        return (Point){0, 0};
+    } else {
+        double x = (B2 * C1 - B1 * C2) / det;
+        double y = (A1 * C2 - A2 * C1) / det;
+        return (Point){x, y};
+    }
+}
+
+double angle(Point center, Point point) {
+    double x = point.x - center.x;
+    double y = point.y - center.y;
+    return -atan2(y, x);
 }
 
 static void
