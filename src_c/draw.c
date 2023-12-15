@@ -782,15 +782,16 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     Uint32 color;
     int *xlist = NULL, *ylist = NULL;
     int width = 0; /* Default width. */
+    int border_radius = 0; /* Default radius. */
     int x, y, result, l, t;
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
     Py_ssize_t loop, length;
-    static char *keywords[] = {"surface", "color", "points", "width", NULL};
+    static char *keywords[] = {"surface", "color", "points", "width", "border_radius", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OO|i", keywords,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OO|ii", keywords,
                                      &pgSurface_Type, &surfobj, &colorobj,
-                                     &points, &width)) {
+                                     &points, &width, &border_radius)) {
         return NULL; /* Exception already set. */
     }
 
@@ -872,7 +873,11 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    draw_fillpoly(surf, xlist, ylist, length, color, drawn_area);
+    if(border_radius != 0 && width==0){ 
+        draw_round_polygon(surf, xlist, ylist, border_radius, length, color, drawn_area);
+    } else {
+        draw_fillpoly(surf, xlist, ylist, length, color, drawn_area);
+    }
     PyMem_Free(xlist);
     PyMem_Free(ylist);
 
