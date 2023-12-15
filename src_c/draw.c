@@ -81,6 +81,9 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                 int width, Uint32 color, int top_left, int top_right,
                 int bottom_left, int bottom_right, int *drawn_area);
 
+draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius, 
+                    int num_points, Uint32 color, int *drawn_area);
+
 // validation of a draw color
 #define CHECK_LOAD_COLOR(colorobj)                                         \
     if (PyLong_Check(colorobj))                                            \
