@@ -2661,20 +2661,27 @@ double angle(Point center, Point point) {
     return -atan2(y, x);
 }
 
+// Define a function to draw a rounded polygon on an SDL surface
 static void
 draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius, int num_points, Uint32 color, int *drawn_area) {
 
+
+    // Define arrays to store path points and circle information
     Point path[2 * num_points];
     Circle circles[num_points];
 
+    // Define an array to store original polygon points
     Point points[num_points];
 
+    // Convert input coordinates to Point structures
     for (int i = 0; i < num_points; i++) {
         points[i].x = pts_x[i];
         points[i].y = pts_y[i];
     }
 
+    // Iterate through each point in the polygon
     for (int i = 0; i < num_points; i++) {
+        // Determine neighboring points for the current point
         int a, b;
         if (i == 0) {
             a = num_points - 1;
@@ -2690,21 +2697,25 @@ draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius,
             b = i + 1;
         }
 
+        // Check if the border-radius can be applied to the current angle
         if (side(points[a], points[i], points[b]) == 0) {
             printf("ValueError: Border-radius cannot be applied to a flat angle.\n"
                     "Please ensure that the specified angle or curvature is within a valid range for border-radius drawing.\n");
             return;
         }
 
+        // Find parallel lines to the polygon sides at the current point
         Line line1 = find_parallel_line(points[a], points[i], points[b], border_radius);
         Line line2 = find_parallel_line(points[i], points[b], points[a], border_radius);
         circles[i].center = intersection(line1.start, line1.end, line2.start, line2.end);
 
+        // Project points onto the parallel lines
         Point proj1 =
             project_point_onto_segment(circles[i].center, points[a], points[i]);
         Point proj2 =
             project_point_onto_segment(circles[i].center, points[i], points[b]);
 
+        // Check if the border-radius size is valid
         if ((sqrt(pow(proj1.x - points[i].x, 2) +
             pow(proj1.y - points[i].y, 2)) >= sqrt(pow(points[a].x - points[i].x, 2) +
                                                     pow(points[a].y - points[i].y, 2)) / 2) ||  
@@ -2715,31 +2726,36 @@ draw_round_polygon(SDL_Surface *surf, int *pts_x, int *pts_y, int border_radius,
             return;
         }
 
+        // Store projected points and circle radius in arrays
         path[2 * i] = proj1;
         path[2 * i + 1] = proj2;
         circles[i].radius = border_radius;
     }
 
+    // Iterate through the projected points to draw arcs and connecting lines
     for (int i = 0; i < 2 * num_points; i += 2) {
         Point pt1 = path[i % (2 * num_points)];
         Point pt2 = path[(i + 1) % (2 * num_points)];
         Point pt3 = path[(i + 2) % (2 * num_points)];
         Circle circle = circles[i / 2];
 
+        // Calculate start and end angles for the arc
         double start_angle = angle(circle.center, pt1);
         double end_angle = angle(circle.center, pt2);
 
+        // Adjust angles based on the side of the polygon
         if (side(pt1, pt2, pt3) == 1) {
             double temp = start_angle;
             start_angle = end_angle;
             end_angle = temp;
         }
 
+        // Ensure the end angle is greater than the start angle (in radians)
         if (end_angle < start_angle) {
             // Angle is in radians
             end_angle += 2 * M_PI;
         }
-
+        // Draw the arc and connecting line
         draw_arc(surf,
                 circle.center.x,
                 circle.center.y,
