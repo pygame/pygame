@@ -2571,21 +2571,26 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
     }
 }
 
+// Define a structure representing a point with x and y coordinates
 typedef struct {
     double x;
     double y;
 } Point;
 
+// Define a structure representing a circle with a center (Point) and a radius
 typedef struct {
     Point center;
     double radius;
 } Circle;
 
+// Define a structure representing a line segment with start and end points
 typedef struct {
     Point start;
     Point end;
 } Line;
 
+// Function to determine the side of point 'c' relative to the line formed by points 'a' and 'b'
+// Returns 1 if on the left side, -1 if on the right side, and 0 if collinear
 int side(Point a, Point b, Point c) {
     double det =
         (a.x * b.y + b.x * c.y + c.x * a.y) - (a.y * b.x + b.y * c.x + c.y * a.x);
@@ -2598,22 +2603,30 @@ int side(Point a, Point b, Point c) {
     }
 }
 
+// Function to find a parallel line to the line formed by 'pt1' and 'pt2' at a given distance
+// Returns a Line struct representing the parallel line
 Line find_parallel_line(Point pt1, Point pt2, Point pt3, int distance) {
+    // Calculate direction vector, normalize it, and find the perpendicular vector
     Point direction_vector = {pt2.x - pt1.x, pt2.y - pt1.y};
     float magnitude = sqrt(direction_vector.x * direction_vector.x + direction_vector.y * direction_vector.y);
     Point normalized_direction = {direction_vector.x / magnitude, direction_vector.y / magnitude};
     Point perpendicular_vector = {-normalized_direction.y, normalized_direction.x};
+    // Adjust the perpendicular vector based on the side of 'pt3' relative to 'pt1' and 'pt2'
     if (side(pt1, pt2, pt3) == -1) {
         perpendicular_vector.x *= -1;
         perpendicular_vector.y *= -1;
     }
+    // Create an offset vector and generate the parallel line.
     Point offset_vector = {perpendicular_vector.x * distance, perpendicular_vector.y * distance};
     Line parallel_line = {{pt1.x + offset_vector.x, pt1.y + offset_vector.y}, {pt2.x + offset_vector.x, pt2.y + offset_vector.y}};
     return parallel_line;
 }
 
+// Function to project a point onto a line segment defined by 'segment_start' and 'segment_end'
 Point project_point_onto_segment(Point point, Point segment_start,
                                  Point segment_end) {
+    // Calculate vectors, find the parameter 't' for projection, and calculate the projection.
+    // Ensure 't' is within the valid range [0, 1].
     Point segment_vector;
     segment_vector.x = segment_end.x - segment_start.x;
     segment_vector.y = segment_end.y - segment_start.y;
@@ -2635,8 +2648,11 @@ Point project_point_onto_segment(Point point, Point segment_start,
     return projection;
 }
 
+// Function to find the intersection point of two line segments
+// Returns the intersection point as a Point struct
 Point intersection(Point line1_start, Point line1_end, Point line2_start,
                    Point line2_end) {
+    // Calculate coefficients for each line equation
     double A1 = line1_end.y - line1_start.y;
     double B1 = line1_start.x - line1_end.x;
     double C1 = A1 * line1_start.x + B1 * line1_start.y;
@@ -2645,16 +2661,19 @@ Point intersection(Point line1_start, Point line1_end, Point line2_start,
     double B2 = line2_start.x - line2_end.x;
     double C2 = A2 * line2_start.x + B2 * line2_start.y;
 
+    // Check if the lines are parallel (det == 0) and handle the case
     double det = A1 * B2 - A2 * B1;
     if (det == 0) {
         return (Point){0, 0};
     } else {
+        // Calculate the intersection point using Cramer's rule
         double x = (B2 * C1 - B1 * C2) / det;
         double y = (A1 * C2 - A2 * C1) / det;
         return (Point){x, y};
     }
 }
 
+// Function to calculate the angle (in radians) between a center point and another point
 double angle(Point center, Point point) {
     double x = point.x - center.x;
     double y = point.y - center.y;
