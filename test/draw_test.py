@@ -5016,7 +5016,7 @@ class DrawRectTest(DrawRectMixin, DrawTestCase):
 #    """
 
 
-### Circle Testing ############################################################
+## Circle Testing #############################################################
 
 
 class DrawCircleMixin:
