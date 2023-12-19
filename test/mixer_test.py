@@ -1326,22 +1326,22 @@ class TestSoundFadeout(unittest.TestCase):
         self.assertFalse(channel.get_busy())
 
     # TODO: this fails.
-    # def test_fadeout_with_zero_time(self):
-    #     """Tests if fadeout stops sound playback immediately when time argument is zero."""
-    #     filename = example_path(os.path.join("data", "punch.wav"))
-    #     sound = mixer.Sound(file=filename)
-    #     channel = sound.play()
-    #     channel.fadeout(0)
-    #     self.assertFalse(channel.get_busy())
+    def test_fadeout_with_zero_time(self):
+        """Tests if fadeout stops sound playback immediately when time argument is zero."""
+        filename = example_path(os.path.join("data", "punch.wav"))
+        sound = mixer.Sound(file=filename)
+        channel = sound.play()
+        channel.fadeout(0)
+        self.assertFalse(channel.get_busy())
 
     # TODO: this fails.
-    # def test_fadeout_with_negative_time(self):
-    #     """Tests if fadeout stops sound playback immediately when time argument is negative."""
-    #     filename = example_path(os.path.join("data", "punch.wav"))
-    #     sound = mixer.Sound(file=filename)
-    #     channel = sound.play()
-    #     channel.fadeout(-1000)
-    #     self.assertFalse(channel.get_busy())
+    def test_fadeout_with_negative_time(self):
+        """Tests if fadeout stops sound playback immediately when time argument is negative."""
+        filename = example_path(os.path.join("data", "punch.wav"))
+        sound = mixer.Sound(file=filename)
+        channel = sound.play()
+        channel.fadeout(-1000)
+        self.assertFalse(channel.get_busy())
 
     # TODO: What should happen here?
     # def test_fadeout_with_large_time(self):
