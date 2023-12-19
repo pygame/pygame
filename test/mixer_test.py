@@ -1325,7 +1325,6 @@ class TestSoundFadeout(unittest.TestCase):
         pygame.time.wait(2000)
         self.assertFalse(channel.get_busy())
 
-    # TODO: this fails.
     def test_fadeout_with_zero_time(self):
         """Tests if fadeout stops sound playback immediately when time argument is zero."""
         filename = example_path(os.path.join("data", "punch.wav"))
@@ -1334,7 +1333,6 @@ class TestSoundFadeout(unittest.TestCase):
         channel.fadeout(0)
         self.assertFalse(channel.get_busy())
 
-    # TODO: this fails.
     def test_fadeout_with_negative_time(self):
         """Tests if fadeout stops sound playback immediately when time argument is negative."""
         filename = example_path(os.path.join("data", "punch.wav"))
