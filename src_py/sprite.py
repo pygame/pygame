@@ -1558,6 +1558,9 @@ def collide_circle(left, right):
 
     """
 
+    if not left.colliderect(right):
+        return False
+        
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
     distancesquared = xdistance**2 + ydistance**2
