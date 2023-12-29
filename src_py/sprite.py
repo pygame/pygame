@@ -1557,6 +1557,8 @@ def collide_circle(left, right):
     New in pygame 1.8.0
 
     """
+    if not left.collide_rect(right):
+        return False
 
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
