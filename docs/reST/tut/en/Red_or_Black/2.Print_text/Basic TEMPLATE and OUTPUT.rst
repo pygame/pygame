@@ -17,70 +17,10 @@ As I said, Pygame is based on GUI environment. Furthermore, Pygame is good for m
 
 
 .. image:: Basic-ouput-sourcecode.png
-   :class: inlined-right
-
-.. code-block:: python
-
-   import sys, pygame
-   pygame.init()
-
-   size = width, height = 220, 140
-   speed = [2, 2]
-   black = 0, 0, 0
-
-   screen = pygame.display.set_mode(size)
-
-   ball = pygame.image.load("Basic-ouput-sourcecode.png")
-   ballrect = ball.get_rect()
-
-   while True:
-       for event in pygame.event.get():
-           if event.type == pygame.QUIT: sys.exit()
-
-       ballrect = ballrect.move(speed)
-       if ballrect.left < 0 or ballrect.right > width:
-           speed[0] = -speed[0]
-       if ballrect.top < 0 or ballrect.bottom > height:
-           speed[1] = -speed[1]
-
-       screen.fill(black)
-       screen.blit(ball, ballrect)
-       pygame.display.flip()
-
 
 .. image:: Bagic-ouput-result-screen.png
-   :class: inlined-right
 
-.. code-block:: python
-
-   import sys, pygame
-   pygame.init()
-
-   size = width, height = 220, 140
-   speed = [2, 2]
-   black = 0, 0, 0
-
-   screen = pygame.display.set_mode(size)
-
-   ball = pygame.image.load("Bagic-ouput-result-screen.png")
-   ballrect = ball.get_rect()
-
-   while True:
-       for event in pygame.event.get():
-           if event.type == pygame.QUIT: sys.exit()
-
-       ballrect = ballrect.move(speed)
-       if ballrect.left < 0 or ballrect.right > width:
-           speed[0] = -speed[0]
-       if ballrect.top < 0 or ballrect.bottom > height:
-           speed[1] = -speed[1]
-
-       screen.fill(black)
-       screen.blit(ball, ballrect)
-       pygame.display.flip()
-
-
-(Source Code for Hello World Project and its result screen)
+Source Code for Hello World Project and its result screen
 
 Wow, it’s complicated in compare to python’s print(“Hello World”) (Just a single line command). It’s because text in GUI environment has 5 components: text contents, font, size, color and location. If you want to print any text into screen, you have to set other 4 components, not only string (unless when it is in GUI environment). Only ``pygame.display.set_caption(“Hello World Project”)`` function in #7 do the same function as python’s print(“Hello World Project”). The only difference is that output string is always on window caption (title of current program)
 

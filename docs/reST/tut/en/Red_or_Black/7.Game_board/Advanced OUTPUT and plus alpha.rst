@@ -13,97 +13,10 @@ and plus alpha
 Actually, everything doesn’t seem like a game. Now, we will insert a rule into this program. Then. It will become game. Rule is simple: counting red or black from 5x5 2D array and choose the color which has much more number! If correct, HP++, otherwise, HP--. Then new array will be set for next quiz! too simple but game which can be made in this tutorial. First, we need to generate 2D array and print it. How? We learned how to print integer data (which equals single data (0D array)) and two buttons (which equals single array (1D array). Case of 2D array just needs one-more step.
 
 .. image:: AdvancedOutputAlpha1.gif
-   :class: inlined-right
-
-.. code-block:: python
-
-   import sys, pygame
-   pygame.init()
-
-   size = width, height = 320, 240
-   speed = [2, 2]
-   black = 0, 0, 0
-
-   screen = pygame.display.set_mode(size)
-
-   ball = pygame.image.load("AdvancedOutputAlpha1.gif")
-   ballrect = ball.get_rect()
-
-   while True:
-       for event in pygame.event.get():
-           if event.type == pygame.QUIT: sys.exit()
-
-       ballrect = ballrect.move(speed)
-       if ballrect.left < 0 or ballrect.right > width:
-           speed[0] = -speed[0]
-       if ballrect.top < 0 or ballrect.bottom > height:
-           speed[1] = -speed[1]
-
-       screen.fill(black)
-       screen.blit(ball, ballrect)
-       pygame.display.flip()
 
 .. image:: AdvancedOutputAlpha2.gif
-   :class: inlined-right
-
-.. code-block:: python
-
-   import sys, pygame
-   pygame.init()
-
-   size = width, height = 320, 240
-   speed = [2, 2]
-   black = 0, 0, 0
-
-   screen = pygame.display.set_mode(size)
-
-   ball = pygame.image.load("AdvancedOutputAlpha2.gif")
-   ballrect = ball.get_rect()
-
-   while True:
-       for event in pygame.event.get():
-           if event.type == pygame.QUIT: sys.exit()
-
-       ballrect = ballrect.move(speed)
-       if ballrect.left < 0 or ballrect.right > width:
-           speed[0] = -speed[0]
-       if ballrect.top < 0 or ballrect.bottom > height:
-           speed[1] = -speed[1]
-
-       screen.fill(black)
-       screen.blit(ball, ballrect)
-       pygame.display.flip()
 
 .. image:: AdvancedOutputAlpha3.gif
-   :class: inlined-right
-
-.. code-block:: python
-
-   import sys, pygame
-   pygame.init()
-
-   size = width, height = 320, 240
-   speed = [2, 2]
-   black = 0, 0, 0
-
-   screen = pygame.display.set_mode(size)
-
-   ball = pygame.image.load("AdvancedOutputAlpha3.gif")
-   ballrect = ball.get_rect()
-
-   while True:
-       for event in pygame.event.get():
-           if event.type == pygame.QUIT: sys.exit()
-
-       ballrect = ballrect.move(speed)
-       if ballrect.left < 0 or ballrect.right > width:
-           speed[0] = -speed[0]
-       if ballrect.top < 0 or ballrect.bottom > height:
-           speed[1] = -speed[1]
-
-       screen.fill(black)
-       screen.blit(ball, ballrect)
-       pygame.display.flip()
 
 generateboard function returns randomly generated 2D board with the number of red block and black block. Needless to explain. Also, printboard function prints 2D board by same method as 1D array. Output color will be changed by data of board[i][j] is 1 or not. This board is for output only. Processing about margin seems to be annoying because we have to know exact location by calculating. Remember prolog. Output (executing result) of Pygame is GUI but input(coding) of Pygame is CUI. That is Pygame.
 
