@@ -84,6 +84,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # should handle just about every need, but perhaps more optimized
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
+from typing import Generic, TypeVar
 
 from weakref import WeakSet
 from warnings import warn
@@ -359,7 +360,7 @@ class WeakDirtySprite(WeakSprite, DirtySprite):
     """
 
 
-class AbstractGroup:
+class AbstractGroup(Generic[TypeVar('T')]):
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
