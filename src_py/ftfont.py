@@ -114,8 +114,8 @@ class Font(_Font):
         self.underline = bool(value)
 
     def get_underline(self):
-        """set_bold(bool) -> None
-        enable fake rendering of bold text"""
+        """get_underline() -> bool
+        check if the text will be rendered with an underline"""
 
         return self.underline
 
