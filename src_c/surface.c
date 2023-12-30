@@ -128,9 +128,9 @@ surf_set_at(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_at_mapped(PyObject *self, PyObject *args);
 static PyObject *
-surf_map_rgb(PyObject *self, PyObject *args);
+surf_map_rgb(PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject *
-surf_unmap_rgb(PyObject *self, PyObject *arg);
+surf_unmap_rgb(PyObject *self, PyObject *arg, PyObject *kwds);
 static PyObject *
 surf_lock(PyObject *self, PyObject *args);
 static PyObject *
@@ -302,8 +302,8 @@ static struct PyMethodDef surface_methods[] = {
     {"set_at", surf_set_at, METH_VARARGS, DOC_SURFACESETAT},
     {"get_at_mapped", surf_get_at_mapped, METH_VARARGS,
      DOC_SURFACEGETATMAPPED},
-    {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
-    {"unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB},
+    {"map_rgb", (PyCFunction)surf_map_rgb, METH_VARARGS | METH_KEYWORDS, DOC_SURFACEMAPRGB},
+    {"unmap_rgb", (PyCFunction)surf_unmap_rgb, METH_VARARGS | METH_KEYWORDS, DOC_SURFACEUNMAPRGB},
 
     {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
@@ -930,13 +930,19 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_map_rgb(PyObject *self, PyObject *args)
+surf_map_rgb(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     Uint8 rgba[4];
     int color;
+    static char *keywords[] = {"color", NULL};
+    PyObject *item;
 
-    if (!pg_RGBAFromFuzzyColorObj(args, rgba))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", keywords, &item)) {
+        return NULL;
+    }
+
+    if (!pg_RGBAFromFuzzyColorObj(item, rgba))
         return NULL; /* Exception already set for us */
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
@@ -946,13 +952,18 @@ surf_map_rgb(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_unmap_rgb(PyObject *self, PyObject *arg)
+surf_unmap_rgb(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     Uint32 col;
     Uint8 rgba[4];
+    static char *keywords[] = {"mapped_int", NULL};
+    //PyObject *item;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "i", keywords, &col)) {
+        return NULL;
+    }
 
-    col = (Uint32)PyLong_AsLong(arg);
+    //col = (Uint32)PyLong_AsLong(item);
     if (col == (Uint32)-1 && PyErr_Occurred()) {
         PyErr_Clear();
         return RAISE(PyExc_TypeError, "unmap_rgb expects 1 number argument");
