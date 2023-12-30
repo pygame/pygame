@@ -4,7 +4,7 @@ domain that can be adapted for your projects.
 
 
 aacircles.py
-   An example of using the gfxdraw module to drawing anti-aliased circles.
+   An example of using the gfxdraw module to draw anti-aliased circles.
 
 aliens.py
    An arcade-style space shooter game that showcases various common and 
@@ -113,14 +113,14 @@ scroll.py
    games or parallax effects.
 
 setmodescale.py
-   Handles mouse scaling and selection of a good sized window depending
+   Handles mouse scaling and selection of a good-sized window depending
    on the display.
 
 sound.py
    Illustrates how to implement sound effects and music using Pygame.
 
 sound_array_demos.py
-   Showcases echo, delay and other array based processing of sounds.
+   Showcases echo, delay, and other array-based processing of sounds.
 
 sprite_texture.py
    Demonstrates how to use textured sprites in Pygame.
