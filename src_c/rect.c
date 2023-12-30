@@ -1160,6 +1160,157 @@ nointersect:
     return _pg_rect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
+/*
+ * Description:
+ *     Given a rectangle, line origin and line endpoint, crop/clip the line 
+ *      from it's origin to it's intersection with the rectangle.
+ * 
+ * Parameters:
+ *     SDL_Rect* rect - SDL Rectangle object
+ *     int* X1 - Line origin x-coordinate
+ *     int* Y1 - Line origin y-coordinate
+ *     int* X2 - Line endpoint x-coordinate
+ *     int* Y2 - Line endpoint y-coordinate
+ * 
+ * Returns:
+ *     1 if intersection found
+ *     0 if intersection not-found
+ * 
+ * Note:
+ *     If an intersection was found, then this function will mutate it's input arguments.
+ */
+int intersect_rect_and_line(SDL_Rect *rect, int *X1, int *Y1, int *X2, int *Y2) {
+
+    // Method is based off of Cohen–Sutherland line clipping algorithm with some differences
+
+    // Define Rectangle Edges
+    int l, r, t, b;
+    l = rect->left;
+    r = rect->right;
+    t = rect->top;
+    b = rect->bottom;
+    // note that b >= t due to pygame coordinate system
+
+    // Define Line Coords
+    int x1, y1, x2, y2;
+    x1 = *X1; y1 = *Y1;
+    x2 = *X2; y2 = *Y2;
+
+    // Define Cohen–Sutherland Quadrants
+    const int quadL = 0x1; // 0001 left
+    const int quadR = 0x2; // 0010 right
+    const int quadB = 0x4; // 0100 bottom
+    const int quadT = 0x8; // 1000 top
+
+    // Quadrants for (x1,y1) and (x2,y2) 
+    int quad1 = 0; 
+    int quad2 = 0;
+ 
+    // Set quadrants for (x1,y1) origin
+    if (x1 < l) quad1 |= quadL;
+    if (x1 > r) quad1 |= quadR;
+    if (y1 < t) quad1 |= quadT;
+    if (y1 > b) quad1 |= quadB;
+
+    // Set quadrants for (x2,y2) endpoint
+    if (x2 < l) quad2 |= quadL;
+    if (x2 > r) quad2 |= quadR;
+    if (y2 < t) quad2 |= quadT;
+    if (y2 > b) quad2 |= quadB;
+
+    // If bitwise-AND is non-zero, then at least one axis of the coords lie in 
+    //   the same quad, thus the line does not intersect with the rectangle.
+    if (quad1 & quad2) return 0;
+
+    // If bitwise-OR returns zero, then both points are inside rect.
+    if (!(quad1 | quad2)) return 0;
+    
+    // Trivial cases
+    if (x1 == x2) { // vertical line
+        if (y1 < top) *Y2 = t;
+        else if (y1 < y2) *Y2 = b;
+        else *Y2 = t;
+        return 1;
+    }
+
+    // Trivial, vertical line
+    if (y1 == y2) {
+        if      (quad1 & quadT) *Y2 = t; // If origin is top quadrant,    then endpoint must clip to top edge
+        else if (quad1 & quadB) *X2 = b; // If origin is bottom quadrant, then endpoint must clip to bottom edge
+        else if (quad2 & quadT) *X2 = t; // Origin is inside rectangle, clip based on endpoint position
+        else if (quad2 & quadB) *X2 = b; // analogous
+        return 1;
+    }
+
+    // Trivial, horizontal line
+    if (y1 == y2) {
+        if      (quad1 & quadL) *X2 = l; // If origin is left quadrant,  then endpoint must clip to left edge
+        else if (quad1 & quadR) *X2 = r; // If origin is right quadrant, then endpoint must clip to right edge
+        else if (quad2 & quadL) *X2 = l; // Origin is inside rectangle, clip based on endpoint position
+        else if (quad2 & quadR) *X2 = r; // analogous
+        return 1;
+    }
+
+    // With trivial cases gone we can calc line equation
+    float m = ((float) (y1-y2)) / ((float) (x1-x2));
+
+    if (quad1 & quadL) { // origin: left quad
+
+        if (quad1 & quadT) { // origin: top-left quad
+
+            if (quad2 & quadR) { // endpoint: mid-right
+                *X2 = t;
+                *Y2 = m * (t - x1) + y1
+            } else if (quad2 & quadB) { // endpoint: mid-bottom
+                *X2 = b;
+                *Y2 = m * (b - x1) + y1
+            }
+
+        } else if (quad1 & quadB) {// origin: bot-left quad
+
+            if (quad2 & quadT) { // endpoint: mid-top
+                *X2 = l;
+                *Y2 = m * (l - x1) + y1
+            } else if (quad2 & quadR) { // endpoint: mid-right
+                *X2 = t;
+                *Y2 = m * (t - x1) + y1
+            }
+        
+        } else { // origin: mid-left quad
+            *X2 = l;
+            *Y2 = m * (l - x1) + y1
+        }
+    } else { // origin: right quad
+
+        if (quad1 & quadT) { // origin: top-right quad
+
+            if (quad2 & quadR) { // endpoint: mid-right
+                *X2 = t;
+                *Y2 = m * (t - x1) + y1
+            } else if (quad2 & quadB) { // endpoint: mid-bottom
+                *X2 = b;
+                *Y2 = m * (b - x1) + y1
+            }
+
+        } else if (quad1 & quadB) {// origin: bot-right quad
+
+            if (quad2 & quadT) { // endpoint: mid-top
+                *X2 = r;
+                *Y2 = m * (r - x1) + y1
+            } else if (quad2 & quadL) { // endpoint: mid-left
+                *X2 = r;
+                *Y2 = m * (r - x1) + y1
+            }
+
+        } else { // mid-right quad
+            *X2 = r;
+            *Y2 = m * (r - x1) + y1
+        }
+    }
+
+    return 1;
+}
+
 /* clipline() - crops the given line within the rect
  *
  * Supported argument formats:
@@ -1319,7 +1470,7 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
         rect = rect_copy;
     }
 
-    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
+    if (!intersect_rect_and_line(rect, &x1, &y1, &x2, &y2)) {
         Py_XDECREF(rect_copy);
         return PyTuple_New(0);
     }
