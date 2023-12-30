@@ -124,7 +124,7 @@ surface_move(Uint8 *src, Uint8 *dst, int h, int span, int srcpitch,
 static PyObject *
 surf_get_at(PyObject *self, PyObject *args);
 static PyObject *
-surf_set_at(PyObject *self, PyObject *args);
+surf_set_at(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_get_at_mapped(PyObject *self, PyObject *args);
 static PyObject *
@@ -299,7 +299,7 @@ static PyGetSetDef surface_getsets[] = {
 
 static struct PyMethodDef surface_methods[] = {
     {"get_at", surf_get_at, METH_VARARGS, DOC_SURFACEGETAT},
-    {"set_at", surf_set_at, METH_VARARGS, DOC_SURFACESETAT},
+    {"set_at", (PyCFunction)surf_set_at, METH_VARARGS | METH_KEYWORDS, DOC_SURFACESETAT},
     {"get_at_mapped", surf_get_at_mapped, METH_VARARGS,
      DOC_SURFACEGETATMAPPED},
     {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
@@ -795,7 +795,7 @@ surf_get_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_at(PyObject *self, PyObject *args)
+surf_set_at(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_PixelFormat *format = NULL;
@@ -805,8 +805,14 @@ surf_set_at(PyObject *self, PyObject *args)
     Uint8 rgba[4] = {0, 0, 0, 0};
     PyObject *rgba_obj;
     Uint8 *byte_buf;
+    static char *keywords[] = {"pos", "color", NULL};
+    PyObject *item;
 
-    if (!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", keywords, &item)) {
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(item, "(ii)O", &x, &y, &rgba_obj))
         return NULL;
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
