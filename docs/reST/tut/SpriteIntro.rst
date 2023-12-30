@@ -285,7 +285,7 @@ can easily grab the source code for them, and modify them as needed.
 
 Here's a summary of what they are, and what they do.
 
-  :func:`spritecollide(sprite, group, dokill) -> list <pygame.sprite.spritecollide>`
+  :func:`spritecollide(sprite, group, dokill, collided = None) -> list <pygame.sprite.spritecollide>`
 
     This checks for collisions between a single sprite and the sprites in a group.
     It requires a "rect" attribute for all the sprites used. It returns a list of
@@ -306,7 +306,7 @@ Here's a summary of what they are, and what they do.
     add each instance to the appropriate class, so we don't need to store it in a
     variable, that last line might feel a little "funny" to you python programmers.)
 
-  :func:`groupcollide(group1, group2, dokill1, dokill2) -> dictionary <pygame.sprite.groupcollide>`
+  :func:`groupcollide(group1, group2, dokill1, dokill2, collided = None) -> dictionary <pygame.sprite.groupcollide>`
 
     This is similar to the ``spritecollide`` function, but a little more complex.
     It checks for collisions for all the sprites in one group, to the sprites in
