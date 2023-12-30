@@ -48,6 +48,18 @@ it, enter this command:
 
    pip install pygame
 
+Once pygame is installed, quickly test your library by entering the following
+command, which opens one of the many example games that comes pre-installed: 
+::
+
+	python3 -m pygame.examples.aliens
+
+
+If this doesn’t work, the `Getting Started 
+<https://www.pygame.org/wiki/GettingStarted/>`_ section of the official 
+website has more information for platform specific issues, such as adding
+python to your machine’s PATH settings
+
 
 Help
 ----
