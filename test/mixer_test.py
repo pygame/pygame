@@ -741,12 +741,9 @@ class ChannelTypeTest(unittest.TestCase):
 
         # Ensure the second queued sound is returned.
         self.assertEqual(channel.get_queue().get_length(), sound2.get_length())
-        # TODO: should sound1.stop() clear it from the queue too? Currently it doesn't.
+        
         pygame.time.wait(sound_length_in_ms + 100)
-
-        # TODO: I think here there should be nothing queued.
-        #     Because the sound should be off the queue. Currently it doesn't do this.
-        # self.assertIsNone(channel.get_queue())
+        self.assertIsNone(channel.get_queue())
 
         # the second sound is now playing
         self.assertEqual(channel.get_sound().get_length(), sound2.get_length())
@@ -811,23 +808,64 @@ class ChannelTypeTest(unittest.TestCase):
         with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
             channel.unpause()
 
-    def todo_test_queue(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
+    def test_queue(self):
+        """
+        Ensure the Channel.queue() works correctly
+        """
 
-        # Channel.queue(Sound): return None
-        # queue a Sound object to follow the current
-        #
-        # When a Sound is queued on a Channel, it will begin playing
-        # immediately after the current Sound is finished. Each channel can
-        # only have a single Sound queued at a time. The queued Sound will
-        # only play if the current playback finished automatically. It is
-        # cleared on any other call to Channel.stop() or Channel.play().
-        #
-        # If there is no sound actively playing on the Channel then the Sound
-        # will begin playing immediately.
-        #
+        # Setup
+        channel = mixer.Channel(0)
+        frequency, format, channels = mixer.get_init()
+        sound_length_in_ms = 200
+        sound_length_in_ms_2 = 400
+        sound_length_in_ms_3 = 300
+        bytes_per_ms = int((frequency / 1000) * channels * (abs(format) // 8))
+        sound1 = mixer.Sound(b"\x00" * int(sound_length_in_ms * bytes_per_ms))
+        sound2 = mixer.Sound(b"\x00" * (int(sound_length_in_ms_2 * bytes_per_ms)))
+        sound3 = mixer.Sound(b"\x00" * (int(sound_length_in_ms_3 * bytes_per_ms)))
+        
+        # Test that the sound is played when the first one stop and the queue is cleared
+        
+        channel.play(sound1)
+        channel.queue(sound2)
+        pygame.time.wait(sound_length_in_ms + 100)
+        self.assertTrue(channel.get_busy())
+        self.assertEqual(channel.get_sound(),sound2)
+        self.assertIsNone(channel.get_queue())
 
-        self.fail()
+        pygame.time.wait(sound_length_in_ms_2 + 100)
+
+        # Test when no sound playing
+
+        channel.queue(sound1)
+        self.assertTrue(channel.get_busy())
+        self.assertEqual(channel.get_sound(),sound1)
+
+        pygame.time.wait(sound_length_in_ms + 100)
+
+        # Test that the queue is discarded if Channel.play() is used
+        channel.play(sound1)
+        channel.queue(sound2)
+        channel.play(sound3)
+        self.assertIsNone(channel.get_queue())
+
+        pygame.time.wait(sound_length_in_ms_3 + 100)
+        self.assertFalse(channel.get_busy())
+
+        # Test that the queue is discarded if Channel.stop() is used
+
+        channel.play(sound1)
+        channel.queue(sound2)
+        channel.stop()
+        self.assertIsNone(channel.get_queue())
+        self.assertFalse(channel.get_busy())
+
+        # Test that when there is already a queue(), the ancient queue get discarded
+        channel.play(sound1)
+        channel.queue(sound2)
+        channel.queue(sound3)
+        self.assertEqual(channel.get_sound(),sound1)
+        self.assertEqual(channel.get_queue(),sound3)
 
     def test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
