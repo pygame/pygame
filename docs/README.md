@@ -41,17 +41,54 @@ these rst files into html, which are then hosted on the pygame website.
 Sphinx has a good ReStructed Text primer to learn the basics:
 https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
-Contributing steps:
-- Have an idea to improve the docs, perhaps create an issue on Github
-- Find the file you want to edit: it will most likely be in `docs/reST/ref`.
-OR
-- Pygame docs pages have an "Edit on Github" button, which will show you the file
-- Download the pygame source from Github locally.  
-     ^ One way to do this is to fork and use a Git client to make that a local repository
-- Implement your idea.
-- Follow the steps in "Generating the Documentation"
-     ^ This is important to test your changes work well
-- Commit your changes, create a pull request
+**Contributing steps:**
+- **Step 1:** Have an idea to improve the docs, perhaps create an issue on 
+GitHub.
+
+- **Step 2:** Find the file you want to edit: it will most likely be in 
+`docs/reST/ref`. You can edit the file locally using Step 3, which is a 
+good practice. OR, you can navigate through GitHub for the file and use 
+the "Edit on GitHub" button to make changes. This will create a branch on
+your repository.
+
+- **Step 3:** Download the Pygame source from Github locally. One way to do 
+this is to fork the pygame repository and clone. If you are new to git, 
+a simple way to do this is to:
+
+   - 1: Install [git](https://git-scm.com/downloads)
+   - 2: Install [GitHub Desktop app](https://desktop.github.com/)
+   - 3: Open a web browser. Navigate to [GitHub](https://github.com/). Log 
+   into your GitHub account.
+   - 4: After logging onto your account. Go to 
+   [Pygame's repository](https://github.com/pygame/pygame). Near the 
+   top of the screen, click on the fork button.
+   - 5: Open your GitHub Desktop app. You need to clone this repository onto 
+   your computer. This can be done by selecting File > Clone Repository. 
+   Select the repository you just forked. Choose a local path to save 
+   the files. Click "Clone" button.
+   - 6: Next, you'd want to create a branch on this main repository since you 
+   should NOT work on main or master. Near the top of the GitHub Desktop 
+   app screen are three dropdown menus. The middle label reads "Current 
+   branch." Left-click on this menu. Click on New Branch button. Name 
+   your branch something relevant to the changes you have in mind.
+   - 7: The Current Branch should now point to your newly created branch 
+   instead of main or master.
+   - 8: Using the GitHub Desktop app, publish your newly created branch to 
+   your repository.
+
+- **Step 4:** Implement your idea.
+
+- **Step 5:** Follow the steps in "Generating the Documentation." This is 
+important to test your changes work well.
+
+- **Step 6:** Commit your changes. Fill out the description/summary with a 
+relevant message of what you changed.
+
+- **Step 7:** Push your local changes to your GitHub.
+
+- **Step 8:** When you are satisfied with your changes, go to your GitHub. 
+Select your fork and your branch. Create a Pull Request. A maintainer will 
+review your Pull Request shortly.
 
 ## Documentation Style
 
