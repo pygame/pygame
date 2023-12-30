@@ -87,9 +87,9 @@ First, :func:`pygame.display.Info() <pygame.display.Info>`
 will return a special object type of VidInfo,
 which can tell you a lot about the graphics driver capabilities.
 The function
-:func:`pygame.display.list_modes(depth, flags) <pygame.display.list_modes>`
+:func:`pygame.display.list_modes(depth, flags, display) <pygame.display.list_modes>`
 can be used to find the supported graphic modes by the system.
-:func:`pygame.display.mode_ok((width, height), flags, depth)
+:func:`pygame.display.mode_ok((width, height), flags, depth, display)
 <pygame.display.mode_ok>` takes the same arguments as
 :func:`set_mode() <pygame.display.set_mode>`,
 but returns the closest matching bit depth to the one you request.
@@ -131,23 +131,30 @@ display mode.
 You can find more information about these functions in the display module
 documentation.
 
-  :func:`pygame.display.mode_ok(size, flags, depth) <pygame.display.mode_ok>`
+  :func:`pygame.display.mode_ok(size, flags, depth, display) <pygame.display.mode_ok>`
 
-    This function takes the exact same arguments as pygame.display.set_mode().
+    This function takes the same arguments as pygame.display.set_mode() with the
+    exclusion of vsync.
     It returns the best available bit depth for the mode you have described.
     If this returns zero,
     then the desired display mode is not available without emulation.
 
-  :func:`pygame.display.list_modes(depth, flags) <pygame.display.list_modes>`
+  :func:`pygame.display.list_modes(depth, flags, display) <pygame.display.list_modes>`
 
     Returns a list of supported display modes with the requested
-    depth and flags.
+    depth, flags, and display.
     An empty list is returned when there are no modes.
     The flags argument defaults to :any:`FULLSCREEN <pygame.display.set_mode>`\ .
     If you specify your own flags without :any:`FULLSCREEN <pygame.display.set_mode>`\ ,
     you will likely get a return value of -1.
     This means that any display size is fine, since the display will be windowed.
     Note that the listed modes are sorted largest to smallest.
+    The display index 0 means the default display is used.
+
+  :func:`pygame.display.get_desktop_sizes() <pygame.display.get_desktop_sizes>`
+    This function returns the sizes of the currently configured virtual desktops 
+    as a list of (x, y) tuples of integers and should be used to replace many use cases 
+    of pygame.display.list_modes() whenever applicable.
 
   :func:`pygame.display.Info() <pygame.display.Info>`
 
