@@ -1781,8 +1781,8 @@ def spritecollideany(sprite, group, collided=None):
 
     pygame.sprite.spritecollideany(sprite, group): return sprite
 
-    Given a sprite and a group of sprites, this will return return any single
-    sprite that collides with with the given sprite. If there are no
+    Given a sprite and a group of sprites, this will return any single
+    sprite that collides with the given sprite. If there are no
     collisions, then this returns None.
 
     If you don't need all the features of the spritecollide function, this
