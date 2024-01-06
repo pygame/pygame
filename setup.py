@@ -7,6 +7,7 @@
 #     python setup.py install
 
 import glob
+import distro
 import platform
 import sysconfig
 
@@ -126,7 +127,7 @@ if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
     distutils.ccompiler.CCompiler.spawn = spawn
 
 # A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
-# This is due to the fact that distutils uses command line args to 
+# This is due to the fact that distutils uses command line args to
 # export PyInit_* functions on windows, but those functions are already exported
 # and that is why compiler gives warnings
 from distutils.command.build_ext import build_ext
@@ -140,11 +141,12 @@ def compilation_help():
     """ On failure point people to a web page for help.
     """
     the_system = platform.system()
-    if the_system == 'Linux' and hasattr(platform, 'linux_distribution'):
-        distro_name = platform.linux_distribution()[0].lower()
+    if the_system == "Linux":
+        distro_name = distro.id()
         distro_mapping = {
             'ubuntu': 'Ubuntu',
-            'debian': 'Debian'
+            'debian': 'Debian',
+            'slackware': 'Slackware'
         }
         the_system = distro_mapping.get(distro_name, the_system)
 
@@ -301,7 +303,7 @@ if compile_cython:
     for i, kwargs in enumerate(queue):
         kwargs['progress'] = f'[{i + 1}/{count}] '
         cythonize_one(**kwargs)
-    
+
     if cython_only:
         sys.exit(0)
 
@@ -457,7 +459,7 @@ for e in extensions:
 
     if "freetype" in e.name and sys.platform not in ("darwin", "win32"):
         # TODO: fix freetype issues here
-        if sysconfig.get_config_var("MAINCC") != "clang":        
+        if sysconfig.get_config_var("MAINCC") != "clang":
             e.extra_compile_args.append("-Wno-error=unused-but-set-variable")
 
     if "mask" in e.name and IS_MSC:
