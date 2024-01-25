@@ -1,4 +1,6 @@
 import math
+import pygame
+import numpy as np
 import unittest
 from collections.abc import Collection, Sequence
 import platform
@@ -17,6 +19,56 @@ _int_max = 2147483647  # max value of int in C
 
 def _random_int():
     return random.randint(_int_min, _int_max)
+
+class PygameCliplineTest(unittest.TestCase):
+
+    def setUp(self):
+        self.rects = [
+            pygame.Rect(50, 50, 100, 100),
+            pygame.Rect(200, 50, 100, 100),
+            pygame.Rect(50, 200, 100, 100),
+            pygame.Rect(200, 200, 100, 100)
+        ]
+        self.origin = (185, 100)
+
+    
+    
+    
+    def test_clipline_angle(self):
+        pygame.init()
+        ray_length = 150
+
+        for angle in range(180):  
+            radian = np.radians(angle)  
+            end_x = self.origin[0] + ray_length * np.cos(radian)  
+            end_y = self.origin[1] + ray_length * np.sin(radian) 
+
+            line = (self.origin[0], self.origin[1], end_x, end_y)
+
+            for rect in self.rects:
+                result = rect.clipline(line)
+                if result:  # If there are intersections
+                    # Asserting the intersections must be on the boundaries of the rectangle
+                    for point in result:
+                        self.assertTrue(
+                            point[0] == rect.left or point[0] == rect.right or rect.top <= point[1] <= rect.bottom,
+                            f"Intersection point {point} is not on the boundary of rectangle {rect}"
+                        )
+                        self.assertTrue(
+                            point[1] == rect.top or point[1] == rect.bottom or rect.left <= point[0] <= rect.right,
+                            f"Intersection point {point} is not on the boundary of rectangle {rect}"
+                        )
+                else:  # If there are no intersections
+                    # Asserting that the line segment does not intersect the rectangle
+                    self.assertFalse(
+                        rect.colliderect(pygame.Rect(line[0], line[1], line[2] - line[0], line[3] - line[1])),
+                        f"Though clipline returns False, line segment {line} intersects rectangle {rect}"
+                    )
+                        
+   
+
+    def tearDown(self):
+        pass
 
 
 class RectTypeTest(unittest.TestCase):
