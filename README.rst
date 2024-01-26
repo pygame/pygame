@@ -28,8 +28,8 @@ Windows) or a terminal (if you have MacOS or Linux) and type this:
 
 
 If a message such as "Python 3.8.10" appears, it means that Python
-is correctly installed. If an error message appears, it means that
-it is not installed yet. You must then go to the `official website
+is correctly installed. If you see an error message,
+it indicates that Python is not installed yet. You must then go to the `official website
 <https://www.pygame.org/docs/>`_ and follow the instructions.
 
 Once Python is installed, you have to perform a final check: you have
@@ -101,7 +101,7 @@ If you want to use features that are currently in development,
 or you want to contribute to pygame, you will need to build pygame
 locally from its source code, rather than pip installing it.
 
-Installing from source is fairly automated. The most work will
+The process of installing from source is quite automated. The most work will
 involve compiling and installing all the pygame dependencies.  Once
 that is done, run the ``setup.py`` script which will attempt to
 auto-configure, build, and install pygame.
