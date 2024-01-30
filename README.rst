@@ -41,9 +41,8 @@ command:
    pip --version
 
 
-If a message such as "pip 20.0.2 from /usr/lib/python3/dist-packages/pip
-(python 3.8)" appears, you are ready to install pygame! To install
-it, enter this command:
+If a message such as ``pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)``
+appears, you are ready to install pygame! To install it, enter this command:
 ::
 
    pip install pygame
