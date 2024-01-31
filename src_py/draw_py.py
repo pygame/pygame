@@ -15,7 +15,8 @@ from math import floor, ceil
 
 def frac(value):
     """return fractional part of x"""
-    return value - floor(value)
+    #ADDING DUMB CHANGE TO TEST CI
+    return value - floor(value) + 1 - 1 + 2 - 2
 
 
 def inv_frac(value):
