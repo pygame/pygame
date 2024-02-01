@@ -298,8 +298,10 @@ static PyGetSetDef surface_getsets[] = {
     {NULL, NULL, NULL, NULL, NULL}};
 
 static struct PyMethodDef surface_methods[] = {
-    {"get_at", (PyCFunction)surf_get_at, METH_VARARGS | METH_KEYWORDS, DOC_SURFACEGETAT},
-    {"set_at", (PyCFunction)surf_set_at, METH_VARARGS | METH_KEYWORDS, DOC_SURFACESETAT},
+    {"get_at", (PyCFunction)surf_get_at, METH_VARARGS | METH_KEYWORDS,
+     DOC_SURFACEGETAT},
+    {"set_at", (PyCFunction)surf_set_at, METH_VARARGS | METH_KEYWORDS,
+     DOC_SURFACESETAT},
     {"get_at_mapped", surf_get_at_mapped, METH_VARARGS,
      DOC_SURFACEGETATMAPPED},
     {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
@@ -816,7 +818,8 @@ surf_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"pos", "color", NULL};
     PyObject *pos;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|", keywords, &pos, &rgba_obj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|", keywords, &pos,
+                                     &rgba_obj)) {
         return NULL;
     }
     if (!PyArg_ParseTuple(pos, "ii", &x, &y))
