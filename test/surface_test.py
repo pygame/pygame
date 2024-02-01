@@ -107,11 +107,10 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertIsInstance(r, pygame.Color)
         self.assertEqual(r, (10, 10, 10, 255))
 
-        # try setting a color with a single integer.
-        s.fill((0, 0, 0, 255))
-        s.set_at(pos=(10, 1), color=0x0000FF)
-        r = s.get_at((10, 1))
-        self.assertEqual(r, (0, 0, 255, 255))
+        # set it back to (0,0,0,255) at pos (0,0) with default kwarg values
+        s.set_at()
+        r = s.get_at((0, 0))
+        self.assertEqual(r, (0, 0, 0, 255))
 
         # ensure order independence
         s.fill((0, 0, 0, 255))
@@ -125,6 +124,8 @@ class SurfaceTypeTest(unittest.TestCase):
         c00 = pygame.Color(1, 2, 3)
         surf.set_at((0, 0), c00)
         self.assertEqual(surf.get_at(pos=(0, 0)), c00)
+        # ensure default value works
+        self.assertEqual(surf.get_at(), c00)
 
     def test_set_at__big_endian(self):
         """png files are loaded in big endian format (BGR rather than RGB)"""

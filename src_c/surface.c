@@ -743,18 +743,18 @@ surf_get_at(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_PixelFormat *format = NULL;
     Uint8 *pixels = NULL;
-    int x, y;
+    int x = 0, y = 0;  // default for no pos kwarg
     Uint32 color;
     Uint8 *pix;
     Uint8 rgba[4] = {0, 0, 0, 255};
 
     static char *keywords[] = {"pos", NULL};
-    PyObject *pos;
+    PyObject *pos = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &pos)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords, &pos)) {
         return NULL;
     }
-    if (!PyArg_ParseTuple(pos, "ii", &x, &y))
+    if (pos != NULL && !PyArg_ParseTuple(pos, "ii", &x, &y))
         return NULL;
 
     if (!surf)
@@ -809,20 +809,20 @@ surf_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_PixelFormat *format = NULL;
     Uint8 *pixels;
-    int x, y;
+    int x = 0, y = 0;  // default for no pos kwarg
     Uint32 color;
     Uint8 rgba[4] = {0, 0, 0, 0};
-    PyObject *rgba_obj;
+    PyObject *rgba_obj = NULL;
     Uint8 *byte_buf;
 
     static char *keywords[] = {"pos", "color", NULL};
-    PyObject *pos;
+    PyObject *pos = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|", keywords, &pos,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OO", keywords, &pos,
                                      &rgba_obj)) {
         return NULL;
     }
-    if (!PyArg_ParseTuple(pos, "ii", &x, &y))
+    if (pos != NULL && !PyArg_ParseTuple(pos, "ii", &x, &y))
         return NULL;
 
     if (!surf)
@@ -839,7 +839,9 @@ surf_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_RETURN_NONE;
     }
 
-    if (PyLong_Check(rgba_obj)) {
+    if (rgba_obj == NULL)
+        color = pg_map_rgba(surf, 0, 0, 0, 255);  // default for no color kwarg
+    else if (PyLong_Check(rgba_obj)) {
         color = (Uint32)PyLong_AsLong(rgba_obj);
         if (PyErr_Occurred() && (Sint32)color == -1)
             return RAISE(PyExc_TypeError, "invalid color argument");
