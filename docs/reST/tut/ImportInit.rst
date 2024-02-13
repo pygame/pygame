@@ -1,76 +1,86 @@
-.. TUTORIAL:Import and Initialize
+import pygame
+import random
 
-.. include:: common.txt
+# Initialize pygame
+pygame.init()
 
-********************************************
-  Pygame Tutorials - Import and Initialize
-********************************************
- 
-Import and Initialize
-=====================
+# Set up display
+WIDTH, HEIGHT = 800, 600
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Pacman & Dig Dug")
 
-.. rst-class:: docinfo
+# Define colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
-:Author: Pete Shinners
-:Contact: pete@shinners.org
+# Define constants
+PLAYER_SIZE = 30
+PLAYER_SPEED = 5
+ENEMY_SIZE = 30
+ENEMY_SPEED = 3
 
+# Define classes
+class Player(pygame.sprite.Sprite):
+    def __init__(self, color):
+        super().__init__()
+        self.image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH // 2, HEIGHT // 2)
+        self.vx, self.vy = 0, 0
 
-Getting pygame imported and initialized is a very simple process. It is also
-flexible enough to give you control over what is happening. Pygame is a
-collection of different modules in a single python package. Some of the
-modules are written in C, and some are written in python. Some modules
-are also optional, and might not always be present.
+    def update(self):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
 
-This is just a quick introduction on what is going on when you import pygame.
-For a clearer explanation definitely see the pygame examples.
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, color):
+        super().__init__()
+        self.image = pygame.Surface((ENEMY_SIZE, ENEMY_SIZE))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.center = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
+        self.vx = random.choice([-ENEMY_SPEED, ENEMY_SPEED])
+        self.vy = random.choice([-ENEMY_SPEED, ENEMY_SPEED])
 
+    def update(self):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
 
-Import
-------
+# Initialize sprites
+all_sprites = pygame.sprite.Group()
+players = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
 
-First we must import the pygame package. Since pygame version 1.4 this
-has been updated to be much easier. Most games will import all of pygame like this. ::
+player = Player(YELLOW)
+enemy = Enemy(RED)
 
-  import pygame
-  from pygame.locals import *
+all_sprites.add(player, enemy)
+players.add(player)
+enemies.add(enemy)
 
-The first line here is the only necessary one. It imports all the available pygame
-modules into the pygame package. The second line is optional, and puts a limited
-set of constants and functions into the global namespace of your script.
+# Main game loop
+running = True
+clock = pygame.time.Clock()
+while running:
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-An important thing to keep in mind is that several pygame modules are optional.
-For example, one of these is the font module. When  you "import pygame", pygame
-will check to see if the font module is available. If the font module is available
-it will be imported as "pygame.font". If the module is not available, "pygame.font"
-will be set to None. This makes it fairly easy to later on test if the font module is available.
+    # Update
+    all_sprites.update()
 
+    # Drawing
+    WIN.fill(BLACK)
+    all_sprites.draw(WIN)
+    pygame.display.flip()
 
-Init
-----
+    # Cap the frame rate
+    clock.tick(60)
 
-Before you can do much with pygame, you will need to initialize it. The most common
-way to do this is just make one call. ::
-
-  pygame.init()
-
-This will attempt to initialize all the pygame modules for you. Not all pygame modules
-need to be initialized, but this will automatically initialize the ones that do. You can
-also easily initialize each pygame module by hand. For example to only initialize the
-font module you would just call. ::
-
-  pygame.font.init()
-
-Note that if there is an error when you initialize with "pygame.init()", it will silently fail.
-When hand initializing modules like this, any errors will raise an exception. Any
-modules that must be initialized also have a "get_init()" function, which will return true
-if the module has been initialized.
-
-It is safe to call the init() function for any module more than once.
-
-
-Quit
-----
-
-Modules that are initialized also usually have a quit() function that will clean up.
-There is no need to explicitly call these, as pygame will cleanly quit all the
-initialized modules when python finishes.
+# Quit the game
+pygame.quit()
