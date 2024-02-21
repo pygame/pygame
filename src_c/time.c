@@ -408,14 +408,16 @@ typedef struct {
 
 // to be called by the other tick functions.
 static PyObject *
-clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
+clock_tick_base(PyObject *self, PyObject *arg, PyObject *kwds,
+                int use_accurate_delay)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     float framerate = 0.0f;
     int nowtime;
     int seconds = 0;
-
-    if (!PyArg_ParseTuple(arg, "|fp", &framerate, &seconds))
+    static char *kwlist[] = {"framerate", "seconds", NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|fp", kwlist, &framerate,
+                                     &seconds))
         return NULL;
 
     if (framerate) {
@@ -472,15 +474,15 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 }
 
 static PyObject *
-clock_tick(PyObject *self, PyObject *arg)
+clock_tick(PyObject *self, PyObject *arg, PyObject *kwds)
 {
-    return clock_tick_base(self, arg, 0);
+    return clock_tick_base(self, arg, kwds, 0);
 }
 
 static PyObject *
-clock_tick_busy_loop(PyObject *self, PyObject *arg)
+clock_tick_busy_loop(PyObject *self, PyObject *arg, PyObject *kwds)
 {
-    return clock_tick_base(self, arg, 1);
+    return clock_tick_base(self, arg, kwds, 1);
 }
 
 static PyObject *
