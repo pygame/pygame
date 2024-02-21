@@ -418,7 +418,7 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 
     if (!PyArg_ParseTuple(arg, "|f0", &framerate, &seconds))
         return NULL;
-    
+
     if (seconds && PyObject_IsTrue(seconds)) {
         return_in_seconds = 1;
     }
@@ -474,7 +474,6 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     }
 
     return PyLong_FromLong(_clock->timepassed);
-    
 }
 
 static PyObject *
