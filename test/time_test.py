@@ -168,6 +168,61 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(
             1000 / average_tick_time, testing_framerate, delta=epsilon3
         )
+        
+    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
+    @unittest.skipIf(
+        os.environ.get("CI", None), "CI can have variable time slices, slow."
+    )
+    def test_tick_with_seconds(self):
+    """Tests time.Clock.tick() with the seconds argument"""
+    # Adjust this value to increase the acceptable seconds jitter
+    epsilon_seconds = 0.005  
+
+    testing_framerate = 60
+    milliseconds = 5.0
+    seconds = milliseconds / 1000  
+
+    c = Clock()
+    collection_seconds = []
+
+    
+    c.tick(seconds=True)  # Initialize the clock
+    for i in range(100):
+        time.sleep(seconds)  
+        collection_seconds.append(c.tick(seconds=True))
+
+    # Remove the first highest and lowest value
+    for outlier in [min(collection_seconds), max(collection_seconds)]:
+        if abs(outlier - seconds) > epsilon_seconds:
+            collection_seconds.remove(outlier)
+
+    average_time_seconds = sum(collection_seconds) / len(collection_seconds)
+
+    # Assert the deviation from the intended delay in seconds is within the acceptable amount
+    self.assertAlmostEqual(average_time_seconds, seconds, delta=epsilon_seconds)
+
+    # Test frame-rate control with seconds=True
+    c = Clock()
+    collection_seconds = []
+
+    start = time.time()
+
+    for i in range(testing_framerate):
+        collection_seconds.append(c.tick(testing_framerate, seconds=True))
+
+    end = time.time()
+
+    # Calculate the expected duration in seconds for the given framerate
+    expected_duration = testing_framerate / testing_framerate
+
+    # Assert the duration with seconds=True is within an acceptable margin
+    self.assertAlmostEqual(end - start, expected_duration, delta=epsilon_seconds)
+
+    # Calculate the average tick time in seconds and assert it's close to the expected frame duration in seconds
+    average_tick_time_seconds = sum(collection_seconds) / len(collection_seconds)
+    expected_frame_duration_seconds = 1 / testing_framerate
+    self.assertAlmostEqual(average_tick_time_seconds, expected_frame_duration_seconds, delta=epsilon_seconds)
+
 
     def test_tick_busy_loop(self):
         """Test tick_busy_loop"""

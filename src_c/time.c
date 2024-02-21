@@ -413,9 +413,14 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     PyClockObject *_clock = (PyClockObject *)self;
     float framerate = 0.0f;
     int nowtime;
+    PyObject *seconds = NULL;
 
-    if (!PyArg_ParseTuple(arg, "|f", &framerate))
+    if (!PyArg_ParseTuple(arg, "|f0", &framerate, &seconds))
         return NULL;
+    int return_in_seconds = 0;
+    if(seconds && PyObject_IsTrue(seconds)) {
+        return_in_seconds = 1;
+    }
 
     if (framerate) {
         int delay, endtime = (int)((1.0f / framerate) * 1000.0f);
@@ -463,7 +468,12 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
         _clock->fps_tick = nowtime;
         Py_XDECREF(_clock->rendered);
     }
+    if(return_in_seconds) {
+        return(PyFloat_FromDouble(_clock->timepassed / 1000.0));
+    }
+    else {
     return PyLong_FromLong(_clock->timepassed);
+    }
 }
 
 static PyObject *
