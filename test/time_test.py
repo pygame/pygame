@@ -168,11 +168,6 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(
             1000 / average_tick_time, testing_framerate, delta=epsilon3
         )
-        
-    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
-    @unittest.skipIf(
-        os.environ.get("CI", None), "CI can have variable time slices, slow."
-    )
 
     def test_tick_busy_loop(self):
         """Test tick_busy_loop"""
