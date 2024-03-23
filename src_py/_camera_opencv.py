@@ -5,6 +5,7 @@ See https://pypi.org/project/opencv-python/ for wheels version.
 
 python3 -m pip install opencv-python --user
 """
+
 import numpy
 import cv2
 import time
