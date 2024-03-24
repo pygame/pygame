@@ -58,7 +58,7 @@ jobs:
         if: steps.macdep-cache.outputs.cache-hit != 'true'
         run: |
           export MAC_ARCH="${{ matrix.macarch }}"
-          brew install coreutils pkg-config
+          brew install coreutils glib pkg-config
           cd buildconfig/macdependencies
           bash ./build_mac_deps.sh
 
