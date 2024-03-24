@@ -2,7 +2,7 @@
 set -e -x
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install glib
+    brew install --verbose glib
     brew list | grep glib  # We have installed glib via brew
     exit
 fi
