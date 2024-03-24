@@ -37,6 +37,7 @@ jobs:
     name: ${{ matrix.macarch }} deps
     runs-on: macos-12
     strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         # make arm64 deps and x86_64 deps
         macarch: [arm64, x86_64]
