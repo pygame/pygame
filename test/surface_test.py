@@ -1091,6 +1091,10 @@ class GeneralSurfaceTests(unittest.TestCase):
         finally:
             pygame.display.quit()
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     def test_convert_init(self):
         """Ensure initialization exceptions are raised
         for surf.convert()."""
@@ -1101,12 +1105,11 @@ class GeneralSurfaceTests(unittest.TestCase):
 
         pygame.display.init()
         try:
-            if os.environ.get("SDL_VIDEODRIVER") != "dummy":
-                try:
-                    surf.convert(32)
-                    surf.convert(pygame.Surface((1, 1)))
-                except pygame.error:
-                    self.fail("convert() should not raise an exception here.")
+            try:
+                surf.convert(32)
+                surf.convert(pygame.Surface((1, 1)))
+            except pygame.error:
+                self.fail("convert() should not raise an exception here.")
 
             self.assertRaisesRegex(pygame.error, "No video mode", surf.convert)
 
@@ -1118,6 +1121,10 @@ class GeneralSurfaceTests(unittest.TestCase):
         finally:
             pygame.display.quit()
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     def test_convert_alpha_init(self):
         """Ensure initialization exceptions are raised
         for surf.convert_alpha()."""
