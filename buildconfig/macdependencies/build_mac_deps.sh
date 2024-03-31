@@ -52,7 +52,7 @@ fi
 
 cd ../manylinux-build/docker_base
 
-python -m pip install setuptools wheel
+python -m pip install setuptools wheel meson packaging ninja
 
 # Now start installing dependencies
 # ---------------------------------
