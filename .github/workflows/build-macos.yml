@@ -35,12 +35,13 @@ on:
 jobs:
   deps:
     name: ${{ matrix.macarch }} deps
-    runs-on: macos-12
     strategy:
+      fail-fast: false
       matrix:
-        # make arm64 deps and x86_64 deps
-        macarch: [arm64, x86_64]
-
+        # GitHub Actions macOS < 14 runs on Intel ; >= 14 runs on Apple silicon
+        - {macarch: arm64, os: macos-14}  # make arm64 deps on an M1 Mac
+        - {macarch: x86_64, os: macos-12}  # make x86_64 on an Intel Mac
+      runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3.0.2
 
@@ -72,17 +73,18 @@ jobs:
   build:
     name: ${{ matrix.name }}
     needs: deps
-    runs-on: macos-12
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        # Split job into 5 matrix builds, because GH actions provides 5 concurrent
+        # Split job into 5 matrix builds, because GH actions provide 5 concurrent
         # builds on macOS. This needs to be manually kept updated so that each
-        # of these builds take roughly the same time
+        # of these builds takes roughly the same time
         include:
           - { 
             name: "x86_64 (CPython 3.6 3.10 and above)",
             macarch: x86_64,
+            os: macos-12,
             # pattern matches 6 or any 2 digit number
             pyversions: "cp3{6,[1-9][0-9]}-*"
           }
@@ -90,24 +92,28 @@ jobs:
           - { 
             name: "x86_64 (Python 3.7)",
             macarch: x86_64,
+            os: macos-12,
             pyversions: "cp37-*"
           }
 
           - { 
             name: "x86_64 (Python 3.8)",
             macarch: x86_64,
+            os: macos-12,
             pyversions: "?p38-*"
           }
 
           - { 
             name: "x86_64 (Python 3.9)",
             macarch: x86_64,
+            os: macos-12,
             pyversions: "?p39-*"
           }
 
           - { 
             name: "arm64 (CPython 3.8 and above)",
             macarch: arm64,
+            os: macos-12,
             # pattern matches any number from 8 to 99
             pyversions: "cp3{8,9,[1-9][0-9]}-*"
           }
