@@ -38,9 +38,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        include:
         # GitHub Actions macOS < 14 runs on Intel ; >= 14 runs on Apple silicon
-        - {macarch: arm64, os: macos-14}  # make arm64 deps on an M1 Mac
-        - {macarch: x86_64, os: macos-12}  # make x86_64 on an Intel Mac
+          - {macarch: arm64, os: macos-14}  # make arm64 deps on an M1 Mac
+          - {macarch: x86_64, os: macos-12}  # make x86_64 on an Intel Mac
       runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3.0.2
