@@ -113,7 +113,7 @@ jobs:
           - { 
             name: "arm64 (CPython 3.8 and above)",
             macarch: arm64,
-            os: macos-12,
+            os: macos-14,
             # pattern matches any number from 8 to 99
             pyversions: "cp3{8,9,[1-9][0-9]}-*"
           }
