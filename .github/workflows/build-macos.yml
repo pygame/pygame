@@ -42,7 +42,7 @@ jobs:
         # GitHub Actions macOS < 14 runs on Intel ; >= 14 runs on Apple silicon
           - {macarch: arm64, os: macos-14}  # make arm64 deps on an M1 Mac
           - {macarch: x86_64, os: macos-12}  # make x86_64 on an Intel Mac
-      runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3.0.2
 
@@ -74,7 +74,6 @@ jobs:
   build:
     name: ${{ matrix.name }}
     needs: deps
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
@@ -119,6 +118,7 @@ jobs:
             pyversions: "cp3{8,9,[1-9][0-9]}-*"
           }
 
+    runs-on: ${{ matrix.os }}
     env:
       PYGAME_DETECT_AVX2: 'yes-why-not'
 
