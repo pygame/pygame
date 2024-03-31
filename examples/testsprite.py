@@ -109,7 +109,7 @@ class Thingy(pg.sprite.DirtySprite):
         self.vel = [randint(-1, 1), randint(-1, 1)]
         self.dirty = 2
 
-    def update(self):
+    def update(self, *args, **kwargs):
         for i in [0, 1]:
             nv = self.rect[i] + self.vel[i]
             if nv >= screen_dims[i] or nv < 0:
