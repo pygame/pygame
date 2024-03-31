@@ -52,6 +52,8 @@ fi
 
 cd ../manylinux-build/docker_base
 
+python -m pip install setuptools wheel
+
 # Now start installing dependencies
 # ---------------------------------
 
