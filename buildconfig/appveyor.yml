@@ -165,7 +165,7 @@ install:
   - "%PYTHON% -m pip install twine"
   - "%PYTHON% -m pip install requests"
   - "%PYTHON% -m pip install Cython==3.0.0"
-  - "%PYTHON% -m pip install Sphinx==4.5.0"
+  - "%PYTHON% -m pip install Sphinx==4.5.0 sphinxcontrib-applehelp==1.0.2 pip install sphinxcontrib-devhelp==1.0.2 sphinxcontrib-htmlhelp==2.0.0 sphinxcontrib-qthelp==1.0.3 sphinxcontrib-serializinghtml==1.1.5"
   - "%PYTHON% setup.py docs"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig"
   - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
