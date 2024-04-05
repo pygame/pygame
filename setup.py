@@ -553,6 +553,164 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ and
 
             build_ext.build_extensions(self)
 
+from setuptools.command.sdist import sdist
+
+@add_command('sdist')
+class OurSdist(sdist):
+    def initialize_options(self):
+        sdist.initialize_options(self)
+        # we do not want MANIFEST.in to appear in the root cluttering up things.
+        self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
+@add_command('test')
+class TestCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs the tests with default options.
+        '''
+        import subprocess
+        return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
+
+class LintFormatCommand(Command):
+    """ Used for formatting or linting. See Lint and Format Sub classes.
+    """
+    user_options = []
+    lint = False
+    format = False
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Check the existence and launch linters."""
+        import subprocess
+        import sys
+        import warnings
+        import pathlib
+
+        def check_linter_exists(linter):
+            if shutil.which(linter) is None:
+                msg = "Please install '%s' in your environment. (hint: 'python3 -m pip install %s')"
+                warnings.warn(msg % (linter, linter))
+                sys.exit(1)
+
+        def filter_files(path_obj, all_files, allowed_files, disallowed_files):
+            files = []
+            for file in all_files:
+                for disallowed in disallowed_files:
+                    if file.match(str(path_obj / disallowed)):
+                        break
+                else:  # no-break
+                    files.append(str(file))
+                    continue
+
+                for allowed in allowed_files:
+                    if file.match(str(path_obj / allowed)):
+                        files.append(str(file))
+                        break
+
+            return files
+
+        path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        path_obj = pathlib.Path(path, "src_c")
+        c_files_unfiltered = path_obj.glob("**/*.[ch]")
+        c_file_disallow = [
+            "_sdl2/**",
+            "pypm.c",
+            "SDL_gfx/**",
+            "**/sse2neon.h",
+            "doc/**",
+            "_sprite.c",
+        ]
+        c_file_allow = ["_sdl2/touch.c"]
+        c_files = filter_files(path_obj, c_files_unfiltered, c_file_allow, c_file_disallow)
+
+
+        # Other files have too many issues for now. setup.py, buildconfig, etc
+        python_directories = ["src_py", "test", "examples"]
+        if self.lint:
+            commands = {
+                "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
+                "black": ["--check", "--diff"] + python_directories,
+                # Test directory has too much pylint warning for now
+                "pylint": ["src_py"],
+            }
+        else:
+            commands = {
+                "clang-format": ["-i"] + c_files,
+                "black": python_directories,
+            }
+
+        formatters = ["black", "clang-format"]
+        for linter, option in commands.items():
+            print(" ".join([linter] + option))
+            check_linter_exists(linter)
+            result = subprocess.run([linter] + option)
+            if result.returncode:
+                msg = f"'{linter}' failed."
+                msg += " Please run: python setup.py format" if linter in formatters else ""
+                msg += f" Do you have the latest version of {linter}?"
+                raise SystemExit(msg)
+
+
+@add_command("lint")
+class LintCommand(LintFormatCommand):
+    lint = True
+
+
+@add_command("format")
+class FormatCommand(LintFormatCommand):
+    format = True
+
+
+@add_command('docs')
+class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+    This generates html, and documentation .h header files.
+    """
+    user_options = [
+        (
+            'fullgeneration',
+            'f',
+            'Full generation. Do not use a saved environment, always read all files.'
+        )
+    ]
+    boolean_options = ['fullgeneration']
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+        self.fullgeneration = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs Sphinx to build the docs.
+        '''
+        import subprocess
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if self.fullgeneration:
+            command_line.append('full_generation')
+        if subprocess.call(command_line) != 0:
+            raise SystemExit("Failed to build documentation")
+
+
+
 """
 
 Misc. Platform Specific Compilation Stuff
@@ -591,7 +749,7 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
         # Add the precompiled smooth scale MMX functions to transform.
         def replace_scale_mmx():
             for e in extensions:
-                if e.name == 'transform':
+                if e.name == 'pygame.transform':
                     if '64 bit' in sys.version:
                         e.extra_objects.append(
                             os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
@@ -783,9 +941,3 @@ try:
 except:
     compilation_help()
     raise
-
-
-# MISC ADDITIONS TO BE MADE:
-# bonus custom commands (docs, sdist, linting/formatting, etc)
-# remove distutils from buildconfig
-# modify appveyor.yml

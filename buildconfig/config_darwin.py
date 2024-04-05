@@ -1,7 +1,7 @@
 """Config on Darwin w/ frameworks"""
 
 import os
-from distutils.sysconfig import get_python_inc
+from sysconfig import get_path
 
 
 try:
@@ -88,7 +88,7 @@ class DependencyPython:
             except ImportError:
                 self.found = 0
         if self.found and self.header:
-            fullpath = os.path.join(get_python_inc(0), self.header)
+            fullpath = os.path.join(get_path('include'), self.header)
             if not os.path.isfile(fullpath):
                 self.found = 0
             else:

@@ -165,11 +165,12 @@ install:
   - "%PYTHON% -m pip install twine"
   - "%PYTHON% -m pip install requests"
   - "%PYTHON% -m pip install Cython==3.0.0"
-  - "%PYTHON% -m pip install Sphinx==4.5.0"
+  - "%PYTHON% -m pip install Sphinx==5.0.0"
   - "%PYTHON% setup.py docs"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig"
-  - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
-  - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
+  # - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
+  # - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
+  - "%WITH_COMPILER% %PYTHON% -m pip wheel . --wheel-dir=dist"
   - ps: "ls dist"
 
   # Install the wheel to test it

@@ -12,7 +12,7 @@ import os, sys
 import re
 import logging
 from glob import glob
-from distutils.sysconfig import get_python_inc
+from sysconfig import get_path
 
 
 def get_ptr_size():
@@ -191,7 +191,7 @@ class DependencyPython:
             except ImportError:
                 self.found = False
         if self.found and self.header:
-            fullpath = os.path.join(get_python_inc(0), self.header)
+            fullpath = os.path.join(get_path('include'), self.header)
             if not os.path.isfile(fullpath):
                 self.found = False
             else:
