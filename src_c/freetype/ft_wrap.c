@@ -38,8 +38,7 @@ ft_wrap_quit(pgFontObject *);
  *
  *********************************************************/
 void
-_PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
-{
+_PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id){
 #undef __FTERRORS_H__
 #define FT_ERRORDEF(e, v, s) {e, s},
 #define FT_ERROR_START_LIST {
@@ -49,37 +48,37 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
     }                     \
     }                     \
     ;
-    static const struct {
-        int err_code;
-        const char *err_msg;
-    } ft_errors[] =
+    static const struct {int err_code;
+const char *err_msg;
+}
+ft_errors[] =
 #include FT_ERRORS_H
 
-        const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
-    int i;
-    const char *ft_msg;
+    const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
+int i;
+const char *ft_msg;
 
-    ft_msg = 0;
-    for (i = 0; ft_errors[i].err_msg; ++i) {
-        if (error_id == ft_errors[i].err_code) {
-            ft_msg = ft_errors[i].err_msg;
-            break;
-        }
+ft_msg = 0;
+for (i = 0; ft_errors[i].err_msg; ++i) {
+    if (error_id == ft_errors[i].err_code) {
+        ft_msg = ft_errors[i].err_msg;
+        break;
     }
+}
 
-    if (error_id && ft_msg) {
-        int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg),
-                                "%.*s: %s", maxlen - 3, error_msg, ft_msg);
-        if (ret >= 0) {
-            /* return after successfully copying full or truncated error.
-             * If ret < 0, PyOS_snprintf failed so try to strncpy error
-             * message */
-            return;
-        }
+if (error_id && ft_msg) {
+    int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg), "%.*s: %s",
+                            maxlen - 3, error_msg, ft_msg);
+    if (ret >= 0) {
+        /* return after successfully copying full or truncated error.
+         * If ret < 0, PyOS_snprintf failed so try to strncpy error
+         * message */
+        return;
     }
+}
 
-    strncpy(ft->_error_msg, error_msg, maxlen);
-    ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
+strncpy(ft->_error_msg, error_msg, maxlen);
+ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
 }
 
 const char *

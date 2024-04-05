@@ -157,33 +157,22 @@ surf_colorspace(PyObject *self, PyObject *arg)
 PyObject *
 list_cameras(PyObject *self, PyObject *_null)
 {
-#if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
+#if defined(__unix__)
     PyObject *ret_list;
     PyObject *string;
-#if !defined(PYGAME_WINDOWS_CAMERA)
     char **devices;
-#else
-    WCHAR **devices;
-#endif
     int j, i = 0, num_devices = 0;
 
     /* TODO for future PRs: errors in these functions are being ignored as
      * of now, and an empty list is being returned by this function */
 #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    devices = windows_list_cameras(&num_devices);
-#endif
-
     ret_list = PyList_New(num_devices);
     if (!ret_list) {
         goto error;
     }
 
     for (i = 0; i < num_devices; i++) {
-#if defined(PYGAME_WINDOWS_CAMERA)
-        string = PyUnicode_FromWideChar(devices[i], -1);
-#else
         string = PyUnicode_FromString(devices[i]);
 #endif
         if (!string) {
@@ -230,15 +219,6 @@ camera_start(pgCameraObject *self, PyObject *_null)
             return NULL;
         }
     }
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    if (self->open) { /* camera already started */
-        Py_RETURN_NONE;
-    }
-
-    if (!windows_open_device(self)) {
-        windows_close_device(self);
-        return NULL;
-    }
 #endif
     Py_RETURN_NONE;
 }
@@ -254,11 +234,6 @@ camera_stop(pgCameraObject *self, PyObject *_null)
         return NULL;
     if (v4l2_close_device(self) == 0)
         return NULL;
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    if (self->open) { /* camera started */
-        if (!windows_close_device(self))
-            return NULL;
-    }
 #endif
     Py_RETURN_NONE;
 }
@@ -282,9 +257,6 @@ camera_get_controls(pgCameraObject *self, PyObject *_null)
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
-                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -319,24 +291,6 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
-
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    int hflip = 0, vflip = 0, brightness = 0;
-    char *kwids[] = {"hflip", "vflip", "brightness", NULL};
-
-    hflip = self->hflip;
-    vflip = self->vflip;
-    brightness = -1;
-
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip,
-                                     &brightness))
-        return NULL;
-
-    self->hflip = hflip;
-    self->vflip = vflip;
-
-    return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
-                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -345,7 +299,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 PyObject *
 camera_get_size(pgCameraObject *self, PyObject *_null)
 {
-#if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
+#if defined(__unix__)
     return Py_BuildValue("(ii)", self->width, self->height);
 #endif
     Py_RETURN_NONE;
@@ -357,12 +311,6 @@ camera_query_image(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    int ready;
-    if (!windows_frame_ready(self, &ready))
-        return NULL;
-
-    return PyBool_FromLong(ready);
 #endif
     Py_RETURN_TRUE;
 }
@@ -417,42 +365,6 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     else {
         return (PyObject *)pgSurface_New(surf);
     }
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    SDL_Surface *surf = NULL;
-    pgSurfaceObject *surfobj = NULL;
-
-    int width = self->width;
-    int height = self->height;
-
-    if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
-        return NULL;
-
-    if (!surfobj) {
-        surf = SDL_CreateRGBSurface(0, width, height, 32,  // 24?
-                                    0xFF << 16, 0xFF << 8, 0xFF, 0);
-    }
-    else {
-        surf = pgSurface_AsSurface(surfobj);
-    }
-
-    if (!surf)
-        return NULL;
-
-    if (surf->w != self->width || surf->h != self->height) {
-        return RAISE(PyExc_ValueError,
-                     "Destination surface not the correct width or height.");
-    }
-
-    if (!windows_read_frame(self, surf))
-        return NULL;
-
-    if (surfobj) {
-        Py_INCREF(surfobj);
-        return (PyObject *)surfobj;
-    }
-    else {
-        return (PyObject *)pgSurface_New(surf);
-    }
 
 #endif
     Py_RETURN_NONE;
@@ -464,8 +376,6 @@ camera_get_raw(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    return windows_read_raw(self);
 #endif
     Py_RETURN_NONE;
 }
@@ -1782,14 +1692,7 @@ PyMethodDef cameraobj_builtins[] = {
 void
 camera_dealloc(PyObject *self)
 {
-#if defined(PYGAME_WINDOWS_CAMERA)
-    if (((pgCameraObject *)self)->open) {
-        windows_close_device((pgCameraObject *)self);
-    }
-    windows_dealloc_device((pgCameraObject *)self);
-#else
     free(((pgCameraObject *)self)->device_name);
-#endif
     PyObject_Free(self);
 }
 /*
@@ -1844,63 +1747,6 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
     self->vflip = 0;
     self->brightness = 0;
     self->fd = -1;
-
-    return 0;
-#elif defined(PYGAME_WINDOWS_CAMERA)
-    PyObject *name_obj = NULL;
-    WCHAR *dev_name = NULL;
-    int w, h;
-    char *color = NULL;
-    IMFActivate *p = NULL;
-
-    w = DEFAULT_WIDTH;
-    h = DEFAULT_HEIGHT;
-
-    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color)) {
-        return -1;
-    }
-
-    /* needs to be freed with PyMem_Free later */
-    dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
-
-    p = windows_device_from_name(dev_name);
-
-    if (!p) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Couldn't find a camera with that name");
-        return -1;
-    }
-
-    if (color) {
-        if (!strcmp(color, "YUV")) {
-            self->color_out = YUV_OUT;
-        }
-        else if (!strcmp(color, "HSV")) {
-            self->color_out = HSV_OUT;
-        }
-        else {
-            self->color_out = RGB_OUT;
-        }
-    }
-    else {
-        self->color_out = RGB_OUT;
-    }
-
-    self->device_name = dev_name;
-    self->width = w;
-    self->height = h;
-    self->open = 0;
-    self->hflip = 0;
-    self->vflip = 0;
-    self->last_vflip = 0;
-
-    self->raw_buf = NULL;
-    self->buf = NULL;
-    self->t_handle = NULL;
-
-    if (!windows_init_device(NULL)) {
-        return -1;
-    }
 
     return 0;
 #else

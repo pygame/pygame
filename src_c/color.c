@@ -49,7 +49,7 @@
 
 #if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && \
     !defined(round)
-#define pg_round(d) (((d < 0) ? (ceil((d)-0.5)) : (floor((d) + 0.5))))
+#define pg_round(d) (((d < 0) ? (ceil((d) - 0.5)) : (floor((d) + 0.5))))
 #else
 #define pg_round(d) round(d)
 #endif

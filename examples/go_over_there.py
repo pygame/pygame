@@ -9,6 +9,7 @@ Mouse Controls:
 Keyboard Controls:
 * Press R to restart the demo
 """
+
 import pygame as pg
 import random
 

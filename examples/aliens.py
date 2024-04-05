@@ -125,7 +125,7 @@ class Alien(pg.sprite.Sprite):
         if self.facing < 0:
             self.rect.right = SCREENRECT.right
 
-    def update(self):
+    def update(self, *args, **kwargs):
         self.rect.move_ip(self.facing, 0)
         if not SCREENRECT.contains(self.rect):
             self.facing = -self.facing
@@ -148,7 +148,7 @@ class Explosion(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center=actor.rect.center)
         self.life = self.defaultlife
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """called every time around the game loop.
 
         Show the explosion surface for 'defaultlife'.
@@ -173,7 +173,7 @@ class Shot(pg.sprite.Sprite):
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=pos)
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """called every time around the game loop.
 
         Every tick we move the shot upwards.
@@ -195,7 +195,7 @@ class Bomb(pg.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=alien.rect.move(0, 5).midbottom)
         self.explosion_group = explosion_group
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """called every time around the game loop.
 
         Every frame we move the sprite 'rect' down.
@@ -222,7 +222,7 @@ class Score(pg.sprite.Sprite):
         self.update()
         self.rect = self.image.get_rect().move(10, 450)
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """We only update the score in update() when it has changed."""
         if SCORE != self.lastscore:
             self.lastscore = SCORE
