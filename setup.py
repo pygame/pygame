@@ -768,8 +768,8 @@ if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
     avx2_filenames = ['simd_blitters_avx2']
     compiler_options = {
-        'unix': ('-mavx2',),
-        'msvc': ('/arch:AVX2',)
+        'unix': '-mavx2',
+        'msvc': '/arch:AVX2'
     }
     # infer compiler type from os
     operating_system = platform.system()
