@@ -3,6 +3,8 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
+python3 -m pip install setuptools
+
 GLIB=glib-2.56.4
 
 curl -sL --retry 10 https://download.gnome.org/sources/glib/2.56/${GLIB}.tar.xz > ${GLIB}.tar.xz
