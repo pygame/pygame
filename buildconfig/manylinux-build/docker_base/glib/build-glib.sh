@@ -5,9 +5,9 @@ cd $(dirname `readlink -f "$0"`)
 
 python3 -m pip install setuptools
 
-GLIB=glib-2.56.4
+GLIB=glib-2.80.0
 
-curl -sL --retry 10 https://download.gnome.org/sources/glib/2.56/${GLIB}.tar.xz > ${GLIB}.tar.xz
+curl -sL --retry 10 https://download.gnome.org/sources/glib/2.80/${GLIB}.tar.xz > ${GLIB}.tar.xz
 sha512sum -c glib.sha512
 
 unxz ${GLIB}.tar.xz
@@ -15,7 +15,7 @@ tar xf ${GLIB}.tar
 cd $GLIB
 
 if [[ "$MAC_ARCH" == "arm64" ]]; then
-    # pass a 'cache' file while cross compiling to arm64 for glib. This is
+    # pass a 'cache' file while cross-compiling to arm64 for glib. This is
     # needed for glib to determine some info about the target architecture
     export GLIB_COMPILE_EXTRA_FLAGS="--cache-file=../macos_arm64.cache"
 fi
