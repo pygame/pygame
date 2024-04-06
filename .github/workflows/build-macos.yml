@@ -37,16 +37,17 @@ jobs:
     name: ${{ matrix.macarch }} deps
     runs-on: macos-12
     strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         # make arm64 deps and x86_64 deps
         macarch: [arm64, x86_64]
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v4
 
       - name: Test for Mac Deps cache hit
         id: macdep-cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
           # The hash of all files in buildconfig manylinux-build and macdependencies is 
@@ -58,13 +59,13 @@ jobs:
         if: steps.macdep-cache.outputs.cache-hit != 'true'
         run: |
           export MAC_ARCH="${{ matrix.macarch }}"
-          brew install coreutils pkg-config
+          brew install coreutils pkg-config python-setuptools
           cd buildconfig/macdependencies
           bash ./build_mac_deps.sh
 
       # Uncomment when you want to manually verify the deps by downloading them
       # - name: Upload Mac deps
-      #   uses: actions/upload-artifact@v3
+      #   uses: actions/upload-artifact@v4
       #   with:
       #     name: pygame-mac-deps-${{ matrix.macarch }}
       #     path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
@@ -129,7 +130,7 @@ jobs:
       # Setup MacOS dependencies
       CIBW_BEFORE_ALL: |
         export MAC_ARCH="${{ matrix.macarch }}"
-        brew install pkg-config
+        brew install pkg-config python-setuptools
         cd buildconfig/macdependencies
         bash ./install_mac_deps.sh
 
@@ -147,25 +148,25 @@ jobs:
       CIBW_BUILD_VERBOSITY: 2
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v4
 
       - name: pip cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v4
         with:
           path: ~/Library/Caches/pip  # This cache path is only right on mac
           key: pip-cache-${{ matrix.name }}
 
       - name: Fetch Mac deps
         id: macdep-cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
 
       - name: Build and test wheels
-        uses: pypa/cibuildwheel@v2.16.1
+        uses: pypa/cibuildwheel@v2.17.0
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pygame-wheels
           path: ./wheelhouse/*.whl
