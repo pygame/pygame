@@ -137,9 +137,6 @@ jobs:
         pip install requests numpy Sphinx Cython==3.0.0
         python setup.py docs
 
-      CIBW_BEFORE_TEST: |
-        pip install mypy pyright pytype
-
       CIBW_TEST_COMMAND: >
         python -m pygame.tests -v --exclude opengl,timing --time_out 300
 
