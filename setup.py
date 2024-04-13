@@ -140,14 +140,23 @@ def compilation_help():
     """ On failure point people to a web page for help.
     """
     the_system = platform.system()
-    if the_system == 'Linux' and hasattr(platform, 'linux_distribution'):
-        distro_name = platform.linux_distribution()[0].lower()
-        distro_mapping = {
-            'ubuntu': 'Ubuntu',
-            'debian': 'Debian'
-        }
-        the_system = distro_mapping.get(distro_name, the_system)
 
+    if the_system == 'Linux':
+        distro_name = ''
+        try:
+            import distro
+            distro_name = distro.id()
+        except ImportError:
+            if hasattr(platform, 'linux_distribution'):
+                distro_name = platform.linux_distribution()[0].lower()
+
+        if distro_name != '':
+            distro_mapping = {
+                'ubuntu': 'Ubuntu',
+                'debian': 'Debian',
+                'slackware': 'Slackware'
+            }
+            the_system = distro_mapping.get(distro_name, the_system)
 
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
@@ -160,6 +169,7 @@ def compilation_help():
         'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
         'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
         'Debian': 'https://www.pygame.org/wiki/CompileDebian',
+        'Slackware': 'https://www.pygame.org/wiki/CompileSlackware',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
