@@ -828,17 +828,10 @@ def load_xbm(curs, mask):
         if line.startswith(possible_starts):
             break
     data = " ".join(curs[i + 1 :]).replace("};", "").replace(",", " ")
-    cursdata = []
-    for x in data.split():
-        cursdata.append(bitswap(int(x, 16)))
-    cursdata = tuple(cursdata)
+    cursdata = tuple(bitswap(int(x, 16)) for x in data.split())
     for i, line in enumerate(mask):
         if line.startswith(possible_starts):
             break
     data = " ".join(mask[i + 1 :]).replace("};", "").replace(",", " ")
-    maskdata = []
-    for x in data.split():
-        maskdata.append(bitswap(int(x, 16)))
-
-    maskdata = tuple(maskdata)
+    maskdata = tuple(bitswap(int(x, 16)) for x in data.split())
     return info[:2], info[2:], cursdata, maskdata

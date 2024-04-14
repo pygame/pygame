@@ -163,9 +163,7 @@ def _font_finder_darwin():
 
     strange_root = "/System/Library/Assets/com_apple_MobileAsset_Font3"
     if exists(strange_root):
-        strange_locations = os.listdir(strange_root)
-        for loc in strange_locations:
-            locations.append(f"{strange_root}/{loc}/AssetData")
+        locations += [f"{strange_root}/{loc}" for loc in os.listdir(strange_root)]
 
     fonts = {}
 
@@ -240,7 +238,7 @@ def initsysfonts_unix(path="fc-list"):
         for entry in proc.stdout.decode("ascii", "ignore").splitlines():
             try:
                 _parse_font_entry_unix(entry, fonts)
-            except ValueError:
+            except ValueError:  # noqa: PERF203
                 # try the next one.
                 pass
 

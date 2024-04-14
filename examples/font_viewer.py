@@ -70,14 +70,11 @@ class FontViewer:
         path = ""
         if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
             path = os.path.join(sys.argv[1], "")
-        fonts = []
         if os.path.exists(path):
-            # this list comprehension could replace the following loop
-            # fonts = [f in os.listdir(path) if f.endswith('.ttf')]
-            for font in os.listdir(path):
-                if font.endswith(".ttf"):
-                    fonts.append(font)
-        return fonts or pg.font.get_fonts(), path
+            fonts = [font for font in os.listdir(path) if font.endswith(".ttf")]
+        else:
+            fonts = pg.font.get_fonts()
+        return fonts, path
 
     def render_fonts(self, text="A display of font &N"):
         """

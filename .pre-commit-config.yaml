@@ -49,7 +49,9 @@ repos:
     hooks:
       - id: ruff
         args: [
-          --target-version, py37,
           --exclude, setup.py,
-          --extend-ignore, "E401,E402,E701,E721,E722,E731,E741,F401,F403,F405,F821,F841"
+          --extend-ignore, "E401,E402,E701,E721,E722,E731,E741,F401,F403,F405,F821,F841",
+          --extend-select, "ASYNC,C4,PERF,W",
+          # --line-length, "159",
+          --target-version, py37,
         ]

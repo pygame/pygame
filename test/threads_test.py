@@ -187,7 +187,7 @@ class ThreadsModuleTest(unittest.TestCase):
         # calls made by tmap will have thrown an exception (ZeroDivisionError)
         # Condense to single bool with `all`, which will return true if all
         # entries are true
-        self.assertTrue(all([x is None for x in tmapped2]))
+        self.assertTrue(all(x is None for x in tmapped2))
 
     def todo_test_tmap__None_func_and_multiple_sequences(self):
         """Using a None as func and multiple sequences"""
@@ -207,7 +207,7 @@ class ThreadsModuleTest(unittest.TestCase):
         r = range(1000)
         wq, results = tmap(lambda x: x, r, num_workers=5, wait=False)
         wq.wait()
-        r2 = map(lambda x: x.result, results)
+        r2 = (x.result for x in results)
         self.assertEqual(list(r), list(r2))
 
     def test_FuncResult(self):

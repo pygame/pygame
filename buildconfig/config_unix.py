@@ -143,7 +143,7 @@ def main(auto_config=False):
     origincdirs = ['/include', '/include/SDL2']
     origlibdirs = ['/lib', '/lib64', '/X11R6/lib']
 
-    # If we are on a debian based system, we also need to handle 
+    # If we are on a debian based system, we also need to handle
     # /lib/<multiarch-tuple>
     # We have a few commands to get the correct <multiarch-tuple>, we try those
     # one by one till we get something that works
