@@ -28,6 +28,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3.0.2
-
-      # This job will be completly be replaced by the pre-commit job in #4200
-
+      - name: Check docs changes are checked in
+        run: |
+          python3 setup.py docs
+          if [[ `git status --porcelain` ]]; then
+            echo "Generating docs caused changes. Please check them in."
+            echo "You may need to run: python3 setup.py docs --fullgeneration"
+            # Run git status again, so people can see what changed.
+            git status --porcelain
+            exit 1
+          fi
