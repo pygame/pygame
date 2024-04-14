@@ -360,7 +360,7 @@ class WeakDirtySprite(WeakSprite, DirtySprite):
     """
 
 
-class AbstractGroup(Generic[TypeVar('T')]):
+class AbstractGroup(Generic[TypeVar("T")]):
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
