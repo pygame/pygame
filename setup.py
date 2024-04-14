@@ -305,7 +305,7 @@ if compile_cython:
     if cython_only:
         sys.exit(0)
 
-no_compilation = any(x in ('docs') for x in sys.argv)
+no_compilation = 'docs' in sys.argv
 AUTO_CONFIG = not os.path.isfile('Setup') and not no_compilation
 if consume_arg('-auto'):
     AUTO_CONFIG = True
