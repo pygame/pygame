@@ -224,7 +224,7 @@ def main():
             )
             bg.blit(button_text, button_text_rect)
 
-            if pg.mouse.get_pressed()[0] == 1 and pressed == False:
+            if pg.mouse.get_pressed()[0] == 1 and pressed is False:
                 button = pg.draw.rect(
                     bg,
                     (0, 0, 139),
