@@ -256,7 +256,7 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
             wq.stop()
             if wq.queue.qsize():
                 um = wq.queue.get()
-                if not um is STOP:
+                if um is not STOP:
                     raise RuntimeError("buggy threadmap")
 
         # see if there were any errors.  If so raise the first one.  This matches map behaviour.
