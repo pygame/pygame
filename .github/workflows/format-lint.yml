@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3.0.2
+      - name: Install deps
+        run: python3 -m pip install sphinx
       - name: Check docs changes are checked in
         run: |
           python3 setup.py docs
