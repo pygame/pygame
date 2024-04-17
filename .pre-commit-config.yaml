@@ -1,0 +1,47 @@
+# Learn more about this config here: https://pre-commit.com/
+
+# To enable these pre-commit hooks run:
+# `brew install pre-commit` or `python3 -m pip install pre-commit`
+# Then in the project root directory run `pre-commit install`
+
+repos:
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.4.0
+    hooks:
+      - id: black
+        args: [--skip-string-normalization]
+        exclude: |
+            (?x)^(
+                ^buildconfig/.*$
+                | ^docs/reST/.*$
+                | docs/es/conf.py
+                | setup.py
+            )$
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.3
+    hooks:
+      - id: clang-format
+        exclude: |
+            (?x)^(
+                ^src_c/_sdl2/.*$
+                | ^src_c/doc/.*$
+                | docs/reST/_static/script.js
+                | docs/reST/_templates/header.h
+                | src_c/include/sse2neon.h
+                | src_c/pypm.c
+                | src_c/SDL_gfx/SDL_gfxPrimitives.c
+                | src_c/SDL_gfx/SDL_gfxPrimitives.h
+                | src_c/SDL_gfx/SDL_gfxPrimitives_font.h
+                | src_c/sdlmain_osx.m
+            )$
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.3.7
+    hooks:
+      - id: ruff
+        args: [
+          --target-version, py37,
+          --exclude, setup.py,
+          --extend-ignore, "E401,E402,E701,E721,E722,E731,E741,F401,F403,F405,F821,F841"
+        ]

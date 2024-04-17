@@ -936,7 +936,7 @@ class ColorTypeTest(unittest.TestCase):
                 self.assertTrue(abs(other.b - c.b) <= 1)
                 self.assertTrue(abs(other.g - c.g) <= 1)
                 # CMY and I1I2I3 do not care about the alpha
-                if not prop in ("cmy", "i1i2i3"):
+                if prop not in ("cmy", "i1i2i3"):
                     self.assertTrue(abs(other.a - c.a) <= 1)
 
             except ValueError:

@@ -30,7 +30,7 @@ class Dependency:
                     # so that it can pass things through to the linker from the Setup file.
                     self.cflags += (f' -Xlinker "-framework" -Xlinker "{n}"')
 
-        if not extra_libs is None:
+        if extra_libs is not None:
             self.libs.extend(extra_libs)
 
 

@@ -32,13 +32,23 @@ def compilation_help():
     """ On failure point people to a web page for help.
     """
     the_system = platform.system()
-    if the_system == 'Linux' and hasattr(platform, 'linux_distribution'):
-        distro_name = platform.linux_distribution()[0].lower()
-        distro_mapping = {
-            'ubuntu': 'Ubuntu',
-            'debian': 'Debian'
-        }
-        the_system = distro_mapping.get(distro_name, the_system)
+
+    if the_system == 'Linux':
+        distro_name = ''
+        try:
+            import distro
+            distro_name = distro.id()
+        except ImportError:
+            if hasattr(platform, 'linux_distribution'):
+                distro_name = platform.linux_distribution()[0].lower()
+
+        if distro_name != '':
+            distro_mapping = {
+                'ubuntu': 'Ubuntu',
+                'debian': 'Debian',
+                'slackware': 'Slackware'
+            }
+            the_system = distro_mapping.get(distro_name, the_system)
 
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
@@ -51,6 +61,7 @@ def compilation_help():
         'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
         'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
         'Debian': 'https://www.pygame.org/wiki/CompileDebian',
+        'Slackware': 'https://www.pygame.org/wiki/CompileSlackware',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
@@ -578,101 +589,6 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
-
-class LintFormatCommand(Command):
-    """ Used for formatting or linting. See Lint and Format Sub classes.
-    """
-    user_options = []
-    lint = False
-    format = False
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """Check the existence and launch linters."""
-        import subprocess
-        import sys
-        import warnings
-        import pathlib
-
-        def check_linter_exists(linter):
-            if shutil.which(linter) is None:
-                msg = "Please install '%s' in your environment. (hint: 'python3 -m pip install %s')"
-                warnings.warn(msg % (linter, linter))
-                sys.exit(1)
-
-        def filter_files(path_obj, all_files, allowed_files, disallowed_files):
-            files = []
-            for file in all_files:
-                for disallowed in disallowed_files:
-                    if file.match(str(path_obj / disallowed)):
-                        break
-                else:  # no-break
-                    files.append(str(file))
-                    continue
-
-                for allowed in allowed_files:
-                    if file.match(str(path_obj / allowed)):
-                        files.append(str(file))
-                        break
-
-            return files
-
-        path = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        path_obj = pathlib.Path(path, "src_c")
-        c_files_unfiltered = path_obj.glob("**/*.[ch]")
-        c_file_disallow = [
-            "_sdl2/**",
-            "pypm.c",
-            "SDL_gfx/**",
-            "**/sse2neon.h",
-            "doc/**",
-            "_sprite.c",
-        ]
-        c_file_allow = ["_sdl2/touch.c"]
-        c_files = filter_files(path_obj, c_files_unfiltered, c_file_allow, c_file_disallow)
-
-
-        # Other files have too many issues for now. setup.py, buildconfig, etc
-        python_directories = ["src_py", "test", "examples"]
-        if self.lint:
-            commands = {
-                "clang-format": ["--dry-run", "--Werror", "-i"] + c_files,
-                "black": ["--check", "--diff"] + python_directories,
-                # Test directory has too much pylint warning for now
-                "pylint": ["src_py"],
-            }
-        else:
-            commands = {
-                "clang-format": ["-i"] + c_files,
-                "black": python_directories,
-            }
-
-        formatters = ["black", "clang-format"]
-        for linter, option in commands.items():
-            print(" ".join([linter] + option))
-            check_linter_exists(linter)
-            result = subprocess.run([linter] + option)
-            if result.returncode:
-                msg = f"'{linter}' failed."
-                msg += " Please run: python setup.py format" if linter in formatters else ""
-                msg += f" Do you have the latest version of {linter}?"
-                raise SystemExit(msg)
-
-
-@add_command("lint")
-class LintCommand(LintFormatCommand):
-    lint = True
-
-
-@add_command("format")
-class FormatCommand(LintFormatCommand):
-    format = True
-
 
 @add_command('docs')
 class DocsCommand(Command):

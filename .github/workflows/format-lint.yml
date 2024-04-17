@@ -11,6 +11,7 @@ on:
       - '**.c'
       - '**.py'
       - '**.rst'
+      - '.pre-commit-config.yaml'
 
   pull_request:
     branches:
@@ -21,20 +22,25 @@ on:
       - '**.c'
       - '**.py'
       - '**.rst'
+      - '.pre-commit-config.yaml'
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - uses: pre-commit/action@v3.0.1
+
   format-lint-code-check:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3.0.2
-
+      - uses: actions/checkout@v4.1.2
       - name: Install deps
-        run: python3 -m pip install pylint==2.15.5 black clang-format sphinx
-
-      - name: Check code Formatting and Linting
-        run: python3 setup.py lint
-
+        run: python3 -m pip install sphinx
       - name: Check docs changes are checked in
         run: |
           python3 setup.py docs

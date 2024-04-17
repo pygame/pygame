@@ -1017,14 +1017,14 @@ class DisplayUpdateTest(unittest.TestCase):
         self.screen.fill("green")
         pygame.display.update(None)
         pygame.event.pump()  # so mac updates
-        self.question(f"Is the screen black and NOT green?")
+        self.question("Is the screen black and NOT green?")
 
     def test_update_no_args(self):
         """does NOT update the display."""
         self.screen.fill("green")
         pygame.display.update()
         pygame.event.pump()  # so mac updates
-        self.question(f"Is the WHOLE screen green?")
+        self.question("Is the WHOLE screen green?")
 
     def test_update_args(self):
         """updates the display using the args as a rect."""
