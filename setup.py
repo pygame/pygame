@@ -717,7 +717,7 @@ Misc. Platform Specific Compilation Stuff
 
 """
 if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
-    if '-enable-msvc-analyze' in sys.argv:
+    if os.getenv("USE_ANALYZE", "") == '-enable-msvc-analyze':
         # calculate the MSVC compiler version as an int
         msc_pos = sys.version.find('MSC v.')
         msc_ver = 1900
