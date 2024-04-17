@@ -4,7 +4,7 @@ import os
 from glob import glob
 import platform
 import logging
-from distutils.sysconfig import get_python_inc
+from sysconfig import get_path
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
@@ -124,7 +124,7 @@ class DependencyPython:
             except ImportError:
                 self.found = 0
         if self.found and self.header:
-            fullpath = os.path.join(get_python_inc(0), self.header)
+            fullpath = os.path.join(get_path('include'), self.header)
             if not os.path.isfile(fullpath):
                 self.found = 0
             else:
