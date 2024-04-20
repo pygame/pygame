@@ -1,20 +1,24 @@
 import unittest
+import os
 import pygame
 import pygame.camera
 
 
 class CameraModuleTest(unittest.TestCase):
-    pass
-
-
-class TestPygameCamera(unittest.TestCase):
     def setUp(self):
         pygame.init()
+
         pygame.camera.init()
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
+        "requires the SDL_VIDEODRIVER to be non dummy",
+    )
     def test_camera(self):
         cameras = pygame.camera.list_cameras()
-        self.assertTrue(len(cameras) > 0, "No cameras found")
+
+        if len(cameras) == 0:
+            self.skipTest("No cameras found")
 
         cam = pygame.camera.Camera(cameras[0], (640, 480))
         cam.start()
@@ -26,6 +30,6 @@ class TestPygameCamera(unittest.TestCase):
         pygame.camera.quit()
         pygame.quit()
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()
