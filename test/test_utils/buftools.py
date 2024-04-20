@@ -3,8 +3,8 @@
 Export the Exporter and Importer classes.
 
 Class Exporter has configurable shape and strides. Exporter objects
-provide a convient target for unit tests on Pygame objects and functions that
-import a new buffer interface.
+provide a convenient target for unit tests on Pygame objects and functions
+that import a new buffer interface.
 
 Class Importer imports a buffer interface with the given PyBUF_* flags.
 It returns NULL Py_buffer fields as None. The shape, strides, and suboffsets

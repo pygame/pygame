@@ -122,7 +122,7 @@ _TDirtySprite = TypeVar("_TDirtySprite", bound=_DirtySpriteSupportsGroup)
 # missing image and rect attributes
 # a = Group(Sprite())
 
-# typechecker should error, other Sprite attibutes are also needed for Group
+# typechecker should error, other Sprite attributes are also needed for Group
 # class MySprite:
 #     image: Surface
 #     rect: Rect
@@ -255,7 +255,7 @@ class collide_circle_ratio:
     ) -> bool: ...
 
 # argument to collide_mask must either have mask or have image attribute, in
-# addtion to mandatorily having a rect attribute
+# addition to mandatorily having a rect attribute
 _SupportsCollideMask = Union[_HasImageAndRect, _HasMaskAndRect]
 
 def collide_mask(

@@ -9,7 +9,7 @@ set -e -x
 cd $(dirname `readlink -f "$0"`)
 
 # We save the compiled-in PKG_CONFIG_PATH of the pre-existing pkg-config, and
-# re-use it with the new pkg-config
+# reuse it with the new pkg-config
 COMPILED_PKGCONFIG_DIRS=$(pkg-config --variable pc_path pkg-config)
 
 # append path(s) where other installs put .pc files

@@ -1056,7 +1056,7 @@ class DisplayUpdateInteractiveTest(DisplayUpdateTest):
     __tags__ = ["interactive"]
 
     def question(self, qstr):
-        """since this is the interactive sublcass we ask a question."""
+        """since this is the interactive subclass we ask a question."""
         question(qstr)
 
 
