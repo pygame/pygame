@@ -741,7 +741,7 @@ class ChannelTypeTest(unittest.TestCase):
 
         # Ensure the second queued sound is returned.
         self.assertEqual(channel.get_queue().get_length(), sound2.get_length())
-        
+
         pygame.time.wait(sound_length_in_ms + 100)
         self.assertIsNone(channel.get_queue())
 
@@ -823,23 +823,21 @@ class ChannelTypeTest(unittest.TestCase):
         sound1 = mixer.Sound(b"\x00" * int(sound_length_in_ms * bytes_per_ms))
         sound2 = mixer.Sound(b"\x00" * (int(sound_length_in_ms_2 * bytes_per_ms)))
         sound3 = mixer.Sound(b"\x00" * (int(sound_length_in_ms_3 * bytes_per_ms)))
-        
+
         # Test that the sound is played when the first one stop and the queue is cleared
-        
         channel.play(sound1)
         channel.queue(sound2)
         pygame.time.wait(sound_length_in_ms + 100)
         self.assertTrue(channel.get_busy())
-        self.assertEqual(channel.get_sound(),sound2)
+        self.assertEqual(channel.get_sound(), sound2)
         self.assertIsNone(channel.get_queue())
 
         pygame.time.wait(sound_length_in_ms_2 + 100)
 
         # Test when no sound playing
-
         channel.queue(sound1)
         self.assertTrue(channel.get_busy())
-        self.assertEqual(channel.get_sound(),sound1)
+        self.assertEqual(channel.get_sound(), sound1)
 
         pygame.time.wait(sound_length_in_ms + 100)
 
@@ -853,7 +851,6 @@ class ChannelTypeTest(unittest.TestCase):
         self.assertFalse(channel.get_busy())
 
         # Test that the queue is discarded if Channel.stop() is used
-
         channel.play(sound1)
         channel.queue(sound2)
         channel.stop()
@@ -864,8 +861,8 @@ class ChannelTypeTest(unittest.TestCase):
         channel.play(sound1)
         channel.queue(sound2)
         channel.queue(sound3)
-        self.assertEqual(channel.get_sound(),sound1)
-        self.assertEqual(channel.get_queue(),sound3)
+        self.assertEqual(channel.get_sound(), sound1)
+        self.assertEqual(channel.get_queue(), sound3)
 
     def test_stop(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
