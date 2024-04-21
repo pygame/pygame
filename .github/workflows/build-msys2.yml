@@ -71,7 +71,7 @@ jobs:
           export SDL_AUDIODRIVER=disk
           python -m test -v --exclude opengl,music,timing --time_out 300
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pygame-msys2-wheels
           path: ~/wheelhouse/*.whl
