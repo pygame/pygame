@@ -232,10 +232,11 @@ def run(*args, **kwds):
         else:
             from test.test_utils.async_sub import proc_in_time_or_kill
 
-        pass_on_args = ["--exclude", ",".join(option_exclude)]
-        for field in ["randomize", "incomplete", "unbuffered", "verbosity"]:
-            if kwds.get(field, False):
-                pass_on_args.append("--" + field)
+        pass_on_args = ["--exclude", ",".join(option_exclude)] + [
+            "--" + field
+            for field in ("randomize", "incomplete", "unbuffered", "verbosity")
+            if kwds.get(field)
+        ]
 
         def sub_test(module):
             print(f"loading {module}")
@@ -273,15 +274,15 @@ def run(*args, **kwds):
                 results[module] = {}
 
             results[module].update(
-                dict(
-                    return_code=return_code,
-                    raw_return=raw_return,
-                    cmd=cmd,
-                    test_file=test_file,
-                    test_env=test_env,
-                    working_dir=working_dir,
-                    module=module,
-                )
+                {
+                    "return_code": return_code,
+                    "raw_return": raw_return,
+                    "cmd": cmd,
+                    "test_file": test_file,
+                    "test_env": test_env,
+                    "working_dir": working_dir,
+                    "module": module,
+                }
             )
 
         t = time.time() - t

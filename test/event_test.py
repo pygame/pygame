@@ -31,9 +31,9 @@ EVENT_TEST_PARAMS.update(
     {
         pygame.KEYDOWN: {"key": pygame.K_SPACE},
         pygame.KEYUP: {"key": pygame.K_SPACE},
-        pygame.MOUSEMOTION: dict(),
-        pygame.MOUSEBUTTONDOWN: dict(button=1),
-        pygame.MOUSEBUTTONUP: dict(button=1),
+        pygame.MOUSEMOTION: {},
+        pygame.MOUSEBUTTONDOWN: {"button": 1},
+        pygame.MOUSEBUTTONUP: {"button": 1},
     }
 )
 

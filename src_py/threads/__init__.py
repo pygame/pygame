@@ -267,5 +267,5 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
             if error_ones:
                 raise error_ones[0].exception
 
-        return map(lambda x: x.result, results)
+        return (x.result for x in results)
     return [wq, results]

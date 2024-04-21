@@ -134,7 +134,7 @@ class MouseModuleTest(MouseTests):
             # Making sure the warnings are working properly
             self.assertEqual(len(w), 6)
             self.assertTrue(
-                all([issubclass(warn.category, DeprecationWarning) for warn in w])
+                all(issubclass(warn.category, DeprecationWarning) for warn in w)
             )
 
     @unittest.skipIf(

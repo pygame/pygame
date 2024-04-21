@@ -15,7 +15,7 @@ bitmap_2 = pg.cursors.Cursor(
 )
 
 # create a color cursor
-surf = pg.Surface((40, 40)) # you could also load an image 
+surf = pg.Surface((40, 40)) # you could also load an image
 surf.fill((120, 50, 50))        # and use that as your surface
 color = pg.cursors.Cursor((20, 20), surf)
 

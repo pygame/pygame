@@ -746,7 +746,7 @@ class Writer:
                 a.extend([0] * int(extra))
                 # Pack into bytes
                 l = group(a, spb)
-                l = map(lambda e: reduce(lambda x, y: (x << self.bitdepth) + y, e), l)
+                l = (reduce(lambda x, y: (x << self.bitdepth) + y, e) for e in l)
                 data.extend(l)
 
         if self.rescale:
@@ -754,7 +754,7 @@ class Writer:
             factor = float(2 ** self.rescale[1] - 1) / float(2 ** self.rescale[0] - 1)
 
             def extend(sl):
-                oldextend(map(lambda x: int(round(factor * x)), sl))
+                oldextend((int(round(factor * x)) for x in sl))
 
         # Build the first row, testing mostly to see if we need to
         # changed the extend function to cope with NumPy integer types
@@ -1642,7 +1642,7 @@ class Reader:
             mask = 2**self.bitdepth - 1
             shifts = map(self.bitdepth.__mul__, reversed(range(spb)))
             for o in raw:
-                out.extend(map(lambda i: mask & (o >> i), shifts))
+                out.extend((mask & (o >> i) for i in shifts))
             return out[:width]
 
         return map(asvalues, rows)
@@ -1941,7 +1941,7 @@ class Reader:
             )
         else:
             pixels = self.iterboxed(self.iterstraight(raw))
-        meta = dict()
+        meta = {}
         for attr in "greyscale alpha planes bitdepth interlace".split():
             meta[attr] = getattr(self, attr)
         meta["size"] = (self.width, self.height)
@@ -2128,7 +2128,7 @@ class Reader:
 
         def iterscale():
             for row in pixels:
-                yield map(lambda x: int(round(x * factor)), row)
+                yield (int(round(x * factor)) for x in row)
 
         return width, height, iterscale(), meta
 
@@ -2426,7 +2426,7 @@ class Test(unittest.TestCase):
         d = d + (255,)
         e = e + (255,)
         boxed = [(e, d, c), (d, c, a), (c, a, b)]
-        flat = map(lambda row: itertools.chain(*row), boxed)
+        flat = (itertools.chain(*row) for row in boxed)
         self.assertEqual(map(list, pixels), map(list, flat))
 
     def testRGBtoRGBA(self):
@@ -2744,8 +2744,8 @@ class Test(unittest.TestCase):
         import itertools
 
         i = itertools.islice(itertools.count(10), 20)
-        i = map(lambda x: [x, x, x], i)
-        img = from_array(i, "RGB;5", dict(height=20))
+        i = ([x, x, x] for x in i)
+        img = from_array(i, "RGB;5", {"height": 20})
         f = open("testiter.png", "wb")
         img.save(f)
         f.close()
@@ -3606,7 +3606,7 @@ def read_pam_header(infile):
     """
 
     # Unlike PBM, PGM, and PPM, we can read the header a line at a time.
-    header = dict()
+    header = {}
     while True:
         l = infile.readline().strip()
         if l == strtobytes("ENDHDR"):
@@ -3960,7 +3960,7 @@ def _main(argv):
         # care about TUPLTYPE.
         greyscale = depth <= 2
         pamalpha = depth in (2, 4)
-        supported = map(lambda x: 2**x - 1, range(1, 17))
+        supported = (2**x - 1 for x in range(1, 17))
         try:
             mi = supported.index(maxval)
         except ValueError:

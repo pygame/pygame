@@ -71,23 +71,21 @@ def prepdep(dep, basepath):
             dep.found = 1
         return
 
-    incs = []
-    lids = []
     IPREFIX = ' -I$(BASE)' if basepath else ' -I'
     LPREFIX = ' -L$(BASE)' if basepath else ' -L'
     startind = len(basepath) if basepath else 0
+    incs = []
     if dep.inc_dir:
         if isinstance(dep.inc_dir, str):
-            incs.append(IPREFIX+dep.inc_dir[startind:])
+            incs = [IPREFIX+dep.inc_dir[startind:]]
         else:
-            for dir in dep.inc_dir:
-                incs.append(IPREFIX+dir[startind:])
+            incs = [IPREFIX+dir[startind:] for dir in dep.inc_dir]
+    lids = []
     if dep.lib_dir:
         if isinstance(dep.lib_dir, str):
-            lids.append(LPREFIX+dep.lib_dir[startind:])
+            lids = [LPREFIX+dep.lib_dir[startind:]]
         else:
-            for dir in dep.lib_dir:
-                lids.append(LPREFIX+dir[startind:])
+            lids = [LPREFIX+dir[startind:]for dir in dep.lib_dir]
     libs = ''
     for lib in dep.libs:
         libs += ' -l' + lib
@@ -231,7 +229,7 @@ Only SDL2 is supported now.""")
             shutil.copyfile(setup_path, backup_path)
         except Exception as e:
             logging.error(f"Failed to backup 'Setup' file: {e}")
-        
+
 
     deps = CFG.main(**kwds, auto_config=auto)
     if '-conan' in sys.argv:
