@@ -2327,9 +2327,9 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
      * num_points : the number of points
      */
     Py_ssize_t i, i_previous;  // i_previous is the index of the point before i
-    int y, miny, maxy;
-    int x1, y1;
-    int x2, y2;
+    double y, miny, maxy;
+    double x1, y1;
+    double x2, y2;
     /* x_intersect are the x-coordinates of intersections of the polygon
      * with some horizontal line */
     int *x_intersect = PyMem_New(int, num_points);
@@ -2396,7 +2396,7 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
                 // add intersection if y crosses the edge (excluding the lower
                 // end), or when we are on the lowest line (maxy)
                 x_intersect[n_intersections++] =
-                    (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+                    (int)((y - y1) * (x2 - x1) / (y2 - y1) + x1);
             }
         }
         qsort(x_intersect, n_intersections, sizeof(int), compare_int);
