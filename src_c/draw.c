@@ -2356,7 +2356,8 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
             minx = MIN(minx, point_x[i]);
             maxx = MAX(maxx, point_x[i]);
         }
-        drawhorzlineclipbounding(surf, color, minx, (int)miny, maxx, drawn_area);
+        drawhorzlineclipbounding(surf, color, minx, (int)miny, maxx,
+                                 drawn_area);
         PyMem_Free(x_intersect);
         return;
     }

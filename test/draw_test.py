@@ -4280,7 +4280,7 @@ class DrawPolygonMixin:
                 surface.unlock()
 
     # Test cases for Issue #3989 (fixed on #4191)
-    # This tests the fill polygon bug to avoid    
+    # This tests the fill polygon bug to avoid
     def test_polygon_large_coords_3989(self):
         """
         Ensures draw polygon works correctly with large points.
@@ -4295,10 +4295,10 @@ class DrawPolygonMixin:
 
         surf_w = surf_h = 650
         surface = pygame.Surface((surf_w, surf_h))
-        
+
         green = (0, 255, 0)
         white = (0, 0, 0, 255)
-        
+
         # Draw white background
         pygame.draw.rect(surface, white, (0, 0, surf_w, surf_h), 0)
 
@@ -4333,7 +4333,7 @@ class DrawPolygonMixin:
         self.draw_polygon(surface, green, (point_a, point_b, extreme_points_coords))
         extreme_points(self)
 
-        pygame.draw.rect(surface, white, (0, 0, surf_w, surf_h), 0)        
+        pygame.draw.rect(surface, white, (0, 0, surf_w, surf_h), 0)
         self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_coords))
         extreme_negative_pass(self)
         extreme_negative_fail(self)
@@ -4347,7 +4347,6 @@ class DrawPolygonMixin:
         self.draw_polygon(surface, green, (point_a, point_b, extreme_negative_y))
         extreme_y_pass(self)
         extreme_y_fail(self)
-
 
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
