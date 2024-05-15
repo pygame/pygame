@@ -854,6 +854,7 @@ class ChannelTypeTest(unittest.TestCase):
         channel.play(sound1)
         channel.queue(sound2)
         channel.stop()
+        pygame.time.wait(100)
         self.assertIsNone(channel.get_queue())
         self.assertFalse(channel.get_busy())
 
