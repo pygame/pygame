@@ -154,7 +154,8 @@ def compilation_help():
             distro_mapping = {
                 'ubuntu': 'Ubuntu',
                 'debian': 'Debian',
-                'slackware': 'Slackware'
+                'slackware': 'Slackware',
+                'fedora': 'Fedora',
             }
             the_system = distro_mapping.get(distro_name, the_system)
 
@@ -164,6 +165,7 @@ def compilation_help():
         'Windows': 'https://www.pygame.org/wiki/CompileWindows',
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
         'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
+        'Fedora': 'https://www.pygame.org/wiki/CompileFedora',
         # TODO There is nothing in the following pages yet
         'Suse': 'https://www.pygame.org/wiki/CompileSuse',
         'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
