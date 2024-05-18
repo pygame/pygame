@@ -233,7 +233,7 @@ if consume_arg('cython_only'):
     cython_only = True
 
 # If there is no generated C code, compile the cython/.pyx files
-if any(x in ["build_ext", "build", "sdist", "bdist_wheel"] for x in sys.argv) and (
+if any(x in ["build_ext", "build", "sdist", "bdist_wheel", "install"] for x in sys.argv) and (
     not glob.glob(os.path.join("src_c", "_sdl2", "audio.c"))
     or not glob.glob(os.path.join("src_c", "pypm.c"))
 ):
