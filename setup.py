@@ -9,6 +9,9 @@
 import glob
 import platform
 import sysconfig
+import warnings
+
+warnings.filterwarnings("ignore")
 
 with open('README.rst', encoding='utf-8') as readme:
     LONG_DESCRIPTION = readme.read()
