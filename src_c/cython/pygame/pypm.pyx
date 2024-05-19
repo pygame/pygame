@@ -106,7 +106,7 @@ cdef extern from "portmidi.h":
                          PmDeviceID inputDevice,
                          void *inputDriverInfo,
                          long bufferSize,
-                         long (*PmPtr) (), # long = PtTimestamp
+                         PmTimeProcPtr time_proc, # long = PtTimestamp
                          void *time_info)
 
     PmError Pm_OpenOutput(PortMidiStream** stream,
@@ -538,11 +538,14 @@ cdef class Input:
         """Instantiate MIDI input stream object."""
 
         cdef PmError err
+        cdef PmTimeProcPtr PmPtr
         self.device = input_device
         self.debug = 0
 
+        PmPtr = <PmTimeProcPtr>&Pt_Time
+
         err = Pm_OpenInput(&(self.midi), input_device, NULL, buffersize,
-                           &Pt_Time, NULL)
+                           PmPtr, NULL)
         if err < 0:
             raise Exception(Pm_GetErrorText(err))
 
