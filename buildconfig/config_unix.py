@@ -196,7 +196,9 @@ def main(auto_config=False):
         if portmidi_as_porttime:
             return Dependency('PORTTIME', 'porttime.h', 'libportmidi.so', ['portmidi'])
         else:
-            return Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
+            dep = Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
+            if not dep.found:
+                return Dependency('PORTTIME', 'porttime.h', 'libportmidi.so', ['portmidi'])
 
     def find_freetype():
         """ modern freetype uses pkg-config. However, some older systems don't have that.
