@@ -534,7 +534,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
 
     def test_map_array(self):
         try:
-            from numpy import array, zeros, uint8, int32, alltrue
+            from numpy import array, zeros, uint8, int32, all as alltrue
         except ImportError:
             return
 
