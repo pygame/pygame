@@ -9,7 +9,7 @@ from numpy import (
     zeros,
     float32,
     float64,
-    alltrue,
+    all as alltrue,
     rint,
     arange,
 )

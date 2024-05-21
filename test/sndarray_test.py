@@ -1,6 +1,6 @@
 import unittest
 
-from numpy import int8, int16, uint8, uint16, float32, array, alltrue
+from numpy import int8, int16, uint8, uint16, float32, array, all as alltrue
 
 import pygame
 import pygame.sndarray
