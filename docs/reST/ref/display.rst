@@ -163,7 +163,7 @@ required).
       pygame.DOUBLEBUF     only applicable with OPENGL
       pygame.HWSURFACE     (obsolete in pygame 2) hardware accelerated, only in FULLSCREEN
       pygame.OPENGL        create an OpenGL-renderable display
-      pygame.RESIZABLE     display window should be sizeable
+      pygame.RESIZABLE     display window should be resizeable
       pygame.NOFRAME       display window will have no border or controls
       pygame.SCALED        resolution depends on desktop size and scale graphics
       pygame.SHOWN         window is opened in visible mode (default)
