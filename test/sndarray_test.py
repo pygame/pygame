@@ -41,7 +41,7 @@ class SndarrayTest(unittest.TestCase):
             16, 2, [[0, 0xFFFF], [0xFFFF, 0], [0x00FF, 0xFF00], [0x0F0F, 0xF0F0]]
         )
         check_array(-8, 1, [0, -0x80, 0x7F, 0x64])
-        check_array(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xFF, 0]])
+        check_array(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [-1, 0]])
         check_array(-16, 1, [0, 0x7FFF, -0x7FFF, -1])
         check_array(-16, 2, [[0, -0x7FFF], [-0x7FFF, 0], [0x7FFF, 0], [0, 0x7FFF]])
 
@@ -78,13 +78,13 @@ class SndarrayTest(unittest.TestCase):
                 pygame.mixer.quit()
 
         check_sound(8, 1, [0, 0x0F, 0xF0, 0xFF])
-        check_sound(8, 2, [[0, 0x80], [0x2D, 0x41], [0x64, 0xA1], [0xFF, 0x40]])
+        check_sound(8, 2, [[0, 0x80], [0x2D, 0x41], [0x64, 0xA1], [125, 0x40]])
         check_sound(16, 1, [0, 0x00FF, 0xFF00, 0xFFFF])
         check_sound(
             16, 2, [[0, 0xFFFF], [0xFFFF, 0], [0x00FF, 0xFF00], [0x0F0F, 0xF0F0]]
         )
         check_sound(-8, 1, [0, -0x80, 0x7F, 0x64])
-        check_sound(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xFF, 0]])
+        check_sound(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [-1, 0]])
         check_sound(-16, 1, [0, 0x7FFF, -0x7FFF, -1])
         check_sound(-16, 2, [[0, -0x7FFF], [-0x7FFF, 0], [0x7FFF, 0], [0, 0x7FFF]])
         check_sound(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
@@ -123,7 +123,7 @@ class SndarrayTest(unittest.TestCase):
             16, 2, [[0, 0xFFFF], [0xFFFF, 0], [0x00FF, 0xFF00], [0x0F0F, 0xF0F0]]
         )
         check_sample(-8, 1, [0, -0x80, 0x7F, 0x64])
-        check_sample(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xFF, 0]])
+        check_sample(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [-1, 0]])
         check_sample(-16, 1, [0, 0x7FFF, -0x7FFF, -1])
         check_sample(-16, 2, [[0, -0x7FFF], [-0x7FFF, 0], [0x7FFF, 0], [0, 0x7FFF]])
         check_sample(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
