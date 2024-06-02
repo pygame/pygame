@@ -113,10 +113,10 @@ class SurfarrayModuleTest(unittest.TestCase):
 
     def _fill_array2d(self, arr, surf):
         palette = self.test_palette
-        arr[:5, :6] = surf.map_rgb(palette[1])
-        arr[5:, :6] = surf.map_rgb(palette[2])
-        arr[:5, 6:] = surf.map_rgb(palette[3])
-        arr[5:, 6:] = surf.map_rgb(palette[4])
+        arr[:5, :6] = surf.map_rgb(palette[1]) & 0xFFFFFFFF
+        arr[5:, :6] = surf.map_rgb(palette[2]) & 0xFFFFFFFF
+        arr[:5, 6:] = surf.map_rgb(palette[3]) & 0xFFFFFFFF
+        arr[5:, 6:] = surf.map_rgb(palette[4]) & 0xFFFFFFFF
 
     def _fill_array3d(self, arr):
         palette = self.test_palette
