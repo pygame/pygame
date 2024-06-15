@@ -84,7 +84,7 @@ You can also change the ``Group`` membership for the ``Sprite`` with the
 There is also a :meth:`groups() <pygame.sprite.Sprite.groups>` method,
 which returns a list of the current groups containing the sprite.
 
-When using the your Sprite classes it's best to think of them as "valid" or
+When using your Sprite classes it's best to think of them as "valid" or
 "alive" when they are belonging to one or more ``Groups``. When you remove the
 instance from all groups pygame will clean up the object. (Unless you have your
 own references to the instance somewhere else.) The :meth:`kill()
@@ -263,7 +263,7 @@ areas in the list of updated rectangles. If the previous position and current
 position of an object overlap, it will merge them into a single rectangle.
 Combined with the fact that it properly handles deleted objects, this is
 one powerful ``Group`` class. If you've written a game that manages the changed
-rectangles for the objects in a game, you know this the cause for a lot of
+rectangles for the objects in a game, you know this is the cause for a lot of
 messy code in your game. Especially once you start to throw in objects that can
 be deleted at any time. All this work is reduced to a ``clear()`` and
 ``draw()`` method with this monster class. Plus with the overlap checking, it
