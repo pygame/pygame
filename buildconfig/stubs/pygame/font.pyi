@@ -20,7 +20,7 @@ def match_font(
     italic: Hashable = False,
 ) -> str: ...
 def SysFont(
-    name: Union[str, bytes, Iterable[Union[str, bytes]]],
+    name: Union[str, bytes, Iterable[Union[str, bytes]], None],
     size: int,
     bold: Hashable = False,
     italic: Hashable = False,
