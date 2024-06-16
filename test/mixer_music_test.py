@@ -208,12 +208,33 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.stop()
         self.assertEqual(pygame.mixer.music.get_busy(), False)
 
-    def todo_test_rewind(self):
+    def test_rewind(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
 
         # Resets playback of the current music to the beginning.
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-        self.fail()
+        # The music be played for some time
+        time.sleep(3)
+        # Then it is rewinded
+        pygame.mixer.music.rewind()
+        # Since the sound is 7s long, if it is busy after 6s it means it has been restarted
+        time.sleep(6.9)
+        self.assertTrue(pygame.mixer.music.get_busy())
+        pygame.mixer.music.stop()
+
+        # Testing that if the music is paused, rewind works but keep the music paused
+        pygame.mixer.music.play()
+        time.sleep(2)
+        pygame.mixer.music.pause()
+        pygame.mixer.music.rewind()
+        self.assertFalse(pygame.mixer.music.get_busy())
+        time.sleep(1)
+        pygame.mixer.music.unpause()
+        time.sleep(6.9)
+        self.assertTrue(pygame.mixer.music.get_busy())
 
     def todo_test_get_pos(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_pos:
