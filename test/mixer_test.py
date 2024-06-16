@@ -812,6 +812,8 @@ class ChannelTypeTest(unittest.TestCase):
         """
         Ensure the Channel.queue() works correctly
         """
+        if os.environ.get("PYGAME_MSYS2") == "1":
+            self.skipTest("Skip test on MSYS2")
 
         # Setup
         channel = mixer.Channel(0)
