@@ -216,16 +216,16 @@ class MixerMusicModuleTest(unittest.TestCase):
         pygame.mixer.music.load(filename)
         pygame.mixer.music.play()
 
-        #The music be played for some time
+        # The music be played for some time
         time.sleep(3)
-        #Then it is rewinded
+        # Then it is rewinded
         pygame.mixer.music.rewind()
-        #Since the sound is 7s long, if it is busy after 6s it means it has been restarted
+        # Since the sound is 7s long, if it is busy after 6s it means it has been restarted
         time.sleep(6.9)
         self.assertTrue(pygame.mixer.music.get_busy())
         pygame.mixer.music.stop()
 
-        #Testing that if the music is paused, rewind works but keep the music paused
+        # Testing that if the music is paused, rewind works but keep the music paused
         pygame.mixer.music.play()
         time.sleep(2)
         pygame.mixer.music.pause()
