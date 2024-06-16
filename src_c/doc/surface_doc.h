@@ -17,7 +17,7 @@
 #define DOC_SURFACEGETLOCKED "get_locked() -> bool\ntest if the Surface is current locked"
 #define DOC_SURFACEGETLOCKS "get_locks() -> tuple\nGets the locks for the Surface"
 #define DOC_SURFACEGETAT "get_at((x, y)) -> Color\nget the color value at a single pixel"
-#define DOC_SURFACESETAT "set_at((x, y), Color) -> None\nset the color value for a single pixel"
+#define DOC_SURFACESETAT "set_at((x=0, y=0), Color=1) -> None\nset the color value for a single pixel"
 #define DOC_SURFACEGETATMAPPED "get_at_mapped((x, y)) -> Color\nget the mapped color value at a single pixel"
 #define DOC_SURFACEGETPALETTE "get_palette() -> [RGB, RGB, RGB, ...]\nget the color index palette for an 8-bit Surface"
 #define DOC_SURFACEGETPALETTEAT "get_palette_at(index) -> RGB\nget the color for a single entry in a palette"
