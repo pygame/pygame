@@ -61,8 +61,13 @@ setting it again will change the current mode.
 Setting the display mode is handled with the function
 :func:`pygame.display.set_mode((width, height), flags, depth)
 <pygame.display.set_mode>`.
-The only required argument in this function is a sequence containing
-the width and height of the new display mode.
+If the width and height of the new display mode is not passed, 
+the created surface will have the same size as the current screen 
+resolution. 
+If only the width or height is set to 0, the surface will have the 
+same respective width or height as the screen resolution. 
+Note that in older versions of Pygame using a SDL version prior to 1.2.10,
+not passing in the width and height will raise an exception.
 The depth flag is the requested bits per pixel for the surface.
 If the given depth is 8, *pygame* will create a color-mapped surface.
 When given a higher bit depth, *pygame* will use a packed color mode.
