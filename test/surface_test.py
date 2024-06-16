@@ -2272,8 +2272,8 @@ class GeneralSurfaceTests(unittest.TestCase):
     def test_map_rgb(self):
         color = Color(0, 128, 255, 64)
         surf = pygame.Surface((5, 5), SRCALPHA, 32)
-        c = surf.map_rgb(color)
-        self.assertEqual(surf.unmap_rgb(c), color)
+        c = surf.map_rgb(color=color)
+        self.assertEqual(surf.unmap_rgb(mapped_int=c), color)
 
         self.assertEqual(surf.get_at((0, 0)), (0, 0, 0, 0))
         surf.fill(c)
@@ -2480,7 +2480,7 @@ class GeneralSurfaceTests(unittest.TestCase):
         c = (1, 1, 1)  # Unlikely to be in a default palette.
         i = 67
         surf.set_palette_at(i, c)
-        unmapped_c = surf.unmap_rgb(i)
+        unmapped_c = surf.unmap_rgb(mapped_int=i)
         self.assertEqual(unmapped_c, c)
         # Confirm it is a Color instance
         self.assertIsInstance(unmapped_c, pygame.Color)
@@ -2490,7 +2490,7 @@ class GeneralSurfaceTests(unittest.TestCase):
         formats = [(0, 16), (0, 24), (0, 32), (SRCALPHA, 16), (SRCALPHA, 32)]
         for flags, bitsize in formats:
             surf = pygame.Surface((2, 2), flags, bitsize)
-            unmapped_c = surf.unmap_rgb(surf.map_rgb(c))
+            unmapped_c = surf.unmap_rgb(mapped_int=surf.map_rgb(color=c))
             surf.fill(c)
             comparison_c = surf.get_at((0, 0))
             self.assertEqual(
@@ -2501,6 +2501,7 @@ class GeneralSurfaceTests(unittest.TestCase):
             )
             # Confirm it is a Color instance
             self.assertIsInstance(unmapped_c, pygame.Color)
+
 
     def test_scroll(self):
         scrolls = [
