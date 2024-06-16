@@ -4,6 +4,7 @@ import unittest
 import pathlib
 import platform
 import time
+from array import array
 
 from pygame.tests.test_utils import example_path
 
@@ -1094,9 +1095,11 @@ class SoundTypeTest(unittest.TestCase):
         """Ensure Sound() creation with a buffer works."""
         self.fail()
 
-    def todo_test_sound__from_array(self):
+    def test_sound__from_array(self):
         """Ensure Sound() creation with an array works."""
-        self.fail()
+        array1 = array('u', example_path(os.path.join("data", "house_lo.wav")))
+        sound1 = mixer.Sound(array1)
+        self.assertIsInstance(sound1, mixer.Sound)
 
     def test_sound__without_arg(self):
         """Ensure exception raised for Sound() creation with no argument."""
