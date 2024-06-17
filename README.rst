@@ -74,37 +74,42 @@ locally, it'll launch the online website instead.
 
 The online documentation stays up to date with the development version
 of pygame on GitHub.  This may be a bit newer than the version of pygame
-you are using. To upgrade to the latest full release, run 
+you are using. To upgrade to the latest full release, run
 ``pip install pygame --upgrade`` in your terminal.
 
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
 
-Pygame is a powerful library for game development, offering a wide 
-range of features to simplify your coding journey. Let's delve into 
+
+Features
+----------
+
+Pygame is a powerful library for game development, offering a wide
+range of features to simplify your coding journey. Let's delve into
 what pygame has to offer:
 
-Graphics: With pygame, creating dynamic and engaging graphics has
+Graphics - With pygame, creating dynamic and engaging graphics has
 never been easier. The library provides simple yet effective tools for
-2D graphics and animation, including support for images, rectangles, 
+2D graphics and animation, including support for images, rectangles,
 and polygon shapes. Whether you're a seasoned game developer or just
 starting out, pygame has you covered.
 
-Sound: Pygame also includes support for playing and manipulating sound
+Sound - Pygame also includes support for playing and manipulating sound
 and music, making it easy to add sound effects and background music to
-your games. With support for WAV, MP3, and OGG file formats, you have 
+your games. With support for WAV, MP3, and OGG file formats, you have
 plenty of options to choose from.
 
-Input: Pygame provides intuitive functions for handling keyboard, mouse,
+Input - Pygame provides intuitive functions for handling keyboard, mouse,
 and joystick input, allowing you to quickly and easily implement player
 controls in your games. No more struggling with complex input code, pygame
 makes it simple.
 
-Game Development: Lastly, pygame provides a comprehensive suite of tools
-and features specifically designed for game development. From collision 
+Game Development - Lastly, pygame provides a comprehensive suite of tools
+and features specifically designed for game development. From collision
 detection to sprite management, pygame has everything you need to create
 exciting and engaging games. Whether you're building a platformer, puzzle
 game, or anything in between, pygame has you covered.
+
 
 Building From Source
 --------------------
@@ -123,25 +128,13 @@ on the `Compilation wiki page`_.
 
 Contribute
 ----------
-| Thank you for thinking of contributing!
-|
-| To contribute to the main `project documentation <https://www.pygame.org/docs/>`_, see ``docs/README.md`` or view more detailed instructions `here <https://github.com/pygame/pygame/tree/main/docs>`_.
-|
-| New to contributing to Open Source Free Libre software? 
-| There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in Python for pygame, which is very similar to how you would do it for other projects.
-|
-| Want or need to compile pygame from source?
-| `See the compilation page <https://www.pygame.org/wiki/Compilation>`_ for more detailed instructions.
-|
-| For a detailed developer guide on "How to Hack Pygame":
-| Head to the `Hacking Page <https://www.pygame.org/wiki/Hacking>`_.
-|
-| Beginner developers looking for ways to contribute to the project can look at issues labeled `"good first issue" <https://github.com/pygame/pygame/labels/good%20first%20issue>`_ or `"Difficulty: Easy" <https://github.com/pygame/pygame/issues?q=is%3Aopen+is%3Aissue+label%3A%22Difficulty%3A+Easy%22>`_. 
-|
-| To submit patches and report bugs:
-| Visit the `Bugs & Patches <https://www.pygame.org/wiki/patchesandbugs>`_ page for detailed instructions.
-| 
-| `See the info page <https://www.pygame.org/wiki/info>`_ for more info and ways to get in touch with the Pygame team.
+
+* `Documentation Contributions <https://github.com/pygame/pygame/tree/main/docs>`_ - Guidelines for contributing to the main documentations
+* `Writing your first unit test <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ - Step by step guide on how to write your first unit test in Python for Pygame.
+* `How to Hack Pygame <https://www.pygame.org/wiki/Hacking>`_ - Information on hacking, developing, and modifying Pygame
+* `Issue Tracker for beginners <https://github.com/pygame/pygame/labels/good%20first%20issue>`_ - A way for beginners to contribute to the project
+* `Bugs & Patches <https://www.pygame.org/wiki/patchesandbugs>`_ - Report bugs
+* `Communication tools <https://www.pygame.org/wiki/info>`_ - More information and ways to get in touch with the Pygame team
 
 
 Credits
