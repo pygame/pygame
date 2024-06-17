@@ -118,8 +118,8 @@ involve compiling and installing all the pygame dependencies.  Once
 that is done, run the ``setup.py`` script which will attempt to
 auto-configure, build, and install pygame.
 
-Much more information about installing and compiling is available
-on the `Compilation wiki page`_.
+Much more information about installing and compiling is in the
+`BUILD.rst`_ file.
 
 Contribute
 ----------
@@ -131,7 +131,7 @@ Contribute
 | There is a draft of `"Let's write a unit test!" <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ which is a step by step guide on how to write your first unit test in Python for pygame, which is very similar to how you would do it for other projects.
 |
 | Want or need to compile pygame from source?
-| `See the compilation page <https://www.pygame.org/wiki/Compilation>`_ for more detailed instructions.
+| See the `BUILD.rst`_ file for more detailed instructions.
 |
 | For a detailed developer guide on "How to Hack Pygame":
 | Head to the `Hacking Page <https://www.pygame.org/wiki/Hacking>`_.
@@ -268,6 +268,6 @@ See docs/licenses for licenses of dependencies.
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org
 .. _We need your help: https://www.pygame.org/contribute.html
-.. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
+.. _BUILD.rst: ./BUILD.rst
 .. _docs page: https://www.pygame.org/docs/
 .. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
