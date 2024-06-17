@@ -308,7 +308,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.stop()
 
-    def todo_test_load(self):
+    def test_load(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
 
         # This will load a music file and prepare it for playback. If a music
@@ -319,7 +319,15 @@ class MixerMusicModuleTest(unittest.TestCase):
         # like the other pygame loading functions.
         #
 
-        self.fail()
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
+        pygame.mixer.music.load(filename)
+        self.assertFalse(pygame.mixer.music.get_busy())
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        pygame.mixer.music.load(filename)
+        self.assertFalse(pygame.mixer.music.get_busy())
 
     def test_get_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
@@ -336,20 +344,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         self.assertLessEqual(vol, 1)
 
         pygame.mixer.music.stop()
-
-    def todo_test_set_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
-
-        # This causes Pygame to signal (by means of the event queue) when the
-        # music is done playing. The argument determines the type of event
-        # that will be queued.
-        #
-        # The event will be queued every time the music finishes, not just the
-        # first time. To stop the event from being queued, call this method
-        # with no argument.
-        #
-
-        self.fail()
 
     def test_pause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.pause:
@@ -377,16 +371,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         self.assertTrue(pygame.mixer.music.get_busy())
         pygame.mixer.music.pause()
         self.assertFalse(pygame.mixer.music.get_busy())
-
-    def todo_test_get_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
-
-        # Returns the event type to be sent every time the music finishes
-        # playback. If there is no endevent the function returns
-        # pygame.NOEVENT.
-        #
-
-        self.fail()
 
     def test_unpause(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
@@ -454,6 +438,55 @@ class MixerMusicModuleTest(unittest.TestCase):
                 pygame.mixer.quit()
             finally:
                 os.remove(tempcopy)
+
+
+class MixerMusicEndEventTest(unittest.TestCase):
+    def setUp(self):
+        pygame.display.init()
+        pygame.display.set_mode((40, 40))
+        if pygame.mixer.get_init() is None:
+            pygame.mixer.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+        pygame.mixer.quit()
+
+    def test_get_endevent(self):
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
+
+        # Returns the event type to be sent every time the music finishes
+        # playback. If there is no endevent the function returns
+        # pygame.NOEVENT.
+        #
+        filename = example_path(os.path.join("data", "car_door.wav"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        no_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(pygame.NOEVENT, no_event)
+
+        event_type = pygame.USEREVENT
+        pygame.mixer_music.set_endevent(event_type)
+        end_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(event_type, end_event)
+
+    def test_set_endevent(self):
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
+
+        # This causes Pygame to signal (by means of the event queue) when the
+        # music is done playing. The argument determines the type of event
+        # that will be queued.
+        #
+        # The event will be queued every time the music finishes, not just the
+        # first time. To stop the event from being queued, call this method
+        # with no argument.
+        #
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        event_type = pygame.USEREVENT
+        pygame.mixer_music.set_endevent(event_type)
+        end_event = pygame.mixer_music.get_endevent()
+        self.assertEqual(event_type, end_event)
 
 
 if __name__ == "__main__":
