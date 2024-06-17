@@ -2391,7 +2391,7 @@ class GeneralSurfaceTests(unittest.TestCase):
         replacement = Color(1, 1, 1, 255)
         if replacement == original:
             replacement = Color(2, 2, 2, 255)
-        surf.set_palette_at(10, replacement)
+        surf.set_palette_at(index=10, RGB=replacement)
         self.assertEqual(surf.get_palette_at(10), replacement)
         next = tuple(original)
         surf.set_palette_at(10, next)
