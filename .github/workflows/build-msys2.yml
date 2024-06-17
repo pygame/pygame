@@ -69,6 +69,7 @@ jobs:
           echo "\nRun tests\n"
           export SDL_VIDEODRIVER=dummy
           export SDL_AUDIODRIVER=disk
+          export PYGAME_MSYS2=1
           python -m test -v --exclude opengl,music,timing --time_out 300
 
       - uses: actions/upload-artifact@v3
