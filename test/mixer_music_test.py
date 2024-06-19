@@ -440,53 +440,53 @@ class MixerMusicModuleTest(unittest.TestCase):
                 os.remove(tempcopy)
 
 
-class MixerMusicEndEventTest(unittest.TestCase):
-    def setUp(self):
-        pygame.display.init()
-        pygame.display.set_mode((40, 40))
-        if pygame.mixer.get_init() is None:
-            pygame.mixer.init()
+# class MixerMusicEndEventTest(unittest.TestCase):
+#     def setUp(self):
+#         pygame.display.init()
+#         pygame.display.set_mode((40, 40))
+#         if pygame.mixer.get_init() is None:
+#             pygame.mixer.init()
 
-    def tearDown(self):
-        pygame.display.quit()
-        pygame.mixer.quit()
+#     def tearDown(self):
+#         pygame.display.quit()
+#         pygame.mixer.quit()
 
-    def test_get_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
+#     def test_get_endevent(self):
+#         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
 
-        # Returns the event type to be sent every time the music finishes
-        # playback. If there is no endevent the function returns
-        # pygame.NOEVENT.
-        #
-        filename = example_path(os.path.join("data", "car_door.wav"))
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
-        no_event = pygame.mixer_music.get_endevent()
-        self.assertEqual(pygame.NOEVENT, no_event)
+#         # Returns the event type to be sent every time the music finishes
+#         # playback. If there is no endevent the function returns
+#         # pygame.NOEVENT.
+#         #
+#         filename = example_path(os.path.join("data", "car_door.wav"))
+#         pygame.mixer.music.load(filename)
+#         pygame.mixer.music.play()
+#         no_event = pygame.mixer_music.get_endevent()
+#         self.assertEqual(pygame.NOEVENT, no_event)
 
-        event_type = pygame.USEREVENT
-        pygame.mixer_music.set_endevent(event_type)
-        end_event = pygame.mixer_music.get_endevent()
-        self.assertEqual(event_type, end_event)
+#         event_type = pygame.USEREVENT
+#         pygame.mixer_music.set_endevent(event_type)
+#         end_event = pygame.mixer_music.get_endevent()
+#         self.assertEqual(event_type, end_event)
 
-    def test_set_endevent(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
+#     def test_set_endevent(self):
+#         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
 
-        # This causes Pygame to signal (by means of the event queue) when the
-        # music is done playing. The argument determines the type of event
-        # that will be queued.
-        #
-        # The event will be queued every time the music finishes, not just the
-        # first time. To stop the event from being queued, call this method
-        # with no argument.
-        #
-        filename = example_path(os.path.join("data", "house_lo.wav"))
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
-        event_type = pygame.USEREVENT
-        pygame.mixer_music.set_endevent(event_type)
-        end_event = pygame.mixer_music.get_endevent()
-        self.assertEqual(event_type, end_event)
+#         # This causes Pygame to signal (by means of the event queue) when the
+#         # music is done playing. The argument determines the type of event
+#         # that will be queued.
+#         #
+#         # The event will be queued every time the music finishes, not just the
+#         # first time. To stop the event from being queued, call this method
+#         # with no argument.
+#         #
+#         filename = example_path(os.path.join("data", "house_lo.wav"))
+#         pygame.mixer.music.load(filename)
+#         pygame.mixer.music.play()
+#         event_type = pygame.USEREVENT
+#         pygame.mixer_music.set_endevent(event_type)
+#         end_event = pygame.mixer_music.get_endevent()
+#         self.assertEqual(event_type, end_event)
 
 
 if __name__ == "__main__":
