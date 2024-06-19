@@ -4413,6 +4413,8 @@ com_descr_get(PyObject *self, PyObject *obj, PyObject *type)
     return PyMethod_New(com->obj_callable, obj);
 }
 
+/* python > 3.12 */
+#if PY_VERSION_HEX > 0x030C0000
 #ifndef _PyArg_NoKeywords
 /* For type constructors that don't take keyword args
  *
@@ -4436,9 +4438,10 @@ _PyArg_NoKeywords(const char *funcname, PyObject *kwargs)
     }
 
     PyErr_Format(PyExc_TypeError, "%.200s() takes no keyword arguments",
-                    funcname);
+                 funcname);
     return 0;
 }
+#endif
 #endif
 
 static int
