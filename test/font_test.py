@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from re import T
 import sys
 import os
 import unittest
