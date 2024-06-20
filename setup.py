@@ -20,7 +20,7 @@ EXTRAS = {}
 
 METADATA = {
     "name": "pygame",
-    "version": "2.6.0.dev1",
+    "version": "2.6.0.dev2",
     "license": "LGPL",
     "url": "https://www.pygame.org",
     "author": "A community project.",
