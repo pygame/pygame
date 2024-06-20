@@ -4413,6 +4413,37 @@ com_descr_get(PyObject *self, PyObject *obj, PyObject *type)
     return PyMethod_New(com->obj_callable, obj);
 }
 
+/* python > 3.12 */
+#if PY_VERSION_HEX > 0x030C0000
+#ifndef _PyArg_NoKeywords
+/* For type constructors that don't take keyword args
+ *
+ * Sets a TypeError and returns 0 if the args/kwargs is
+ * not empty, returns 1 otherwise
+ *
+ * From Python 3.13.0b2, Python/getargs.c
+ */
+int
+_PyArg_NoKeywords(const char *funcname, PyObject *kwargs)
+{
+    if (kwargs == NULL) {
+        return 1;
+    }
+    if (!PyDict_CheckExact(kwargs)) {
+        PyErr_BadInternalCall();
+        return 0;
+    }
+    if (PyDict_GET_SIZE(kwargs) == 0) {
+        return 1;
+    }
+
+    PyErr_Format(PyExc_TypeError, "%.200s() takes no keyword arguments",
+                 funcname);
+    return 0;
+}
+#endif
+#endif
+
 static int
 com_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
