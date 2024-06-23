@@ -19,7 +19,7 @@ PYTHON_VER=cp310-cp310
 PYTHON_BIN=/opt/python/${PYTHON_VER}/bin
 
 # this installs cmake in python bin dir, copy it to /usr/bin once installed
-${PYTHON_BIN}/pip install cmake==3.26.0 ninja==1.11.1 meson==1.0.1
+${PYTHON_BIN}/pip install cmake==3.26.0 ninja==1.11.1 meson==1.2.3
 cp ${PYTHON_BIN}/cmake /usr/bin
 cp ${PYTHON_BIN}/ninja /usr/bin
 cp ${PYTHON_BIN}/meson /usr/bin
