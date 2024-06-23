@@ -12,9 +12,9 @@ environment:
     SDL_VIDEODRIVER: "dummy"
     SDL_AUDIODRIVER: "disk"
     PYTHONIOENCODING: "UTF-8"
-    TWINE_USERNAME: pygameci
+    TWINE_USERNAME: __token__
     TWINE_PASSWORD:
-      secure: FtHM0I+wubit/UWOzHsykHayL06KImKRZQznRUHUfzM=
+      secure: rRMjJUUe93LoGV78ZAdf2IwTxwqSXDnbXVGer7ObTSK5Fgxv0vQrKbDcepZ3U3L37KvJJ5Ki6Hii8/IHzysNIrS+8BedF/2nrksgUldrdst0nPZea2/EJI6279iDTCumtq/w3In+NH+vcZV8Q2IoeouFuIv/S8P68egnnb5WBBgr0WtBklrNyl/eGPVi8/NT1k5pLaX7RatEPFOF7UM7ShTc/F/StF5DTf2Ir3DJiR9XZF8eGYbzLmgG8UTYUgDD+GZQuZx97+niXbR+vj/zcg==
 
   matrix:
     - PYTHON: "C:\\Python312\\python"

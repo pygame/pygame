@@ -20,6 +20,12 @@ if [[ "$MAC_ARCH" == "arm64" ]]; then
     export GLIB_COMPILE_MESON="--cross-file ../../../../macdependencies/macos-arm64.ini"
 fi
 
+if [[ "$OSTYPE" != "darwin"* ]]; then
+    # glib needs a "python3"
+    ln -s /opt/python/cp310-cp310/bin/python3.10 /usr/bin/python3
+    python3 --version
+fi
+
 # configure the build, see https://gitlab.gnome.org/GNOME/glib/-/blob/main/docs/reference/glib/building.md
 # also see for full list of options https://github.com/GNOME/glib/blob/main/meson_options.txt
 meson setup $GLIB_COMPILE_MESON _build \
@@ -43,4 +49,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # https://mesonbuild.com/Installing.html#destdir-support
     
     DESTDIR=$MACDEP_CACHE_PREFIX_PATH meson install --no-rebuild --only-changed -C _build && break || sleep 1
+fi
+
+if [[ "$OSTYPE" != "darwin"* ]]; then
+    # clean up the python3 we made
+    rm /usr/bin/python3
 fi
