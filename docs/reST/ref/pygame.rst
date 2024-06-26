@@ -34,7 +34,7 @@ object instead of the module, which can be used to test for availability.
    fail.
 
    You may want to initialize the different modules separately to speed up your
-   program or to not use modules your game does not require.
+   program or remove the modules your game does not require.
 
    It is safe to call this ``init()`` more than once as repeated calls will have
    no effect. This is true even if you have ``pygame.quit()`` all the modules.
