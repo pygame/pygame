@@ -11,14 +11,16 @@ import subprocess
 import sys
 
 
-def install_pacman_package(pkg_name):
+def install_pacman_package(pkg_name, overwrite):
     """This installs a package in the current MSYS2 environment
 
     Does not download again if the package is already installed
     and if the version is the latest available in MSYS2
     """
+    cmd = ["pacman", "-S", "--noconfirm", pkg_name] if not overwrite else ["pacman", "-S", "--noconfirm", "--overwrite", "'*'", pkg_name]
+
     output = subprocess.run(
-        ["pacman", "-S", "--noconfirm", pkg_name], capture_output=True, text=True
+        cmd, capture_output=True, text=True
     )
     if output.returncode != 0:
         logging.error(
@@ -90,13 +92,13 @@ def get_packages(arch: str) -> list:
     return [x.format(full_arch_names[arch]) for x in deps]
 
 
-def install_prebuilts(arch):
+def install_prebuilts(arch, overwrite):
     """For installing prebuilt dependencies."""
     errors = False
     print("Installing pre-built dependencies")
     for pkg in get_packages(arch):
         print(f"Installing {pkg}")
-        error = install_pacman_package(pkg)
+        error = install_pacman_package(pkg, overwrite)
         errors = errors or error
     if errors:
         raise Exception("Some dependencies could not be installed")
@@ -127,7 +129,10 @@ def detect_arch():
 
 
 def update(arch=None):
-    install_prebuilts(arch if arch else detect_arch())
+    overwrite = "--overwrite" in sys.argv
+    if overwrite:
+        print ("Running pacman with --overwrite '*'")
+    install_prebuilts(arch if arch else detect_arch(), overwrite)
 
 
 if __name__ == "__main__":
