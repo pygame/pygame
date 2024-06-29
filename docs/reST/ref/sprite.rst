@@ -92,7 +92,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       convenient "hook" that you can override. This method is called by
       ``Group.update()`` with whatever arguments you give it.
 
-      There is no need to use this method if not using the convenience method
+      It is not necessary to use this method if not using the convenience method
       by the same name in the Group class.
 
       .. ## Sprite.update ##
