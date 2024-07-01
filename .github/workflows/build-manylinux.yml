@@ -90,7 +90,7 @@ jobs:
     - uses: actions/checkout@v4.1.6
 
     - name: Build and test wheels
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v2.19.1
 
     # We upload the generated files under github actions assets
     - name: Upload dist
