@@ -134,8 +134,9 @@ jobs:
         bash ./install_mac_deps.sh
 
       CIBW_BEFORE_BUILD: |
-        pip install requests numpy Sphinx Cython==3.0.0
+        pip install requests numpy Sphinx Cython==3.0.0 setuptools wheel
         python setup.py docs
+        
 
       CIBW_TEST_COMMAND: >
         python -m pygame.tests -v --exclude opengl,timing --time_out 300
@@ -160,7 +161,7 @@ jobs:
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
 
       - name: Build and test wheels
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.19.2
 
       - uses: actions/upload-artifact@v3
         with:

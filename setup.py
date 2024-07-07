@@ -248,6 +248,12 @@ else:
     print ("Skipping Cython compilation")
 
 if compile_cython:
+    if "setup_requires" not in METADATA:
+        METADATA["setup_requires"] = []
+    # We require Cython if there is no generated source code.
+    METADATA["setup_requires"].append('cython>=3.0')
+
+if compile_cython:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
