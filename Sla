@@ -1,0 +1,61 @@
+import pygame
+import sys
+
+# Inicializa o Pygame
+pygame.init()
+
+# Define as dimensões da tela
+screen_width, screen_height = 800, 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Jogo de Mundo Aberto")
+
+# Define cores
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Carrega a imagem do jogador
+player_image = pygame.Surface((50, 50))
+player_image.fill(GREEN)
+player_rect = player_image.get_rect()
+player_rect.topleft = (screen_width // 2, screen_height // 2)
+
+# Define a velocidade do jogador
+player_speed = 5
+
+# Função principal do jogo
+def main():
+    clock = pygame.time.Clock()
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        # Obtém as teclas pressionadas
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_LEFT]:
+            player_rect.x -= player_speed
+        if keys[pygame.K_RIGHT]:
+            player_rect.x += player_speed
+        if keys[pygame.K_UP]:
+            player_rect.y -= player_speed
+        if keys[pygame.K_DOWN]:
+            player_rect.y += player_speed
+
+        # Limpa a tela
+        screen.fill(BLUE)
+
+        # Desenha o jogador
+        screen.blit(player_image, player_rect.topleft)
+
+        # Atualiza a tela
+        pygame.display.flip()
+        
+        # Controla a taxa de quadros
+        clock.tick(30)
+
+if __name__ == "__main__":
+    main()
