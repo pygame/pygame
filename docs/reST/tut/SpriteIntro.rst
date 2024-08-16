@@ -318,7 +318,7 @@ Here's a summary of what they are, and what they do.
     sprites that it collided with. Perhaps another quick code sample explains it
     best ::
 
-      >>> for alien in sprite.groupcollide(aliens, shots, 1, 1).keys()
+      >>> for alien in sprite.groupcollide(aliens, shots, 1, 1).keys():
       ...     boom_sound.play()
       ...     Explosion(alien, 0)
       ...     kills += 1
