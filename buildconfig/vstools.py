@@ -1,5 +1,9 @@
 import re
-from distutils.msvccompiler import MSVCCompiler, get_build_architecture
+
+try:
+    from distutils.msvccompiler import MSVCCompiler, get_build_architecture
+except ImportError:
+    from setuptools._distutils.msvccompiler import MSVCCompiler, get_build_architecture
 import subprocess
 import os
 

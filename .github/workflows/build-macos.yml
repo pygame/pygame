@@ -134,7 +134,7 @@ jobs:
         bash ./install_mac_deps.sh
 
       CIBW_BEFORE_BUILD: |
-        pip install requests numpy Sphinx Cython==3.0.0 setuptools wheel
+        pip install requests numpy Sphinx "Cython==3.0,<3.1" setuptools wheel
         python setup.py docs
         
 

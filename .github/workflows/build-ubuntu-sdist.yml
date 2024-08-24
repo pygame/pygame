@@ -65,14 +65,14 @@ jobs:
       run: |
         sudo apt-get update --fix-missing
         sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg-dev python3-setuptools python3-dev
-        python3 -m pip install sphinx numpy>=1.21.0 Cython==3.0.0
+        python3 -m pip install sphinx numpy>=1.21.0 "Cython==3.0,<3.1"
         
     - name: Install deps retry
       if: steps.install_deps.outcome == 'failure'
       run: |
         sudo apt-get update --fix-missing
         sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg-dev python3-setuptools python3-dev
-        python3 -m pip install sphinx numpy>=1.21.0 Cython==3.0.0
+        python3 -m pip install sphinx numpy>=1.21.0 "Cython==3.0,<3.1"
     
     - name: Make sdist and install it
       env:
