@@ -627,7 +627,7 @@ surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
     surf = pgSurface_AsSurface(surfobj);
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
-    newsurf = scale_to(surfobj, surfobj2, (int)(surf->w * scalex),
+    newsurf = scale_to(surfobj, surfobj2, round(surf->w * scalex),
                        (int)(surf->h * scaley));
     if (!newsurf) {
         return NULL;
