@@ -17,6 +17,13 @@ environment:
       secure: rRMjJUUe93LoGV78ZAdf2IwTxwqSXDnbXVGer7ObTSK5Fgxv0vQrKbDcepZ3U3L37KvJJ5Ki6Hii8/IHzysNIrS+8BedF/2nrksgUldrdst0nPZea2/EJI6279iDTCumtq/w3In+NH+vcZV8Q2IoeouFuIv/S8P68egnnb5WBBgr0WtBklrNyl/eGPVi8/NT1k5pLaX7RatEPFOF7UM7ShTc/F/StF5DTf2Ir3DJiR9XZF8eGYbzLmgG8UTYUgDD+GZQuZx97+niXbR+vj/zcg==
 
   matrix:
+    - PYTHON: "C:\\Python313\\python"
+      PYTHONPATH: "C:\\Python313"
+      PYTHON_VERSION: "3.13.0"
+      PYTHON_SUFFIX: "rc1"
+      PYTHON_ARCH: "32"
+      USE_ANALYZE: ""
+
     - PYTHON: "C:\\Python312\\python"
       PYTHONPATH: "C:\\Python312"
       PYTHON_VERSION: "3.12.0"
@@ -71,6 +78,13 @@ environment:
       PYTHON_VERSION: "3.11.0"
       PYTHON_SUFFIX: ""
       PYTHON_ARCH: "32"
+      USE_ANALYZE: ""
+
+    - PYTHON: "C:\\Python313-x64\\python"
+      PYTHONPATH: "C:\\Python313-x64"
+      PYTHON_VERSION: "3.13.0"
+      PYTHON_SUFFIX: "rc1"
+      PYTHON_ARCH: "64"
       USE_ANALYZE: ""
 
     - PYTHON: "C:\\Python312-x64\\python"
@@ -161,11 +175,12 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
-  - "%PYTHON% -m pip install -U setuptools wheel pip"
+  - "%PYTHON% -m pip install \"setuptools==73.0.1; python_version >= '3.8'\" \"setuptools; python_version < '3.8'\""
+  - "%PYTHON% -m pip install -U wheel pip"
   - "%PYTHON% -m pip install twine"
   - "%PYTHON% -m pip install requests"
-  - "%PYTHON% -m pip install Cython==3.0.0"
-  - "%PYTHON% -m pip install Sphinx==4.5.0 sphinxcontrib-applehelp==1.0.2 pip install sphinxcontrib-devhelp==1.0.2 sphinxcontrib-htmlhelp==2.0.0 sphinxcontrib-qthelp==1.0.3 sphinxcontrib-serializinghtml==1.1.5"
+  - "%PYTHON% -m pip install \"Cython>=3.0,<3.1\""
+  - "%PYTHON% -m pip install Sphinx"
   - "%PYTHON% setup.py docs"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig"
   - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
