@@ -1,0 +1,56 @@
+pip install pygame
+
+import pygame
+import random
+
+# Khởi tạo Pygame
+pygame.init()
+
+# Kích thước màn hình
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+
+# Màu sắc
+white = (255, 255, 255)
+black = (0, 0, 0)
+
+# Tải hình ảnh nhân vật
+hero_image = pygame.image.load('hero.png')
+hero_rect = hero_image.get_rect()
+hero_rect.topleft = (screen_width // 2, screen_height // 2)
+
+# Tạo quái vật
+monster_image = pygame.image.load('monster.png')
+monster_rect = monster_image.get_rect()
+monster_rect.topleft = (random.randint(0, screen_width), random.randint(0, screen_height))
+
+# Tốc độ di chuyển
+hero_speed = 5
+
+# Vòng lặp chính
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Điều khiển nhân vật
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        hero_rect.x -= hero_speed
+    if keys[pygame.K_RIGHT]:
+        hero_rect.x += hero_speed
+    if keys[pygame.K_UP]:
+        hero_rect.y -= hero_speed
+    if keys[pygame.K_DOWN]:
+        hero_rect.y += hero_speed
+
+    # Vẽ màn hình
+    screen.fill(white)
+    screen.blit(hero_image, hero_rect)
+    screen.blit(monster_image, monster_rect)
+    pygame.display.flip()
+
+# Thoát Pygame
+pygame.quit()
