@@ -220,24 +220,25 @@ def _draw_line(surf, color, start, end):
             if error >= 0.5:
                 line_y += dy_sign
                 error -= 1
-    else:
-        # Case of a rather vertical line
+        return
 
-        # 1. check in which octants we are & set init values
-        if start.y > end.y:
-            start.x, end.x = end.x, start.x
-            start.y, end.y = end.y, start.y
-        line_x = start.x
-        slope = 1 / slope
-        dx_sign = 1 if (start.x < end.x) else -1
+    # Case of a rather vertical line
+
+    # 1. check in which octants we are & set init values
+    if start.y > end.y:
+        start.x, end.x = end.x, start.x
+        start.y, end.y = end.y, start.y
+    line_x = start.x
+    slope = 1 / slope
+    dx_sign = 1 if (start.x < end.x) else -1
 
         # 2. step along y coordinate
-        for line_y in range(start.y, end.y + 1):
-            set_at(surf, line_x, line_y, color)
-            error += slope
-            if error >= 0.5:
-                line_x += dx_sign
-                error -= 1
+    for line_y in range(start.y, end.y + 1):
+        set_at(surf, line_x, line_y, color)
+        error += slope
+        if error >= 0.5:
+            line_x += dx_sign
+            error -= 1
 
 
 def _draw_aaline(surf, color, start, end, blend):
@@ -287,15 +288,15 @@ def _draw_aaline(surf, color, start, end, blend):
             draw_pixel(surf, (in_x, flr_y + 1), color, factor * frac(float_y), blend)
 
         _draw_aaline_dx(d_x, slope, end, start, draw_two_pixel)
-    else:
-        slope = d_x / d_y
+        return
+    slope = d_x / d_y
 
-        def draw_two_pixel(float_x, in_y, factor):
-            fl_x = floor(float_x)
-            draw_pixel(surf, (fl_x, in_y), color, factor * inv_frac(float_x), blend)
-            draw_pixel(surf, (fl_x + 1, in_y), color, factor * frac(float_x), blend)
+    def draw_two_pixel(float_x, in_y, factor):
+        fl_x = floor(float_x)
+        draw_pixel(surf, (fl_x, in_y), color, factor * inv_frac(float_x), blend)
+        draw_pixel(surf, (fl_x + 1, in_y), color, factor * frac(float_x), blend)
 
-        _draw_aaline_dy(d_y, slope, end, start, draw_two_pixel)
+    _draw_aaline_dy(d_y, slope, end, start, draw_two_pixel)
 
 
 def _draw_aaline_dy(d_y, slope, end, start, draw_two_pixel):
@@ -400,12 +401,13 @@ def _clip_and_draw_line_width(surf, rect, color, line, width):
             newpts[1] = line[1] - yinc * loop
             newpts[2] = line[2] - xinc * loop
             newpts[3] = line[3] - yinc * loop
-            if _clip_and_draw_line(surf, rect, color, newpts):
-                anydrawn = 1
-                frame[0] = min(newpts[0], frame[0])
-                frame[1] = min(newpts[1], frame[1])
-                frame[2] = max(newpts[2], frame[2])
-                frame[3] = max(newpts[3], frame[3])
+            continue
+        if _clip_and_draw_line(surf, rect, color, newpts):
+            anydrawn = 1
+            frame[0] = min(newpts[0], frame[0])
+            frame[1] = min(newpts[1], frame[1])
+            frame[2] = max(newpts[2], frame[2])
+            frame[3] = max(newpts[3], frame[3])
 
     return anydrawn
 
