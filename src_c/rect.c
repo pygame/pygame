@@ -1307,6 +1307,21 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
                      "clipline() takes 1, 2, or 4 arguments (3 given)");
     }
 
+
+    //Modification here
+    if (x1 == x2) {
+        // Handle 180-degree angle case separately
+        if (x1 >= self->r.x && x1 <= self->r.x + self->r.w) {
+            // The line is within the x-coordinate of the rectangle.
+            if ((y1 <= self->r.y && y2 >= self->r.y) || (y2 <= self->r.y && y1 >= self->r.y)) {
+                // The line intersects the top edge of the rectangle.
+                // Adjust the y-coordinate to the top edge of the rectangle.
+                if (y1 < self->r.y) y1 = self->r.y;
+                if (y2 < self->r.y) y2 = self->r.y;
+            }
+        }
+    }
+
     if ((self->r.w < 0) || (self->r.h < 0)) {
         /* Make a copy of the rect so it can be normalized. */
         rect_copy = &pgRect_AsRect(pgRect_New(&self->r));
