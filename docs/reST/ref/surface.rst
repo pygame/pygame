@@ -217,7 +217,7 @@
    .. method:: fill
 
       | :sl:`fill Surface with a solid color`
-      | :sg:`fill(color, rect=None, special_flags=0) -> Rect`
+      | :sg:`fill(rect=None, color, special_flags=0) -> Rect`
 
       Fill the Surface with a solid color. If no rect argument is given the
       entire Surface will be filled. The rect argument will limit the fill to a
