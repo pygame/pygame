@@ -237,15 +237,15 @@ if consume_arg('cython_only'):
     compile_cython = True
     cython_only = True
 
-# If there is no generated C code, compile the cython/.pyx files
-if any(x in ["build_ext", "build", "sdist", "bdist_wheel", "install"] for x in sys.argv) and (
-    not glob.glob(os.path.join("src_c", "_sdl2", "audio.c"))
-    or not glob.glob(os.path.join("src_c", "pypm.c"))
-):
-    compile_cython = True
-    print ("Compiling Cython files")
-else:
-    print ("Skipping Cython compilation")
+if not cython_only:
+    # If there is no generated C code, compile the cython/.pyx files
+    if any(x in ["build_ext", "build", "sdist", "bdist_wheel", "install"] for x in sys.argv) and (
+        not glob.glob(os.path.join("src_c", "_sdl2", "audio.c"))
+        or not glob.glob(os.path.join("src_c", "pypm.c"))
+    ):
+        compile_cython = True
+    else:
+        print ("Skipping Cython compilation")
 
 if compile_cython:
     if "setup_requires" not in METADATA:
@@ -254,6 +254,7 @@ if compile_cython:
     METADATA["setup_requires"].append('cython>=3.0')
 
 if compile_cython:
+    print ("Compiling Cython files")
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
