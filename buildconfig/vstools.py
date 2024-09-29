@@ -3,7 +3,20 @@ import re
 try:
     from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 except ImportError:
-    from setuptools._distutils.msvccompiler import MSVCCompiler, get_build_architecture
+    from setuptools._distutils._msvccompiler import MSVCCompiler
+    import string
+    import sys
+    def get_build_architecture():
+        """Return the processor architecture.
+        Possible results are "Intel", "Itanium", or "AMD64".
+        """
+        prefix = " bit ("
+        i = string.find(sys.version, prefix)
+        if i == -1:
+            return "Intel"
+        j = string.find(sys.version, ")", i)
+        return sys.version[i+len(prefix):j]
+
 import subprocess
 import os
 
