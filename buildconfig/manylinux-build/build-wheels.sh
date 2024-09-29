@@ -3,12 +3,12 @@ set -e -x
 
 
 if [[ "$1" == "buildpypy" ]]; then
-    export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312 pp39-pypy39_pp73 pp38-pypy38_pp73"
+    export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313 pp39-pypy39_pp73"
 elif [[ "$1" == "buildpypy10" ]]; then
     export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
 else
     if [ `uname -m` == "aarch64" ] || [ `uname -m` == "ppc64le" ]; then
-       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312"
+       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313"
     else
        export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
     fi
@@ -42,9 +42,10 @@ for PYVER in $SUPPORTED_PYTHONS; do
 	    PYTHON="/opt/python/${PYVER}/bin/pypy"
 	fi
 
-    ${PYTHON} -m pip install Sphinx "Cython>=3.0,<3.1"
+    ${PYTHON} -m pip install Sphinx setuptools wheel "Cython>=3.0,<3.1"
     cd io
     ${PYTHON} setup.py docs
+    ${PYTHON} setup.py cython_only
     cd ..
     ${PYTHON} -m pip wheel --global-option="build_ext" --global-option="-j4" -vvv /io/ -w wheelhouse/
 done
