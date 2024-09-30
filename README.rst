@@ -28,9 +28,14 @@ Windows) or a terminal (if you have MacOS or Linux) and type this:
 
 
 If a message such as "Python 3.8.10" appears, it means that Python
-is correctly installed. If an error message appears, it means that
-it is not installed yet. You must then go to the `official website
+is correctly installed. If an error message like "Python was not 
+found" appears, it means that it is not installed yet. You must 
+then go to the `official Python website 
 <https://www.python.org/downloads/>`_ to download it.
+
+If typing ``python --version`` doesn't return the correct result,
+try using ``python3 --version`` instead, especially on macOS and
+Linux systems. 
 
 Once Python is installed, you have to perform a final check: you have
 to see if pip is installed. Generally, pip is pre-installed with
@@ -42,11 +47,48 @@ command:
 
 
 If a message such as "pip 20.0.2 from /usr/lib/python3/dist-packages/pip
-(python 3.8)" appears, you are ready to install pygame! To install
-it, enter this command:
+(python 3.8)" appears, it means that pip is installed. The version number
+may vary depending on your Python installation.
+
+pip is usually automatically installed when using Python downloaded from 
+the official website. However, if your Python environment does not have 
+pip installed, you can download the ``get-pip.py`` script from 
+https://bootstrap.pypa.io/get-pip.py, open up a terminal, ``cd`` to
+the folder containing the file, and run:
+
+On Windows:
+::
+
+	py get-pip.py
+
+
+On MacOS/Linux: 
+::
+
+	python get-pip.py
+
+
+You can also use the ``ensurepip`` module, which is included with Python.
+Simply, open up a terminal and run:
+
+On Windows:
+::
+
+	py -m ensurepip --upgrade
+
+
+On MacOS/Linux:
+::
+
+	python -m ensurepip --upgrade
+
+
+You are now ready to install pygame! To install it, enter the following
+command:
 ::
 
    pip install pygame
+
 
 Once pygame is installed, quickly test your library by entering the following
 command, which opens one of the many example games that comes pre-installed: 
@@ -76,6 +118,9 @@ The online documentation stays up to date with the development version
 of pygame on GitHub.  This may be a bit newer than the version of pygame
 you are using. To upgrade to the latest full release, run
 ``pip install pygame --upgrade`` in your terminal.
+
+Upgrading ensures you have access to the newest features and bug
+fixes.
 
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.

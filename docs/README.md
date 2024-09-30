@@ -7,11 +7,14 @@ but the documentation can also be launched with `python -m pygame.docs`
 
 ### Generating the Documentation
 
+Prerequisites:
+- Python 3.6 or higher is required
+- Install Sphinx (`pip install Sphinx==4.5.0`)
+
 Steps:
-- Have Python 3.6 or higher
-- install Sphinx (`pip install Sphinx==4.5.0`)
-- fork the pygame repository, download and navigate to it in the terminal
-- run `python setup.py docs`
+1. Fork the Pygame repository on GitHub and clone it to your local machine.
+2. Navigate to the cloned repository in the terminal (`cd "path/to/pygame"`)
+3. Run the following command to generate the documentation: `python setup.py docs`
 
 This will create a new folder under the `docs` folder. 
 In `docs/generated`, you will find a local copy of the pygame documentation.
@@ -23,12 +26,13 @@ pygame website if there aren't any locally generated docs.
 
 There is also a `docs --fullgeneration` or `docs --f` command for regenerating
 everything regardless of whether Sphinx thinks it should be regenerated. This
-is useful when editing the theme CSS.
+is useful when editing the theme files (e.g., CSS).
 
 ###  Contributing
 
-If you see any grammatical mistakes or errors in the documentation,
-contributing to the docs is a great way to help out.
+Contributing to the documentation is an excellent way to help improve the Pygame 
+library. If you spot any grammatical mistakes or errors in the docs, here's how 
+you can get involved.
 
 For simple things, no issue is necessary -- but if you want to change
 something complex it would be best to open an issue first.
@@ -42,16 +46,20 @@ Sphinx has a good ReStructured Text primer to learn the basics:
 https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
 Contributing steps:
-- Have an idea to improve the docs, perhaps create an issue on GitHub
-- Find the file you want to edit: it will most likely be in `docs/reST/ref`.
-OR
-- Pygame docs pages have an "Edit on GitHub" button, which will show you the file
-- Download the pygame source from GitHub locally.  
-     ^ One way to do this is to fork and use a Git client to make that a local repository
-- Implement your idea.
-- Follow the steps in "Generating the Documentation"
-     ^ This is important to test your changes work well
-- Commit your changes, create a pull request
+1. **Identify an improvement:** You can create an issue on GitHub to discuss
+your idea or find existing issues related to the documentation.
+2. **Find the file to edit:** Most documentation files are located in the
+`docs/reST/ref/` folder. Alternatively, you can use the "Edit on GitHub"
+button on the documentation page, which will take you directly to the relevant
+file on GitHub.
+3. **Download the pygame source:** Fork the Pygame repository and clone it to your
+local machine using a Git client.
+4. **Make your changes:** Implement your changes in the relevant `.rst` file.
+5. **Generate the documentation:** Follow the steps outlined in the "Generating
+the Documentation" section to test your changes locally.
+6. **Commit and create a pull request:** Commit your changes to your forked
+repository and create a pull request.
+     - Ensure that the pull request has a clear and informative title and description
 
 ## Documentation Style
 
