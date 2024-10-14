@@ -272,7 +272,7 @@ class FontTest(unittest.TestCase):
         rect = screen.get_rect()
         f = pygame_font.Font(None, 20)
         screen.fill((10, 10, 10))
-    
+        
         font_surface = f.render(
             text="   bar", antialias=True, color=(0, 0, 0), background=(255, 255, 255)
         )
@@ -299,6 +299,7 @@ class FontTest(unittest.TestCase):
             self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
+            
             screen.fill((10, 10, 10))
             font_surface = f.render(text="   bar", antialias=True, color=(0, 0, 0))
             font_rect = font_surface.get_rect()
@@ -445,7 +446,7 @@ class FontTypeTest(unittest.TestCase):
         # test for internal null bytes
         self.assertRaises(ValueError, f.render, b"ab\x00cd", 0, [0, 0, 0])
         self.assertRaises(ValueError, f.render, "ab\x00cd", 0, [0, 0, 0])
-        
+    
     def test_render_with_kwargs(self):
         f = pygame_font.Font(None, 20)
     
