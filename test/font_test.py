@@ -511,7 +511,9 @@ class FontTypeTest(unittest.TestCase):
         self.assertTrue(equal_images(su, sb))
         u = "\u212A"
         b = u.encode("UTF-16")[2:]  # Keep byte order consistent. [2:] skips BOM
-        sb = f.render(text=b, antialias=False, color=[0, 0, 0], background=[255, 255, 255])
+        sb = f.render(
+            text=b, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
         try:
             su = f.render(
                 text=u, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
@@ -539,6 +541,7 @@ class FontTypeTest(unittest.TestCase):
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = "\U00010000"
             s = f.render(ucs_4, False, [0, 0, 0], [255, 255, 255])
+            
     def test_render_ucs2_ucs4_with_kwargs(self):
         """that it renders without raising if there is a new enough SDL_ttf."""
         f = pygame_font.Font(None, 20)
