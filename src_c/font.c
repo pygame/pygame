@@ -433,7 +433,7 @@ font_render(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"text", "antialias", "color", "background",
                                NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OpO|O", keywords, &text,
-                                      &antialias, &fg_rgba_obj, &bg_rgba_obj)) {
+                                     &antialias, &fg_rgba_obj, &bg_rgba_obj)) {
         return NULL;
     }
 
