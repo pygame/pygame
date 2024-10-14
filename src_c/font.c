@@ -418,18 +418,22 @@ font_set_strikethrough(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-font_render(PyObject *self, PyObject *args)
+font_render(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int antialias;
-    PyObject *text, *final;
-    PyObject *fg_rgba_obj, *bg_rgba_obj = Py_None;
+    PyObject *text = NULL;
+    PyObject *final = NULL;
+    PyObject *fg_rgba_obj = NULL;
+    PyObject *bg_rgba_obj = Py_None;
     Uint8 rgba[] = {0, 0, 0, 0};
-    SDL_Surface *surf;
-    const char *astring = "";
+    SDL_Surface *surf = NULL;
 
-    if (!PyArg_ParseTuple(args, "OpO|O", &text, &antialias, &fg_rgba_obj,
-                          &bg_rgba_obj)) {
+    const char *astring = "";
+    static char *keywords[] = {"text", "antialias", "color", "background",
+                               NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OpO|O", keywords, &text,
+                                     &antialias, &fg_rgba_obj, &bg_rgba_obj)) {
         return NULL;
     }
 
@@ -699,7 +703,7 @@ static PyMethodDef font_methods[] = {
     {"set_strikethrough", font_set_strikethrough, METH_O,
      DOC_FONTSETSTRIKETHROUGH},
     {"metrics", font_metrics, METH_O, DOC_FONTMETRICS},
-    {"render", font_render, METH_VARARGS, DOC_FONTRENDER},
+    {"render", font_render, METH_VARARGS | METH_KEYWORDS, DOC_FONTRENDER},
     {"size", font_size, METH_O, DOC_FONTSIZE},
     {"set_script", font_set_script, METH_O, DOC_FONTSETSCRIPT},
     {NULL, NULL, 0, NULL}};

@@ -267,6 +267,48 @@ class FontTest(unittest.TestCase):
             self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
+    def test_render_kwargs(self):
+        screen = pygame.display.set_mode((600, 400))
+        rect = screen.get_rect()
+        f = pygame_font.Font(None, 20)
+        screen.fill((10, 10, 10))
+        
+        font_surface = f.render(
+            text="   bar", antialias=True, color=(0, 0, 0), background=(255, 255, 255)
+        )
+        font_rect = font_surface.get_rect()
+        font_rect.topleft = rect.topleft
+        self.assertTrue(font_surface)
+        screen.blit(font_surface, font_rect, font_rect)
+        pygame.display.update()
+        self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (255, 255, 255))
+        self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (255, 255, 255))
+
+        # If we don't have a real display, don't do this test.
+        # Transparent background doesn't seem to work without a read video card.
+        if os.environ.get("SDL_VIDEODRIVER") != "dummy":
+            screen.fill((10, 10, 10))
+            font_surface = f.render(
+                text="   bar", antialias=True, color=(0, 0, 0), background=None
+            )
+            font_rect = font_surface.get_rect()
+            font_rect.topleft = rect.topleft
+            self.assertTrue(font_surface)
+            screen.blit(font_surface, font_rect, font_rect)
+            pygame.display.update()
+            self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
+
+            
+            screen.fill((10, 10, 10))
+            font_surface = f.render(text="   bar", antialias=True, color=(0, 0, 0))
+            font_rect = font_surface.get_rect()
+            font_rect.topleft = rect.topleft
+            self.assertTrue(font_surface)
+            screen.blit(font_surface, font_rect, font_rect)
+            pygame.display.update(rect)
+            self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
 @unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class FontTypeTest(unittest.TestCase):
@@ -404,6 +446,91 @@ class FontTypeTest(unittest.TestCase):
         # test for internal null bytes
         self.assertRaises(ValueError, f.render, b"ab\x00cd", 0, [0, 0, 0])
         self.assertRaises(ValueError, f.render, "ab\x00cd", 0, [0, 0, 0])
+    
+    def test_render_with_kwargs(self):
+        f = pygame_font.Font(None, 20)
+    
+        s = f.render(
+            text="foo", antialias=True, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        s = f.render(
+            text="xxx", antialias=True, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        s = f.render(
+            text="", antialias=True, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        s = f.render(
+            text="foo", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        s = f.render(
+            text="xxx", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        s = f.render(text="xxx", antialias=False, color=[0, 0, 0])
+        s = f.render(text="   ", antialias=False, color=[0, 0, 0])
+        s = f.render(
+            text="   ", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        # null text should be 0 pixel wide.
+        s = f.render(
+            text="", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        self.assertEqual(s.get_size()[0], 0)
+        # None text should be 0 pixel wide.
+        s = f.render(
+            text=None, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        self.assertEqual(s.get_size()[0], 0)
+        # Non-text should raise a TypeError.
+        self.assertRaises(
+            TypeError,
+            f.render,
+            text=[],
+            antialias=False,
+            color=[0, 0, 0],
+            background=[255, 255, 255],
+        )
+        self.assertRaises(
+            TypeError,
+            f.render,
+            text=1,
+            antialias=False,
+            color=[0, 0, 0],
+            background=[255, 255, 255],
+        )
+        # is background transparent for antialiasing?
+        s = f.render(text=".", antialias=True, color=[255, 255, 255])
+        self.assertEqual(s.get_at((0, 0))[3], 0)
+        # is Unicode and bytes encoding correct?
+        # Cannot really test if the correct characters are rendered, but
+        # at least can assert the encodings differ.
+        su = f.render(
+            text=".", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        sb = f.render(
+            text=b".", antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        self.assertTrue(equal_images(su, sb))
+        u = "\u212A"
+        b = u.encode("UTF-16")[2:]  # Keep byte order consistent. [2:] skips BOM
+        sb = f.render(
+            text=b, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+        )
+        try:
+            su = f.render(
+                text=u, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+            )
+        except pygame.error:
+            pass
+        else:
+            self.assertFalse(equal_images(su, sb))
+
+        # test for internal null bytes
+        self.assertRaises(
+            ValueError, f.render, text=b"ab\x00cd", antialias=0, color=[0, 0, 0]
+        )
+        self.assertRaises(
+            ValueError, f.render, text="ab\x00cd", antialias=0, color=[0, 0, 0]
+        )
 
     def test_render_ucs2_ucs4(self):
         """that it renders without raising if there is a new enough SDL_ttf."""
@@ -415,6 +542,21 @@ class FontTypeTest(unittest.TestCase):
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = "\U00010000"
             s = f.render(ucs_4, False, [0, 0, 0], [255, 255, 255])
+            
+    def test_render_ucs2_ucs4_with_kwargs(self):
+        """that it renders without raising if there is a new enough SDL_ttf."""
+        f = pygame_font.Font(None, 20)
+        # If the font module is SDL_ttf < 2.0.15 based, then it only supports UCS-2
+        # it will raise an exception for an out-of-range UCS-4 code point.
+        if hasattr(pygame_font, "UCS4"):
+            ucs_2 = "\uFFEE"
+            s = f.render(
+                text=ucs_2, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+            )
+            ucs_4 = "\U00010000"
+            s = f.render(
+                text=ucs_4, antialias=False, color=[0, 0, 0], background=[255, 255, 255]
+            )
 
     def test_set_bold(self):
         f = pygame_font.Font(None, 20)
