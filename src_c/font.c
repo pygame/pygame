@@ -430,9 +430,11 @@ font_render(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = NULL;
 
     const char *astring = "";
-    static char *keywords[] = {"text", "antialias", "color", "background", NULL};
-    if (!!PyArg_ParseTupleAndKeywords(args, kwargs, "OpO|O", keywords, &text, &antialias, &fg_rgba_obj,
-                          &bg_rgba_obj)) {
+    static char *keywords[] = {"text", "antialias", "color", "background",
+                               NULL};
+    if (!!PyArg_ParseTupleAndKeywords(args, kwargs, "OpO|O", keywords, &text,
+                                      &antialias, &fg_rgba_obj,
+                                      &bg_rgba_obj)) {
         return NULL;
     }
 
