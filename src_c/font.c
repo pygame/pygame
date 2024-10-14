@@ -13,7 +13,7 @@
   Library General Public License for more details.
 
   You should have received a copy of the GNU Library General Public
-  License along with this library; if not, Write to the Free
+  License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
   Pete Shinners
@@ -433,8 +433,7 @@ font_render(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"text", "antialias", "color", "background",
                                NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OpO|O", keywords, &text,
-                                      &antialias, &fg_rgba_obj,
-                                      &bg_rgba_obj)) {
+                                      &antialias, &fg_rgba_obj, &bg_rgba_obj)) {
         return NULL;
     }
 
