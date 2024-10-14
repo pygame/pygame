@@ -249,7 +249,7 @@ solves no longer exists, it will likely be removed in the future.
    .. method:: render
 
       | :sl:`draw text on a new Surface`
-      | :sg:`render(text, antialias, color, background=None) -> Surface`
+      | :sg:`render(text=text, antialias=antialias, color=color, background=None) -> Surface`
 
       This creates a new Surface with the specified text rendered on it. 
       :mod:`pygame.font` provides no way to directly draw text on an existing
