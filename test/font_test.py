@@ -442,7 +442,7 @@ class FontTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, f.render, b"ab\x00cd", 0, [0, 0, 0])
         self.assertRaises(ValueError, f.render, "ab\x00cd", 0, [0, 0, 0])
         
-    def test_render_kwargs(self):
+    def test_render_with_kwargs(self):
         f = pygame_font.Font(None, 20)
     
         s = f.render(text="foo", antialias=True, color=[0, 0, 0], background=[255, 255, 255])
@@ -495,6 +495,16 @@ class FontTypeTest(unittest.TestCase):
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = "\U00010000"
             s = f.render(ucs_4, False, [0, 0, 0], [255, 255, 255])
+    def test_render_ucs2_ucs4_with_kwargs(self):
+        """that it renders without raising if there is a new enough SDL_ttf."""
+        f = pygame_font.Font(None, 20)
+        # If the font module is SDL_ttf < 2.0.15 based, then it only supports UCS-2
+        # it will raise an exception for an out-of-range UCS-4 code point.
+        if hasattr(pygame_font, "UCS4"):
+            ucs_2 = "\uFFEE"
+            s = f.render(text=ucs_2, antialias=False, color=[0, 0, 0], background=[255, 255, 255])
+            ucs_4 = "\U00010000"
+            s = f.render(text=ucs_4, antialias=False, color=[0, 0, 0], background=[255, 255, 255])
 
     def test_set_bold(self):
         f = pygame_font.Font(None, 20)
