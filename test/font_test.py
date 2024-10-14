@@ -365,6 +365,7 @@ class FontTypeTest(unittest.TestCase):
 
     def test_render(self):
         f = pygame_font.Font(None, 20)
+        s = f.render(text="foo", color=[0, 0, 0], background=[255, 255, 255], antialias=True)
         s = f.render("foo", True, [0, 0, 0], [255, 255, 255])
         s = f.render("xxx", True, [0, 0, 0], [255, 255, 255])
         s = f.render("", True, [0, 0, 0], [255, 255, 255])
