@@ -104,19 +104,29 @@ def _parse_font_entry_win(name, font, fonts):
     mods = ("demibold", "narrow", "light", "unicode", "bt", "mt")
     if name.endswith(true_type_suffix):
         name = name.rstrip(true_type_suffix).rstrip()
-    name = name.lower().split()
+    name = name.lower().replace('-', ' ').replace('_', ' ').split()
     bold = italic = False
-    for mod in mods:
-        if mod in name:
-            name.remove(mod)
     if "bold" in name:
         name.remove("bold")
         bold = True
     if "italic" in name:
         name.remove("italic")
         italic = True
+    if "regular" in name:
+        name.remove("regular")
+    full_name = name.copy()
+    for mod in mods:
+        if mod in name:
+            name.remove(mod)
+
     name = "".join(name)
     name = _simplename(name)
+    full_name = "".join(full_name)
+    full_name = _simplename(full_name)
+
+    # In the event of a collision, opt for the font's full name instead
+    if name in fonts:
+        name = full_name
 
     _addfont(name, bold, italic, font, fonts)
 
