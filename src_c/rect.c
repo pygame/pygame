@@ -1180,24 +1180,25 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
     PyObject *arg1 = NULL, *arg2 = NULL, *arg3 = NULL, *arg4 = NULL;
     SDL_Rect *rect = &self->r, *rect_copy = NULL;
     int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+    int collision_detected = 0; // Flag to check if a collision was detected
 
     static char *keywords[] = {"x1", "x2", "x3", "x4", NULL};
 
+    // Handle keyword arguments 'first_coordinate' and 'second_coordinate'
     if (kwargs) {
         int temp_x1 = 0, temp_x2 = 0, temp_x3 = 0, temp_x4 = 0;
 
-        // Handles 'first_coord' and 'second_coord' scenarios
         PyObject *first_coord =
             PyDict_GetItemString(kwargs, "first_coordinate");
         PyObject *second_coord =
             PyDict_GetItemString(kwargs, "second_coordinate");
 
+        // If both 'first_coordinate' and 'second_coordinate' are provided
         if (first_coord && second_coord) {
             if (PyDict_Size(kwargs) > 2) {
                 return RAISE(
                     PyExc_TypeError,
-                    "Only 2 keyword argument can be passed when "
-                    "using 'first_coordinate' and 'second_coordinate'");
+                    "Only 2 keyword arguments can be passed when using 'first_coordinate' and 'second_coordinate'");
             }
 
             if (!pg_TwoIntsFromObj(first_coord, &temp_x1, &temp_x2)) {
@@ -1220,17 +1221,16 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
             PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
             PyDict_DelItemString(kwargs, "second_coordinate");
         }
+
         // Handles 'rect_arg' scenarios
         PyObject *rect_arg = PyDict_GetItemString(kwargs, "rect_arg");
 
         if (rect_arg) {
             if (PyDict_Size(kwargs) > 1) {
                 return RAISE(PyExc_TypeError,
-                             "Only 1 keyword argument can be passed when "
-                             "using 'rect_arg");
-            }
-            else if (!four_ints_from_obj(rect_arg, &temp_x1, &temp_x2,
-                                         &temp_x3, &temp_x4)) {
+                             "Only 1 keyword argument can be passed when using 'rect_arg'");
+            } else if (!four_ints_from_obj(rect_arg, &temp_x1, &temp_x2,
+                                           &temp_x3, &temp_x4)) {
                 return 0;  // Exception already set
             }
             PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
@@ -1243,89 +1243,91 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", keywords, &arg1,
                                      &arg2, &arg3, &arg4)) {
-        return NULL; /* Exception already set. */
+        return NULL; // Exception already set
     }
 
     if (arg2 == NULL) {
-        /* Handles formats:
-         *     clipline(((x1, y1), (x2, y2)))
-         *     clipline((x1, y1, x2, y2))
-         */
+        // Handle formats:
+        //     clipline(((x1, y1), (x2, y2)))
+        //     clipline((x1, y1, x2, y2))
         if (!four_ints_from_obj(arg1, &x1, &y1, &x2, &y2)) {
-            return NULL; /* Exception already set. */
+            return NULL; // Exception already set
         }
-    }
-    else if (arg3 == NULL) {
-        /* Handles format: clipline((x1, y1), (x2, y2)) */
+    } else if (arg3 == NULL) {
+        // Handle format: clipline((x1, y1), (x2, y2))
         int result = pg_TwoIntsFromObj(arg1, &x1, &y1);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number pair expected for first argument");
+                         "Number pair expected for the first argument");
         }
 
-        /* Get the other end of the line. */
+        // Get the other end of the line
         result = pg_TwoIntsFromObj(arg2, &x2, &y2);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number pair expected for second argument");
+                         "Number pair expected for the second argument");
         }
-    }
-    else if (arg4 != NULL) {
-        /* Handles format: clipline(x1, y1, x2, y2) */
+    } else if (arg4 != NULL) {
+        // Handle format: clipline(x1, y1, x2, y2)
         int result = pg_IntFromObj(arg1, &x1);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for first argument");
+                         "Number expected for the first argument");
         }
 
         result = pg_IntFromObj(arg2, &y1);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for second argument");
+                         "Number expected for the second argument");
         }
 
         result = pg_IntFromObj(arg3, &x2);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for third argument");
+                         "Number expected for the third argument");
         }
 
         result = pg_IntFromObj(arg4, &y2);
 
         if (!result) {
             return RAISE(PyExc_TypeError,
-                         "number expected for fourth argument");
+                         "Number expected for the fourth argument");
         }
-    }
-    else {
+    } else {
         return RAISE(PyExc_TypeError,
                      "clipline() takes 1, 2, or 4 arguments (3 given)");
     }
 
+    // Normalize the rectangle if necessary
     if ((self->r.w < 0) || (self->r.h < 0)) {
-        /* Make a copy of the rect so it can be normalized. */
+        // Make a copy of the rect so it can be normalized
         rect_copy = &pgRect_AsRect(pgRect_New(&self->r));
 
         if (NULL == rect_copy) {
-            return RAISE(PyExc_MemoryError, "cannot allocate memory for rect");
+            return RAISE(PyExc_MemoryError, "Cannot allocate memory for rect");
         }
 
         pgRect_Normalize(rect_copy);
         rect = rect_copy;
     }
 
-    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
-        Py_XDECREF(rect_copy);
-        return PyTuple_New(0);
+    // Ensure multiple collision data is not overwritten
+    if (SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
+        collision_detected = 1; // Mark that a collision was detected
     }
 
     Py_XDECREF(rect_copy);
-    return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
+
+    if (collision_detected) {
+        // Return the clipped line coordinates
+        return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
+    }
+    return PyTuple_New(0); // No collision detected
 }
 
 static int
