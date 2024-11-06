@@ -1,0 +1,70 @@
+import pygame
+import random
+
+# เริ่มต้น pygame
+pygame.init()
+
+# ขนาดหน้าต่าง
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("เกมแข่งเรือ")
+
+# สีที่ใช้
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
+
+# ตัวแปรเรือ
+boat_width = 60
+boat_height = 100
+boat_speed = 5
+
+# สร้างเรือ
+boat_x = WIDTH // 2 - boat_width // 2
+boat_y = HEIGHT - boat_height - 10
+boat_image = pygame.Surface((boat_width, boat_height))
+boat_image.fill(BLUE)
+
+# ฟังก์ชันสำหรับเกม
+def draw_boat(x, y):
+    screen.blit(boat_image, (x, y))
+
+def game_loop():
+    global boat_x, boat_y
+
+    # ตัวแปรเกม
+    clock = pygame.time.Clock()
+    run_game = True
+
+    while run_game:
+        screen.fill(WHITE)
+
+        # ตรวจสอบอีเวนต์
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run_game = False
+
+        # ควบคุมเรือ
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and boat_x > 0:
+            boat_x -= boat_speed
+        if keys[pygame.K_RIGHT] and boat_x < WIDTH - boat_width:
+            boat_x += boat_speed
+        if keys[pygame.K_UP] and boat_y > 0:
+            boat_y -= boat_speed
+        if keys[pygame.K_DOWN] and boat_y < HEIGHT - boat_height:
+            boat_y += boat_speed
+
+        # วาดเรือ
+        draw_boat(boat_x, boat_y)
+
+        # อัพเดตหน้าจอ
+        pygame.display.update()
+
+        # ตั้งค่า FPS
+        clock.tick(60)
+
+    pygame.quit()
+
+# เริ่มเกม
+game_loop()
