@@ -32,7 +32,7 @@
    Both flags are only a request, and may not be possible for all displays and
    formats.
 
-   Advance users can combine a set of bitmasks with a depth value. The masks
+   Advanced users can combine a set of bitmasks with a depth value. The masks
    are a set of 4 integers representing which bits in a pixel will represent
    each color. Normal Surfaces should not require the masks argument.
 
