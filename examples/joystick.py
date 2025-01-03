@@ -69,7 +69,7 @@ def main():
                 # joystick, filling up the list without needing to create them manually.
                 joy = pygame.joystick.Joystick(event.device_index)
                 joysticks[joy.get_instance_id()] = joy
-                print(f"Joystick {joy.get_instance_id()} connencted")
+                print(f"Joystick {joy.get_instance_id()} connected")
 
             if event.type == pygame.JOYDEVICEREMOVED:
                 del joysticks[event.instance_id]
@@ -98,9 +98,11 @@ def main():
             name = joystick.get_name()
             text_print.tprint(screen, f"Joystick name: {name}")
 
+            # Get the unique hardware identifier for the controller/joystick.
             guid = joystick.get_guid()
             text_print.tprint(screen, f"GUID: {guid}")
 
+            # Get the approximate power status of the controller/joystick.
             power_level = joystick.get_power_level()
             text_print.tprint(screen, f"Joystick's power level: {power_level}")
 
