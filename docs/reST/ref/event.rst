@@ -149,7 +149,8 @@ is defined, the direction of x and y will be opposite.
 ``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an
 input method in a GUI and starts typing
 
-
+The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio
+devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list.
 
 |
 
