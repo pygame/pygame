@@ -137,7 +137,7 @@ The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events 
 by a touch input device, and not a real mouse. You might want to ignore such events, if your application
 already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
 
-``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the screen with one or more fingers.
+``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the input device with one or more fingers.
 
 ``MOUSEWHEEL`` event occurs whenever the mouse wheel is moved.
 The ``which`` attribute determines if the event was generated from a touch input device vs an actual
