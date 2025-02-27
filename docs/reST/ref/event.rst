@@ -144,11 +144,12 @@ negative towards user).
 The ``flipped`` attribute determines if the values in x and y will be opposite or not. If ``SDL_MOUSEWHEEL_FLIPPED``
 is defined, the direction of x and y will be opposite.
 
+``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the screen with one or more fingers.
+
 ``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an
 input method in a GUI and starts typing
 
-The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio
-devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list.
+
 
 |
 
