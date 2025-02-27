@@ -130,9 +130,14 @@ attributes.
 
 .. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
 
+The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio
+devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list.
+
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
 by a touch input device, and not a real mouse. You might want to ignore such events, if your application
 already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
+
+``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the screen with one or more fingers.
 
 ``MOUSEWHEEL`` event occurs whenever the mouse wheel is moved.
 The ``which`` attribute determines if the event was generated from a touch input device vs an actual
@@ -144,13 +149,9 @@ negative towards user).
 The ``flipped`` attribute determines if the values in x and y will be opposite or not. If ``SDL_MOUSEWHEEL_FLIPPED``
 is defined, the direction of x and y will be opposite.
 
-``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the screen with one or more fingers.
-
 ``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an
 input method in a GUI and starts typing
 
-The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio
-devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list.
 
 |
 
