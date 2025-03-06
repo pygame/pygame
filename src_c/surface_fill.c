@@ -41,10 +41,10 @@ surface_respect_clip_rect(SDL_Surface *surface, SDL_Rect *rect)
     /* Left */
     if ((A->x >= B->x) && (A->x < (B->x + B->w)))
         /* x of A is negative so we add A->x to A->w to remove the excess before setting A->x to 0*/
-        w = A->x + A->w;
+        w = B->x + B->w;
         x = A->x;
     else if ((B->x >= A->x) && (B->x < (A->x + A->w)))
-        w = B->x + B->x;
+        w = A->x + A->x;
         x = B->x;
     else
         return;
