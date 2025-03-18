@@ -153,6 +153,8 @@ solves no longer exists, it will likely be removed in the future.
    comma-separated font names, or a bytes of comma-separated font names, in
    which case the set of names will be searched in order.
 
+   The font name 'None' is also supported, in which case Pygame will use the systems default font.
+
    .. versionadded:: 2.0.1 Accept an iterable of font names.
 
    .. versionchanged:: 2.1.3 Checks through user fonts instead of just global fonts for Windows.
