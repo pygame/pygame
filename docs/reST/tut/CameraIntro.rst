@@ -39,6 +39,7 @@ Import and Init
 
   import pygame
   import pygame.camera
+  import sys
   from pygame.locals import *
 
   pygame.init()
@@ -96,6 +97,9 @@ we will be supplying the camera with the same surface to use each time. ::
 
   class Capture:
       def __init__(self):
+          pygame.init()
+          pygame.camera.init()
+
           self.size = (640,480)
           # create a display surface. standard pygame stuff
           self.display = pygame.display.set_mode(self.size, 0)
@@ -123,16 +127,19 @@ we will be supplying the camera with the same surface to use each time. ::
           pygame.display.flip()
   
       def main(self):
-          going = True
           while going:
               events = pygame.event.get()
               for e in events:
                   if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                       # close the camera safely
                       self.cam.stop()
-                      going = False
-  
+                      pygame.quit()
+                      sys.exit()
+
               self.get_and_flip()
+
+  capture = Capture()
+  capture.main()
 
 
 Since get_image() is a blocking call that could take quite a bit of time on a
