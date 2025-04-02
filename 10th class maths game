@@ -1,0 +1,59 @@
+import random
+import math
+
+# Dictionary of formulas and corresponding questions
+formulas = {
+    "Quadratic Formula": "If ax^2 + bx + c = 0, what is the formula for x?",
+    "Pythagoras Theorem": "If a and b are the legs of a right triangle, what is the formula for the hypotenuse c?",
+    "Trigonometry (sin)": "What is sin(30°) equal to?",
+    "Trigonometry (cos)": "What is cos(60°) equal to?",
+    "Area of Circle": "What is the formula for the area of a circle?",
+    "Surface Area of Sphere": "What is the formula for the surface area of a sphere?"
+}
+
+# Correct answers for verification
+answers = {
+    "Quadratic Formula": "(-b ± sqrt(b^2 - 4ac)) / 2a",
+    "Pythagoras Theorem": "c^2 = a^2 + b^2",
+    "Trigonometry (sin)": "1/2",
+    "Trigonometry (cos)": "1/2",
+    "Area of Circle": "πr^2",
+    "Surface Area of Sphere": "4πr^2"
+}
+
+def ask_question():
+    """Randomly selects a math formula question for the player."""
+    formula_name, question = random.choice(list(formulas.items()))
+    print("\nQuestion: ", question)
+    user_answer = input("Your Answer: ").strip()
+
+    # Check answer
+    if user_answer.lower() == answers[formula_name].lower():
+        print("✅ Correct! You earn 10 points.")
+        return 10
+    else:
+        print(f"❌ Wrong! The correct answer is: {answers[formula_name]}")
+        return 0
+
+def play_game():
+    """Main game loop where players answer questions to score points."""
+    print("🎮 Welcome to Math Formula Quest! 🎮")
+    print("Answer the following math questions correctly to earn points.")
+
+    score = 0
+    rounds = 5  # Number of questions per game session
+
+    for _ in range(rounds):
+        score += ask_question()
+
+    print(f"\n🏆 Game Over! Your final score is: {score} points.")
+    if score >= 40:
+        print("🎉 Excellent! You're a math champion!")
+    elif score >= 20:
+        print("👍 Good job! Keep practicing.")
+    else:
+        print("📚 Keep learning! Try again to improve.")
+
+# Start the game
+if __name__ == "__main__":
+    play_game()
