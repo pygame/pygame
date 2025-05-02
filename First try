@@ -1,0 +1,127 @@
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Hollow Knight-Inspired Game")
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+DARK_BLUE = (10, 10, 30)
+
+# Clock for controlling frame rate
+clock = pygame.time.Clock()
+FPS = 60
+
+# Player class
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((40, 60))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.speed_x = 0
+        self.speed_y = 0
+        self.gravity = 0.8
+        self.jump_speed = -15
+        self.on_ground = False
+
+    def update(self, platforms):
+        # Horizontal movement
+        self.rect.x += self.speed_x
+
+        # Check for collisions (horizontal)
+        for platform in platforms:
+            if self.rect.colliderect(platform.rect):
+                if self.speed_x > 0:  # Moving right
+                    self.rect.right = platform.rect.left
+                elif self.speed_x < 0:  # Moving left
+                    self.rect.left = platform.rect.right
+
+        # Vertical movement
+        self.speed_y += self.gravity
+        self.rect.y += self.speed_y
+
+        # Check for collisions (vertical)
+        self.on_ground = False
+        for platform in platforms:
+            if self.rect.colliderect(platform.rect):
+                if self.speed_y > 0:  # Falling
+                    self.rect.bottom = platform.rect.top
+                    self.speed_y = 0
+                    self.on_ground = True
+                elif self.speed_y < 0:  # Jumping
+                    self.rect.top = platform.rect.bottom
+                    self.speed_y = 0
+
+    def jump(self):
+        if self.on_ground:
+            self.speed_y = self.jump_speed
+
+# Platform class
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+
+# Create sprite groups
+all_sprites = pygame.sprite.Group()
+platforms = pygame.sprite.Group()
+
+# Create the player
+player = Player()
+all_sprites.add(player)
+
+# Create platforms
+platform_data = [
+    (0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40),  # Ground
+    (200, 400, 200, 20),  # Floating platform
+    (500, 300, 150, 20),  # Another platform
+]
+for x, y, width, height in platform_data:
+    platform = Platform(x, y, width, height)
+    platforms.add(platform)
+    all_sprites.add(platform)
+
+# Game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.jump()
+
+    # Get key states
+    keys = pygame.key.get_pressed()
+    player.speed_x = 0
+    if keys[pygame.K_LEFT]:
+        player.speed_x = -5
+    if keys[pygame.K_RIGHT]:
+        player.speed_x = 5
+
+    # Update all sprites
+    all_sprites.update(platforms)
+
+    # Draw everything
+    screen.fill(DARK_BLUE)
+    all_sprites.draw(screen)
+
+    # Update the display
+    pygame.display.flip()
+
+    # Cap the frame rate
+    clock.tick(FPS)
+
+pygame.quit()
+sys.exit()
