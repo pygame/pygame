@@ -1,0 +1,66 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Game Window
+WIDTH = 400
+HEIGHT = 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Car Racing Game")
+
+# Colors
+WHITE = (255, 255, 255)
+GRAY = (50, 50, 50)
+RED = (200, 0, 0)
+BLUE = (0, 0, 255)
+
+# Clock
+clock = pygame.time.Clock()
+FPS = 60
+
+# Player Car
+CAR_WIDTH = 50
+CAR_HEIGHT = 90
+car = pygame.Rect(WIDTH // 2 - CAR_WIDTH // 2, HEIGHT - CAR_HEIGHT - 10, CAR_WIDTH, CAR_HEIGHT)
+
+# Enemy Car
+enemy = pygame.Rect(random.randint(0, WIDTH - CAR_WIDTH), -CAR_HEIGHT, CAR_WIDTH, CAR_HEIGHT)
+enemy_speed = 5
+
+# Game Loop
+running = True
+while running:
+    screen.fill(GRAY)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Controls
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and car.left > 0:
+        car.x -= 5
+    if keys[pygame.K_RIGHT] and car.right < WIDTH:
+        car.x += 5
+
+    # Enemy Movement
+    enemy.y += enemy_speed
+    if enemy.top > HEIGHT:
+        enemy.y = -CAR_HEIGHT
+        enemy.x = random.randint(0, WIDTH - CAR_WIDTH)
+
+    # Collision Check
+    if car.colliderect(enemy):
+        print("Game Over!")
+        running = False
+
+    # Draw Cars
+    pygame.draw.rect(screen, BLUE, car)
+    pygame.draw.rect(screen, RED, enemy)
+
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
