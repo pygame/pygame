@@ -30,7 +30,10 @@ class TouchTest(unittest.TestCase):
 
     @unittest.skipIf(not has_touchdevice, "no touch devices found")
     def test_num_fingers(self):
-        touch.get_num_fingers(touch.get_device(0))
+        # sdl2-compat reports pens/styli as touch devices but they don't
+        # support get_num_fingers, they can be distinguished by negative id
+        if touch.get_device(0) >= 0:
+            touch.get_num_fingers(touch.get_device(0))
 
     def test_num_fingers__invalid(self):
         self.assertRaises(TypeError, touch.get_num_fingers, "test")
