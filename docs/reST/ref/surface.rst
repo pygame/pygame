@@ -177,7 +177,7 @@
       creating per-pixel alphas.
 
       The new copy will have the same class as the copied surface. This lets
-      as Surface subclass inherit this method without the need to override,
+      a Surface subclass inherit this method without the need to override,
       unless subclass specific instance attributes also need copying.
 
       .. ## Surface.convert ##
