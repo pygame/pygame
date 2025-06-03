@@ -22,7 +22,17 @@ import sys
 import os
 
 try:
-    from pkg_resources import resource_stream, resource_exists
+    import importlib.resources
+
+    def resource_stream(package, resource):
+        return importlib.resources.open_binary(package, resource)
+
+    def resource_exists(package, resource):
+        try:
+            importlib.resources.files(package).joinpath(resource).open("rb").close()
+            return True
+        except (FileNotFoundError, ModuleNotFoundError):
+            return False
 except ImportError:
 
     def resource_exists(_package_or_requirement, _resource_name):
