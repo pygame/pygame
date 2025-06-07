@@ -496,10 +496,11 @@ on KDE linux. This variable is only used on x11/linux platforms.
 
 ::
 
- SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS
- Set to "1" to allow joysticks to be updated even when the window is out of focus
+.. envvar:: SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS
 
-By default, when the window is not in focus, input devices do not get
-updated. However, using this environment variable it is possible to get
-joystick updates even when the window is in the background. Must be set
-before calling :func:`pygame.init()` or :func:`pygame.joystick.init()`.
+   Set to "1" to allow joysticks to be updated even when the window is out of focus.
+
+   By default, when the window is not in focus, input devices do not get updated.
+   However, using this environment variable it is possible to get joystick updates even when the window is in the background.
+   Must be set before calling :func:`pygame.init` or :func:`pygame.joystick.init`.
+
