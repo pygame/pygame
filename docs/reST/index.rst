@@ -1,3 +1,121 @@
+import pygame
+import time
+import random
+
+pygame.init()
+
+# Cores
+branco = (255, 255, 255)
+preto = (0, 0, 0)
+vermelho = (213, 50, 80)
+verde = (0, 255, 0)
+azul = (50, 153, 213)
+
+# Tamanho da tela
+largura = 600
+altura = 400
+tela = pygame.display.set_mode((largura, altura))
+
+# Tamanho dos blocos
+bloco = 40
+velocidade = 15
+
+# Fonte
+fonte = pygame.font.SysFont("bahnschrift", 25)
+
+# Pontuação
+def mostrar_pontuacao(pontos):
+    valor = fonte.render(f"Pontuação: {pontos}", True, branco)
+    tela.blit(valor, [0, 0])
+
+# Loop principal
+def jogo():
+    game_over = False
+    game_close = False
+
+    x = largura // 2
+    y = altura // 2
+    x_mudanca = 0
+    y_mudanca = 0
+
+    corpo = []
+    tamanho = 1
+
+    comida_x = round(random.randrange(0, largura - bloco) / 20.0) * 20.0
+    comida_y = round(random.randrange(0, altura - bloco) / 20.0) * 20.0
+
+    clock = pygame.time.Clock()
+
+    while not game_over:
+
+        while game_close:
+            tela.fill(preto)
+            msg = fonte.render("Você perdeu! Pressione C para continuar ou Q para sair", True, vermelho)
+            tela.blit(msg, [largura / 6, altura / 3])
+            mostrar_pontuacao(tamanho - 1)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    if event.key == pygame.K_c:
+                        jogo()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x_mudanca = -bloco
+                    y_mudanca = 0
+                elif event.key == pygame.K_RIGHT:
+                    x_mudanca = bloco
+                    y_mudanca = 0
+                elif event.key == pygame.K_UP:
+                    y_mudanca = -bloco
+                    x_mudanca = 0
+                elif event.key == pygame.K_DOWN:
+                    y_mudanca = bloco
+                    x_mudanca = 0
+
+        if x >= largura or x < 0 or y >= altura or y < 0:
+            game_close = True
+        x += x_mudanca
+        y += y_mudanca
+        tela.fill(azul)
+        pygame.draw.rect(tela, verde, [comida_x, comida_y, bloco, bloco])
+        cabeca = []
+        cabeca.append(x)
+        cabeca.append(y)
+        corpo.append(cabeca)
+        if len(corpo) > tamanho:
+            del corpo[0]
+
+        for segmento in corpo[:-1]:
+            if segmento == cabeca:
+                game_close = True
+
+        for parte in corpo:
+            pygame.draw.rect(tela, branco, [parte[0], parte[1], bloco, bloco])
+
+        mostrar_pontuacao(tamanho - 1)
+
+        pygame.display.update()
+
+        if x == comida_x and y == comida_y:
+            comida_x = round(random.randrange(0, largura - bloco) / 20.0) * 20.0
+            comida_y = round(random.randrange(0, altura - bloco) / 20.0) * 20.0
+            tamanho += 1
+
+        clock.tick(velocidade)
+
+    pygame.quit()
+    quit()
+
+jogo()
+
 Pygame Front Page
 =================
 
