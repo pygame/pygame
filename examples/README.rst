@@ -3,7 +3,7 @@ techniques. They are beginner-friendly with source code in the public
 domain that can be adapted for your projects.
 
 
-aacircles.py
+aacircle.py
    An example of using the gfxdraw module to drawing anti-aliased circles.
 
 aliens.py
