@@ -1,213 +1,160 @@
-Pygame Front Page
-=================
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :hidden:
-
-   ref/*
-   tut/*
-   tut/en/**/*
-   tut/ko/**/*
-   c_api
-   filepaths
-   logos
-
-Quick start
------------
-
-Welcome to pygame! Once you've got pygame installed (:code:`pip install pygame` or
-:code:`pip3 install pygame` for most people), the next question is how to get a game
-loop running. Pygame, unlike some other libraries, gives you full control of program
-execution. That freedom means it is easy to mess up in your initial steps.
-
-Here is a good example of a basic setup (opens the window, updates the screen, and handles events)--
-
-.. literalinclude:: ref/code_examples/base_script.py
-
-Here is a slightly more fleshed out example, which shows you how to move something
-(a circle in this case) around on screen--
-
-.. literalinclude:: ref/code_examples/base_script_example.py
-
-For more in depth reference, check out the :ref:`tutorials-reference-label`
-section below, check out a video tutorial (`I'm a fan of this one
-<https://www.youtube.com/watch?v=AY9MnQ4x3zk>`_), or reference the API
-documentation by module.
-
-Documents
----------
-
-`Readme`_
-  Basic information about pygame: what it is, who is involved, and where to find it.
-
-`Install`_
-  Steps needed to compile pygame on several platforms.
-  Also help on finding and installing prebuilt binaries for your system.
-
-:doc:`filepaths`
-  How pygame handles file system paths.
-
-:doc:`Pygame Logos <logos>`
-   The logos of Pygame in different resolutions.
-
-
-`LGPL License`_
-  This is the license pygame is distributed under.
-  It provides for pygame to be distributed with open source and commercial software.
-  Generally, if pygame is not changed, it can be used with any type of program.
-
-.. _tutorials-reference-label:
-
-Tutorials
----------
-
-:doc:`Introduction to Pygame <tut/PygameIntro>`
-  An introduction to the basics of pygame.
-  This is written for users of Python and appeared in volume two of the Py magazine.
-
-:doc:`Import and Initialize <tut/ImportInit>`
-  The beginning steps on importing and initializing pygame.
-  The pygame package is made of several modules.
-  Some modules are not included on all platforms.
-
-:doc:`How do I move an Image? <tut/MoveIt>`
-  A basic tutorial that covers the concepts behind 2D computer animation.
-  Information about drawing and clearing objects to make them appear animated.
-
-:doc:`Chimp Tutorial, Line by Line <tut/ChimpLineByLine>`
-  The pygame examples include a simple program with an interactive fist and a chimpanzee.
-  This was inspired by the annoying flash banner of the early 2000s.
-  This tutorial examines every line of code used in the example.
-
-:doc:`Sprite Module Introduction <tut/SpriteIntro>`
-  Pygame includes a higher level sprite module to help organize games.
-  The sprite module includes several classes that help manage details found in almost all games types.
-  The Sprite classes are a bit more advanced than the regular pygame modules,
-  and need more understanding to be properly used.
-
-:doc:`Surfarray Introduction <tut/SurfarrayIntro>`
-  Pygame used the NumPy python module to allow efficient per pixel effects on images.
-  Using the surface arrays is an advanced feature that allows custom effects and filters.
-  This also examines some of the simple effects from the pygame example, arraydemo.py.
-
-:doc:`Camera Module Introduction <tut/CameraIntro>`
-  Pygame, as of 1.9, has a camera module that allows you to capture images,
-  watch live streams, and do some basic computer vision.
-  This tutorial covers those use cases.
-
-:doc:`Newbie Guide <tut/newbieguide>`
-  A list of thirteen helpful tips for people to get comfortable using pygame.
-
-:doc:`Making Games Tutorial <tut/MakeGames>`
-  A large tutorial that covers the bigger topics needed to create an entire game.
-
-:doc:`Display Modes <tut/DisplayModes>`
-  Getting a display surface for the screen.
-
-:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/개요>`
-  빨간블록 검은블록
-
-
-Reference
----------
-
-:ref:`genindex`
-  A list of all functions, classes, and methods in the pygame package.
-
-:doc:`ref/bufferproxy`
-  An array protocol view of surface pixels
-
-:doc:`ref/color`
-  Color representation.
-
-:doc:`ref/cursors`
-  Loading and compiling cursor images.
-
-:doc:`ref/display`
-  Configure the display surface.
-
-:doc:`ref/draw`
-  Drawing simple shapes like lines and ellipses to surfaces.
-
-:doc:`ref/event`
-  Manage the incoming events from various input devices and the windowing platform.
-
-:doc:`ref/examples`
-  Various programs demonstrating the use of individual pygame modules.
-
-:doc:`ref/font`
-  Loading and rendering TrueType fonts.
-
-:doc:`ref/freetype`
-  Enhanced pygame module for loading and rendering font faces.
-
-:doc:`ref/gfxdraw`
-  Anti-aliasing draw functions.
-
-:doc:`ref/image`
-  Loading, saving, and transferring of surfaces.
-
-:doc:`ref/joystick`
-  Manage the joystick devices.
-
-:doc:`ref/key`
-  Manage the keyboard device.
-
-:doc:`ref/locals`
-  Pygame constants.
-
-:doc:`ref/mixer`
-  Load and play sounds
-
-:doc:`ref/mouse`
-  Manage the mouse device and display.
-
-:doc:`ref/music`
-  Play streaming music tracks.
-
-:doc:`ref/pygame`
-  Top level functions to manage pygame.
-
-:doc:`ref/pixelarray`
-  Manipulate image pixel data.
-
-:doc:`ref/rect`
-  Flexible container for a rectangle.
-
-:doc:`ref/scrap`
-  Native clipboard access.
-
-:doc:`ref/sndarray`
-  Manipulate sound sample data.
-
-:doc:`ref/sprite`
-  Higher level objects to represent game images.
-
-:doc:`ref/surface`
-  Objects for images and the screen.
-
-:doc:`ref/surfarray`
-  Manipulate image pixel data.
-
-:doc:`ref/tests`
-  Test pygame.
-
-:doc:`ref/time`
-  Manage timing and framerate.
-
-:doc:`ref/transform`
-  Resize and move images.
-
-:doc:`pygame C API <c_api>`
-  The C api shared amongst pygame extension modules.
-
-:ref:`search`
-  Search pygame documents by keyword.
-
-.. _Readme: ../wiki/about
-
-.. _Install: ../wiki/GettingStarted#Pygame%20Installation
-
-.. _LGPL License: LGPL.txt
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>合成大西瓜</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            background-color: #a0d8a0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">分数: 0</div>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        
+        // 游戏状态
+        let score = 0;
+        let fruits = [];
+        let currentFruit = null;
+        let gameOver = false;
+        let nextFruitType = null;
+        
+        // 水果类型和属性
+        const fruitTypes = [
+            { name: '樱桃', radius: 20, color: '#ff0000', score: 1 },
+            { name: '草莓', radius: 25, color: '#ff5050', score: 2 },
+            { name: '葡萄', radius: 30, color: '#800080', score: 3 },
+            { name: '橙子', radius: 35, color: '#ffa500', score: 4 },
+            { name: '柠檬', radius: 40, color: '#ffff00', score: 5 },
+            { name: '猕猴桃', radius: 45, color: '#90ee90', score: 6 },
+            { name: '番茄', radius: 50, color: '#ff6347', score: 7 },
+            { name: '桃子', radius: 55, color: '#ffd700', score: 8 },
+            { name: '菠萝', radius: 60, color: '#ffd700', score: 9 },
+            { name: '椰子', radius: 65, color: '#f5f5dc', score: 10 },
+            { name: '西瓜', radius: 70, color: '#008000', score: 11 }
+        ];
+        
+        // 初始化游戏
+        function init() {
+            fruits = [];
+            score = 0;
+            gameOver = false;
+            scoreElement.textContent = `分数: ${score}`;
+            spawnNextFruit();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 游戏主循环
+        function gameLoop() {
+            if (gameOver) return;
+            
+            update();
+            render();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 更新游戏状态
+        function update() {
+            // 更新当前下落的水果
+            if (currentFruit) {
+                currentFruit.y += currentFruit.velocityY;
+                currentFruit.velocityY += 0.2; // 重力加速度
+                
+                // 检测与底部或其他水果的碰撞
+                if (checkCollision(currentFruit)) {
+                    currentFruit.velocityY = 0;
+                    fruits.push(currentFruit);
+                    checkMerge(currentFruit);
+                    spawnNextFruit();
+                }
+            }
+            
+            // 检查游戏结束条件
+            if (fruits.some(fruit => fruit.y - fruit.radius <= 0)) {
+                gameOver = true;
+                alert(`游戏结束! 你的分数是: ${score}`);
+                init();
+            }
+        }
+        
+        // 渲染游戏
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制水果
+            fruits.forEach(fruit => {
+                drawFruit(fruit);
+            });
+            
+            // 绘制当前下落的水果
+            if (currentFruit) {
+                drawFruit(currentFruit);
+            }
+            
+            // 绘制下一个水果的预览
+            if (nextFruitType !== null) {
+                ctx.fillStyle = '#333';
+                ctx.font = '16px Arial';
+                ctx.fillText('下一个:', 10, 30);
+                
+                const previewX = 80;
+                const previewY = 30;
+                const previewRadius = 15;
+                
+                ctx.beginPath();
+                ctx.arc(previewX, previewY, previewRadius, 0, Math.PI * 2);
+                ctx.fillStyle = fruitTypes[nextFruitType].color;
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+        
+        // 绘制水果
+        function drawFruit(fruit) {
+            ctx.beginPath();
+            ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI * 2);
+            ctx.fillStyle = fruit.color;
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.stroke();
+            
+            // 绘制水果高光
+            ctx.beginPath();
+            ctx.arc(fruit.x - fruit.radius/3, fruit.y - fruit.radius/3, fruit.radius/4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+        }
+        
+        // 生成下一个水果
+        function spawnNextFruit() {
+            if (nextFruitType === null) {
+                nextFruitType = Math.floor(Math.random() * 3); // 初始只生成小水果
+            }
+            
+            const type = nextFruitType;
+    
