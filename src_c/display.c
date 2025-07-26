@@ -2031,6 +2031,9 @@ pg_focus(PyObject *self, PyObject *_null)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
+    // Restore in case the window is minimized
+    SDL_RestoreWindow(win);
+
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
     // Get the pygame window handle for Windows OS
     SDL_SysWMinfo info;
