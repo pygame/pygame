@@ -1,9 +1,21 @@
 import re
+import string
 
 try:
     from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 except ImportError:
-    from setuptools._distutils.msvccompiler import MSVCCompiler, get_build_architecture
+    from setuptools._distutils._msvccompiler import MSVCCompiler
+    import sys
+    def get_build_architecture():
+        # Alternative to distutils.msvccompiler.get_build_architecture()
+        # copied from https://chromium.googlesource.com/external/googleappengine/python/+/bedccc3dd4178880371cdf44064b222d82a5f30d/lib/distutils/distutils/msvccompiler.py#176
+        prefix = " bit ("
+        i = string.find(sys.version, prefix)
+        if i == -1:
+            return "Intel"
+        j = string.find(sys.version, ")", i)
+        return sys.version[i+len(prefix):j]
+
 import subprocess
 import os
 
