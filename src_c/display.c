@@ -33,6 +33,10 @@
 
 #include <SDL_syswm.h>
 
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+    #include <windows.h>
+#endif
+
 static PyTypeObject pgVidInfo_Type;
 
 static PyObject *
@@ -2019,6 +2023,39 @@ pg_iconify(PyObject *self, PyObject *_null)
     return PyBool_FromLong(1);
 }
 
+static PyObject *
+pg_focus(PyObject *self, PyObject *_null)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    VIDEO_INIT_CHECK();
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+    // Get the pygame window handle for Windows OS
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    SDL_GetWindowWMInfo(win, &info);
+    HWND hwndPygame = info.info.win.window;
+
+    // Get the foreground window's thread ID
+    HWND hwndForeground = GetForegroundWindow();
+    DWORD windowThreadProcessId = GetWindowThreadProcessId(hwndForeground, NULL);
+
+    // Get the current thread ID
+    DWORD currentThreadId = GetCurrentThreadId();
+
+    AttachThreadInput(windowThreadProcessId, currentThreadId, TRUE);
+    BringWindowToTop(hwndPygame);
+    SetForegroundWindow(hwndPygame);
+    AttachThreadInput(windowThreadProcessId, currentThreadId, FALSE);
+#else
+    SDL_RaiseWindow(win);
+#endif
+
+    Py_RETURN_NONE;
+}
+
 /* This is only here for debugging purposes. Games should not rely on the
  * implementation details of specific renderers, only on the documented
  * behaviour of SDL_Renderer. It's fine to debug-print which renderer a game is
@@ -2581,6 +2618,8 @@ static PyMethodDef _pg_display_methods[] = {
 
     {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
      DOC_PYGAMEDISPLAYICONIFY},
+    {"focus", (PyCFunction)pg_focus, METH_NOARGS,
+     DOC_PYGAMEDISPLAYFOCUS},
     {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
