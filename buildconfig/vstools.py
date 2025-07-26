@@ -5,6 +5,7 @@ try:
     from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 except ImportError:
     from setuptools._distutils._msvccompiler import MSVCCompiler
+    from setuptools._distutils.compilers.C.msvc import _find_exe
     import sys
     def get_build_architecture():
         # Alternative to distutils.msvccompiler.get_build_architecture()
@@ -33,7 +34,11 @@ class DumpbinParseError(DumpbinError):
 
 
 def find_symbols(dll):
-    dumpbin_path = compiler.find_exe('dumpbin.exe')
+    try:
+        dumpbin_path = compiler.find_exe('dumpbin.exe')
+    except AttributeError:
+        dumpbin_path = _find_exe('dumpbin.exe')
+
     try:
         output = subprocess.check_output(
             [dumpbin_path, '/nologo', '/exports', dll],
