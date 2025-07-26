@@ -2,6 +2,7 @@ import unittest
 import os
 import sys
 import time
+import subprocess
 
 import pygame, pygame.transform
 
@@ -680,6 +681,21 @@ class DisplayModuleTest(unittest.TestCase):
 
         else:
             self.fail("Iconify not supported on this platform, please skip")
+
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") not in ["windows"],
+        "focus is only supported on Windows currently",
+    )
+    def test_focus(self):
+        pygame.display.set_mode((640, 480))
+
+        # open other window for changing focus
+        subprocess.Popen("notepad.exe")
+        self.assertEqual(pygame.display.get_active(), False)
+
+        pygame.display.focus()
+        self.assertEqual(pygame.display.get_active(), True)
+
 
     def test_init(self):
         """Ensures the module is initialized after init called."""
