@@ -1,0 +1,126 @@
+import pygame
+import sys
+import random
+
+pygame.init()
+
+# --- Finestra ---
+LARGHEZZA, ALTEZZA = 400, 600
+finestra = pygame.display.set_mode((LARGHEZZA, ALTEZZA))
+pygame.display.set_caption("Climb Game")
+
+# --- Colori ---
+AZZURRO = (135, 206, 235)
+ROSSO = (200, 50, 50)
+VERDE = (34, 139, 34)
+MARRONE = (139, 69, 19)
+GRIGIO = (100, 100, 100)
+
+# --- Player ---
+player = pygame.Rect(LARGHEZZA//2 - 15, ALTEZZA - 60, 30, 30)
+vel_x, vel_y = 0, 0
+gravita = 0.5
+forza_salto = -12
+a_terra = False
+
+# --- Piattaforma base ---
+piattaforme = [pygame.Rect(0, ALTEZZA-30, LARGHEZZA, 30)]
+
+# --- Dinamite ---
+dinamite = []
+for i in range(12):
+    x = random.choice([random.randint(0, 60), random.randint(LARGHEZZA-80, LARGHEZZA-20)])
+    y = random.randint(100, ALTEZZA*3)
+    dinamite.append(pygame.Rect(x, y, 20, 20))
+
+# --- Punteggio ---
+punteggio = 0
+font = pygame.font.SysFont("Arial", 24)
+
+clock = pygame.time.Clock()
+gioco_attivo = True
+
+# --- LOOP ---
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    if not gioco_attivo:
+        finestra.fill(AZZURRO)
+        testo = font.render("Game Over! Premi R per ripartire", True, ROSSO)
+        finestra.blit(testo, (LARGHEZZA//2 - testo.get_width()//2, ALTEZZA//2))
+        pygame.display.flip()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_r]:
+            # reset gioco
+            player.x, player.y = LARGHEZZA//2 - 15, ALTEZZA - 60
+            vel_x, vel_y = 0, 0
+            punteggio = 0
+            piattaforme = [pygame.Rect(0, ALTEZZA-30, LARGHEZZA, 30)]
+            gioco_attivo = True
+        continue
+
+    # Input tastiera
+    tasti = pygame.key.get_pressed()
+    vel_x = 0
+    if tasti[pygame.K_LEFT]:
+        vel_x = -5
+    if tasti[pygame.K_RIGHT]:
+        vel_x = 5
+    if tasti[pygame.K_SPACE] and a_terra:  # salto
+        vel_y = forza_salto
+        a_terra = False
+    if tasti[pygame.K_x]:  # piccone
+        # crea una piattaforma sotto al player
+        piattaforme.append(pygame.Rect(player.x-10, player.bottom, 50, 10))
+
+    # Gravità
+    vel_y += gravita
+
+    # Movimento player
+    player.x += vel_x
+    player.y += vel_y
+
+    # Collisione con piattaforme
+    a_terra = False
+    for p in piattaforme:
+        if player.colliderect(p) and vel_y >= 0:
+            player.bottom = p.top
+            vel_y = 0
+            a_terra = True
+
+    # Collisione con dinamite
+    for d in dinamite:
+        if player.colliderect(d):
+            gioco_attivo = False
+
+    # Punteggio (più sali, più punti)
+    punteggio = max(punteggio, (ALTEZZA - player.y)//10)
+
+    # --- Disegno ---
+    finestra.fill(AZZURRO)
+
+    # Pareti verdi (montagne)
+    pygame.draw.rect(finestra, VERDE, (0, 0, 40, ALTEZZA))
+    pygame.draw.rect(finestra, VERDE, (LARGHEZZA-40, 0, 40, ALTEZZA))
+
+    # Piattaforme
+    for p in piattaforme:
+        pygame.draw.rect(finestra, GRIGIO, p)
+
+    # Dinamite (mezzo nascosta: rettangoli rossi con alpha bassa)
+    for d in dinamite:
+        pygame.draw.rect(finestra, ROSSO, d, border_radius=4)
+
+    # Player
+    pygame.draw.rect(finestra, MARRONE, player)
+
+    # Punteggio
+    testo = font.render(f"Punteggio: {punteggio}", True, (0,0,0))
+    finestra.blit(testo, (10, 10))
+
+    pygame.display.flip()
+    clock.tick(60)
