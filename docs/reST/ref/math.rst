@@ -119,6 +119,10 @@ Multiple coordinates can be set using slices or swizzling
       | :sl:`calculates the dot- or scalar-product with the other vector`
       | :sg:`dot(Vector2) -> float`
 
+      This operation also can be performed using the ``*`` operator:
+      ``v1 * v2``.
+      Where the ``*`` operator is used between two vectors, it calculates the dot product.
+
       .. ## Vector2.dot ##
 
    .. method:: cross
