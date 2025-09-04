@@ -420,7 +420,10 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     if (framerate) {
         int delay, endtime = (int)((1.0f / framerate) * 1000.0f);
         _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
-        delay = endtime - _clock->rawpassed;
+    if (_clock->rawpassed < 0)                 // clamp negative delta
+        _clock->rawpassed = 0;
+
+    delay = endtime - _clock->rawpassed;    
 
         /*just doublecheck that timer is initialized*/
         if (!SDL_WasInit(SDL_INIT_TIMER)) {
@@ -447,6 +450,8 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 
     nowtime = SDL_GetTicks();
     _clock->timepassed = nowtime - _clock->last_tick;
+    if (_clock->timepassed < 0)               // clamp negative delta
+        _clock->timepassed = 0;
     _clock->fps_count += 1;
     _clock->last_tick = nowtime;
     if (!framerate)
