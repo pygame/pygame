@@ -43,9 +43,6 @@ METADATA = {
         "Programming Language :: Objective C",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -66,7 +63,7 @@ METADATA = {
         "Operating System :: Unix",
         "Operating System :: MacOS",
     ],
-    "python_requires": '>=3.6',
+    "python_requires": '>=3.9',
 }
 
 import re
