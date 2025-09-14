@@ -1,0 +1,97 @@
+import pygame
+import random
+import sys
+
+# Initialize pygame
+pygame.init()
+
+# Screen setup
+WIDTH, HEIGHT = 500, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Subway Surfers Mini - Sprite Edition")
+
+# Clock
+clock = pygame.time.Clock()
+FPS = 60
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Load sprites
+player_img = pygame.image.load("player.png")
+player_img = pygame.transform.scale(player_img, (50, 80))
+
+obstacle_img = pygame.image.load("train.png")
+obstacle_img = pygame.transform.scale(obstacle_img, (60, 100))
+
+# Player setup
+player_width, player_height = 50, 80
+player_x = WIDTH // 2 - player_width // 2
+player_y = HEIGHT - player_height - 20
+player_speed = 10
+
+# Obstacles setup
+obstacles = []
+obstacle_speed = 7
+
+# Score
+score = 0
+font = pygame.font.SysFont(None, 40)
+
+def draw_player(x, y):
+    screen.blit(player_img, (x, y))
+
+def draw_obstacles(obs):
+    for ob in obs:
+        screen.blit(obstacle_img, (ob.x, ob.y))
+
+def show_score(score):
+    text = font.render("Score: " + str(score), True, BLACK)
+    screen.blit(text, (10, 10))
+
+# Game loop
+running = True
+while running:
+    clock.tick(FPS)
+    screen.fill(WHITE)
+
+    # Events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # Key press
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT] and player_x < WIDTH - player_width:
+        player_x += player_speed
+
+    # Spawn obstacles
+    if random.randint(1, 25) == 1:
+        ob_x = random.randint(0, WIDTH - 60)
+        obstacles.append(pygame.Rect(ob_x, -100, 60, 100))
+
+    # Move obstacles
+    for ob in obstacles:
+        ob.y += obstacle_speed
+        if ob.y > HEIGHT:
+            obstacles.remove(ob)
+            score += 1
+
+    # Collision check
+    player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
+    for ob in obstacles:
+        if player_rect.colliderect(ob):
+            print("Game Over! Final Score:", score)
+            pygame.quit()
+            sys.exit()
+
+    # Draw
+    draw_player(player_x, player_y)
+    draw_obstacles(obstacles)
+    show_score(score)
+
+    pygame.display.update()
