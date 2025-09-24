@@ -56,3 +56,6 @@ src_c/pypm.c
 .venv/
 Setup.bak
 arc.png
+.venv/
+Setup.bak
+arc.png
