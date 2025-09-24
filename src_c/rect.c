@@ -1178,153 +1178,70 @@ static PyObject *
 pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *arg1 = NULL, *arg2 = NULL, *arg3 = NULL, *arg4 = NULL;
-    SDL_Rect *rect = &self->r, *rect_copy = NULL;
+    SDL_Rect *rect = &self->r;
     int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
-    static char *keywords[] = {"x1", "x2", "x3", "x4", NULL};
-
     if (kwargs) {
-        int temp_x1 = 0, temp_x2 = 0, temp_x3 = 0, temp_x4 = 0;
-
-        // Handles 'first_coord' and 'second_coord' scenarios
-        PyObject *first_coord =
-            PyDict_GetItemString(kwargs, "first_coordinate");
-        PyObject *second_coord =
-            PyDict_GetItemString(kwargs, "second_coordinate");
-
-        if (first_coord && second_coord) {
-            if (PyDict_Size(kwargs) > 2) {
-                return RAISE(
-                    PyExc_TypeError,
-                    "Only 2 keyword argument can be passed when "
-                    "using 'first_coordinate' and 'second_coordinate'");
-            }
-
-            if (!pg_TwoIntsFromObj(first_coord, &temp_x1, &temp_x2)) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number pair expected for first argument");
-                return 0;
-            }
-
-            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
-            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
-            PyDict_DelItemString(kwargs, "first_coordinate");
-
-            if (!pg_TwoIntsFromObj(second_coord, &temp_x3, &temp_x4)) {
-                PyErr_SetString(PyExc_TypeError,
-                                "number pair expected for second argument");
-                return 0;
-            }
-
-            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
-            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
-            PyDict_DelItemString(kwargs, "second_coordinate");
-        }
-        // Handles 'rect_arg' scenarios
         PyObject *rect_arg = PyDict_GetItemString(kwargs, "rect_arg");
-
+        PyObject *first_coordinate = PyDict_GetItemString(kwargs, "first_coordinate");
+        PyObject *second_coordinate = PyDict_GetItemString(kwargs, "second_coordinate");
         if (rect_arg) {
-            if (PyDict_Size(kwargs) > 1) {
-                return RAISE(PyExc_TypeError,
-                             "Only 1 keyword argument can be passed when "
-                             "using 'rect_arg");
-            }
-            else if (!four_ints_from_obj(rect_arg, &temp_x1, &temp_x2,
-                                         &temp_x3, &temp_x4)) {
-                return 0;  // Exception already set
-            }
-            PyDict_SetItemString(kwargs, "x1", PyLong_FromLong(temp_x1));
-            PyDict_SetItemString(kwargs, "x2", PyLong_FromLong(temp_x2));
-            PyDict_SetItemString(kwargs, "x3", PyLong_FromLong(temp_x3));
-            PyDict_SetItemString(kwargs, "x4", PyLong_FromLong(temp_x4));
-            PyDict_DelItemString(kwargs, "rect_arg");
+            if (PyDict_Size(kwargs) != 1)
+                return RAISE(PyExc_TypeError, "only 'rect_arg' is allowed with this form");
+            if (!four_ints_from_obj(rect_arg, &x1, &y1, &x2, &y2))
+                return NULL;
+            goto parsed_ok;
+        }
+        if (first_coordinate && second_coordinate) {
+            if (PyDict_Size(kwargs) != 2)
+                return RAISE(PyExc_TypeError, "only 'first_coordinate' and 'second_coordinate' are allowed with this form");
+            if (!pg_TwoIntsFromObj(first_coordinate, &x1, &y1))
+                return RAISE(PyExc_TypeError, "number pair expected for first argument");
+            if (!pg_TwoIntsFromObj(second_coordinate, &x2, &y2))
+                return RAISE(PyExc_TypeError, "number pair expected for second argument");
+            goto parsed_ok;
         }
     }
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", keywords, &arg1,
-                                     &arg2, &arg3, &arg4)) {
-        return NULL; /* Exception already set. */
-    }
+    {
+        static char *kw_xy[] = {"x1", "x2", "x3", "x4", NULL};
+        if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", kw_xy, &arg1, &arg2, &arg3, &arg4))
+            return NULL;
 
-    if (arg2 == NULL) {
-        /* Handles formats:
-         *     clipline(((x1, y1), (x2, y2)))
-         *     clipline((x1, y1, x2, y2))
-         */
-        if (!four_ints_from_obj(arg1, &x1, &y1, &x2, &y2)) {
-            return NULL; /* Exception already set. */
+        if (arg2 == NULL) {
+            if (!four_ints_from_obj(arg1, &x1, &y1, &x2, &y2))
+                return NULL;
+        }
+        else if (arg3 == NULL) {
+            if (!pg_TwoIntsFromObj(arg1, &x1, &y1))
+                return RAISE(PyExc_TypeError, "number pair expected for first argument");
+            if (!pg_TwoIntsFromObj(arg2, &x2, &y2))
+                return RAISE(PyExc_TypeError, "number pair expected for second argument");
+        }
+        else if (arg4 != NULL) {
+            PyObject *t;
+            long v;
+            t = PyNumber_Long(arg1); if (!t) return RAISE(PyExc_TypeError, "integer arguments expected"); v = PyLong_AsLong(t); Py_DECREF(t); x1 = (int)v;
+            t = PyNumber_Long(arg2); if (!t) return RAISE(PyExc_TypeError, "integer arguments expected"); v = PyLong_AsLong(t); Py_DECREF(t); y1 = (int)v;
+            t = PyNumber_Long(arg3); if (!t) return RAISE(PyExc_TypeError, "integer arguments expected"); v = PyLong_AsLong(t); Py_DECREF(t); x2 = (int)v;
+            t = PyNumber_Long(arg4); if (!t) return RAISE(PyExc_TypeError, "integer arguments expected"); v = PyLong_AsLong(t); Py_DECREF(t); y2 = (int)v;
+        }
+        else {
+            return RAISE(PyExc_TypeError, "clipline() takes 1, 2, or 4 arguments");
         }
     }
-    else if (arg3 == NULL) {
-        /* Handles format: clipline((x1, y1), (x2, y2)) */
-        int result = pg_TwoIntsFromObj(arg1, &x1, &y1);
 
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number pair expected for first argument");
-        }
-
-        /* Get the other end of the line. */
-        result = pg_TwoIntsFromObj(arg2, &x2, &y2);
-
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number pair expected for second argument");
-        }
-    }
-    else if (arg4 != NULL) {
-        /* Handles format: clipline(x1, y1, x2, y2) */
-        int result = pg_IntFromObj(arg1, &x1);
-
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number expected for first argument");
-        }
-
-        result = pg_IntFromObj(arg2, &y1);
-
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number expected for second argument");
-        }
-
-        result = pg_IntFromObj(arg3, &x2);
-
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number expected for third argument");
-        }
-
-        result = pg_IntFromObj(arg4, &y2);
-
-        if (!result) {
-            return RAISE(PyExc_TypeError,
-                         "number expected for fourth argument");
-        }
-    }
-    else {
-        return RAISE(PyExc_TypeError,
-                     "clipline() takes 1, 2, or 4 arguments (3 given)");
+parsed_ok:
+    {
+        SDL_Rect norm = *rect;
+        if (norm.w < 0) { norm.x += norm.w; norm.w = -norm.w; }
+        if (norm.h < 0) { norm.y += norm.h; norm.h = -norm.h; }
+        rect = &norm;
     }
 
-    if ((self->r.w < 0) || (self->r.h < 0)) {
-        /* Make a copy of the rect so it can be normalized. */
-        rect_copy = &pgRect_AsRect(pgRect_New(&self->r));
-
-        if (NULL == rect_copy) {
-            return RAISE(PyExc_MemoryError, "cannot allocate memory for rect");
-        }
-
-        pgRect_Normalize(rect_copy);
-        rect = rect_copy;
-    }
-
-    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
-        Py_XDECREF(rect_copy);
+    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2))
         return PyTuple_New(0);
-    }
 
-    Py_XDECREF(rect_copy);
     return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
 }
 
