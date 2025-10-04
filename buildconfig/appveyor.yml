@@ -87,7 +87,7 @@ environment:
       PYTHON_ARCH: "32"
       USE_ANALYZE: ""
 
-    - PYTHON: "C:\\Python313-x64\\python"
+    - PYTHON: "C:\\Python314-x64\\python"
       PYTHONPATH: "C:\\Python314-x64"
       PYTHON_VERSION: "3.14.0"
       PYTHON_SUFFIX: "rc3"
@@ -157,7 +157,32 @@ install:
 
   # https://github.com/appveyor/build-images/blob/master/scripts/Windows/install_python.ps1#L88-L108
   - ps: |
+      function InstallPythonEXENew($version, $platform, $suffix, $targetPath) {
+          $pyPlatform = ""
+          if ($platform -eq '32') {
+              $pyPlatform = "x86"
+          }
+
+          Write-Host "Installing Python $version $platform to $($targetPath)..." -ForegroundColor Cyan
+
+          nuget install python$pyPlatform -Version $version-$suffix -OutputDirectory C:\Python314tmp
+
+          dir C:\Python314tmp
+          Move-Item C:\Python314tmp\python$pyPlatform.$version-$suffix\tools\* $targetPath
+          dir C:\Python314tmp\python$pyPlatform.$version-$suffix\tools\
+          dir $targetPath
+      }
+
+      # 
       function InstallPythonEXE($version, $platform, $suffix, $targetPath) {
+          # If version is 3.14 or greater, use the new installer method
+          $majorVersion = $version.Split(".")[0] -as [int]
+          $minorVersion = $version.Split(".")[1] -as [int]
+          if ($majorVersion -ge 3 -and $minorVersion -ge 14) {
+              InstallPythonEXENew $version $platform $suffix $targetPath
+              return
+          }
+
           $urlPlatform = ""
           if ($platform -eq '64') {
               $urlPlatform = "-amd64"
@@ -178,6 +203,7 @@ install:
 
           Write-Host "Installed Python $version" -ForegroundColor Green
       }
+
 
       if (-not (Test-Path env:PYPY_VERSION)) {
         if (-not (Test-Path $env:PYTHONPATH)) {
