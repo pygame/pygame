@@ -17,10 +17,17 @@ environment:
       secure: rRMjJUUe93LoGV78ZAdf2IwTxwqSXDnbXVGer7ObTSK5Fgxv0vQrKbDcepZ3U3L37KvJJ5Ki6Hii8/IHzysNIrS+8BedF/2nrksgUldrdst0nPZea2/EJI6279iDTCumtq/w3In+NH+vcZV8Q2IoeouFuIv/S8P68egnnb5WBBgr0WtBklrNyl/eGPVi8/NT1k5pLaX7RatEPFOF7UM7ShTc/F/StF5DTf2Ir3DJiR9XZF8eGYbzLmgG8UTYUgDD+GZQuZx97+niXbR+vj/zcg==
 
   matrix:
+    - PYTHON: "C:\\Python314\\python"
+      PYTHONPATH: "C:\\Python314"
+      PYTHON_VERSION: "3.14.0"
+      PYTHON_SUFFIX: "rc3"
+      PYTHON_ARCH: "32"
+      USE_ANALYZE: ""
+
     - PYTHON: "C:\\Python313\\python"
       PYTHONPATH: "C:\\Python313"
       PYTHON_VERSION: "3.13.0"
-      PYTHON_SUFFIX: "rc1"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "32"
       USE_ANALYZE: ""
 
@@ -81,9 +88,16 @@ environment:
       USE_ANALYZE: ""
 
     - PYTHON: "C:\\Python313-x64\\python"
+      PYTHONPATH: "C:\\Python314-x64"
+      PYTHON_VERSION: "3.14.0"
+      PYTHON_SUFFIX: "rc3"
+      PYTHON_ARCH: "64"
+      USE_ANALYZE: ""
+
+    - PYTHON: "C:\\Python313-x64\\python"
       PYTHONPATH: "C:\\Python313-x64"
       PYTHON_VERSION: "3.13.0"
-      PYTHON_SUFFIX: "rc1"
+      PYTHON_SUFFIX: ""
       PYTHON_ARCH: "64"
       USE_ANALYZE: ""
 
