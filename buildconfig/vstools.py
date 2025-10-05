@@ -1,9 +1,22 @@
 import re
+import string
 
 try:
     from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 except ImportError:
-    from setuptools._distutils.msvccompiler import MSVCCompiler, get_build_architecture
+    from setuptools._distutils._msvccompiler import MSVCCompiler
+    from setuptools._distutils.compilers.C.msvc import _find_exe
+    import sys
+    def get_build_architecture():
+        # Alternative to distutils.msvccompiler.get_build_architecture()
+        # ref: https://chromium.googlesource.com/external/googleappengine/python/+/bedccc3dd4178880371cdf44064b222d82a5f30d/lib/distutils/distutils/msvccompiler.py#176
+        prefix = " bit ("
+        i = sys.version.find(prefix)
+        if i == -1:
+            return "Intel"
+        j = sys.version.find(")", i)
+        return sys.version[i+len(prefix):j]
+
 import subprocess
 import os
 
@@ -21,7 +34,11 @@ class DumpbinParseError(DumpbinError):
 
 
 def find_symbols(dll):
-    dumpbin_path = compiler.find_exe('dumpbin.exe')
+    try:
+        dumpbin_path = compiler.find_exe('dumpbin.exe')
+    except AttributeError:
+        dumpbin_path = _find_exe('dumpbin.exe')
+
     try:
         output = subprocess.check_output(
             [dumpbin_path, '/nologo', '/exports', dll],
