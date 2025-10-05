@@ -35,7 +35,7 @@ on:
 jobs:
   deps:
     name: ${{ matrix.macarch }} deps
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
         # make arm64 deps and x86_64 deps
@@ -46,7 +46,7 @@ jobs:
 
       - name: Test for Mac Deps cache hit
         id: macdep-cache
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
           # The hash of all files in buildconfig manylinux-build and macdependencies is 
@@ -64,7 +64,7 @@ jobs:
 
       # Uncomment when you want to manually verify the deps by downloading them
       # - name: Upload Mac deps
-      #   uses: actions/upload-artifact@v3
+      #   uses: actions/upload-artifact@v4
       #   with:
       #     name: pygame-mac-deps-${{ matrix.macarch }}
       #     path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
@@ -72,7 +72,7 @@ jobs:
   build:
     name: ${{ matrix.name }}
     needs: deps
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
@@ -148,14 +148,14 @@ jobs:
       - uses: actions/checkout@v4.1.7
 
       - name: pip cache
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
           path: ~/Library/Caches/pip  # This cache path is only right on mac
           key: pip-cache-${{ matrix.name }}
 
       - name: Fetch Mac deps
         id: macdep-cache
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
@@ -163,7 +163,7 @@ jobs:
       - name: Build and test wheels
         uses: pypa/cibuildwheel@v2.20.0
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pygame-wheels
           path: ./wheelhouse/*.whl
