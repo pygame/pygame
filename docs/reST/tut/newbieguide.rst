@@ -446,8 +446,8 @@ bugs related to objects updating and rendering concurrently, which is nice).
 
 It turns out that there are many design patterns like this that are used frequently
 in games and in software development at large.  For a great resource on this
-specifically for games, I highly recommend `Game Programming Patterns`_, a short
-free, e-book on the topic.  It covers a bunch of useful patterns and concrete situations
+specifically for games, I highly recommend `Game Programming Patterns`_, a short,
+free e-book on the topic.  It covers a bunch of useful patterns and concrete situations
 where you might want to employ them.  It won't instantly make you a better coder,
 but learning some theory about software architecture can go a long way towards
 helping you escape plateaus and tackle larger projects more confidently.
