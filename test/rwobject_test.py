@@ -1,5 +1,6 @@
 import pathlib
 import unittest
+import sys
 
 from pygame import encode_string, encode_file_path
 
@@ -83,7 +84,10 @@ class RWopsEncodeStringTest(unittest.TestCase):
             bpath = encode_string(bpath)
             self.assertEqual(getrefcount(bpath), before)
             bpath = encode_string(upath)
-            self.assertEqual(getrefcount(bpath), before)
+            if sys.version_info >= (3, 14):
+                self.assertEqual(getrefcount(bpath), before - 1)
+            else:
+                self.assertEqual(getrefcount(bpath), before)
 
     def test_smp(self):
         utf_8 = b"a\xF0\x93\x82\xA7b"
