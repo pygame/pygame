@@ -17,6 +17,7 @@
 #define DOC_PYGAMEDISPLAYGLSETATTRIBUTE "gl_set_attribute(flag, value) -> None\nRequest an OpenGL display attribute for the display mode"
 #define DOC_PYGAMEDISPLAYGETACTIVE "get_active() -> bool\nReturns True when the display is active on the screen"
 #define DOC_PYGAMEDISPLAYICONIFY "iconify() -> bool\nIconify the display surface"
+#define DOC_PYGAMEDISPLAYFOCUS "focus() -> None\nRaise the window above other windows and set the input focus"
 #define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> int\nSwitch between fullscreen and windowed displays"
 #define DOC_PYGAMEDISPLAYSETGAMMA "set_gamma(red, green=None, blue=None) -> bool\nChange the hardware gamma ramps"
 #define DOC_PYGAMEDISPLAYSETGAMMARAMP "set_gamma_ramp(red, green, blue) -> bool\nChange the hardware gamma ramps with a custom lookup"
@@ -105,6 +106,10 @@ Returns True when the display is active on the screen
 pygame.display.iconify
  iconify() -> bool
 Iconify the display surface
+
+pygame.display.focus
+ focus() -> None
+Raise the window above other windows and set the input focus. This is currently implemented for Windows OS.
 
 pygame.display.toggle_fullscreen
  toggle_fullscreen() -> int

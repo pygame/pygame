@@ -540,6 +540,13 @@ required).
 
    .. ## pygame.display.iconify ##
 
+.. function:: focus
+
+   | :sl:`Raise the window above other windows and set the input focus`
+   | :sg:`focus() -> None`
+
+   Raises the window for the display surface above other windows and sets the input focus to it.
+
 .. function:: toggle_fullscreen
 
    | :sl:`Switch between fullscreen and windowed displays`

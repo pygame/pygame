@@ -494,6 +494,10 @@ for e in extensions:
         # Do -Werror only on CI, and exclude -Werror on Cython C files and gfxdraw
         e.extra_compile_args.append("/WX" if IS_MSC else "-Wundef")
 
+    if "display" in e.name and sys.platform == "win32":
+        # Add user32 library for display module on Windows
+        e.libraries.append("user32")
+
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
 if os.path.exists(alternate_font):
