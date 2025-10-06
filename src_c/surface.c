@@ -63,6 +63,7 @@ typedef struct pg_bufferinternal_s {
     Py_ssize_t mem[6];      /* Enough memory for dim 3 shape and strides  */
 } pg_bufferinternal;
 
+#if !SDL_VERSION_ATLEAST(2, 0, 14)
 /* copy of SDL Blit mapping definitions to enable pointer casting hack
    for checking state of the SDL_COPY_RLE_DESIRED flag */
 #define PGS_COPY_RLE_DESIRED 0x00001000
@@ -97,6 +98,9 @@ typedef struct pg_BlitMap {
     Uint32 src_palette_version;
 } pg_BlitMap;
 /* end PGS_COPY_RLE_DESIRED hack definitions */
+#else
+#define pg_HasSurfaceRLE SDL_HasSurfaceRLE
+#endif
 
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
@@ -2212,6 +2216,7 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     Py_RETURN_NONE;
 }
 
+#if !SDL_VERSION_ATLEAST(2, 0, 14)
 int
 pg_HasSurfaceRLE(SDL_Surface *surface)
 {
@@ -2230,6 +2235,7 @@ pg_HasSurfaceRLE(SDL_Surface *surface)
 
     return SDL_TRUE;
 }
+#endif
 
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
