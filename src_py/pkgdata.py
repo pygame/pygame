@@ -18,28 +18,22 @@ object (such as StringIO).
 """
 
 __all__ = ["getResource"]
+
 import sys
 import os
+import importlib.resources
 
-try:
-    from pkg_resources import resource_stream, resource_exists
-except ImportError:
 
-    def resource_exists(_package_or_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
+def resource_stream(package, resource):
+    return importlib.resources.open_binary(package, resource)
 
-        :return: Always returns False
-        """
+
+def resource_exists(package, resource):
+    try:
+        importlib.resources.files(package).joinpath(resource).open("rb").close()
+        return True
+    except (FileNotFoundError, ModuleNotFoundError):
         return False
-
-    def resource_stream(_package_of_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
-
-        Always raises a NotImplementedError when called.
-        """
-        raise NotImplementedError
 
 
 def getResource(identifier, pkgname=__name__):
