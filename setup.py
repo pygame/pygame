@@ -75,7 +75,22 @@ import os
 
 # just import these always and fail early if not present
 from setuptools import setup
-import distutils
+#If distutils not installed install
+import sys
+import subprocess
+
+# Define the package to install
+package_name = "distutlis"
+
+try:
+    # Run pip install as a subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+    print(f"Successfully installed {package_name}")
+except subprocess.CalledProcessError as e:
+    print(f"Error installing {package_name}: {e}")
+except FileNotFoundError:
+    print("Error: Python executable not found. Make sure Python is installed and in your PATH.")
+    import distutlis
 
 
 if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
