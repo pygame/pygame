@@ -1160,6 +1160,57 @@ nointersect:
     return _pg_rect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
+int accurate_IntersectRectAndLine(SDL_Rect *rect, int *X1, int *Y1, int *X2, int *Y2) {
+    // The boundaries of the rectangle
+    int left = rect->x;
+    int right = rect->x + rect->w;
+    int top = rect->y;
+    int bottom = rect->y + rect->h;
+
+    // Endpoints of the line
+    int x1 = *X1;
+    int y1 = *Y1;
+    int x2 = *X2;
+    int y2 = *Y2;
+
+    // Check if the whole line is outside the rectangle
+    if ((x1 < left && x2 < left) || (x1 > right && x2 > right) ||
+        (y1 < top && y2 < top) || (y1 > bottom && y2 > bottom)) {
+        return 0; 
+    }
+
+    // Direction of the line
+    float dx = (float)(x2 - x1);
+    float dy = (float)(y2 - y1);
+
+    // Avoid the division by 0
+    if (dx == 0) dx = 0.01f;
+    if (dy == 0) dy = 0.01f;
+
+    // Intersections with the rectangle's sides
+    float t_left = (left - x1) / dx;
+    float t_right = (right - x1) / dx;
+    float t_top = (top - y1) / dy;
+    float t_bottom = (bottom - y1) / dy;
+
+    // The points of intersection between the line and rectangle edges
+    float t_x_intersect = fmaxf(fminf(t_left, t_right), fminf(t_top, t_bottom));
+    float t_y_intersect = fminf(fmaxf(t_left, t_right), fmaxf(t_top, t_bottom));
+
+    // Check if the intersection points are within the length of the line
+    if (t_x_intersect > 1 || t_y_intersect < 0) {
+        return 0; 
+    }
+
+    // The actual intersection coordinates
+    *X1 = x1 + (int)(t_x_intersect * dx);
+    *Y1 = y1 + (int)(t_x_intersect * dy);
+    *X2 = x1 + (int)(t_y_intersect * dx);
+    *Y2 = y1 + (int)(t_y_intersect * dy);
+
+    return 1; 
+}
+
 /* clipline() - crops the given line within the rect
  *
  * Supported argument formats:
@@ -1319,7 +1370,7 @@ pg_rect_clipline(pgRectObject *self, PyObject *args, PyObject *kwargs)
         rect = rect_copy;
     }
 
-    if (!SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
+    if (!accurate_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
         Py_XDECREF(rect_copy);
         return PyTuple_New(0);
     }
