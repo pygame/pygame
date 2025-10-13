@@ -24,8 +24,6 @@ import sys
 import warnings
 from os.path import basename, dirname, exists, join, splitext
 
-from pygame.font import Font
-
 if sys.platform != "emscripten":
     if os.name == "nt":
         import winreg as _winreg
@@ -375,6 +373,8 @@ def font_constructor(fontpath, size, bold, italic):
     :return: A font.Font object.
     """
 
+    from pygame.font import Font
+
     font = Font(fontpath, size)
     if bold:
         font.set_bold(True)
@@ -513,3 +513,7 @@ def match_font(name, bold=False, italic=False):
             break
 
     return fontname
+
+
+# At the bottom so that pygame.sysfont.Font can still be used while preventing a circular import
+from pygame.font import Font
