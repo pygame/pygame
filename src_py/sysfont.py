@@ -513,3 +513,7 @@ def match_font(name, bold=False, italic=False):
             break
 
     return fontname
+
+
+# At the bottom so that pygame.sysfont.Font can still be used while preventing a circular import
+from pygame.font import Font
