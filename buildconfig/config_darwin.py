@@ -2,7 +2,7 @@
 
 import os
 from sysconfig import get_path
-
+from subprocess import check_output, CalledProcessError, DEVNULL
 
 try:
     from config_unix import DependencyProg
@@ -140,8 +140,15 @@ def main(auto_config=False):
     ])
 
     print('Hunting dependencies...')
-    incdirs = ['/usr/local/include', '/opt/homebrew/include']
-    incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
+
+    homebrew_prefix = '/opt/homebrew'
+    try:
+        homebrew_prefix = check_output(['brew', '--prefix'], text=True, stderr=DEVNULL).strip()
+    except (FileNotFoundError, CalledProcessError):
+        pass
+    
+    incdirs = ['/usr/local/include', f'{homebrew_prefix}/include']
+    incdirs.extend(['/usr/local/include/SDL2', f'{homebrew_prefix}/include/SDL2', '/opt/local/include/SDL2'])
 
     incdirs.extend([
        #'/usr/X11/include',
@@ -149,7 +156,7 @@ def main(auto_config=False):
        '/opt/local/include/freetype2/freetype']
     )
     #libdirs = ['/usr/local/lib', '/usr/X11/lib', '/opt/local/lib']
-    libdirs = ['/usr/local/lib', '/opt/local/lib', '/opt/homebrew/lib']
+    libdirs = ['/usr/local/lib', '/opt/local/lib', f'{homebrew_prefix}/lib']
 
     for d in DEPS:
         if isinstance(d, (list, tuple)):
