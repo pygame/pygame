@@ -77,6 +77,9 @@ static void
 draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
           Uint32 color);
 static void
+draw_aarect(SDL_Surface *surf, int x1, int y1, int x2, int y2,
+          Uint32 color);
+static void
 draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
                 int width, Uint32 color, int top_left, int top_right,
                 int bottom_left, int bottom_right, int *drawn_area);
@@ -2442,6 +2445,13 @@ draw_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
         drawhorzlineclip(surf, color, x1, y1 + width + i, x1 + width - 1);
         drawhorzlineclip(surf, color, x2 - width + 1, y1 + width + i, x2);
     }
+}
+
+    static void
+draw_aarect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int width,
+          Uint32 color)
+{
+    aalines(surf, color, TRUE, [(x1,y1),(x2,y1),(x2,y2),(x1,y2)], 1);
 }
 
 static void
