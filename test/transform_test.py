@@ -100,25 +100,30 @@ class TransformModuleTest(unittest.TestCase):
         """see if the destination surface can be passed in to use."""
 
         s = pygame.Surface((32, 32))
-        s2 = pygame.transform.scale(s, (64, 64))
+        expected_size = (int(32 * 2 + 0.5), int(32 * 2 + 0.5))
+
+        s2 = pygame.transform.scale(s, expected_size)
         s3 = s2.copy()
 
         # Also validate keyword arguments
-        s3 = pygame.transform.scale(surface=s, size=(64, 64), dest_surface=s3)
-        pygame.transform.scale(s, (64, 64), s2)
+        s3 = pygame.transform.scale(surface=s, size=expected_size, dest_surface=s3)
+        pygame.transform.scale(s, expected_size, s2)
 
         # the wrong size surface is past in.  Should raise an error.
-        self.assertRaises(ValueError, pygame.transform.scale, s, (33, 64), s3)
+        wrong_size = (expected_size[0] + 1, expected_size[1])
+        s3_wrong = pygame.Surface(wrong_size)
+        self.assertRaises(ValueError, pygame.transform.scale, s, (32 * 2, 32 * 2), s3_wrong)
 
         s = pygame.Surface((32, 32))
-        s2 = pygame.transform.smoothscale(s, (64, 64))
+        s2 = pygame.transform.smoothscale(s, expected_size)
         s3 = s2.copy()
 
         # Also validate keyword arguments
-        s3 = pygame.transform.smoothscale(surface=s, size=(64, 64), dest_surface=s3)
+        s3 = pygame.transform.smoothscale(surface=s, size=expected_size, dest_surface=s3)
 
         # the wrong size surface is past in.  Should raise an error.
-        self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33, 64), s3)
+        s3_wrong = pygame.Surface(wrong_size)
+        self.assertRaises(ValueError, pygame.transform.smoothscale, s, (32 * 2, 32 * 2), s3_wrong)
 
     def test_scale__vector2(self):
         s = pygame.Surface((32, 32))
@@ -137,26 +142,34 @@ class TransformModuleTest(unittest.TestCase):
     def test_scale_by(self):
         s = pygame.Surface((32, 32))
 
+        # Test with factor=2
         s2 = pygame.transform.scale_by(s, 2)
-        self.assertEqual((64, 64), s2.get_size())
+        expected_size = (int(32 * 2 + 0.5), int(32 * 2 + 0.5))
+        self.assertEqual(expected_size, s2.get_size())
 
-        s2 = pygame.transform.scale_by(s, factor=(2.0, 1.5))
-        self.assertEqual((64, 48), s2.get_size())
+        # Test with factor=(2.0, 1.5)
+        scalex, scaley = 2.0, 1.5
+        expected_size = (int(32 * scalex + 0.5), int(32 * scaley + 0.5))
+        s2 = pygame.transform.scale_by(s, factor=(scalex, scaley))
+        self.assertEqual(expected_size, s2.get_size())
 
-        dest = pygame.Surface((64, 48))
-        pygame.transform.scale_by(s, (2.0, 1.5), dest_surface=dest)
+        dest = pygame.Surface(expected_size)
+        pygame.transform.scale_by(s, (scalex, scaley), dest_surface=dest)
 
     def test_smoothscale_by(self):
         s = pygame.Surface((32, 32))
 
         s2 = pygame.transform.smoothscale_by(s, 2)
-        self.assertEqual((64, 64), s2.get_size())
+        expected_size = (int(32 * 2 + 0.5), int(32 * 2 + 0.5))
+        self.assertEqual(expected_size, s2.get_size())
 
-        s2 = pygame.transform.smoothscale_by(s, factor=(2.0, 1.5))
-        self.assertEqual((64, 48), s2.get_size())
+        scalex, scaley = 2.0, 1.5
+        expected_size = (int(32 * scalex + 0.5), int(32 * scaley + 0.5))
+        s2 = pygame.transform.smoothscale_by(s, factor=(scalex, scaley))
+        self.assertEqual(expected_size, s2.get_size())
 
-        dest = pygame.Surface((64, 48))
-        pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
+        dest = pygame.Surface(expected_size)
+        pygame.transform.smoothscale_by(s, (scalex, scaley), dest_surface=dest)
 
     def test_grayscale(self):
         s = pygame.Surface((32, 32))
