@@ -695,3 +695,14 @@ The controller is recognized as "Wireless Controller".
     Down -> Up      - Y Axis
     Left -> Right   - X Axis
 
+Joysticks and Background Input
+------------------------------
+
+By default, pygame does not process joystick input when the window is not in focus.
+To allow joystick events to be captured even while the window is in the background,
+set the :envvar:`SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS` environment variable.
+
+This must be set before calling :func:`pygame.init` or :func:`pygame.joystick.init`.
+
+
+
