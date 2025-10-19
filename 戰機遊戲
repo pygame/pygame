@@ -1,0 +1,218 @@
+import pygame
+import random
+import sys
+
+# 初始化pygame
+pygame.init()
+
+# 遊戲窗口設置
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("太空戰機")
+
+# 顏色定義
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 120, 255)
+YELLOW = (255, 255, 0)
+
+# 玩家戰機類
+class Player:
+    def __init__(self):
+        self.width = 50
+        self.height = 40
+        self.x = WIDTH // 2 - self.width // 2
+        self.y = HEIGHT - self.height - 20
+        self.speed = 8
+        self.color = BLUE
+        self.bullets = []
+        self.cooldown = 0
+        self.health = 100
+        self.score = 0
+
+    def draw(self):
+        # 繪製戰機主體
+        pygame.draw.polygon(screen, self.color, [
+            (self.x + self.width // 2, self.y),  # 頂部
+            (self.x, self.y + self.height),      # 左下
+            (self.x + self.width, self.y + self.height)  # 右下
+        ])
+        
+        # 繪製機翼
+        pygame.draw.rect(screen, YELLOW, (self.x - 10, self.y + 20, 10, 5))
+        pygame.draw.rect(screen, YELLOW, (self.x + self.width, self.y + 20, 10, 5))
+        
+        # 繪製推進器
+        pygame.draw.rect(screen, RED, (self.x + 15, self.y + self.height, 5, 10))
+        pygame.draw.rect(screen, RED, (self.x + self.width - 20, self.y + self.height, 5, 10))
+
+    def move(self, keys):
+        if keys[pygame.K_LEFT] and self.x > 0:
+            self.x -= self.speed
+        if keys[pygame.K_RIGHT] and self.x < WIDTH - self.width:
+            self.x += self.speed
+        if keys[pygame.K_UP] and self.y > 0:
+            self.y -= self.speed
+        if keys[pygame.K_DOWN] and self.y < HEIGHT - self.height:
+            self.y += self.speed
+
+    def shoot(self):
+        if self.cooldown == 0:
+            self.bullets.append(Bullet(self.x + self.width // 2, self.y))
+            self.cooldown = 10
+
+    def update(self):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+
+# 子彈類
+class Bullet:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.radius = 5
+        self.speed = 10
+        self.color = GREEN
+
+    def draw(self):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+
+    def move(self):
+        self.y -= self.speed
+
+    def off_screen(self):
+        return self.y < 0
+
+# 敵機類
+class Enemy:
+    def __init__(self):
+        self.width = 40
+        self.height = 40
+        self.x = random.randint(0, WIDTH - self.width)
+        self.y = -self.height
+        self.speed = random.randint(2, 5)
+        self.color = RED
+
+    def draw(self):
+        # 繪製敵機主體
+        pygame.draw.polygon(screen, self.color, [
+            (self.x + self.width // 2, self.y + self.height),  # 底部
+            (self.x, self.y),      # 左上
+            (self.x + self.width, self.y)  # 右上
+        ])
+        
+        # 繪製敵機裝飾
+        pygame.draw.rect(screen, YELLOW, (self.x + 15, self.y + 10, 10, 5))
+
+    def move(self):
+        self.y += self.speed
+
+    def off_screen(self):
+        return self.y > HEIGHT
+
+    def collide(self, bullet):
+        return (self.x < bullet.x < self.x + self.width and
+                self.y < bullet.y < self.y + self.height)
+
+# 遊戲主函數
+def main():
+    clock = pygame.time.Clock()
+    player = Player()
+    enemies = []
+    enemy_spawn_timer = 0
+    font = pygame.font.SysFont(None, 36)
+    game_over = False
+
+    while True:
+        # 事件處理
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not game_over:
+                    player.shoot()
+                if event.key == pygame.K_r and game_over:
+                    # 重新開始遊戲
+                    player = Player()
+                    enemies = []
+                    game_over = False
+
+        if not game_over:
+            # 玩家移動
+            keys = pygame.key.get_pressed()
+            player.move(keys)
+            player.update()
+
+            # 生成敵機
+            enemy_spawn_timer += 1
+            if enemy_spawn_timer >= 30:  # 每30幀生成一個敵機
+                enemies.append(Enemy())
+                enemy_spawn_timer = 0
+
+            # 更新子彈
+            for bullet in player.bullets[:]:
+                bullet.move()
+                if bullet.off_screen():
+                    player.bullets.remove(bullet)
+
+            # 更新敵機
+            for enemy in enemies[:]:
+                enemy.move()
+                if enemy.off_screen():
+                    enemies.remove(enemy)
+
+                # 檢測子彈與敵機碰撞
+                for bullet in player.bullets[:]:
+                    if enemy.collide(bullet):
+                        player.score += 10
+                        if bullet in player.bullets:
+                            player.bullets.remove(bullet)
+                        if enemy in enemies:
+                            enemies.remove(enemy)
+                        break
+
+                # 檢測玩家與敵機碰撞
+                if (player.x < enemy.x + enemy.width and
+                    player.x + player.width > enemy.x and
+                    player.y < enemy.y + enemy.height and
+                    player.y + player.height > enemy.y):
+                    player.health -= 20
+                    if enemy in enemies:
+                        enemies.remove(enemy)
+                    if player.health <= 0:
+                        game_over = True
+
+        # 繪製遊戲畫面
+        screen.fill(BLACK)
+        
+        # 繪製星星背景
+        for i in range(100):
+            x = random.randint(0, WIDTH)
+            y = random.randint(0, HEIGHT)
+            pygame.draw.circle(screen, WHITE, (x, y), 1)
+
+        # 繪製遊戲元素
+        player.draw()
+        for bullet in player.bullets:
+            bullet.draw()
+        for enemy in enemies:
+            enemy.draw()
+
+        # 繪製UI
+        score_text = font.render(f"分數: {player.score}", True, WHITE)
+        health_text = font.render(f"生命值: {player.health}", True, WHITE)
+        screen.blit(score_text, (10, 10))
+        screen.blit(health_text, (10, 50))
+
+        if game_over:
+            game_over_text = font.render("遊戲結束! 按R鍵重新開始", True, RED)
+            screen.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2))
+
+        pygame.display.flip()
+        clock.tick(60)
+
+if __name__ == "__main__":
+    main()
