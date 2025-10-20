@@ -38,6 +38,7 @@
 #include "structmember.h"
 
 #include <math.h>
+#include <string.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -686,6 +687,25 @@ mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
     return oobj;
 }
 
+/* Given an array of arbitrary bytes, reverses their order.
+ * Importantly, does NOT assume that the memory is aligned to
+ * any boundary, and also handles odd numbers of bytes as well
+ * as up to any arbitrary length.
+ *
+ * Params:
+ *     bytes: the bytes to reverse
+ *     len: the number of bytes
+ */
+static void
+reverse_bytes(Uint8 *bytes, const size_t len)
+{
+    for (Uint8 *left = bytes, *right = bytes + len - 1; left < right;) {
+        const Uint8 temp = *left;
+        *(left++) = *right;
+        *(right--) = temp;
+    }
+}
+
 /* Gets the color of a given pixel.
  *
  * Params:
@@ -698,23 +718,16 @@ mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
 static PG_INLINE Uint32
 get_pixel_color(Uint8 *pixel, Uint8 bpp)
 {
-    switch (bpp) {
-        case 1:
-            return *((Uint8 *)pixel);
-
-        case 2:
-            return *((Uint16 *)pixel);
-
-        case 3:
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            return (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    Uint8 buf[4] = {'\0'};
+    memcpy(buf, pixel, bpp);
+    reverse_bytes(buf, bpp);
 #else  /* SDL_BIG_ENDIAN */
-            return (pixel[2]) + (pixel[1] << 8) + (pixel[0] << 16);
+    Uint8 *buf = pixel;  // Just alias for LE
 #endif /* SDL_BIG_ENDIAN */
-
-        default: /* case 4: */
-            return *((Uint32 *)pixel);
-    }
+    Uint32 ret = 0;
+    memcpy(&ret, buf, bpp);
+    return SDL_SwapLE32(ret);
 }
 
 /* Sets the color of a given pixel.
@@ -729,30 +742,15 @@ get_pixel_color(Uint8 *pixel, Uint8 bpp)
 static void
 set_pixel_color(Uint8 *pixel, Uint8 bpp, Uint32 color)
 {
-    switch (bpp) {
-        case 1:
-            *pixel = color;
-            break;
-
-        case 2:
-            *(Uint16 *)pixel = color;
-            break;
-
-        case 3:
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            *(Uint16 *)pixel = color;
-            pixel[2] = color >> 16;
-#else  /* != SDL_LIL_ENDIAN */
-            pixel[2] = color;
-            pixel[1] = color >> 8;
-            pixel[0] = color >> 16;
-#endif /* SDL_LIL_ENDIAN */
-            break;
-
-        default: /* case 4: */
-            *(Uint32 *)pixel = color;
-            break;
-    }
+    color = SDL_SwapLE32(color);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    Uint8 buf[4] = {'\0'};
+    memcpy(buf, &color, bpp);
+    reverse_bytes(buf, bpp);
+#else  /* SDL_BIG_ENDIAN */
+    Uint32 *buf = &color;  // Just alias for LE
+#endif /* SDL_BIG_ENDIAN */
+    memcpy(pixel, buf, bpp);
 }
 
 /* For each surface pixel's alpha that is greater than the threshold,
