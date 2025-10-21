@@ -382,7 +382,7 @@ def main(winstyle=0):
         pg.display.update(dirty)
 
         # cap the framerate at 40fps. Also called 40HZ or 40 times per second.
-        clock.tick(40)
+        clock.tick(60)
 
     if pg.mixer:
         pg.mixer.music.fadeout(1000)
@@ -393,3 +393,6 @@ def main(winstyle=0):
 if __name__ == "__main__":
     main()
     pg.quit()
+# At the very end of the script, ensure:
+pygame.quit()
+
