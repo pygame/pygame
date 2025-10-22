@@ -1232,6 +1232,18 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         self.assertEqual(ar[1, 0], 30)
         self.assertEqual(ar[2, 0], 40)
 
+    def test_single_pixel_sequence_color(self):
+        sf = pygame.Surface((4, 4), 0, 32)
+        ar = pygame.PixelArray(sf)
+        rgb = [50, 75, 100]
+        mapped = sf.map_rgb((50, 75, 100))
+
+        ar[1][2] = list(rgb)
+        self.assertEqual(ar[1, 2], mapped)
+
+        ar[2, 3] = rgb
+        self.assertEqual(ar[2, 3], mapped)
+
     def test_transpose(self):
         # PixelArray.transpose(): swap axis on a 2D array, add a length
         # 1 x axis to a 1D array.

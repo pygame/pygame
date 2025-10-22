@@ -1310,11 +1310,13 @@ static int
 _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
 {
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
+    SDL_PixelFormat *format;
     Py_ssize_t y = 0;
     int bpp;
     Uint8 *pixels = array->pixels;
     Uint8 *pixel_p;
     Uint32 color = 0;
+    int have_color;
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = array->strides[0];
@@ -1325,9 +1327,32 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
         return -1;
     }
 
-    bpp = surf->format->BytesPerPixel;
+    format = surf->format;
+    bpp = format->BytesPerPixel;
 
-    if (!_get_color_from_object(value, surf->format, &color)) {
+    have_color = _get_color_from_object(value, format, &color);
+    if (!have_color && PySequence_Check(value) && !PyTuple_Check(value) &&
+        !pgPixelArrayObject_Check(value) &&
+        (array->shape[1] == 0 ||
+         (array->shape[0] == 1 && array->shape[1] == 1))) {
+        Py_ssize_t seqlen;
+        Uint8 rgba[4];
+
+        PyErr_Clear();
+        seqlen = PySequence_Size(value);
+        if (seqlen == 3 || seqlen == 4) {
+            if (!pg_RGBAFromObj(value, rgba)) {
+                PyErr_SetString(PyExc_ValueError, "invalid color argument");
+                return -1;
+            }
+            color = SDL_MapRGBA(format, rgba[0], rgba[1], rgba[2], rgba[3]);
+            have_color = 1;
+        }
+        else if (PyErr_Occurred()) {
+            return -1;
+        }
+    }
+    if (!have_color) {
         if (PyTuple_Check(value)) {
             return -1;
         }
@@ -1336,7 +1361,7 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
             return _array_assign_array(array, index, index + 1,
                                        (pgPixelArrayObject *)value);
         }
-        else if (PySequence_Check(value)) {
+        if (PySequence_Check(value)) {
             pgPixelArrayObject *tmparray = 0;
             int retval;
 
@@ -1351,9 +1376,7 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
             Py_DECREF(tmparray);
             return retval;
         }
-        else { /* Error already set by _get_color_from_object(). */
-            return -1;
-        }
+        return -1;
     }
 
     if (index < 0) {

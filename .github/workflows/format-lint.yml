@@ -51,3 +51,27 @@ jobs:
             git status --porcelain
             exit 1
           fi
+
+  pixelarray-regression:
+    runs-on: ubuntu-22.04
+    env:
+      SDL_VIDEODRIVER: dummy
+      SDL_AUDIODRIVER: disk
+    steps:
+      - uses: actions/checkout@v4.1.7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install SDL dependencies
+        run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libfreetype6-dev libjpeg-dev
+      - name: Install build requirements
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install numpy "Cython>=3.0,<3.1"
+      - name: Build extensions in place
+        run: python3 setup.py build_ext -i
+      - name: Run pixelarray regression suite
+        run: python3 scripts/run_pixelarray_tests.py
