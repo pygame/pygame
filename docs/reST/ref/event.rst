@@ -51,7 +51,7 @@ their own new events with the :func:`pygame.event.Event()` function.
 The event type identifier is in between the values of ``NOEVENT`` and
 ``NUMEVENTS``. User defined events should have a value in the inclusive range
 of ``USEREVENT`` to ``NUMEVENTS - 1``. User defined events can get a custom
-event number with :func:`pygame.event.custom_type()`. 
+event number with :func:`pygame.event.custom_type()`.
 It is recommended all user events follow this system.
 
 Events support equality and inequality comparisons. Two events are equal if
@@ -94,14 +94,14 @@ the use of this older API.
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
 
-A keyboard event occurs when a key is pressed (``KEYDOWN``) and when a key is released (``KEYUP``) 
+A keyboard event occurs when a key is pressed (``KEYDOWN``) and when a key is released (``KEYUP``)
 The ``key`` attribute of keyboard events contains the value of what key was pressed or released.
 The ``mod`` attribute contains information about the state of keyboard modifiers (SHIFT, CTRL, ALT, etc.).
 The ``unicode`` attribute stores the 16-bit unicode value of the key that was pressed or released.
 The ``scancode`` attribute represents the physical location of a key on the keyboard.
 
 The ``ACTIVEEVENT`` contains information about the application gaining or losing focus. The ``gain`` attribute
-will be 1 if the mouse enters the window, otherwise ``gain`` will be 0.  The ``state`` attribute will have a 
+will be 1 if the mouse enters the window, otherwise ``gain`` will be 0.  The ``state`` attribute will have a
 value of ``SDL_APPMOUSEFOCUS`` if mouse focus was gained/lost, ``SDL_APPINPUTFOCUS`` if the application loses
 or gains keyboard focus, or ``SDL_APPACTIVE`` if the application is minimized (``gain`` will be 0) or restored.
 
@@ -128,15 +128,20 @@ attributes.
 
 .. versionchanged:: 2.0.2 The ``touch`` attribute was added to all the ``MOUSE`` events.
 
+.. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
+
+The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio
+devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list.
+
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
 by a touch input device, and not a real mouse. You might want to ignore such events, if your application
 already handles ``FINGERMOTION``, ``FINGERDOWN`` and ``FINGERUP`` events.
 
-.. versionadded:: 2.1.3 Added ``precise_x`` and ``precise_y`` to ``MOUSEWHEEL`` events
+``FINGER*`` and ``MULTIGESTURE`` events occur when the user touches the input device with one or more fingers.
 
-``MOUSEWHEEL`` event occurs whenever the mouse wheel is moved. 
-The ``which`` attribute determines if the event was generated from a touch input device vs an actual 
-mousewheel. 
+``MOUSEWHEEL`` event occurs whenever the mouse wheel is moved.
+The ``which`` attribute determines if the event was generated from a touch input device vs an actual
+mousewheel.
 The ``preciseX`` attribute contains a float with the amount scrolled horizontally (positive to the right,
 negative to the left).
 The ``preciseY`` attribute contains a float with the amount scrolled vertically (positive away from user,
@@ -144,11 +149,9 @@ negative towards user).
 The ``flipped`` attribute determines if the values in x and y will be opposite or not. If ``SDL_MOUSEWHEEL_FLIPPED``
 is defined, the direction of x and y will be opposite.
 
-``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an 
+``TEXTEDITING`` event is triggered when a user activates an input method via hotkey or selecting an
 input method in a GUI and starts typing
 
-The ``which`` attribute for ``AUDIODEVICE*`` events is an integer representing the index for new audio 
-devices that are added. ``AUDIODEVICE*`` events are used to update audio settings or device list. 
 
 |
 
@@ -159,9 +162,9 @@ is dropped, ``DROPFILE`` event will be sent, ``file`` will be its path.
 The ``DROPTEXT`` event is only supported on X11.
 
 ``MIDIIN`` and ``MIDIOUT`` are events reserved for :mod:`pygame.midi` use.
-``MIDI*`` events differ from ``AUDIODEVICE*`` events in that AUDIODEVICE 
-events are triggered when there is a state change related to an audio 
-input/output device. 
+``MIDI*`` events differ from ``AUDIODEVICE*`` events in that AUDIODEVICE
+events are triggered when there is a state change related to an audio
+input/output device.
 
 pygame 2 also supports controller hot-plugging
 
@@ -186,10 +189,15 @@ pygame 2 also supports controller hot-plugging
    RENDER_DEVICE_RESET      (SDL backend >= 2.0.4)
    LOCALECHANGED            (SDL backend >= 2.0.14)
 
+.. versionadded:: 2.0.0
+
+.. versionadded:: 2.1.3 ``KEYMAPCHANGED``, ``CLIPBOARDUPDATE``,
+   ``RENDER_TARGETS_RESET``, ``RENDER_DEVICE_RESET`` and ``LOCALECHANGED``
+
 Also in this version, ``instance_id`` attributes were added to joystick events,
 and the ``joy`` attribute was deprecated.
 
-``KEYMAPCHANGED`` is a type of an event sent when keymap changes due to a 
+``KEYMAPCHANGED`` is a type of an event sent when keymap changes due to a
 system event such as an input language or keyboard layout change.
 
 ``CLIPBOARDUPDATE`` is an event sent when clipboard changes. This can still
@@ -198,10 +206,6 @@ not trigger this event.
 
 ``LOCALECHANGED`` is an event sent when user locale changes
 
-.. versionadded:: 2.0.0
-
-.. versionadded:: 2.1.3 ``KEYMAPCHANGED``, ``CLIPBOARDUPDATE``, 
-   ``RENDER_TARGETS_RESET``, ``RENDER_DEVICE_RESET`` and ``LOCALECHANGED``
 
 |
 
@@ -331,7 +335,7 @@ On Android, the following events can be generated
 
    Returns a single event from the queue. If the queue is empty this function
    will wait until one is created. From pygame 2.0.0, if a ``timeout`` argument
-   is given, the function will return an event of type ``pygame.NOEVENT`` 
+   is given, the function will return an event of type ``pygame.NOEVENT``
    if no events enter the queue in ``timeout`` milliseconds. The event is removed
    from the queue once it has been returned. While the program is waiting it will
    sleep in an idle state. This is important for programs that want to share the
