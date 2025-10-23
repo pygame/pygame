@@ -459,24 +459,24 @@ class AbstractGroup(Generic[TypeVar("T")]):
                 if not self.has_internal(sprite):
                     self.add_internal(sprite)
                     sprite.add_internal(self)
-            else:
-                try:
-                    # See if sprite is an iterator, like a list or sprite
-                    # group.
-                    self.add(*sprite)
-                except (TypeError, AttributeError):
-                    # Not iterable. This is probably a sprite that is not an
-                    # instance of the Sprite class or is not an instance of a
-                    # subclass of the Sprite class. Alternately, it could be an
-                    # old-style sprite group.
-                    if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.sprites():
-                            if not self.has_internal(spr):
-                                self.add_internal(spr)
-                                spr.add_internal(self)
-                    elif not self.has_internal(sprite):
-                        self.add_internal(sprite)
-                        sprite.add_internal(self)
+                continue
+            try:
+                # See if sprite is an iterator, like a list or sprite
+                # group.
+                self.add(*sprite)
+            except (TypeError, AttributeError):
+                # Not iterable. This is probably a sprite that is not an
+                # instance of the Sprite class or is not an instance of a
+                # subclass of the Sprite class. Alternately, it could be an
+                # old-style sprite group.
+                if hasattr(sprite, "_spritegroup"):
+                    for spr in sprite.sprites():
+                        if not self.has_internal(spr):
+                            self.add_internal(spr)
+                            spr.add_internal(self)
+                elif not self.has_internal(sprite):
+                    self.add_internal(sprite)
+                    sprite.add_internal(self)
 
     def remove(self, *sprites):
         """remove sprite(s) from group
@@ -819,24 +819,24 @@ class LayeredUpdates(AbstractGroup):
                 if not self.has_internal(sprite):
                     self.add_internal(sprite, layer)
                     sprite.add_internal(self)
-            else:
-                try:
-                    # See if sprite is an iterator, like a list or sprite
-                    # group.
-                    self.add(*sprite, **kwargs)
-                except (TypeError, AttributeError):
-                    # Not iterable. This is probably a sprite that is not an
-                    # instance of the Sprite class or is not an instance of a
-                    # subclass of the Sprite class. Alternately, it could be an
-                    # old-style sprite group.
-                    if hasattr(sprite, "_spritegroup"):
-                        for spr in sprite.sprites():
-                            if not self.has_internal(spr):
-                                self.add_internal(spr, layer)
-                                spr.add_internal(self)
-                    elif not self.has_internal(sprite):
-                        self.add_internal(sprite, layer)
-                        sprite.add_internal(self)
+                continue
+            try:
+                # See if sprite is an iterator, like a list or sprite
+                # group.
+                self.add(*sprite, **kwargs)
+            except (TypeError, AttributeError):
+                # Not iterable. This is probably a sprite that is not an
+                # instance of the Sprite class or is not an instance of a
+                # subclass of the Sprite class. Alternately, it could be an
+                # old-style sprite group.
+                if hasattr(sprite, "_spritegroup"):
+                    for spr in sprite.sprites():
+                        if not self.has_internal(spr):
+                            self.add_internal(spr, layer)
+                            spr.add_internal(self)
+                elif not self.has_internal(sprite):
+                    self.add_internal(sprite, layer)
+                    sprite.add_internal(self)
 
     def remove_internal(self, sprite):
         """Do not use this method directly.
@@ -880,12 +880,11 @@ class LayeredUpdates(AbstractGroup):
             newrect = surface_blit(spr.image, spr.rect, None, special_flags)
             if rec is init_rect:
                 dirty_append(newrect)
+            elif newrect.colliderect(rec):
+                dirty_append(newrect.union(rec))
             else:
-                if newrect.colliderect(rec):
-                    dirty_append(newrect.union(rec))
-                else:
-                    dirty_append(newrect)
-                    dirty_append(rec)
+                dirty_append(newrect)
+                dirty_append(rec)
             spritedict[spr] = newrect
         return dirty
 
@@ -1215,11 +1214,7 @@ class LayeredDirty(LayeredUpdates):
         # timing for switching modes
         # How may a good threshold be found? It depends on the hardware.
         end_time = get_ticks()
-        if end_time - start_time > self._time_threshold:
-            self._use_update = False
-        else:
-            self._use_update = True
-
+        self._use_update = (end_time - start_time > self._time_threshold)
         # empty dirty rects list
         local_update[:] = []
 
@@ -1227,81 +1222,82 @@ class LayeredDirty(LayeredUpdates):
         # restore original clip
         surface.set_clip(orig_clip)
         return local_ret
-
     @staticmethod
     def _draw_dirty_internal(
         _old_rect, _rect, _sprites, _surf_blit, _update, _special_flags
     ):
         for spr in _sprites:
             flags = spr.blendmode if _special_flags is None else _special_flags
-            if spr.dirty < 1 and spr.visible:
-                # sprite not dirty; blit only the intersecting part
-                if spr.source_rect is not None:
-                    # For possible future speed up, source_rect's data
-                    # can be pre-fetched outside of this loop.
-                    _spr_rect = _rect(spr.rect.topleft, spr.source_rect.size)
-                    rect_offset_x = spr.source_rect[0] - _spr_rect[0]
-                    rect_offset_y = spr.source_rect[1] - _spr_rect[1]
-                else:
-                    _spr_rect = spr.rect
-                    rect_offset_x = -_spr_rect[0]
-                    rect_offset_y = -_spr_rect[1]
-
-                _spr_rect_clip = _spr_rect.clip
-
-                for idx in _spr_rect.collidelistall(_update):
-                    # clip
-                    clip = _spr_rect_clip(_update[idx])
-                    _surf_blit(
-                        spr.image,
-                        clip,
-                        (
-                            clip[0] + rect_offset_x,
-                            clip[1] + rect_offset_y,
-                            clip[2],
-                            clip[3],
-                        ),
-                        flags,
-                    )
-            else:  # dirty sprite
+            if not(spr.dirty < 1 and spr.visible):
+                
                 if spr.visible:
                     _old_rect[spr] = _surf_blit(
                         spr.image, spr.rect, spr.source_rect, flags
                     )
                 if spr.dirty == 1:
                     spr.dirty = 0
-
+            else:  # dirty sprite
+                continue
+                          
+            # sprite not dirty; blit only the intersecting part
+            if spr.source_rect is not None:
+                # For possible future speed up, source_rect's data
+                # can be pre-fetched outside of this loop.
+                _spr_rect = _rect(spr.rect.topleft, spr.source_rect.size)
+                rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+            else:
+                _spr_rect = spr.rect
+                rect_offset_x = -_spr_rect[0]
+                rect_offset_y = -_spr_rect[1]
+            _spr_rect_clip = _spr_rect.clip
+            for idx in _spr_rect.collidelistall(_update):
+                # clip
+                clip = _spr_rect_clip(_update[idx])
+                _surf_blit(
+                    spr.image,
+                    clip,
+                    (
+                        clip[0] + rect_offset_x,
+                        clip[1] + rect_offset_y,
+                        clip[2],
+                        clip[3],
+                    ),
+                    flags,
+                )
     @staticmethod
     def _find_dirty_area(
         _clip, _old_rect, _rect, _sprites, _update, _update_append, init_rect
     ):
         for spr in _sprites:
-            if spr.dirty > 0:
-                # chose the right rect
-                if spr.source_rect:
-                    _union_rect = _rect(spr.rect.topleft, spr.source_rect.size)
-                else:
-                    _union_rect = _rect(spr.rect)
+            if spr.dirty < 0:
+                continue
+            # chose the right rect
+            if spr.source_rect:
+                _union_rect = _rect(spr.rect.topleft, spr.source_rect.size)
+            else:
+                _union_rect = _rect(spr.rect)
 
-                _union_rect_collidelist = _union_rect.collidelist
-                _union_rect_union_ip = _union_rect.union_ip
+            _union_rect_collidelist = _union_rect.collidelist
+            _union_rect_union_ip = _union_rect.union_ip
+            i = _union_rect_collidelist(_update)
+            while i > -1:
+                _union_rect_union_ip(_update[i])
+                del _update[i]
                 i = _union_rect_collidelist(_update)
-                while i > -1:
-                    _union_rect_union_ip(_update[i])
-                    del _update[i]
-                    i = _union_rect_collidelist(_update)
-                _update_append(_union_rect.clip(_clip))
+            _update_append(_union_rect.clip(_clip))
 
-                if _old_rect[spr] is not init_rect:
-                    _union_rect = _rect(_old_rect[spr])
-                    _union_rect_collidelist = _union_rect.collidelist
-                    _union_rect_union_ip = _union_rect.union_ip
-                    i = _union_rect_collidelist(_update)
-                    while i > -1:
-                        _union_rect_union_ip(_update[i])
-                        del _update[i]
-                        i = _union_rect_collidelist(_update)
-                    _update_append(_union_rect.clip(_clip))
+            if _old_rect[spr] is init_rect:
+                continue
+            _union_rect = _rect(_old_rect[spr])
+            _union_rect_collidelist = _union_rect.collidelist
+            _union_rect_union_ip = _union_rect.union_ip
+            i = _union_rect_collidelist(_update)
+            while i > -1:
+                _union_rect_union_ip(_update[i])
+                del _update[i]
+                i = _union_rect_collidelist(_update)
+            _update_append(_union_rect.clip(_clip))
 
     def clear(self, surface, bgd):
         """use to set background
@@ -1718,14 +1714,13 @@ def spritecollide(sprite, group, dokill, collided=None):
         append = crashed.append
 
         for group_sprite in group.sprites():
-            if collided is not None:
-                if collided(sprite, group_sprite):
-                    group_sprite.kill()
-                    append(group_sprite)
-            else:
-                if default_sprite_collide_func(group_sprite.rect):
-                    group_sprite.kill()
-                    append(group_sprite)
+            if collided is not None and collided(sprite, group_sprite):
+                group_sprite.kill()
+                append(group_sprite)
+                continue
+            if default_sprite_collide_func(group_sprite.rect):
+                group_sprite.kill()
+                append(group_sprite)
 
         return crashed
 
@@ -1769,11 +1764,11 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
             if collision:
                 crashed[group_a_sprite] = collision
                 group_a_sprite.kill()
-    else:
-        for group_a_sprite in groupa:
-            collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
-            if collision:
-                crashed[group_a_sprite] = collision
+        return crashed
+    for group_a_sprite in groupa:
+        collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
+        if collision:
+            crashed[group_a_sprite] = collision
     return crashed
 
 

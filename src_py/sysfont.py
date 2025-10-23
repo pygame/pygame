@@ -255,17 +255,16 @@ def _parse_font_entry_unix(entry, fonts):
 
     """
     filename, family, style = entry.split(":", 2)
-    if splitext(filename)[1].lower() in OpenType_extensions:
-        bold = "Bold" in style
-        italic = "Italic" in style
-        oblique = "Oblique" in style
-        for name in family.strip().split(","):
-            if name:
-                break
-        else:
-            name = splitext(basename(filename))[0]
-
-        _addfont(_simplename(name), bold, italic or oblique, filename, fonts)
+    if splitext(filename)[1].lower() not in OpenType_extensions:
+        return
+    bold = "Bold" in style
+    italic = "Italic" in style
+    oblique = "Oblique" in style
+    for name in family.strip().split(","):
+        if name: break
+    else:
+        name = splitext(basename(filename))[0]
+    _addfont(_simplename(name), bold, italic or oblique, filename, fonts)
 
 
 def create_aliases():
@@ -417,48 +416,44 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
 
     gotbold = gotitalic = False
     fontname = None
-    if name:
-        if isinstance(name, (str, bytes)):
-            name = name.split(b"," if isinstance(name, bytes) else ",")
-        for single_name in name:
-            if isinstance(single_name, bytes):
-                single_name = single_name.decode()
-
-            single_name = _simplename(single_name)
-            styles = Sysfonts.get(single_name)
-            if not styles:
-                styles = Sysalias.get(single_name)
-            if styles:
-                plainname = styles.get((False, False))
-                fontname = styles.get((bold, italic))
-                if not (fontname or plainname):
-                    # Neither requested style, nor plain font exists, so
-                    # return a font with the name requested, but an
-                    # arbitrary style.
-                    (style, fontname) = list(styles.items())[0]
-                    # Attempt to style it as requested. This can't
-                    # unbold or unitalicize anything, but it can
-                    # fake bold and/or fake italicize.
-                    if bold and style[0]:
-                        gotbold = True
-                    if italic and style[1]:
-                        gotitalic = True
-                elif not fontname:
-                    fontname = plainname
-                elif plainname != fontname:
-                    gotbold = bold
-                    gotitalic = italic
-            if fontname:
-                break
-
-    set_bold = set_italic = False
-    if bold and not gotbold:
-        set_bold = True
-    if italic and not gotitalic:
-        set_italic = True
-
+    if not name:
+        set_bold = set_italic = False
+        if bold and not gotbold:
+            set_bold = True
+        if italic and not gotitalic:
+            set_italic = True
+        return constructor(fontname, size, set_bold, set_italic)
+    if isinstance(name, (str, bytes)):
+        name = name.split(b"," if isinstance(name, bytes) else ",")
+    for single_name in name:
+        if isinstance(single_name, bytes):
+            single_name = single_name.decode()
+        single_name = _simplename(single_name)
+        styles = Sysfonts.get(single_name) or Sysalias.get(single_name)
+        if not styles and fontname:
+            break
+        plainname = styles.get((False, False))
+        fontname = styles.get((bold, italic))
+        if not (fontname or plainname):
+            # Neither requested style, nor plain font exists, so
+            # return a font with the name requested, but an
+            # arbitrary style.
+            (style, fontname) = list(styles.items())[0]
+            # Attempt to style it as requested. This can't
+            # unbold or unitalicize anything, but it can
+            # fake bold and/or fake italicize.
+            if bold and style[0]:
+                gotbold = True
+            if italic and style[1]:
+                gotitalic = True
+        elif not fontname:
+            fontname = plainname
+        elif plainname != fontname:
+            gotbold = bold
+            gotitalic = italic
+        if not fontname:
+            break
     return constructor(fontname, size, set_bold, set_italic)
-
 
 def get_fonts():
     """pygame.font.get_fonts() -> list
@@ -496,20 +491,16 @@ def match_font(name, bold=False, italic=False):
             single_name = single_name.decode()
 
         single_name = _simplename(single_name)
-        styles = Sysfonts.get(single_name)
-        if not styles:
-            styles = Sysalias.get(single_name)
-        if styles:
-            while not fontname:
-                fontname = styles.get((bold, italic))
-                if italic:
-                    italic = 0
-                elif bold:
-                    bold = 0
-                elif not fontname:
-                    fontname = list(styles.values())[0]
-
-        if fontname:
+        styles = Sysfonts.get(single_name) or Sysalias.get(single_name)
+        if not styles and fontname:
             break
+        while not fontname:
+            fontname = styles.get((bold, italic))
+            if italic:
+                italic = 0
+            elif bold:
+                bold = 0
+            elif not fontname:
+                fontname = list(styles.values())[0]
 
     return fontname
