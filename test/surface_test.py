@@ -415,19 +415,21 @@ class SurfaceTypeTest(unittest.TestCase):
 
         s1 = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
         r1 = s1.fill(color, fill_rect)
+        self.assertEqual(r1, pygame.Rect(0, 0, 6, 6))
         c = s1.get_at((0, 0))
         self.assertEqual(c, color)
 
         # make subsurface in the middle to test it doesn't over write.
         s2 = s1.subsurface((5, 5, 5, 5))
         r2 = s2.fill(color2, (-3, -3, 5, 5))
+        self.assertEqual(r2, pygame.Rect(0, 0, 2, 2))
         c2 = s1.get_at((4, 4))
-        self.assertEqual(c, color)
+        self.assertEqual(c2, color)
 
         # rect returns the area we actually fill.
         r3 = s2.fill(color2, (-30, -30, 5, 5))
         # since we are using negative coords, it should be an zero sized rect.
-        self.assertEqual(tuple(r3), (0, 0, 0, 0))
+        self.assertEqual(r3, pygame.Rect(0, 0, 0, 0))
 
     def test_fill_keyword_args(self):
         """Ensure fill() accepts keyword arguments."""
