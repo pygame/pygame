@@ -3,7 +3,7 @@ techniques. They are beginner-friendly with source code in the public
 domain that can be adapted for your projects.
 
 
-aacircles.py
+aacircle.py
    An example of using the gfxdraw module to drawing anti-aliased circles.
 
 aliens.py
@@ -93,10 +93,6 @@ pixelarray.py
 
 playmus.py
    Uses the mixer module to play music files with CLI.
-
-prevent_display_stretching.py
-   Illustrates how to maintain aspect ratio when resizing a window
-   in Pygame.
 
 resizing_new.py
    Showcases various window resizing events and how to fit graphics
