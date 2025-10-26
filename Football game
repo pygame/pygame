@@ -1,0 +1,81 @@
+import random
+import time
+
+class Team:
+    def __init__(self, name, attack, defense):
+        self.name = name
+        self.attack = attack
+        self.defense = defense
+        self.points = 0
+        self.goals_for = 0
+        self.goals_against = 0
+
+    def __str__(self):
+        return f"{self.name} (A:{self.attack}, D:{self.defense}, P:{self.points})"
+
+
+def simulate_match(team1, team2):
+    print(f"\n⚽ Match: {team1.name} vs {team2.name}")
+    time.sleep(1)
+
+    # Simulera mål baserat på anfall och försvar
+    team1_goals = max(0, int(random.gauss(team1.attack / team2.defense, 0.8)))
+    team2_goals = max(0, int(random.gauss(team2.attack / team1.defense, 0.8)))
+
+    print(f"Resultat: {team1.name} {team1_goals} - {team2_goals} {team2.name}\n")
+
+    team1.goals_for += team1_goals
+    team1.goals_against += team2_goals
+    team2.goals_for += team2_goals
+    team2.goals_against += team1_goals
+
+    if team1_goals > team2_goals:
+        team1.points += 3
+        print(f"{team1.name} vinner och får 3 poäng!")
+    elif team2_goals > team1_goals:
+        team2.points += 3
+        print(f"{team2.name} vinner och får 3 poäng!")
+    else:
+        team1.points += 1
+        team2.points += 1
+        print("Oavgjort! Båda lagen får 1 poäng.")
+
+    print("-" * 40)
+    time.sleep(1)
+
+
+def show_standings(teams):
+    print("\n📊 Tabell:")
+    sorted_teams = sorted(teams, key=lambda t: t.points, reverse=True)
+    for t in sorted_teams:
+        print(f"{t.name:12} | Poäng: {t.points:2} | Mål: {t.goals_for}-{t.goals_against}")
+
+
+def main():
+    print("🏆 Välkommen till Mini Football Manager!\n")
+
+    player_name = input("Namn på ditt lag: ")
+    player_team = Team(player_name, random.randint(4, 9), random.randint(4, 9))
+
+    # Skapa AI-lag
+    opponents = [
+        Team("AIK", 7, 6),
+        Team("Djurgården", 6, 6),
+        Team("Malmö FF", 8, 7),
+        Team("IFK Göteborg", 6, 5)
+    ]
+
+    teams = [player_team] + opponents
+
+    # Spelslinga
+    for opponent in opponents:
+        input(f"\nTryck [ENTER] för att spela mot {opponent.name}...")
+        simulate_match(player_team, opponent)
+        show_standings(teams)
+
+    print("\n🏁 Säsongen är slut!")
+    show_standings(teams)
+
+
+if __name__ == "__main__":
+    main()
