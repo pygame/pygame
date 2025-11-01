@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whale Animation</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<canvas id="whale"></canvas>
+
+<script>
+var whale = (function () {
+  var element = document.getElementById("whale"),
+      width = window.innerWidth ||
+              document.documentElement.clientWidth ||
+              document.body.clientWidth,
+      height = window.innerHeight ||
+               document.documentElement.clientHeight ||
+               document.body.clientHeight,
+      fps = 30,
+      easy = 6,
+      maxspeed = 150,
+      delay = 15,
+      mouse = { x: width / 2, y: height / 2 },
+      defs, parts;
+
+  // --- Khởi tạo canvas ---
+  var ctx = element.getContext("2d");
+  element.width = width;
+  element.height = height;
+
+  // --- Vẽ thử cá voi đơn giản ---
+  function drawWhale(x, y) {
+    ctx.beginPath();
+    ctx.fillStyle = "#000";
+    ctx.ellipse(x, y, 80, 40, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "#fff";
+    ctx.ellipse(x - 20, y, 40, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  var pos = { x: width / 2, y: height / 2 };
+  var vel = { x: 2, y: 1.5 };
+
+  function update() {
+    ctx.clearRect(0, 0, width, height);
+    drawWhale(pos.x, pos.y);
+
+    pos.x += vel.x;
+    pos.y += vel.y;
+
+    if (pos.x > width || pos.x < 0) vel.x *= -1;
+    if (pos.y > height || pos.y < 0) vel.y *= -1;
+  }
+
+  setInterval(update, 1000 / fps);
+})();
+</script>
+</body>
