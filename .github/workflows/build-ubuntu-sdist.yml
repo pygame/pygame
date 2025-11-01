@@ -106,7 +106,7 @@ jobs:
     # We upload the generated files under github actions assets
     - name: Upload sdist
       if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.10' # upload sdist only once
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: pygame-sdist
         path: dist/*.tar.gz

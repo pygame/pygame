@@ -72,7 +72,7 @@ jobs:
           export PYGAME_MSYS2=1
           python -m test -v --exclude opengl,music,timing --time_out 300
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: pygame-msys2-wheels
           path: ~/wheelhouse/*.whl

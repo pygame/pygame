@@ -94,7 +94,7 @@ jobs:
 
     # We upload the generated files under github actions assets
     - name: Upload dist
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: pygame-manylinux-wheels
         path: ./wheelhouse/*.whl

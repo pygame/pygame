@@ -64,7 +64,7 @@ jobs:
 
       # Uncomment when you want to manually verify the deps by downloading them
       # - name: Upload Mac deps
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v5
       #   with:
       #     name: pygame-mac-deps-${{ matrix.macarch }}
       #     path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
@@ -163,7 +163,7 @@ jobs:
       - name: Build and test wheels
         uses: pypa/cibuildwheel@v2.20.0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: pygame-wheels
           path: ./wheelhouse/*.whl
