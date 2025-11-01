@@ -51,7 +51,7 @@ jobs:
     - uses: actions/checkout@v4.1.7
 
     - name: Build sources and run tests
-      uses: uraimo/run-on-arch-action@v2.7.2
+      uses: uraimo/run-on-arch-action@v3.0.1
       id: build
       with:
         arch: ${{ matrix.arch }}
