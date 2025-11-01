@@ -28,7 +28,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v5.0.0
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v5.0.0
       - name: Install deps
         run: python3 -m pip install sphinx
       - name: Check docs changes are checked in

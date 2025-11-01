@@ -87,7 +87,7 @@ jobs:
       CIBW_BUILD_VERBOSITY: 2
 
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v5.0.0
 
     - name: Build and test wheels
       uses: pypa/cibuildwheel@v2.20.0

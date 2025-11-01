@@ -49,7 +49,7 @@ jobs:
         python-version: [ "3.10" ]
 
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v5.0.0
 
     - name: Setup Python
       uses: actions/setup-python@v5

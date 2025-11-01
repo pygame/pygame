@@ -42,7 +42,7 @@ jobs:
           # - { sys: ucrt64,  env: ucrt-x86_64 }
           # - { sys: clang64, env: clang-x86_64 }
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v5.0.0
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
