@@ -557,6 +557,74 @@ On Android, the following events can be generated
       ``key``, and ``mod``
 
       .. ## pygame.event.Event.__dict__ ##
+Additional Event Attribute Details
+----------------------------------
+
+The following sections describe less obvious event attributes that are not
+immediately clear from the type name alone.
+
+Keyboard Events (KEYDOWN, KEYUP)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ``key`` — The symbolic key constant (for example, ``K_a`` or ``K_RETURN``).  
+  It depends on the current keyboard layout.
+- ``scancode`` — The physical location of the key on the keyboard,
+  independent of the layout. Use for consistent mappings across layouts.
+- ``unicode`` — The actual character resulting from the keypress, taking
+  modifiers (Shift, AltGr, etc.) into account. Only available for text input
+  events.
+- ``mod`` — Bitmask of active modifier keys (use ``KMOD_*`` constants).
+
+ACTIVEEVENT
+~~~~~~~~~~~
+- ``gain`` — 1 when activated, 0 when deactivated.
+- ``state`` — Bitmask indicating focus and minimize state.
+
+MOUSEWHEEL
+~~~~~~~~~~
+- ``which`` — Mouse device id that generated the event (useful with
+  multiple mice).
+- ``flipped`` — True if the wheel axis direction is reversed by the platform.
+- ``precise_x``, ``precise_y`` — Floating-point scroll deltas for
+  high-resolution input devices such as touchpads.
+
+TEXTEDITING
+~~~~~~~~~~~
+- Triggered when text is being composed via an Input Method Editor (IME),
+  for example with Japanese or Chinese input methods.
+- Fired repeatedly while text is still being composed.
+- Attributes:
+  - ``text`` — Current composition text.
+  - ``start`` and ``length`` — Selection indices within the text.
+
+AUDIODEVICE* Events
+~~~~~~~~~~~~~~~~~~~
+- ``which`` — Device index of the added or removed device.
+- ``iscapture`` — True if it is an input (microphone) device.
+
+FINGER* and MULTIGESTURE
+~~~~~~~~~~~~~~~~~~~~~~~~
+- ``FINGERDOWN``, ``FINGERMOTION``, ``FINGERUP`` — Represent touch input events.
+  Have ``x``, ``y``, ``dx``, ``dy``, ``pressure``, and ``touch_id`` attributes.
+- ``MULTIGESTURE`` — Represents multi-touch gestures such as pinch or rotate.
+  Includes attributes ``theta`` (rotation), ``pinch`` (scale), and
+  ``num_fingers``.
+
+DROP* Events
+~~~~~~~~~~~~
+- Events are emitted in this order:
+  ``DROPBEGIN`` → ``DROPFILE`` / ``DROPTEXT`` → ``DROPCOMPLETE``.
+- ``DROPFILE`` and ``DROPTEXT`` may appear multiple times before the final
+  ``DROPCOMPLETE``.
+
+MIDI* vs AUDIODEVICE*
+~~~~~~~~~~~~~~~~~~~~~
+- ``MIDI*`` events represent MIDI messages (note on/off, control changes).
+- ``AUDIODEVICE*`` events represent hardware device plug/unplug notifications.
+
+Window Attribute
+~~~~~~~~~~~~~~~~
+Most events have a ``window`` attribute indicating which window generated
+the event. This is primarily relevant in multi-window applications.
 
    .. versionadded:: 1.9.2 Mutable attributes.
 
