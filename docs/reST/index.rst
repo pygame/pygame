@@ -1,213 +1,145 @@
-Pygame Front Page
-=================
+import pygame
+import random
+import time
+
+# 1. Configurações Iniciais do Pygame
+pygame.init()
+
+# 2. Definição de Cores (RGB)
+BRANCO = (255, 255, 255)
+PRETO = (0, 0, 0)
+VERMELHO = (255, 0, 0)
+VERDE = (0, 255, 0)
+
+# 3. Configurações da Tela
+largura = 600
+altura = 400
+tela = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption('Jogo da Cobrinha em Python')
+
+# 4. Variáveis do Jogo
+tamanho_bloco = 10
+velocidade_cobra = 15
+relogio = pygame.time.Clock()
+
+# 5. Funções de Exibição
+fonte_pontuacao = pygame.font.SysFont("bahnschrift", 25)
+fonte_mensagem = pygame.font.SysFont("bahnschrift", 70)
+
+def desenhar_cobra(tamanho_bloco, lista_cobra):
+    """Desenha a cobra na tela."""
+    for x in lista_cobra:
+        pygame.draw.rect(tela, VERDE, [x[0], x[1], tamanho_bloco, tamanho_bloco])
+
+def mensagem(msg, cor):
+    """Exibe a mensagem de Game Over na tela."""
+    texto = fonte_mensagem.render(msg, True, cor)
+    tela.blit(texto, [largura / 6, altura / 3])
+
+def mostrar_pontuacao(pontuacao):
+    """Exibe a pontuação atual."""
+    valor = fonte_pontuacao.render("Pontos: " + str(pontuacao), True, BRANCO)
+    tela.blit(valor, [0, 0])
+
+# 6. Loop Principal do Jogo
+def game_loop():
+    game_over = False
+    game_fechar = False
+
+    # Posição inicial da cabeça da cobra
+    x1 = largura / 2
+    y1 = altura / 2
+
+    # Mudança de posição (inicialmente parada)
+    x1_mudanca = 0
+    y1_mudanca = 0
+
+    # Lista de coordenadas do corpo e tamanho inicial
+    lista_cobra = []
+    comprimento_cobra = 1
+    
+    # Gerar a primeira comida em uma posição aleatória
+    comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+    comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+
+    while not game_over:
+
+        # Tela de Game Over
+        while game_fechar == True:
+            tela.fill(PRETO)
+            mensagem("Você Perdeu!", VERMELHO)
+            mostrar_pontuacao(comprimento_cobra - 1)
+            pygame.display.update()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_q: # Pressione 'Q' para sair
+                        game_over = True
+                        game_fechar = False
+                    if evento.key == pygame.K_r: # Pressione 'R' para reiniciar
+                        game_loop() # Reinicia o jogo
+            
+        # 7. Eventos (Controle do Teclado)
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                game_over = True
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_LEFT and x1_mudanca == 0:
+                    x1_mudanca = -tamanho_bloco
+                    y1_mudanca = 0
+                elif evento.key == pygame.K_RIGHT and x1_mudanca == 0:
+                    x1_mudanca = tamanho_bloco
+                    y1_mudanca = 0
+                elif evento.key == pygame.K_UP and y1_mudanca == 0:
+                    y1_mudanca = -tamanho_bloco
+                    x1_mudanca = 0
+                elif evento.key == pygame.K_DOWN and y1_mudanca == 0:
+                    y1_mudanca = tamanho_bloco
+                    x1_mudanca = 0
+
+        # 8. Verificação de Colisão com as Bordas
+        if x1 >= largura or x1 < 0 or y1 >= altura or y1 < 0:
+            game_fechar = True
+
+        # 9. Atualização da Posição
+        x1 += x1_mudanca
+        y1 += y1_mudanca
+        tela.fill(PRETO) # Limpa a tela
+
+        # Desenha a comida (quadrado vermelho)
+        pygame.draw.rect(tela, VERMELHO, [comida_x, comida_y, tamanho_bloco, tamanho_bloco])
+        
+        # 10. Lógica da Cobra
+        cabeca_cobra = []
+        cabeca_cobra.append(x1)
+        cabeca_cobra.append(y1)
+        lista_cobra.append(cabeca_cobra)
+        
+        if len(lista_cobra) > comprimento_cobra:
+            del lista_cobra[0]
+
+        # 11. Verificação de Colisão com o Próprio Corpo
+        for segmento in lista_cobra[:-1]:
+            if segmento == cabeca_cobra:
+                game_fechar = True
+
+        desenhar_cobra(tamanho_bloco, lista_cobra)
+        mostrar_pontuacao(comprimento_cobra - 1)
+
+        pygame.display.update()
+
+        # 12. Lógica de Comer a Comida
+        if x1 == comida_x and y1 == comida_y:
+            comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+            comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+            comprimento_cobra += 1
+
+        # Controla a velocidade do jogo
+        relogio.tick(velocidade_cobra)
+        
+    pygame.quit()
+    quit()
+
+# 7. Iniciar o Jogo
+game_loop()
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :hidden:
-
-   ref/*
-   tut/*
-   tut/en/**/*
-   tut/ko/**/*
-   c_api
-   filepaths
-   logos
-
-Quick start
------------
-
-Welcome to pygame! Once you've got pygame installed (:code:`pip install pygame` or
-:code:`pip3 install pygame` for most people), the next question is how to get a game
-loop running. Pygame, unlike some other libraries, gives you full control of program
-execution. That freedom means it is easy to mess up in your initial steps.
-
-Here is a good example of a basic setup (opens the window, updates the screen, and handles events)--
-
-.. literalinclude:: ref/code_examples/base_script.py
-
-Here is a slightly more fleshed out example, which shows you how to move something
-(a circle in this case) around on screen--
-
-.. literalinclude:: ref/code_examples/base_script_example.py
-
-For more in depth reference, check out the :ref:`tutorials-reference-label`
-section below, check out a video tutorial (`I'm a fan of this one
-<https://www.youtube.com/watch?v=AY9MnQ4x3zk>`_), or reference the API
-documentation by module.
-
-Documents
----------
-
-`Readme`_
-  Basic information about pygame: what it is, who is involved, and where to find it.
-
-`Install`_
-  Steps needed to compile pygame on several platforms.
-  Also help on finding and installing prebuilt binaries for your system.
-
-:doc:`filepaths`
-  How pygame handles file system paths.
-
-:doc:`Pygame Logos <logos>`
-   The logos of Pygame in different resolutions.
-
-
-`LGPL License`_
-  This is the license pygame is distributed under.
-  It provides for pygame to be distributed with open source and commercial software.
-  Generally, if pygame is not changed, it can be used with any type of program.
-
-.. _tutorials-reference-label:
-
-Tutorials
----------
-
-:doc:`Introduction to Pygame <tut/PygameIntro>`
-  An introduction to the basics of pygame.
-  This is written for users of Python and appeared in volume two of the Py magazine.
-
-:doc:`Import and Initialize <tut/ImportInit>`
-  The beginning steps on importing and initializing pygame.
-  The pygame package is made of several modules.
-  Some modules are not included on all platforms.
-
-:doc:`How do I move an Image? <tut/MoveIt>`
-  A basic tutorial that covers the concepts behind 2D computer animation.
-  Information about drawing and clearing objects to make them appear animated.
-
-:doc:`Chimp Tutorial, Line by Line <tut/ChimpLineByLine>`
-  The pygame examples include a simple program with an interactive fist and a chimpanzee.
-  This was inspired by the annoying flash banner of the early 2000s.
-  This tutorial examines every line of code used in the example.
-
-:doc:`Sprite Module Introduction <tut/SpriteIntro>`
-  Pygame includes a higher level sprite module to help organize games.
-  The sprite module includes several classes that help manage details found in almost all games types.
-  The Sprite classes are a bit more advanced than the regular pygame modules,
-  and need more understanding to be properly used.
-
-:doc:`Surfarray Introduction <tut/SurfarrayIntro>`
-  Pygame used the NumPy python module to allow efficient per pixel effects on images.
-  Using the surface arrays is an advanced feature that allows custom effects and filters.
-  This also examines some of the simple effects from the pygame example, arraydemo.py.
-
-:doc:`Camera Module Introduction <tut/CameraIntro>`
-  Pygame, as of 1.9, has a camera module that allows you to capture images,
-  watch live streams, and do some basic computer vision.
-  This tutorial covers those use cases.
-
-:doc:`Newbie Guide <tut/newbieguide>`
-  A list of thirteen helpful tips for people to get comfortable using pygame.
-
-:doc:`Making Games Tutorial <tut/MakeGames>`
-  A large tutorial that covers the bigger topics needed to create an entire game.
-
-:doc:`Display Modes <tut/DisplayModes>`
-  Getting a display surface for the screen.
-
-:doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/개요>`
-  빨간블록 검은블록
-
-
-Reference
----------
-
-:ref:`genindex`
-  A list of all functions, classes, and methods in the pygame package.
-
-:doc:`ref/bufferproxy`
-  An array protocol view of surface pixels
-
-:doc:`ref/color`
-  Color representation.
-
-:doc:`ref/cursors`
-  Loading and compiling cursor images.
-
-:doc:`ref/display`
-  Configure the display surface.
-
-:doc:`ref/draw`
-  Drawing simple shapes like lines and ellipses to surfaces.
-
-:doc:`ref/event`
-  Manage the incoming events from various input devices and the windowing platform.
-
-:doc:`ref/examples`
-  Various programs demonstrating the use of individual pygame modules.
-
-:doc:`ref/font`
-  Loading and rendering TrueType fonts.
-
-:doc:`ref/freetype`
-  Enhanced pygame module for loading and rendering font faces.
-
-:doc:`ref/gfxdraw`
-  Anti-aliasing draw functions.
-
-:doc:`ref/image`
-  Loading, saving, and transferring of surfaces.
-
-:doc:`ref/joystick`
-  Manage the joystick devices.
-
-:doc:`ref/key`
-  Manage the keyboard device.
-
-:doc:`ref/locals`
-  Pygame constants.
-
-:doc:`ref/mixer`
-  Load and play sounds
-
-:doc:`ref/mouse`
-  Manage the mouse device and display.
-
-:doc:`ref/music`
-  Play streaming music tracks.
-
-:doc:`ref/pygame`
-  Top level functions to manage pygame.
-
-:doc:`ref/pixelarray`
-  Manipulate image pixel data.
-
-:doc:`ref/rect`
-  Flexible container for a rectangle.
-
-:doc:`ref/scrap`
-  Native clipboard access.
-
-:doc:`ref/sndarray`
-  Manipulate sound sample data.
-
-:doc:`ref/sprite`
-  Higher level objects to represent game images.
-
-:doc:`ref/surface`
-  Objects for images and the screen.
-
-:doc:`ref/surfarray`
-  Manipulate image pixel data.
-
-:doc:`ref/tests`
-  Test pygame.
-
-:doc:`ref/time`
-  Manage timing and framerate.
-
-:doc:`ref/transform`
-  Resize and move images.
-
-:doc:`pygame C API <c_api>`
-  The C api shared amongst pygame extension modules.
-
-:ref:`search`
-  Search pygame documents by keyword.
-
-.. _Readme: ../wiki/about
-
-.. _Install: ../wiki/GettingStarted#Pygame%20Installation
-
-.. _LGPL License: LGPL.txt
