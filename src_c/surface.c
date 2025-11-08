@@ -3730,24 +3730,13 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         }
         else {
             SDL_PixelFormat *fmt = src->format;
-            SDL_PixelFormat newfmt;
+            SDL_PixelFormat *newfmt =
+                SDL_AllocFormat(SDL_MasksToPixelFormatEnum(
+                    fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, 0));
 
-            newfmt.palette = 0; /* Set NULL (or SDL gets confused) */
-            newfmt.BitsPerPixel = fmt->BitsPerPixel;
-            newfmt.BytesPerPixel = fmt->BytesPerPixel;
-            newfmt.Amask = 0;
-            newfmt.Rmask = fmt->Rmask;
-            newfmt.Gmask = fmt->Gmask;
-            newfmt.Bmask = fmt->Bmask;
-            newfmt.Ashift = 0;
-            newfmt.Rshift = fmt->Rshift;
-            newfmt.Gshift = fmt->Gshift;
-            newfmt.Bshift = fmt->Bshift;
-            newfmt.Aloss = 0;
-            newfmt.Rloss = fmt->Rloss;
-            newfmt.Gloss = fmt->Gloss;
-            newfmt.Bloss = fmt->Bloss;
-            src = SDL_ConvertSurface(src, &newfmt, 0);
+            src = SDL_ConvertSurface(src, newfmt, 0);
+
+            SDL_FreeFormat(newfmt);
             if (src) {
                 result = SDL_BlitSurface(src, srcrect, dst, dstrect);
                 SDL_FreeSurface(src);
