@@ -45,6 +45,17 @@ is not in focus, you may set the ``SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS`` enviro
 variable. See :ref:`environment variables <environment-variables>` for more details.
 
 
+
+
+.. note::
+
+   By default, pygame only receives joystick events when its window has focus.
+   To receive joystick events in the background (for example, when the pygame window
+   is used as an overlay), set the environment variable
+   ``SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1`` before calling ``pygame.init()``.
+
+
+
 .. function:: init
 
    | :sl:`Initialize the joystick module.`
