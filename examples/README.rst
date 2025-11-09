@@ -3,8 +3,8 @@ techniques. They are beginner-friendly with source code in the public
 domain that can be adapted for your projects.
 
 
-aacircles.py
-   An example of using the gfxdraw module to drawing anti-aliased circles.
+aacircle.py
+   An example of using the gfxdraw module to draw anti-aliased circles.
 
 aliens.py
    An arcade-style space shooter game that showcases various common and 
