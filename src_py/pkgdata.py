@@ -24,22 +24,55 @@ import os
 try:
     from pkg_resources import resource_stream, resource_exists
 except ImportError:
+    # Try to provide a compatible fallback using importlib.resources
+    try:
+        import importlib.resources as _importlib_resources
 
-    def resource_exists(_package_or_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
+        def resource_exists(package, resource_name):
+            """Return True if the resource exists in the given package.
 
-        :return: Always returns False
-        """
-        return False
+            We accept either a package name (string) or a module object.
+            Any errors return False to match the conservative behavior
+            expected by callers.
+            """
+            try:
+                pkg = sys.modules.get(package, package)
+                return _importlib_resources.is_resource(pkg, resource_name)
+            except Exception:
+                return False
 
-    def resource_stream(_package_of_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
+        def resource_stream(package, resource_name):
+            """Open a binary stream for the named resource.
 
-        Always raises a NotImplementedError when called.
-        """
-        raise NotImplementedError
+            Accepts either a package name (string) or a module object.
+            If the resource cannot be opened, raise NotImplementedError so
+            callers fall back to filesystem lookup as before.
+            """
+            try:
+                pkg = sys.modules.get(package, package)
+                return _importlib_resources.open_binary(pkg, resource_name)
+            except Exception as e:
+                raise NotImplementedError from e
+
+    except Exception:
+        # No pkg_resources and no importlib.resources available: keep the
+        # conservative stubs used previously.
+
+        def resource_exists(_package_or_requirement, _resource_name):
+            """
+            A stub for when we fail to import this function.
+
+            :return: Always returns False
+            """
+            return False
+
+        def resource_stream(_package_of_requirement, _resource_name):
+            """
+            A stub for when we fail to import this function.
+
+            Always raises a NotImplementedError when called.
+            """
+            raise NotImplementedError
 
 
 def getResource(identifier, pkgname=__name__):
