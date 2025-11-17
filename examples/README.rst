@@ -1,154 +1,135 @@
-These examples are a good introduction to various Pygame modules and 
-techniques. They are beginner-friendly with source code in the public 
-domain that can be adapted for your projects.
+Pygame Examples
+===============
 
+These examples introduce various Pygame modules and techniques.
+They are beginner–friendly, open-source, and can be adapted for your own projects.
 
-aacircles.py
-   An example of using the gfxdraw module to drawing anti-aliased circles.
+Available Examples
+------------------
 
-aliens.py
-   An arcade-style space shooter game that showcases various common and 
-   important Pygame modules and techniques.
+**aacircle.py**  
+    Demonstrates using the ``gfxdraw`` module to draw anti-aliased circles.
 
-arraydemo.py
-   Showcases the use of Numpy with Pygame to perform efficient 
-   pixel manipulation.
+**aliens.py**  
+    An arcade-style space shooter that showcases several important Pygame modules and game development techniques.
 
-audiocapture.py
-   Use the mixer module to record sound from a microphone, and 
-   play back the recorded sound.
+**arraydemo.py**  
+    Demonstrates efficient pixel manipulation using NumPy with Pygame.
 
-blend_fill.py
-   Demonstrates how to perform surface blending and filling 
-   with Pygame.
+**audiocapture.py**  
+    Shows how to record audio from a microphone using ``pygame.mixer`` and play it back.
 
-blit_blends.py
-   Uses blit functions to showcase some of Pygame's different 
-   blending modes.
+**blend_fill.py**  
+    Demonstrates blending and surface filling techniques.
 
-camera.py
-   Basic image capturing and display using pygame.camera
+**blit_blends.py**  
+    Shows different blending modes available through blit operations.
 
-chimp.py
-   A simple game featuring a chimp that showcases the use of 
-   common and important Pygame modules and techniques.
+**camera.py**  
+    Demonstrates basic image capture and display using ``pygame.camera``.
 
-cursors.py
-   Demonstrates the creation of custom cursors with Pygame.
+**chimp.py**  
+    A simple, fun game demonstrating core Pygame concepts such as event handling, images, and sounds.
 
-dropevent.py
-   Drag and drop files using the following events:
-   DROPBEGIN, DROPCOMPLETE, DROPTEXT, DROPFILE
+**cursors.py**  
+    Shows how to create custom mouse cursors.
 
-eventlist.py
-   A utility for displaying and logging real-time Pygame events, 
-   useful for debugging.
+**dropevent.py**  
+    Demonstrates file drag-and-drop events:
+    ``DROPBEGIN``, ``DROPCOMPLETE``, ``DROPTEXT``, and ``DROPFILE``.
 
-font_viewer.py
-   Demonstrates how to display all available fonts in a 
-   scrolling window.
+**eventlist.py**  
+    A utility for viewing and logging real-time Pygame events. Helpful for debugging.
 
-fonty.py
-   A simple application demonstrating the different ways 
-   to render fonts with the font module
+**font_viewer.py**  
+    Displays all available system fonts inside a scrollable window.
 
-freetype_misc.py
-   Shows how to use the freetype module to perform font
-   rendering and manipulation.
+**fonty.py**  
+    Demonstrates several ways to render text with the ``font`` module.
 
-glcube.py
-   Using PyOpenGL and Pygame, this creates a spinning 3D multicolored cube.
+**freetype_misc.py**  
+    Shows advanced text rendering using the ``freetype`` module.
 
-go_over_there.py
-   Demonstrates the important Vector.move_towards() function.
+**glcube.py**  
+    Uses PyOpenGL with Pygame to display a rotating, multicolored 3D cube.
 
-grid.py
-   A simple example of grid-based movement.
+**go_over_there.py**  
+    Demonstrates the ``Vector2.move_towards()`` function.
 
-headless_no_windows_needed.py
-   Shows how to run Pygame in scripts.
+**grid.py**  
+    Implements simple grid-based movement.
 
-joystick.py
-   Shows how to integrate joysticks or game controllers into Pygame.
+**headless_no_windows_needed.py**  
+    Shows how to run Pygame in headless mode (no display window required).
 
-liquid.py
-   Demonstrates how to create a simple liquid effect in an image. 
+**joystick.py**  
+    Shows how to integrate joysticks/game controllers.
 
-mask.py
-   Showcases how to use masks for collision detection and sprite 
-   interaction.
+**liquid.py**  
+    Creates a simple animated liquid effect using image manipulation.
 
-midi.py
-   Demonstrates how to use MIDI I/O using the midi module.
+**mask.py**  
+    Demonstrates using masks for collision detection and sprite interaction.
 
-moveit.py
-   Illustrates how to accomplish sprite movement and animation.
+**midi.py**  
+    Shows how to use Pygame’s MIDI I/O capabilities.
 
-music_drop_fade.py
-   Showcases dropping music files into Pygame, and how to
-   apply a fade effect to music playback.
+**moveit.py**  
+    Demonstrates sprite movement and animation.
 
-pixelarray.py
-   Manipulation of individual pixels using the PixelArray module.
+**music_drop_fade.py**  
+    Shows how to drag-and-drop music files and apply fade effects when playing audio.
 
-playmus.py
-   Uses the mixer module to play music files with CLI.
+**pixelarray.py**  
+    Manipulates individual pixels using the ``PixelArray`` module.
 
-prevent_display_stretching.py
-   Illustrates how to maintain aspect ratio when resizing a window
-   in Pygame.
+**playmus.py**  
+    A command-line music player built with ``pygame.mixer``.
 
-resizing_new.py
-   Showcases various window resizing events and how to fit graphics
-   to new dimensions.
+**resizing_new.py**  
+    Demonstrates window resizing events and how to scale graphics accordingly.
 
-scaletest.py
-   Showcases the scaling of Surfaces.
+**scaletest.py**  
+    Shows different ways to scale ``Surface`` objects.
 
-scrap_clipboard.py
-   Shows how to implement clipboard interaction with Pygame's scrap module.
+**scrap_clipboard.py**  
+    Demonstrates clipboard interaction using the ``scrap`` module.
 
-scroll.py
-   An example that implements smooth scrolling backgrounds for side-scrolling 
-   games or parallax effects.
+**scroll.py**  
+    Implements smooth scrolling backgrounds, useful for parallax or side-scrolling games.
 
-setmodescale.py
-   Handles mouse scaling and selection of a good sized window depending
-   on the display.
+**setmodescale.py**  
+    Selects an optimal window size and handles mouse scaling.
 
-sound.py
-   Illustrates how to implement sound effects and music using Pygame.
+**sound.py**  
+    Shows how to play sound effects and music.
 
-sound_array_demos.py
-   Showcases echo, delay and other array based processing of sounds.
+**sound_array_demos.py**  
+    Demonstrates echo, delay, and other sound-processing techniques using arrays.
 
-sprite_texture.py
-   Demonstrates how to use textured sprites in Pygame.
+**sprite_texture.py**  
+    Displays how to apply textures to sprites.
 
-stars.py
-   A simple starfield implementation in which the perspective can be
-   changed by a mouse click.
+**stars.py**  
+    A starfield animation where perspective shifts on mouse click.
 
-testsprite.py
-   Showcases the basics of sprite handling, namely collision 
-   detection and animation.
+**testsprite.py**  
+    Introduces basic sprite handling, including collision detection and animation.
 
-textinput.py
-   A little "console" where you can write in text.
-   Shows how to use the TEXTEDITING and TEXTINPUT events.
+**textinput.py**  
+    A simple console allowing text input using ``TEXTEDITING`` and ``TEXTINPUT`` events.
 
-vgrade.py
-   Shows how to apply vertical gradients to surfaces using Pygame.
+**vgrade.py**  
+    Creates vertical gradients on Surfaces.
 
-video.py
-   Showcases the movie module, including the display of playback 
-   controls.
+**video.py**  
+    Demonstrates movie playback and display controls using the ``movie`` module.
 
-data/
-   Directory with the resources for the examples.
+**data/**
+    Directory containing images, sounds, and assets used by the examples.
 
+Additional Examples
+-------------------
 
 More examples can be found on the Pygame website and GitHub.
-We're always looking for new examples and/or example requests. Examining
-code such as this is a great way to get started with Python-based 
-game development.
+We welcome new example contributions and requests. Studying these code samples is an excellent way to start learning Pygame and game development with Python.
