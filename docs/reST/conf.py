@@ -23,7 +23,7 @@ sys.path.append(os.path.abspath('.'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx.ext.coverage', 'ext.headers', 'ext.boilerplate',
-              'ext.customversion', 'ext.edit_on_github']
+              'ext.customversion', 'ext.edit_on_github','sphinx_copybutton']
 
 
 # Add any paths that contain templates here, relative to this directory.

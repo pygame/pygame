@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Author: Youngwook Kim (Korean) &#8212; pygame v2.6.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygame.css?v=a854c6a8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="icon" href="../../../../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Author: Youngwook Kim (Korean)" href="../5.HP_bar/Advanced%20OUTPUT%20with%20Advanced%20PROCESS.html" />
+    <link rel="prev" title="Author: Youngwook Kim (Korean)" href="../3.Move_text/Basic%20PROCESS.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+	<div class="flex-container">
+	<div class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../../../../_static/pygame_tiny.png" alt="logo image"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</div>
+	<div class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../../../../index.html">Help Contents</a> ||
+	    <a href="../../../../genindex.html">Reference Index</a>
+
+        <form action="../../../../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><strong>Most useful stuff</strong>:
+	    <a href="../../../../ref/color.html">Color</a> | 
+	    <a href="../../../../ref/display.html">display</a> | 
+	    <a href="../../../../ref/draw.html">draw</a> | 
+	    <a href="../../../../ref/event.html">event</a> | 
+	    <a href="../../../../ref/font.html">font</a> | 
+	    <a href="../../../../ref/image.html">image</a> | 
+	    <a href="../../../../ref/key.html">key</a> | 
+	    <a href="../../../../ref/locals.html">locals</a> | 
+	    <a href="../../../../ref/mixer.html">mixer</a> | 
+	    <a href="../../../../ref/mouse.html">mouse</a> | 
+	    <a href="../../../../ref/rect.html">Rect</a> | 
+	    <a href="../../../../ref/surface.html">Surface</a> | 
+	    <a href="../../../../ref/time.html">time</a> | 
+	    <a href="../../../../ref/music.html">music</a> | 
+	    <a href="../../../../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><strong>Advanced stuff</strong>:
+	    <a href="../../../../ref/cursors.html">cursors</a> | 
+	    <a href="../../../../ref/joystick.html">joystick</a> | 
+	    <a href="../../../../ref/mask.html">mask</a> | 
+	    <a href="../../../../ref/sprite.html">sprite</a> | 
+	    <a href="../../../../ref/transform.html">transform</a> | 
+	    <a href="../../../../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../../../../ref/freetype.html">freetype</a> | 
+	    <a href="../../../../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../../../../ref/midi.html">midi</a> | 
+	    <a href="../../../../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../../../../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../../../../ref/sndarray.html">sndarray</a> | 
+	    <a href="../../../../ref/surfarray.html">surfarray</a> | 
+	    <a href="../../../../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><strong>Other</strong>:
+	    <a href="../../../../ref/camera.html">camera</a> | 
+	    <a href="../../../../ref/sdl2_controller.html#module-pygame._sdl2.controller">controller</a> | 
+	    <a href="../../../../ref/examples.html">examples</a> | 
+	    <a href="../../../../ref/fastevent.html">fastevent</a> | 
+	    <a href="../../../../ref/scrap.html">scrap</a> | 
+	    <a href="../../../../ref/tests.html">tests</a> | 
+	    <a href="../../../../ref/touch.html">touch</a> | 
+	    <a href="../../../../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+</div>
+</div>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<section id="author-youngwook-kim-korean">
+</section>
+<section id="contact-rumia0601-gmail-com">
+</section>
+<section id="basic-input">
+</section>
+<section id="new-input-is-new-event">
+<p>Usually, we learn how to output something first (Think about Hello World!), learning how to input something is always second. Why? Because input is not the requirement for some program in contrast to output is the requirement for every program. (That’s definition of program. more than or same as 0 input, more than or same as 1 output.) However, every game needs input. That’s why we said “I like playing games”. Playing means moving your part of body (maybe your finger). Anyway, let’s add input logic to make this project into real game.</p>
+<img alt="../../../../_images/Bagic-INPUT-sourcecode.png" src="../../../../_images/Bagic-INPUT-sourcecode.png" />
+<img alt="../../../../_images/Bagic-INPUT-resultscreen.png" src="../../../../_images/Bagic-INPUT-resultscreen.png" />
+<p>(Source Code for Controlling World Project and its result screen)</p>
+<p>(Not the entire source code of Controlling World Project, but part)</p>
+<p>(Controlling World! moves when player press one of four direction arrow of keyboard)</p>
+<p>There are 2 big difference in comparison to before project. First big difference is line #5, which adds checking <code class="docutils literal notranslate"><span class="pre">KEYDOWN</span></code> <strong>event</strong> is triggered or not. Other lines are just changing previous algorithm to act differently. We know that same command can make big difference in entire program when it is executed before Event statement of after Event statement. Pay attention that process about changing location appear after Event statement. (<strong>Update after set</strong>. That is second big difference). Variable <code class="docutils literal notranslate"><span class="pre">event.key</span></code> means latest pressed key on keyboard. Look at the specific key name. K_UP, K_LEFT, K_DOWN, K_RIGHT. Very intuitive <strong>K_ series</strong>. (Given by pygame.locals which we added at the Header) Furthermore, there are other key named K_8, K_a, K_L, K_LCTRL, K_DELETE, or K_F4. We can understand meaning of these keys without extra explanation. Full key list can be found in
+<cite>https://www.pygame.org/docs/ref/key.html#pygame.key.name.</cite></p>
+<p>Notice that KEYDOWN means “this key was not pressed before, but <strong>now is pressed</strong>” and meaning of <strong>“hold” is not included</strong> here. In the case of hold, new event-handling about checking <code class="docutils literal notranslate"><span class="pre">KEYUP</span></code> (it means “this key was pressed before, but now is not pressed”) is needed with some processing (which needs extra variable and algorithm). This will be mentioned at advanced part.</p>
+<p>Adding input was easy because it’s just adding if phase with certain event parameter. Now game project is done because project has output, process and input step-by-step! Really? No. This project can’t be called as a game because there is no <strong>interaction</strong> between at least two <strong>game objects</strong>, no <strong>rule</strong> for playing this (neither constrains (ex. HP, time) nor score). Mostly, not <strong>enjoyable</strong> (no motivation, no variety of input and output, no attractive contents) Firstly, we have to learn more advanced input (for example, handling for mouse status), process (for example, idea for functionalization) and output (for example, printing image/sound or visualizing internal data) to flourish game interface/system. Don’t stay in the level of printing const text or inputting single pressed key. Of course, experiences of this level are surely helpful for advanced level. So, let’s go to advanced level!</p>
+<p>&lt;Reference Code&gt;</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pygame</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pygame.locals</span><span class="w"> </span><span class="kn">import</span><span class="o">*</span>
+
+<span class="n">white</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">red</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">green</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Controlling World Project&quot;</span><span class="p">)</span>
+<span class="n">myScreen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>
+<span class="n">myTextFont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="s2">&quot;HoonWhitecatR.ttf&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">myText</span> <span class="o">=</span> <span class="n">myTextFont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;Controlling World!&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">)</span>
+<span class="n">myTextArea</span> <span class="o">=</span> <span class="n">myText</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+<span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+<span class="n">fpsClock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">moveRight</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#1</span>
+<span class="n">moveDown</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#2</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#3</span>
+    <span class="n">moveDown</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#4</span>
+    <span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span> <span class="o">+</span> <span class="n">x</span><span class="p">,</span> <span class="mi">240</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">myScreen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">white</span><span class="p">)</span>
+    <span class="n">myScreen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">myText</span><span class="p">,</span> <span class="n">myTextArea</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span> <span class="c1">#5</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_UP</span><span class="p">:</span>
+                <span class="n">moveDown</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_LEFT</span><span class="p">:</span>
+                <span class="n">moveDown</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">moveRight</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_DOWN</span><span class="p">:</span>
+                <span class="n">moveDown</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_RIGHT</span><span class="p">:</span>
+                <span class="n">moveDown</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">moveRight</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1">#6</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">10</span>
+    <span class="k">elif</span><span class="p">(</span><span class="n">moveRight</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#7</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">10</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">moveDown</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1">#8</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">10</span>
+    <span class="k">elif</span><span class="p">(</span><span class="n">moveDown</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#9</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">10</span>
+
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/main/docs/reST/tut/en/Red_or_Black/4.Control_text/Basic INPUT.rst" rel="nofollow">Edit on GitHub</a>
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../5.HP_bar/Advanced%20OUTPUT%20with%20Advanced%20PROCESS.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../3.Move_text/Basic%20PROCESS.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pygame v2.6.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Author: Youngwook Kim (Korean)</a></li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2000-2023, pygame developers.
+    </div>
+  </body>
+</html>

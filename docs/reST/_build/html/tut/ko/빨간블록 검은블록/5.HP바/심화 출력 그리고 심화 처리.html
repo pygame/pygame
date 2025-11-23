@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Author: Youngwook Kim (Korean) &#8212; pygame v2.6.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygame.css?v=a854c6a8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="icon" href="../../../../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Author: Youngwook Kim (Korean)" href="../6.%EB%B2%84%ED%8A%BC%EB%93%A4/%EC%8B%AC%ED%99%94%20%EC%9E%85%EB%A0%A5%20%EA%B7%B8%EB%A6%AC%EA%B3%A0%20%EC%8B%AC%ED%99%94%20%EC%B6%9C%EB%A0%A5.html" />
+    <link rel="prev" title="Author: Youngwook Kim (Korean)" href="../4.%ED%85%8D%EC%8A%A4%ED%8A%B8%20%EC%A1%B0%EC%A2%85/%EA%B8%B0%EC%B4%88%20%EC%9E%85%EB%A0%A5.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+	<div class="flex-container">
+	<div class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../../../../_static/pygame_tiny.png" alt="logo image"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</div>
+	<div class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../../../../index.html">Help Contents</a> ||
+	    <a href="../../../../genindex.html">Reference Index</a>
+
+        <form action="../../../../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><strong>Most useful stuff</strong>:
+	    <a href="../../../../ref/color.html">Color</a> | 
+	    <a href="../../../../ref/display.html">display</a> | 
+	    <a href="../../../../ref/draw.html">draw</a> | 
+	    <a href="../../../../ref/event.html">event</a> | 
+	    <a href="../../../../ref/font.html">font</a> | 
+	    <a href="../../../../ref/image.html">image</a> | 
+	    <a href="../../../../ref/key.html">key</a> | 
+	    <a href="../../../../ref/locals.html">locals</a> | 
+	    <a href="../../../../ref/mixer.html">mixer</a> | 
+	    <a href="../../../../ref/mouse.html">mouse</a> | 
+	    <a href="../../../../ref/rect.html">Rect</a> | 
+	    <a href="../../../../ref/surface.html">Surface</a> | 
+	    <a href="../../../../ref/time.html">time</a> | 
+	    <a href="../../../../ref/music.html">music</a> | 
+	    <a href="../../../../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><strong>Advanced stuff</strong>:
+	    <a href="../../../../ref/cursors.html">cursors</a> | 
+	    <a href="../../../../ref/joystick.html">joystick</a> | 
+	    <a href="../../../../ref/mask.html">mask</a> | 
+	    <a href="../../../../ref/sprite.html">sprite</a> | 
+	    <a href="../../../../ref/transform.html">transform</a> | 
+	    <a href="../../../../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../../../../ref/freetype.html">freetype</a> | 
+	    <a href="../../../../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../../../../ref/midi.html">midi</a> | 
+	    <a href="../../../../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../../../../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../../../../ref/sndarray.html">sndarray</a> | 
+	    <a href="../../../../ref/surfarray.html">surfarray</a> | 
+	    <a href="../../../../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><strong>Other</strong>:
+	    <a href="../../../../ref/camera.html">camera</a> | 
+	    <a href="../../../../ref/sdl2_controller.html#module-pygame._sdl2.controller">controller</a> | 
+	    <a href="../../../../ref/examples.html">examples</a> | 
+	    <a href="../../../../ref/fastevent.html">fastevent</a> | 
+	    <a href="../../../../ref/scrap.html">scrap</a> | 
+	    <a href="../../../../ref/tests.html">tests</a> | 
+	    <a href="../../../../ref/touch.html">touch</a> | 
+	    <a href="../../../../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+</div>
+</div>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<section id="author-youngwook-kim-korean">
+</section>
+<section id="contact-rumia0601-gmail-com">
+</section>
+<section id="id1">
+<p>우선, 텍스트가 아닌, 도형을 시각화 하겠다. HP 바는 어떤가? 만약 HP의 최대값이 고정되어 있고 오직 현재 HP 값만이 변한다면, 이 두 데이터를 출력하는 가장 쉬운 방법은 무엇인가?</p>
+<img alt="../../../../_images/AdvancedOutputProcess11.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess11.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess1.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../../../_images/AdvancedOutputProcess21.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess21.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess2.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../../../_images/AdvancedOutputProcess31.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess31.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess3.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>변수의 값이 변할 때마다 텍스트를 다시 렌더링 하기만 하면 된다. 변수의 값은 어떻게 바꾸는가? 그것은 Event문에서 이루어진다. (키보드 위 또는 아래를 눌러 HP를 조절하게 하였다.) 이전과 동일한 방법이다. 하지만, 이것들은 여전히 텍스트이다. 아직 충분히 시각화 되지 않는다. 이 데이터들을 어떻게 더 상세하게 시각화 할까? 총 탄창에서 아이디어를 따올 수 있다. HP는 정수 값이고, 불연속적 값을 가지므로, 아래와 같이 출력될 수 있다.</p>
+<img alt="../../../../_images/AdvancedOutputProcess41.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess41.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess4.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../../../_images/AdvancedOutputProcess51.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess51.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess5.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../../../_images/AdvancedOutputProcess61.gif" class="inlined-right" src="../../../../_images/AdvancedOutputProcess61.gif" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">240</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">black</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="n">ball</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;AdvancedOutputProcess6.gif&quot;</span><span class="p">)</span>
+<span class="n">ballrect</span> <span class="o">=</span> <span class="n">ball</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">ballrect</span> <span class="o">=</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">left</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">top</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ballrect</span><span class="o">.</span><span class="n">bottom</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+        <span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">black</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ball</span><span class="p">,</span> <span class="n">ballrect</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>훨씬 나아졌다. 그리는 로직은 #6을 확인하면 된다. 로직은 단순하다. 먼저, 큰 검은 색 직사각형을 그린다. 그 다음, 현재 HP을 따져서 작은 빨간 색 직사각형들을 0개 또는 최대 개수만큼 그린다. 마지막으로, 작은 직사각형들에 하얀 테두리를 그린다. pygame.draw.rect 함수에선 위치 변수로 4개의 매개 변수가 사용된 것을 확인할 수 있는데 (첫번째 변수는 캔버스 변수이고, 두번째 변수는 색상 변수, 네번째 변수는 두께 변수이다.) 이 4개의 매개 변수의 용도가 무엇인지는 직접 설명하는 것보다, 직접 값을 변경하면서 확인하는 것이 가장 쉽게 이해할 수 있다. 3개의 값이 20일 때 하나의 값 만을 10또는 30으로 바꿔 보아라!</p>
+<p>그리고, 이제는 본격적으로 함수화를 해야 한다. Always문과 Event문을 main함수에 담았는데, 이 경우 main함수를 프로그램이 찾을 수 있도록 #7에서 추가적인 처리를 해야 한다. 그 다음 drawHP라는 새로운 함수를 만들었다. 게임에서의 함수화 아이디어는 GUI 프로그램을 만들 때의 함수화 아이디어와 크게 다르지 않다. 예를 들면, 하나의 변수를 출력하는 하나의 출력 함수를 각각 만들어 두는 것이 좋을 것이다. 물론, 각각의 변수가 출력 될 좌표를 정하는 것은 화면 전체를 디자인할 때 선행되어야 할 것이다.</p>
+<p>&lt;참고 코드&gt;</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pygame</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pygame.locals</span><span class="w"> </span><span class="kn">import</span><span class="o">*</span>
+
+<span class="n">maxHP</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">white</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">gray</span> <span class="o">=</span> <span class="p">(</span><span class="mi">127</span><span class="p">,</span><span class="mi">127</span><span class="p">,</span><span class="mi">127</span><span class="p">)</span>
+<span class="n">black</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">red</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">green</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;HP bar Project&quot;</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mi">640</span> <span class="c1">#1</span>
+<span class="n">height</span> <span class="o">=</span> <span class="mi">480</span> <span class="c1">#2</span>
+<span class="n">myScreen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+<span class="n">myTextFont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="s2">&quot;HoonWhitecatR.ttf&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">myText</span> <span class="o">=</span> <span class="n">myTextFont</span><span class="o">.</span><span class="n">render</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">maxHP</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">maxHP</span><span class="p">)),</span> <span class="kc">True</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">gray</span><span class="p">)</span>
+<span class="n">myTextArea</span> <span class="o">=</span> <span class="n">myText</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+<span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#3</span>
+<span class="n">fpsClock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span> <span class="c1">#4</span>
+    <span class="n">HP</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">myText</span> <span class="o">=</span> <span class="n">myTextFont</span><span class="o">.</span><span class="n">render</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">HP</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">maxHP</span><span class="p">)),</span> <span class="kc">True</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">gray</span><span class="p">)</span>
+
+        <span class="n">myScreen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">gray</span><span class="p">)</span>
+
+        <span class="n">myScreen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">myText</span><span class="p">,</span> <span class="n">myTextArea</span><span class="p">)</span>
+        <span class="n">drawHP</span><span class="p">(</span><span class="n">HP</span><span class="p">)</span> <span class="c1">#5</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_UP</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">HP</span> <span class="o">!=</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="n">HP</span> <span class="o">=</span> <span class="n">HP</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_DOWN</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">HP</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">HP</span> <span class="o">=</span> <span class="n">HP</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">fpsClock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">drawHP</span><span class="p">(</span><span class="n">HP</span><span class="p">):</span> <span class="c1">#6</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">height</span> <span class="o">-</span> <span class="mi">40</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxHP</span><span class="p">)</span>
+
+    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">myScreen</span><span class="p">,</span> <span class="n">black</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">((</span><span class="n">maxHP</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxHP</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">HP</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">maxHP</span> <span class="o">-</span> <span class="n">i</span><span class="p">):</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">myScreen</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">r</span><span class="p">),</span> <span class="mi">20</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">myScreen</span><span class="p">,</span> <span class="n">white</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">r</span><span class="p">),</span> <span class="mi">20</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span> <span class="c1">#7</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/main/docs/reST/tut/ko/빨간블록 검은블록/5.HP바/심화 출력 그리고 심화 처리.rst" rel="nofollow">Edit on GitHub</a>
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../6.%EB%B2%84%ED%8A%BC%EB%93%A4/%EC%8B%AC%ED%99%94%20%EC%9E%85%EB%A0%A5%20%EA%B7%B8%EB%A6%AC%EA%B3%A0%20%EC%8B%AC%ED%99%94%20%EC%B6%9C%EB%A0%A5.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../4.%ED%85%8D%EC%8A%A4%ED%8A%B8%20%EC%A1%B0%EC%A2%85/%EA%B8%B0%EC%B4%88%20%EC%9E%85%EB%A0%A5.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pygame v2.6.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Author: Youngwook Kim (Korean)</a></li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2000-2023, pygame developers.
+    </div>
+  </body>
+</html>

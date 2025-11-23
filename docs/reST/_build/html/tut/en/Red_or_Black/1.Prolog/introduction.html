@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Author: Youngwook Kim (Korean) &#8212; pygame v2.6.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygame.css?v=a854c6a8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="icon" href="../../../../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Author: Youngwook Kim (Korean)" href="../2.Print_text/Basic%20TEMPLATE%20and%20OUTPUT.html" />
+    <link rel="prev" title="Newbie Guide to Pygame" href="../../../newbieguide.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+	<div class="flex-container">
+	<div class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../../../../_static/pygame_tiny.png" alt="logo image"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</div>
+	<div class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../../../../index.html">Help Contents</a> ||
+	    <a href="../../../../genindex.html">Reference Index</a>
+
+        <form action="../../../../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><strong>Most useful stuff</strong>:
+	    <a href="../../../../ref/color.html">Color</a> | 
+	    <a href="../../../../ref/display.html">display</a> | 
+	    <a href="../../../../ref/draw.html">draw</a> | 
+	    <a href="../../../../ref/event.html">event</a> | 
+	    <a href="../../../../ref/font.html">font</a> | 
+	    <a href="../../../../ref/image.html">image</a> | 
+	    <a href="../../../../ref/key.html">key</a> | 
+	    <a href="../../../../ref/locals.html">locals</a> | 
+	    <a href="../../../../ref/mixer.html">mixer</a> | 
+	    <a href="../../../../ref/mouse.html">mouse</a> | 
+	    <a href="../../../../ref/rect.html">Rect</a> | 
+	    <a href="../../../../ref/surface.html">Surface</a> | 
+	    <a href="../../../../ref/time.html">time</a> | 
+	    <a href="../../../../ref/music.html">music</a> | 
+	    <a href="../../../../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><strong>Advanced stuff</strong>:
+	    <a href="../../../../ref/cursors.html">cursors</a> | 
+	    <a href="../../../../ref/joystick.html">joystick</a> | 
+	    <a href="../../../../ref/mask.html">mask</a> | 
+	    <a href="../../../../ref/sprite.html">sprite</a> | 
+	    <a href="../../../../ref/transform.html">transform</a> | 
+	    <a href="../../../../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../../../../ref/freetype.html">freetype</a> | 
+	    <a href="../../../../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../../../../ref/midi.html">midi</a> | 
+	    <a href="../../../../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../../../../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../../../../ref/sndarray.html">sndarray</a> | 
+	    <a href="../../../../ref/surfarray.html">surfarray</a> | 
+	    <a href="../../../../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><strong>Other</strong>:
+	    <a href="../../../../ref/camera.html">camera</a> | 
+	    <a href="../../../../ref/sdl2_controller.html#module-pygame._sdl2.controller">controller</a> | 
+	    <a href="../../../../ref/examples.html">examples</a> | 
+	    <a href="../../../../ref/fastevent.html">fastevent</a> | 
+	    <a href="../../../../ref/scrap.html">scrap</a> | 
+	    <a href="../../../../ref/tests.html">tests</a> | 
+	    <a href="../../../../ref/touch.html">touch</a> | 
+	    <a href="../../../../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+</div>
+</div>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<section id="author-youngwook-kim-korean">
+</section>
+<section id="contact-rumia0601-gmail-com">
+</section>
+<section id="prolog-why-pygame">
+<p>As we know, every kind of game has 3 sections (Because game is a subgroup of program): <strong>input</strong>, <strong>process</strong> and <strong>output</strong>. If you want to make a game in C <strong>console environment</strong> (Write C source code then execute that on the console) simply, all you have to do is just using lots of scanf(or unnormalized getch function) functions and procedural complex algorithm followed by printf(with blinking clear function) functions with ASCII arts! However, when you get bored of making outdated, graphic-less CUI, discontinuous game, now it’s time to learn GUI based game making tool. You can directly enter into Unity <strong>game engine</strong> or Unreal game engine. However, there are too much barrier to overcome. Quaternion for 3D collision, Mechanim/Legacy animation compatibility, Larger memory/Faster CPU for simulate in high-graphic mod, and etc! So, there is a dilemma between console environment and game engine. Can this dilemma to be solved?</p>
+<img alt="../../../../_images/introduction-PuyoPuyo.png" src="../../../../_images/introduction-PuyoPuyo.png" />
+<p>Example of C console game - PuyoPuyo</p>
+<img alt="../../../../_images/introduction-TPS.png" src="../../../../_images/introduction-TPS.png" />
+<p>Example of Unity Engine game - TPS</p>
+<p>Yes. Pygame can solve that. Pygame is an external library of <strong>Python</strong> which enables you to make a <strong>game</strong>. Pygame has advantages of console environment. For example, single pygame project nearly equals single source code, so we have to focus on writing source code only. (with some sound file or some image file in the same directory). Because Pygame is not a tool but a library, single command “import pygame” makes current source code to use pygame’s everything. That is, Pygame is simple to access. Pygame has advantages of game engine, too. For example, Pygame provide input functions (which check every possible state of keyboard, mouse and even files) and output functions (drawing geometry, fill certain colors or set display) to user. That is, user can run the program on the GUI environment if it based on Pygame. Because Pygame is based on Python, functions in Pygame project can be executed selectively, even almost simultaneously. That is, Pygame is event-driven.</p>
+<img alt="../../../../_images/introduction-Battleship.png" src="../../../../_images/introduction-Battleship.png" />
+<p>Example of Pygame - Battleship</p>
+<p>So, Pygame has both good point of console environment (example of low-level game maker) and game engine (example of high-level game maker). Pygame is good <strong>intersection</strong> between console environment to game engine. That’s enough to use Pygame. No need to master it (if your dream is one-man game developer in advanced game engine, start to learn about that game engine right now!), but at least, try Pygame. (if you are interested in any kind of unique program including game maker or if you want to code any game on advanced environment aside from console environment)</p>
+</section>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/main/docs/reST/tut/en/Red_or_Black/1.Prolog/introduction.rst" rel="nofollow">Edit on GitHub</a>
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../2.Print_text/Basic%20TEMPLATE%20and%20OUTPUT.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../../newbieguide.html" title="Newbie Guide to Pygame"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pygame v2.6.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Author: Youngwook Kim (Korean)</a></li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2000-2023, pygame developers.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,132 @@
+====================================
+Author: Youngwook Kim (Korean)
+====================================
+
+====================================
+Contact: rumia0601@gmail.com
+====================================
+
+====================================
+기본 형식과 기초 출력
+====================================
+
+====================================
+–이벤트 기반과 GUI 기반으로의 입문
+====================================
+앞서 말했듯, 파이게임은 GUI를 기반으로 한다. 정확히는, 파이게임은 2D용 입력, 출력 함수를 사용하여 2D GUI를 기반으로 한다. 어찌됐든, CUI환경에서만 먹히는 파이썬의 print함수나 input함수와는 이별을 해야 한다. 그렇다면, 파이게임의 어떤 함수가 print/input함수를 대체하는가? 우선, 프로그래밍 언어의 기본 형식과 출력을 배우는 친숙한 예제인 “Hello World!”프로젝트로 되돌아가야 한다. (이 프로젝트는 같은 디렉토리에 .ttf확장자를 가지는 폰트 파일을 필요로 한다.)
+
+
+.. image:: Basic-ouput-sourcecode.png
+   :class: inlined-right
+
+.. code-block:: python
+
+   import sys, pygame
+   pygame.init()
+
+   size = width, height = 220, 140
+   speed = [2, 2]
+   black = 0, 0, 0
+
+   screen = pygame.display.set_mode(size)
+
+   ball = pygame.image.load("Basic-ouput-sourcecode.png")
+   ballrect = ball.get_rect()
+
+   while True:
+       for event in pygame.event.get():
+           if event.type == pygame.QUIT: sys.exit()
+
+       ballrect = ballrect.move(speed)
+       if ballrect.left < 0 or ballrect.right > width:
+           speed[0] = -speed[0]
+       if ballrect.top < 0 or ballrect.bottom > height:
+           speed[1] = -speed[1]
+
+       screen.fill(black)
+       screen.blit(ball, ballrect)
+       pygame.display.flip()
+
+
+.. image:: Bagic-ouput-result-screen.png
+   :class: inlined-right
+
+.. code-block:: python
+
+   import sys, pygame
+   pygame.init()
+
+   size = width, height = 220, 140
+   speed = [2, 2]
+   black = 0, 0, 0
+
+   screen = pygame.display.set_mode(size)
+
+   ball = pygame.image.load("Bagic-ouput-result-screen.png")
+   ballrect = ball.get_rect()
+
+   while True:
+       for event in pygame.event.get():
+           if event.type == pygame.QUIT: sys.exit()
+
+       ballrect = ballrect.move(speed)
+       if ballrect.left < 0 or ballrect.right > width:
+           speed[0] = -speed[0]
+       if ballrect.top < 0 or ballrect.bottom > height:
+           speed[1] = -speed[1]
+
+       screen.fill(black)
+       screen.blit(ball, ballrect)
+       pygame.display.flip()
+
+
+(Hello World 프로젝트의 소스 코드와 실행 결과)
+
+1줄짜리 print(“Hello World!”)에 비하면 소스 코드가 꽤 복잡하다. 이것은 GUI환경에서 텍스트는 최소 5개의 구성 성분(텍스트 내용, 폰트, 크기, 색상, 좌표)를 가지기 때문이다. GUI환경에서 텍스트는 1개의 구성 성분(텍스트 내용)만을 가지므로, 4개의 구성 성분이 추가된 셈이다. 예외적으로, #7의 pygame.display.set_caption(“Hello World Project”)함수는 print(“Hello World Project”)함수와 동일한 기능을 한다. 하지만, 이 함수 속 문자열은 프로그램의 윈도우 캡션에 고정된 문자열이다.
+
+우선, 무언가를 출력하기 위해선 소스코드가 어떻게 작성되어야 하는지 그 형식을 살펴보자. 소스코드는 4개의 부분으로 나눠질 수 있다. Header(#1-#2), Initial문(#3-#12), Always문(#13-#20), Event문(#16-#19)가 그것이다.
+
+Header에선, 모듈들을 import하는 작업이 실행된다. 여기에 import pygame, sys는 항상 필요하다. 이 프로젝트가 파이게임 프로젝트이며, 사용자가 프로그램을 종료하고 싶을 때 종료되어야 하기 때문에(실제로 #19에서 sys.exit()가 실행된다) 추가적인 설명이 필요 없는 당연한 문구이다. from pygame.locals import*는 #17에서의 QUIT같은 유용한 상수들을 선언 없이 사용하기 위해 거의 반필수적으로 필요하다.
+ 
+Initial문(무한 반복문 이전의 문장들)에선, 전역 변수가 한번만 초기화되거나 몇몇 함수가 한번만 호출된다. 주로 색상과 같은 전역 변수들이 가독성을 높이기 위해 초기화된다. 파이게임은 여러가지 색상을 사용하는 화려한 GUI임을 까먹어선 안된다. (게임이므로) 하나의 색상은 R값, G값, B값 3개의 구성 요소를 가진다. 그래서 색상 변수는 red = (255, 0, 0)와 같이 선언되어야 한다. pygame.init()과 같은 함수는 나중에 사용할 함수를 위해선 가장 앞서서 호출되어야 한다. (이 외의 함수들은 나중에 언급하겠다.)
+
+Always문(무한 반복문)에선, 전역 변수가 계속 업데이트되거나 몇몇 함수가 계속 호출된다. (물론, 조건문이 있는 경우 조건이 맞을 때만) pygame.display.update() 라는 함수는 일반적으로 다른 변수/함수의 처리가 끝난 이후에 호출되는데, 이 함수는 처리의 결과물들을 스크린(= 모니터)에 출력하는 함수이기 때문이다. 이 함수가 Always문 마지막에 실행되지 않으면, 출력되는 화면과 게임 내부 데이터가 서로 일치하지 않는 문제가 생길 수 있다. (이 외의 함수들은 나중에 언급하겠다.)
+
+Event문(모든 이벤트를 체크하는 반복문)에선, 특정 이벤트가 발생하면 이에 대한 처리가 이루어진다. pygame.event.get() 함수는 Always문에서 발생한 이벤트들의 배열을 반환한다. 그리고 이 이벤트들은 자동적으로 발생 시간순으로 정렬된다. 그러므로, for-in문을 쓰면, Always문에서 발생한 모든 이벤트들을 순차적으로 처리할 수 있다 (이벤트 기반). 예를 들어서, #17-#19는 QUIT라는 이벤트를 처리하고 있다. 이 이벤트가 트리거되면, 파이게임이 종료된 이후 시스템이 종료되게 된다. (이 외의 함수들은 나중에 언급하겠다.)
+
+기본 형식이 고정되어 있다고 가정하면, 이 형식에 일부 함수들을 적절히 삽입하면 “Hello World!”가 출력되게 할 수 있다. 첫째로, 텍스트의 폰트와 크기가 정해져야 한다. pygame.font.Font(“HoonWhiteCatR,ttf”, 32) 라는 #9의 함수는 주어진 이름의 ttf파일로 폰트를 정하고 크기 (이 경우 32)도 정한다. 이 함수의 반환 값은 myTextFont라는 객체에 저장해 두었다. 그리고 myTextFont객체의 render(“Hello World!”, True, red, green)라는 #10의 함수의 반환 값을 myText라는 객체에 저장해 두었다. render 함수는 텍스트 내용과 색상을 정할 수 있다. 이 경우, 텍스트의 색상은 빨간 색, 텍스트가 아닌 구역의 색상은 초록 색이 된다. myText객체의 get_rect() 라는 #11의 함수의 반환 값을 myTextArea라는 객체에 저장해 두는데, myTextArea는 텍스트를 출력하기 위해 할당된 구역을 의미한다. get_rect()라는 함수는 텍스트의 폰트 크기와 텍스트의 길이를 고려하여 적절한 직사각형 공간을 반환한다. 만약 myTextArea라는 객체의 center라는 멤버 변수를 텍스트가 화면 정중앙에 오게끔 수정한다면, (#12) 텍스트의 위치를 화면 정중앙으로 오게 알 수 있다.
+
+하지만 화면 정중앙을 어떻게 알아낼 수 있을까? 우선, 화면의 전체 크기를 정해야 한다. #8의 pygame.display.set_mode((640,480)) 함수는 캔버스 (크기, 색상, 위치 정보를 가지는 변수들이 display.update함수가 호출되면 그려지는 공간)를 생성하고 그 크기를 640 x 480으로 고정시킨다. 그렇다면, 화면의 정중앙은 (320, 240)이다. 화면의 전체 크기가 확정된다면, 약간의 계산만 하면 모든 종류의 위치를 결정할 수 있게 된다. (2D GUI이므로 출력되는 모든 것은 x, y성분을 가진다) (오른쪽이 x좌표가 크고, 아래쪽이 y좌표가 큼을 헷갈리면 안된다. 앞서서 말한 함수들은 모두 Initial문에 실행되어야 하는 것들이다, 왜나하면 이 정보들은 프로그램 도중 업데이트가 필요 없기 때문이다.
+
+물론, fill함수나 blit함수는 함수의 특성 때문에 Always문에 실행된다. #14의 fill(white) 함수는 캔버스를 단색(하얀색)으로 채우는 기능을 수행한다. #15의 blit(myText, myTextArea)는 특정 객체(myText)를 특정 위치(myTextArea)에 그리는 기능을 수행한다. blit이 fill 이후에 수행되어야 한다. 모든 것이 캔버스에 그려지고 나면, 캔버스의 결과물은 display.update함수가 실행되면 출력되게 된다.
+
+이것이 20줄짜리 소스코드를 위한 설명이었다. 20줄짜리 소스코드 치곤 작동 원리를 이해하는 데 시간이 오래 걸리는 것 같다. 하지만, 이 소스코드에 무언가를 추가하거나 수정하는 것은 그다지 어렵지 않을 것이다. 이 소스코드의 기본 형식과 출력을 위한 기본 단계를 이해했다면 말이다. 여기에 처리 로직을 추가하는 것은 어떨까? 다음 프로젝트에서 진행될 것이다.
+
+
+<참고 코드> ::
+
+    import pygame, sys #1
+    from pygame.locals import* #2
+
+    white = (255,255,255) #3
+    red = (255,0,0) #4
+    green = (0,255,0) #5
+    pygame.init() #6
+    pygame.display.set_caption("Hello World Project") #7
+    myScreen = pygame.display.set_mode((640, 480)) #8
+    myTextFont = pygame.font.Font("HoonWhitecatR.ttf", 32) #9
+    myText = myTextFont.render("Hello World!", True, red, green) #10 
+    myTextArea = myText.get_rect() #11
+    myTextArea.center = (320, 240) #12
+
+    while True: #13
+        myScreen.fill(white) #14
+        myScreen.blit(myText, myTextArea) #15
+
+        for event in pygame.event.get(): #16
+            if event.type == QUIT: #17
+                pygame.quit() #18
+                sys.exit() #19
+
+        pygame.display.update() #20
+

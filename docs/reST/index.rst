@@ -25,6 +25,8 @@ execution. That freedom means it is easy to mess up in your initial steps.
 Here is a good example of a basic setup (opens the window, updates the screen, and handles events)--
 
 .. literalinclude:: ref/code_examples/base_script.py
+      :class: frontpage-code
+
 
 Here is a slightly more fleshed out example, which shows you how to move something
 (a circle in this case) around on screen--

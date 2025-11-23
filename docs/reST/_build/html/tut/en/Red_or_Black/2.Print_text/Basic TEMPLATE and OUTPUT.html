@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Author: Youngwook Kim (Korean) &#8212; pygame v2.6.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygame.css?v=a854c6a8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="icon" href="../../../../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Author: Youngwook Kim (Korean)" href="../3.Move_text/Basic%20PROCESS.html" />
+    <link rel="prev" title="Author: Youngwook Kim (Korean)" href="../1.Prolog/introduction.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+	<div class="flex-container">
+	<div class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../../../../_static/pygame_tiny.png" alt="logo image"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</div>
+	<div class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../../../../index.html">Help Contents</a> ||
+	    <a href="../../../../genindex.html">Reference Index</a>
+
+        <form action="../../../../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><strong>Most useful stuff</strong>:
+	    <a href="../../../../ref/color.html">Color</a> | 
+	    <a href="../../../../ref/display.html">display</a> | 
+	    <a href="../../../../ref/draw.html">draw</a> | 
+	    <a href="../../../../ref/event.html">event</a> | 
+	    <a href="../../../../ref/font.html">font</a> | 
+	    <a href="../../../../ref/image.html">image</a> | 
+	    <a href="../../../../ref/key.html">key</a> | 
+	    <a href="../../../../ref/locals.html">locals</a> | 
+	    <a href="../../../../ref/mixer.html">mixer</a> | 
+	    <a href="../../../../ref/mouse.html">mouse</a> | 
+	    <a href="../../../../ref/rect.html">Rect</a> | 
+	    <a href="../../../../ref/surface.html">Surface</a> | 
+	    <a href="../../../../ref/time.html">time</a> | 
+	    <a href="../../../../ref/music.html">music</a> | 
+	    <a href="../../../../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><strong>Advanced stuff</strong>:
+	    <a href="../../../../ref/cursors.html">cursors</a> | 
+	    <a href="../../../../ref/joystick.html">joystick</a> | 
+	    <a href="../../../../ref/mask.html">mask</a> | 
+	    <a href="../../../../ref/sprite.html">sprite</a> | 
+	    <a href="../../../../ref/transform.html">transform</a> | 
+	    <a href="../../../../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../../../../ref/freetype.html">freetype</a> | 
+	    <a href="../../../../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../../../../ref/midi.html">midi</a> | 
+	    <a href="../../../../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../../../../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../../../../ref/sndarray.html">sndarray</a> | 
+	    <a href="../../../../ref/surfarray.html">surfarray</a> | 
+	    <a href="../../../../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><strong>Other</strong>:
+	    <a href="../../../../ref/camera.html">camera</a> | 
+	    <a href="../../../../ref/sdl2_controller.html#module-pygame._sdl2.controller">controller</a> | 
+	    <a href="../../../../ref/examples.html">examples</a> | 
+	    <a href="../../../../ref/fastevent.html">fastevent</a> | 
+	    <a href="../../../../ref/scrap.html">scrap</a> | 
+	    <a href="../../../../ref/tests.html">tests</a> | 
+	    <a href="../../../../ref/touch.html">touch</a> | 
+	    <a href="../../../../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+</div>
+</div>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<section id="author-youngwook-kim-korean">
+</section>
+<section id="contact-rumia0601-gmail-com">
+</section>
+<section id="basic-template-and-output">
+</section>
+<section id="into-event-driven-and-gui">
+<p>As I said, Pygame is based on GUI environment. Furthermore, Pygame is good for making 2D game because of its input/output format. So, you have to say good-bye for print or input standard function of Python (Because they work only on CUI environment). Then, what functions in Pygame replace these functions? First, we have to go back to friendly “Hello World!” project, which is learning about basic template and output. <strong>(Requiring any font file(.ttf) in the same project directory)</strong></p>
+<img alt="../../../../_images/Basic-ouput-sourcecode.png" src="../../../../_images/Basic-ouput-sourcecode.png" />
+<img alt="../../../../_images/Bagic-ouput-result-screen.png" src="../../../../_images/Bagic-ouput-result-screen.png" />
+<p>Source Code for Hello World Project and its result screen</p>
+<p>Wow, it’s complicated in compare to python’s print(“Hello World”) (Just a single line command). It’s because text in GUI environment has 5 components: text contents, font, size, color and location. If you want to print any text into screen, you have to set other 4 components, not only string (unless when it is in GUI environment). Only <code class="docutils literal notranslate"><span class="pre">pygame.display.set_caption(“Hello</span> <span class="pre">World</span> <span class="pre">Project”)</span></code> function in #7 do the same function as python’s print(“Hello World Project”). The only difference is that output string is always on window caption (title of current program)</p>
+<p>First, look at the template of source code before understanding how to output something, source code can be dived into 4 sections: Header(#1-#2), Initial statement(#3-#12), Always statement(#13-#20) and Event statement(#16-#19).</p>
+<p>In <strong>Header</strong>, importing modules will be executed. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pygame,</span> <span class="pre">sys</span></code> is always needed. Needless to say, because this is pygame project and game has to be terminated when player want to exit(<code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code> at #19). <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">pygame.locals</span> <span class="pre">import*</span></code> is also necessary to use useful constants just like <code class="docutils literal notranslate"><span class="pre">QUIT</span></code> at #17.
+In <strong>Initial statement</strong> (commands before infinite loop), some global values will be initialized and some functions will be called for one time. Global values just like colors has to be initialized here in order to increase readability. Remember, this is GUI which is colorful. Color has three components: red, green and blue. So, color value has to be initialized just like <code class="docutils literal notranslate"><span class="pre">red</span> <span class="pre">=</span> <span class="pre">(255,</span> <span class="pre">0,</span> <span class="pre">0)</span></code>. Function named <code class="docutils literal notranslate"><span class="pre">pygame.init()</span></code> must be called preceding to other pygame functions. Then other pygame functions can be executed. (Other pygame functions will be explained later.)</p>
+<p>In <strong>Always statement</strong> (commands within infinite loop), some global values will be updated routinely and some functions will be called routinely unless they are enclosed into conditional statement. Function named <code class="docutils literal notranslate"><span class="pre">pygame.display.update()</span></code> should be called after every processes are done. Because this function is printing the results of processes onto screen(=monitor). If this function is not executed in the last part of Always statement, there will be a probability that current screen and internal data does not match. (Other pygame functions will be explained later.)</p>
+<p>In <strong>Event statement</strong> (commands within loop which check every possible events), there will be suitable conditional statements when certain event is triggered. <code class="docutils literal notranslate"><span class="pre">pygame.event.get()</span></code> function returns a list of events occurred by processes in Always statement. And this list is automatically arranged by time (oldest to newest). So, using for-in statement, every triggered event caused by Always statement can be resolved procedurally. (Remind that this is the trait of event-driven.) For example, commands in #17-#19 will deal with QUIT event. In this case, pygame will be terminated then system will be terminated because system must be terminated after pygame is terminated! (Other events will be explained later.)</p>
+<p>Regarding this template is fixed, then we can add special functions in correct place to print “Hello World!”. First, we need to set <strong>font</strong> and <strong>size</strong>. <code class="docutils literal notranslate"><span class="pre">pygame.font.Font(“HoonWhiteCatR,ttf”,</span> <span class="pre">32)</span></code> function at #9 will set not only font by ttf file but also size (32). Return value of this function need to be stored into object(= myTextFont). Then member function of myTextFont named <code class="docutils literal notranslate"><span class="pre">render(“Hello</span> <span class="pre">World!”,</span> <span class="pre">True,</span> <span class="pre">red,</span> <span class="pre">green)</span></code> at #10 will return a value(= myText). render function can set <strong>text contents</strong> and <strong>color**(red is color of text, green is color of area outside of text). Then member function of myText named ``get_rect()`` at #11 will return a value(= myTextArea). myTextArea means the area allocated for printing text. When get_rect() is called, a rectangle area is returned corresponding to text’s length and font size. Now, all we have to do is locating this area somewhere. If we change member value of myTextArea named ``center`` at #12 into center of screen, then the text’s center **location</strong> will be center of the screen.</p>
+<p>But how to determine where is the center of screen? First, we have to decide the range of screen, by using <code class="docutils literal notranslate"><span class="pre">pygame.display.set_mode((640,480))</span></code> in #8, canvas(where all values which has size, color, position will be drawn when display.update is called) will be generated and its size becomes 640 x 480. Then, its center is exactly (320,240). If the total size is given, we can decide any position even accounting some margin with little calculation (Remind that in 2D GUI, everything has x and y which has to be printed) (Just like turtle graphic, if it goes <strong>right, x increases</strong>, if it goes <strong>down</strong>, <strong>y increase</strong>. Don’t confused!). And we know that all functions I mentioned will be putted into Initial statement, because this information are fixed while the program go on.
+Although everything is fixed, we have to design that fill and blit functions to be putted into Always statement, because of these functions’ trait. <code class="docutils literal notranslate"><span class="pre">fill(white)</span></code> function in #14 means filling canvas by single color(white). <code class="docutils literal notranslate"><span class="pre">blit(myText,</span> <span class="pre">myTextArea)</span></code> function in #15 means drawing specific object(= myText) on specific location(= myTextArea) of canvas. Notice that drawing(blit) has to be done after filling(fill). When everything is drawn on canvas, result of canvas will be display onto window when display.update is executed.</p>
+<p>That was the explanation of the entire source code, which has 20 lines. It seems it takes too much time to understand source code with only 20 lines. However, adding or changing from this source code is not that hard because we understand the template of this source code and step of printing. What about adding process logic in this source code? That will be next project.</p>
+<p>&lt;Reference Code&gt;</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pygame</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span> <span class="c1">#1</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pygame.locals</span><span class="w"> </span><span class="kn">import</span><span class="o">*</span> <span class="c1">#2</span>
+
+<span class="n">white</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span> <span class="c1">#3</span>
+<span class="n">red</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#4</span>
+<span class="n">green</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#5</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span> <span class="c1">#6</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Hello World Project&quot;</span><span class="p">)</span> <span class="c1">#7</span>
+<span class="n">myScreen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span> <span class="c1">#8</span>
+<span class="n">myTextFont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="s2">&quot;HoonWhitecatR.ttf&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span> <span class="c1">#9</span>
+<span class="n">myText</span> <span class="o">=</span> <span class="n">myTextFont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">)</span> <span class="c1">#10</span>
+<span class="n">myTextArea</span> <span class="o">=</span> <span class="n">myText</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span> <span class="c1">#11</span>
+<span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span> <span class="c1">#12</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span> <span class="c1">#13</span>
+    <span class="n">myScreen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">white</span><span class="p">)</span> <span class="c1">#14</span>
+    <span class="n">myScreen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">myText</span><span class="p">,</span> <span class="n">myTextArea</span><span class="p">)</span> <span class="c1">#15</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span> <span class="c1">#16</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span> <span class="c1">#17</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span> <span class="c1">#18</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span> <span class="c1">#19</span>
+
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span> <span class="c1">#20</span>
+</pre></div>
+</div>
+</section>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/main/docs/reST/tut/en/Red_or_Black/2.Print_text/Basic TEMPLATE and OUTPUT.rst" rel="nofollow">Edit on GitHub</a>
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../3.Move_text/Basic%20PROCESS.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../1.Prolog/introduction.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pygame v2.6.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Author: Youngwook Kim (Korean)</a></li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2000-2023, pygame developers.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Author: Youngwook Kim (Korean) &#8212; pygame v2.6.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygame.css?v=a854c6a8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="icon" href="../../../../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Author: Youngwook Kim (Korean)" href="../4.Control_text/Basic%20INPUT.html" />
+    <link rel="prev" title="Author: Youngwook Kim (Korean)" href="../2.Print_text/Basic%20TEMPLATE%20and%20OUTPUT.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+	<div class="flex-container">
+	<div class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../../../../_static/pygame_tiny.png" alt="logo image"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</div>
+	<div class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../../../../index.html">Help Contents</a> ||
+	    <a href="../../../../genindex.html">Reference Index</a>
+
+        <form action="../../../../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><strong>Most useful stuff</strong>:
+	    <a href="../../../../ref/color.html">Color</a> | 
+	    <a href="../../../../ref/display.html">display</a> | 
+	    <a href="../../../../ref/draw.html">draw</a> | 
+	    <a href="../../../../ref/event.html">event</a> | 
+	    <a href="../../../../ref/font.html">font</a> | 
+	    <a href="../../../../ref/image.html">image</a> | 
+	    <a href="../../../../ref/key.html">key</a> | 
+	    <a href="../../../../ref/locals.html">locals</a> | 
+	    <a href="../../../../ref/mixer.html">mixer</a> | 
+	    <a href="../../../../ref/mouse.html">mouse</a> | 
+	    <a href="../../../../ref/rect.html">Rect</a> | 
+	    <a href="../../../../ref/surface.html">Surface</a> | 
+	    <a href="../../../../ref/time.html">time</a> | 
+	    <a href="../../../../ref/music.html">music</a> | 
+	    <a href="../../../../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><strong>Advanced stuff</strong>:
+	    <a href="../../../../ref/cursors.html">cursors</a> | 
+	    <a href="../../../../ref/joystick.html">joystick</a> | 
+	    <a href="../../../../ref/mask.html">mask</a> | 
+	    <a href="../../../../ref/sprite.html">sprite</a> | 
+	    <a href="../../../../ref/transform.html">transform</a> | 
+	    <a href="../../../../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../../../../ref/freetype.html">freetype</a> | 
+	    <a href="../../../../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../../../../ref/midi.html">midi</a> | 
+	    <a href="../../../../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../../../../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../../../../ref/sndarray.html">sndarray</a> | 
+	    <a href="../../../../ref/surfarray.html">surfarray</a> | 
+	    <a href="../../../../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><strong>Other</strong>:
+	    <a href="../../../../ref/camera.html">camera</a> | 
+	    <a href="../../../../ref/sdl2_controller.html#module-pygame._sdl2.controller">controller</a> | 
+	    <a href="../../../../ref/examples.html">examples</a> | 
+	    <a href="../../../../ref/fastevent.html">fastevent</a> | 
+	    <a href="../../../../ref/scrap.html">scrap</a> | 
+	    <a href="../../../../ref/tests.html">tests</a> | 
+	    <a href="../../../../ref/touch.html">touch</a> | 
+	    <a href="../../../../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+</div>
+</div>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<section id="author-youngwook-kim-korean">
+</section>
+<section id="contact-rumia0601-gmail-com">
+</section>
+<section id="basic-process">
+</section>
+<section id="setting-for-animation">
+<p>Previous project looks like a single image instead of game. Because there is no input neither process to control output. Of course, clicking exit button on window is not counted because it is just shutting down the entire program. First, we will let text “Hello World!” to move automatically (and now project will be looks like an animation rather than single image), which means adding first processing logic on this project. How to move text? We know that location of text is initialized in Initial statement. So, location of text should be updated in Always statement, with adding some variable to process something.</p>
+<img alt="../../../../_images/Bagic-PROCESS-sourcecode.png" src="../../../../_images/Bagic-PROCESS-sourcecode.png" />
+<img alt="../../../../_images/Bagic-PROCESS-resultscreen.png" src="../../../../_images/Bagic-PROCESS-resultscreen.png" />
+<p>(Source Code for Moving World Project and its result screen)</p>
+<p>(Not the entire source code of Moving World Project, but part)</p>
+<p>(Moving World! moves automatically just like Arkanoid ball or DVD screensaver.)</p>
+<p>New line #1 - #5 were appended at the end of Initial statement. Also, multiple if-else phases (#6 - #9) were inserted at the beginning of Always statement, with line #11 at the end of always statements. We can understand what commands of #2 - #10 do. They just change variables for position of “Moving World” when Always statement being started. But there is a problem. How fast is “Moving World?” It is sure that displacement of “Moving World” is sqrt(2) (simple Pythagorean equation). But how often displacement of “Moving World” is changed? It can’t be determined without calculating time complexity of Always statement! (Because it depends on how often Always statement being started) And time complex will be differ to computer to computer, so can’t be fixed.</p>
+<p>We need to add the conception of <strong>fixed speed</strong> into this project. How? Look at #1 and #11. There is <code class="docutils literal notranslate"><span class="pre">pygame.time.Clock()</span></code> on Initial statement and <code class="docutils literal notranslate"><span class="pre">tick(60)</span></code> on Always statement. 60 means FPS (frame rate per second). We know that FPS means how often display is changed in 1 second. What function means change (= update) display in pygame? That’s right. Pygame.display.update() function. So, FPS means how often Always statement being executed in 1 second. Because there is 1 Pygame.display.update() function in 1 always statements. (So, FPS means <strong>selective delay</strong> according to current program’s process speed, <strong>not selective acceleration</strong>, so FPS cannot work if FPS is too high.) If we let fps(= <strong>time</strong>) to be fixed in this project, we can change <strong>velocity</strong> of certain game object by finding appropriate value for <strong>displacement</strong>. pygame.time.Clock() is needed to fix the speed of project before game started. Notice that tick function has to be called when Pygame.display.update() is called. Because tick counts the number of update function. It is one of the exception of function that can be executed after Pygame.display.update().</p>
+<p>Okay, we learn that “Fixing time” is needed when screen is updated. Every screen of dynamic game is frequently changed unless it is static game. So, we have to know that. However, this project isn’t look like a game because its result can be anticipated easily (there is no input to change result) Now, input logic will be inserted.</p>
+<p>&lt;Reference Code&gt;</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pygame</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pygame.locals</span><span class="w"> </span><span class="kn">import</span><span class="o">*</span>
+
+<span class="n">white</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">red</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">green</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Moving World Project&quot;</span><span class="p">)</span>
+<span class="n">myScreen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>
+<span class="n">myTextFont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="s2">&quot;HoonWhitecatR.ttf&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">myText</span> <span class="o">=</span> <span class="n">myTextFont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;Moving World!&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">)</span>
+<span class="n">myTextArea</span> <span class="o">=</span> <span class="n">myText</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+<span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+<span class="n">fpsClock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span> <span class="c1">#1</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#2</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#3</span>
+<span class="n">moveRight</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#4</span>
+<span class="n">moveUp</span><span class="o">=</span> <span class="mi">1</span> <span class="c1">#5</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">moveRight</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1">#6</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">320</span> <span class="o">-</span> <span class="mi">75</span><span class="p">):</span>
+            <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">moveRight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span> <span class="c1">#7</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">320</span> <span class="o">+</span> <span class="mi">75</span><span class="p">):</span>
+            <span class="n">moveRight</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">moveUp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1">#8</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">240</span> <span class="o">-</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="n">moveUp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">moveUp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span> <span class="c1">#9</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">240</span> <span class="o">+</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="n">moveUp</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+
+<span class="n">myTextArea</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span> <span class="o">+</span> <span class="n">x</span><span class="p">,</span> <span class="mi">240</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="c1">#10</span>
+
+<span class="n">myScreen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">white</span><span class="p">)</span>
+<span class="n">myScreen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">myText</span><span class="p">,</span> <span class="n">myTextArea</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="n">fpsClock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span> <span class="c1">#11</span>
+</pre></div>
+</div>
+</section>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/main/docs/reST/tut/en/Red_or_Black/3.Move_text/Basic PROCESS.rst" rel="nofollow">Edit on GitHub</a>
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../4.Control_text/Basic%20INPUT.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../2.Print_text/Basic%20TEMPLATE%20and%20OUTPUT.html" title="Author: Youngwook Kim (Korean)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pygame v2.6.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Author: Youngwook Kim (Korean)</a></li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2000-2023, pygame developers.
+    </div>
+  </body>
+</html>
