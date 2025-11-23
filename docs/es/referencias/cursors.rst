@@ -208,7 +208,7 @@ Las siguientes cadenas de caracteres se pueden convertir en mapas de bits de cur
    Cuando el cursor del mouse está visible, se mostrará como un mapa de bits 
    en blanco y negro utilizando los arrays de máscaras (bitmask) dadas. El 
    ``size`` (tamaño) es una secuencia que contiene el ancho y alto del cursor. 
-   El ``hotspot``es una secuencia que contiene la posición del hotspot del 
+   El ``hotspot`` es una secuencia que contiene la posición del hotspot del 
    cursor.
    
    Un cursor tiene un ancho y alto, pero la posición del mouse está 

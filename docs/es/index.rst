@@ -9,6 +9,7 @@ Página Principal de Pygame
    referencias/*
    tutorials/*
    logos
+   color_list
 
 Documentos
 ----------

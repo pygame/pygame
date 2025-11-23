@@ -15,6 +15,7 @@ Even if KEYDOWN event is used, it seems like this is not entirely GUI game becau
 .. image:: AdvancedInputOutput1.gif
 
 .. image:: AdvancedInputOutput2.gif
+    
 Okay, making two buttons is simple. Look at the button, they have unique visual shape. How can it be? Simple as previous idea: First, draw **big square**. Second, draw **smaller square** which has small width (this square doesn’t have inner color so color of big square can be displayed) so inner square and outer square seems like separated. But these buttons are still for output only. We need to make click area for this.
 
 .. image:: AdvancedInputOutput3.gif
@@ -114,4 +115,3 @@ In the case of button, input and output area for button must be **identical**. (
     
     if __name__ == '__main__':
         main()
-    

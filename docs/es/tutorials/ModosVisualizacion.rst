@@ -148,8 +148,8 @@ documentación del modo de visualización.
     banderas solicitadas.
     Cuando no hay modos van a obtener como devolución una lista vacía.
     El argumento de las banderas por defecto es 
-    :any:`FULLSCREEN <pygame.display.set_mode>`\ .
-    Si especifican sus propias banderas sin :any:`FULLSCREEN <pygame.display.set_mode>`\ ,
+    :const:`FULLSCREEN <pygame.display.set_mode>`\  .
+    Si especifican sus propias banderas sin :const:`FULLSCREEN <pygame.display.set_mode>`\ ,
     probablemente obtengan una devolución con valor -1.
     Esto significa que cualquier tamaño de visualización está bien, ya que la 
     visualización va a ser en ventana.

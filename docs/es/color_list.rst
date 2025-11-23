@@ -673,7 +673,7 @@ Colores Nombrados
     .yellowgreen {background-color: #9acd32; color: #9acd32;}
     </style>
 
-:doc:`color` lets you specify any of these named colors when creating a new
+:doc:`referencias/color` lets you specify any of these named colors when creating a new
 ``pygame.Color`` (taken from the
 `colordict module <https://github.com/pygame/pygame/blob/main/src_py/colordict.py>`_).
 

@@ -51,7 +51,7 @@
    Se puede pasar como argumento ``color_value`` a :class:`Color`
    (útil con conjuntos).
 
-   Ver :doc:`color_list` para ejemplos de nombres de colores disponibles.
+   Ver :doc:`../color_list` para ejemplos de nombres de colores disponibles.
 
    :param int r: el valor rojo en el rango de 0 a 255 inclusive
    :param int g: el valor verde en el rango de 0 a 255 inclusive
@@ -64,7 +64,7 @@
          Formatos de ``color_value`` admitidos:
             | - **Objeto Color:** clona el objeto de clase :class:`Color` 
             | - **Nombre de color: str:** nombre del color a utilizar, por ejemplo ``'red'``
-              (todos los nombres admitidos se pueden encontrar en :doc:`color_list`, 
+              (todos los nombres admitidos se pueden encontrar en :doc:`../color_list`, 
               con muestras de ejemplo)
             | - **Formato de color HTML str:** ``'#rrggbbaa'`` o ``'#rrggbb'``,
               donde rr, gg, bb, y aa son números hexadecimales de 2 digitos 
@@ -192,7 +192,7 @@
       Tené en cuenta que esto no devolverá los valores ``I1I2I3`` exactos 
       para los valores ``RGB`` establecidos en todos los cosas. Debido a 
       la asignación de ``RGB`` de 0-255 y la asignación ``I1I2I3`` de 0-1, 
-      los errores de redondeo pueden hacer que los valores ``I1I2I3``difieran 
+      los errores de redondeo pueden hacer que los valores ``I1I2I3`` difieran 
       ligeramente de lo que podrías esperar.
 
       .. ## Color.i1i2i3 ##
