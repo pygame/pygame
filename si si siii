@@ -1,0 +1,397 @@
+import pygame
+
+# --- 1. Inicialización ---
+pygame.init()
+
+# Definiciones de la pantalla
+ANCHO = 800
+ALTO = 600
+PANTALLA = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Aventuras en el Reino del Caramelo")
+
+# Colores y Reloj
+BLANCO = (255, 255, 255)
+AZUL_CIELO = (135, 206, 235)
+RELOJ = pygame.time.Clock()
+FPS = 60
+
+# --- 2. Clase del Jugador (Choco) ---
+class Choco(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        # Usamos un simple cuadrado como placeholder para Choco
+        self.image = pygame.Surface([40, 60])
+        self.image.fill((139, 69, 19)) # Color Chocolate
+        self.rect = self.image.get_rect()
+        
+        # Vectores de movimiento
+        self.velocidad_x = 0
+        self.velocidad_y = 0
+        self.en_el_suelo = False
+        self.gravedad = 1.0
+        self.velocidad_salto = -20 # Valor negativo para saltar hacia arriba
+
+    def aplicar_gravedad(self):
+        if not self.en_el_suelo:
+            self.velocidad_y += self.gravedad
+        # Limitar la velocidad de caída máxima para evitar errores
+        if self.velocidad_y > 15:
+            self.velocidad_y = 15
+
+    def saltar(self):
+        # Solo permitir saltar si está en el suelo
+        if self.en_el_suelo:
+            self.velocidad_y = self.velocidad_salto
+            self.en_el_suelo = False
+
+    def mover(self, plataformas):
+        # 1. Movimiento en X
+        self.rect.x += self.velocidad_x
+        
+        # 2. Manejo de colisiones en X (Simplificado)
+        bloques_colisionados = pygame.sprite.spritecollide(self, plataformas, False)
+        for bloque in bloques_colisionados:
+            if self.velocidad_x > 0: # Moviéndose a la derecha
+                self.rect.right = bloque.rect.left
+            elif self.velocidad_x < 0: # Moviéndose a la izquierda
+                self.rect.left = bloque.rect.right
+
+        # 3. Aplicar y Mover en Y
+        self.aplicar_gravedad()
+        self.rect.y += self.velocidad_y
+        
+        # 4. Manejo de colisiones en Y
+        self.en_el_suelo = False
+        bloques_colisionados = pygame.sprite.spritecollide(self, plataformas, False)
+        for bloque in bloques_colisionados:
+            if self.velocidad_y > 0: # Cayendo
+                self.rect.bottom = bloque.rect.top
+                self.en_el_suelo = True
+            elif self.velocidad_y < 0: # Saltando/Subiendo
+                self.rect.top = bloque.rect.bottom
+            self.velocidad_y = 0 # Detener el movimiento vertical después de la colisión
+
+    def update(self, plataformas):
+        self.mover(plataformas)
+        
+    def detener_movimiento(self):
+        self.velocidad_x = 0
+
+# --- 3. Clase de Plataforma ---
+class Plataforma(pygame.sprite.Sprite):
+    def __init__(self, x, y, ancho, alto):
+        super().__init__()
+        # Usamos un rectángulo verde como placeholder
+        self.image = pygame.Surface([ancho, alto])
+        self.image.fill((152, 251, 152)) # Color Merengue/Menta
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+# --- 4. Configuración del Nivel ---
+def configurar_nivel():
+    plataformas_lista = pygame.sprite.Group()
+    
+    # Lista de coordenadas y dimensiones de plataformas: (x, y, ancho, alto)
+    datos_plataformas = [
+        (0, ALTO - 40, ANCHO, 40),  # Suelo
+        (100, ALTO - 100, 200, 20),
+        (450, ALTO - 150, 150, 20),
+    ]
+    
+    for datos in datos_plataformas:
+        plataforma = Plataforma(*datos)
+        plataformas_lista.add(plataforma)
+        
+    return plataformas_lista
+
+# --- 5. Bucle Principal del Juego ---
+def bucle_principal():
+    jugador = Choco()
+    jugador.rect.x = 50
+    jugador.rect.y = ALTO - 100
+    
+    todas_las_sprites = pygame.sprite.Group()
+    todas_las_sprites.add(jugador)
+    
+    plataformas = configurar_nivel()
+    for p in plataformas:
+        todas_las_sprites.add(p)
+
+    juego_corriendo = True
+    while juego_corriendo:
+        # --- Manejo de Eventos (Entrada de Usuario) ---
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                juego_corriendo = False
+            
+            # Movimiento y Salto
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_LEFT:
+                    jugador.velocidad_x = -5
+                if evento.key == pygame.K_RIGHT:
+                    jugador.velocidad_x = 5
+                if evento.key == pygame.K_SPACE:
+                    jugador.saltar()
+            
+            if evento.type == pygame.KEYUP:
+                if evento.key == pygame.K_LEFT and jugador.velocidad_x < 0:
+                    jugador.detener_movimiento()
+                if evento.key == pygame.K_RIGHT and jugador.velocidad_x > 0:
+                    jugador.detener_movimiento()
+
+        # --- Actualización del Juego ---
+        todas_las_sprites.update(plataformas)
+
+        # --- Renderizado (Dibujo) ---
+        PANTALLA.fill(AZUL_CIELO)
+        todas_las_sprites.draw(PANTALLA)
+        
+        # --- Finalizar Bucle y Sincronización ---
+        pygame.display.flip()
+        RELOJ.tick(FPS)
+
+    pygame.quit()
+
+# Ejecutar el juego
+if __name__ == "__main__":
+    bucle_principal()
+# --- 3.1. Clase del Enemigo (Marshmallow Patrullero) ---
+class Marshmallow(pygame.sprite.Sprite):
+    def __init__(self, x, y, limite_izq, limite_der):
+        super().__init__()
+        self.image = pygame.Surface([30, 30])
+        self.image.fill((255, 255, 255)) # Color Blanco (Marshmallow)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.velocidad_x = 2
+        
+        # Límites de patrulla
+        self.limite_izq = limite_izq
+        self.limite_der = limite_der
+        
+    def update(self):
+        # Mover
+        self.rect.x += self.velocidad_x
+        
+        # Comprobar límites y girar
+        if self.rect.right >= self.limite_der or self.rect.left <= self.limite_izq:
+            self.velocidad_x *= -1 # Invertir dirección
+# --- 3.2. Clase de Potenciador (Bombón Protector) ---
+class Bombon(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface([25, 25])
+        self.image.fill((255, 165, 0)) # Color Naranja/Dorado (Bombón)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+# Dentro de la clase Choco:
+class Choco(pygame.sprite.Sprite):
+    def __init__(self):
+        # ... código de inicialización anterior ...
+        self.tiene_escudo = False # NUEVA VARIABLE
+        # ...
+
+    # NUEVO MÉTODO para manejar colisiones con enemigos
+    def check_colision_enemigos(self, enemigos):
+        colisiones_enemigos = pygame.sprite.spritecollide(self, enemigos, False)
+        
+        for enemigo in colisiones_enemigos:
+            # Colisión con la parte superior (Aplastar)
+            if self.velocidad_y > 0 and self.rect.bottom <= enemigo.rect.top + 5:
+                # El jugador cae sobre el enemigo
+                self.velocidad_y = self.velocidad_salto * 0.5 # Rebote
+                enemigo.kill() # Eliminar enemigo
+                return "APLASTADO"
+            
+            # Colisión lateral o inferior (Recibir daño)
+            else:
+                if self.tiene_escudo:
+                    self.tiene_escudo = False
+                    return "ESCUDO_PERDIDO"
+                else:
+                    return "DAÑO"
+        return None
+
+    # NUEVO MÉTODO para manejar colisiones con potenciadores
+    def check_colision_potenciadores(self, potenciadores):
+        colisiones_potenciadores = pygame.sprite.spritecollide(self, potenciadores, True) # 'True' elimina el potenciador
+        
+        for potenciador in colisiones_potenciadores:
+            if isinstance(potenciador, Bombon):
+                self.tiene_escudo = True
+                print("¡Choco obtuvo el Bombón Protector!")
+# --- 4. Configuración del Nivel (MODIFICADO) ---
+def configurar_nivel():
+    plataformas_lista = pygame.sprite.Group()
+    enemigos_lista = pygame.sprite.Group()
+    potenciadores_lista = pygame.sprite.Group()
+    
+    # ... (código de datos de plataformas anterior) ...
+    datos_plataformas = [
+        (0, ALTO - 40, ANCHO, 40),  # Suelo
+        (100, ALTO - 100, 200, 20),
+        (450, ALTO - 150, 150, 20),
+    ]
+    
+    for datos in datos_plataformas:
+        plataforma = Plataforma(*datos)
+        plataformas_lista.add(plataforma)
+        
+    # Añadir Enemigos (x, y, límite_izquierdo, límite_derecho)
+    marshmallow1 = Marshmallow(150, ALTO - 70, 110, 280)
+    enemigos_lista.add(marshmallow1)
+    
+    # Añadir Potenciadores (x, y)
+    bombon1 = Bombon(500, ALTO - 180)
+    potenciadores_lista.add(bombon1)
+        
+    return plataformas_lista, enemigos_lista, potenciadores_lista
+# --- 5. Bucle Principal del Juego (MODIFICADO) ---
+def bucle_principal():
+    jugador = Choco()
+    jugador.rect.x = 50
+    jugador.rect.y = ALTO - 100
+    vidas = 3 # Inicializar vidas
+    
+    # Obtener los nuevos grupos de sprites
+    plataformas, enemigos, potenciadores = configurar_nivel()
+    
+    # Crear un grupo para todas las sprites (facilita el dibujo)
+    todas_las_sprites = pygame.sprite.Group()
+    todas_las_sprites.add(jugador)
+    todas_las_sprites.add(plataformas)
+    todas_las_sprites.add(enemigos)
+    todas_las_sprites.add(potenciadores)
+
+    juego_corriendo = True
+    while juego_corriendo:
+        # ... (Manejo de Eventos y Movimiento del Jugador sin cambios) ...
+
+        # --- Actualización del Juego ---
+        jugador.update(plataformas)
+        enemigos.update() # Los enemigos se mueven
+        
+        # Manejo de Colisiones entre Choco y Enemigos
+        resultado_colision = jugador.check_colision_enemigos(enemigos)
+        if resultado_colision == "DAÑO":
+            vidas -= 1
+            print(f"¡AUCH! Vidas restantes: {vidas}")
+            # Aquí iría la lógica de reaparición (ej: reiniciar posición)
+        elif resultado_colision == "ESCUDO_PERDIDO":
+            print("¡Bombón Protector perdido!")
+            
+        # Manejo de Colisiones entre Choco y Potenciadores
+        jugador.check_colision_potenciadores(potenciadores)
+        
+        # Condición de Game Over
+        if vidas <= 0:
+            print("GAME OVER")
+            juego_corriendo = False
+
+        # --- Renderizado (Dibujo) ---
+        PANTALLA.fill(AZUL_CIELO)
+        todas_las_sprites.draw(PANTALLA) # Dibuja todos los elementos
+
+        # ... (Finalizar Bucle y Sincronización) ...
+# --- 3.3. Clase de Proyectil (Bolita de Chocolate) ---
+class BolitaChocolate(pygame.sprite.Sprite):
+    def __init__(self, x, y, direccion):
+        super().__init__()
+        self.image = pygame.Surface([10, 10])
+        self.image.fill((101, 67, 33)) # Color Marrón Oscuro (Chocolate)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y) # Centro de la bolita
+        self.velocidad = 10 * direccion # Direccion: 1 para derecha, -1 para izquierda
+        
+    def update(self):
+        self.rect.x += self.velocidad
+        # Autodestruir si sale de la pantalla (opcional)
+        if self.rect.left > ANCHO or self.rect.right < 0:
+            self.kill()
+# Dentro de la clase Choco:
+class Choco(pygame.sprite.Sprite):
+    def __init__(self):
+        # ... código de inicialización anterior ...
+        self.ultima_vez_disparado = pygame.time.get_ticks()
+        self.retardo_disparo = 300 # Milisegundos entre disparos
+        self.direccion_mirando = 1 # 1 para derecha, -1 para izquierda
+        # ...
+
+    # Modificar el método mover para actualizar la dirección
+    def mover(self, plataformas):
+        # ...
+        if self.velocidad_x > 0:
+            self.direccion_mirando = 1
+        elif self.velocidad_x < 0:
+            self.direccion_mirando = -1
+        # ... (resto del código de mover) ...
+
+    # NUEVO MÉTODO para lanzar bolitas de chocolate
+    def lanzar_bolita(self):
+        ahora = pygame.time.get_ticks()
+        if ahora - self.ultima_vez_disparado > self.retardo_disparo:
+            self.ultima_vez_disparado = ahora
+            # La bolita se crea en la posición de Choco y con su dirección
+            return BolitaChocolate(self.rect.centerx, self.rect.centery, self.direccion_mirando)
+        return None
+# --- 5. Bucle Principal del Juego (MODIFICADO para Proyectiles) ---
+def bucle_principal():
+    jugador = Choco()
+    # ... (código de inicialización de jugador y vidas anterior) ...
+    
+    plataformas, enemigos, potenciadores = configurar_nivel()
+    
+    # NUEVO GRUPO para las bolitas de chocolate
+    bolitas_chocolate = pygame.sprite.Group() 
+
+    todas_las_sprites = pygame.sprite.Group()
+    todas_las_sprites.add(jugador)
+    todas_las_sprites.add(plataformas)
+    todas_las_sprites.add(enemigos)
+    todas_las_sprites.add(potenciadores)
+    # NOTA: bolitas_chocolate se añadirá a todas_las_sprites cuando se creen
+
+    juego_corriendo = True
+    while juego_corriendo:
+        # --- Manejo de Eventos (Entrada de Usuario) ---
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                juego_corriendo = False
+            
+            # ... (Manejo de teclas IZQUIERDA, DERECHA, ESPACIO anterior) ...
+            
+            if evento.type == pygame.KEYDOWN:
+                # NUEVO: Tecla para lanzar
+                if evento.key == pygame.K_a: # Usamos 'A' para lanzar
+                    bolita = jugador.lanzar_bolita()
+                    if bolita: # Si se lanzó una bolita (no hay retardo)
+                        bolitas_chocolate.add(bolita)
+                        todas_las_sprites.add(bolita) # Añadir a todas las sprites para que se dibuje
+            
+            # ... (Manejo de KEYUP anterior) ...
+
+        # --- Actualización del Juego ---
+        jugador.update(plataformas)
+        enemigos.update()
+        bolitas_chocolate.update() # Actualizar la posición de las bolitas
+        
+        # ... (Manejo de Colisiones entre Choco y Enemigos anterior) ...
+        # ... (Manejo de Colisiones entre Choco y Potenciadores anterior) ...
+
+        # NUEVO: Colisiones de Bolitas de Chocolate con Enemigos
+        # Recorrer cada bolita y comprobar si colisiona con algún enemigo
+        for bolita in bolitas_chocolate:
+            enemigos_golpeados = pygame.sprite.spritecollide(bolita, enemigos, True) # True: elimina al enemigo
+            if enemigos_golpeados:
+                bolita.kill() # Eliminar la bolita después de golpear
+                print("¡Enemigo golpeado por bolita de chocolate!")
+                # Aquí podrías sumar puntos, etc.
+
+        # --- Renderizado (Dibujo) ---
+        PANTALLA.fill(AZUL_CIELO)
+        todas_las_sprites.draw(PANTALLA) # Dibuja todo, incluyendo las bolitas
+        
+        # ... (Finalizar Bucle y Sincronización) ...
