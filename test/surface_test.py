@@ -429,6 +429,11 @@ class SurfaceTypeTest(unittest.TestCase):
         # since we are using negative coords, it should be an zero sized rect.
         self.assertEqual(tuple(r3), (0, 0, 0, 0))
 
+        # Doing same test as above, except this rect is only partially off the surface.
+        r4 = f2.fill(color2, (-16, -16, 32, 32))
+        # we should expect only the top left quadrant to be filled.
+        self.assertEqual(tuple(r4), (0, 0, 16, 16))
+
     def test_fill_keyword_args(self):
         """Ensure fill() accepts keyword arguments."""
         color = (1, 2, 3, 255)
