@@ -116,7 +116,7 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: dot
 
-      | :sl:`calculates the dot- or scalar-product with the other vector`
+      | :sl:`calculates the dot- or scalar-product with the other vector.`
       | :sg:`dot(Vector2) -> float`
 
       This operation also can be performed using the ``*`` operator:
@@ -127,7 +127,7 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: cross
 
-      | :sl:`calculates the cross- or vector-product`
+      | :sl:`calculates the cross- or vector-product.`
       | :sg:`cross(Vector2) -> float`
 
       calculates the third component of the cross-product.
@@ -259,7 +259,7 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`move_towards(Vector2, float) -> Vector2`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave move_towards feedback with authors <https://github.com/pygame/pygame/pull/2929>`_
+      `Please leave move_towards feedback with authors <https://github.com/pygame/pygame/pull/2929>`_.
 
       Returns a Vector which is moved towards the given Vector by a given
       distance and does not overshoot past its target Vector.
@@ -277,7 +277,7 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`move_towards_ip(Vector2, float) -> None`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave move_towards_ip feedback with authors <https://github.com/pygame/pygame/pull/2929>`_
+      `Please leave move_towards_ip feedback with authors <https://github.com/pygame/pygame/pull/2929>`_.
 
       Moves itself toward the given Vector at a given distance and does not
       overshoot past its target Vector.
@@ -457,11 +457,11 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`clamp_magnitude(min_length, max_length) -> Vector2`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave clamp_magnitude feedback with authors <https://github.com/pygame/pygame/pull/2990>`_
+      `Please leave clamp_magnitude feedback with authors <https://github.com/pygame/pygame/pull/2990>`_.
 
       Returns a new copy of a vector with the magnitude clamped between 
       ``max_length`` and ``min_length``. If only one argument is passed, it is 
-      taken to be the ``max_length``
+      taken to be the ``max_length``.
 
       This function raises ``ValueError`` if ``min_length`` is greater than
       ``max_length``, or if either of these values are negative.
@@ -473,12 +473,12 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: clamp_magnitude_ip
 
-      | :sl:`Clamps the vector's magnitude between max_length and min_length`
+      | :sl:`Clamps the vector's magnitude between max_length and min_length.`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
       | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave clamp_magnitude_ip feedback with authors <https://github.com/pygame/pygame/pull/2990>`_
+      `Please leave clamp_magnitude_ip feedback with authors <https://github.com/pygame/pygame/pull/2990>`_.
 
       Clamps the vector's magnitude between ``max_length`` and ``min_length``.
       If only one argument is passed, it is taken to be the ``max_length``
@@ -704,7 +704,7 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`move_towards(Vector3, float) -> Vector3`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave move_towards feedback with authors <https://github.com/pygame/pygame/pull/2929>`_
+      `Please leave move_towards feedback with authors <https://github.com/pygame/pygame/pull/2929>`_.
 
       Returns a Vector which is moved towards the given Vector by a given
       distance and does not overshoot past its target Vector.
@@ -722,7 +722,7 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`move_towards_ip(Vector3, float) -> None`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave move_towards_ip feedback with authors <https://github.com/pygame/pygame/pull/2929>`_
+      `Please leave move_towards_ip feedback with authors <https://github.com/pygame/pygame/pull/2929>`_.
 
       Moves itself toward the given Vector at a given distance and does not
       overshoot past its target Vector.
@@ -1085,7 +1085,7 @@ Multiple coordinates can be set using slices or swizzling
       | :sg:`clamp_magnitude(min_length, max_length) -> Vector3`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave clamp_magnitude feedback with authors <https://github.com/pygame/pygame/pull/2990>`_
+      `Please leave clamp_magnitude feedback with authors <https://github.com/pygame/pygame/pull/2990>`_.
 
       Returns a new copy of a vector with the magnitude clamped between 
       ``max_length`` and ``min_length``. If only one argument is passed, it is 
@@ -1101,12 +1101,12 @@ Multiple coordinates can be set using slices or swizzling
 
    .. method:: clamp_magnitude_ip
 
-      | :sl:`Clamps the vector's magnitude between max_length and min_length`
+      | :sl:`Clamps the vector's magnitude between max_length and min_length.`
       | :sg:`clamp_magnitude_ip(max_length) -> None`
       | :sg:`clamp_magnitude_ip(min_length, max_length) -> None`
 
       **Experimental:** feature still in development available for testing and feedback. It may change.
-      `Please leave clamp_magnitude_ip feedback with authors <https://github.com/pygame/pygame/pull/2990>`_
+      `Please leave clamp_magnitude_ip feedback with authors <https://github.com/pygame/pygame/pull/2990>`_.
 
       Clamps the vector's magnitude between ``max_length`` and ``min_length``.
       If only one argument is passed, it is taken to be the ``max_length``
