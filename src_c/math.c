@@ -2445,8 +2445,11 @@ vector2_angle_to(pgVector *self, PyObject *other)
         return NULL;
     }
 
-    angle = (atan2(other_coords[1], other_coords[0]) -
-             atan2(self->coords[1], self->coords[0]));
+    double dot = _scalar_product(self->coords, other_coords, 2);
+    double cross = self->coords[0] * other_coords[1]
+             - self->coords[1] * other_coords[0];
+    double angle = atan2(cross, dot);
+
     return PyFloat_FromDouble(RAD2DEG(angle));
 }
 
