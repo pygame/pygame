@@ -148,7 +148,7 @@ surf_get_palette_at(PyObject *self, PyObject *args);
 static PyObject *
 surf_set_palette(PyObject *self, PyObject *seq);
 static PyObject *
-surf_set_palette_at(PyObject *self, PyObject *args);
+surf_set_palette_at(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *
 surf_set_colorkey(pgSurfaceObject *self, PyObject *args);
 static PyObject *
@@ -309,7 +309,7 @@ static struct PyMethodDef surface_methods[] = {
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
      DOC_SURFACEGETPALETTEAT},
     {"set_palette", surf_set_palette, METH_O, DOC_SURFACESETPALETTE},
-    {"set_palette_at", surf_set_palette_at, METH_VARARGS,
+    {"set_palette_at", (PyCFunction)surf_set_palette_at, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESETPALETTEAT},
 
     {"lock", surf_lock, METH_NOARGS, DOC_SURFACELOCK},
@@ -1161,7 +1161,7 @@ surf_set_palette(PyObject *self, PyObject *seq)
 }
 
 static PyObject *
-surf_set_palette_at(PyObject *self, PyObject *args)
+surf_set_palette_at(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = NULL;
@@ -1170,7 +1170,14 @@ surf_set_palette_at(PyObject *self, PyObject *args)
     PyObject *color_obj;
     Uint8 rgba[4];
 
-    if (!PyArg_ParseTuple(args, "iO", &_index, &color_obj))
+    static char *keywords[] = {"index","RGB", NULL};
+    PyObject *item;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "b | O", keywords, &item)) {
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(item, "iO", &_index, &color_obj))
         return NULL;
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
