@@ -95,6 +95,38 @@ class SurfaceTypeTest(unittest.TestCase):
         r = s.get_at((10, 1))
         self.assertEqual(r, (0, 0, 255, 255))
 
+    def test_set_at_kwargs(self):
+        """test that set_at works the same with kwargs"""
+        # define 24 bit surface
+        s = pygame.Surface((100, 100), 0, 24)
+        s.fill((0, 0, 0))
+
+        # set it with a tuple.
+        s.set_at(pos=(0, 0), color=(10, 10, 10, 255))
+        r = s.get_at((0, 0))
+        self.assertIsInstance(r, pygame.Color)
+        self.assertEqual(r, (10, 10, 10, 255))
+
+        # set it back to (0,0,0,255) at pos (0,0) with default kwarg values
+        s.set_at()
+        r = s.get_at((0, 0))
+        self.assertEqual(r, (0, 0, 0, 255))
+
+        # ensure order independence
+        s.fill((0, 0, 0, 255))
+        s.set_at(color=(5, 5, 5, 255), pos=(1, 1))
+        r = s.get_at((1, 1))
+        self.assertEqual(r, (5, 5, 5, 255))
+
+    def test_get_at_kwargs(self):
+        """test that get_at works the same with kwargs"""
+        surf = pygame.Surface((2, 2), 0, 24)
+        c00 = pygame.Color(1, 2, 3)
+        surf.set_at((0, 0), c00)
+        self.assertEqual(surf.get_at(pos=(0, 0)), c00)
+        # ensure default value works
+        self.assertEqual(surf.get_at(), c00)
+
     def test_set_at__big_endian(self):
         """png files are loaded in big endian format (BGR rather than RGB)"""
         pygame.display.init()
