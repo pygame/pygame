@@ -27,7 +27,7 @@
 #define DOC_VECTOR2ROTATEIP "rotate_ip(angle) -> None\nrotates the vector by a given angle in degrees in place."
 #define DOC_VECTOR2ROTATEIPRAD "rotate_ip_rad(angle) -> None\nrotates the vector by a given angle in radians in place."
 #define DOC_VECTOR2ROTATERADIP "rotate_rad_ip(angle) -> None\nrotates the vector by a given angle in radians in place."
-#define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
+#define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees, in the range [-180, 180]."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
 #define DOC_VECTOR2FROMPOLAR "Vector2.from_polar((r, phi)) -> Vector2\nVector2().from_polar((r, phi)) -> None\nCreates a Vector2(x, y) or sets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
@@ -209,7 +209,7 @@ rotates the vector by a given angle in radians in place.
 
 pygame.math.Vector2.angle_to
  angle_to(Vector2) -> float
-calculates the angle to a given vector in degrees.
+calculates the angle to a given vector in degrees, in the range [-180, 180]."
 
 pygame.math.Vector2.as_polar
  as_polar() -> (r, phi)

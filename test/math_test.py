@@ -672,6 +672,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(Vector2(1, 0).angle_to((0, -1)), -90)
         self.assertEqual(Vector2(1, 0).angle_to((-1, 1)), 135)
         self.assertEqual(abs(Vector2(1, 0).angle_to((-1, 0))), 180)
+        self.assertTrue(abs(Vector2(-1, 0.001).angle_to(Vector2(-1, -0.001))) < 1)
 
     def test_scale_to_length(self):
         v = Vector2(1, 1)
