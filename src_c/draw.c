@@ -2397,12 +2397,15 @@ draw_fillpoly(SDL_Surface *surf, int *point_x, int *point_y,
                 // add intersection if y crosses the edge (excluding the lower
                 // end), or when we are on the lowest line (maxy)
                 x_intersect[n_intersections++] =
-                    (int)((y - y1) * (x2 - x1) / (y2 - y1) + x1);
+                    (int)((y - y1) * (x2 - x1) / (y2 - y1) + x1 + 0.5);
             }
         }
         qsort(x_intersect, n_intersections, sizeof(int), compare_int);
 
         for (i = 0; (i < n_intersections); i += 2) {
+            if (x_intersect[i] == x_intersect[i + 1]) {
+                continue;
+            }
             drawhorzlineclipbounding(surf, color, x_intersect[i], (int)y,
                                      x_intersect[i + 1], drawn_area);
         }
