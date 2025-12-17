@@ -1,76 +1,140 @@
-.. TUTORIAL:Import and Initialize
+import pygame
+import sys
 
-.. include:: common.txt
+# 初始化Pygame
+pygame.init()
 
-********************************************
-  Pygame Tutorials - Import and Initialize
-********************************************
- 
-Import and Initialize
-=====================
+# 游戏常量
+WIDTH = 800
+HEIGHT = 600
+GRAVITY = 0.8
+JUMP_FORCE = -15
+PLAYER_SPEED = 5
 
-.. rst-class:: docinfo
+# 颜色定义
+BLUE = (0, 120, 255)
+BROWN = (165, 42, 42)
+YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
 
-:Author: Pete Shinners
-:Contact: pete@shinners.org
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((40, 60))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect(center=(100, HEIGHT-100))
+        
+        # 芦泽的属性
+        self.speed = PLAYER_SPEED
+        self.jump_force = JUMP_FORCE
+        self.y_velocity = 0
+        self.on_ground = True
+        self.score = 0
+        self.lives = 3
 
+    def update(self, platforms):
+        keys = pygame.key.get_pressed()
+        
+        # 芦泽移动
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+            
+        # 芦泽跳跃
+        if keys[pygame.K_SPACE] and self.on_ground:
+            self.y_velocity = self.jump_force
+            self.on_ground = False
 
-Getting pygame imported and initialized is a very simple process. It is also
-flexible enough to give you control over what is happening. Pygame is a
-collection of different modules in a single python package. Some of the
-modules are written in C, and some are written in python. Some modules
-are also optional, and might not always be present.
+        # 重力应用
+        self.y_velocity += GRAVITY
+        self.rect.y += self.y_velocity
 
-This is just a quick introduction on what is going on when you import pygame.
-For a clearer explanation definitely see the pygame examples.
+        # 平台碰撞检测
+        self.on_ground = False
+        for platform in platforms:
+            if self.rect.colliderect(platform.rect):
+                if self.y_velocity > 0:
+                    self.rect.bottom = platform.rect.top
+                    self.on_ground = True
+                    self.y_velocity = 0
+                elif self.y_velocity < 0:
+                    self.rect.top = platform.rect.bottom
+                    self.y_velocity = 0
 
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h):
+        super().__init__()
+        self.image = pygame.Surface((w, h))
+        self.image.fill(BROWN)
+        self.rect = self.image.get_rect(topleft=(x, y))
 
-Import
-------
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((20, 20))
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect(center=(x, y))
 
-First we must import the pygame package. Since pygame version 1.4 this
-has been updated to be much easier. Most games will import all of pygame like this. ::
+def main():
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("芦泽冒险记")
+    clock = pygame.time.Clock()
 
-  import pygame
-  from pygame.locals import *
+    # 创建精灵组
+    all_sprites = pygame.sprite.Group()
+    platforms = pygame.sprite.Group()
+    coins = pygame.sprite.Group()
 
-The first line here is the only necessary one. It imports all the available pygame
-modules into the pygame package. The second line is optional, and puts a limited
-set of constants and functions into the global namespace of your script.
+    # 创建芦泽
+    芦泽 = Player()
+    all_sprites.add(芦泽)
 
-An important thing to keep in mind is that several pygame modules are optional.
-For example, one of these is the font module. When  you "import pygame", pygame
-will check to see if the font module is available. If the font module is available
-it will be imported as "pygame.font". If the module is not available, "pygame.font"
-will be set to None. This makes it fairly easy to later on test if the font module is available.
+    # 创建平台
+    ground = Platform(0, HEIGHT-40, WIDTH, 40)
+    platform1 = Platform(200, HEIGHT-150, 200, 20)
+    platform2 = Platform(500, HEIGHT-250, 200, 20)
+    platforms.add(ground, platform1, platform2)
+    all_sprites.add(platforms)
 
+    # 创建金币
+    for _ in range(5):
+        coin = Coin(300 + _*70, HEIGHT-180)
+        coins.add(coin)
+        all_sprites.add(coin)
 
-Init
-----
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-Before you can do much with pygame, you will need to initialize it. The most common
-way to do this is just make one call. ::
+        # 更新
+        芦泽.update(platforms)
 
-  pygame.init()
+        # 金币收集检测
+        collected = pygame.sprite.spritecollide(芦泽, coins, True)
+        芦泽.score += len(collected) * 100
 
-This will attempt to initialize all the pygame modules for you. Not all pygame modules
-need to be initialized, but this will automatically initialize the ones that do. You can
-also easily initialize each pygame module by hand. For example to only initialize the
-font module you would just call. ::
+        # 界面绘制
+        screen.fill((146, 244, 255))  # 天空蓝
+        
+        # 显示游戏信息
+        font = pygame.font.Font(None, 36)
+        score_text = font.render(f"得分: {芦泽.score}", True, WHITE)
+        lives_text = font.render(f"生命: {芦泽.lives}", True, WHITE)
+        name_text = font.render("芦泽", True, WHITE)
+        
+        screen.blit(score_text, (10, 10))
+        screen.blit(lives_text, (10, 50))
+        screen.blit(name_text, (芦泽.rect.x, 芦泽.rect.y - 30))
+        
+        all_sprites.draw(screen)
+        pygame.display.flip()
+        clock.tick(60)
 
-  pygame.font.init()
+    pygame.quit()
+    sys.exit()
 
-Note that if there is an error when you initialize with "pygame.init()", it will silently fail.
-When hand initializing modules like this, any errors will raise an exception. Any
-modules that must be initialized also have a "get_init()" function, which will return true
-if the module has been initialized.
-
-It is safe to call the init() function for any module more than once.
-
-
-Quit
-----
-
-Modules that are initialized also usually have a quit() function that will clean up.
-There is no need to explicitly call these, as pygame will cleanly quit all the
-initialized modules when python finishes.
+if __name__ == "__main__":
+    main()
