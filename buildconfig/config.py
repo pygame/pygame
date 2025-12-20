@@ -172,41 +172,53 @@ Only SDL2 is supported now.""")
         print_('Using CONAN configuration...\n')
         try:
             import config_conan as CFG
+            print_("Using config_conan as CFG...\n")
         except ImportError:
             import buildconfig.config_conan as CFG
+            print_("Using buildconfig.config_conan as CFG")
 
     elif sys.platform == 'win32':
         if sys.version_info >= (3, 8) and is_msys2():
             print_('Using WINDOWS MSYS2 configuration...\n')
             try:
                 import config_msys2 as CFG
+                print_('Using config_msys2 as CFG...\n')
             except ImportError:
                 import buildconfig.config_msys2 as CFG
+                print_('Using buildconfig.config_msys2 as CFG...\n')
         else:
             print_('Using WINDOWS configuration...\n')
             try:
                 import config_win as CFG
+                print_('Using config_win as CFG...\n')
             except ImportError:
                 import buildconfig.config_win as CFG
+                print_('Using buildconfig.config_win as CFG...\n')
 
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         try:
             import config_darwin as CFG
+            print_("Using config_darwin as CFG...\n")
         except ImportError:
             import buildconfig.config_darwin as CFG
+            print_("Using buildconfig.config_darwin as CFG...\n")
     elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
         print_('Using Emscripten configuration...\n')
         try:
             import config_emsdk as CFG
+            print_("Using config_emsdk as CFG...\n")
         except ImportError:
             import buildconfig.config_emsdk as CFG
+            print_("Using buildconfig.comfig_emdsk as CFG...\n")
     else:
         print_('Using UNIX configuration...\n')
         try:
             import config_unix as CFG
+            print_("Using config_unix as CFG...\n")
         except ImportError:
             import buildconfig.config_unix as CFG
+            print_("Using buildconfig.config_unix as CFG...\n")
 
 
     if sys.platform == 'win32':
