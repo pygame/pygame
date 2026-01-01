@@ -1,0 +1,63 @@
+import pygame
+import sys
+
+# تهيئة pygame
+pygame.init()
+
+# إعدادات الشاشة
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("محاكي سيارات بسيط")
+
+# ألوان
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
+# السيارة
+car_width, car_height = 50, 80
+car_x = width // 2 - car_width // 2
+car_y = height - car_height - 20
+car_speed = 5
+
+# الطريق
+road_width = 400
+road_x = width // 2 - road_width // 2
+
+# اللعبة
+clock = pygame.time.Clock()
+game_over = False
+
+# الحلقة الرئيسية للعبة
+while not game_over:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+    
+    # التحكم في السيارة
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and car_x > road_x:
+        car_x -= car_speed
+    if keys[pygame.K_RIGHT] and car_x < road_x + road_width - car_width:
+        car_x += car_speed
+    
+    # الرسم
+    screen.fill(GREEN)  # خلفية خضراء (عشب)
+    
+    # رسم الطريق
+    pygame.draw.rect(screen, BLACK, (road_x, 0, road_width, height))
+    
+    # رسم خطوط الطريق
+    line_width, line_height = 10, 50
+    for i in range(0, height, line_height * 2):
+        pygame.draw.rect(screen, WHITE, (width // 2 - 5, i, line_width, line_height))
+    
+    # رسم السيارة
+    pygame.draw.rect(screen, RED, (car_x, car_y, car_width, car_height))
+    
+    pygame.display.update()
+    clock.tick(60)  # 60 إطار في الثانية
+
+pygame.quit()
+sys.exit()
