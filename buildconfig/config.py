@@ -169,7 +169,7 @@ Only SDL2 is supported now.""")
 
     kwds = {}
     if conan:
-        print_('Using CONAN configuration...\n')
+        print_('Using CONAN configuration...')
         try:
             import config_conan as CFG
         except ImportError:
@@ -177,36 +177,40 @@ Only SDL2 is supported now.""")
 
     elif sys.platform == 'win32':
         if sys.version_info >= (3, 8) and is_msys2():
-            print_('Using WINDOWS MSYS2 configuration...\n')
+            print_('Using WINDOWS MSYS2 configuration...')
             try:
                 import config_msys2 as CFG
             except ImportError:
                 import buildconfig.config_msys2 as CFG
         else:
-            print_('Using WINDOWS configuration...\n')
+            print_('Using WINDOWS configuration...')
             try:
                 import config_win as CFG
             except ImportError:
                 import buildconfig.config_win as CFG
 
     elif sys.platform == 'darwin':
-        print_('Using Darwin configuration...\n')
+        print_('Using Darwin configuration...')
         try:
             import config_darwin as CFG
         except ImportError:
             import buildconfig.config_darwin as CFG
     elif sysconfig.get_config_var('MACHDEP') == 'emscripten':
-        print_('Using Emscripten configuration...\n')
+        print_('Using Emscripten configuration...')
         try:
             import config_emsdk as CFG
+            print("Imported config_emdsk as CFG...")
         except ImportError:
             import buildconfig.config_emsdk as CFG
+            print("Imported buildconfig.config_emdsk as CFG...")
     else:
-        print_('Using UNIX configuration...\n')
+        print_('Using UNIX configuration...')
         try:
             import config_unix as CFG
+            print("Imported config_unix as CFG...")
         except ImportError:
             import buildconfig.config_unix as CFG
+            print("Imported buildconfig.config_unix as CFG...")
 
 
     if sys.platform == 'win32':
