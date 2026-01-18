@@ -1121,6 +1121,9 @@ chan_fadeout(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS;
+    if(_time <= 0){
+        Mix_HaltChannel(channelnum);
+    }
     Mix_FadeOutChannel(channelnum, _time);
     Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
