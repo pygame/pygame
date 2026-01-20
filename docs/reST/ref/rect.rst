@@ -260,6 +260,27 @@
              x2, y2 = end
          else:
              print("No clipping. The line is fully outside the rect.")
+         
+         .. note::
+
+          ``Rect.clipline()`` clips a line against a *single* rectangle only.
+          When working with multiple rectangles (for example, ray casting or
+          collision checks against several obstacles), the clipped result must
+          be reused as input for subsequent ``clipline()`` calls.
+
+         # Example using ``clipline()`` with multiple rectangles::
+           
+            line = (x1, y1, x2, y2)
+
+            for rect in rects:
+                clipped = rect.clipline(line)
+                if clipped:
+                    line = clipped # Take the clipped line for next rectangles
+
+            start, end = line
+            print("Final line segment:", start, end)
+
+         
 
       .. versionchanged:: 2.5.0 Added support for keyword arguments.
 
