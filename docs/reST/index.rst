@@ -1,6 +1,7 @@
 Pygame Front Page
 =================
 
+.. literalinclude:: ref/code_examples/base_script.py
 .. toctree::
    :maxdepth: 2
    :glob:
