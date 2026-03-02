@@ -210,4 +210,155 @@ Reference
 
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
-.. _LGPL License: LGPL.txt
+.. _LGPL License: LGPL.txtimport pygame
+import random
+import sys
+
+# Inisialisasi pygame
+pygame.init()
+
+# Ukuran layar
+WIDTH = 800
+HEIGHT = 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Balapan Sederhana - Tekan SPASE untuk Gas!")
+
+clock = pygame.time.Clock()
+
+# Warna
+PUTIH = (255, 255, 255)
+HITAM = (0, 0, 0)
+MERAH = (220, 20, 60)
+HIJAU = (50, 205, 50)
+ABU = (100, 100, 100)
+KUNING = (255, 215, 0)
+
+# Posisi mobil pemain
+player_x = WIDTH // 2 - 40
+player_y = HEIGHT - 120
+player_speed = 0
+player_max_speed = 12
+acceleration = 0.4
+friction = 0.2
+
+# Musuh (mobil lain)
+enemies = []
+enemy_speed_base = 5
+spawn_timer = 0
+spawn_interval = 80   # semakin kecil semakin sering muncul
+
+# Skor & status
+score = 0
+game_over = False
+font = pygame.font.SysFont("arial", 36, bold=True)
+font_small = pygame.font.SysFont("arial", 24)
+
+def create_enemy():
+    x = random.randint(80, WIDTH-140)
+    return {"x": x, "y": -80, "speed": enemy_speed_base + random.uniform(-2, 4)}
+
+def draw_road():
+    screen.fill((40, 40, 40))
+    # garis tengah jalan
+    for i in range(-1, 15):
+        y = (pygame.time.get_ticks() // 8) % 100 + i * 100
+        pygame.draw.rect(screen, KUNING, (WIDTH//2 - 15, y - 400, 30, 60))
+
+def draw_car(x, y, color, is_player=False):
+    # badan mobil
+    pygame.draw.rect(screen, color, (x, y, 80, 50))
+    # atap
+    pygame.draw.rect(screen, (color[0]//2, color[1]//2, color[2]//2), (x+10, y-20, 60, 30))
+    # jendela
+    pygame.draw.rect(screen, HITAM, (x+20, y-15, 40, 20))
+    # roda
+    pygame.draw.circle(screen, HITAM, (x+15, y+50), 18)
+    pygame.draw.circle(screen, HITAM, (x+65, y+50), 18)
+    pygame.draw.circle(screen, (180,180,180), (x+15, y+50), 10)
+    pygame.draw.circle(screen, (180,180,180), (x+65, y+50), 10)
+    
+    if is_player:
+        # spoiler kecil
+        pygame.draw.polygon(screen, MERAH, [(x+30, y-25), (x+50, y-25), (x+40, y-45)])
+
+# Game loop utama
+running = True
+while running:
+    dt = clock.tick(60)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and game_over:
+                # Reset game
+                score = 0
+                player_y = HEIGHT - 120
+                player_speed = 0
+                enemies.clear()
+                game_over = False
+                spawn_timer = 0
+
+    if not game_over:
+        keys = pygame.key.get_pressed()
+        
+        # Kontrol gas & rem
+        if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
+            player_speed = min(player_max_speed, player_speed + acceleration)
+        else:
+            player_speed = max(0, player_speed - friction)
+            
+        # Geser kiri-kanan (selama tidak terlalu cepat)
+        if player_speed < 8:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                player_x = max(60, player_x - 6)
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                player_x = min(WIDTH-140, player_x + 6)
+
+        # Spawn musuh
+        spawn_timer += 1
+        if spawn_timer >= spawn_interval:
+            enemies.append(create_enemy())
+            spawn_timer = 0
+            # Semakin lama makin susah
+            if score > 200 and spawn_interval > 40:
+                spawn_interval -= 1
+
+        # Update posisi musuh
+        for e in enemies[:]:
+            e["y"] += e["speed"] + (score // 80)  # makin cepat seiring skor
+            
+            # Tabrakan
+            if (player_x < e["x"] + 80 and player_x + 80 > e["x"] and
+                player_y < e["y"] + 50  and player_y + 50 > e["y"]):
+                game_over = True
+            
+            # Musuh keluar layar → tambah skor
+            if e["y"] > HEIGHT + 50:
+                enemies.remove(e)
+                score += 1
+
+    # Gambar semuanya
+    draw_road()
+    draw_car(player_x, player_y, HIJAU, is_player=True)
+
+    for e in enemies:
+        draw_car(e["x"], e["y"], MERAH)
+
+    # UI
+    score_text = font.render(f"SKOR: {score}", True, PUTIH)
+    screen.blit(score_text, (20, 20))
+    
+    speed_text = font_small.render(f"Kecepatan: {int(player_speed*10)} km/jam", True, KUNING)
+    screen.blit(speed_text, (20, 70))
+
+    if game_over:
+        go_text = font.render("GAME OVER!", True, MERAH)
+        restart_text = font_small.render("Tekan SPASI untuk main lagi", True, PUTIH)
+        screen.blit(go_text, (WIDTH//2 - go_text.get_width()//2, HEIGHT//2 - 60))
+        screen.blit(restart_text, (WIDTH//2 - restart_text.get_width()//2, HEIGHT//2 + 20))
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
