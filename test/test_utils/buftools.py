@@ -3,14 +3,14 @@
 Export the Exporter and Importer classes.
 
 Class Exporter has configurable shape and strides. Exporter objects
-provide a convenient target for unit tests on Pygame objects and functions
-that import a new buffer interface.
+provide a convenient target for unit tests on Pygame objects and functions that
+import a new buffer interface.
 
 Class Importer imports a buffer interface with the given PyBUF_* flags.
 It returns NULL Py_buffer fields as None. The shape, strides, and suboffsets
 arrays are returned as tuples of ints. All Py_buffer field properties are
 read-only. This class is useful in comparing exported buffer interfaces
-with the actual request. The simular Python builtin memoryview currently
+with the actual request. The similar Python builtin memoryview currently
 does not support configurable PyBUF_* flags.
 
 This module contains its own unit tests. When Pygame is installed, these tests
@@ -20,36 +20,32 @@ python -m pygame.tests.test_utils.array
 
 """
 
-import pygame
-
-if not pygame.HAVE_NEWBUF:
-    emsg = "This Pygame build does not support the new buffer protocol"
-    raise ImportError(emsg)
-import pygame.newbuffer
-from pygame.newbuffer import (
-    PyBUF_SIMPLE,
-    PyBUF_FORMAT,
-    PyBUF_ND,
-    PyBUF_WRITABLE,
-    PyBUF_STRIDES,
-    PyBUF_C_CONTIGUOUS,
-    PyBUF_F_CONTIGUOUS,
-    PyBUF_ANY_CONTIGUOUS,
-    PyBUF_INDIRECT,
-    PyBUF_STRIDED,
-    PyBUF_STRIDED_RO,
-    PyBUF_RECORDS,
-    PyBUF_RECORDS_RO,
-    PyBUF_FULL,
-    PyBUF_FULL_RO,
-    PyBUF_CONTIG,
-    PyBUF_CONTIG_RO,
-)
-
-import unittest
 import ctypes
 import operator
+import unittest
 from functools import reduce
+
+import pygame
+import pygame.newbuffer
+from pygame.newbuffer import (
+    PyBUF_ANY_CONTIGUOUS,
+    PyBUF_C_CONTIGUOUS,
+    PyBUF_CONTIG,
+    PyBUF_CONTIG_RO,
+    PyBUF_F_CONTIGUOUS,
+    PyBUF_FORMAT,
+    PyBUF_FULL,
+    PyBUF_FULL_RO,
+    PyBUF_INDIRECT,
+    PyBUF_ND,
+    PyBUF_RECORDS,
+    PyBUF_RECORDS_RO,
+    PyBUF_SIMPLE,
+    PyBUF_STRIDED,
+    PyBUF_STRIDED_RO,
+    PyBUF_STRIDES,
+    PyBUF_WRITABLE,
+)
 
 __all__ = ["Exporter", "Importer"]
 
@@ -325,7 +321,7 @@ class Importer:
         return self._view.internal
 
     def _to_ssize_tuple(self, addr):
-        from ctypes import cast, POINTER, c_ssize_t
+        from ctypes import POINTER, c_ssize_t, cast
 
         if addr is None:
             return None

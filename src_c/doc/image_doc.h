@@ -1,77 +1,16 @@
-/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMEIMAGE "pygame module for image transfer"
-#define DOC_PYGAMEIMAGELOAD "load(filename) -> Surface\nload(fileobj, namehint="") -> Surface\nload new image from a file (or file-like object)"
-#define DOC_PYGAMEIMAGESAVE "save(Surface, filename) -> None\nsave(Surface, fileobj, namehint="") -> None\nsave an image to file (or file-like object)"
-#define DOC_PYGAMEIMAGEGETSDLIMAGEVERSION "get_sdl_image_version(linked=True) -> None\nget_sdl_image_version(linked=True) -> (major, minor, patch)\nget version number of the SDL_Image library being used"
-#define DOC_PYGAMEIMAGEGETEXTENDED "get_extended() -> bool\ntest if extended image formats can be loaded"
-#define DOC_PYGAMEIMAGETOSTRING "tostring(Surface, format, flipped=False) -> bytes\ntransfer image to byte buffer"
-#define DOC_PYGAMEIMAGETOBYTES "tobytes(Surface, format, flipped=False) -> bytes\ntransfer image to byte buffer"
-#define DOC_PYGAMEIMAGEFROMSTRING "fromstring(bytes, size, format, flipped=False) -> Surface\ncreate new Surface from a byte buffer"
-#define DOC_PYGAMEIMAGEFROMBYTES "frombytes(bytes, size, format, flipped=False) -> Surface\ncreate new Surface from a byte buffer"
-#define DOC_PYGAMEIMAGEFROMBUFFER "frombuffer(buffer, size, format) -> Surface\ncreate a new Surface that shares data inside a bytes buffer"
-#define DOC_PYGAMEIMAGELOADBASIC "load_basic(file) -> Surface\nload new BMP image from a file (or file-like object)"
-#define DOC_PYGAMEIMAGELOADEXTENDED "load_extended(filename) -> Surface\nload_extended(fileobj, namehint="") -> Surface\nload an image from a file (or file-like object)"
-#define DOC_PYGAMEIMAGESAVEEXTENDED "save_extended(Surface, filename) -> None\nsave_extended(Surface, fileobj, namehint="") -> None\nsave a png/jpg image to file (or file-like object)"
-
-
-/* Docs in a comment... slightly easier to read. */
-
-/*
-
-pygame.image
-pygame module for image transfer
-
-pygame.image.load
- load(filename) -> Surface
- load(fileobj, namehint="") -> Surface
-load new image from a file (or file-like object)
-
-pygame.image.save
- save(Surface, filename) -> None
- save(Surface, fileobj, namehint="") -> None
-save an image to file (or file-like object)
-
-pygame.image.get_sdl_image_version
- get_sdl_image_version(linked=True) -> None
- get_sdl_image_version(linked=True) -> (major, minor, patch)
-get version number of the SDL_Image library being used
-
-pygame.image.get_extended
- get_extended() -> bool
-test if extended image formats can be loaded
-
-pygame.image.tostring
- tostring(Surface, format, flipped=False) -> bytes
-transfer image to byte buffer
-
-pygame.image.tobytes
- tobytes(Surface, format, flipped=False) -> bytes
-transfer image to byte buffer
-
-pygame.image.fromstring
- fromstring(bytes, size, format, flipped=False) -> Surface
-create new Surface from a byte buffer
-
-pygame.image.frombytes
- frombytes(bytes, size, format, flipped=False) -> Surface
-create new Surface from a byte buffer
-
-pygame.image.frombuffer
- frombuffer(buffer, size, format) -> Surface
-create a new Surface that shares data inside a bytes buffer
-
-pygame.image.load_basic
- load_basic(file) -> Surface
-load new BMP image from a file (or file-like object)
-
-pygame.image.load_extended
- load_extended(filename) -> Surface
- load_extended(fileobj, namehint="") -> Surface
-load an image from a file (or file-like object)
-
-pygame.image.save_extended
- save_extended(Surface, filename) -> None
- save_extended(Surface, fileobj, namehint="") -> None
-save a png/jpg image to file (or file-like object)
-
-*/
+/* Auto generated file: with make_docs.py .  Docs go in docs/reST/ref/ . */
+#define DOC_IMAGE "Pygame module for image transfer."
+#define DOC_IMAGE_LOAD "load(file, namehint='') -> Surface\nLoad new image from a file (or file-like object)."
+#define DOC_IMAGE_LOADSIZEDSVG "load_sized_svg(file, size) -> Surface\nLoad an SVG image from a file (or file-like object) with the given size."
+#define DOC_IMAGE_LOADANIMATION "load_animation(file, namehint='') -> list[tuple[Surface, float]]\nLoad an animation (GIF/WEBP) from a file (or file-like object) as a list of frames."
+#define DOC_IMAGE_SAVE "save(surface, file, namehint='') -> None\nSave an image to file (or file-like object)."
+#define DOC_IMAGE_GETSDLIMAGEVERSION "get_sdl_image_version(linked=True) -> tuple[int, int, int] | None\nGet version number of the SDL_Image library being used."
+#define DOC_IMAGE_GETEXTENDED "get_extended() -> bool\nTest if extended image formats can be loaded."
+#define DOC_IMAGE_TOSTRING "tostring(surface, format, flipped=False, pitch=-1) -> bytes\nTransfer image to byte buffer."
+#define DOC_IMAGE_TOBYTES "tobytes(surface, format, flipped=False, pitch=-1) -> bytes\nTransfer image to byte buffer."
+#define DOC_IMAGE_FROMSTRING "fromstring(bytes, size, format, flipped=False, pitch=-1) -> Surface\nCreate new Surface from a byte buffer."
+#define DOC_IMAGE_FROMBYTES "frombytes(bytes, size, format, flipped=False, pitch=-1) -> Surface\nCreate new Surface from a byte buffer."
+#define DOC_IMAGE_FROMBUFFER "frombuffer(buffer, size, format, pitch=-1) -> Surface\nCreate a new Surface that shares data inside a bytes buffer."
+#define DOC_IMAGE_LOADBASIC "load_basic(file, /) -> Surface\nLoad new BMP image from a file (or file-like object)."
+#define DOC_IMAGE_LOADEXTENDED "load_extended(file, namehint='') -> Surface\nLoad an image from a file (or file-like object)."
+#define DOC_IMAGE_SAVEEXTENDED "save_extended(surface, file, namehint='') -> None\nSave a png/jpg image to file (or file-like object)."

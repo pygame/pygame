@@ -231,8 +231,9 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
 
     /* allocate and clear a memory area for storing the accumulator line */
     templine = (Uint16 *)malloc(dstpitch * 2);
-    if (templine == 0)
+    if (templine == 0) {
         return;
+    }
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
@@ -349,8 +350,9 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
 
     /* allocate and clear a memory area for storing the accumulator line */
     templine = (Uint16 *)malloc(dstpitch * 2);
-    if (templine == 0)
+    if (templine == 0) {
         return;
+    }
     memset(templine, 0, dstpitch * 2);
     srcdiff64 = srcdiff;
     dstdiff64 = dstdiff;
@@ -438,16 +440,19 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0)
+    if (xidx0 == 0) {
         return;
+    }
     xmult0 = (int *)malloc(dstwidth * factorwidth);
     xmult1 = (int *)malloc(dstwidth * factorwidth);
     if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0)
+        if (xmult0) {
             free(xmult0);
-        if (xmult1)
+        }
+        if (xmult1) {
             free(xmult1);
+        }
         return;
     }
 
@@ -519,16 +524,19 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
-    if (xidx0 == 0)
+    if (xidx0 == 0) {
         return;
+    }
     xmult0 = (int *)malloc(dstwidth * factorwidth);
     xmult1 = (int *)malloc(dstwidth * factorwidth);
     if (xmult0 == 0 || xmult1 == 0) {
         free(xidx0);
-        if (xmult0)
+        if (xmult0) {
             free(xmult0);
-        if (xmult1)
+        }
+        if (xmult1) {
             free(xmult1);
+        }
         return;
     }
 

@@ -1,4 +1,5 @@
 from pygame._sdl2.sdl2 import error
+cimport cython
 
 cdef extern from "../pygame.h" nogil:
     int pgJoystick_Check(object joy)
@@ -9,7 +10,7 @@ cdef extern from "../pygame.h" nogil:
 
 cdef extern from "SDL.h" nogil:
     void SDL_free(void *mem)
-    int SDL_VERSION_ATLEAST(int major, int minor, int patch) 
+    int SDL_VERSION_ATLEAST(int major, int minor, int patch)
 
 import_pygame_joystick()
 
@@ -17,14 +18,14 @@ def _gamecontroller_init_check():
     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         raise error("gamecontroller system not initialized")
 
-cdef bint _controller_autoinit() noexcept:
+cdef bint _controller_autoinit():
     if not SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         if SDL_InitSubSystem(_SDL_INIT_GAMECONTROLLER):
             return False
         #pg_RegisterQuit(_controller_autoquit)
     return True
 
-cdef void _controller_autoquit() noexcept:
+cdef void _controller_autoquit():
     cdef Controller controller
     for c in Controller._controllers:
         controller = c
@@ -99,6 +100,8 @@ def name_forindex(index):
 
     return None
 
+# disable auto_pickle since it causes stubcheck error
+@cython.auto_pickle(False)
 cdef class Controller:
     _controllers = []
 
@@ -247,12 +250,12 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        
+
         duration = max(duration, 0)
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
 
-        return not PG_GameControllerRumble(
+        return not SDL_GameControllerRumble(
             self._controller, low * 0xFFFF, high * 0xFFFF, duration
         )
 
@@ -262,4 +265,4 @@ cdef class Controller:
         """
         _gamecontroller_init_check()
         self._CLOSEDCHECK()
-        PG_GameControllerRumble(self._controller, 0, 0, 1)
+        SDL_GameControllerRumble(self._controller, 0, 0, 1)

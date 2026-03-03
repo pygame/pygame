@@ -103,7 +103,7 @@ opt_parser.add_option("-S", "--seed", type="int", help="Randomisation seed")
 
 ###########################################################################
 # Set run() keyword arguments according to command line arguments.
-# args will be the test module list, passed as positional argumemts.
+# args will be the test module list, passed as positional arguments.
 
 options, args = opt_parser.parse_args()
 kwds = {}

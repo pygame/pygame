@@ -1,14 +1,14 @@
 import os
 import unittest
 
-from pygame.tests import test_utils
 import pygame
 from pygame.locals import *
+from pygame.tests import test_utils
 
 
 @unittest.skipIf(
-    os.environ.get("SDL_VIDEODRIVER") == "dummy",
-    'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    os.environ.get("SDL_VIDEODRIVER") == pygame.NULL_VIDEODRIVER,
+    "OpenGL requires a non-null SDL_VIDEODRIVER",
 )
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):

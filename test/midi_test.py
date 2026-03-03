@@ -1,6 +1,5 @@
 import unittest
 
-
 import pygame
 
 
@@ -210,7 +209,7 @@ class MidiOutputTest(unittest.TestCase):
             out.pitch_bend(-10001, 1)
         self.assertEqual(
             str(cm.exception),
-            "Pitch bend value must be between " "-8192 and +8191, not -10001.",
+            "Pitch bend value must be between -8192 and +8191, not -10001.",
         )
         with self.assertRaises(ValueError) as cm:
             out.pitch_bend(10665, 2)
@@ -439,7 +438,7 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
 
     def test_conversions(self):
         """of frequencies to midi note numbers and ansi note names."""
-        from pygame.midi import frequency_to_midi, midi_to_frequency, midi_to_ansi_note
+        from pygame.midi import frequency_to_midi, midi_to_ansi_note, midi_to_frequency
 
         self.assertEqual(frequency_to_midi(27.5), 21)
         self.assertEqual(frequency_to_midi(36.7), 26)

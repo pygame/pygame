@@ -220,7 +220,7 @@ __render_glyph_INT(int x, int y, FontSurface *surface, const FT_Bitmap *bitmap,
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer + x * surface->item_stride +
                     y * surface->pitch);
-    int item_size = surface->format->BytesPerPixel;
+    int item_size = PG_FORMAT_BytesPerPixel(surface->format);
     int item_stride = surface->item_stride;
     FT_Byte *dst_cpy;
 
@@ -301,7 +301,7 @@ __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
 
     int i, j, shift;
     int item_stride = surface->item_stride;
-    int item_size = surface->format->BytesPerPixel;
+    int item_size = PG_FORMAT_BytesPerPixel(surface->format);
     unsigned char *src;
     unsigned char *dst;
     unsigned char *src_cpy;
@@ -380,7 +380,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
 {
     int i, j;
     FT_Byte *dst;
-    int itemsize = surface->format->BytesPerPixel;
+    int itemsize = PG_FORMAT_BytesPerPixel(surface->format);
     int item_stride = surface->item_stride;
     int byteoffset = surface->format->Ashift / 8;
     FT_Byte *dst_cpy;
@@ -544,7 +544,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 POINTER_ASSERT(_dst)                                          \
                                                                               \
                 if (_bpp == 1) {                                              \
-                    GET_PALETTE_VALS(pixel, surface->format, bgR, bgG, bgB,   \
+                    GET_PALETTE_VALS(pixel, surface->palette, bgR, bgG, bgB,  \
                                      bgA);                                    \
                 }                                                             \
                 else {                                                        \
@@ -575,7 +575,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 POINTER_ASSERT(_dst)                                          \
                                                                               \
                 if (_bpp == 1) {                                              \
-                    GET_PALETTE_VALS(pixel, surface->format, bgR, bgG, bgB,   \
+                    GET_PALETTE_VALS(pixel, surface->palette, bgR, bgG, bgB,  \
                                      bgA);                                    \
                 }                                                             \
                 else {                                                        \
@@ -607,7 +607,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 POINTER_ASSERT(_dst)                                          \
                                                                               \
                 if (_bpp == 1) {                                              \
-                    GET_PALETTE_VALS(pixel, surface->format, bgR, bgG, bgB,   \
+                    GET_PALETTE_VALS(pixel, surface->palette, bgR, bgG, bgB,  \
                                      bgA);                                    \
                 }                                                             \
                 else {                                                        \
@@ -666,8 +666,9 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         dst = (unsigned char *)surface->buffer + (rx * _bpp) +                \
               (ry * surface->pitch);                                          \
                                                                               \
-        full_color = SDL_MapRGBA(surface->format, (FT_Byte)color->r,          \
-                                 (FT_Byte)color->g, (FT_Byte)color->b, 255);  \
+        full_color =                                                          \
+            PG_MapRGBA(surface->format, surface->palette, (FT_Byte)color->r,  \
+                       (FT_Byte)color->g, (FT_Byte)color->b, 255);            \
                                                                               \
         shift = off_x & 7;                                                    \
         (void)full_color;                                                     \
@@ -679,7 +680,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 FT_UInt32 pixel = (FT_UInt32)_getp;                           \
                                                                               \
                 if (_bpp == 1) {                                              \
-                    GET_PALETTE_VALS(pixel, surface->format, bgR, bgG, bgB,   \
+                    GET_PALETTE_VALS(pixel, surface->palette, bgR, bgG, bgB,  \
                                      bgA);                                    \
                 }                                                             \
                 else {                                                        \
@@ -743,7 +744,7 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                     FT_UInt32 pixel = (FT_UInt32)_getp;                     \
                                                                             \
                     if (_bpp == 1) {                                        \
-                        GET_PALETTE_VALS(pixel, surface->format, bgR, bgG,  \
+                        GET_PALETTE_VALS(pixel, surface->palette, bgR, bgG, \
                                          bgB, bgA);                         \
                     }                                                       \
                     else {                                                  \
@@ -765,9 +766,10 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
 
 /* These macros removes a gcc unused variable warning for __render_glyph_RGB3
  */
-#define _DECLARE_full_color(s, c)             \
-    const FT_UInt32 full_color = SDL_MapRGBA( \
-        (s)->format, (FT_Byte)(c)->r, (FT_Byte)(c)->g, (FT_Byte)(c)->b, 255);
+#define _DECLARE_full_color(s, c)                              \
+    const FT_UInt32 full_color =                               \
+        PG_MapRGBA((s)->format, (s)->palette, (FT_Byte)(c)->r, \
+                   (FT_Byte)(c)->g, (FT_Byte)(c)->b, 255);
 #define _DECLARE_full_color1(s, c) _DECLARE_full_color(s, c)
 #define _DECLARE_full_color2(s, c) _DECLARE_full_color(s, c)
 #define _DECLARE_full_color3(s, c)
@@ -780,17 +782,20 @@ __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
 
 #define _SET_PIXEL(T) *(T *)_dst = (T)full_color;
 
-#define _BLEND_PIXEL(T)                                                    \
-    *((T *)_dst) =                                                         \
-        (T)(((bgR >> surface->format->Rloss) << surface->format->Rshift) | \
-            ((bgG >> surface->format->Gloss) << surface->format->Gshift) | \
-            ((bgB >> surface->format->Bloss) << surface->format->Bshift) | \
-            ((bgA >> surface->format->Aloss) << surface->format->Ashift &  \
-             surface->format->Amask))
+#define _BLEND_PIXEL(T)                                            \
+    *((T *)_dst) = (T)(((bgR >> PG_FORMAT_R_LOSS(surface->format)) \
+                        << surface->format->Rshift) |              \
+                       ((bgG >> PG_FORMAT_G_LOSS(surface->format)) \
+                        << surface->format->Gshift) |              \
+                       ((bgB >> PG_FORMAT_B_LOSS(surface->format)) \
+                        << surface->format->Bshift) |              \
+                       ((bgA >> PG_FORMAT_A_LOSS(surface->format)) \
+                            << surface->format->Ashift &           \
+                        surface->format->Amask))
 
-#define _BLEND_PIXEL_GENERIC(T)                                              \
-    *(T *)_dst = (T)(SDL_MapRGB(surface->format, (FT_Byte)bgR, (FT_Byte)bgG, \
-                                (FT_Byte)bgB))
+#define _BLEND_PIXEL_GENERIC(T)                                   \
+    *(T *)_dst = (T)(PG_MapRGB(surface->format, surface->palette, \
+                               (FT_Byte)bgR, (FT_Byte)bgG, (FT_Byte)bgB))
 
 #define _GET_PIXEL(T) (*((T *)_dst))
 

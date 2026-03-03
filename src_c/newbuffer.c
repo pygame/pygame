@@ -853,14 +853,6 @@ MODINIT_DEFINE(newbuffer)
                                          NULL,
                                          NULL};
 
-    /* prepare exported types */
-    if (PyType_Ready(&Py_buffer_Type) < 0) {
-        return NULL;
-    }
-    if (PyType_Ready(&BufferMixin_Type) < 0) {
-        return NULL;
-    }
-
 #define bufferproxy_docs ""
 
     /* create the module */
@@ -869,16 +861,11 @@ MODINIT_DEFINE(newbuffer)
         return NULL;
     }
 
-    Py_INCREF(&BufferMixin_Type);
-    if (PyModule_AddObject(module, "BufferMixin",
-                           (PyObject *)&BufferMixin_Type)) {
-        Py_DECREF(&BufferMixin_Type);
+    if (PyModule_AddType(module, &BufferMixin_Type)) {
         Py_DECREF(module);
         return NULL;
     }
-    Py_INCREF(&Py_buffer_Type);
-    if (PyModule_AddObject(module, "Py_buffer", (PyObject *)&Py_buffer_Type)) {
-        Py_DECREF(&Py_buffer_Type);
+    if (PyModule_AddType(module, &Py_buffer_Type)) {
         Py_DECREF(module);
         return NULL;
     }

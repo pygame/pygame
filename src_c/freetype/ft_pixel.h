@@ -22,33 +22,37 @@
 
 #include "../surface.h"
 
-#define GET_RGB_VALS(pixel, fmt, r, g, b, a)                              \
-    (r) = ((pixel) & (fmt)->Rmask) >> (fmt)->Rshift;                      \
-    (r) = ((r) << (fmt)->Rloss) + ((r) >> (8 - ((fmt)->Rloss << 1)));     \
-    (g) = ((pixel) & (fmt)->Gmask) >> (fmt)->Gshift;                      \
-    (g) = ((g) << (fmt)->Gloss) + ((g) >> (8 - ((fmt)->Gloss << 1)));     \
-    (b) = ((pixel) & (fmt)->Bmask) >> (fmt)->Bshift;                      \
-    (b) = ((b) << (fmt)->Bloss) + ((b) >> (8 - ((fmt)->Bloss << 1)));     \
-    if ((fmt)->Amask) {                                                   \
-        (a) = ((pixel) & (fmt)->Amask) >> (fmt)->Ashift;                  \
-        (a) = ((a) << (fmt)->Aloss) + ((a) >> (8 - ((fmt)->Aloss << 1))); \
-    }                                                                     \
-    else {                                                                \
-        (a) = 255;                                                        \
+#define GET_RGB_VALS(pixel, fmt, r, g, b, a)               \
+    (r) = ((pixel) & (fmt)->Rmask) >> (fmt)->Rshift;       \
+    (r) = ((r) << PG_FORMAT_R_LOSS(fmt)) +                 \
+          ((r) >> (8 - (PG_FORMAT_R_LOSS(fmt) << 1)));     \
+    (g) = ((pixel) & (fmt)->Gmask) >> (fmt)->Gshift;       \
+    (g) = ((g) << PG_FORMAT_G_LOSS(fmt)) +                 \
+          ((g) >> (8 - (PG_FORMAT_G_LOSS(fmt) << 1)));     \
+    (b) = ((pixel) & (fmt)->Bmask) >> (fmt)->Bshift;       \
+    (b) = ((b) << PG_FORMAT_B_LOSS(fmt)) +                 \
+          ((b) >> (8 - (PG_FORMAT_B_LOSS(fmt) << 1)));     \
+    if ((fmt)->Amask) {                                    \
+        (a) = ((pixel) & (fmt)->Amask) >> (fmt)->Ashift;   \
+        (a) = ((a) << PG_FORMAT_A_LOSS(fmt)) +             \
+              ((a) >> (8 - (PG_FORMAT_A_LOSS(fmt) << 1))); \
+    }                                                      \
+    else {                                                 \
+        (a) = 255;                                         \
     }
 
-#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa) \
-    (sr) = (fmt)->palette->colors[(Uint8)(pixel)].r; \
-    (sg) = (fmt)->palette->colors[(Uint8)(pixel)].g; \
-    (sb) = (fmt)->palette->colors[(Uint8)(pixel)].b; \
+#define GET_PALETTE_VALS(pixel, palette, sr, sg, sb, sa) \
+    (sr) = palette->colors[(Uint8)(pixel)].r;            \
+    (sg) = palette->colors[(Uint8)(pixel)].g;            \
+    (sb) = palette->colors[(Uint8)(pixel)].b;            \
     (sa) = 255;
 
-#define GET_PIXEL_VALS(pixel, fmt, r, g, b, a)    \
-    if (!(fmt)->palette) {                        \
-        GET_RGB_VALS(pixel, fmt, r, g, b, a);     \
-    }                                             \
-    else {                                        \
-        GET_PALETTE_VALS(pixel, fmt, r, g, b, a); \
+#define GET_PIXEL_VALS(pixel, fmt, palette, r, g, b, a) \
+    if (!palette) {                                     \
+        GET_RGB_VALS(pixel, fmt, r, g, b, a);           \
+    }                                                   \
+    else {                                              \
+        GET_PALETTE_VALS(pixel, palette, r, g, b, a);   \
     }
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN

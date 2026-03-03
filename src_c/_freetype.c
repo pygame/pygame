@@ -21,7 +21,7 @@
 #define PYGAME_FREETYPE_INTERNAL
 #define PYGAME_FREETYPE_FONT_INTERNAL
 
-#include "freetype.h"
+#include "freetype/ft_freetype.h"
 
 #include "freetype/ft_wrap.h"
 
@@ -50,6 +50,8 @@ static PyObject *
 _ft_get_error(PyObject *, PyObject *);
 static PyObject *
 _ft_get_init(PyObject *, PyObject *);
+static PyObject *
+_ft_was_init(PyObject *, PyObject *);
 static PyObject *
 _ft_autoinit(PyObject *, PyObject *);
 static PyObject *
@@ -114,6 +116,8 @@ static int
 _ftfont_setstyle(pgFontObject *, PyObject *, void *);
 static PyObject *
 _ftfont_getname(pgFontObject *, void *);
+static PyObject *
+_ftfont_getstylename(pgFontObject *, void *);
 static PyObject *
 _ftfont_getpath(pgFontObject *, void *);
 static PyObject *
@@ -212,12 +216,23 @@ free_string(PGFT_String *);
 #define PKGDATA_MODULE_NAME "pygame.pkgdata"
 #define RESOURCE_FUNC_NAME "getResource"
 
+static unsigned int current_freetype_generation = 0;
+
+#define FreetypeFont_GenerationCheck(x) \
+    (((pgFontObject *)(x))->init_generation == current_freetype_generation)
+
+#define RAISE_FREETYPE_QUIT_ERROR(r)                                       \
+    RAISERETURN(                                                           \
+        pgExc_SDLError,                                                    \
+        "Invalid freetype font (freetype module quit since freetype font " \
+        "created)",                                                        \
+        r);
+
 static PyObject *
 load_font_res(const char *filename)
 {
     PyObject *load_basicfunc = 0;
     PyObject *pkgdatamodule = 0;
-    PyObject *resourcefunc = 0;
     PyObject *result = 0;
     PyObject *tmp;
 
@@ -226,13 +241,9 @@ load_font_res(const char *filename)
         goto font_resource_end;
     }
 
-    resourcefunc = PyObject_GetAttrString(pkgdatamodule, RESOURCE_FUNC_NAME);
-    if (!resourcefunc) {
-        goto font_resource_end;
-    }
-
-    result = PyObject_CallFunction(resourcefunc, "s", filename);
-    if (!result) {
+    result =
+        PyObject_CallMethod(pkgdatamodule, RESOURCE_FUNC_NAME, "s", filename);
+    if (result == NULL) {
         goto font_resource_end;
     }
 
@@ -256,7 +267,6 @@ load_font_res(const char *filename)
 
 font_resource_end:
     Py_XDECREF(pkgdatamodule);
-    Py_XDECREF(resourcefunc);
     Py_XDECREF(load_basicfunc);
     return result;
 }
@@ -361,16 +371,19 @@ numbers_to_scale(PyObject *x, PyObject *y, Scale_t *size)
     int rval = 0;
 
     min_obj = PyFloat_FromDouble(0.0);
-    if (!min_obj)
+    if (!min_obj) {
         goto finish;
+    }
     max_obj = PyFloat_FromDouble(FX6_TO_DBL(FX6_MAX));
-    if (!max_obj)
+    if (!max_obj) {
         goto finish;
+    }
 
     for (o = x, do_y = 1; o; o = (do_y--) ? y : 0) {
         cmp_result = PyObject_RichCompareBool(o, min_obj, Py_LT);
-        if (cmp_result == -1)
+        if (cmp_result == -1) {
             goto finish;
+        }
         if (cmp_result == 1) {
             PyErr_Format(PyExc_OverflowError,
                          "%128s value is negative"
@@ -379,8 +392,9 @@ numbers_to_scale(PyObject *x, PyObject *y, Scale_t *size)
             goto finish;
         }
         cmp_result = PyObject_RichCompareBool(o, max_obj, Py_GT);
-        if (cmp_result == -1)
+        if (cmp_result == -1) {
             goto finish;
+        }
         if (cmp_result == 1) {
             PyErr_Format(PyExc_OverflowError,
                          "%128s value too large to convert to a size value",
@@ -428,12 +442,14 @@ number_to_FX6_unsigned(PyObject *n)
     PyObject *f_obj = PyNumber_Float(n);
     double f;
 
-    if (!f_obj)
+    if (!f_obj) {
         return 0;
+    }
     f = PyFloat_AsDouble(f_obj);
     Py_XDECREF(f_obj);
-    if (PyErr_Occurred())
+    if (PyErr_Occurred()) {
         return 0;
+    }
     return DBL_TO_FX6(f);
 }
 
@@ -446,23 +462,23 @@ obj_to_rotation(PyObject *o, void *p)
     long angle;
     int rval = 0;
 
-    if (PyLong_Check(o)) {
-        ;
-    }
-    else {
+    if (!PyLong_Check(o)) {
         PyErr_Format(PyExc_TypeError, "integer rotation expected, got %s",
                      Py_TYPE(o)->tp_name);
         goto finish;
     }
     full_circle_obj = PyLong_FromLong(360L);
-    if (!full_circle_obj)
+    if (!full_circle_obj) {
         goto finish;
+    }
     angle_obj = PyNumber_Remainder(o, full_circle_obj);
-    if (!angle_obj)
+    if (!angle_obj) {
         goto finish;
+    }
     angle = PyLong_AsLong(angle_obj);
-    if (angle == -1)
+    if (angle == -1) {
         goto finish;
+    }
     *(Angle_t *)p = (Angle_t)INT_TO_FX16(angle);
     rval = 1;
 
@@ -476,8 +492,9 @@ finish:
 static void
 free_string(PGFT_String *p)
 {
-    if (p)
+    if (p) {
         _PGFT_FreeString(p);
+    }
 }
 
 /*
@@ -487,22 +504,22 @@ static PyMethodDef _ft_methods[] = {
     {"_internal_mod_init", (PyCFunction)_ft_autoinit, METH_NOARGS,
      "auto initialize function for _freetype"},
     {"init", (PyCFunction)_ft_init, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEFREETYPEINIT},
-    {"quit", (PyCFunction)_ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
-    {"get_init", _ft_get_init, METH_NOARGS, DOC_PYGAMEFREETYPEGETINIT},
-    {"was_init", _ft_get_init, METH_NOARGS,
-     DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
-    {"get_error", _ft_get_error, METH_NOARGS, DOC_PYGAMEFREETYPEGETERROR},
+     DOC_FREETYPE_INIT},
+    {"quit", (PyCFunction)_ft_quit, METH_NOARGS, DOC_FREETYPE_QUIT},
+    {"get_init", _ft_get_init, METH_NOARGS, DOC_FREETYPE_GETINIT},
+    {"was_init", _ft_was_init, METH_NOARGS,
+     DOC_FREETYPE_WASINIT},  // DEPRECATED
+    {"get_error", _ft_get_error, METH_NOARGS, DOC_FREETYPE_GETERROR},
     {"get_version", (PyCFunction)_ft_get_version, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEFREETYPEGETVERSION},
+     DOC_FREETYPE_GETVERSION},
     {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
-     DOC_PYGAMEFREETYPEGETCACHESIZE},
+     DOC_FREETYPE_GETCACHESIZE},
     {"get_default_resolution", _ft_get_default_resolution, METH_NOARGS,
-     DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION},
+     DOC_FREETYPE_GETDEFAULTRESOLUTION},
     {"set_default_resolution", _ft_set_default_resolution, METH_VARARGS,
-     DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION},
+     DOC_FREETYPE_SETDEFAULTRESOLUTION},
     {"get_default_font", _ft_get_default_font, METH_NOARGS,
-     DOC_PYGAMEFREETYPEGETDEFAULTFONT},
+     DOC_FREETYPE_GETDEFAULTFONT},
 
     {0, 0, 0, 0}};
 
@@ -511,27 +528,27 @@ static PyMethodDef _ft_methods[] = {
  */
 static PyMethodDef _ftfont_methods[] = {
     {"get_sized_height", (PyCFunction)_ftfont_getsizedheight, METH_VARARGS,
-     DOC_FONTGETSIZEDHEIGHT},
+     DOC_FREETYPE_FONT_GETSIZEDHEIGHT},
     {"get_sized_ascender", (PyCFunction)_ftfont_getsizedascender, METH_VARARGS,
-     DOC_FONTGETSIZEDASCENDER},
+     DOC_FREETYPE_FONT_GETSIZEDASCENDER},
     {"get_sized_descender", (PyCFunction)_ftfont_getsizeddescender,
-     METH_VARARGS, DOC_FONTGETSIZEDDESCENDER},
+     METH_VARARGS, DOC_FREETYPE_FONT_GETSIZEDDESCENDER},
     {"get_sized_glyph_height", (PyCFunction)_ftfont_getsizedglyphheight,
-     METH_VARARGS, DOC_FONTGETSIZEDGLYPHHEIGHT},
+     METH_VARARGS, DOC_FREETYPE_FONT_GETSIZEDGLYPHHEIGHT},
     {"get_rect", (PyCFunction)_ftfont_getrect, METH_VARARGS | METH_KEYWORDS,
-     DOC_FONTGETRECT},
+     DOC_FREETYPE_FONT_GETRECT},
     {"get_metrics", (PyCFunction)_ftfont_getmetrics,
-     METH_VARARGS | METH_KEYWORDS, DOC_FONTGETMETRICS},
+     METH_VARARGS | METH_KEYWORDS, DOC_FREETYPE_FONT_GETMETRICS},
     {"get_sizes", (PyCFunction)_ftfont_getsizes, METH_NOARGS,
-     DOC_FONTGETSIZES},
+     DOC_FREETYPE_FONT_GETSIZES},
     {"render", (PyCFunction)_ftfont_render, METH_VARARGS | METH_KEYWORDS,
-     DOC_FONTRENDER},
+     DOC_FREETYPE_FONT_RENDER},
     {"render_to", (PyCFunction)_ftfont_render_to, METH_VARARGS | METH_KEYWORDS,
-     DOC_FONTRENDERTO},
+     DOC_FREETYPE_FONT_RENDERTO},
     {"render_raw", (PyCFunction)_ftfont_render_raw,
-     METH_VARARGS | METH_KEYWORDS, DOC_FONTRENDERRAW},
+     METH_VARARGS | METH_KEYWORDS, DOC_FREETYPE_FONT_RENDERRAW},
     {"render_raw_to", (PyCFunction)_ftfont_render_raw_to,
-     METH_VARARGS | METH_KEYWORDS, DOC_FONTRENDERRAWTO},
+     METH_VARARGS | METH_KEYWORDS, DOC_FREETYPE_FONT_RENDERRAWTO},
 
     {0, 0, 0, 0}};
 
@@ -539,57 +556,64 @@ static PyMethodDef _ftfont_methods[] = {
  * FREETYPE FONT GETTERS/SETTERS TABLE
  */
 static PyGetSetDef _ftfont_getsets[] = {
-    {"size", (getter)_ftfont_getsize, (setter)_ftfont_setsize, DOC_FONTSIZE,
-     0},
+    {"size", (getter)_ftfont_getsize, (setter)_ftfont_setsize,
+     DOC_FREETYPE_FONT_SIZE, 0},
     {"style", (getter)_ftfont_getstyle, (setter)_ftfont_setstyle,
-     DOC_FONTSTYLE, 0},
-    {"height", (getter)_ftfont_getfontmetric, 0, DOC_FONTHEIGHT,
+     DOC_FREETYPE_FONT_STYLE, 0},
+    {"height", (getter)_ftfont_getfontmetric, 0, DOC_FREETYPE_FONT_HEIGHT,
      (void *)_PGFT_Font_GetHeight},
-    {"ascender", (getter)_ftfont_getfontmetric, 0, DOC_FONTASCENDER,
+    {"ascender", (getter)_ftfont_getfontmetric, 0, DOC_FREETYPE_FONT_ASCENDER,
      (void *)_PGFT_Font_GetAscender},
-    {"descender", (getter)_ftfont_getfontmetric, 0, DOC_FONTASCENDER,
-     (void *)_PGFT_Font_GetDescender},
-    {"name", (getter)_ftfont_getname, 0, DOC_FONTNAME, 0},
-    {"path", (getter)_ftfont_getpath, 0, DOC_FONTPATH, 0},
-    {"scalable", (getter)_ftfont_getscalable, 0, DOC_FONTSCALABLE, 0},
-    {"fixed_width", (getter)_ftfont_getfixedwidth, 0, DOC_FONTFIXEDWIDTH, 0},
-    {"fixed_sizes", (getter)_ftfont_getfixedsizes, 0, DOC_FONTFIXEDSIZES, 0},
+    {"descender", (getter)_ftfont_getfontmetric, 0,
+     DOC_FREETYPE_FONT_DESCENDER, (void *)_PGFT_Font_GetDescender},
+    {"name", (getter)_ftfont_getname, 0, DOC_FREETYPE_FONT_NAME, 0},
+    {"style_name", (getter)_ftfont_getstylename, 0,
+     DOC_FREETYPE_FONT_STYLENAME, 0},
+    {"path", (getter)_ftfont_getpath, 0, DOC_FREETYPE_FONT_PATH, 0},
+    {"scalable", (getter)_ftfont_getscalable, 0, DOC_FREETYPE_FONT_SCALABLE,
+     0},
+    {"fixed_width", (getter)_ftfont_getfixedwidth, 0,
+     DOC_FREETYPE_FONT_FIXEDWIDTH, 0},
+    {"fixed_sizes", (getter)_ftfont_getfixedsizes, 0,
+     DOC_FREETYPE_FONT_FIXEDSIZES, 0},
     {"antialiased", (getter)_ftfont_getrender_flag,
-     (setter)_ftfont_setrender_flag, DOC_FONTANTIALIASED,
+     (setter)_ftfont_setrender_flag, DOC_FREETYPE_FONT_ANTIALIASED,
      (void *)FT_RFLAG_ANTIALIAS},
     {"kerning", (getter)_ftfont_getrender_flag, (setter)_ftfont_setrender_flag,
-     DOC_FONTKERNING, (void *)FT_RFLAG_KERNING},
+     DOC_FREETYPE_FONT_KERNING, (void *)FT_RFLAG_KERNING},
     {"vertical", (getter)_ftfont_getrender_flag,
-     (setter)_ftfont_setrender_flag, DOC_FONTVERTICAL,
+     (setter)_ftfont_setrender_flag, DOC_FREETYPE_FONT_VERTICAL,
      (void *)FT_RFLAG_VERTICAL},
     {"pad", (getter)_ftfont_getrender_flag, (setter)_ftfont_setrender_flag,
-     DOC_FONTPAD, (void *)FT_RFLAG_PAD},
+     DOC_FREETYPE_FONT_PAD, (void *)FT_RFLAG_PAD},
     {"oblique", (getter)_ftfont_getstyle_flag, (setter)_ftfont_setstyle_flag,
-     DOC_FONTOBLIQUE, (void *)FT_STYLE_OBLIQUE},
+     DOC_FREETYPE_FONT_OBLIQUE, (void *)FT_STYLE_OBLIQUE},
     {"strong", (getter)_ftfont_getstyle_flag, (setter)_ftfont_setstyle_flag,
-     DOC_FONTSTRONG, (void *)FT_STYLE_STRONG},
+     DOC_FREETYPE_FONT_STRONG, (void *)FT_STYLE_STRONG},
     {"underline", (getter)_ftfont_getstyle_flag, (setter)_ftfont_setstyle_flag,
-     DOC_FONTUNDERLINE, (void *)FT_STYLE_UNDERLINE},
+     DOC_FREETYPE_FONT_UNDERLINE, (void *)FT_STYLE_UNDERLINE},
     {"wide", (getter)_ftfont_getstyle_flag, (setter)_ftfont_setstyle_flag,
-     DOC_FONTWIDE, (void *)FT_STYLE_WIDE},
+     DOC_FREETYPE_FONT_WIDE, (void *)FT_STYLE_WIDE},
     {"strength", (getter)_ftfont_getstrength, (setter)_ftfont_setstrength,
-     DOC_FONTSTRENGTH, 0},
+     DOC_FREETYPE_FONT_STRENGTH, 0},
     {"underline_adjustment", (getter)_ftfont_getunderlineadjustment,
-     (setter)_ftfont_setunderlineadjustment, DOC_FONTUNDERLINEADJUSTMENT, 0},
+     (setter)_ftfont_setunderlineadjustment,
+     DOC_FREETYPE_FONT_UNDERLINEADJUSTMENT, 0},
     {"ucs4", (getter)_ftfont_getrender_flag, (setter)_ftfont_setrender_flag,
-     DOC_FONTUCS4, (void *)FT_RFLAG_UCS4},
+     DOC_FREETYPE_FONT_UCS4, (void *)FT_RFLAG_UCS4},
     {"use_bitmap_strikes", (getter)_ftfont_getrender_flag,
-     (setter)_ftfont_setrender_flag, DOC_FONTUSEBITMAPSTRIKES,
+     (setter)_ftfont_setrender_flag, DOC_FREETYPE_FONT_USEBITMAPSTRIKES,
      (void *)FT_RFLAG_USE_BITMAP_STRIKES},
-    {"resolution", (getter)_ftfont_getresolution, 0, DOC_FONTRESOLUTION, 0},
+    {"resolution", (getter)_ftfont_getresolution, 0,
+     DOC_FREETYPE_FONT_RESOLUTION, 0},
     {"rotation", (getter)_ftfont_getrotation, (setter)_ftfont_setrotation,
-     DOC_FONTROTATION, 0},
+     DOC_FREETYPE_FONT_ROTATION, 0},
     {"fgcolor", (getter)_ftfont_getfgcolor, (setter)_ftfont_setfgcolor,
-     DOC_FONTFGCOLOR, 0},
+     DOC_FREETYPE_FONT_FGCOLOR, 0},
     {"bgcolor", (getter)_ftfont_getbgcolor, (setter)_ftfont_setbgcolor,
-     DOC_FONTBGCOLOR, 0},
+     DOC_FREETYPE_FONT_BGCOLOR, 0},
     {"origin", (getter)_ftfont_getrender_flag, (setter)_ftfont_setrender_flag,
-     DOC_FONTORIGIN, (void *)FT_RFLAG_ORIGIN},
+     DOC_FREETYPE_FONT_ORIGIN, (void *)FT_RFLAG_ORIGIN},
 #if defined(PGFT_DEBUG_CACHE)
     {"_debug_cache_stats", (getter)_ftfont_getdebugcachestats, 0,
      "_debug cache fields as a tuple", 0},
@@ -607,7 +631,8 @@ PyTypeObject pgFont_Type = {
     .tp_dealloc = (destructor)_ftfont_dealloc,
     .tp_repr = (reprfunc)_ftfont_repr,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = DOC_PYGAMEFREETYPEFONT,
+    .tp_doc = DOC_FREETYPE_FONT,
+    .tp_weaklistoffset = offsetof(pgFontObject, weakreflist),
     .tp_methods = _ftfont_methods,
     .tp_getset = _ftfont_getsets,
     .tp_init = (initproc)_ftfont_init,
@@ -649,6 +674,8 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->bgcolor[1] = 0;
         obj->bgcolor[2] = 0;
         obj->bgcolor[3] = 0;
+        obj->init_generation = current_freetype_generation;
+        obj->weakreflist = NULL;
     }
     return (PyObject *)obj;
 }
@@ -659,11 +686,14 @@ _ftfont_dealloc(pgFontObject *self)
     SDL_RWops *src = _PGFT_GetRWops(self);
     _PGFT_UnloadFont(self->freetype, self);
     if (src) {
-        pgRWops_ReleaseObject(src);
+        SDL_RWclose(src);
     }
     _PGFT_Quit(self->freetype);
 
     Py_XDECREF(self->path);
+    if (self->weakreflist) {
+        PyObject_ClearWeakRefs((PyObject *)self);
+    }
     ((PyObject *)self)->ob_type->tp_free((PyObject *)self);
 }
 
@@ -729,83 +759,21 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-#if !defined(WIN32)
-    file = pg_EncodeString(file, "UTF-8", NULL, NULL);
-    if (!file) {
-        goto end;
-    }
-    if (PyBytes_Check(file)) {
-        if (PyUnicode_Check(original_file)) {
-            /* Make sure to save a pure Unicode object to prevent possible
-             * cycles from a derived class. This means no tp_traverse or
-             * tp_clear for the PyFreetypeFont type.
-             */
-            self->path = PyObject_Str(original_file);
-        }
-        else {
-            self->path = PyUnicode_FromEncodedObject(file, "UTF-8", NULL);
-        }
-        if (!self->path) {
-            goto end;
-        }
-
-        if (_PGFT_TryLoadFont_Filename(ft, self, PyBytes_AS_STRING(file),
-                                       font_index)) {
-            goto end;
-        }
-    }
-    else {
-        PyObject *str = 0;
-        PyObject *path = 0;
-#ifndef WITH_THREAD
-        goto end;
-#endif
-        source = pgRWops_FromFileObject(original_file);
-        if (!source) {
-            goto end;
-        }
-
-        path = PyObject_GetAttrString(original_file, "name");
-        if (!path) {
-            PyErr_Clear();
-            str = PyBytes_FromFormat("<%s instance at %p>",
-                                     Py_TYPE(file)->tp_name, (void *)file);
-            if (str) {
-                self->path =
-                    PyUnicode_FromEncodedObject(str, "ascii", "strict");
-                Py_DECREF(str);
-            }
-        }
-        else if (PyUnicode_Check(path)) {
-            /* Make sure to save a pure Unicode object to prevent possible
-             * cycles from a derived class. This means no tp_traverse or
-             * tp_clear for the PyFreetypeFont type.
-             */
-            self->path = PyObject_Str(path);
-        }
-        else if (PyBytes_Check(path)) {
-            self->path = PyUnicode_FromEncodedObject(path, "UTF-8", NULL);
-        }
-        else {
-            self->path = PyObject_Str(path);
-        }
-        Py_XDECREF(path);
-        if (!self->path) {
-            goto end;
-        }
-
-        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
-            goto end;
-        }
-    }
-#else  /* WIN32 */
-    /* FT uses fopen(); as a workaround, always use RWops */
-    if (file == original_file)
+    if (file == original_file) {
         Py_INCREF(file);
-    if (!PG_CHECK_THREADS())
+    }
+    if (!PG_CHECK_THREADS()) {
         goto end;
+    }
     source = pgRWops_FromObject(file, NULL);
     if (!source) {
+        goto end;
+    }
+
+    if (SDL_RWsize(source) <= 0) {
+        PyErr_Format(PyExc_ValueError,
+                     "Font file object has an invalid file size: %lld",
+                     SDL_RWsize(source));
         goto end;
     }
 
@@ -853,7 +821,6 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
         goto end;
     }
-#endif /* WIN32 */
 
     if (!self->is_scalable && self->face_size.x == 0) {
         if (_PGFT_Font_GetAvailableSize(ft, self, 0, &size, &height, &width,
@@ -868,7 +835,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
 
     /* Keep the current freetype 2 connection open while this object exists.
        Otherwise, the freetype library may be closed before the object frees
-       its local resources. See Pygame issue #187
+       its local resources. See pygame issue #202
     */
     self->freetype = ft;
     ++ft->ref_count;
@@ -898,6 +865,10 @@ _ftfont_repr(pgFontObject *self)
 static PyObject *
 _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     const intptr_t style_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->style & (FT_UInt16)style_flag);
@@ -906,6 +877,10 @@ _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     const intptr_t style_flag = (intptr_t)closure;
 
     if (!PyBool_Check(value)) {
@@ -938,12 +913,20 @@ _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getstyle(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return PyLong_FromLong(self->style);
 }
 
 static int
 _ftfont_setstyle(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     FT_UInt32 style;
 
     if (!PyLong_Check(value)) {
@@ -984,12 +967,20 @@ _ftfont_setstyle(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getstrength(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return PyFloat_FromDouble(self->strength);
 }
 
 static int
 _ftfont_setstrength(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     PyObject *strengthobj = PyNumber_Float(value);
     double strength;
 
@@ -1012,6 +1003,10 @@ _ftfont_setstrength(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getsize(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     if (self->face_size.y == 0) {
         return PyFloat_FromDouble(FX6_TO_DBL(self->face_size.x));
     }
@@ -1022,12 +1017,17 @@ _ftfont_getsize(pgFontObject *self, void *closure)
 static int
 _ftfont_setsize(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     Scale_t face_size;
 
     DEL_ATTR_NOT_SUPPORTED_CHECK("size", value);
 
-    if (!obj_to_scale(value, &face_size))
+    if (!obj_to_scale(value, &face_size)) {
         goto error;
+    }
     self->face_size = face_size;
     return 0;
 
@@ -1038,6 +1038,10 @@ error:
 static PyObject *
 _ftfont_getunderlineadjustment(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return PyFloat_FromDouble(self->underline_adjustment);
 }
 
@@ -1045,6 +1049,10 @@ static int
 _ftfont_setunderlineadjustment(pgFontObject *self, PyObject *value,
                                void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     PyObject *adjustmentobj;
     double adjustment;
 
@@ -1074,6 +1082,10 @@ _ftfont_setunderlineadjustment(pgFontObject *self, PyObject *value,
 static PyObject *
 _ftfont_getfontmetric(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     typedef long (*getter)(FreeTypeInstance *, pgFontObject *);
     long height;
 
@@ -1088,16 +1100,40 @@ _ftfont_getfontmetric(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getname(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     if (pgFont_IS_ALIVE(self)) {
         const char *name = _PGFT_Font_GetName(self->freetype, self);
         return name ? PyUnicode_FromString(name) : 0;
     }
-    return PyObject_Repr((PyObject *)self);
+
+    return RAISE(PyExc_AttributeError, "<uninitialized Font object>");
+}
+
+static PyObject *
+_ftfont_getstylename(pgFontObject *self, void *closure)
+{
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
+    if (pgFont_IS_ALIVE(self)) {
+        const char *stylename = _PGFT_Font_GetStyleName(self->freetype, self);
+        return stylename ? PyUnicode_FromString(stylename) : 0;
+    }
+
+    return RAISE(PyExc_AttributeError, "<uninitialized Font object>");
 }
 
 static PyObject *
 _ftfont_getpath(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     PyObject *path = ((pgFontObject *)self)->path;
 
     if (!path) {
@@ -1111,6 +1147,10 @@ _ftfont_getpath(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getscalable(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     ASSERT_SELF_IS_ALIVE(self)
     return PyBool_FromLong(self->is_scalable);
 }
@@ -1118,6 +1158,10 @@ _ftfont_getscalable(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getfixedwidth(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     long fixed_width;
 
     ASSERT_SELF_IS_ALIVE(self);
@@ -1129,6 +1173,10 @@ _ftfont_getfixedwidth(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     long num_fixed_sizes;
 
     ASSERT_SELF_IS_ALIVE(self);
@@ -1140,6 +1188,10 @@ _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrender_flag(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     const intptr_t render_flag = (intptr_t)closure;
 
     return PyBool_FromLong(self->render_flags & (FT_UInt16)render_flag);
@@ -1148,6 +1200,10 @@ _ftfont_getrender_flag(pgFontObject *self, void *closure)
 static int
 _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     const intptr_t render_flag = (intptr_t)closure;
 
     /* Generic setter; We do not know the name of the attribute */
@@ -1172,6 +1228,10 @@ _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getresolution(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return PyLong_FromUnsignedLong((unsigned long)self->resolution);
 }
 
@@ -1179,12 +1239,20 @@ _ftfont_getresolution(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrotation(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return PyLong_FromLong((long)FX16_ROUND_TO_INT(self->rotation));
 }
 
 static int
 _ftfont_setrotation(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     DEL_ATTR_NOT_SUPPORTED_CHECK("rotation", value);
 
     if (!self->is_scalable) {
@@ -1205,15 +1273,23 @@ _ftfont_setrotation(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getfgcolor(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return pgColor_New(self->fgcolor);
 }
 
 static int
 _ftfont_setfgcolor(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     DEL_ATTR_NOT_SUPPORTED_CHECK("fgcolor", value);
 
-    if (!pg_RGBAFromObj(value, self->fgcolor)) {
+    if (!pg_RGBAFromObjEx(value, self->fgcolor, PG_COLOR_HANDLE_SIMPLE)) {
         PyErr_Format(PyExc_AttributeError,
                      "unable to convert %128s object to a color",
                      Py_TYPE(value)->tp_name);
@@ -1225,15 +1301,23 @@ _ftfont_setfgcolor(pgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getbgcolor(pgFontObject *self, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     return pgColor_New(self->bgcolor);
 }
 
 static int
 _ftfont_setbgcolor(pgFontObject *self, PyObject *value, void *closure)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(-1);
+    }
+
     DEL_ATTR_NOT_SUPPORTED_CHECK("bgcolor", value);
 
-    if (!pg_RGBAFromObj(value, self->bgcolor)) {
+    if (!pg_RGBAFromObjEx(value, self->bgcolor, PG_COLOR_HANDLE_SIMPLE)) {
         PyErr_Format(PyExc_AttributeError,
                      "unable to convert %128s object to a color",
                      Py_TYPE(value)->tp_name);
@@ -1272,6 +1356,10 @@ _ftfont_getdebugcachestats(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrect(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* MODIFIED
      */
     /* keyword list */
@@ -1288,26 +1376,30 @@ _ftfont_getrect(pgFontObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "O|iO&O&", kwlist, &textobj, &style, obj_to_rotation,
-            (void *)&rotation, obj_to_scale, (void *)&face_size))
+            (void *)&rotation, obj_to_scale, (void *)&face_size)) {
         goto error;
+    }
 
     /* Encode text */
     if (textobj != Py_None) {
         text =
             _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-        if (!text)
+        if (!text) {
             goto error;
+        }
     }
 
     ASSERT_SELF_IS_ALIVE(self);
 
     /* Build rendering mode, always anti-aliased by default */
     if (_PGFT_BuildRenderMode(self->freetype, self, &render, face_size, style,
-                              rotation))
+                              rotation)) {
         goto error;
+    }
 
-    if (_PGFT_GetTextRect(self->freetype, self, &render, text, &r))
+    if (_PGFT_GetTextRect(self->freetype, self, &render, text, &r)) {
         goto error;
+    }
     free_string(text);
 
     return pgRect_New(&r);
@@ -1368,6 +1460,10 @@ get_metrics(FontRenderMode *render, pgFontObject *font, PGFT_String *text)
 static PyObject *
 _ftfont_getmetrics(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* keyword list */
     static char *kwlist[] = {"text", "size", 0};
 
@@ -1381,13 +1477,15 @@ _ftfont_getmetrics(pgFontObject *self, PyObject *args, PyObject *kwds)
 
     /* parse args */
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&", kwlist, &textobj,
-                                     obj_to_scale, (void *)&face_size))
+                                     obj_to_scale, (void *)&face_size)) {
         goto error;
+    }
 
     /* Encode text */
     text = _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-    if (!text)
+    if (!text) {
         goto error;
+    }
 
     ASSERT_SELF_IS_ALIVE(self);
 
@@ -1396,13 +1494,15 @@ _ftfont_getmetrics(pgFontObject *self, PyObject *args, PyObject *kwds)
      * for rotation/styles/size changes in text
      */
     if (_PGFT_BuildRenderMode(self->freetype, self, &render, face_size,
-                              FT_STYLE_DEFAULT, self->rotation))
+                              FT_STYLE_DEFAULT, self->rotation)) {
         goto error;
+    }
 
     /* get metrics */
     list = get_metrics(&render, self, text);
-    if (!list)
+    if (!list) {
         goto error;
+    }
     free_string(text);
 
     return list;
@@ -1416,6 +1516,10 @@ error:
 static PyObject *
 _ftfont_getsizedascender(pgFontObject *self, PyObject *args)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
@@ -1443,6 +1547,10 @@ _ftfont_getsizedascender(pgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizeddescender(pgFontObject *self, PyObject *args)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
@@ -1471,6 +1579,10 @@ _ftfont_getsizeddescender(pgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedheight(pgFontObject *self, PyObject *args)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
@@ -1498,6 +1610,10 @@ _ftfont_getsizedheight(pgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
@@ -1526,6 +1642,10 @@ _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizes(pgFontObject *self, PyObject *_null)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     int nsizes;
     int i;
     int rc;
@@ -1536,21 +1656,25 @@ _ftfont_getsizes(pgFontObject *self, PyObject *_null)
     PyObject *size_item;
 
     nsizes = _PGFT_Font_NumFixedSizes(self->freetype, self);
-    if (nsizes < 0)
+    if (nsizes < 0) {
         goto error;
+    }
     size_list = PyList_New(nsizes);
-    if (!size_list)
+    if (!size_list) {
         goto error;
+    }
     for (i = 0; i < nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(self->freetype, self, i, &size,
                                          &height, &width, &x_ppem, &y_ppem);
-        if (rc < 0)
+        if (rc < 0) {
             goto error;
+        }
         assert(rc > 0);
         size_item =
             Py_BuildValue("llldd", size, height, width, x_ppem, y_ppem);
-        if (!size_item)
+        if (!size_item) {
             goto error;
+        }
         PyList_SET_ITEM(size_list, i, size_item);
     }
     return size_list;
@@ -1563,6 +1687,10 @@ error:
 static PyObject *
 _ftfont_render_raw(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* keyword list */
     static char *kwlist[] = {"text", "style", "rotation", "size", "invert", 0};
 
@@ -1583,15 +1711,17 @@ _ftfont_render_raw(pgFontObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "O|iO&O&i", kwlist, &textobj, &style, obj_to_rotation,
-            (void *)&rotation, obj_to_scale, (void *)&face_size, &invert))
+            (void *)&rotation, obj_to_scale, (void *)&face_size, &invert)) {
         goto error;
+    }
 
     /* Encode text */
     if (textobj != Py_None) {
         text =
             _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-        if (!text)
+        if (!text) {
             goto error;
+        }
     }
 
     ASSERT_SELF_IS_ALIVE(self);
@@ -1601,17 +1731,20 @@ _ftfont_render_raw(pgFontObject *self, PyObject *args, PyObject *kwds)
      * rotation/styles/vertical text
      */
     if (_PGFT_BuildRenderMode(self->freetype, self, &mode, face_size, style,
-                              rotation))
+                              rotation)) {
         goto error;
+    }
 
     rbuffer = _PGFT_Render_PixelArray(self->freetype, self, &mode, text,
                                       invert, &width, &height);
-    if (!rbuffer)
+    if (!rbuffer) {
         goto error;
+    }
     free_string(text);
     rtuple = Py_BuildValue("O(ii)", rbuffer, width, height);
-    if (!rtuple)
+    if (!rtuple) {
         goto error;
+    }
     Py_DECREF(rbuffer);
 
     return rtuple;
@@ -1626,6 +1759,10 @@ error:
 static PyObject *
 _ftfont_render_raw_to(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* keyword list */
     static char *kwlist[] = {"array",    "text", "dest",   "style",
                              "rotation", "size", "invert", 0};
@@ -1652,20 +1789,23 @@ _ftfont_render_raw_to(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "OO|OiO&O&i", kwlist, &arrayobj, &textobj, &dest,
             &style, obj_to_rotation, (void *)&rotation, obj_to_scale,
-            (void *)&face_size, &invert))
+            (void *)&face_size, &invert)) {
         goto error;
+    }
 
     if (dest && dest != Py_None) {
-        if (parse_dest(dest, &xpos, &ypos))
+        if (parse_dest(dest, &xpos, &ypos)) {
             goto error;
+        }
     }
 
     /* Encode text */
     if (textobj != Py_None) {
         text =
             _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-        if (!text)
+        if (!text) {
             goto error;
+        }
     }
 
     /*
@@ -1673,12 +1813,14 @@ _ftfont_render_raw_to(pgFontObject *self, PyObject *args, PyObject *kwds)
      * rotation/styles/vertical text
      */
     if (_PGFT_BuildRenderMode(self->freetype, self, &mode, face_size, style,
-                              rotation))
+                              rotation)) {
         goto error;
+    }
 
     if (_PGFT_Render_Array(self->freetype, self, &mode, arrayobj, text, invert,
-                           xpos, ypos, &r))
+                           xpos, ypos, &r)) {
         goto error;
+    }
     free_string(text);
 
     return pgRect_New(&r);
@@ -1691,6 +1833,10 @@ error:
 static PyObject *
 _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* keyword list */
     static char *kwlist[] = {"text",     "fgcolor", "bgcolor", "style",
                              "rotation", "size",    0};
@@ -1723,8 +1869,9 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
                                      /* optional */
                                      &fg_color_obj, &bg_color_obj, &style,
                                      obj_to_rotation, (void *)&rotation,
-                                     obj_to_scale, (void *)&face_size))
+                                     obj_to_scale, (void *)&face_size)) {
         goto error;
+    }
 
     if (fg_color_obj == Py_None) {
         fg_color_obj = 0;
@@ -1734,7 +1881,8 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (fg_color_obj) {
-        if (!pg_RGBAFromFuzzyColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+        if (!pg_RGBAFromObjEx(fg_color_obj, (Uint8 *)&fg_color,
+                              PG_COLOR_HANDLE_ALL)) {
             /* Exception already set for us */
             goto error;
         }
@@ -1747,7 +1895,8 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (bg_color_obj) {
-        if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+        if (!pg_RGBAFromObjEx(bg_color_obj, (Uint8 *)&bg_color,
+                              PG_COLOR_HANDLE_ALL)) {
             /* Exception already set for us */
             goto error;
         }
@@ -1768,30 +1917,36 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (textobj != Py_None) {
         text =
             _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-        if (!text)
+        if (!text) {
             goto error;
+        }
     }
 
     if (_PGFT_BuildRenderMode(self->freetype, self, &render, face_size, style,
-                              rotation))
+                              rotation)) {
         goto error;
+    }
 
     surface = _PGFT_Render_NewSurface(
         self->freetype, self, &render, text, &fg_color,
         (bg_color_obj || self->is_bg_col_set) ? &bg_color : 0, &r);
-    if (!surface)
+    if (!surface) {
         goto error;
+    }
     free_string(text);
     surface_obj = (PyObject *)pgSurface_New(surface);
-    if (!surface_obj)
+    if (!surface_obj) {
         goto error;
+    }
 
     rect_obj = pgRect_New(&r);
-    if (!rect_obj)
+    if (!rect_obj) {
         goto error;
+    }
     rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
-    if (!rtuple)
+    if (!rtuple) {
         goto error;
+    }
     Py_DECREF(surface_obj);
     Py_DECREF(rect_obj);
 
@@ -1813,6 +1968,10 @@ error:
 static PyObject *
 _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
 {
+    if (!FreetypeFont_GenerationCheck(self)) {
+        RAISE_FREETYPE_QUIT_ERROR(NULL);
+    }
+
     /* keyword list */
     static char *kwlist[] = {"surf",  "dest",     "text", "fgcolor", "bgcolor",
                              "style", "rotation", "size", 0};
@@ -1844,8 +2003,9 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
             &pgSurface_Type, &surface_obj, &dest, &textobj, &fg_color_obj,
             /* optional */
             &bg_color_obj, &style, obj_to_rotation, (void *)&rotation,
-            obj_to_scale, (void *)&face_size))
+            obj_to_scale, (void *)&face_size)) {
         goto error;
+    }
 
     if (fg_color_obj == Py_None) {
         fg_color_obj = 0;
@@ -1854,10 +2014,12 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
         bg_color_obj = 0;
     }
 
-    if (parse_dest(dest, &xpos, &ypos))
+    if (parse_dest(dest, &xpos, &ypos)) {
         goto error;
+    }
     if (fg_color_obj) {
-        if (!pg_RGBAFromFuzzyColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+        if (!pg_RGBAFromObjEx(fg_color_obj, (Uint8 *)&fg_color,
+                              PG_COLOR_HANDLE_ALL)) {
             /* Exception already set for us */
             goto error;
         }
@@ -1869,7 +2031,8 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
         fg_color.a = self->fgcolor[3];
     }
     if (bg_color_obj) {
-        if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+        if (!pg_RGBAFromObjEx(bg_color_obj, (Uint8 *)&bg_color,
+                              PG_COLOR_HANDLE_ALL)) {
             /* Exception already set for us */
             goto error;
         }
@@ -1892,13 +2055,15 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (textobj != Py_None) {
         text =
             _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
-        if (!text)
+        if (!text) {
             goto error;
+        }
     }
 
     if (_PGFT_BuildRenderMode(self->freetype, self, &render, face_size, style,
-                              rotation))
+                              rotation)) {
         goto error;
+    }
 
     surface = surface_obj ? pgSurface_AsSurface(surface_obj) : NULL;
     if (!surface) {
@@ -1908,8 +2073,9 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (_PGFT_Render_ExistingSurface(
             self->freetype, self, &render, text, surface, xpos, ypos,
             &fg_color, (bg_color_obj || self->is_bg_col_set) ? &bg_color : 0,
-            &r))
+            &r)) {
         goto error;
+    }
     free_string(text);
 
     return pgRect_New(&r);
@@ -1971,12 +2137,14 @@ _ft_autoinit(PyObject *self, PyObject *_null)
     int cache_size = FREETYPE_MOD_STATE(self)->cache_size;
 
     if (!FREETYPE_MOD_STATE(self)->freetype) {
-        if (cache_size == 0)
+        if (cache_size == 0) {
             cache_size = PGFT_DEFAULT_CACHE_SIZE;
+        }
 
-        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), cache_size))
+        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), cache_size)) {
             return RAISE(PyExc_RuntimeError,
                          "Failed to initialize freetype library");
+        }
 
         FREETYPE_MOD_STATE(self)->cache_size = cache_size;
     }
@@ -1993,6 +2161,7 @@ _ft_quit(PyObject *self, PyObject *_null)
         _PGFT_Quit(state->freetype);
         state->cache_size = 0;
         state->freetype = 0;
+        current_freetype_generation++;
     }
 
     Py_RETURN_NONE;
@@ -2118,6 +2287,19 @@ _ft_get_init(PyObject *self, PyObject *_null)
 }
 
 static PyObject *
+_ft_was_init(PyObject *self, PyObject *_null)
+{
+    if (PyErr_WarnEx(
+            PyExc_DeprecationWarning,
+            "was_init has been deprecated and may be removed in a future "
+            "version. Use the equivalent get_init function instead",
+            1) == -1) {
+        return NULL;
+    }
+    return _ft_get_init(self, _null);
+}
+
+static PyObject *
 _ft_get_default_font(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(DEFAULT_FONT_NAME);
@@ -2144,7 +2326,7 @@ _ft_clear(PyObject *mod)
  ****************************************************/
 #ifndef PYPY_VERSION
 struct PyModuleDef _freetypemodule = {
-    PyModuleDef_HEAD_INIT,  MODULE_NAME, DOC_PYGAMEFREETYPE,
+    PyModuleDef_HEAD_INIT,  MODULE_NAME, DOC_FREETYPE,
     sizeof(_FreeTypeState), _ft_methods, 0,
     _ft_traverse,           _ft_clear,   0};
 #else  /* PYPY_VERSION */
@@ -2152,7 +2334,7 @@ _FreeTypeState _modstate;
 struct PyModuleDef _freetypemodule = {
     PyModuleDef_HEAD_INIT,
     MODULE_NAME,
-    DOC_PYGAMEFREETYPE,
+    DOC_FREETYPE,
     -1 /* PyModule_GetState() not implemented */,
     _ft_methods,
     0,
@@ -2191,11 +2373,6 @@ MODINIT_DEFINE(_freetype)
         return NULL;
     }
 
-    /* type preparation */
-    if (PyType_Ready(&pgFont_Type) < 0) {
-        return NULL;
-    }
-
     module = PyModule_Create(&_freetypemodule);
 
     if (!module) {
@@ -2206,9 +2383,7 @@ MODINIT_DEFINE(_freetype)
     FREETYPE_MOD_STATE(module)->cache_size = 0;
     FREETYPE_MOD_STATE(module)->resolution = PGFT_DEFAULT_RESOLUTION;
 
-    Py_INCREF(&pgFont_Type);
-    if (PyModule_AddObject(module, FONT_TYPE_NAME, (PyObject *)&pgFont_Type)) {
-        Py_DECREF(&pgFont_Type);
+    if (PyModule_AddType(module, &pgFont_Type)) {
         Py_DECREF(module);
         return NULL;
     }

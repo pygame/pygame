@@ -81,8 +81,9 @@ bitcount(BITMASK_W n)
         /* Handle non-32 or 64 bit case the slow way */
         unsigned int nbits = 0;
         while (n) {
-            if (n & 1)
+            if (n & 1) {
                 nbits++;
+            }
             n = n >> 1;
         }
         return nbits;
@@ -176,8 +177,9 @@ bitmask_copy(bitmask_t *mask)
 void
 bitmask_clear(bitmask_t *m)
 {
-    if (!m->h || !m->w)
+    if (!m->h || !m->w) {
         return;
+    }
 
     memset(m->bits, 0,
            m->h * ((m->w - 1) / BITMASK_W_LEN + 1) * sizeof(BITMASK_W));
@@ -293,27 +295,33 @@ bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset,
             {
                 for (i = 0; i < astripes; i++) {
                     for (ap = a_entry, app = ap + a->h, bp = b_entry;
-                         ap < a_end;)
+                         ap < a_end;) {
                         if ((*ap++ >> shift) & *bp ||
-                            (*app++ << rshift) & *bp++)
+                            (*app++ << rshift) & *bp++) {
                             return 1;
+                        }
+                    }
                     a_entry += a->h;
                     a_end += a->h;
                     b_entry += b->h;
                 }
-                for (ap = a_entry, bp = b_entry; ap < a_end;)
-                    if ((*ap++ >> shift) & *bp++)
+                for (ap = a_entry, bp = b_entry; ap < a_end;) {
+                    if ((*ap++ >> shift) & *bp++) {
                         return 1;
+                    }
+                }
                 return 0;
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
                     for (ap = a_entry, app = ap + a->h, bp = b_entry;
-                         ap < a_end;)
+                         ap < a_end;) {
                         if ((*ap++ >> shift) & *bp ||
-                            (*app++ << rshift) & *bp++)
+                            (*app++ << rshift) & *bp++) {
                             return 1;
+                        }
+                    }
                     a_entry += a->h;
                     a_end += a->h;
                     b_entry += b->h;
@@ -326,9 +334,11 @@ bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset,
         {
             astripes = (MIN(b->w, a->w - xoffset) - 1) / BITMASK_W_LEN + 1;
             for (i = 0; i < astripes; i++) {
-                for (ap = a_entry, bp = b_entry; ap < a_end;)
-                    if (*ap++ & *bp++)
+                for (ap = a_entry, bp = b_entry; ap < a_end;) {
+                    if (*ap++ & *bp++) {
                         return 1;
+                    }
+                }
                 a_entry += a->h;
                 a_end += a->h;
                 b_entry += b->h;
@@ -395,52 +405,57 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         if (*ap & (*bp << shift)) {
                             *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp << shift));
                             return 1;
                         }
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         if (*ap & (*bp >> rshift)) {
                             *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i + 1) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp >> rshift));
                             return 1;
                         }
+                    }
                     b_entry += b->h;
                 }
-                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                     if (*ap & (*bp << shift)) {
                         *y = (int)(ap - a_entry) + yoffset;
                         *x = (xbase + astripes) * BITMASK_W_LEN +
                              firstsetbit(*ap & (*bp << shift));
                         return 1;
                     }
+                }
                 return 0;
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         if (*ap & (*bp << shift)) {
                             *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp << shift));
                             return 1;
                         }
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         if (*ap & (*bp >> rshift)) {
                             *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i + 1) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp >> rshift));
                             return 1;
                         }
+                    }
                     b_entry += b->h;
                 }
                 return 0;
@@ -473,8 +488,9 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
             *y += yoffset;
             return 1;
         }
-        else
+        else {
             return 0;
+        }
     }
 }
 
@@ -512,23 +528,26 @@ bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset,
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         count += bitcount(
                             ((*ap >> shift) | (*(ap + a->h) << rshift)) & *bp);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
                     b_entry += b->h;
                 }
-                for (ap = a_entry, bp = b_entry; ap < a_end;)
+                for (ap = a_entry, bp = b_entry; ap < a_end;) {
                     count += bitcount((*ap++ >> shift) & *bp++);
+                }
                 return count;
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         count += bitcount(
                             ((*ap >> shift) | (*(ap + a->h) << rshift)) & *bp);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
                     b_entry += b->h;
@@ -541,8 +560,9 @@ bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset,
         {
             astripes = (MIN(b->w, a->w - xoffset) - 1) / BITMASK_W_LEN + 1;
             for (i = 0; i < astripes; i++) {
-                for (ap = a_entry, bp = b_entry; ap < a_end;)
+                for (ap = a_entry, bp = b_entry; ap < a_end;) {
                     count += bitcount(*ap++ & *bp++);
+                }
 
                 a_entry += a->h;
                 a_end += a->h;
@@ -602,8 +622,9 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
             {
                 for (i = 0; i < astripes; i++) {
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
-                         ap++, bp++, cp++)
+                         ap++, bp++, cp++) {
                         *cp |= *ap & (*bp << shift);
+                    }
 
                     /* The c_entry (output mask) must advance with a_entry. */
                     a_entry += a->h;
@@ -611,23 +632,26 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                     c_entry += c->h;
 
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
-                         ap++, bp++, cp++)
+                         ap++, bp++, cp++) {
                         *cp |= *ap & (*bp >> rshift);
+                    }
 
                     b_entry += b->h;
                 }
 
                 /* This is the '.. zig' to handle the remaining bits. */
                 for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
-                     ap++, bp++, cp++)
+                     ap++, bp++, cp++) {
                     *cp |= *ap & (*bp << shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
-                         ap++, bp++, cp++)
+                         ap++, bp++, cp++) {
                         *cp |= *ap & (*bp << shift);
+                    }
 
                     /* The c_entry (output mask) must advance with a_entry. */
                     a_entry += a->h;
@@ -635,8 +659,9 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                     c_entry += c->h;
 
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
-                         ap++, bp++, cp++)
+                         ap++, bp++, cp++) {
                         *cp |= *ap & (*bp >> rshift);
+                    }
 
                     b_entry += b->h;
                 }
@@ -685,31 +710,36 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
             {
                 for (i = 0; i < astripes; i++) {
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
-                         bp++, ap++, cp++)
+                         bp++, ap++, cp++) {
                         *cp = *ap & (*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
-                         bp++, ap++, cp++)
+                         bp++, ap++, cp++) {
                         *cp |= *ap & (*bp << rshift);
+                    }
                     a_entry += a->h;
                     c_entry += c->h;
                 }
                 for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
-                     bp++, ap++, cp++)
+                     bp++, ap++, cp++) {
                     *cp = *ap & (*bp >> shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
-                         bp++, ap++, cp++)
+                         bp++, ap++, cp++) {
                         *cp = *ap & (*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
-                         bp++, ap++, cp++)
+                         bp++, ap++, cp++) {
                         *cp |= *ap & (*bp << rshift);
+                    }
                     a_entry += a->h;
                     c_entry += c->h;
                 }
@@ -743,8 +773,9 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
         edgemask = (~(BITMASK_W)0) >> shift;
         c_end = c->bits + n * c->h + MIN(c->h, b->h + yoffset);
 
-        for (cp = c->bits + n * c->h + MAX(yoffset, 0); cp < c_end; cp++)
+        for (cp = c->bits + n * c->h + MAX(yoffset, 0); cp < c_end; cp++) {
             *cp &= edgemask;
+        }
     }
 }
 
@@ -781,26 +812,31 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap |= (*bp << shift);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap |= (*bp >> rshift);
+                    }
                     b_entry += b->h;
                 }
-                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                     *ap |= (*bp << shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap |= (*bp << shift);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap |= (*bp >> rshift);
+                    }
                     b_entry += b->h;
                 }
             }
@@ -843,26 +879,31 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap |= (*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap |= (*bp << rshift);
+                    }
                     a_entry += a->h;
                 }
-                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                     *ap |= (*bp >> shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap |= (*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap |= (*bp << rshift);
+                    }
                     a_entry += a->h;
                 }
             }
@@ -893,8 +934,9 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
         edgemask = (~(BITMASK_W)0) >> shift;
         a_end = a->bits + n * a->h + MIN(a->h, b->h + yoffset);
 
-        for (ap = a->bits + n * a->h + MAX(yoffset, 0); ap < a_end; ap++)
+        for (ap = a->bits + n * a->h + MAX(yoffset, 0); ap < a_end; ap++) {
             *ap &= edgemask;
+        }
     }
 }
 
@@ -933,26 +975,31 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap &= ~(*bp << shift);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap &= ~(*bp >> rshift);
+                    }
                     b_entry += b->h;
                 }
-                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                     *ap &= ~(*bp << shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap &= ~(*bp << shift);
+                    }
                     a_entry += a->h;
                     a_end += a->h;
-                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
+                    for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                         *ap &= ~(*bp >> rshift);
+                    }
                     b_entry += b->h;
                 }
             }
@@ -995,26 +1042,31 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
             if (bstripes > astripes) /* zig-zag .. zig*/
             {
                 for (i = 0; i < astripes; i++) {
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap &= ~(*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap &= ~(*bp << rshift);
+                    }
                     a_entry += a->h;
                 }
-                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                     *ap &= ~(*bp >> shift);
+                }
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap &= ~(*bp >> shift);
+                    }
                     b_entry += b->h;
                     b_end += b->h;
-                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                    for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                         *ap &= ~(*bp << rshift);
+                    }
                     a_entry += a->h;
                 }
             }
@@ -1024,8 +1076,9 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
         {
             astripes = (MIN(a->w, b->w - xoffset) - 1) / BITMASK_W_LEN + 1;
             for (i = 0; i < astripes; i++) {
-                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
+                for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++) {
                     *ap &= ~*bp;
+                }
                 b_entry += b->h;
                 b_end += b->h;
                 a_entry += a->h;
@@ -1046,8 +1099,9 @@ bitmask_scale(const bitmask_t *m, int w, int h)
 
     nm = bitmask_create(w, h);
 
-    if (!nm)
+    if (!nm) {
         return NULL;
+    }
 
     ny = dny = 0;
     for (y = 0, dy = h; y < m->h; y++, dy += h) {
@@ -1088,8 +1142,11 @@ bitmask_convolve(const bitmask_t *a, const bitmask_t *b, bitmask_t *output,
     xoffset += b->w - 1;
     yoffset += b->h - 1;
 
-    for (y = 0; y < b->h; y++)
-        for (x = 0; x < b->w; x++)
-            if (bitmask_getbit(b, x, y))
+    for (y = 0; y < b->h; y++) {
+        for (x = 0; x < b->w; x++) {
+            if (bitmask_getbit(b, x, y)) {
                 bitmask_draw(output, a, xoffset - x, yoffset - y);
+            }
+        }
+    }
 }

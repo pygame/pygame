@@ -2,10 +2,12 @@ import os
 import os.path
 import sys
 import unittest
+from tempfile import TemporaryDirectory
 
+import pygame
+import pygame.image
+import pygame.pkgdata
 from pygame.tests.test_utils import example_path
-import pygame, pygame.image, pygame.pkgdata
-
 
 imageext = sys.modules["pygame.imageext"]
 
@@ -52,41 +54,26 @@ class ImageextModuleTest(unittest.TestCase):
         """non-ASCII unicode"""
         import shutil
 
-        orig = example_path("data/alien1.png")
-        temp = os.path.join(example_path("data"), "你好.png")
-        shutil.copy(orig, temp)
-        try:
-            im = imageext.load_extended(temp)
-        finally:
-            os.remove(temp)
+        with TemporaryDirectory() as tmpdir:
+            orig = example_path("data/alien1.png")
+            temp = os.path.join(tmpdir, "你好.png")
+            shutil.copy(orig, temp)
+            imageext.load_extended(temp)
 
     def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
-        try:
-            with open(temp_file, "w") as f:
-                pass
-            os.remove(temp_file)
-        except OSError:
-            raise unittest.SkipTest("the path cannot be opened")
-
         self.assertFalse(os.path.exists(temp_file))
-
-        try:
-            imageext.save_extended(im, temp_file)
-
-            self.assertGreater(os.path.getsize(temp_file), 10)
-        finally:
-            try:
-                os.remove(temp_file)
-            except OSError:
-                pass
+        imageext.save_extended(im, temp_file)
+        self.assertGreater(os.path.getsize(temp_file), 10)
 
     def test_save_unicode_path_0(self):
         """unicode object with ASCII chars"""
-        self._unicode_save("temp_file.png")
+        with TemporaryDirectory() as tmpdir:
+            self._unicode_save(os.path.join(tmpdir, "temp_file.png"))
 
     def test_save_unicode_path_1(self):
-        self._unicode_save("你好.png")
+        with TemporaryDirectory() as tmpdir:
+            self._unicode_save(os.path.join(tmpdir, "你好.png"))
 
 
 if __name__ == "__main__":

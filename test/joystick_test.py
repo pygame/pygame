@@ -1,8 +1,8 @@
 import unittest
-from pygame.tests.test_utils import question, prompt
 
 import pygame
 import pygame._sdl2.controller
+from pygame.tests.test_utils import prompt, question
 
 
 class JoystickTypeTest(unittest.TestCase):
@@ -30,6 +30,10 @@ class JoystickTypeTest(unittest.TestCase):
         #
 
         self.fail()
+
+    def test_Joystick_alias(self):
+        """Check if pygame.Joystick is present and the correct type."""
+        self.assertIs(pygame.Joystick, pygame.joystick.Joystick)
 
 
 class JoystickModuleTest(unittest.TestCase):
@@ -118,7 +122,7 @@ class JoystickModuleTest(unittest.TestCase):
         try:
             count = pygame.joystick.get_count()
             self.assertGreaterEqual(
-                count, 0, ("joystick.get_count() must " "return a value >= 0")
+                count, 0, ("joystick.get_count() must return a value >= 0")
             )
         finally:
             pygame.joystick.quit()

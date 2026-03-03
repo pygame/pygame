@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 if __name__ == "__main__":
     pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
@@ -30,9 +30,9 @@ def prepare_test_env():
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
 ################################################################################
-# Set the command line options
+# Set the command line options.
 #
-# options are shared with run_tests.py so make sure not to conflict
+# Options are shared with run_tests.py so make sure not to conflict
 # in time more will be added here
 
 TAG_PAT = r"-?[a-zA-Z0-9_]+"
@@ -56,7 +56,7 @@ opt_parser.add_option(
     "-s",
     "--usesubprocess",
     action="store_true",
-    help="run everything in a single process " " (default: use no subprocesses)",
+    help="run everything in a single process  (default: use no subprocesses)",
 )
 
 opt_parser.add_option(
@@ -240,8 +240,7 @@ TEST_RESULTS_RE = re.compile(_test_re_str, re.DOTALL | re.M)
 
 
 def get_test_results(raw_return):
-    test_results = TEST_RESULTS_RE.search(raw_return)
-    if test_results:
+    if test_results := TEST_RESULTS_RE.search(raw_return):
         try:
             return eval(test_results.group(1))
         except:
@@ -285,10 +284,17 @@ def run_test(
         print(output.read())
         output.seek(0)
 
+    # change in way skipped tested counted in Python 3.12.1 only (so far)
+    # This was changed and then reverted in 3.12.2
+    # https://github.com/python/cpython/pull/114994
+    tests_run_and_skipped = results.testsRun
+    if sys.version_info.minor == 12 and sys.version_info.micro == 1:
+        tests_run_and_skipped += len(results.skipped)
+
     results = {
         module: {
             "output": output.getvalue(),
-            "num_tests": results.testsRun,
+            "num_tests": tests_run_and_skipped,
             "num_errors": len(results.errors),
             "num_failures": len(results.failures),
         }

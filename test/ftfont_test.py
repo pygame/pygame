@@ -1,9 +1,10 @@
-import sys
 import os
+import sys
 import unittest
-from pygame.tests import font_test
 
 import pygame.ftfont
+
+from . import font_test
 
 font_test.pygame_font = pygame.ftfont
 

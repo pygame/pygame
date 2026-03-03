@@ -29,9 +29,14 @@
 #undef _POSIX_C_SOURCE
 #endif
 
+#ifdef PG_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL.h>
-#include "pygame.h"
+#endif
 
+#include "pygame.h"
+#if !defined(BUILD_STATIC)
 /* Blend modes */
 #define PYGAME_BLEND_ADD 0x1
 #define PYGAME_BLEND_SUB 0x2
@@ -52,7 +57,7 @@
 #define PYGAME_BLEND_RGBA_MAX 0x10
 #define PYGAME_BLEND_PREMULTIPLIED 0x11
 #define PYGAME_BLEND_ALPHA_SDL2 0x12
-
+#endif
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define GET_PIXEL_24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
 #else
@@ -73,21 +78,21 @@
         } break;                         \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)   \
-    SDL_GetRGBA(px, fmt, &(_sR), &(_sG), &(_sB), &(_sA)); \
-    if (!ppa) {                                           \
-        _sA = 255;                                        \
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, palette, ppa)  \
+    PG_GetRGBA(px, fmt, palette, &(_sR), &(_sG), &(_sB), &(_sA)); \
+    if (!ppa) {                                                   \
+        _sA = 255;                                                \
     }
 
-#define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _fmt)   \
-    sr = _fmt->palette->colors[*((Uint8 *)(_src))].r; \
-    sg = _fmt->palette->colors[*((Uint8 *)(_src))].g; \
-    sb = _fmt->palette->colors[*((Uint8 *)(_src))].b; \
+#define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _palette) \
+    sr = _palette->colors[*((Uint8 *)(_src))].r;        \
+    sg = _palette->colors[*((Uint8 *)(_src))].g;        \
+    sb = _palette->colors[*((Uint8 *)(_src))].b;        \
     sa = 255;
 
 /* For 1 byte palette pixels */
-#define SET_PIXELVAL(px, fmt, _dR, _dG, _dB, _dA) \
-    *(px) = (Uint8)SDL_MapRGBA(fmt, _dR, _dG, _dB, _dA)
+#define SET_PIXELVAL(px, fmt, palette, _dR, _dG, _dB, _dA) \
+    *(px) = (Uint8)PG_MapRGBA(fmt, palette, _dR, _dG, _dB, _dA)
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define SET_OFFSETS_24(or, og, ob, fmt)                         \
@@ -137,20 +142,22 @@
     }
 #endif
 
-#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                       \
-    switch (bp) {                                                   \
-        case 2:                                                     \
-            *((Uint16 *)(buf)) = ((r >> ft->Rloss) << ft->Rshift) | \
-                                 ((g >> ft->Gloss) << ft->Gshift) | \
-                                 ((b >> ft->Bloss) << ft->Bshift) | \
-                                 ((a >> ft->Aloss) << ft->Ashift);  \
-            break;                                                  \
-        case 4:                                                     \
-            *((Uint32 *)(buf)) = ((r >> ft->Rloss) << ft->Rshift) | \
-                                 ((g >> ft->Gloss) << ft->Gshift) | \
-                                 ((b >> ft->Bloss) << ft->Bshift) | \
-                                 ((a >> ft->Aloss) << ft->Ashift);  \
-            break;                                                  \
+#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                         \
+    switch (bp) {                                                     \
+        case 2:                                                       \
+            *((Uint16 *)(buf)) =                                      \
+                ((r >> PG_FORMAT_R_LOSS(ft)) << ft->Rshift) |         \
+                ((g >> PG_FORMAT_G_LOSS(ft)) << ft->Gshift) |         \
+                ((b >> PG_FORMAT_B_LOSS(ft)) << ft->Bshift) |         \
+                ((a >> PG_FORMAT_A_LOSS(ft)) << ft->Ashift);          \
+            break;                                                    \
+        case 4:                                                       \
+            *((Uint32 *)(buf)) =                                      \
+                ((Uint32)(r >> PG_FORMAT_R_LOSS(ft)) << ft->Rshift) | \
+                ((Uint32)(g >> PG_FORMAT_G_LOSS(ft)) << ft->Gshift) | \
+                ((Uint32)(b >> PG_FORMAT_B_LOSS(ft)) << ft->Bshift) | \
+                ((Uint32)(a >> PG_FORMAT_A_LOSS(ft)) << ft->Ashift);  \
+            break;                                                    \
     }
 
 /* Pretty good idea from Tom Duff :-). */
@@ -346,11 +353,11 @@ surface_respect_clip_rect(SDL_Surface *surface, SDL_Rect *rect);
 
 int
 pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-                 SDL_Rect *dstrect, int the_args);
+                 SDL_Rect *dstrect, int blend_flags);
 
 int
 pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-            SDL_Rect *dstrect, int the_args);
+            SDL_Rect *dstrect, int blend_flags);
 
 int
 premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst);

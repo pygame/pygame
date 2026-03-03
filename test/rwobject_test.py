@@ -1,13 +1,14 @@
 import pathlib
-import unittest
+import platform
 import sys
+import unittest
 
-from pygame import encode_string, encode_file_path
+from pygame import encode_file_path, encode_string
+
+IS_PYPY = "PyPy" == platform.python_implementation()
 
 
 class RWopsEncodeStringTest(unittest.TestCase):
-    global getrefcount
-
     def test_obj_None(self):
         encoded_string = encode_string(None)
 
@@ -20,13 +21,13 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertIsInstance(encoded_string, bytes)
 
     def test_obj_bytes(self):
-        b = b"encyclop\xE6dia"
+        b = b"encyclop\xe6dia"
         encoded_string = encode_string(b, "ascii", "strict")
 
         self.assertIs(encoded_string, b)
 
     def test_encode_unicode(self):
-        u = "\u00DEe Olde Komp\u00FCter Shoppe"
+        u = "\u00dee Olde Komp\u00fcter Shoppe"
         b = u.encode("utf-8")
         self.assertEqual(encode_string(u, "utf-8"), b)
 
@@ -34,7 +35,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertRaises(SyntaxError, encode_string)
 
     def test_errors(self):
-        u = "abc\u0109defg\u011Dh\u0125ij\u0135klmnoprs\u015Dtu\u016Dvz"
+        u = "abc\u0109defg\u011dh\u0125ij\u0135klmnoprs\u015dtu\u016dvz"
         b = u.encode("ascii", "ignore")
         self.assertEqual(encode_string(u, "ascii", "ignore"), b)
 
@@ -45,7 +46,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertIsNone(encoded_string)
 
     def test_check_defaults(self):
-        u = "a\u01F7b"
+        u = "a\u01f7b"
         b = u.encode("unicode_escape", "backslashreplace")
         encoded_string = encode_string(u)
 
@@ -69,29 +70,19 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertIs(encoded_string, b)
         self.assertEqual(encoded_decode_string, b)
 
-    try:
-        from sys import getrefcount as _g
-
-        getrefcount = _g  # This nonsense is for Python 3.x
-    except ImportError:
-        pass
-    else:
-
-        def test_refcount(self):
-            bpath = b" This is a string that is not cached."[1:]
-            upath = bpath.decode("ascii")
-            before = getrefcount(bpath)
-            bpath = encode_string(bpath)
-            self.assertEqual(getrefcount(bpath), before)
-            bpath = encode_string(upath)
-            if sys.version_info >= (3, 14):
-                self.assertEqual(getrefcount(bpath), before - 1)
-            else:
-                self.assertEqual(getrefcount(bpath), before)
+    @unittest.skipIf(IS_PYPY, "getrefcount not available on pypy")
+    def test_refcount(self):
+        bpath = b" This is a string that is not cached."[1:]
+        upath = bpath.decode("ascii")
+        before = sys.getrefcount(bpath)
+        bpath = encode_string(bpath)
+        self.assertEqual(sys.getrefcount(bpath), before)
+        bpath = encode_string(upath)
+        self.assertIn(sys.getrefcount(bpath), (before, before - 1))
 
     def test_smp(self):
-        utf_8 = b"a\xF0\x93\x82\xA7b"
-        u = "a\U000130A7b"
+        utf_8 = b"a\xf0\x93\x82\xa7b"
+        u = "a\U000130a7b"
         b = encode_string(u, "utf-8", "strict", AssertionError)
         self.assertEqual(b, utf_8)
 

@@ -8,13 +8,6 @@
 #define PG_ENABLE_ARM_NEON 1
 #endif
 
-int
-pg_sse2_at_runtime_but_uncompiled();
-int
-pg_neon_at_runtime_but_uncompiled();
-int
-pg_avx2_at_runtime_but_uncompiled();
-
 #if (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 void
 alphablit_alpha_sse2_argb_surf_alpha(SDL_BlitInfo *info);
@@ -56,12 +49,21 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo *info);
    generic like surface_ops*/
 
 void
-premul_surf_color_by_alpha_non_simd(SDL_Surface *src, SDL_Surface *dst);
+premul_surf_color_by_alpha_non_simd(SDL_Surface *src,
+                                    PG_PixelFormat *src_format,
+                                    SDL_Palette *src_palette, SDL_Surface *dst,
+                                    PG_PixelFormat *dst_format,
+                                    SDL_Palette *dst_palette);
 void
-premul_surf_color_by_alpha_sse2(SDL_Surface *src, SDL_Surface *dst);
+premul_surf_color_by_alpha_sse2(SDL_Surface *src, PG_PixelFormat *srcfmt,
+                                SDL_Surface *dst);
 
-int
-pg_has_avx2();
+void
+alphablit_alpha_avx2_argb_no_surf_alpha_opaque_dst(SDL_BlitInfo *info);
+void
+alphablit_alpha_avx2_argb_no_surf_alpha(SDL_BlitInfo *info);
+void
+alphablit_alpha_avx2_argb_surf_alpha(SDL_BlitInfo *info);
 void
 blit_blend_rgba_mul_avx2(SDL_BlitInfo *info);
 void
@@ -82,3 +84,8 @@ void
 blit_blend_rgba_min_avx2(SDL_BlitInfo *info);
 void
 blit_blend_rgb_min_avx2(SDL_BlitInfo *info);
+void
+blit_blend_premultiplied_avx2(SDL_BlitInfo *info);
+void
+premul_surf_color_by_alpha_avx2(SDL_Surface *src, PG_PixelFormat *src_format,
+                                SDL_Surface *dst);

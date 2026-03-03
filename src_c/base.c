@@ -19,201 +19,83 @@
   Pete Shinners
   pete@shinners.org
 */
-#define NO_PYGAME_C_API
+
+#if defined(BUILD_STATIC)
+#define PYGAMEAPI_RECT_INTERNAL
+#define PYGAMEAPI_EVENT_INTERNAL
+#define PYGAMEAPI_JOYSTICK_INTERNAL
 #define PYGAMEAPI_BASE_INTERNAL
-
-#include "pygame.h"
-
-#include "doc/pygame_doc.h"
-#include "pgarrinter.h"
-#include "pgcompat.h"
-
-/* This file controls all the initialization of
- * the module and the various SDL subsystems
- */
-
-/*platform specific init stuff*/
-
-#ifdef MS_WIN32 /*python gives us MS_WIN32*/
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <windows.h>
-extern int
-SDL_RegisterApp(const char *, Uint32, void *);
+#define PYGAMEAPI_SURFACE_INTERNAL
+#define PYGAMEAPI_BUFFERPROXY_INTERNAL
+#define PYGAMEAPI_WINDOW_INTERNAL
+#define PYGAMEAPI_RENDER_INTERNAL
 #endif
 
-#if defined(macintosh)
-#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-QDGlobals pg_qd;
-#endif
-#endif
+#include "base.h"
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define PAI_MY_ENDIAN '<'
-#define PAI_OTHER_ENDIAN '>'
-#define BUF_OTHER_ENDIAN '>'
-#else
-#define PAI_MY_ENDIAN '>'
-#define PAI_OTHER_ENDIAN '<'
-#define BUF_OTHER_ENDIAN '<'
-#endif
-#define BUF_MY_ENDIAN '='
-
-/* Extended array struct */
-typedef struct pg_capsule_interface_s {
-    PyArrayInterface inter;
-    Py_intptr_t imem[1];
-} pgCapsuleInterface;
-
-/* Py_buffer internal data for an array interface/struct */
-typedef struct pg_view_internals_s {
-    char format[4]; /* make 4 byte word sized */
-    Py_ssize_t imem[1];
-} pgViewInternals;
+PG_PixelFormatEnum pg_default_convert_format = 0;
 
 /* Custom exceptions */
-static PyObject *pgExc_BufferError = NULL;
+PyObject *pgExc_BufferError = NULL;
+PyObject *pgExc_SDLError = NULL;
 
 /* Only one instance of the state per process. */
 static PyObject *pg_quit_functions = NULL;
 static int pg_is_init = 0;
-static int pg_sdl_was_init = 0;
+static bool pg_sdl_was_init = 0;
 SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
-static char *pg_env_blend_alpha_SDL2 = NULL;
-
-static void
-pg_atexit_quit(void);
-static int
-pgGetArrayStruct(PyObject *, PyObject **, PyArrayInterface **);
-static PyObject *
-pgArrayStruct_AsDict(PyArrayInterface *);
-static PyObject *
-pgBuffer_AsArrayInterface(Py_buffer *);
-static PyObject *
-pgBuffer_AsArrayStruct(Py_buffer *);
-static int
-_pg_buffer_is_byteswapped(Py_buffer *);
-static void
-pgBuffer_Release(pg_buffer *);
-static int
-pgObject_GetBuffer(PyObject *, pg_buffer *, int);
-static int
-pgGetArrayInterface(PyObject **, PyObject *);
-static int
-pgArrayStruct_AsBuffer(pg_buffer *, PyArrayInterface *, int);
-static int
-_pg_arraystruct_as_buffer(Py_buffer *, PyArrayInterface *, int);
-static int
-_pg_arraystruct_to_format(char *, PyArrayInterface *, int);
-static int
-pgDict_AsBuffer(pg_buffer *, PyObject *, int);
-static int
-_pg_shape_check(PyObject *);
-static int
-_pg_typestr_check(PyObject *);
-static int
-_pg_strides_check(PyObject *);
-static int
-_pg_data_check(PyObject *);
-static int
-_pg_is_int_tuple(PyObject *);
-static int
-_pg_values_as_buffer(Py_buffer *, int, PyObject *, PyObject *, PyObject *,
-                     PyObject *);
-static int
-_pg_int_tuple_as_ssize_arr(PyObject *, Py_ssize_t *);
-static int
-_pg_typestr_as_format(PyObject *, char *, Py_ssize_t *);
-static PyObject *
-pg_view_get_typestr_obj(Py_buffer *);
-static PyObject *
-pg_view_get_shape_obj(Py_buffer *);
-static PyObject *
-pg_view_get_strides_obj(Py_buffer *);
-static PyObject *
-pg_view_get_data_obj(Py_buffer *);
-static char
-_pg_as_arrayinter_typekind(Py_buffer *);
-static char
-_pg_as_arrayinter_byteorder(Py_buffer *);
-static int
-_pg_as_arrayinter_flags(Py_buffer *);
-static pgCapsuleInterface *
-_pg_new_capsuleinterface(Py_buffer *);
-static void
-_pg_capsule_PyMem_Free(PyObject *);
-static PyObject *
-_pg_shape_as_tuple(PyArrayInterface *);
-static PyObject *
-_pg_typekind_as_str(PyArrayInterface *);
-static PyObject *
-_pg_strides_as_tuple(PyArrayInterface *);
-static PyObject *
-_pg_data_as_tuple(PyArrayInterface *);
-static PyObject *
-pg_get_array_interface(PyObject *, PyObject *);
-static void
-_pg_release_buffer_array(Py_buffer *);
-static void
-_pg_release_buffer_generic(Py_buffer *);
-static SDL_Window *
-pg_GetDefaultWindow(void);
-static void
-pg_SetDefaultWindow(SDL_Window *);
-static pgSurfaceObject *
-pg_GetDefaultWindowSurface(void);
-static void
-pg_SetDefaultWindowSurface(pgSurfaceObject *);
-static char *
-pg_EnvShouldBlendAlphaSDL2(void);
+static int pg_env_blend_alpha_SDL2 = 0;
 
 /* compare compiled to linked, raise python error on incompatibility */
-static int
+int
 pg_CheckSDLVersions(void)
 {
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    int compiled = SDL_VERSION;
+    int linked = SDL_GetVersion();
+#else
     SDL_version compiled;
     SDL_version linked;
-
     SDL_VERSION(&compiled);
     SDL_GetVersion(&linked);
+#endif
 
     /* only check the major version, in general major version is bumped for ABI
      * incompatible changes */
-    if (compiled.major != linked.major) {
+    if (PG_FIND_VNUM_MAJOR(compiled) != PG_FIND_VNUM_MAJOR(linked)) {
         PyErr_Format(PyExc_RuntimeError,
                      "ABI incompatibility detected! SDL compiled with "
                      "%d.%d.%d, linked to %d.%d.%d (major versions should "
                      "have matched)",
-                     compiled.major, compiled.minor, compiled.patch,
-                     linked.major, linked.minor, linked.patch);
+                     PG_FIND_VNUM_MAJOR(compiled),
+                     PG_FIND_VNUM_MINOR(compiled),
+                     PG_FIND_VNUM_MICRO(compiled), PG_FIND_VNUM_MAJOR(linked),
+                     PG_FIND_VNUM_MINOR(linked), PG_FIND_VNUM_MICRO(linked));
         return 0;
     }
 
     /* Basically, this is compiled_version > linked_version case, which we
      * don't allow */
-    if ((linked.minor == compiled.minor && linked.patch < compiled.patch) ||
-        linked.minor < compiled.minor) {
+    if ((PG_FIND_VNUM_MINOR(linked) == PG_FIND_VNUM_MINOR(compiled) &&
+         PG_FIND_VNUM_MICRO(linked) < PG_FIND_VNUM_MICRO(compiled)) ||
+        PG_FIND_VNUM_MINOR(linked) < PG_FIND_VNUM_MINOR(compiled)) {
         /* We do some ifdefs to support different SDL versions at compile time.
            We use newer API only when available.
            Downgrading via dynamic API probably breaks this.*/
         PyErr_Format(PyExc_RuntimeError,
                      "Dynamic linking causes SDL downgrade! (compiled with "
                      "version %d.%d.%d, linked to %d.%d.%d)",
-                     compiled.major, compiled.minor, compiled.patch,
-                     linked.major, linked.minor, linked.patch);
+                     PG_FIND_VNUM_MAJOR(compiled),
+                     PG_FIND_VNUM_MINOR(compiled),
+                     PG_FIND_VNUM_MICRO(compiled), PG_FIND_VNUM_MAJOR(linked),
+                     PG_FIND_VNUM_MINOR(linked), PG_FIND_VNUM_MICRO(linked));
         return 0;
     }
 
     return 1;
 }
 
-/**
- * Use this function to register a function to be called when the interpreter
- * exits.
- *
- * \param func A function pointer to be called when the interpreter exits.
- */
 void
 pg_RegisterQuit(void (*func)(void))
 {
@@ -235,14 +117,7 @@ pg_RegisterQuit(void (*func)(void))
     }
 }
 
-/**
- * Use this function to register a function to be called when the interpreter
- * exits.
- *
- * \param value A callable object to be called when the interpreter exits.
- * \returns None or NULL on failure.
- */
-static PyObject *
+PyObject *
 pg_register_quit(PyObject *self, PyObject *value)
 {
     if (!pg_quit_functions) {
@@ -258,19 +133,17 @@ pg_register_quit(PyObject *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
-/**
- * \brief Initialize all of the pygame modules.
- * \returns 1 on success, 0 on failure with PyErr set.
- */
-static int
+/* init pygame modules, returns 1 if successful, 0 if fail, with PyErr set*/
+int
 pg_mod_autoinit(const char *modname)
 {
     PyObject *module, *funcobj, *temp;
     int ret = 0;
 
     module = PyImport_ImportModule(modname);
-    if (!module)
+    if (!module) {
         return 0;
+    }
 
     funcobj = PyObject_GetAttrString(module, "_internal_mod_init");
 
@@ -281,7 +154,7 @@ pg_mod_autoinit(const char *modname)
     }
 
     if (funcobj) {
-        temp = PyObject_CallObject(funcobj, NULL);
+        temp = PyObject_CallNoArgs(funcobj);
         if (temp) {
             Py_DECREF(temp);
             ret = 1;
@@ -293,10 +166,8 @@ pg_mod_autoinit(const char *modname)
     return ret;
 }
 
-/**
- * \brief Quit all of the pygame modules.
- */
-static void
+/* try to quit pygame modules, errors silenced */
+void
 pg_mod_autoquit(const char *modname)
 {
     PyObject *module, *funcobj, *temp;
@@ -307,34 +178,33 @@ pg_mod_autoquit(const char *modname)
         return;
     }
 
-    funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
-
-    if (PyErr_Occurred())
-        PyErr_Clear();
-
-    /* If we could not load _internal_mod_quit, load quit function */
-    if (!funcobj)
+    if (PyObject_HasAttrString(module, "_internal_mod_quit")) {
+        funcobj = PyObject_GetAttrString(module, "_internal_mod_quit");
+    }
+    else {
         funcobj = PyObject_GetAttrString(module, "quit");
+    }
 
-    if (PyErr_Occurred())
+    /* Silence errors */
+    if (PyErr_Occurred()) {
         PyErr_Clear();
+    }
 
     if (funcobj) {
-        temp = PyObject_CallObject(funcobj, NULL);
+        temp = PyObject_CallNoArgs(funcobj);
         Py_XDECREF(temp);
     }
 
-    if (PyErr_Occurred())
+    /* Silence errors */
+    if (PyErr_Occurred()) {
         PyErr_Clear();
+    }
 
     Py_DECREF(module);
     Py_XDECREF(funcobj);
 }
 
-/**
- * \brief Initialize all of the pygame modules.
- */
-static PyObject *
+PyObject *
 pg_init(PyObject *self, PyObject *_null)
 {
     int i = 0, success = 0, fail = 0;
@@ -347,36 +217,44 @@ pg_init(PyObject *self, PyObject *_null)
         /* IMPPREFIX "_sdl2.controller", Is this required? Comment for now*/
         NULL};
 
-    /*nice to initialize timer, so startup time will reflec pg_init() time*/
-#if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
-    pg_sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD | SDL_INIT_TIMER |
-                               SDL_INIT_NOPARACHUTE) == 0;
-#else
-    pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    // In SDL3, specify that signal handlers should not be enabled.
+    // By default, unlike SDL2, these signal handlers convert into QUIT
+    // events. However, if QUIT events / events aren't being handled,
+    // this leaves people unable to quit their script. Plus it's different
+    // than SDL2 behavior.
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 #endif
 
-    pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
+    /*nice to initialize timer, so startup time will reflec pg_init() time*/
+#if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
+    pg_sdl_was_init = PG_InitSubSystem(SDL_INIT_EVENTTHREAD | PG_INIT_TIMER |
+                                       PG_INIT_NOPARACHUTE);
+#else
+    pg_sdl_was_init = PG_InitSubSystem(PG_INIT_TIMER | PG_INIT_NOPARACHUTE);
+#endif
+
+    pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2") != NULL;
 
     /* initialize all pygame modules */
     for (i = 0; modnames[i]; i++) {
-        if (pg_mod_autoinit(modnames[i]))
+        if (pg_mod_autoinit(modnames[i])) {
             success++;
+        }
         else {
             /* ImportError is neither counted as success nor failure */
-            if (!PyErr_ExceptionMatches(PyExc_ImportError))
+            if (!PyErr_ExceptionMatches(PyExc_ImportError)) {
                 fail++;
+            }
             PyErr_Clear();
         }
     }
 
     pg_is_init = 1;
-    return Py_BuildValue("(ii)", success, fail);
+    return pg_tuple_couple_from_values_int(success, fail);
 }
 
-/**
- * \brief Quit all of the pygame modules when the interpreter exits.
- */
-static void
+void
 pg_atexit_quit(void)
 {
     /* Maybe it is safe to call SDL_quit more than once after an SDL_Init,
@@ -384,20 +262,21 @@ pg_atexit_quit(void)
        successful SDL_Init.
     */
     if (pg_sdl_was_init) {
-        pg_sdl_was_init = 0;
+        pg_sdl_was_init = false;
         SDL_Quit();
     }
 }
 
-/**
- * \brief Get the SDL version.
- * \returns A tuple of the SDL version numbers (major, minor, patch).
- */
-static PyObject *
+PyObject *
 pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int linked = 1; /* Default is linked version. */
-    SDL_version v;
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    int version = SDL_VERSION;
+#else
+    SDL_version version;
+    SDL_VERSION(&version);
+#endif
 
     static char *keywords[] = {"linked", NULL};
 
@@ -406,33 +285,25 @@ pg_get_sdl_version(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (linked) {
-        SDL_GetVersion(&v);
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+        version = SDL_GetVersion();
+#else
+        SDL_GetVersion(&version);
+#endif
     }
-    else {
-        SDL_VERSION(&v);
-    }
-    return Py_BuildValue("iii", v.major, v.minor, v.patch);
+
+    return Py_BuildValue("iii", PG_FIND_VNUM_MAJOR(version),
+                         PG_FIND_VNUM_MINOR(version),
+                         PG_FIND_VNUM_MICRO(version));
 }
 
-/**
- * \brief Get the SDL byte order.
- * \returns The SDL byte order.
- *
- * SDL_BYTEORDER is SDL_LIL_ENDIAN for x86, x64, and similar systems that use
- * the little endian byte order. SDL_BYTEORDER is SDL_BIG_ENDIAN for PowerPC
- * and similar systems that use the big endian byte order.
- *
- */
-static PyObject *
+PyObject *
 pg_get_sdl_byteorder(PyObject *self, PyObject *_null)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
-/**
- * \brief Quit all pygame modules.
- */
-static void
+void
 _pg_quit(void)
 {
     Py_ssize_t num, i;
@@ -452,6 +323,8 @@ _pg_quit(void)
         privatefuncs = pg_quit_functions;
         pg_quit_functions = NULL;
 
+        pg_uninstall_parachute(); /* Is this done here, or can it be done
+                                     below? */
         num = PyList_Size(privatefuncs);
 
         /*quit funcs in reverse order*/
@@ -463,11 +336,13 @@ _pg_quit(void)
             }
 
             if (PyCallable_Check(quit)) {
-                temp = PyObject_CallObject(quit, NULL);
-                if (temp)
+                temp = PyObject_CallNoArgs(quit);
+                if (temp) {
                     Py_DECREF(temp);
-                else
+                }
+                else {
                     PyErr_Clear();
+                }
             }
             else if (PyCapsule_CheckExact(quit)) {
                 void *ptr = PyCapsule_GetPointer(quit, "quit");
@@ -483,8 +358,9 @@ _pg_quit(void)
     }
 
     /* Because quit never errors */
-    if (PyErr_Occurred())
+    if (PyErr_Occurred()) {
         PyErr_Clear();
+    }
 
     pg_is_init = 0;
 
@@ -495,79 +371,44 @@ _pg_quit(void)
     Py_END_ALLOW_THREADS;
 }
 
-/**
- * \brief Quit all pygame modules.
- */
-static PyObject *
+PyObject *
 pg_quit(PyObject *self, PyObject *_null)
 {
     _pg_quit();
     Py_RETURN_NONE;
 }
 
-/**
- * \brief Check if pygame is initialized.
- * \returns True if pygame is initialized, False otherwise.
- */
-static PyObject *
+PyObject *
 pg_base_get_init(PyObject *self, PyObject *_null)
 {
     return PyBool_FromLong(pg_is_init);
 }
 
 /* internal C API utility functions */
-
-/**
- * \brief Convert number like object *obj* to C int and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
-static int
+int
 pg_IntFromObj(PyObject *obj, int *val)
 {
-    int tmp_val;
-
     if (PyFloat_Check(obj)) {
         /* Python3.8 complains with deprecation warnings if we pass
          * floats to PyLong_AsLong.
          */
-        double dv = PyFloat_AsDouble(obj);
-        tmp_val = (int)dv;
+        *val = (int)PyFloat_AS_DOUBLE(obj);
     }
     else {
-        tmp_val = PyLong_AsLong(obj);
+        *val = PyLong_AsLong(obj);
+        if (*val == -1 && PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
     }
-
-    if (tmp_val == -1 && PyErr_Occurred()) {
-        PyErr_Clear();
-        return 0;
-    }
-    *val = tmp_val;
     return 1;
 }
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj*
- * to C int and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
-static int
-pg_IntFromObjIndex(PyObject *obj, int i, int *val)
+int
+pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, i);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (!item) {
         PyErr_Clear();
@@ -578,73 +419,90 @@ pg_IntFromObjIndex(PyObject *obj, int i, int *val)
     return result;
 }
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * int and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C integer to store the result.
- * \param val2 A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
-static int
+int
 pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
-    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
+    // First, lets check the size. This returns -1 if invalid and may set an
+    // error.
+    Py_ssize_t obj_size = PySequence_Size(obj);
+
+    // If the object is a tuple of one element, try that one element.
+    if (obj_size == 1 && PyTuple_Check(obj)) {
         return pg_TwoIntsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
     }
-    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
+
+    // Otherwise lets make sure this is a legit sequence and has two elements.
+    // Some objects can passing PySequence_Size but fail PySequence_Check
+    // (like sets)
+    if (obj_size != 2 || !PySequence_Check(obj)) {
+        PyErr_Clear();  // Clear the potential error from PySequence_Size
         return 0;
     }
-    if (!pg_IntFromObjIndex(obj, 0, val1) ||
-        !pg_IntFromObjIndex(obj, 1, val2)) {
-        return 0;
-    }
-    return 1;
-}
 
-/**
- * \brief Convert number like object *obj* to C float and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-static int
-pg_FloatFromObj(PyObject *obj, float *val)
-{
-    float f = (float)PyFloat_AsDouble(obj);
+    // Now we can extract the items, using this macro because we know
+    // obj is a PySequence.
+    PyObject *item1 = PySequence_ITEM(obj, 0);
+    PyObject *item2 = PySequence_ITEM(obj, 1);
 
-    if (f == -1 && PyErr_Occurred()) {
+    // If either item is NULL lets get out of here
+    if (item1 == NULL || item2 == NULL) {
+        Py_XDECREF(item1);
+        Py_XDECREF(item2);
         PyErr_Clear();
         return 0;
     }
 
-    *val = f;
+    // Fastest way to extract numbers I tested (in Python 3.13) is to extract
+    // Python floats as doubles with the below macro, and get everything else
+    // through PyLong_AsLong, using C casting to turn into the final type.
+    if (PyFloat_Check(item1)) {
+        *val1 = (int)PyFloat_AS_DOUBLE(item1);
+    }
+    else {
+        *val1 = PyLong_AsLong(item1);
+    }
+
+    if (PyFloat_Check(item2)) {
+        *val2 = (int)PyFloat_AS_DOUBLE(item2);
+    }
+    else {
+        *val2 = PyLong_AsLong(item2);
+    }
+
+    // This catches the case where either of the PyLong_AsLong's failed
+    if ((*val1 == -1 || *val2 == -1) && PyErr_Occurred()) {
+        PyErr_Clear();
+        Py_DECREF(item1);
+        Py_DECREF(item2);
+        return 0;
+    }
+
+    Py_DECREF(item1);
+    Py_DECREF(item2);
     return 1;
 }
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * float and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-static int
-pg_FloatFromObjIndex(PyObject *obj, int i, float *val)
+int
+pg_FloatFromObj(PyObject *obj, float *val)
+{
+    if (PyFloat_Check(obj)) {
+        *val = (float)PyFloat_AS_DOUBLE(obj);
+    }
+    else {
+        *val = (float)PyLong_AsLong(obj);
+        if (*val == -1.0f && PyErr_Occurred()) {
+            PyErr_Clear();
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int
+pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, i);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (!item) {
         PyErr_Clear();
@@ -655,115 +513,70 @@ pg_FloatFromObjIndex(PyObject *obj, int i, float *val)
     return result;
 }
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * float and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C float to store the result.
- * \param val2 A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-static int
+int
 pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 {
-    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
+    // First, lets check the size. This returns -1 if invalid and may set an
+    // error.
+    Py_ssize_t obj_size = PySequence_Size(obj);
+
+    // If the object is a tuple of one element, try that one element.
+    if (obj_size == 1 && PyTuple_Check(obj)) {
         return pg_TwoFloatsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
     }
-    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
+
+    // Otherwise lets make sure this is a legit sequence and has two elements.
+    // Some objects can passing PySequence_Size but fail PySequence_Check
+    // (like sets)
+    if (obj_size != 2 || !PySequence_Check(obj)) {
+        PyErr_Clear();  // Clear the potential error from PySequence_Size
         return 0;
     }
-    if (!pg_FloatFromObjIndex(obj, 0, val1) ||
-        !pg_FloatFromObjIndex(obj, 1, val2)) {
-        return 0;
-    }
-    return 1;
-}
 
-/**
- * \brief Convert number like object *obj* to C double and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-static int
-pg_DoubleFromObj(PyObject *obj, double *val)
-{
-    double d = (double)PyFloat_AsDouble(obj);
+    // Now we can extract the items, using this macro because we know
+    // obj is a PySequence.
+    PyObject *item1 = PySequence_ITEM(obj, 0);
+    PyObject *item2 = PySequence_ITEM(obj, 1);
 
-    if (d == -1 && PyErr_Occurred()) {
+    // If either item is NULL lets get out of here
+    if (item1 == NULL || item2 == NULL) {
+        Py_XDECREF(item1);
+        Py_XDECREF(item2);
         PyErr_Clear();
         return 0;
     }
 
-    *val = d;
-    return 1;
-}
+    // Fastest way to extract numbers I tested (in Python 3.13) is to extract
+    // Python floats as doubles with the below macro, and get everything else
+    // through PyLong_AsLong, using C casting to turn into the final type.
+    if (PyFloat_Check(item1)) {
+        *val1 = (float)PyFloat_AS_DOUBLE(item1);
+    }
+    else {
+        *val1 = (float)PyLong_AsLong(item1);
+    }
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * double and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-static int
-pg_DoubleFromObjIndex(PyObject *obj, int i, double *val)
-{
-    int result = 0;
-    PyObject *item = PySequence_GetItem(obj, i);
+    if (PyFloat_Check(item2)) {
+        *val2 = (float)PyFloat_AS_DOUBLE(item2);
+    }
+    else {
+        *val2 = (float)PyLong_AsLong(item2);
+    }
 
-    if (!item) {
+    // This catches the case where either of the PyLong_AsLong's failed
+    if ((*val1 == -1.0f || *val2 == -1.0f) && PyErr_Occurred()) {
         PyErr_Clear();
+        Py_DECREF(item1);
+        Py_DECREF(item2);
         return 0;
     }
-    result = pg_DoubleFromObj(item, val);
-    Py_DECREF(item);
-    return result;
-}
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * double and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C double to store the result.
- * \param val2 A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
-static int
-pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
-{
-    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
-        return pg_TwoDoublesFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
-    }
-    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
-        return 0;
-    }
-    if (!pg_DoubleFromObjIndex(obj, 0, val1) ||
-        !pg_DoubleFromObjIndex(obj, 1, val2)) {
-        return 0;
-    }
+    Py_DECREF(item1);
+    Py_DECREF(item2);
     return 1;
 }
 
-/**
- * \brief Convert number like object *obj* to C Uint32 and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C int to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
-static int
+int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
     if (PyNumber_Check(obj)) {
@@ -784,20 +597,11 @@ pg_UintFromObj(PyObject *obj, Uint32 *val)
     return 0;
 }
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * Uint32 and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C int to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
-static int
-pg_UintFromObjIndex(PyObject *obj, int i, Uint32 *val)
+int
+pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, i);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (!item) {
         PyErr_Clear();
@@ -808,19 +612,8 @@ pg_UintFromObjIndex(PyObject *obj, int i, Uint32 *val)
     return result;
 }
 
-/**
- * \brief Convert the color represented by object *obj* into a red, green,
- * blue, alpha length 4 C array *RGBA*.
- *
- * The object must be a length 3 or 4 sequence of numbers having values between
- * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
- * assumed.
- *
- * \param obj The Python object to convert.
- * \param RGBA A pointer to the C array to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
-static int
+/* You probably want to use the pg_RGBAFromObjEx function instead of this. */
+int
 pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
     Py_ssize_t length;
@@ -860,29 +653,20 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
     return 1;
 }
 
-/**
- * \brief Returns the SDL error message as a Python string.
- * \returns The SDL error message as a Python string.
- */
-static PyObject *
+PyObject *
 pg_get_error(PyObject *self, PyObject *_null)
 {
     return PyUnicode_FromString(SDL_GetError());
 }
 
-/**
- * \brief Sets the SDL error message.
- * \param s The module object.
- * \param args errstring The error message to set.
- * \returns None.
- */
-static PyObject *
+PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
 #if defined(PYPY_VERSION)
-    if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring))
+    if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring)) {
         return NULL;
+    }
 
     SDL_SetError("%s", errstring);
     PyMem_Free(errstring);
@@ -897,18 +681,7 @@ pg_set_error(PyObject *s, PyObject *args)
 
 /*array interface*/
 
-/**
- * \brief Returns the array interface of the object.
- *
- * \param obj The object to get the array interface from.
- * \param cobj_p A pointer to a PyObject pointer to store the array interface
- * in.
- * \param inter_p A pointer to a PyArrayInterface pointer to store the
- * array interface in.
- *
- * \returns -1 if an error occurred, 0 otherwise.
- */
-static int
+int
 pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
 {
     PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
@@ -937,16 +710,7 @@ pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
     return 0;
 }
 
-/**
- * \brief Given a PyArrayInterface, return a python dictionary representing the
- * array interface.
- *
- * \param inter_p A pointer to the PyArrayInterface to convert.
- *
- * \returns A Python string representing the typekind of the array interface,
- * or 0 if an error occurred.
- */
-static PyObject *
+PyObject *
 pgArrayStruct_AsDict(PyArrayInterface *inter_p)
 {
     PyObject *dictobj = Py_BuildValue("{sisNsNsNsN}", "version", (int)3,
@@ -974,15 +738,7 @@ pgArrayStruct_AsDict(PyArrayInterface *inter_p)
     return dictobj;
 }
 
-/**
- * \brief Given a Py_buffer, return a python dictionary representing the array
- * interface.
- *
- * \param view_p A pointer to the Py_buffer to convert to a dictionary.
- *
- * \returns A Python dictionary representing the array interface of the object.
- */
-static PyObject *
+PyObject *
 pgBuffer_AsArrayInterface(Py_buffer *view_p)
 {
     return Py_BuildValue("{sisNsNsNsN}", "version", (int)3, "typestr",
@@ -992,15 +748,7 @@ pgBuffer_AsArrayInterface(Py_buffer *view_p)
                          pg_view_get_data_obj(view_p));
 }
 
-/**
- * \brief Given a Py_buffer, return a python capsule representing the array
- * interface.
- *
- * \param view_p A pointer to the Py_buffer to convert to a capsule.
- *
- * \returns A Python capsule representing the array interface of the object.
- */
-static PyObject *
+PyObject *
 pgBuffer_AsArrayStruct(Py_buffer *view_p)
 {
     void *cinter_p = _pg_new_capsuleinterface(view_p);
@@ -1017,14 +765,7 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     return capsule;
 }
 
-/**
- * \brief Given a Py_buffer, return an allocated pgCapsuleInterface struct.
- *
- * \param view_p A pointer to the Py_buffer to get the pgCapsuleInterface from.
- *
- * \returns A capsule containing a pgCapsuleInterface struct.
- */
-static pgCapsuleInterface *
+pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *view_p)
 {
     int ndim = view_p->ndim;
@@ -1061,13 +802,13 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     return cinter_p;
 }
 
-static void
+void
 _pg_capsule_PyMem_Free(PyObject *capsule)
 {
     PyMem_Free(PyCapsule_GetPointer(capsule, 0));
 }
 
-static int
+int
 _pg_as_arrayinter_flags(Py_buffer *view_p)
 {
     int inter_flags = PAI_ALIGNED; /* atomic int types always aligned */
@@ -1085,7 +826,7 @@ _pg_as_arrayinter_flags(Py_buffer *view_p)
     return inter_flags;
 }
 
-static PyObject *
+PyObject *
 pg_view_get_typestr_obj(Py_buffer *view)
 {
     return PyUnicode_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
@@ -1093,7 +834,7 @@ pg_view_get_typestr_obj(Py_buffer *view)
                                 (int)view->itemsize);
 }
 
-static PyObject *
+PyObject *
 pg_view_get_shape_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
@@ -1114,7 +855,7 @@ pg_view_get_shape_obj(Py_buffer *view)
     return shapeobj;
 }
 
-static PyObject *
+PyObject *
 pg_view_get_strides_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
@@ -1135,14 +876,14 @@ pg_view_get_strides_obj(Py_buffer *view)
     return shapeobj;
 }
 
-static PyObject *
+PyObject *
 pg_view_get_data_obj(Py_buffer *view)
 {
     return Py_BuildValue("NN", PyLong_FromVoidPtr(view->buf),
                          PyBool_FromLong((long)view->readonly));
 }
 
-static char
+char
 _pg_as_arrayinter_typekind(Py_buffer *view)
 {
     char type = view->format ? view->format[0] : 'B';
@@ -1182,7 +923,7 @@ _pg_as_arrayinter_typekind(Py_buffer *view)
     return typekind;
 }
 
-static char
+char
 _pg_as_arrayinter_byteorder(Py_buffer *view)
 {
     char format_0 = view->format ? view->format[0] : 'B';
@@ -1214,7 +955,7 @@ _pg_as_arrayinter_byteorder(Py_buffer *view)
     return byteorder;
 }
 
-static PyObject *
+PyObject *
 _pg_shape_as_tuple(PyArrayInterface *inter_p)
 {
     PyObject *shapeobj = PyTuple_New((Py_ssize_t)inter_p->nd);
@@ -1235,7 +976,7 @@ _pg_shape_as_tuple(PyArrayInterface *inter_p)
     return shapeobj;
 }
 
-static PyObject *
+PyObject *
 _pg_typekind_as_str(PyArrayInterface *inter_p)
 {
     return PyUnicode_FromFormat(
@@ -1247,7 +988,7 @@ _pg_typekind_as_str(PyArrayInterface *inter_p)
         inter_p->typekind, inter_p->itemsize);
 }
 
-static PyObject *
+PyObject *
 _pg_strides_as_tuple(PyArrayInterface *inter_p)
 {
     PyObject *stridesobj = PyTuple_New((Py_ssize_t)inter_p->nd);
@@ -1268,7 +1009,7 @@ _pg_strides_as_tuple(PyArrayInterface *inter_p)
     return stridesobj;
 }
 
-static PyObject *
+PyObject *
 _pg_data_as_tuple(PyArrayInterface *inter_p)
 {
     long readonly = (inter_p->flags & PAI_WRITEABLE) == 0;
@@ -1277,7 +1018,7 @@ _pg_data_as_tuple(PyArrayInterface *inter_p)
                          PyBool_FromLong(readonly));
 }
 
-static PyObject *
+PyObject *
 pg_get_array_interface(PyObject *self, PyObject *arg)
 {
     PyObject *cobj;
@@ -1292,23 +1033,7 @@ pg_get_array_interface(PyObject *self, PyObject *arg)
     return dictobj;
 }
 
-/**
- * \brief Get a buffer object from a given Python object.
- *
- * \param obj The Python object to get the buffer from.
- * \param pg_view_p A pointer to a pg_buffer struct to store the buffer in.
- * \param flags The desired buffer access mode.
- *
- * \returns 0 on success, -1 on failure.
- *
- * \note This function attempts to get a buffer object from a given Python
- * object. If the object supports the buffer protocol, it will be used to
- * create the buffer. If not, it will try to get an array interface or
- * dictionary representation of the object and use that to create the buffer.
- * If none of these methods work, it will raise a ValueError.
- *
- */
-static int
+int
 pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
 {
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
@@ -1326,12 +1051,9 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     flags |= PyBUF_PYGAME;
 #endif
 
-    if (PyObject_CheckBuffer(obj)) {
+    if (PyObject_GetBuffer(obj, view_p, flags) == 0) {
         char *fchar_p;
 
-        if (PyObject_GetBuffer(obj, view_p, flags)) {
-            return -1;
-        }
         pg_view_p->release_buffer = PyBuffer_Release;
 
         /* Check the format is a numeric type or pad bytes
@@ -1403,9 +1125,12 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
         }
         success = 1;
     }
+    else {
+        PyErr_Clear();
+    }
 
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
-        if (pgArrayStruct_AsBuffer(pg_view_p, inter_p, flags)) {
+        if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
             Py_DECREF(cobj);
             return -1;
         }
@@ -1441,16 +1166,7 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     return 0;
 }
 
-/**
- * \brief Release a pg_buffer object.
- *
- * \param pg_view_p The pg_buffer object to release.
- *
- * \note This function releases a pg_buffer object.
- * \note some calls to this function expect this function to not clear
- * previously set errors.
- */
-static void
+void
 pgBuffer_Release(pg_buffer *pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
@@ -1462,7 +1178,7 @@ pgBuffer_Release(pg_buffer *pg_view_p)
     PyErr_Restore(type, value, traceback);
 }
 
-static void
+void
 _pg_release_buffer_generic(Py_buffer *view_p)
 {
     if (view_p->obj) {
@@ -1471,7 +1187,7 @@ _pg_release_buffer_generic(Py_buffer *view_p)
     }
 }
 
-static void
+void
 _pg_release_buffer_array(Py_buffer *view_p)
 {
     /* This is deliberately made safe for use on an uninitialized *view_p */
@@ -1482,7 +1198,7 @@ _pg_release_buffer_array(Py_buffer *view_p)
     _pg_release_buffer_generic(view_p);
 }
 
-static int
+int
 _pg_buffer_is_byteswapped(Py_buffer *view)
 {
     if (view->format) {
@@ -1507,17 +1223,7 @@ _pg_buffer_is_byteswapped(Py_buffer *view)
     return 0;
 }
 
-/**
- * \brief Get the "__array_interface__" from an object and store it in the dict
- * argument.
- *
- * \param dict A pointer to a PyObject pointer.  On success, this will be set
- * to a new reference to the array interface dict.
- * \param obj The object to get the array interface from.
- *
- * \returns -1 on error, 0 on success.
- */
-static int
+int
 pgGetArrayInterface(PyObject **dict, PyObject *obj)
 {
     PyObject *inter = PyObject_GetAttrString(obj, "__array_interface__");
@@ -1540,30 +1246,22 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
     return 0;
 }
 
-/**
- * \brief Get from inter_p array interface and store in pg_view_p buffer.
- *
- * \param pg_view_p A pointer to a pg_buffer struct to fill in.
- * \param inter_p A pointer to a PyArrayInterface struct to use.
- * \param flags The buffer flags to use when filling in pg_view_p.
- *
- * \returns -1 on error, 0 on success.
- */
-static int
-pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyArrayInterface *inter_p,
-                       int flags)
+int
+pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
+                       PyArrayInterface *inter_p, int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, inter_p, flags)) {
+    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, cobj, inter_p,
+                                  flags)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
     return 0;
 }
 
-static int
-_pg_arraystruct_as_buffer(Py_buffer *view_p, PyArrayInterface *inter_p,
-                          int flags)
+int
+_pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
+                          PyArrayInterface *inter_p, int flags)
 {
     pgViewInternals *internal_p;
     Py_ssize_t sz =
@@ -1656,7 +1354,7 @@ _pg_arraystruct_as_buffer(Py_buffer *view_p, PyArrayInterface *inter_p,
     return 0;
 }
 
-static int
+int
 _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
                           int max_format_len)
 {
@@ -1781,17 +1479,7 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     return 0;
 }
 
-/**
- * \brief Write the array interface dictionary buffer description *dict* into a
- * Pygame buffer description struct *pg_view_p*.
- *
- * \param pg_view_p The Pygame buffer description struct to write into.
- * \param dict The array interface dictionary to read from.
- * \param flags The PyBUF flags describing the view type requested.
- *
- * \returns 0 on success, or -1 on failure.
- */
-static int
+int
 pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
 {
     PyObject *shape = PyDict_GetItemString(dict, "shape");
@@ -1820,7 +1508,7 @@ pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
     return 0;
 }
 
-static int
+int
 _pg_shape_check(PyObject *op)
 {
     if (!op) {
@@ -1840,7 +1528,7 @@ _pg_shape_check(PyObject *op)
     return 0;
 }
 
-static int
+int
 _pg_typestr_check(PyObject *op)
 {
     if (!op) {
@@ -1870,7 +1558,7 @@ _pg_typestr_check(PyObject *op)
     return 0;
 }
 
-static int
+int
 _pg_data_check(PyObject *op)
 {
     PyObject *item;
@@ -1897,7 +1585,7 @@ _pg_data_check(PyObject *op)
     return 0;
 }
 
-static int
+int
 _pg_strides_check(PyObject *op)
 {
     if (op && !_pg_is_int_tuple(op) /* Conditional && */) {
@@ -1908,7 +1596,7 @@ _pg_strides_check(PyObject *op)
     return 0;
 }
 
-static int
+int
 _pg_is_int_tuple(PyObject *op)
 {
     Py_ssize_t i;
@@ -1928,7 +1616,7 @@ _pg_is_int_tuple(PyObject *op)
     return 1;
 }
 
-static int
+int
 _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
                      PyObject *shape, PyObject *data, PyObject *strides)
 {
@@ -2043,7 +1731,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
     return 0;
 }
 
-static int
+int
 _pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t *arr)
 {
     Py_ssize_t i;
@@ -2058,7 +1746,7 @@ _pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t *arr)
     return 0;
 }
 
-static int
+int
 _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
 {
     const char *typestr;
@@ -2233,26 +1921,14 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-/**
- * \brief Get the default SDL window created by a pygame.display.set_mode()
- * call, or *NULL*.
- *
- * \return The default window, or *NULL* if no window has been created.
- */
-static SDL_Window *
+/*Default window(display)*/
+SDL_Window *
 pg_GetDefaultWindow(void)
 {
     return pg_default_window;
 }
 
-/**
- * \brief Set the default SDL window created by a pygame.display.set_mode()
- * call. The previous window, if any, is destroyed. Argument *win* may be
- * *NULL*. This function is called by pygame.display.set_mode().
- *
- * \param win The new default window. May be NULL.
- */
-static void
+void
 pg_SetDefaultWindow(SDL_Window *win)
 {
     /*Allows a window to be replaced by itself*/
@@ -2265,27 +1941,14 @@ pg_SetDefaultWindow(SDL_Window *win)
     pg_default_window = win;
 }
 
-/**
- * \brief Return a borrowed reference to the Pygame default window display
- * surface, or *NULL* if no default window is open.
- *
- * \return The default renderer, or *NULL* if no renderer has been created.
- */
-static pgSurfaceObject *
+pgSurfaceObject *
 pg_GetDefaultWindowSurface(void)
 {
     /* return a borrowed reference*/
     return pg_default_screen;
 }
 
-/**
- * \brief Set the Pygame default window display surface. The previous
- * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
- * function is called by pygame.display.set_mode().
- *
- * \param screen The new default window display surface. May be NULL.
- */
-static void
+void
 pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 {
     /*a screen surface can be replaced with itself*/
@@ -2297,53 +1960,164 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     pg_default_screen = screen;
 }
 
-/**
- * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
- * set, otherwise returns a pointer to the environment variable.
- */
-static char *
+PG_PixelFormatEnum
+pg_GetDefaultConvertFormat(void)
+{
+    if (pg_default_screen) {
+        return PG_SURF_FORMATENUM(pg_default_screen->surf);
+    }
+    return pg_default_convert_format;
+}
+
+void
+pg_SetDefaultConvertFormat(PG_PixelFormatEnum format)
+{
+    pg_default_convert_format = format;
+}
+
+int
 pg_EnvShouldBlendAlphaSDL2(void)
 {
     return pg_env_blend_alpha_SDL2;
 }
 
+/*error signal handlers(replacing SDL parachute)*/
+void
+pygame_parachute(int sig)
+{
+#ifdef HAVE_SIGNAL_H
+    char *signaltype;
+
+    signal(sig, SIG_DFL);
+    switch (sig) {
+        case SIGSEGV:
+            signaltype = "(pygame parachute) Segmentation Fault";
+            break;
+#ifdef SIGBUS
+#if SIGBUS != SIGSEGV
+        case SIGBUS:
+            signaltype = "(pygame parachute) Bus Error";
+            break;
+#endif
+#endif
+#ifdef SIGFPE
+        case SIGFPE:
+            signaltype = "(pygame parachute) Floating Point Exception";
+            break;
+#endif
+#ifdef SIGQUIT
+        case SIGQUIT:
+            signaltype = "(pygame parachute) Keyboard Abort";
+            break;
+#endif
+        default:
+            signaltype = "(pygame parachute) Unknown Signal";
+            break;
+    }
+
+    _pg_quit();
+    Py_FatalError(signaltype);
+#endif
+}
+
+static int fatal_signals[] = {
+    SIGSEGV,
+#ifdef SIGBUS
+    SIGBUS,
+#endif
+#ifdef SIGFPE
+    SIGFPE,
+#endif
+#ifdef SIGQUIT
+    SIGQUIT,
+#endif
+    0 /*end of list*/
+};
+
+static int parachute_installed = 0;
+void
+pg_install_parachute(void)
+{
+#ifdef HAVE_SIGNAL_H
+    int i;
+    void (*ohandler)(int);
+
+    if (parachute_installed) {
+        return;
+    }
+    parachute_installed = 1;
+
+    /* Set a handler for any fatal signal not already handled */
+    for (i = 0; fatal_signals[i]; ++i) {
+        ohandler = (void (*)(int))signal(fatal_signals[i], pygame_parachute);
+        if (ohandler != SIG_DFL) {
+            signal(fatal_signals[i], ohandler);
+        }
+    }
+
+#endif
+    return;
+}
+
+void
+pg_uninstall_parachute(void)
+{
+#ifdef HAVE_SIGNAL_H
+    int i;
+    void (*ohandler)(int);
+
+    if (!parachute_installed) {
+        return;
+    }
+    parachute_installed = 0;
+
+    /* Remove a handler for any fatal signal handled */
+    for (i = 0; fatal_signals[i]; ++i) {
+        ohandler = (void (*)(int))signal(fatal_signals[i], SIG_DFL);
+        if (ohandler != pygame_parachute) {
+            signal(fatal_signals[i], ohandler);
+        }
+    }
+#endif
+}
+
+#if defined(BUILD_STATIC)
+static PyObject *
+mod_pygame_import_cython(PyObject *self, PyObject *spec);
+void
+PyInit_pygame_static();
+PyObject *
+load_submodule(const char *parent, PyObject *mod, const char *alias);
+#endif
+
 /* bind functions to python */
 
 static PyMethodDef _base_methods[] = {
-    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
-    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS,
-     DOC_PYGAMEGETINIT},
-    {"register_quit", (PyCFunction)pg_register_quit, METH_O,
-     DOC_PYGAMEREGISTERQUIT},
-    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
-    {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
+    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_INIT},
+    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_QUIT},
+    {"get_init", (PyCFunction)pg_base_get_init, METH_NOARGS, DOC_GETINIT},
+    {"register_quit", (PyCFunction)pg_register_quit, METH_O, DOC_REGISTERQUIT},
+    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_GETERROR},
+    {"set_error", pg_set_error, METH_VARARGS, DOC_SETERROR},
     {"get_sdl_version", (PyCFunction)pg_get_sdl_version,
-     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEGETSDLVERSION},
+     METH_VARARGS | METH_KEYWORDS, DOC_GETSDLVERSION},
     {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
-     DOC_PYGAMEGETSDLBYTEORDER},
-
+     DOC_GETSDLBYTEORDER},
     {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
+#if defined(BUILD_STATIC)
+    {"import_cython", (PyCFunction)mod_pygame_import_cython, METH_O,
+     "pygame._sdl2.*"},
+#endif
     {NULL, NULL, 0, NULL}};
 
-#if defined(BUILD_STATIC) && defined(NO_PYGAME_C_API)
-// in case of wasm+dynamic loading it could be a trampoline in the globals
-// generated at runtime.
-// when building static make global accessible symbol directly.
-static PyObject *pgExc_SDLError;
-#endif
+static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
 MODINIT_DEFINE(base)
 {
-    PyObject *module, *apiobj, *atexit;
-    PyObject *atexit_register;
-#if !(defined(BUILD_STATIC) && defined(NO_PYGAME_C_API))
-    // only pointer via C-api will be used, no need to keep global.
-    PyObject *pgExc_SDLError;
+#if !defined(BUILD_STATIC)
+    PyObject *atexit, *atexit_register;
 #endif
-    static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
-
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "base",
                                          "",
@@ -2354,9 +2128,13 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL};
 
+    PyObject *module, *apiobj;
+
     /* import need modules. Do this first so if there is an error
         the module is not loaded.
     */
+
+#if !defined(BUILD_STATIC)
     atexit = PyImport_ImportModule("atexit");
     if (!atexit) {
         return NULL;
@@ -2367,12 +2145,18 @@ MODINIT_DEFINE(base)
     if (!atexit_register) {
         return NULL;
     }
+#endif
 
     /* create the module */
     module = PyModule_Create(&_module);
+
     if (!module) {
         goto error;
     }
+
+#if defined(BUILD_STATIC)
+    load_submodule("pygame", module, "base");
+#endif
 
     /* create the exceptions */
     pgExc_SDLError =
@@ -2385,9 +2169,7 @@ MODINIT_DEFINE(base)
     pgExc_BufferError =
         PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
     /* Because we need a reference to BufferError in the base module */
-    Py_XINCREF(pgExc_BufferError);
-    if (PyModule_AddObject(module, "BufferError", pgExc_BufferError)) {
-        Py_XDECREF(pgExc_BufferError);
+    if (PyModule_AddObjectRef(module, "BufferError", pgExc_BufferError)) {
         goto error;
     }
 
@@ -2417,9 +2199,13 @@ MODINIT_DEFINE(base)
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
     c_api[24] = pg_DoubleFromObj;
-    c_api[25] = pg_DoubleFromObjIndex;
-    c_api[26] = pg_TwoDoublesFromObj;
-#define FILLED_SLOTS 27
+    c_api[25] = pg_TwoDoublesFromObj;
+    c_api[26] = pg_TwoDoublesFromFastcallArgs;
+    c_api[27] = pg_GetDefaultConvertFormat;
+    c_api[28] = pg_SetDefaultConvertFormat;
+    c_api[29] = pgObject_getRectHelper;
+
+#define FILLED_SLOTS 30
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch
@@ -2435,6 +2221,18 @@ MODINIT_DEFINE(base)
         goto error;
     }
 
+    PyObject *version =
+        PyUnicode_FromFormat("%d.%d.%d%s", PG_MAJOR_VERSION, PG_MINOR_VERSION,
+                             PG_PATCH_VERSION, PG_VERSION_TAG);
+    if (!version) {
+        goto error;
+    }
+    if (PyModule_AddObject(module, "__version__", version)) {
+        Py_DECREF(version);
+        goto error;
+    }
+
+#if !defined(BUILD_STATIC)
     /*some initialization*/
     PyObject *quit = PyObject_GetAttrString(module, "quit");
     PyObject *rval;
@@ -2442,7 +2240,8 @@ MODINIT_DEFINE(base)
     if (!quit) { /* assertion */
         goto error;
     }
-    rval = PyObject_CallFunctionObjArgs(atexit_register, quit, NULL);
+
+    rval = PyObject_CallOneArg(atexit_register, quit);
     Py_DECREF(atexit_register);
     Py_DECREF(quit);
     atexit_register = NULL;
@@ -2451,6 +2250,9 @@ MODINIT_DEFINE(base)
     }
     Py_DECREF(rval);
     Py_AtExit(pg_atexit_quit);
+#ifdef HAVE_SIGNAL_H
+    pg_install_parachute();
+#endif
 
     /* This must be called before calling any other SDL API */
     if (!pg_CheckSDLVersions()) {
@@ -2460,12 +2262,510 @@ MODINIT_DEFINE(base)
 #ifdef MS_WIN32
     SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
-
+#else   // !BUILD_STATIC
+    PyInit_pygame_static();
+#endif  // BUILD_STATIC
     return module;
 
 error:
     Py_XDECREF(pgExc_BufferError);
-    Py_XDECREF(atexit_register);
     Py_XDECREF(module);
+#if !defined(BUILD_STATIC)
+    Py_XDECREF(atexit_register);
+#endif
     return NULL;
 }
+
+#if defined(BUILD_STATIC)
+
+#include <SDL_ttf.h>
+
+#undef WITH_THREAD
+
+#undef import_pygame_base
+#undef import_pygame_rect
+#undef import_pygame_surface
+#undef import_pygame_geometry
+#undef import_pygame_color
+#undef import_pygame_bufferproxy
+#undef import_pygame_rwobject
+#undef import_pygame_event
+
+void
+import_pygame_base(void)
+{
+}
+
+void
+import_pygame_rect(void)
+{
+}
+
+void
+import_pygame_surface(void)
+{
+}
+
+#ifdef import_pygame_window
+#undef import_pygame_window
+#endif
+
+void
+import_pygame_window(void)
+{
+}
+
+void
+import_pygame_geometry(void)
+{
+}
+
+void
+import_pygame_color(void)
+{
+}
+
+void
+import_pygame_font(void)
+{
+}
+
+void
+import_pygame_freetype(void)
+{
+}
+
+void
+import_pygame_bufferproxy(void)
+{
+}
+
+void
+import_pygame_rwobject(void)
+{
+}
+
+void
+import_pygame_event(void)
+{
+}
+
+#ifdef import_pygame_joystick
+#undef import_pygame_joystick
+#endif
+
+void
+import_pygame_joystick(void)
+{
+}
+
+#undef import_pygame_imageext
+#undef import_pygame_render
+#undef import_pygame_pixelarray
+
+void
+import_pygame_imageext(void)
+{
+}
+
+void
+import_pygame_render(void)
+{
+}
+
+void
+import_pygame_pixelarray(void)
+{
+}
+
+PyMODINIT_FUNC
+PyInit_base(void);
+PyMODINIT_FUNC
+PyInit_color(void);
+PyMODINIT_FUNC
+PyInit_constants(void);
+PyMODINIT_FUNC
+PyInit_version(void);
+PyMODINIT_FUNC
+PyInit_rect(void);
+PyMODINIT_FUNC
+PyInit_geometry(void);
+PyMODINIT_FUNC
+PyInit_surflock(void);
+PyMODINIT_FUNC
+PyInit_rwobject(void);
+PyMODINIT_FUNC
+PyInit_bufferproxy(void);
+
+PyMODINIT_FUNC
+PyInit_surface(void);
+PyMODINIT_FUNC
+PyInit_display(void);
+PyMODINIT_FUNC
+PyInit__freetype(void);
+PyMODINIT_FUNC
+PyInit_font(void);
+
+PyMODINIT_FUNC
+PyInit_draw(void);
+PyMODINIT_FUNC
+PyInit_mouse(void);
+PyMODINIT_FUNC
+PyInit_key(void);
+PyMODINIT_FUNC
+PyInit_event(void);
+
+PyMODINIT_FUNC
+PyInit_joystick(void);
+
+PyMODINIT_FUNC
+PyInit_imageext(void);
+
+PyMODINIT_FUNC
+PyInit_image(void);
+
+PyMODINIT_FUNC
+PyInit_mask(void);
+
+PyMODINIT_FUNC
+PyInit_mixer_music(void);
+
+PyMODINIT_FUNC
+PyInit_pg_mixer(void);
+
+PyMODINIT_FUNC
+PyInit_pg_math(void);
+
+PyMODINIT_FUNC
+PyInit_pg_time(void);
+
+PyMODINIT_FUNC
+PyInit_system(void);
+
+PyMODINIT_FUNC
+PyInit_transform(void);
+
+PyMODINIT_FUNC
+PyInit__sprite(void);
+
+PyMODINIT_FUNC
+PyInit_pixelcopy(void);
+
+PyMODINIT_FUNC
+PyInit_newbuffer(void);
+
+PyMODINIT_FUNC
+PyInit_gfxdraw(void);
+
+PyMODINIT_FUNC
+PyInit_pixelarray(void);
+
+PyMODINIT_FUNC
+PyInit_window(void);
+
+PyMODINIT_FUNC
+PyInit__render(void);
+
+// pygame _sdl2
+#if !defined(NO_SDL2)
+
+PyMODINIT_FUNC
+PyInit_sdl2(void);
+
+PyMODINIT_FUNC
+PyInit_mixer(void);
+
+PyMODINIT_FUNC
+PyInit_audio(void);
+
+PyMODINIT_FUNC
+PyInit_video(void);
+
+#endif
+
+// pygame_static module
+
+PyObject *
+load_submodule(const char *parent, PyObject *mod, const char *alias)
+{
+    char fqn[1024];
+    if (!mod) {
+        snprintf(fqn, sizeof(fqn), "ERROR: PyInit_%s failed for %s.%s", alias,
+                 parent, alias);
+        puts(fqn);
+        PyErr_Print();
+        PyErr_Clear();
+    }
+    else {
+        snprintf(fqn, sizeof(fqn), "%s.%s", parent, alias);
+        PyObject *modules = PyImport_GetModuleDict();
+
+        PyObject *pmod = PyDict_GetItemString(modules, parent);
+        if (!pmod) {
+            snprintf(fqn, sizeof(fqn), "ERROR: Parent %s not found for %s.%s",
+                     parent, parent, alias);
+            puts(fqn);
+        }
+        else {
+            PyDict_SetItemString(modules, fqn, mod);
+            PyDict_SetItemString(PyModule_GetDict(mod), "__name__",
+                                 PyUnicode_FromString(fqn));
+            PyModule_AddObjectRef(pmod, alias, mod);
+            Py_XDECREF(mod);
+        }
+    }
+    return mod;
+}
+
+void
+load_submodule_mphase(const char *parent, PyObject *mdef, PyObject *spec,
+                      const char *alias)
+{
+    char fqn[1024];
+    snprintf(fqn, sizeof(fqn), "%s.%s", parent, alias);
+
+    PyObject *modules = PyImport_GetModuleDict();
+
+    Py_DECREF(PyObject_GetAttrString(spec, "name"));
+    PyObject_SetAttrString(spec, "name", PyUnicode_FromString(alias));
+    PyObject *pmod = PyDict_GetItemString(modules, parent);
+    PyObject *mod = PyModule_FromDefAndSpec((PyModuleDef *)mdef, spec);
+    PyDict_SetItemString(PyModule_GetDict(mod), "__package__",
+                         PyUnicode_FromString(parent));
+    // TODO SET PACKAGE
+    PyModule_ExecDef(mod, (PyModuleDef *)mdef);
+
+    if (pmod) {
+        PyDict_SetItemString(modules, fqn, mod);
+        PyDict_SetItemString(PyModule_GetDict(mod), "__name__",
+                             PyUnicode_FromString(fqn));
+        PyModule_AddObjectRef(pmod, alias, mod);
+        Py_XDECREF(mod);
+    }
+    if (!pmod || PyErr_Occurred()) {
+        snprintf(fqn, sizeof(fqn), "Error after init in : %s.%s\n", parent,
+                 alias);
+        fputs(fqn, stderr);
+        PyErr_Print();
+        PyErr_Clear();
+    }
+}
+
+static PyObject *
+mod_pygame_import_cython(PyObject *self, PyObject *spec)
+{
+#if defined(NO_SDL2)
+#pragma message "WARNING: pygame._sdl2.* are disabled"
+#else
+    load_submodule_mphase("pygame._sdl2", PyInit_sdl2(), spec, "sdl2");
+    load_submodule_mphase("pygame._sdl2", PyInit_mixer(), spec, "mixer");
+    load_submodule_mphase("pygame._sdl2", PyInit_audio(), spec, "audio");
+    load_submodule_mphase("pygame._sdl2", PyInit_video(), spec, "video");
+#endif
+
+    Py_RETURN_NONE;
+}
+
+void
+PyInit_pygame_static()
+{
+    // cannot fail here, and font_initialized is already set to 1 in font.c .
+    TTF_Init();
+
+    // for correct input in wasm worker
+    SDL_SetHint("SDL_EMSCRIPTEN_KEYBOARD_ELEMENT", "1");
+
+    // base module is including current file
+    // all globals are accessible from here.
+    // load_submodule("pygame", PyInit_base(), "base");
+
+    load_submodule("pygame", PyInit_constants(), "constants");
+    //
+    load_submodule("pygame", PyInit_pg_math(), "math");
+
+    // base, pygame.colordict
+    load_submodule("pygame", PyInit_color(), "color");
+
+    // base
+    load_submodule("pygame", PyInit_rect(), "rect");
+
+    // base, rect
+    load_submodule("pygame", PyInit_geometry(), "geometry");
+
+    load_submodule("pygame", PyInit_bufferproxy(), "bufferproxy");
+    load_submodule("pygame", PyInit_surflock(), "surflock");
+
+    // base, color, rect, bufferproxy, surflock
+    load_submodule("pygame", PyInit_surface(), "surface");
+
+    load_submodule("pygame", PyInit_rwobject(), "rwobject");
+
+    // base, color, rect, bufferproxy, surflock, surface, rwobject
+    load_submodule("pygame", PyInit_imageext(), "imageext");
+    // base, color, rect, bufferproxy, surflock, surface, rwobject
+    load_submodule("pygame", PyInit_image(), "image");
+
+    load_submodule("pygame", PyInit__freetype(), "_freetype");
+    load_submodule("pygame", PyInit_font(), "font");
+    load_submodule("pygame", PyInit_pixelcopy(), "pixelcopy");
+    load_submodule("pygame", PyInit_newbuffer(), "newbuffer");
+
+    // base
+    load_submodule("pygame", PyInit_joystick(), "joystick");
+    // base, joystick
+    load_submodule("pygame", PyInit_event(), "event");
+
+    // base, rect, event
+    load_submodule("pygame", PyInit_key(), "key");
+    // base, event
+    load_submodule("pygame", PyInit_pg_time(), "time");
+
+    load_submodule("pygame", PyInit_transform(), "transform");
+    load_submodule("pygame", PyInit_draw(), "draw");
+
+    load_submodule("pygame", PyInit_mask(), "mask");
+    load_submodule("pygame", PyInit_mouse(), "mouse");
+
+    load_submodule("pygame", PyInit_pg_mixer(), "mixer");
+    load_submodule("pygame.mixer", PyInit_mixer_music(), "music");
+
+    // base, color, rect, bufferproxy, surflock, surface
+    load_submodule("pygame", PyInit_window(), "window");
+
+    // base, color, rect, surflock, surface, window
+    load_submodule("pygame", PyInit_display(), "display");
+    load_submodule("pygame", PyInit__render(), "_render");
+
+    load_submodule("pygame", PyInit_pixelarray(), "pixelarray");
+
+    // base, color, rect, bufferproxy, surflock, surface
+    load_submodule("pygame", PyInit_gfxdraw(), "gfxdraw");
+
+    load_submodule("pygame", PyInit_system(), "system");
+
+    // return PyModule_Create(&mod_pygame_static);
+}
+
+// meson static support
+
+#include "constants.c"
+
+#include "rect.c"
+#include "pgcompat_rect.c"
+
+#undef pgSurface_Lock
+#undef pgSurface_Unlock
+#undef pgSurface_LockBy
+#undef pgSurface_UnlockBy
+#undef pgSurface_Prep
+#undef pgSurface_Unprep
+
+#include "surflock.c"
+
+#undef pgColor_New
+#undef pgColor_NewLength
+#undef pg_RGBAFromObjEx
+#undef pg_MappedColorFromObj
+#undef pgColor_Type
+
+#include "color.c"
+
+#undef pgBufferProxy_New
+
+#include "bufferproxy.c"
+
+#undef pgSurface_Blit
+#undef pgSurface_New
+#undef pgSurface_Type
+#undef pgSurface_SetSurface
+
+#include "surface.c"
+#include "simd_blitters_avx2.c"
+#include "simd_blitters_sse2.c"
+
+#include "window.c"
+
+#undef pgVidInfo_Type
+#undef pgVidInfo_New
+
+#include "display.c"
+
+#include "draw.c"
+
+#undef pg_EncodeString
+#undef pg_EncodeFilePath
+#undef pgRWops_IsFileObject
+#undef pgRWops_GetFileExtension
+#undef pgRWops_FromFileObject
+#undef pgRWops_FromObject
+
+#include "rwobject.c"
+
+#define pgSurface_New(surface) (pgSurfaceObject *)pgSurface_New2((surface), 1)
+#include "render.c"
+#include "image.c"
+
+#include "imageext.c"
+
+#include "mask.c"
+
+#undef pg_EnableKeyRepeat
+#undef pg_GetKeyRepeat
+#undef pgEvent_FillUserEvent
+#undef pgEvent_Type
+#undef pgEvent_New
+
+#include "joystick.c"
+
+#include "event.c"
+
+#include "mouse.c"
+
+#include "key.c"
+
+#include "time.c"
+
+#include "system.c"
+#include "geometry.c"
+
+#if defined(DEC_CONST)
+#undef DEC_CONST
+#endif
+#include "_freetype.c"
+#include "freetype/ft_wrap.c"
+#include "freetype/ft_render.c"
+#include "freetype/ft_render_cb.c"
+#include "freetype/ft_cache.c"
+#include "freetype/ft_layout.c"
+#include "freetype/ft_unicode.c"
+
+#include "font.c"
+
+#include "mixer.c"
+
+#include "music.c"
+
+#include "gfxdraw.c"
+
+#include "alphablit.c"
+
+#include "surface_fill.c"
+#include "pixelarray.c"
+#include "pixelcopy.c"
+#include "newbuffer.c"
+
+#include "_sdl2/controller.c"
+// #include "_sdl2/controller_old.c"
+// #include "_sdl2/mixer.c"
+#include "_sdl2/touch.c"
+// #include "_sdl2/sdl2.c"
+
+#include "transform.c"
+// that remove some warnings
+#undef MAX
+#undef MIN
+#include "scale2x.c"
+
+#include "math.c"
+
+#endif  // BUILD_STATIC

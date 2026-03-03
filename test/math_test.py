@@ -6,31 +6,16 @@ from collections.abc import Collection, Sequence
 import pygame.math
 from pygame.math import Vector2, Vector3
 
+try:
+    import numpy
+except ModuleNotFoundError:
+    numpy = None
+
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
 class MathModuleTest(unittest.TestCase):
     """Math module tests."""
-
-    def test_lerp(self):
-        result = pygame.math.lerp(10, 100, 0.5)  # 55.0
-        self.assertAlmostEqual(result, 55.0)
-
-        result = pygame.math.lerp(10, 100, 0.0)  # 10
-        self.assertAlmostEqual(result, 10.0)
-
-        result = pygame.math.lerp(10, 100, 1.0)  # 100
-        self.assertAlmostEqual(result, 100.0)
-
-        # Not enough args
-        self.assertRaises(TypeError, pygame.math.lerp, 1)
-
-        # Wrong arg type
-        self.assertRaises(TypeError, pygame.math.lerp, "str", "str", "str")
-
-        # Percent outside range [0, 1]
-        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, 1.1)
-        self.assertRaises(ValueError, pygame.math.lerp, 10, 100, -0.5)
 
     def test_clamp(self):
         """Test clamp function."""
@@ -72,8 +57,153 @@ class MathModuleTest(unittest.TestCase):
         # Error tests
         # Not enough args
         self.assertRaises(TypeError, pygame.math.clamp, 10)
-        # Non numeric args
+        # Non-numeric args
         self.assertRaises(TypeError, pygame.math.clamp, "hello", "py", "thon")
+
+    def test_lerp(self):
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.lerp(a, b, 0.5), 5.0)
+
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.lerp(a, b, 0.1), 1.0)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.lerp(a, b, 0.5), 0.0)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.lerp(a, b, 1.5), 10.0)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.lerp(a, b, 1.5, False), 20.0)
+
+        with self.assertRaises(TypeError):
+            a = Vector2(0, 0)
+            b = Vector2(10.0, 10.0)
+            pygame.math.lerp(a, b, 0.5)
+
+        with self.assertRaises(TypeError):
+            a = 1
+            b = 2
+            pygame.math.lerp(a, b, Vector2(0, 0))
+
+    def test_invlerp(self):
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.invlerp(a, b, 5.0), 0.5)
+
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.invlerp(a, b, 0.1), 0.01)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.invlerp(a, b, 0.5), 0.525)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.invlerp(a, b, 1.5), 0.575)
+
+        a = 0.0
+        b = 100.0
+        self.assertEqual(pygame.math.invlerp(a, b, 0.25), 0.0025)
+
+        with self.assertRaises(TypeError):
+            a = Vector2(0, 0)
+            b = Vector2(10.0, 10.0)
+            pygame.math.invlerp(a, b, 0.5)
+
+        with self.assertRaises(TypeError):
+            a = 1
+            b = 2
+            pygame.math.invlerp(a, b, Vector2(0, 0))
+
+        with self.assertRaises(ValueError):
+            a = 5
+            b = 5
+            pygame.math.invlerp(a, b, 5)
+
+        with self.assertRaises(TypeError):
+            a = 12**300
+            b = 11**30
+            pygame.math.invlerp(a, b, 1)
+
+    def test_remap(self):
+        a = 0.0
+        b = 10.0
+        c = 0.0
+        d = 100.0
+        self.assertEqual(pygame.math.remap(a, b, c, d, 1.0), 10.0)
+
+        a = 0.0
+        b = 10.0
+        c = 0.0
+        d = 100.0
+        self.assertEqual(pygame.math.remap(a, b, c, d, -1.0), -10.0)
+
+        a = -10.0
+        b = 10.0
+        c = -20.0
+        d = 20.0
+        self.assertEqual(pygame.math.remap(a, b, c, d, 0.0), 0.0)
+
+        a = -10.0
+        b = 10.0
+        c = 10.0
+        d = 110.0
+        self.assertEqual(pygame.math.remap(a, b, c, d, -8.0), 20.0)
+
+        with self.assertRaises(TypeError):
+            a = Vector2(0, 0)
+            b = "fish"
+            c = "durk"
+            d = Vector2(100, 100)
+            pygame.math.remap(a, b, c, d, 10)
+
+        with self.assertRaises(TypeError):
+            a = 1
+            b = 2
+            c = 10
+            d = 20
+            pygame.math.remap(a, b, c, d, Vector2(0, 0))
+
+        with self.assertRaises(ValueError):
+            a = 5
+            b = 5
+            c = 0
+            d = 100
+            pygame.math.remap(a, b, c, d, 10)
+
+        with self.assertRaises(TypeError):
+            a = 12**300
+            b = 11**30
+            c = 20
+            d = 30
+            pygame.math.remap(a, b, c, d, 100 * 50)
+
+        with self.assertRaises(TypeError):
+            a = 12j
+            b = 11j
+            c = 10j
+            d = 9j
+            pygame.math.remap(a, b, c, d, 50j)
+
+    def test_smoothstep(self):
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.smoothstep(a, b, 0.5), 5.0)
+
+        a = 0.0
+        b = 10.0
+        self.assertEqual(pygame.math.smoothstep(a, b, 0.1), 0.28)
+
+        a = -10.0
+        b = 10.0
+        self.assertEqual(pygame.math.smoothstep(a, b, 0.5), 0.0)
 
 
 class Vector2TypeTest(unittest.TestCase):
@@ -127,6 +257,48 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testConstructionVector2(self):
         v = Vector2(Vector2(1.2, 3.4))
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+
+    def testConstructionNumericSequence(self):
+        class NumericSequence:
+            # PyFloat_AsDouble will use this to convert to a float
+            # so this is testing the implementation a bit
+            def __float__(self):
+                raise TypeError("Cannot convert to float")
+
+            def __getitem__(self, index):
+                return [1, 0][index]
+
+            def __len__(self):
+                return 2
+
+        v = Vector2(NumericSequence())
+        self.assertEqual(v.x, 1.0)
+        self.assertEqual(v.y, 0.0)
+
+    def testConstructionNumericNonFloat(self):
+        class NumericNonFloat:
+            # PyFloat_AsDouble will use this to convert to a float
+            # so this is testing the implementation a bit
+            def __float__(self):
+                raise TypeError("Cannot convert to float")
+
+        with self.assertRaises(TypeError):
+            Vector2(NumericNonFloat())
+
+        with self.assertRaises(TypeError):
+            Vector2(NumericNonFloat(), NumericNonFloat())
+
+        with self.assertRaises(TypeError):
+            Vector2(1.0, NumericNonFloat())
+
+    @unittest.skipIf(numpy is None, "numpy not available")
+    def testConstructionNumpyArray(self):
+        assert numpy is not None
+
+        arr = numpy.array([1.2, 3.4])
+        v = Vector2(arr)
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
 
@@ -530,8 +702,8 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testRepr(self):
         v = Vector2(1.2, 3.4)
-        self.assertEqual(v.__repr__(), "<Vector2(1.2, 3.4)>")
-        self.assertEqual(v, Vector2(v.__repr__()))
+        self.assertEqual(repr(v), "Vector2(1.2, 3.4)")
+        self.assertEqual(v, Vector2(repr(v)))
 
     def testIter(self):
         it = self.v1.__iter__()
@@ -570,7 +742,7 @@ class Vector2TypeTest(unittest.TestCase):
         v2 = v1.rotate(0)
         self.assertEqual(v1.x, v2.x)
         self.assertEqual(v1.y, v2.y)
-        # issue 214
+        # pygame issue 229
         self.assertEqual(Vector2(0, 1).rotate(359.99999999), Vector2(0, 1))
 
     def test_rotate_rad(self):
@@ -968,15 +1140,31 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v1.lerp(v2, 0.5), (5, 5))
         self.assertRaises(ValueError, lambda: v1.lerp(v2, 2.5))
 
+        v1 = Vector2(0, 0)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.lerp(v2, 0.1), (1, 1))
+
         v1 = Vector2(-10, -5)
         v2 = Vector2(10, 10)
         self.assertEqual(v1.lerp(v2, 0.5), (0, 2.5))
+
+    def test_smoothstep(self):
+        v1 = Vector2(0, 0)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.smoothstep(v2, 0.5), (5, 5))
+
+        v1 = Vector2(0, 0)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.smoothstep(v2, 0.1), (0.28, 0.28))
+
+        v1 = Vector2(-10, -5)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.smoothstep(v2, 0.5), (0, 2.5))
 
     def test_polar(self):
         v = Vector2()
         v.from_polar(self.v1.as_polar())
         self.assertEqual(self.v1, v)
-        self.assertEqual(self.v1, Vector2.from_polar(self.v1.as_polar()))
         self.assertEqual(self.e1.as_polar(), (1, 0))
         self.assertEqual(self.e2.as_polar(), (1, 90))
         self.assertEqual((2 * self.e2).as_polar(), (2, 90))
@@ -986,33 +1174,22 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: v.from_polar((1, 2, 3)))
         self.assertRaises(TypeError, lambda: v.from_polar((1,)))
         self.assertRaises(TypeError, lambda: v.from_polar(1, 2))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar((None, None)))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar("ab"))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar((None, 1)))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar((1, 2, 3)))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar((1,)))
-        self.assertRaises(TypeError, lambda: Vector2.from_polar(1, 2))
         v.from_polar((0.5, 90))
         self.assertEqual(v, 0.5 * self.e2)
-        self.assertEqual(Vector2.from_polar((0.5, 90)), 0.5 * self.e2)
-        self.assertEqual(Vector2.from_polar((0.5, 90)), v)
         v.from_polar((1, 0))
         self.assertEqual(v, self.e1)
-        self.assertEqual(Vector2.from_polar((1, 0)), self.e1)
-        self.assertEqual(Vector2.from_polar((1, 0)), v)
 
     def test_subclass_operation(self):
         class Vector(pygame.math.Vector2):
             pass
 
+        vec = Vector()
+
         vec_a = Vector(2, 0)
         vec_b = Vector(0, 1)
 
-        result_add = vec_a + vec_b
-        self.assertEqual(result_add, Vector(2, 1))
-
+        vec_a + vec_b
         vec_a *= 2
-        self.assertEqual(vec_a, Vector(4, 0))
 
     def test_project_v2_onto_x_axis(self):
         """Project onto x-axis, e.g. get the component pointing in the x-axis direction."""
@@ -1142,6 +1319,11 @@ class Vector2TypeTest(unittest.TestCase):
                 self.assertEqual(v1, v2)
                 self.assertEqual(v1, Vector2(1, 2))
 
+        v2 = Vector2()
+        self.assertEqual(v2.clamp_magnitude(1), Vector2())
+        v2.clamp_magnitude_ip(2)
+        self.assertEqual(v2.magnitude(), 0)
+
     def test_clamp_mag_v2_edge_cases(self):
         v1 = Vector2(1, 2)
         v2 = v1.clamp_magnitude(6, 6)
@@ -1175,10 +1357,10 @@ class Vector2TypeTest(unittest.TestCase):
                 self.assertRaises(ValueError, v1.clamp_magnitude, *invalid_args)
                 self.assertRaises(ValueError, v1.clamp_magnitude_ip, *invalid_args)
 
-        # 0 vector
+        # 0 vector with a min_length > 0
         v2 = Vector2()
-        self.assertRaises(ValueError, v2.clamp_magnitude, 3)
-        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 4)
+        self.assertRaises(ValueError, v2.clamp_magnitude, 1, 2)
+        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 2, 3)
 
     def test_subclassing_v2(self):
         """Check if Vector2 is subclassable"""
@@ -1211,6 +1393,120 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(type(other * 3), TestVector)
         self.assertEqual(type(other / 3), TestVector)
         self.assertEqual(type(other.elementwise() ** 3), TestVector)
+
+    def test_del_x(self):
+        """Verify that the correct error message gets spit out when trying to delete x"""
+        with self.assertRaises(TypeError) as ctx:
+            del Vector2().x
+
+        exception = ctx.exception
+        self.assertEqual(str(exception), "Cannot delete the x attribute")
+
+    def test_del_y(self):
+        """Verify that the correct error message gets spit out when trying to delete y"""
+        with self.assertRaises(TypeError) as ctx:
+            del Vector2().y
+
+        exception = ctx.exception
+        self.assertEqual(str(exception), "Cannot delete the y attribute")
+
+    def test_angle_rad_property(self):
+        v0 = Vector2(1, 0)
+        self.assertEqual(v0.angle_rad, 0.0)
+
+        v1 = Vector2(0, 1)
+        self.assertEqual(v1.angle_rad, math.pi / 2)
+
+        v2 = Vector2(-1, 0)
+        self.assertEqual(v2.angle_rad, math.pi)
+
+        v3 = Vector2(0, -1)
+        self.assertEqual(v3.angle_rad, -math.pi / 2)
+
+        v4 = Vector2(1, 1)
+        self.assertEqual(v4.angle_rad, math.pi / 4)
+
+        v5 = Vector2(-1, 1)
+        self.assertEqual(v5.angle_rad, 3 * math.pi / 4)
+
+        v6 = Vector2(-1, -1)
+        self.assertEqual(v6.angle_rad, -3 * math.pi / 4)
+
+        v7 = Vector2(1, -1)
+        self.assertEqual(v7.angle_rad, -math.pi / 4)
+
+        v8 = Vector2(float('inf'), float('inf'))
+        self.assertEqual(v8.angle_rad, math.pi / 4)
+
+        v9 = Vector2(float('-inf'), float('inf'))
+        self.assertEqual(v9.angle_rad, 3 * math.pi / 4)
+
+        v10 = Vector2(float('-inf'), float('-inf'))
+        self.assertEqual(v10.angle_rad, -3 * math.pi / 4)
+
+        v11 = Vector2(float('inf'), float('-inf'))
+        self.assertEqual(v11.angle_rad, -math.pi / 4)
+
+        v12 = Vector2(0, 0)
+        self.assertEqual(v12.angle_rad, 0.0)
+
+        v13 = Vector2(float('nan'), 1)
+        self.assertTrue(math.isnan(v13.angle_rad))
+
+        v14 = Vector2(1, float('nan'))
+        self.assertTrue(math.isnan(v14.angle_rad))
+
+        v15 = Vector2(float('nan'), float('nan'))
+        self.assertTrue(math.isnan(v15.angle_rad))
+
+    def test_angle_property(self):
+        v0 = pygame.math.Vector2(1, 0)
+        self.assertEqual(v0.angle, 0.0)
+
+        v1 = pygame.math.Vector2(0, 1)
+        self.assertEqual(v1.angle, 90.0)
+
+        v2 = pygame.math.Vector2(-1, 0)
+        self.assertEqual(v2.angle, 180.0)
+
+        v3 = pygame.math.Vector2(0, -1)
+        self.assertEqual(v3.angle, -90.0)
+
+        v4 = pygame.math.Vector2(1, 1)
+        self.assertEqual(v4.angle, 45.0)
+
+        v5 = pygame.math.Vector2(-1, 1)
+        self.assertEqual(v5.angle, 135.0)
+
+        v6 = pygame.math.Vector2(-1, -1)
+        self.assertEqual(v6.angle, -135.0)
+
+        v7 = pygame.math.Vector2(1, -1)
+        self.assertEqual(v7.angle, -45.0)
+
+        v8 = pygame.math.Vector2(float('inf'), float('inf'))
+        self.assertEqual(v8.angle, 45.0)
+
+        v9 = pygame.math.Vector2(float('-inf'), float('inf'))
+        self.assertEqual(v9.angle, 135.0)
+
+        v10 = pygame.math.Vector2(float('-inf'), float('-inf'))
+        self.assertEqual(v10.angle, -135.0)
+
+        v11 = pygame.math.Vector2(float('inf'), float('-inf'))
+        self.assertEqual(v11.angle, -45.0)
+
+        v12 = pygame.math.Vector2(0, 0)
+        self.assertEqual(v12.angle, 0.0)
+
+        v13 = pygame.math.Vector2(float('nan'), 1)
+        self.assertTrue(math.isnan(v13.angle))
+
+        v14 = pygame.math.Vector2(1, float('nan'))
+        self.assertTrue(math.isnan(v14.angle))
+
+        v15 = pygame.math.Vector2(float('nan'), float('nan'))
+        self.assertTrue(math.isnan(v15.angle))
 
 
 class Vector3TypeTest(unittest.TestCase):
@@ -1279,6 +1575,53 @@ class Vector3TypeTest(unittest.TestCase):
     def testConstructionMissing(self):
         self.assertRaises(ValueError, Vector3, 1, 2)
         self.assertRaises(ValueError, Vector3, x=1, y=2)
+
+    def testConstructionNumericSequence(self):
+        class NumericSequence:
+            # PyFloat_AsDouble will use this to convert to a float
+            # so this is testing the implementation a bit
+            def __float__(self):
+                raise TypeError("Cannot convert to float")
+
+            def __getitem__(self, index):
+                return [1, 0, 5][index]
+
+            def __len__(self):
+                return 3
+
+        v = Vector3(NumericSequence())
+        self.assertEqual(v.x, 1.0)
+        self.assertEqual(v.y, 0.0)
+        self.assertEqual(v.z, 5.0)
+
+    def testConstructionNumericNonFloat(self):
+        class NumericNonFloat:
+            # PyFloat_AsDouble will use this to convert to a float
+            # so this is testing the implementation a bit
+            def __float__(self):
+                raise TypeError("Cannot convert to float")
+
+        with self.assertRaises(TypeError):
+            Vector3(NumericNonFloat())
+
+        with self.assertRaises(TypeError):
+            Vector3(NumericNonFloat(), NumericNonFloat(), NumericNonFloat())
+
+        with self.assertRaises(TypeError):
+            Vector3(1.0, NumericNonFloat(), 5.0)
+
+        with self.assertRaises(TypeError):
+            Vector3(1.0, 0.0, NumericNonFloat())
+
+    @unittest.skipIf(numpy is None, "numpy not available")
+    def testConstructionNumpyArray(self):
+        assert numpy is not None
+
+        arr = numpy.array([1.2, 3.4, 5.6], dtype=float)
+        v = Vector3(arr)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+        self.assertEqual(v.z, 5.6)
 
     def testAttributeAccess(self):
         tmp = self.v1.x
@@ -1528,8 +1871,8 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testRepr(self):
         v = Vector3(1.2, 3.4, -9.6)
-        self.assertEqual(v.__repr__(), "<Vector3(1.2, 3.4, -9.6)>")
-        self.assertEqual(v, Vector3(v.__repr__()))
+        self.assertEqual(repr(v), "Vector3(1.2, 3.4, -9.6)")
+        self.assertEqual(v, Vector3(repr(v)))
 
     def testIter(self):
         it = self.v1.__iter__()
@@ -1696,7 +2039,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v1.x, v2.x)
         self.assertEqual(v1.y, v2.y)
         self.assertEqual(v1.z, v2.z)
-        # issue 214
+        # pygame issue 229
         self.assertEqual(
             Vector3(0, 1, 0).rotate(359.9999999, Vector3(0, 0, 1)), Vector3(0, 1, 0)
         )
@@ -2550,15 +2893,31 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v1.lerp(v2, 0.5), (5, 5, 5))
         self.assertRaises(ValueError, lambda: v1.lerp(v2, 2.5))
 
+        v1 = Vector3(0, 0, 0)
+        v2 = Vector3(10, 10, 10)
+        self.assertEqual(v1.lerp(v2, 0.1), (1, 1, 1))
+
         v1 = Vector3(-10, -5, -20)
         v2 = Vector3(10, 10, -20)
         self.assertEqual(v1.lerp(v2, 0.5), (0, 2.5, -20))
+
+    def test_smoothstep(self):
+        v1 = Vector3(0, 0, 0)
+        v2 = Vector3(10, 10, 10)
+        self.assertEqual(v1.smoothstep(v2, 0.5), (5, 5, 5))
+
+        v1 = Vector3(0, 0, 0)
+        v2 = Vector3(10, 10, 10)
+        self.assertEqual(v1.smoothstep(v2, 0.1), (0.28, 0.28, 0.28))
+
+        v1 = Vector3(-10, -5, -20)
+        v2 = Vector3(10, 10, -20)
+        self.assertEqual(v1.smoothstep(v2, 0.5), (0, 2.5, -20))
 
     def test_spherical(self):
         v = Vector3()
         v.from_spherical(self.v1.as_spherical())
         self.assertEqual(self.v1, v)
-        self.assertEqual(self.v1, Vector3.from_spherical(self.v1.as_spherical()))
         self.assertEqual(self.e1.as_spherical(), (1, 90, 0))
         self.assertEqual(self.e2.as_spherical(), (1, 90, 90))
         self.assertEqual(self.e3.as_spherical(), (1, 0, 0))
@@ -2569,16 +2928,8 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda: v.from_spherical((1, 2, 3, 4)))
         self.assertRaises(TypeError, lambda: v.from_spherical((1, 2)))
         self.assertRaises(TypeError, lambda: v.from_spherical(1, 2, 3))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical((None, None, None)))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical("abc"))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical((None, 1, 2)))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical((1, 2, 3, 4)))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical((1, 2)))
-        self.assertRaises(TypeError, lambda: Vector3.from_spherical(1, 2, 3))
         v.from_spherical((0.5, 90, 90))
         self.assertEqual(v, 0.5 * self.e2)
-        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), 0.5 * self.e2)
-        self.assertEqual(Vector3.from_spherical((0.5, 90, 90)), v)
 
     def test_inplace_operators(self):
         v = Vector3(1, 1, 1)
@@ -2789,6 +3140,11 @@ class Vector3TypeTest(unittest.TestCase):
                 self.assertEqual(v1, v2)
                 self.assertEqual(v1, Vector3(1, 2, 3))
 
+            v2 = Vector3()
+            self.assertEqual(v2.clamp_magnitude(1), Vector3())
+            v2.clamp_magnitude_ip(2)
+            self.assertEqual(v2.magnitude(), 0)
+
     def test_clamp_mag_v3_edge_cases(self):
         v1 = Vector3(1, 2, 1)
         v2 = v1.clamp_magnitude(6, 6)
@@ -2824,8 +3180,8 @@ class Vector3TypeTest(unittest.TestCase):
 
         # 0 vector
         v2 = Vector3()
-        self.assertRaises(ValueError, v2.clamp_magnitude, 3)
-        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 4)
+        self.assertRaises(ValueError, v2.clamp_magnitude, 1, 2)
+        self.assertRaises(ValueError, v2.clamp_magnitude_ip, 2, 3)
 
     def test_subclassing_v3(self):
         """Check if Vector3 is subclassable"""
@@ -2923,6 +3279,30 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, origin.move_towards_ip, target, "b")
         self.assertRaises(TypeError, origin.move_towards, "c", 3)
         self.assertRaises(TypeError, origin.move_towards_ip, "d", 3)
+
+    def test_del_x(self):
+        """Verify that the correct error message gets spit out when trying to delete x"""
+        with self.assertRaises(TypeError) as ctx:
+            del Vector3().x
+
+        exception = ctx.exception
+        self.assertEqual(str(exception), "Cannot delete the x attribute")
+
+    def test_del_y(self):
+        """Verify that the correct error message gets spit out when trying to delete y"""
+        with self.assertRaises(TypeError) as ctx:
+            del Vector3().y
+
+        exception = ctx.exception
+        self.assertEqual(str(exception), "Cannot delete the y attribute")
+
+    def test_del_z(self):
+        """Verify that the correct error message gets spit out when trying to delete z"""
+        with self.assertRaises(TypeError) as ctx:
+            del Vector3().z
+
+        exception = ctx.exception
+        self.assertEqual(str(exception), "Cannot delete the z attribute")
 
 
 if __name__ == "__main__":

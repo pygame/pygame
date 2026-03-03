@@ -1,5 +1,5 @@
-import platform
 import os
+import platform
 import sys
 
 __all__ = ["Video_AutoInit"]

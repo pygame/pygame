@@ -50,8 +50,7 @@ typedef struct {
 PYGAMEAPI_DEFINE_SLOTS(mixer);
 
 #define pgSound_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mixer, 0))
-
-#define pgSound_Check(x) ((x)->ob_type == &pgSound_Type)
+#define pgSound_Check(x) (PyObject_IsInstance(x, (PyObject *)&pgSound_Type))
 
 #define pgSound_New \
     (*(PyObject * (*)(Mix_Chunk *)) PYGAMEAPI_GET_SLOT(mixer, 1))
@@ -60,7 +59,8 @@ PYGAMEAPI_DEFINE_SLOTS(mixer);
     (*(PyObject * (*)(PyObject *, PyObject *)) PYGAMEAPI_GET_SLOT(mixer, 2))
 
 #define pgChannel_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mixer, 3))
-#define pgChannel_Check(x) ((x)->ob_type == &pgChannel_Type)
+#define pgChannel_Check(x) \
+    (PyObject_IsInstance(x, (PyObject *)&pgChannel_Type))
 
 #define pgChannel_New (*(PyObject * (*)(int)) PYGAMEAPI_GET_SLOT(mixer, 4))
 

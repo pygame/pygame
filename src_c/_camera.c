@@ -68,8 +68,8 @@ PyObject *
 camera_get_raw(pgCameraObject *self, PyObject *args);
 
 /*
- * Functions available to pygame users.  The idea is to make these as simple as
- * possible, and merely have them call functions specific to the type of
+ * Functions available to pygame users.  The idea is to make these as simple
+ * as possible, and merely have them call functions specific to the type of
  * camera being used to do all the real work.  It currently just calls v4l2_*
  * functions, but it could check something like self->cameratype and depending
  * on the result, call v4l, v4l2, vfw, or other functions.
@@ -93,8 +93,9 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!s|O!", &pgSurface_Type, &surfobj, &color,
-                          &pgSurface_Type, &surfobj2))
+                          &pgSurface_Type, &surfobj2)) {
         return NULL;
+    }
 
     if (!strcmp(color, "YUV")) {
         cspace = YUV_OUT;
@@ -108,38 +109,37 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
     surf = pgSurface_AsSurface(surfobj);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-
     if (!surfobj2) {
-        newsurf = SDL_CreateRGBSurface(
-            0, surf->w, surf->h, surf->format->BitsPerPixel,
-            surf->format->Rmask, surf->format->Gmask, surf->format->Bmask,
-            surf->format->Amask);
+        newsurf = PG_CreateSurface(surf->w, surf->h, PG_SURF_FORMATENUM(surf));
         if (!newsurf) {
             return NULL;
         }
     }
     else {
         newsurf = pgSurface_AsSurface(surfobj2);
-        if (!newsurf)
-            return RAISE(pgExc_SDLError, "display Surface quit");
     }
 
     /* check to see if the size is the same. */
-    if (newsurf->w != surf->w || newsurf->h != surf->h)
+    if (newsurf->w != surf->w || newsurf->h != surf->h) {
         return RAISE(PyExc_ValueError,
                      "Surfaces not the same width and height.");
+    }
 
     /* check to see if the format of the surface is the same. */
-    if (surf->format->BitsPerPixel != newsurf->format->BitsPerPixel)
+    if (PG_SURF_BitsPerPixel(surf) != PG_SURF_BitsPerPixel(newsurf)) {
         return RAISE(PyExc_ValueError, "Surfaces not the same depth");
+    }
+
+    PG_PixelFormat *src_fmt = PG_GetSurfaceFormat(surf);
+    if (!src_fmt) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     SDL_LockSurface(newsurf);
     pgSurface_Lock(surfobj);
 
     Py_BEGIN_ALLOW_THREADS;
-    colorspace(surf, newsurf, cspace);
+    colorspace(surf, src_fmt, newsurf, cspace);
     Py_END_ALLOW_THREADS;
 
     pgSurface_Unlock(surfobj);
@@ -149,30 +149,42 @@ surf_colorspace(PyObject *self, PyObject *arg)
         Py_INCREF(surfobj2);
         return (PyObject *)surfobj2;
     }
-    else
+    else {
         return (PyObject *)pgSurface_New(newsurf);
+    }
 }
 
 /* list_cameras() - lists cameras available on the computer */
 PyObject *
 list_cameras(PyObject *self, PyObject *_null)
 {
-#if defined(__unix__)
+#if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
     PyObject *ret_list;
     PyObject *string;
+#if !defined(PYGAME_WINDOWS_CAMERA)
     char **devices;
+#else
+    WCHAR **devices;
+#endif
     int j, i = 0, num_devices = 0;
 
     /* TODO for future PRs: errors in these functions are being ignored as
      * of now, and an empty list is being returned by this function */
 #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    devices = windows_list_cameras(&num_devices);
+#endif
+
     ret_list = PyList_New(num_devices);
     if (!ret_list) {
         goto error;
     }
 
     for (i = 0; i < num_devices; i++) {
+#if defined(PYGAME_WINDOWS_CAMERA)
+        string = PyUnicode_FromWideChar(devices[i], -1);
+#else
         string = PyUnicode_FromString(devices[i]);
 #endif
         if (!string) {
@@ -219,6 +231,15 @@ camera_start(pgCameraObject *self, PyObject *_null)
             return NULL;
         }
     }
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    if (self->open) { /* camera already started */
+        Py_RETURN_NONE;
+    }
+
+    if (!windows_open_device(self)) {
+        windows_close_device(self);
+        return NULL;
+    }
 #endif
     Py_RETURN_NONE;
 }
@@ -228,12 +249,21 @@ PyObject *
 camera_stop(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
-    if (v4l2_stop_capturing(self) == 0)
+    if (v4l2_stop_capturing(self) == 0) {
         return NULL;
-    if (v4l2_uninit_device(self) == 0)
+    }
+    if (v4l2_uninit_device(self) == 0) {
         return NULL;
-    if (v4l2_close_device(self) == 0)
+    }
+    if (v4l2_close_device(self) == 0) {
         return NULL;
+    }
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    if (self->open) { /* camera started */
+        if (!windows_close_device(self)) {
+            return NULL;
+        }
+    }
 #endif
     Py_RETURN_NONE;
 }
@@ -245,18 +275,24 @@ camera_get_controls(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     int value;
-    if (v4l2_get_control(self->fd, V4L2_CID_HFLIP, &value))
+    if (v4l2_get_control(self->fd, V4L2_CID_HFLIP, &value)) {
         self->hflip = value;
+    }
 
-    if (v4l2_get_control(self->fd, V4L2_CID_VFLIP, &value))
+    if (v4l2_get_control(self->fd, V4L2_CID_VFLIP, &value)) {
         self->vflip = value;
+    }
 
-    if (v4l2_get_control(self->fd, V4L2_CID_BRIGHTNESS, &value))
+    if (v4l2_get_control(self->fd, V4L2_CID_BRIGHTNESS, &value)) {
         self->brightness = value;
+    }
 
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
+                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -275,22 +311,45 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     brightness = self->brightness;
 
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip,
-                                     &brightness))
+                                     &brightness)) {
         return NULL;
+    }
 
     /* #if defined(__unix__)         */
-    if (v4l2_set_control(self->fd, V4L2_CID_HFLIP, hflip))
+    if (v4l2_set_control(self->fd, V4L2_CID_HFLIP, hflip)) {
         self->hflip = hflip;
+    }
 
-    if (v4l2_set_control(self->fd, V4L2_CID_VFLIP, vflip))
+    if (v4l2_set_control(self->fd, V4L2_CID_VFLIP, vflip)) {
         self->vflip = vflip;
+    }
 
-    if (v4l2_set_control(self->fd, V4L2_CID_BRIGHTNESS, brightness))
+    if (v4l2_set_control(self->fd, V4L2_CID_BRIGHTNESS, brightness)) {
         self->brightness = brightness;
+    }
 
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
+
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    int hflip = 0, vflip = 0, brightness = 0;
+    char *kwids[] = {"hflip", "vflip", "brightness", NULL};
+
+    hflip = self->hflip;
+    vflip = self->vflip;
+    brightness = -1;
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip,
+                                     &brightness)) {
+        return NULL;
+    }
+
+    self->hflip = hflip;
+    self->vflip = vflip;
+
+    return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
+                         PyBool_FromLong(self->vflip), PyLong_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -299,8 +358,8 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 PyObject *
 camera_get_size(pgCameraObject *self, PyObject *_null)
 {
-#if defined(__unix__)
-    return Py_BuildValue("(ii)", self->width, self->height);
+#if defined(__unix__) || defined(PYGAME_WINDOWS_CAMERA)
+    return pg_tuple_couple_from_values_int(self->width, self->height);
 #endif
     Py_RETURN_NONE;
 }
@@ -311,6 +370,13 @@ camera_query_image(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    int ready;
+    if (!windows_frame_ready(self, &ready)) {
+        return NULL;
+    }
+
+    return PyBool_FromLong(ready);
 #endif
     Py_RETURN_TRUE;
 }
@@ -325,19 +391,26 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     pgSurfaceObject *surfobj = NULL;
     int ret, errno_code = 0;
 
-    if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
+    if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj)) {
         return NULL;
+    }
 
     if (!surfobj) {
-        surf = SDL_CreateRGBSurface(0, self->width, self->height, 24,
-                                    0xFF << 16, 0xFF << 8, 0xFF, 0);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        surf =
+            PG_CreateSurface(self->width, self->height, SDL_PIXELFORMAT_RGB24);
+#else
+        surf =
+            PG_CreateSurface(self->width, self->height, SDL_PIXELFORMAT_BGR24);
+#endif
     }
     else {
         surf = pgSurface_AsSurface(surfobj);
     }
 
-    if (!surf)
+    if (!surf) {
         return NULL;
+    }
 
     if (surf->w != self->width || surf->h != self->height) {
         return RAISE(PyExc_ValueError,
@@ -365,6 +438,44 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     else {
         return (PyObject *)pgSurface_New(surf);
     }
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    SDL_Surface *surf = NULL;
+    pgSurfaceObject *surfobj = NULL;
+
+    int width = self->width;
+    int height = self->height;
+
+    if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj)) {
+        return NULL;
+    }
+
+    if (!surfobj) {
+        surf = PG_CreateSurface(width, height, SDL_PIXELFORMAT_XRGB8888);
+    }
+    else {
+        surf = pgSurface_AsSurface(surfobj);
+    }
+
+    if (!surf) {
+        return NULL;
+    }
+
+    if (surf->w != self->width || surf->h != self->height) {
+        return RAISE(PyExc_ValueError,
+                     "Destination surface not the correct width or height.");
+    }
+
+    if (!windows_read_frame(self, surf)) {
+        return NULL;
+    }
+
+    if (surfobj) {
+        Py_INCREF(surfobj);
+        return (PyObject *)surfobj;
+    }
+    else {
+        return (PyObject *)pgSurface_New(surf);
+    }
 
 #endif
     Py_RETURN_NONE;
@@ -376,6 +487,8 @@ camera_get_raw(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    return windows_read_raw(self);
 #endif
     Py_RETURN_NONE;
 }
@@ -387,23 +500,22 @@ camera_get_raw(pgCameraObject *self, PyObject *_null)
 /* converts from rgb Surface to yuv or hsv */
 /* TODO: Allow for conversion from yuv and hsv to all */
 void
-colorspace(SDL_Surface *src, SDL_Surface *dst, int cspace)
+colorspace(SDL_Surface *src, PG_PixelFormat *src_fmt, SDL_Surface *dst,
+           int cspace)
 {
     switch (cspace) {
         case YUV_OUT:
-            rgb_to_yuv(src->pixels, dst->pixels, src->h * src->w, 0,
-                       src->format);
+            rgb_to_yuv(src->pixels, dst->pixels, src->h * src->w, 0, src_fmt);
             break;
         case HSV_OUT:
-            rgb_to_hsv(src->pixels, dst->pixels, src->h * src->w, 0,
-                       src->format);
+            rgb_to_hsv(src->pixels, dst->pixels, src->h * src->w, 0, src_fmt);
             break;
     }
 }
 
 /* converts pretty directly if its already RGB24 */
 void
-rgb24_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
+rgb24_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s = (Uint8 *)src;
     Uint8 *d8;
@@ -415,11 +527,11 @@ rgb24_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             d8 = (Uint8 *)dst;
             while (length--) {
@@ -465,7 +577,7 @@ rgb24_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
 /* slight variation on rgb24_to_rgb, just drops the 4th byte of each pixel,
  * changes the R, G, B ordering. */
 void
-bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
+bgr32_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s = (Uint8 *)src;
     Uint8 *d8;
@@ -477,11 +589,11 @@ bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             d8 = (Uint8 *)dst;
             while (length--) {
@@ -530,7 +642,7 @@ bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
 /* converts packed rgb to packed hsv. formulas modified from wikipedia */
 void
 rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
-           SDL_PixelFormat *format)
+           PG_PixelFormat *format)
 {
     Uint8 *s8, *d8;
     Uint16 *s16, *d16;
@@ -547,9 +659,9 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     /* you could stick the if statement inside the loop, but I'm sacrificing a
        a few hundred bytes for a little performance */
@@ -579,7 +691,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
             min = MIN(MIN(r, g), b);
             delta = max - min;
             v = max;      /* value (similar to luminosity) */
-            if (!delta) { /* grey, zero hue and saturation */
+            if (!delta) { /* gray, zero hue and saturation */
                 s = 0;
                 h = 0;
             }
@@ -595,7 +707,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
                     h = 170 + 43 * (r - g) / delta;
                 }
             }
-            switch (format->BytesPerPixel) {
+            switch (PG_FORMAT_BytesPerPixel(format)) {
                 case 1:
                     *d8++ = ((h >> rloss) << rshift) |
                             ((s >> gloss) << gshift) |
@@ -621,7 +733,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
     }
     else { /* for use as stage 2 in yuv or bayer to hsv, r and b switched */
         while (length--) {
-            switch (format->BytesPerPixel) {
+            switch (PG_FORMAT_BytesPerPixel(format)) {
                 case 1:
                     r = *s8 >> rshift << rloss;
                     g = *s8 >> gshift << gloss;
@@ -647,7 +759,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
             min = MIN(MIN(r, g), b);
             delta = max - min;
             v = max;      /* value (similar to luminosity) */
-            if (!delta) { /* grey, zero hue and saturation */
+            if (!delta) { /* gray, zero hue and saturation */
                 s = 0;
                 h = 0;
             }
@@ -663,7 +775,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
                     h = 170 + 43 * (r - g) / delta;
                 }
             }
-            switch (format->BytesPerPixel) {
+            switch (PG_FORMAT_BytesPerPixel(format)) {
                 case 1:
                     *d8++ = ((h >> rloss) << rshift) |
                             ((s >> gloss) << gshift) |
@@ -693,7 +805,7 @@ rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
    this has a full range of 0-255 for Y, not 16-235. Formulas from wikipedia */
 void
 rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
-           SDL_PixelFormat *format)
+           PG_PixelFormat *format)
 {
     Uint8 *s8, *d8;
     Uint16 *s16, *d16;
@@ -711,9 +823,9 @@ rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     if (source == V4L2_PIX_FMT_RGB444 || source == V4L2_PIX_FMT_RGB24 ||
         source == V4L2_PIX_FMT_XBGR32) {
@@ -740,7 +852,7 @@ rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
             v = ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128;  /* V */
             u = ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128; /* U */
             y = (77 * r + 150 * g + 29 * b + 128) >> 8;          /* Y */
-            switch (format->BytesPerPixel) {
+            switch (PG_FORMAT_BytesPerPixel(format)) {
                 case 1:
                     *d8++ = ((y >> rloss) << rshift) |
                             ((u >> gloss) << gshift) |
@@ -765,7 +877,7 @@ rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
         }
     }
     else { /* for use as stage 2 in bayer to yuv, r and b switched */
-        switch (format->BytesPerPixel) {
+        switch (PG_FORMAT_BytesPerPixel(format)) {
             case 1:
                 while (length--) {
                     r = *s8 >> rshift << rloss;
@@ -830,7 +942,7 @@ rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
 
 /* Converts from rgb444 (R444) to rgb24 (RGB3) */
 void
-rgb444_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
+rgb444_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s, *d8;
     Uint16 *d16;
@@ -842,11 +954,11 @@ rgb444_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             d8 = (Uint8 *)dst;
             while (length--) {
@@ -894,7 +1006,7 @@ rgb444_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
 /* colorspace conversion routine from libv4l. Licensed LGPL 2.1
    (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl> */
 void
-yuyv_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
+yuyv_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s, *d8;
     Uint16 *d16;
@@ -906,9 +1018,9 @@ yuyv_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     d8 = (Uint8 *)dst;
     d16 = (Uint16 *)dst;
@@ -940,7 +1052,7 @@ yuyv_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
         b2 = SAT2(y2 + u1);
 
         /* choose the right pixel packing for the destination surface depth */
-        switch (format->BytesPerPixel) {
+        switch (PG_FORMAT_BytesPerPixel(format)) {
             case 1:
                 *d8++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) |
                         ((b1 >> bloss) << bshift);
@@ -973,7 +1085,7 @@ yuyv_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
 
 /* turn yuyv into packed yuv. */
 void
-yuyv_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
+yuyv_to_yuv(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s, *d8;
     Uint8 y1, u, y2, v;
@@ -985,12 +1097,12 @@ yuyv_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
     s = (Uint8 *)src;
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             d8 = (Uint8 *)dst;
             while (i--) {
@@ -1047,7 +1159,7 @@ yuyv_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
 
 /* cribbed from above, but modified for uyvy ordering */
 void
-uyvy_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
+uyvy_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s, *d8;
     Uint16 *d16;
@@ -1059,9 +1171,9 @@ uyvy_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     d8 = (Uint8 *)dst;
     d16 = (Uint16 *)dst;
@@ -1094,7 +1206,7 @@ uyvy_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
         b2 = SAT2(y2 + u1);
 
         /* choose the right pixel packing for the destination surface depth */
-        switch (format->BytesPerPixel) {
+        switch (PG_FORMAT_BytesPerPixel(format)) {
             case 1:
                 *d8++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) |
                         ((b1 >> bloss) << bshift);
@@ -1126,7 +1238,7 @@ uyvy_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format)
 }
 /* turn uyvy into packed yuv. */
 void
-uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
+uyvy_to_yuv(const void *src, void *dst, int length, PG_PixelFormat *format)
 {
     Uint8 *s, *d8;
     Uint8 y1, u, y2, v;
@@ -1138,12 +1250,12 @@ uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
     s = (Uint8 *)src;
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             d8 = (Uint8 *)dst;
             while (i--) {
@@ -1226,7 +1338,7 @@ uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
 /* TODO: Certainly not the most efficient way of doing this conversion. */
 void
 sbggr8_to_rgb(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format)
+              PG_PixelFormat *format)
 {
     Uint8 *rawpt, *d8;
     Uint16 *d16;
@@ -1238,9 +1350,9 @@ sbggr8_to_rgb(const void *src, void *dst, int width, int height,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     d8 = (Uint8 *)dst;
     d16 = (Uint16 *)dst;
@@ -1319,7 +1431,7 @@ sbggr8_to_rgb(const void *src, void *dst, int width, int height,
             }
         }
         rawpt++;
-        switch (format->BytesPerPixel) {
+        switch (PG_FORMAT_BytesPerPixel(format)) {
             case 1:
                 *d8++ = ((r >> rloss) << rshift) | ((g >> gloss) << gshift) |
                         ((b >> bloss) << bshift);
@@ -1346,7 +1458,7 @@ sbggr8_to_rgb(const void *src, void *dst, int width, int height,
  */
 void
 yuv420_to_rgb(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format)
+              PG_PixelFormat *format)
 {
     int rshift, gshift, bshift, rloss, gloss, bloss, i, j, u1, v1, rg, y;
     const Uint8 *y1, *y2, *u, *v;
@@ -1357,9 +1469,9 @@ yuv420_to_rgb(const void *src, void *dst, int width, int height,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     /* see http://en.wikipedia.org/wiki/YUV for an explanation of YUV420 */
     y1 = (Uint8 *)src;
@@ -1370,7 +1482,7 @@ yuv420_to_rgb(const void *src, void *dst, int width, int height,
     /* prepare the destination pointers for different surface depths. */
     d8_1 = (Uint8 *)dst;
     /* the following is because d8 used for both 8 and 24 bit surfaces */
-    d8_2 = d8_1 + (format->BytesPerPixel == 3 ? width * 3 : 3);
+    d8_2 = d8_1 + (PG_FORMAT_BytesPerPixel(format) == 3 ? width * 3 : 3);
     d16_1 = (Uint16 *)dst;
     d16_2 = d16_1 + width;
     d32_1 = (Uint32 *)dst;
@@ -1378,7 +1490,7 @@ yuv420_to_rgb(const void *src, void *dst, int width, int height,
 
     /* for the sake of speed, the nested while loops are inside of the switch
       statement for the different surface bit depths */
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             while (j--) {
                 i = width / 2;
@@ -1546,7 +1658,7 @@ yuv420_to_rgb(const void *src, void *dst, int width, int height,
 /* turn yuv420 into packed yuv. */
 void
 yuv420_to_yuv(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format)
+              PG_PixelFormat *format)
 {
     const Uint8 *y1, *y2, *u, *v;
     Uint8 *d8_1, *d8_2;
@@ -1557,12 +1669,12 @@ yuv420_to_yuv(const void *src, void *dst, int width, int height,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
+    rloss = PG_FORMAT_R_LOSS(format);
+    gloss = PG_FORMAT_G_LOSS(format);
+    bloss = PG_FORMAT_B_LOSS(format);
 
     d8_1 = (Uint8 *)dst;
-    d8_2 = d8_1 + (format->BytesPerPixel == 3 ? width * 3 : 3);
+    d8_2 = d8_1 + (PG_FORMAT_BytesPerPixel(format) == 3 ? width * 3 : 3);
     d16_1 = (Uint16 *)dst;
     d16_2 = d16_1 + width;
     d32_1 = (Uint32 *)dst;
@@ -1573,7 +1685,7 @@ yuv420_to_yuv(const void *src, void *dst, int width, int height,
     v = u + (width * height) / 4;
     j = height / 2;
 
-    switch (format->BytesPerPixel) {
+    switch (PG_FORMAT_BytesPerPixel(format)) {
         case 1:
             while (j--) {
                 i = width / 2;
@@ -1675,25 +1787,34 @@ yuv420_to_yuv(const void *src, void *dst, int width, int height,
 
 /* Camera class definition */
 PyMethodDef cameraobj_builtins[] = {
-    {"start", (PyCFunction)camera_start, METH_NOARGS, DOC_CAMERASTART},
-    {"stop", (PyCFunction)camera_stop, METH_NOARGS, DOC_CAMERASTOP},
+    {"start", (PyCFunction)camera_start, METH_NOARGS, DOC_CAMERA_CAMERA_START},
+    {"stop", (PyCFunction)camera_stop, METH_NOARGS, DOC_CAMERA_CAMERA_STOP},
     {"get_controls", (PyCFunction)camera_get_controls, METH_NOARGS,
-     DOC_CAMERAGETCONTROLS},
+     DOC_CAMERA_CAMERA_GETCONTROLS},
     {"set_controls", (PyCFunction)camera_set_controls,
-     METH_VARARGS | METH_KEYWORDS, DOC_CAMERASETCONTROLS},
-    {"get_size", (PyCFunction)camera_get_size, METH_NOARGS, DOC_CAMERAGETSIZE},
+     METH_VARARGS | METH_KEYWORDS, DOC_CAMERA_CAMERA_SETCONTROLS},
+    {"get_size", (PyCFunction)camera_get_size, METH_NOARGS,
+     DOC_CAMERA_CAMERA_GETSIZE},
     {"query_image", (PyCFunction)camera_query_image, METH_NOARGS,
-     DOC_CAMERAQUERYIMAGE},
+     DOC_CAMERA_CAMERA_QUERYIMAGE},
     {"get_image", (PyCFunction)camera_get_image, METH_VARARGS,
-     DOC_CAMERAGETIMAGE},
-    {"get_raw", (PyCFunction)camera_get_raw, METH_NOARGS, DOC_CAMERAGETRAW},
+     DOC_CAMERA_CAMERA_GETIMAGE},
+    {"get_raw", (PyCFunction)camera_get_raw, METH_NOARGS,
+     DOC_CAMERA_CAMERA_GETRAW},
     {NULL, NULL, 0, NULL}};
 
 void
 camera_dealloc(PyObject *self)
 {
+#if defined(PYGAME_WINDOWS_CAMERA)
+    if (((pgCameraObject *)self)->open) {
+        windows_close_device((pgCameraObject *)self);
+    }
+    windows_dealloc_device((pgCameraObject *)self);
+#else
     free(((pgCameraObject *)self)->device_name);
-    PyObject_Free(self);
+#endif
+    Py_TYPE(self)->tp_free(self);
 }
 /*
 PyObject* camera_getattr(PyObject* self, char* attrname) {
@@ -1749,6 +1870,66 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
     self->fd = -1;
 
     return 0;
+#elif defined(PYGAME_WINDOWS_CAMERA)
+    PyObject *name_obj = NULL;
+    WCHAR *dev_name = NULL;
+    int w, h;
+    char *color = NULL;
+    IMFActivate *p = NULL;
+
+    w = DEFAULT_WIDTH;
+    h = DEFAULT_HEIGHT;
+
+    if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color)) {
+        return -1;
+    }
+
+    /* needs to be freed with PyMem_Free later */
+    dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
+    if (dev_name == NULL) {
+        return -1;
+    }
+
+    p = windows_device_from_name(dev_name);
+
+    if (!p) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Couldn't find a camera with that name");
+        return -1;
+    }
+
+    if (color) {
+        if (!strcmp(color, "YUV")) {
+            self->color_out = YUV_OUT;
+        }
+        else if (!strcmp(color, "HSV")) {
+            self->color_out = HSV_OUT;
+        }
+        else {
+            self->color_out = RGB_OUT;
+        }
+    }
+    else {
+        self->color_out = RGB_OUT;
+    }
+
+    self->device_name = dev_name;
+    self->width = w;
+    self->height = h;
+    self->open = 0;
+    self->hflip = 0;
+    self->vflip = 0;
+    self->last_vflip = 0;
+
+    self->raw_buf = NULL;
+    self->buf = NULL;
+    self->t_handle = NULL;
+
+    if (!windows_init_device(NULL)) {
+        return -1;
+    }
+
+    return 0;
 #else
     PyErr_SetString(PyExc_RuntimeError,
                     "_camera backend not available on your platform");
@@ -1760,7 +1941,7 @@ PyTypeObject pgCamera_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.camera.Camera",
     .tp_basicsize = sizeof(pgCameraObject),
     .tp_dealloc = camera_dealloc,
-    .tp_doc = DOC_PYGAMECAMERACAMERA,
+    .tp_doc = DOC_CAMERA_CAMERA,
     .tp_methods = cameraobj_builtins,
     .tp_init = (initproc)camera_init,
     .tp_new = PyType_GenericNew,
@@ -1768,8 +1949,8 @@ PyTypeObject pgCamera_Type = {
 
 /* Camera module definition */
 PyMethodDef camera_builtins[] = {
-    {"colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE},
-    {"list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS},
+    {"colorspace", surf_colorspace, METH_VARARGS, DOC_CAMERA_COLORSPACE},
+    {"list_cameras", list_cameras, METH_NOARGS, DOC_CAMERA_LISTCAMERAS},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(_camera)
@@ -1781,7 +1962,7 @@ MODINIT_DEFINE(_camera)
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "_camera",
-                                         DOC_PYGAMECAMERA,
+                                         DOC_CAMERA,
                                          -1,
                                          camera_builtins,
                                          NULL,
@@ -1798,28 +1979,13 @@ MODINIT_DEFINE(_camera)
         return NULL;
     }
 
-    /* type preparation */
-    // PyType_Init(pgCamera_Type);
-    pgCamera_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&pgCamera_Type) < 0) {
-        return NULL;
-    }
-
     /* create the module */
     module = PyModule_Create(&_module);
     if (!module) {
         return NULL;
     }
 
-    Py_INCREF(&pgCamera_Type);
-    if (PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type)) {
-        Py_DECREF(&pgCamera_Type);
-        Py_DECREF(module);
-        return NULL;
-    }
-    Py_INCREF(&pgCamera_Type);
-    if (PyModule_AddObject(module, "Camera", (PyObject *)&pgCamera_Type)) {
-        Py_DECREF(&pgCamera_Type);
+    if (PyModule_AddType(module, &pgCamera_Type)) {
         Py_DECREF(module);
         return NULL;
     }

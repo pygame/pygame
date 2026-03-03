@@ -12,7 +12,7 @@ correspond to the pygame.tests.run arguments.
 
 The xxxx_test submodules of the tests package are unit test suites for
 individual parts of Pygame. Each can also be run as a main program. This is
-useful if the test, such as cdrom_test, is interactive.
+useful if the test is interactive.
 
 For Pygame development the test suite can be run from a Pygame distribution
 root directory using run_tests.py. Alternately, test/__main__.py can be run

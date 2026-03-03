@@ -119,13 +119,13 @@ pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 
 static PyMethodDef _touch_methods[] = {
     {"get_num_devices", pg_touch_num_devices, METH_NOARGS,
-     DOC_PYGAMESDL2TOUCHGETNUMDEVICES},
-    {"get_device", pg_touch_get_device, METH_O, DOC_PYGAMESDL2TOUCHGETDEVICE},
+     DOC_SDL2_TOUCH_GETNUMDEVICES},
+    {"get_device", pg_touch_get_device, METH_O, DOC_SDL2_TOUCH_GETDEVICE},
 
     {"get_num_fingers", pg_touch_num_fingers, METH_O,
-     DOC_PYGAMESDL2TOUCHGETNUMFINGERS},
+     DOC_SDL2_TOUCH_GETNUMFINGERS},
     {"get_finger", (PyCFunction)pg_touch_get_finger,
-     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMESDL2TOUCHGETFINGER},
+     METH_VARARGS | METH_KEYWORDS, DOC_SDL2_TOUCH_GETFINGER},
 
     {NULL, NULL, 0, NULL}};
 
@@ -134,7 +134,7 @@ MODINIT_DEFINE(touch)
     PyObject *module;
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "touch",
-                                         DOC_PYGAMESDL2TOUCH,
+                                         DOC_SDL2_TOUCH,
                                          -1,
                                          _touch_methods,
                                          NULL,

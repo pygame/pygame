@@ -81,7 +81,7 @@ import distutils
 if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
     import distutils.ccompiler
 
-    avx2_filenames = ['simd_blitters_avx2']
+    avx2_filenames = ['simd_blitters_avx2', 'simd_transform_avx2', 'simd_surface_fill_avx2']
 
     compiler_options = {
         'unix': ('-mavx2',),

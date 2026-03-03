@@ -1,7 +1,6 @@
+import platform
 import sys
 import unittest
-
-import platform
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -10,7 +9,6 @@ try:
 except NameError:
     pass
 import pygame
-
 
 quit_count = 0
 
@@ -115,7 +113,8 @@ class BaseModuleTest(unittest.TestCase):
         # verified by first checking the weak reference both before and
         # after the regular reference held by o is removed.
 
-        import weakref, gc
+        import gc
+        import weakref
 
         class NoDictError(RuntimeError):
             pass
@@ -193,8 +192,7 @@ class BaseModuleTest(unittest.TestCase):
             o = Exporter(shape, typechar, itemsize)
             self.assertEqual(getrefcount(o.__array_struct__), 1)
 
-    if pygame.HAVE_NEWBUF:
-        from pygame.tests.test_utils import buftools
+    from pygame.tests.test_utils import buftools
 
     def NEWBUF_assertSame(self, proxy, exp):
         buftools = self.buftools
@@ -209,7 +207,6 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(imp.strides, exp.strides)
         self.assertTrue(imp.suboffsets is None)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
@@ -250,11 +247,11 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_bad_format(self):
+        from ctypes import addressof, create_string_buffer
+
         from pygame.bufferproxy import BufferProxy
         from pygame.newbuffer import BufferMixin
-        from ctypes import create_string_buffer, addressof
 
         buftools = self.buftools
         Exporter = buftools.Exporter
@@ -280,7 +277,6 @@ class BaseModuleTest(unittest.TestCase):
             b = BufferProxy(exp)
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     @unittest.skipIf(IS_PYPY, "fails on pypy")
     def test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
@@ -382,10 +378,11 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, 1000000)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_FULL)
 
-    @unittest.skipIf(IS_PYPY or (not pygame.HAVE_NEWBUF), "newbuf with ctypes")
+    @unittest.skipIf(IS_PYPY, "newbuf with ctypes")
     def test_PgObject_AsBuffer_PyBUF_flags(self):
-        from pygame.bufferproxy import BufferProxy
         import ctypes
+
+        from pygame.bufferproxy import BufferProxy
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
         fsys, frev = ("<", ">") if is_lil_endian else (">", "<")
@@ -510,7 +507,6 @@ class BaseModuleTest(unittest.TestCase):
             # Scrap is optional.
             pass
 
-        # pygame.cdrom
         # pygame.joystick
 
     def init_assertions(self):

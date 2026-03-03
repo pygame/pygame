@@ -44,7 +44,7 @@ class PygameTestLoader(unittest.TestLoader):
 TAGS_RE = re.compile(r"\|[tT]ags:(-?[ a-zA-Z,0-9_\n]+)\|", re.M)
 
 
-class TestTags:
+class TheTestTags:
     def __init__(self):
         self.memoized = {}
         self.parent_modules = {}
@@ -86,4 +86,4 @@ class TestTags:
         return self.memoized[key]
 
 
-get_tags = TestTags()
+get_tags = TheTestTags()

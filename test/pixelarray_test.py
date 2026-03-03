@@ -15,7 +15,6 @@ except NameError:
 
 import pygame
 
-
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
@@ -308,7 +307,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
                 self.assertFalse(sf.get_locked())
 
     def test_as_class(self):
-        # Check general new-style class freatures.
+        # Check general new-style class features.
         sf = pygame.Surface((2, 3), 0, 32)
         ar = pygame.PixelArray(sf)
         self.assertRaises(AttributeError, getattr, ar, "nonnative")
@@ -670,7 +669,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
                 self.assertEqual(refcnts_after, refcnts_before)
 
     def test_subscript(self):
-        # By default we do not need to work with any special __***__
+        # By default, we do not need to work with any special __***__
         # methods as map subscripts are the first looked up by the
         # object system.
         for bpp in (8, 16, 24, 32):
@@ -1020,7 +1019,6 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(iterations, 5)
 
     def test_replace(self):
-        # print("replace start")
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface((10, 10), 0, bpp)
             sf.fill((255, 0, 0))
@@ -1041,10 +1039,8 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(ar[3][6], oval)
             self.assertEqual(ar[8][9], oval)
             self.assertEqual(ar[9][9], oval)
-        # print("replace end")
 
     def test_extract(self):
-        # print("extract start")
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface((10, 10), 0, bpp)
             sf.fill((0, 0, 255))
@@ -1070,7 +1066,6 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
             self.assertEqual(newar[3][6], white)
             self.assertEqual(newar[8][9], black)
             self.assertEqual(newar[9][9], black)
-        # print("extract end")
 
     def test_2dslice_assignment(self):
         w = 2 * 5 * 8
@@ -1234,7 +1229,7 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
 
     def test_transpose(self):
         # PixelArray.transpose(): swap axis on a 2D array, add a length
-        # 1 x axis to a 1D array.
+        # 1 x-axis to a 1D array.
         sf = pygame.Surface((3, 7), 0, 32)
         ar = pygame.PixelArray(sf)
         w, h = ar.shape
@@ -1308,6 +1303,29 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
         ar[...] = 42
         pixel = sf.get_at_mapped((0, 0))
         self.assertEqual(repr(ar), type(ar).__name__ + "([\n  [42, 42, 42]]\n)")
+
+    def test_zero_size_surface(self):
+        """Should not be able to create PixelArray on a surface with a width or height of 0
+        Regression test for pygame issue 2275 (https://github.com/pygame/pygame/issues/2275)
+        """
+        weird_surface = pygame.Surface((5, 0))
+        self.assertRaises(ValueError, lambda: pygame.PixelArray(weird_surface))
+
+        weird_surface = pygame.Surface((0, 5))
+        self.assertRaises(ValueError, lambda: pygame.PixelArray(weird_surface))
+
+    def test_assign_seq_to_single(self):
+        """
+        Regression test for https://github.com/pygame/pygame/issues/2740
+        This usage should ValueError and not segfault (as list is to be interpreted as
+        pixel sequence, and not color)
+        """
+        test = pygame.PixelArray(pygame.Surface([800, 800]))
+        with self.assertRaises(ValueError):
+            test[400][400] = [255, 255, 0]
+
+        with self.assertRaises(ValueError):
+            test[400, 400] = [255, 255, 0]
 
 
 @unittest.skipIf(IS_PYPY, "pypy having issues")
@@ -1440,11 +1458,9 @@ class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
             self.assert_surfaces_equal(sf3, sf2)
 
 
-@unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
 @unittest.skipIf(IS_PYPY, "pypy having issues")
 class PixelArrayNewBufferTest(unittest.TestCase, TestMixin):
-    if pygame.HAVE_NEWBUF:
-        from pygame.tests.test_utils import buftools
+    from pygame.tests.test_utils import buftools
 
     bitsize_to_format = {8: "B", 16: "=H", 24: "3x", 32: "=I"}
 

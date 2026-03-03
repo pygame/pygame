@@ -9,31 +9,31 @@ test_runner_mod = test_pkg_name + ".test_utils.test_runner"
 if is_pygame_pkg:
     from pygame.tests.test_utils import import_submodule
     from pygame.tests.test_utils.test_runner import (
-        prepare_test_env,
-        run_test,
+        TEST_RESULTS_START,
         combine_results,
         get_test_results,
-        TEST_RESULTS_START,
+        prepare_test_env,
+        run_test,
     )
 else:
     from test.test_utils import import_submodule
     from test.test_utils.test_runner import (
-        prepare_test_env,
-        run_test,
+        TEST_RESULTS_START,
         combine_results,
         get_test_results,
-        TEST_RESULTS_START,
+        prepare_test_env,
+        run_test,
     )
-import pygame
-import pygame.threads
-
 import os
+import random
 import re
 import shutil
 import tempfile
 import time
-import random
+from concurrent.futures import ThreadPoolExecutor
 from pprint import pformat
+
+import pygame
 
 was_run = False
 
@@ -74,7 +74,7 @@ def run(*args, **kwds):
     A tuple of total number of tests run, dictionary of error information. The
     dictionary is empty if no errors were recorded.
 
-    By default individual test modules are run in separate subprocesses. This
+    By default, individual test modules are run in separate subprocesses. This
     recreates normal Pygame usage where pygame.init() and pygame.quit() are
     called only once per program execution, and avoids unfortunate
     interactions between test modules. Also, a time limit is placed on test
@@ -89,10 +89,10 @@ def run(*args, **kwds):
 
     Individual test modules may have a corresponding *_tags.py module,
     defining a __tags__ attribute, a list of tag strings used to selectively
-    omit modules from a run. By default only the 'interactive', 'ignore', and
+    omit modules from a run. By default, only the 'interactive', 'ignore', and
     'subprocess_ignore' tags are ignored. 'interactive' is for modules that
-    take user input, like cdrom_test.py. 'ignore' and 'subprocess_ignore' for
-    for disabling modules for foreground and subprocess modes respectively.
+    take user input, like controller_test.py. 'ignore' and 'subprocess_ignore' for
+    disabling modules for foreground and subprocess modes respectively.
     These are for disabling tests on optional modules or for experimental
     modules with known problems. These modules can be run from the console as
     a Python program.
@@ -233,7 +233,7 @@ def run(*args, **kwds):
             from test.test_utils.async_sub import proc_in_time_or_kill
 
         pass_on_args = ["--exclude", ",".join(option_exclude)] + [
-            "--" + field
+            f"--{field}"
             for field in ("randomize", "incomplete", "unbuffered", "verbosity")
             if kwds.get(field)
         ]
@@ -251,41 +251,34 @@ def run(*args, **kwds):
                 ),
             )
 
-        if option_multi_thread > 1:
+        with ThreadPoolExecutor(max_workers=option_multi_thread) as executor:
+            t = time.time()
 
-            def tmap(f, args):
-                return pygame.threads.tmap(
-                    f, args, stop_on_error=False, num_workers=option_multi_thread
+            for module, cmd, (return_code, raw_return) in executor.map(
+                sub_test, test_modules
+            ):
+                test_file = f"{os.path.join(test_subdir, module)}.py"
+                cmd, test_env, working_dir = cmd
+
+                test_results = get_test_results(raw_return)
+                if test_results:
+                    results.update(test_results)
+                else:
+                    results[module] = {}
+
+                results[module].update(
+                    {
+                        "return_code": return_code,
+                        "raw_return": raw_return,
+                        "cmd": cmd,
+                        "test_file": test_file,
+                        "test_env": test_env,
+                        "working_dir": working_dir,
+                        "module": module,
+                    }
                 )
 
-        else:
-            tmap = map
-
-        t = time.time()
-
-        for module, cmd, (return_code, raw_return) in tmap(sub_test, test_modules):
-            test_file = f"{os.path.join(test_subdir, module)}.py"
-            cmd, test_env, working_dir = cmd
-
-            test_results = get_test_results(raw_return)
-            if test_results:
-                results.update(test_results)
-            else:
-                results[module] = {}
-
-            results[module].update(
-                {
-                    "return_code": return_code,
-                    "raw_return": raw_return,
-                    "cmd": cmd,
-                    "test_file": test_file,
-                    "test_env": test_env,
-                    "working_dir": working_dir,
-                    "module": module,
-                }
-            )
-
-        t = time.time() - t
+            t = time.time() - t
 
     ###########################################################################
     # Output Results

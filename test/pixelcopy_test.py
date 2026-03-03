@@ -7,7 +7,7 @@ except NameError:
     pass
 import pygame
 from pygame.locals import *
-from pygame.pixelcopy import surface_to_array, map_array, array_to_surface, make_surface
+from pygame.pixelcopy import array_to_surface, make_surface, map_array, surface_to_array
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -377,7 +377,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
 
     def test_surface_to_array_2d(self):
         try:
-            from numpy import empty, dtype
+            from numpy import dtype, empty
         except ImportError:
             return
 
@@ -458,7 +458,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
 
     def test_surface_to_array_3d(self):
         try:
-            from numpy import empty, dtype
+            from numpy import dtype, empty
         except ImportError:
             return
 
@@ -534,7 +534,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
 
     def test_map_array(self):
         try:
-            from numpy import array, zeros, uint8, int32, all as alltrue
+            from numpy import all as np_all, array, int32, uint8, zeros
         except ImportError:
             return
 
@@ -545,7 +545,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
         target = zeros((5, 7), int32)
         map_array(target, color, surf)
 
-        self.assertTrue(alltrue(target == surf.map_rgb(color)))
+        self.assertTrue(np_all(target == surf.map_rgb(color)))
 
         # array column stripes
         stripe = array([[2, 5, 7], [11, 19, 23], [37, 53, 101]], uint8)
@@ -553,7 +553,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
         map_array(target, stripe, surf)
         target_stripe = array([surf.map_rgb(c) for c in stripe], int32)
 
-        self.assertTrue(alltrue(target == target_stripe))
+        self.assertTrue(np_all(target == target_stripe))
 
         # array row stripes
         stripe = array(
@@ -563,7 +563,7 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
         map_array(target, stripe, surf)
         target_stripe = array([[surf.map_rgb(c)] for c in stripe[:, 0]], int32)
 
-        self.assertTrue(alltrue(target == target_stripe))
+        self.assertTrue(np_all(target == target_stripe))
 
         # mismatched shape
         w = 4
@@ -593,43 +593,41 @@ class PixelCopyTestWithArrayNumpy(unittest.TestCase):
         del numpy
 
 
-@unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
 @unittest.skipIf(IS_PYPY, "pypy having illegal instruction on mac")
 class PixelCopyTestWithArrayNewBuf(unittest.TestCase):
-    if pygame.HAVE_NEWBUF:
-        from pygame.tests.test_utils import buftools
+    from pygame.tests.test_utils import buftools
 
-        class Array2D(buftools.Exporter):
-            def __init__(self, initializer):
-                from ctypes import cast, POINTER, c_uint32
+    class Array2D(buftools.Exporter):
+        def __init__(self, initializer):
+            from ctypes import POINTER, c_uint32, cast
 
-                Array2D = PixelCopyTestWithArrayNewBuf.Array2D
-                super().__init__((3, 5), format="=I", strides=(20, 4))
-                self.content = cast(self.buf, POINTER(c_uint32))
-                for i, v in enumerate(initializer):
-                    self.content[i] = v
+            Array2D = PixelCopyTestWithArrayNewBuf.Array2D
+            super().__init__((3, 5), format="=I", strides=(20, 4))
+            self.content = cast(self.buf, POINTER(c_uint32))
+            for i, v in enumerate(initializer):
+                self.content[i] = v
 
-            def __getitem__(self, key):
-                byte_index = key[0] * 5 + key[1]
-                if not (0 <= byte_index < 15):
-                    raise IndexError("%s is out of range", key)
-                return self.content[byte_index]
+        def __getitem__(self, key):
+            byte_index = key[0] * 5 + key[1]
+            if not (0 <= byte_index < 15):
+                raise IndexError("%s is out of range", key)
+            return self.content[byte_index]
 
-        class Array3D(buftools.Exporter):
-            def __init__(self, initializer):
-                from ctypes import cast, POINTER, c_uint8
+    class Array3D(buftools.Exporter):
+        def __init__(self, initializer):
+            from ctypes import POINTER, c_uint8, cast
 
-                Array3D = PixelCopyTestWithArrayNewBuf.Array3D
-                super().__init__((3, 5, 3), format="B", strides=(20, 4, 1))
-                self.content = cast(self.buf, POINTER(c_uint8))
-                for i, v in enumerate(initializer):
-                    self.content[i] = v
+            Array3D = PixelCopyTestWithArrayNewBuf.Array3D
+            super().__init__((3, 5, 3), format="B", strides=(20, 4, 1))
+            self.content = cast(self.buf, POINTER(c_uint8))
+            for i, v in enumerate(initializer):
+                self.content[i] = v
 
-            def __getitem__(self, key):
-                byte_index = key[0] * 20 + key[1] * 4 + key[2]
-                if not (0 <= byte_index < 60):
-                    raise IndexError("%s is out of range", key)
-                return self.content[byte_index]
+        def __getitem__(self, key):
+            byte_index = key[0] * 20 + key[1] * 4 + key[2]
+            if not (0 <= byte_index < 60):
+                raise IndexError("%s is out of range", key)
+            return self.content[byte_index]
 
     surface = pygame.Surface((3, 5), 0, 32)
 

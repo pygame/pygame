@@ -35,8 +35,7 @@ The basic Sprite class can draw the Sprites it contains to a Surface. The
 Group.draw() method requires that each Sprite have a Surface.image attribute
 and a Surface.rect. The Group.clear() method requires these same attributes
 and can be used to erase all the Sprites with background. There are also
-more advanced Groups: pygame.sprite.RenderUpdates() and
-pygame.sprite.OrderedUpdates().
+more advanced Groups: pygame.sprite.RenderUpdates().
 
 Lastly, this module contains several collision functions. These help find
 sprites inside multiple groups that have intersecting bounding rectangles.
@@ -84,16 +83,14 @@ Sprites are not thread safe, so lock them yourself if using threads.
 # should handle just about every need, but perhaps more optimized
 # specific ones that aren't quite so general but fit into common
 # specialized cases.
-from typing import Generic, TypeVar
 
-from weakref import WeakSet
+import types
 from warnings import warn
 
 import pygame
-
+from pygame.mask import from_surface
 from pygame.rect import Rect
 from pygame.time import get_ticks
-from pygame.mask import from_surface
 
 
 class Sprite:
@@ -112,9 +109,27 @@ class Sprite:
     """
 
     def __init__(self, *groups):
-        self.__g = set()  # The groups the sprite is in
+        self.__g = {}  # The groups the sprite is in
+        self.__image: pygame.surface.Surface | None = None
+        self.__rect: pygame.rect.Rect | None = None
         if groups:
             self.add(*groups)
+
+    @property
+    def image(self):
+        return self.__image
+
+    @image.setter
+    def image(self, value: pygame.surface.Surface | None):
+        self.__image = value
+
+    @property
+    def rect(self):
+        return self.__rect
+
+    @rect.setter
+    def rect(self, value: pygame.rect.Rect | None):
+        self.__rect = value
 
     def add(self, *groups):
         """add the sprite to groups
@@ -158,7 +173,7 @@ class Sprite:
 
         :param group: The group we are adding to.
         """
-        self.__g.add(group)
+        self.__g[group] = 0
 
     def remove_internal(self, group):
         """
@@ -166,7 +181,7 @@ class Sprite:
 
         :param group: The group we are removing from.
         """
-        self.__g.remove(group)
+        del self.__g[group]
 
     def update(self, *args, **kwargs):
         """method to control sprite behavior
@@ -233,12 +248,12 @@ class Sprite:
 
         :return: layer as an int, or raise AttributeError.
         """
-        return self._layer
+        return getattr(self, "_layer")
 
     @layer.setter
     def layer(self, value):
         if not self.alive():
-            self._layer = value
+            setattr(self, "_layer", value)
         else:
             raise AttributeError(
                 "Can't set layer directly after "
@@ -246,17 +261,6 @@ class Sprite:
                 "group.change_layer(sprite, new_layer) "
                 "instead."
             )
-
-
-class WeakSprite(Sprite):
-    """A subclass of Sprite that references its Groups weakly. This
-    means that any group this belongs to that is not referenced anywhere
-    else is garbage collected automatically.
-    """
-
-    def __init__(self, *groups):
-        super().__init__(*groups)
-        self.__dict__["_Sprite__g"] = WeakSet(self._Sprite__g)
 
 
 class DirtySprite(Sprite):
@@ -286,7 +290,7 @@ class DirtySprite(Sprite):
         the screen.)
 
     _layer = 0
-        0 is the default value but this is able to be set differently
+        0 is the default value but this can be set differently
         when subclassing.
 
     """
@@ -354,13 +358,7 @@ class DirtySprite(Sprite):
         )
 
 
-class WeakDirtySprite(WeakSprite, DirtySprite):
-    """A subclass of WeakSprite and DirtySprite that combines the benefits
-    of both classes.
-    """
-
-
-class AbstractGroup(Generic[TypeVar("T")]):
+class AbstractGroup:
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
@@ -372,7 +370,9 @@ class AbstractGroup(Generic[TypeVar("T")]):
 
     """
 
-    # dummy val to identify sprite groups, and avoid infinite recursion
+    __class_getitem__ = classmethod(types.GenericAlias)
+
+    # protected identifier value to identify sprite groups, and avoid infinite recursion
     _spritegroup = True
 
     def __init__(self):
@@ -382,7 +382,7 @@ class AbstractGroup(Generic[TypeVar("T")]):
     def sprites(self):
         """get a list of sprites in the group
 
-        Group.sprites(): return list
+        Group.sprite(): return list
 
         Returns an object that can be looped over with a 'for' loop. (For now,
         it is always a list, but this could change in a future version of
@@ -411,8 +411,7 @@ class AbstractGroup(Generic[TypeVar("T")]):
 
         :param sprite: The sprite we are removing.
         """
-        lost_rect = self.spritedict[sprite]
-        if lost_rect:
+        if lost_rect := self.spritedict[sprite]:
             self.lostsprites.append(lost_rect)
         del self.spritedict[sprite]
 
@@ -555,12 +554,10 @@ class AbstractGroup(Generic[TypeVar("T")]):
         for sprite in self.sprites():
             sprite.update(*args, **kwargs)
 
-    def draw(
-        self, surface, bgsurf=None, special_flags=0
-    ):  # noqa pylint: disable=unused-argument; bgsurf arg used in LayeredDirty
+    def draw(self, surface, bgd=None, special_flags=0):  # noqa pylint: disable=unused-argument; bgd arg used in LayeredDirty
         """draw all sprites onto the surface
 
-        Group.draw(surface, special_flags=0): return Rect_list
+        Group.draw(surface, bgd=None, special_flags=0): return Rect_list
 
         Draws all of the member sprites onto the given surface.
 
@@ -664,8 +661,24 @@ class Group(AbstractGroup):
         self.add(*sprites)
 
 
-RenderPlain = Group
-RenderClear = Group
+class RenderPlain(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+        warn(
+            "This class is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+
+class RenderClear(Group):
+    def __init__(self, *sprites):
+        super().__init__(*sprites)
+        warn(
+            "This class is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
 
 class RenderUpdates(Group):
@@ -678,7 +691,7 @@ class RenderUpdates(Group):
 
     """
 
-    def draw(self, surface, bgsurf=None, special_flags=0):
+    def draw(self, surface, bgd=None, special_flags=0):
         surface_blit = surface.blit
         dirty = self.lostsprites
         self.lostsprites = []
@@ -699,35 +712,19 @@ class RenderUpdates(Group):
 
 
 class OrderedUpdates(RenderUpdates):
-    """RenderUpdates class that draws Sprites in order of addition
-
-    pygame.sprite.OrderedUpdates(*sprites): return OrderedUpdates
-
-    This class derives from pygame.sprite.RenderUpdates().  It maintains
-    the order in which the Sprites were added to the Group for rendering.
-    This makes adding and removing Sprites from the Group a little
-    slower than regular Groups.
-
-    """
-
     def __init__(self, *sprites):
-        self._spritelist = []
-        RenderUpdates.__init__(self, *sprites)
-
-    def sprites(self):
-        return self._spritelist.copy()
-
-    def add_internal(self, sprite, layer=None):
-        RenderUpdates.add_internal(self, sprite)
-        self._spritelist.append(sprite)
-
-    def remove_internal(self, sprite):
-        RenderUpdates.remove_internal(self, sprite)
-        self._spritelist.remove(sprite)
+        super().__init__(*sprites)
+        warn(
+            "OrderedUpdates is now just an alias to RenderUpdates, order of "
+            "sprites is now maintained in all sprite Group classes. This "
+            "class is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
 
 class LayeredUpdates(AbstractGroup):
-    """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
+    """LayeredUpdates Group handles layers, which are drawn like RenderUpdates
 
     pygame.sprite.LayeredUpdates(*sprites, **kwargs): return LayeredUpdates
 
@@ -856,17 +853,17 @@ class LayeredUpdates(AbstractGroup):
         del self._spritelayers[sprite]
 
     def sprites(self):
-        """return a ordered list of sprites (first back, last top).
+        """return an ordered list of sprites (first back, last top).
 
         LayeredUpdates.sprites(): return sprites
 
         """
         return self._spritelist.copy()
 
-    def draw(self, surface, bgsurf=None, special_flags=0):
+    def draw(self, surface, bgd=None, special_flags=0):
         """draw all sprites in the right order onto the passed surface
 
-        LayeredUpdates.draw(surface, special_flags=0): return Rect_list
+        LayeredUpdates.draw(surface, bgd=None, special_flags=0): return Rect_list
 
         """
         spritedict = self.spritedict
@@ -1023,13 +1020,13 @@ class LayeredUpdates(AbstractGroup):
         return self._spritelist[-1]
 
     def get_sprites_from_layer(self, layer):
-        """return all sprites from a layer ordered as they where added
+        """return all sprites from a layer ordered as they were added
 
         LayeredUpdates.get_sprites_from_layer(layer): return sprites
 
         Returns all sprites from a layer. The sprites are ordered in the
-        sequence that they where added. (The sprites are not removed from the
-        layer.
+        sequence that they were added. (The sprites are not removed from the
+        layer).
 
         """
         sprites = []
@@ -1071,7 +1068,7 @@ class LayeredDirty(LayeredUpdates):
     It uses the dirty flag technique and is therefore faster than
     pygame.sprite.RenderUpdates if you have many static sprites.  It
     also switches automatically between dirty rect updating and full
-    screen drawing, so you do no have to worry which would be faster.
+    screen drawing, so you do not have to worry which would be faster.
 
     As with the pygame.sprite.Group, you can specify some additional attributes
     through kwargs:
@@ -1136,16 +1133,16 @@ class LayeredDirty(LayeredUpdates):
 
         LayeredUpdates.add_internal(self, sprite, layer)
 
-    def draw(self, surface, bgsurf=None, special_flags=None):
+    def draw(self, surface, bgd=None, special_flags=None):
         """draw all sprites in the right order onto the given surface
 
-        LayeredDirty.draw(surface, bgsurf=None, special_flags=None): return Rect_list
+        LayeredDirty.draw(surface, bgd=None, special_flags=0): return Rect_list
 
         You can pass the background too. If a self.bgd is already set to some
-        value that is not None, then the bgsurf argument has no effect.
+        value that is not None, then the bgd argument has no effect.
         Passing a value to special_flags will pass that value as the
-        special_flags argument to pass to all Surface.blit calls, overriding
-        the sprite.blendmode attribute
+        special_flags argument to all Surface.blit calls, overriding
+        the sprite.blendmode attribute.
 
         """
         # functions and classes assigned locally to speed up loops
@@ -1160,8 +1157,8 @@ class LayeredDirty(LayeredUpdates):
         rect_type = Rect
 
         surf_blit_func = surface.blit
-        if bgsurf is not None:
-            self._bgd = bgsurf
+        if bgd is not None:
+            self._bgd = bgd
         local_bgd = self._bgd
 
         surface.set_clip(latest_clip)
@@ -1568,7 +1565,7 @@ def collide_circle(left, right):
     except AttributeError:
         leftrect = left.rect
         # approximating the radius of a square by using half of the diagonal,
-        # might give false positives (especially if its a long small rect)
+        # might give false positives (especially if it's a long small rect)
         leftradius = 0.5 * ((leftrect.width**2 + leftrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         left.radius = leftradius
@@ -1578,7 +1575,7 @@ def collide_circle(left, right):
     except AttributeError:
         rightrect = right.rect
         # approximating the radius of a square by using half of the diagonal
-        # might give false positives (especially if its a long small rect)
+        # might give false positives (especially if it's a long small rect)
         rightradius = 0.5 * ((rightrect.width**2 + rightrect.height**2) ** 0.5)
         # store the radius on the sprite for next time
         right.radius = rightradius
@@ -1709,36 +1706,21 @@ def spritecollide(sprite, group, dokill, collided=None):
     which will be used to calculate the collision.
 
     """
-    # pull the default collision function in as a local variable outside
-    # the loop as this makes the loop run faster
-    default_sprite_collide_func = sprite.rect.colliderect
-
-    if dokill:
-        crashed = []
-        append = crashed.append
-
-        for group_sprite in group.sprites():
-            if collided is not None:
-                if collided(sprite, group_sprite):
-                    group_sprite.kill()
-                    append(group_sprite)
-            else:
-                if default_sprite_collide_func(group_sprite.rect):
-                    group_sprite.kill()
-                    append(group_sprite)
-
-        return crashed
-
     if collided is not None:
-        return [
+        collided_sprites = [
             group_sprite for group_sprite in group if collided(sprite, group_sprite)
         ]
-
-    return [
-        group_sprite
-        for group_sprite in group
-        if default_sprite_collide_func(group_sprite.rect)
-    ]
+    else:
+        sprite_rect_collide = sprite.rect.colliderect
+        collided_sprites = [
+            group_sprite
+            for group_sprite in group
+            if sprite_rect_collide(group_sprite.rect)
+        ]
+    if dokill:
+        for group_sprite in collided_sprites:
+            group_sprite.kill()
+    return collided_sprites
 
 
 def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
@@ -1759,22 +1741,18 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
     that will be used to calculate the collision.
 
     """
-    crashed = {}
+    collided_sprites = {}
     # pull the collision function in as a local variable outside
     # the loop as this makes the loop run faster
     sprite_collide_func = spritecollide
+    for group_a_sprite in groupa:
+        collisions = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
+        if collisions:
+            collided_sprites[group_a_sprite] = collisions
     if dokilla:
-        for group_a_sprite in groupa.sprites():
-            collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
-            if collision:
-                crashed[group_a_sprite] = collision
-                group_a_sprite.kill()
-    else:
-        for group_a_sprite in groupa:
-            collision = sprite_collide_func(group_a_sprite, groupb, dokillb, collided)
-            if collision:
-                crashed[group_a_sprite] = collision
-    return crashed
+        for group_a_sprite in collided_sprites:
+            group_a_sprite.kill()
+    return collided_sprites
 
 
 def spritecollideany(sprite, group, collided=None):
@@ -1795,19 +1773,16 @@ def spritecollideany(sprite, group, collided=None):
     sprites must have a "rect" value, which is a rectangle of the sprite area,
     which will be used to calculate the collision.
 
-
     """
-    # pull the default collision function in as a local variable outside
-    # the loop as this makes the loop run faster
-    default_sprite_collide_func = sprite.rect.colliderect
-
     if collided is not None:
         for group_sprite in group:
             if collided(sprite, group_sprite):
                 return group_sprite
     else:
-        # Special case old behaviour for speed.
+        # pull the default collision function in as a local variable outside
+        # the loop as this makes the loop run faster
+        sprite_rect_collide = sprite.rect.colliderect
         for group_sprite in group:
-            if default_sprite_collide_func(group_sprite.rect):
+            if sprite_rect_collide(group_sprite.rect):
                 return group_sprite
     return None

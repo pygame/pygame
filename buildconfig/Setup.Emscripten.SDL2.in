@@ -25,7 +25,6 @@ _sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG) -Isrc_c
 
 constants src_c/constants.c $(SDL) $(DEBUG)
 mask src_c/bitmask.c
-_sprite src_c/_sprite.c $(SDL) $(DEBUG)
 math src_c/math.c $(SDL) $(DEBUG)
 
 #GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
@@ -60,9 +59,15 @@ surface src_c/void.c
 surflock src_c/void.c
 rect src_c/void.c
 rwobject src_c/void.c
+system src_c/void.c
+window src_c/void.c
+_render src_c/void.c
+geometry src_c/void.c
+controller_old src_c/void.c
 
 #_sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.controller src_c/void.c
+_sdl2.controller_old src_c/void.c
 
 #_sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.touch src_c/void.c

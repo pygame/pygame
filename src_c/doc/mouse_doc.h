@@ -1,61 +1,15 @@
-/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMEMOUSE "pygame module to work with the mouse"
-#define DOC_PYGAMEMOUSEGETPRESSED "get_pressed(num_buttons=3) -> (button1, button2, button3)\nget_pressed(num_buttons=5) -> (button1, button2, button3, button4, button5)\nget the state of the mouse buttons"
-#define DOC_PYGAMEMOUSEGETPOS "get_pos() -> (x, y)\nget the mouse cursor position"
-#define DOC_PYGAMEMOUSEGETREL "get_rel() -> (x, y)\nget the amount of mouse movement"
-#define DOC_PYGAMEMOUSESETPOS "set_pos([x, y]) -> None\nset the mouse cursor position"
-#define DOC_PYGAMEMOUSESETVISIBLE "set_visible(bool) -> bool\nhide or show the mouse cursor"
-#define DOC_PYGAMEMOUSEGETVISIBLE "get_visible() -> bool\nget the current visibility state of the mouse cursor"
-#define DOC_PYGAMEMOUSEGETFOCUSED "get_focused() -> bool\ncheck if the display is receiving mouse input"
-#define DOC_PYGAMEMOUSESETCURSOR "set_cursor(pygame.cursors.Cursor) -> None\nset_cursor(size, hotspot, xormasks, andmasks) -> None\nset_cursor(hotspot, surface) -> None\nset_cursor(constant) -> None\nset the mouse cursor to a new cursor"
-#define DOC_PYGAMEMOUSEGETCURSOR "get_cursor() -> pygame.cursors.Cursor\nget the current mouse cursor"
-
-
-/* Docs in a comment... slightly easier to read. */
-
-/*
-
-pygame.mouse
-pygame module to work with the mouse
-
-pygame.mouse.get_pressed
- get_pressed(num_buttons=3) -> (button1, button2, button3)
- get_pressed(num_buttons=5) -> (button1, button2, button3, button4, button5)
-get the state of the mouse buttons
-
-pygame.mouse.get_pos
- get_pos() -> (x, y)
-get the mouse cursor position
-
-pygame.mouse.get_rel
- get_rel() -> (x, y)
-get the amount of mouse movement
-
-pygame.mouse.set_pos
- set_pos([x, y]) -> None
-set the mouse cursor position
-
-pygame.mouse.set_visible
- set_visible(bool) -> bool
-hide or show the mouse cursor
-
-pygame.mouse.get_visible
- get_visible() -> bool
-get the current visibility state of the mouse cursor
-
-pygame.mouse.get_focused
- get_focused() -> bool
-check if the display is receiving mouse input
-
-pygame.mouse.set_cursor
- set_cursor(pygame.cursors.Cursor) -> None
- set_cursor(size, hotspot, xormasks, andmasks) -> None
- set_cursor(hotspot, surface) -> None
- set_cursor(constant) -> None
-set the mouse cursor to a new cursor
-
-pygame.mouse.get_cursor
- get_cursor() -> pygame.cursors.Cursor
-get the current mouse cursor
-
-*/
+/* Auto generated file: with make_docs.py .  Docs go in docs/reST/ref/ . */
+#define DOC_MOUSE "Pygame module to work with the mouse."
+#define DOC_MOUSE_GETPRESSED "get_pressed(num_buttons=3, desktop=False) -> tuple[bool, bool, bool]\nget_pressed(num_buttons, desktop=False) -> tuple\nGet the state of the mouse buttons."
+#define DOC_MOUSE_GETJUSTPRESSED "get_just_pressed() -> tuple\nGet the most recently pressed buttons."
+#define DOC_MOUSE_GETJUSTRELEASED "get_just_released() -> tuple\nGet the most recently released buttons."
+#define DOC_MOUSE_GETPOS "get_pos(desktop=False) -> tuple[int, int]\nGet the mouse cursor position."
+#define DOC_MOUSE_GETREL "get_rel() -> tuple[int, int]\nGet the amount of mouse movement."
+#define DOC_MOUSE_SETPOS "set_pos(pos, /) -> None\nset_pos(x, y, /) -> None\nSet the mouse cursor position."
+#define DOC_MOUSE_SETVISIBLE "set_visible(value, /) -> int\nHide or show the mouse cursor."
+#define DOC_MOUSE_GETVISIBLE "get_visible() -> bool\nGet the current visibility state of the mouse cursor."
+#define DOC_MOUSE_GETFOCUSED "get_focused() -> bool\nCheck if the display is receiving mouse input."
+#define DOC_MOUSE_SETCURSOR "set_cursor(cursor) -> None\nset_cursor(size, hotspot, xormasks, andmasks) -> None\nset_cursor(hotspot, surface) -> None\nset_cursor(constant) -> None\nSet the mouse cursor to a new cursor."
+#define DOC_MOUSE_GETCURSOR "get_cursor() -> Cursor\nGet the current mouse cursor."
+#define DOC_MOUSE_GETRELATIVEMODE "get_relative_mode() -> bool\nQuery whether relative mouse mode is enabled."
+#define DOC_MOUSE_SETRELATIVEMODE "set_relative_mode(enable, /) -> None\nSet relative mouse mode."

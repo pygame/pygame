@@ -18,11 +18,21 @@ object (such as StringIO).
 """
 
 __all__ = ["getResource"]
-import sys
 import os
+import sys
 
 try:
-    from pkg_resources import resource_stream, resource_exists
+    from importlib.resources import files
+
+    def resource_exists(_package_or_requirement, _resource_name):
+        _package_or_requirement = _package_or_requirement.split(".")[0]
+        return files(_package_or_requirement).joinpath(_resource_name).is_file()
+
+    def resource_stream(_package_or_requirement, _resource_name):
+        _package_or_requirement = _package_or_requirement.split(".")[0]
+        ref = files(_package_or_requirement).joinpath(_resource_name)
+        return ref.open("rb")
+
 except ImportError:
 
     def resource_exists(_package_or_requirement, _resource_name):
@@ -33,7 +43,7 @@ except ImportError:
         """
         return False
 
-    def resource_stream(_package_of_requirement, _resource_name):
+    def resource_stream(_package_or_requirement, _resource_name):
         """
         A stub for when we fail to import this function.
 

@@ -23,7 +23,11 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
+#ifdef PG_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL.h>
+#endif
 
 /* SDL 2 does not assign a default palette color scheme to a new 8 bit
  * surface. Instead, the palette is set all white. This defines the SDL 1.2

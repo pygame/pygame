@@ -40,29 +40,18 @@
 #include <sys/ioctl.h>
 
 /* on freebsd there is no asm/types */
-#ifdef __linux__
+#ifdef linux
 #include <asm/types.h> /* for videodev2.h */
+#endif
+
 #include <linux/videodev2.h>
 #endif
 
-/* on openbsd and netbsd we need to include videoio.h */
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-#include <sys/videoio.h>
-#endif
-
-#ifdef __FreeBSD__
-#include <linux/videodev2.h>
-#endif
-
-#endif /* defined(__unix__) */
-
-#if defined(__WIN32__)
-
-#ifdef __MINGW32__
-#undef WINVER
-/** _WIN32_WINNT_WINBLUE sets minimum platform SDK to Windows 8.1. */
-#define WINVER _WIN32_WINNT_WINBLUE
-#endif
+/* At the time of writing of this comment, _camera does not compile on windows
+ * while using the MinGW compiler (due to missing API). So we do a _MSC_VER
+ * check here to compile this only under the MSVC compiler */
+#if defined(__WIN32__) && defined(_MSC_VER)
+#define PYGAME_WINDOWS_CAMERA 1
 
 #include <mfapi.h>
 #include <mfobjects.h>
@@ -72,18 +61,25 @@
 #include <mftransform.h>
 #endif
 
+#ifndef v4l2_fourcc
+/* Four-character-code (FOURCC), taken from v4l source */
+#define v4l2_fourcc(a, b, c, d)                               \
+    ((Uint32)(a) | ((Uint32)(b) << 8) | ((Uint32)(c) << 16) | \
+     ((Uint32)(d) << 24))
+#endif
+
 /* some constants used which are not defined on non-v4l machines. */
 #ifndef V4L2_PIX_FMT_RGB24
-#define V4L2_PIX_FMT_RGB24 'RGB3'
+#define V4L2_PIX_FMT_RGB24 v4l2_fourcc('R', 'G', 'B', '3')
 #endif
 #ifndef V4L2_PIX_FMT_RGB444
-#define V4L2_PIX_FMT_RGB444 'R444'
+#define V4L2_PIX_FMT_RGB444 v4l2_fourcc('R', '4', '4', '4')
 #endif
 #ifndef V4L2_PIX_FMT_YUYV
-#define V4L2_PIX_FMT_YUYV 'YUYV'
+#define V4L2_PIX_FMT_YUYV v4l2_fourcc('Y', 'U', 'Y', 'V')
 #endif
 #ifndef V4L2_PIX_FMT_XBGR32
-#define V4L2_PIX_FMT_XBGR32 'XR24'
+#define V4L2_PIX_FMT_XBGR32 v4l2_fourcc('X', 'R', '2', '4')
 #endif
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
@@ -125,6 +121,28 @@ typedef struct pgCameraObject {
     int brightness;
     int fd;
 } pgCameraObject;
+#elif defined(PYGAME_WINDOWS_CAMERA)
+typedef struct pgCameraObject {
+    PyObject_HEAD WCHAR *device_name;
+    IMFSourceReader *reader;
+    IMFTransform *transform;
+    IMFVideoProcessorControl *control;
+    IMFMediaBuffer *buf;
+    IMFMediaBuffer *raw_buf;
+    int buffer_ready;
+    short open; /* used to signal the update_function to exit */
+    HANDLE t_handle;
+    HRESULT t_error;
+    int t_error_line;
+    int width;
+    int height;
+    int hflip;
+    int vflip;
+    int last_vflip;
+    int color_out;
+    unsigned long pixelformat;
+} pgCameraObject;
+
 #else
 /* generic definition.
  */
@@ -148,36 +166,37 @@ typedef struct pgCameraObject {
 
 /* internal functions for colorspace conversion */
 void
-colorspace(SDL_Surface *src, SDL_Surface *dst, int cspace);
+colorspace(SDL_Surface *src, PG_PixelFormat *src_fmt, SDL_Surface *dst,
+           int cspace);
 void
-rgb24_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format);
+rgb24_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
-bgr32_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format);
+bgr32_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
-rgb444_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format);
+rgb444_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
 rgb_to_yuv(const void *src, void *dst, int length, unsigned long source,
-           SDL_PixelFormat *format);
+           PG_PixelFormat *format);
 void
 rgb_to_hsv(const void *src, void *dst, int length, unsigned long source,
-           SDL_PixelFormat *format);
+           PG_PixelFormat *format);
 void
-yuyv_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format);
+yuyv_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
-yuyv_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format);
+yuyv_to_yuv(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
-uyvy_to_rgb(const void *src, void *dst, int length, SDL_PixelFormat *format);
+uyvy_to_rgb(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
-uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format);
+uyvy_to_yuv(const void *src, void *dst, int length, PG_PixelFormat *format);
 void
 sbggr8_to_rgb(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format);
+              PG_PixelFormat *format);
 void
 yuv420_to_rgb(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format);
+              PG_PixelFormat *format);
 void
 yuv420_to_yuv(const void *src, void *dst, int width, int height,
-              SDL_PixelFormat *format);
+              PG_PixelFormat *format);
 
 #if defined(__unix__)
 /* internal functions specific to v4l2 */
@@ -212,6 +231,32 @@ int
 v4l2_close_device(pgCameraObject *self);
 int
 v4l2_open_device(pgCameraObject *self);
+
+#elif defined(PYGAME_WINDOWS_CAMERA)
+/* internal functions specific to WINDOWS */
+WCHAR **
+windows_list_cameras(int *num_devices);
+int
+windows_init_device(pgCameraObject *self);
+int
+windows_open_device(pgCameraObject *self);
+IMFActivate *
+windows_device_from_name(WCHAR *device_name);
+int
+windows_close_device(pgCameraObject *self);
+int
+windows_read_frame(pgCameraObject *self, SDL_Surface *surf);
+int
+windows_frame_ready(pgCameraObject *self, int *result);
+PyObject *
+windows_read_raw(pgCameraObject *self);
+int
+windows_process_image(pgCameraObject *self, BYTE *data, DWORD buffer_size,
+                      SDL_Surface *surf);
+void
+windows_dealloc_device(pgCameraObject *self);
+int
+windows_init_device(pgCameraObject *self);
 
 #endif
 

@@ -37,11 +37,10 @@ Sounds with 16-bit data will be treated as unsigned integers,
 if the sound sample type requests this.
 """
 
-from pygame import mixer
-import numpy
-
 import warnings
 
+import numpy
+from pygame import mixer
 
 __all__ = [
     "array",

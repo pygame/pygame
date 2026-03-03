@@ -21,7 +21,7 @@ import sys
 # 0.0.5: (June 1st, 2009)
 #   Output no longer calls abort when it deallocates.
 #   Added abort and close methods.
-#   Need to call Abort() explicityly if you want that to happen.
+#   Need to call Abort() explicitly if you want that to happen.
 
 
 #
@@ -113,7 +113,6 @@ cdef extern from "portmidi.h":
                           PmDeviceID outputDevice,
                           void *outputDriverInfo,
                           long bufferSize,
-                          #long (*PmPtr) (), # long = PtTimestamp
                           PmTimeProcPtr time_proc, # long = PtTimestamp
                           void *time_info,
                           long latency)
@@ -147,6 +146,7 @@ cdef extern from "porttime.h":
     ctypedef long PtTimestamp
     ctypedef void (* PtCallback)(PtTimestamp timestamp, void *userData)
     PtError Pt_Start(int resolution, PtCallback *callback, void *userData)
+    PtError Pt_Stop()
     PtTimestamp Pt_Time()
 
 cdef long _pypm_initialized
@@ -172,6 +172,7 @@ def Terminate():
     your system may crash.
 
     """
+    Pt_Stop()
     Pm_Terminate()
     _pypm_initialized = 0
 
@@ -521,6 +522,11 @@ cdef class Output:
         while Pt_Time() == cur_time:
             pass
 
+# in commit 64314cc3d1a6fdddfc6ff5408a3f83af685b8cea
+# portmidi changed the signature of Pt_Time from `PMEXPORT PtTimestamp Pt_Time()` to `PMEXPORT PtTimestamp Pt_Time(void)`
+# this change is significant in that no args in a C function declaration is treated differently than void
+cdef PtTimestamp pgCompat_Pt_Time(void* arg) noexcept:
+    return Pt_Time()
 
 cdef class Input:
     """Represents an input MIDI stream device.
@@ -538,14 +544,11 @@ cdef class Input:
         """Instantiate MIDI input stream object."""
 
         cdef PmError err
-        cdef PmTimeProcPtr PmPtr
         self.device = input_device
         self.debug = 0
 
-        PmPtr = <PmTimeProcPtr>&Pt_Time
-
         err = Pm_OpenInput(&(self.midi), input_device, NULL, buffersize,
-                           PmPtr, NULL)
+                           &pgCompat_Pt_Time, NULL)
         if err < 0:
             raise Exception(Pm_GetErrorText(err))
 

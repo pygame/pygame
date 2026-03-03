@@ -1,153 +1,37 @@
-/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMEDISPLAY "pygame module to control the display window and screen"
-#define DOC_PYGAMEDISPLAYINIT "init() -> None\nInitialize the display module"
-#define DOC_PYGAMEDISPLAYQUIT "quit() -> None\nUninitialize the display module"
-#define DOC_PYGAMEDISPLAYGETINIT "get_init() -> bool\nReturns True if the display module has been initialized"
-#define DOC_PYGAMEDISPLAYSETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface\nInitialize a window or screen for display"
-#define DOC_PYGAMEDISPLAYGETSURFACE "get_surface() -> Surface\nGet a reference to the currently set display surface"
-#define DOC_PYGAMEDISPLAYFLIP "flip() -> None\nUpdate the full display Surface to the screen"
-#define DOC_PYGAMEDISPLAYUPDATE "update(rectangle=None) -> None\nupdate(rectangle_list) -> None\nUpdate portions of the screen for software displays"
-#define DOC_PYGAMEDISPLAYGETDRIVER "get_driver() -> name\nGet the name of the pygame display backend"
-#define DOC_PYGAMEDISPLAYINFO "Info() -> VideoInfo\nCreate a video display information object"
-#define DOC_PYGAMEDISPLAYGETWMINFO "get_wm_info() -> dict\nGet information about the current windowing system"
-#define DOC_PYGAMEDISPLAYGETDESKTOPSIZES "get_desktop_sizes() -> list\nGet sizes of active desktops"
-#define DOC_PYGAMEDISPLAYLISTMODES "list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list\nGet list of available fullscreen modes"
-#define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0, display=0) -> depth\nPick the best color depth for a display mode"
-#define DOC_PYGAMEDISPLAYGLGETATTRIBUTE "gl_get_attribute(flag) -> value\nGet the value for an OpenGL flag for the current display"
-#define DOC_PYGAMEDISPLAYGLSETATTRIBUTE "gl_set_attribute(flag, value) -> None\nRequest an OpenGL display attribute for the display mode"
-#define DOC_PYGAMEDISPLAYGETACTIVE "get_active() -> bool\nReturns True when the display is active on the screen"
-#define DOC_PYGAMEDISPLAYICONIFY "iconify() -> bool\nIconify the display surface"
-#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> int\nSwitch between fullscreen and windowed displays"
-#define DOC_PYGAMEDISPLAYSETGAMMA "set_gamma(red, green=None, blue=None) -> bool\nChange the hardware gamma ramps"
-#define DOC_PYGAMEDISPLAYSETGAMMARAMP "set_gamma_ramp(red, green, blue) -> bool\nChange the hardware gamma ramps with a custom lookup"
-#define DOC_PYGAMEDISPLAYSETICON "set_icon(Surface) -> None\nChange the system image for the display window"
-#define DOC_PYGAMEDISPLAYSETCAPTION "set_caption(title, icontitle=None) -> None\nSet the current window caption"
-#define DOC_PYGAMEDISPLAYGETCAPTION "get_caption() -> (title, icontitle)\nGet the current window caption"
-#define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
-#define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
-#define DOC_PYGAMEDISPLAYGETWINDOWSIZE "get_window_size() -> tuple\nReturn the size of the window or screen"
-#define DOC_PYGAMEDISPLAYGETALLOWSCREENSAVER "get_allow_screensaver() -> bool\nReturn whether the screensaver is allowed to run."
-#define DOC_PYGAMEDISPLAYSETALLOWSCREENSAVER "set_allow_screensaver(bool) -> None\nSet whether the screensaver may run"
-
-
-/* Docs in a comment... slightly easier to read. */
-
-/*
-
-pygame.display
-pygame module to control the display window and screen
-
-pygame.display.init
- init() -> None
-Initialize the display module
-
-pygame.display.quit
- quit() -> None
-Uninitialize the display module
-
-pygame.display.get_init
- get_init() -> bool
-Returns True if the display module has been initialized
-
-pygame.display.set_mode
- set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface
-Initialize a window or screen for display
-
-pygame.display.get_surface
- get_surface() -> Surface
-Get a reference to the currently set display surface
-
-pygame.display.flip
- flip() -> None
-Update the full display Surface to the screen
-
-pygame.display.update
- update(rectangle=None) -> None
- update(rectangle_list) -> None
-Update portions of the screen for software displays
-
-pygame.display.get_driver
- get_driver() -> name
-Get the name of the pygame display backend
-
-pygame.display.Info
- Info() -> VideoInfo
-Create a video display information object
-
-pygame.display.get_wm_info
- get_wm_info() -> dict
-Get information about the current windowing system
-
-pygame.display.get_desktop_sizes
- get_desktop_sizes() -> list
-Get sizes of active desktops
-
-pygame.display.list_modes
- list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list
-Get list of available fullscreen modes
-
-pygame.display.mode_ok
- mode_ok(size, flags=0, depth=0, display=0) -> depth
-Pick the best color depth for a display mode
-
-pygame.display.gl_get_attribute
- gl_get_attribute(flag) -> value
-Get the value for an OpenGL flag for the current display
-
-pygame.display.gl_set_attribute
- gl_set_attribute(flag, value) -> None
-Request an OpenGL display attribute for the display mode
-
-pygame.display.get_active
- get_active() -> bool
-Returns True when the display is active on the screen
-
-pygame.display.iconify
- iconify() -> bool
-Iconify the display surface
-
-pygame.display.toggle_fullscreen
- toggle_fullscreen() -> int
-Switch between fullscreen and windowed displays
-
-pygame.display.set_gamma
- set_gamma(red, green=None, blue=None) -> bool
-Change the hardware gamma ramps
-
-pygame.display.set_gamma_ramp
- set_gamma_ramp(red, green, blue) -> bool
-Change the hardware gamma ramps with a custom lookup
-
-pygame.display.set_icon
- set_icon(Surface) -> None
-Change the system image for the display window
-
-pygame.display.set_caption
- set_caption(title, icontitle=None) -> None
-Set the current window caption
-
-pygame.display.get_caption
- get_caption() -> (title, icontitle)
-Get the current window caption
-
-pygame.display.set_palette
- set_palette(palette=None) -> None
-Set the display color palette for indexed displays
-
-pygame.display.get_num_displays
- get_num_displays() -> int
-Return the number of displays
-
-pygame.display.get_window_size
- get_window_size() -> tuple
-Return the size of the window or screen
-
-pygame.display.get_allow_screensaver
- get_allow_screensaver() -> bool
-Return whether the screensaver is allowed to run.
-
-pygame.display.set_allow_screensaver
- set_allow_screensaver(bool) -> None
-Set whether the screensaver may run
-
-*/
+/* Auto generated file: with make_docs.py .  Docs go in docs/reST/ref/ . */
+#define DOC_DISPLAY "Pygame module to control the display window and screen."
+#define DOC_DISPLAY_INIT "init() -> None\nInitialize the display module."
+#define DOC_DISPLAY_QUIT "quit() -> None\nUninitialize the display module."
+#define DOC_DISPLAY_GETINIT "get_init() -> bool\nReturns True if the display module has been initialized."
+#define DOC_DISPLAY_SETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface\nInitialize a window or screen for display."
+#define DOC_DISPLAY_GETSURFACE "get_surface() -> Surface | None\nGet a reference to the currently set display surface."
+#define DOC_DISPLAY_FLIP "flip() -> None\nUpdate the full display Surface to the screen."
+#define DOC_DISPLAY_UPDATE "update() -> None\nupdate(rectangle, /) -> None\nupdate(rectangles, /) -> None\nupdate(x, y, w, h, /) -> None\nupdate(xy, wh, /) -> None\nUpdate all, or a portion, of the display. For non-OpenGL displays."
+#define DOC_DISPLAY_GETDRIVER "get_driver() -> str\nGet the name of the pygame display backend."
+#define DOC_DISPLAY_INFO "Info() -> _VidInfo\nCreate a video display information object."
+#define DOC_DISPLAY_GETWMINFO "get_wm_info() -> dict[str, int]\nGet information about the current windowing system."
+#define DOC_DISPLAY_GETDESKTOPSIZES "get_desktop_sizes() -> list[tuple[int, int]]\nGet sizes of active desktops."
+#define DOC_DISPLAY_LISTMODES "list_modes(depth=0, flags=FULLSCREEN, display=0) -> list[tuple[int, int]]\nGet list of available fullscreen modes."
+#define DOC_DISPLAY_MODEOK "mode_ok(size, flags=0, depth=0, display=0) -> int\nPick the best color depth for a display mode."
+#define DOC_DISPLAY_GLGETATTRIBUTE "gl_get_attribute(flag, /) -> int\nGet the value for an OpenGL flag for the current display."
+#define DOC_DISPLAY_GLSETATTRIBUTE "gl_set_attribute(flag, value, /) -> None\nRequest an OpenGL display attribute for the display mode."
+#define DOC_DISPLAY_GETACTIVE "get_active() -> bool\nReturns True when the display is active on the screen."
+#define DOC_DISPLAY_ICONIFY "iconify() -> bool\nIconify the display surface."
+#define DOC_DISPLAY_TOGGLEFULLSCREEN "toggle_fullscreen() -> int\nSwitch between fullscreen and windowed displays."
+#define DOC_DISPLAY_SETGAMMA "set_gamma(red, green=..., blue=..., /) -> bool\nChange the hardware gamma ramps."
+#define DOC_DISPLAY_SETGAMMARAMP "set_gamma_ramp(red, green, blue, /) -> bool\nChange the hardware gamma ramps with a custom lookup."
+#define DOC_DISPLAY_SETICON "set_icon(surface, /) -> None\nChange the system image for the display window."
+#define DOC_DISPLAY_SETCAPTION "set_caption(title, icontitle=None, /) -> None\nSet the current window caption."
+#define DOC_DISPLAY_GETCAPTION "get_caption() -> tuple[str, str]\nGet the current window caption."
+#define DOC_DISPLAY_SETPALETTE "set_palette(palette, /) -> None\nSet the display color palette for indexed displays."
+#define DOC_DISPLAY_GETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays."
+#define DOC_DISPLAY_GETWINDOWSIZE "get_window_size() -> tuple[int, int]\nReturn the size of the window or screen."
+#define DOC_DISPLAY_GETWINDOWPOSITION "get_window_position() -> tuple[int, int]\nReturn the position of the window or screen."
+#define DOC_DISPLAY_SETWINDOWPOSITION "set_window_position(position) -> None\nSet the current window position."
+#define DOC_DISPLAY_GETALLOWSCREENSAVER "get_allow_screensaver() -> bool\nReturn whether the screensaver is allowed to run."
+#define DOC_DISPLAY_SETALLOWSCREENSAVER "set_allow_screensaver(value=True) -> None\nSet whether the screensaver may run."
+#define DOC_DISPLAY_ISFULLSCREEN "is_fullscreen() -> bool\nReturns True if the pygame window created by pygame.display.set_mode() is in full-screen mode."
+#define DOC_DISPLAY_ISVSYNC "is_vsync() -> bool\nReturns True if vertical synchronisation for pygame.display.flip() and pygame.display.update() is enabled."
+#define DOC_DISPLAY_GETCURRENTREFRESHRATE "get_current_refresh_rate() -> int\nReturns the screen refresh rate or 0 if unknown."
+#define DOC_DISPLAY_GETDESKTOPREFRESHRATES "get_desktop_refresh_rates() -> list[int]\nReturns the screen refresh rates for all displays (in windowed mode)."
+#define DOC_DISPLAY_MESSAGEBOX "message_box(title, message=None, message_type='info', parent_window=None, buttons=('OK', ), return_button=0, escape_button=None) -> int\nCreate a native GUI message box."

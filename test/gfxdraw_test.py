@@ -1,4 +1,5 @@
 import unittest
+
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
@@ -600,7 +601,7 @@ class GfxdrawDefaultTest(unittest.TestCase):
         difference between the 2 aatrigons is the order the points are drawn.
         The order of the points should have no impact on the final drawing.
 
-        Related to issue #622.
+        Related to pygame issue #506.
         """
         bg_color = pygame.Color("white")
         line_color = pygame.Color("black")
@@ -733,7 +734,7 @@ class GfxdrawDefaultTest(unittest.TestCase):
         aapolygon() and the other using multiple line() calls. They should
         produce the same final drawing.
 
-        Related to issue #622.
+        Related to pygame issue #506.
         """
         bg_color = pygame.Color("white")
         line_color = pygame.Color("black")
@@ -870,6 +871,46 @@ class GfxdrawDefaultTest(unittest.TestCase):
                 self.check_at(surf, posn, fg_adjusted)
             for posn in bg_test_points:
                 self.check_at(surf, posn, bg_adjusted)
+
+    def test_no_pal_8bit_surf(self):
+        """
+        Test that gfxdraw methods do not segfault when passed with no palette
+        8 bit surface.
+        """
+        s = pygame.Surface(
+            size=(512, 512), flags=0, depth=8, masks=(0xE0, 0x1C, 0x03, 0x00)
+        )
+
+        fg = (255, 255, 255)
+        points = [(10, 10), (100, 50), (50, 100)]
+        for name, args in (
+            ("pixel", (s, 2, 2, fg)),
+            ("hline", (s, 5, 50, 10, fg)),
+            ("vline", (s, 10, 5, 50, fg)),
+            ("line", (s, 0, 0, 100, 100, fg)),
+            ("rectangle", (s, pygame.Rect(50, 50, 80, 40), fg)),
+            ("box", (s, pygame.Rect(60, 60, 80, 40), fg)),
+            ("circle", (s, 256, 256, 64, fg)),
+            ("aacircle", (s, 256, 256, 64, fg)),
+            ("filled_circle", (s, 256, 256, 32, fg)),
+            ("ellipse", (s, 200, 200, 50, 30, fg)),
+            ("aaellipse", (s, 200, 200, 50, 30, fg)),
+            ("filled_ellipse", (s, 200, 200, 50, 30, fg)),
+            ("arc", (s, 256, 256, 60, 0, 180, fg)),
+            ("pie", (s, 300, 300, 60, 0, 270, fg)),
+            ("trigon", (s, 100, 100, 150, 200, 50, 200, fg)),
+            ("aatrigon", (s, 100, 100, 150, 200, 50, 200, fg)),
+            ("filled_trigon", (s, 100, 100, 150, 200, 50, 200, fg)),
+            ("polygon", (s, points, fg)),
+            ("aapolygon", (s, points, fg)),
+            ("filled_polygon", (s, points, fg)),
+            ("textured_polygon", (s, points, s, 0, 0)),  # use same surface as texture
+        ):
+            try:
+                func = getattr(pygame.gfxdraw, name)
+                func(*args)
+            except Exception as e:
+                self.fail(f"gfxdraw.{name} raised an exception: {e}")
 
 
 if __name__ == "__main__":

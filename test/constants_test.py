@@ -1,6 +1,6 @@
 import unittest
-import pygame.constants
 
+import pygame.constants
 
 # K_* and KSCAN_* common names.
 K_AND_KSCAN_COMMON_NAMES = (
@@ -138,7 +138,7 @@ K_AND_KSCAN_COMMON_OVERLAPS = (
 def create_overlap_set(constant_names):
     """Helper function to find overlapping constant values/names.
 
-    Returns a set of fronzensets:
+    Returns a set of frozensets:
         set(frozenset(names of overlapping constants), ...)
     """
     # Create an overlap dict.

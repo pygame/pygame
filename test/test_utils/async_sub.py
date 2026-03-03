@@ -7,14 +7,14 @@ Modification of http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
 
 #################################### IMPORTS ###################################
 
+import errno
 import os
 import platform
 import subprocess
-import errno
-import time
 import sys
-import unittest
 import tempfile
+import time
+import unittest
 
 
 def geterror():
@@ -86,15 +86,15 @@ if platform.system() == "Windows":
                 return "", c_avail.value, c_message.value
 
     except ImportError:
+        from win32api import TerminateProcess
         from win32file import ReadFile, WriteFile
         from win32pipe import PeekNamedPipe
-        from win32api import TerminateProcess
     import msvcrt
 
 else:
-    from signal import SIGINT, SIGTERM, SIGKILL
-    import select
     import fcntl
+    import select
+    from signal import SIGINT, SIGKILL, SIGTERM
 
 ################################### CONSTANTS ##################################
 

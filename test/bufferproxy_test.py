@@ -1,12 +1,11 @@
-import re
-import weakref
-import gc
 import ctypes
+import gc
+import re
 import unittest
+import weakref
 
 import pygame
 from pygame.bufferproxy import BufferProxy
-
 
 try:
     BufferError
@@ -255,7 +254,6 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(r[:2], "*<")
         self.assertEqual(r[-2:], ">*")
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def NEWBUF_test_newbuf(self):
         from ctypes import string_at
 
@@ -309,7 +307,7 @@ class BufferProxyTest(unittest.TestCase):
             "shape": (10,),
             "strides": (1,),
             "data": (9, True),
-        }  # 9? Will not reading the data anyway.
+        }  # 9? Will not read the data anyway.
         b = BufferProxy(d)
         imp = Importer(b, buftools.PyBUF_SIMPLE)
         self.assertTrue(imp.obj is b)
@@ -333,7 +331,7 @@ class BufferProxyTest(unittest.TestCase):
             self.OLDBUF_test_oldbuf_arg()
 
     def OLDBUF_test_oldbuf_arg(self):
-        from pygame.bufferproxy import get_segcount, get_read_buffer, get_write_buffer
+        from pygame.bufferproxy import get_read_buffer, get_segcount, get_write_buffer
 
         content = b"\x01\x00\x00\x02" * 12
         memory = ctypes.create_string_buffer(content)
@@ -459,7 +457,7 @@ class BufferProxyLegacyTest(unittest.TestCase):
         # at the specified offset within the BufferProxy.
         # If the length of the passed buffer exceeds the length of the
         # BufferProxy (reduced by the offset), an IndexError will be raised.
-        from ctypes import c_byte, sizeof, addressof, string_at, memset
+        from ctypes import addressof, c_byte, memset, sizeof, string_at
 
         nullbyte = b"\x00"
         Buf = c_byte * 10

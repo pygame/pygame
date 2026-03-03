@@ -44,7 +44,7 @@
 # 2006-06-17 Nicko: Reworked into a class, faster interlacing.
 # 2006-06-17 Johann: Very simple prototype PNG decoder.
 # 2006-06-17 Nicko: Test suite with various image generators.
-# 2006-06-17 Nicko: Alpha-channel, grey-scale, 16-bit/plane support.
+# 2006-06-17 Nicko: Alpha-channel, gray-scale, 16-bit/plane support.
 # 2006-06-15 Johann: Scanline iterator interface for large input files.
 # 2006-06-09 Johann: Very simple prototype PNG encoder.
 
@@ -61,8 +61,8 @@ Pure Python PNG Reader/Writer
 This Python module implements support for PNG images (see PNG
 specification at http://www.w3.org/TR/2003/REC-PNG-20031110/ ). It reads
 and writes PNG files with all allowable bit depths (1/2/4/8/16/24/32/48/64
-bits per pixel) and colour combinations: greyscale (1/2/4/8/16 bit); RGB,
-RGBA, LA (greyscale with alpha) with 8/16 bits per channel; colour mapped
+bits per pixel) and color combinations: grayscale (1/2/4/8/16 bit); RGB,
+RGBA, LA (grayscale with alpha) with 8/16 bits per channel; color mapped
 images (1/2/4/8 bit).  Adam7 interlacing is supported for reading and
 writing.  A number of optional chunks can be specified (when writing)
 and understood (when reading): ``tRNS``, ``bKGD``, ``gAMA``.
@@ -81,15 +81,15 @@ A note on spelling and terminology
 ----------------------------------
 
 Generally British English spelling is used in the documentation.  So
-that's "greyscale" and "colour".  This not only matches the author's
+that's "grayscale" and "color".  This not only matches the author's
 native language, it's also used by the PNG specification.
 
-The major colour models supported by PNG (and hence by PyPNG) are:
-greyscale, RGB, greyscale--alpha, RGB--alpha.  These are sometimes
+The major color models supported by PNG (and hence by PyPNG) are:
+grayscale, RGB, grayscale--alpha, RGB--alpha.  These are sometimes
 referred to using the abbreviations: L, RGB, LA, RGBA.  In this case
 each letter abbreviates a single channel: *L* is for Luminance or Luma or
-Lightness which is the channel used in greyscale images; *R*, *G*, *B* stand
-for Red, Green, Blue, the components of a colour image; *A* stands for
+Lightness which is the channel used in grayscale images; *R*, *G*, *B* stand
+for Red, Green, Blue, the components of a color image; *A* stands for
 Alpha, the opacity channel (used for transparency effects, but higher
 values are more opaque, so it makes sense to call it opacity).
 
@@ -125,7 +125,7 @@ Flat row flat pixel::
   [R,G,B, R,G,B, R,G,B,
    R,G,B, R,G,B, R,G,B]
 
-The entire image is one single giant sequence of colour values.
+The entire image is one single giant sequence of color values.
 Generally an array will be used (to save space), not a list.
 
 Boxed row boxed pixel::
@@ -138,7 +138,7 @@ tuple.  A serious memory burn in Python.
 
 In all cases the top row comes first, and for each row the pixels are
 ordered from left-to-right.  Within a pixel the values appear in the
-order, R-G-B-A (or L-A for greyscale--alpha).
+order, R-G-B-A (or L-A for grayscale--alpha).
 
 There is a fourth format, mentioned because it is used internally,
 is close to what lies inside a PNG file itself, and has some support
@@ -167,8 +167,8 @@ import math
 import operator
 import struct
 import sys
-import zlib
 import warnings
+import zlib
 from array import array
 from functools import reduce
 
@@ -220,7 +220,7 @@ except:
 
 def interleave_planes(ipixels, apixels, ipsize, apsize):
     """
-    Interleave (colour) planes, e.g. RGB + A = RGBA.
+    Interleave (color) planes, e.g. RGB + A = RGBA.
 
     Return an array of pixels consisting of the `ipsize` elements of data
     from each pixel in `ipixels` followed by the `apsize` elements of data
@@ -307,7 +307,7 @@ class Writer:
         width=None,
         height=None,
         size=None,
-        greyscale=False,
+        grayscale=False,
         alpha=False,
         bitdepth=8,
         palette=None,
@@ -331,18 +331,18 @@ class Writer:
           Image size in pixels, as two separate arguments.
         size
           Image size (w,h) in pixels, as single argument.
-        greyscale
-          Input data is greyscale, not RGB.
+        grayscale
+          Input data is grayscale, not RGB.
         alpha
           Input data has alpha channel (RGBA or LA).
         bitdepth
           Bit depth: from 1 to 16.
         palette
-          Create a palette for a colour mapped image (colour type 3).
+          Create a palette for a color mapped image (color type 3).
         transparent
-          Specify a transparent colour (create a ``tRNS`` chunk).
+          Specify a transparent color (create a ``tRNS`` chunk).
         background
-          Specify a default background colour (create a ``bKGD`` chunk).
+          Specify a default background color (create a ``bKGD`` chunk).
         gamma
           Specify a gamma value (create a ``gAMA`` chunk).
         compression
@@ -357,8 +357,8 @@ class Writer:
         argument.  If `size` is used it should be a pair (*width*,
         *height*).
 
-        `greyscale` and `alpha` are booleans that specify whether
-        an image is greyscale (or colour), and whether it has an
+        `grayscale` and `alpha` are booleans that specify whether
+        an image is grayscale (or color), and whether it has an
         alpha channel (or not).
 
         `bitdepth` specifies the bit depth of the source pixel values.
@@ -371,27 +371,27 @@ class Writer:
         precision of the source image.  In this case the supplied pixel
         values will be rescaled to fit the range of the selected bit depth.
 
-        The details of which bit depth / colour model combinations the
+        The details of which bit depth / color model combinations the
         PNG file format supports directly, are somewhat arcane
         (refer to the PNG specification for full details).  Briefly:
-        "small" bit depths (1,2,4) are only allowed with greyscale and
-        colour mapped images; colour mapped images cannot have bit depth
+        "small" bit depths (1,2,4) are only allowed with grayscale and
+        color mapped images; color mapped images cannot have bit depth
         16.
 
-        For colour mapped images (in other words, when the `palette`
+        For color mapped images (in other words, when the `palette`
         argument is specified) the `bitdepth` argument must match one of
         the valid PNG bit depths: 1, 2, 4, or 8.  (It is valid to have a
         PNG image with a palette and an ``sBIT`` chunk, but the meaning
         is slightly different; it would be awkward to press the
         `bitdepth` argument into service for this.)
 
-        The `palette` option, when specified, causes a colour mapped image
-        to be created: the PNG colour type is set to 3; greyscale
+        The `palette` option, when specified, causes a color mapped image
+        to be created: the PNG color type is set to 3; grayscale
         must not be set; alpha must not be set; transparent must
-        not be set; the bit depth must be 1,2,4, or 8.  When a colour
+        not be set; the bit depth must be 1,2,4, or 8.  When a color
         mapped image is created, the pixel values are palette indexes
         and the `bitdepth` argument specifies the size of these indexes
-        (not the size of the colour values in the palette).
+        (not the size of the color values in the palette).
 
         The palette argument value should be a sequence of 3- or
         4-tuples.  3-tuples specify RGB palette entries; 4-tuples
@@ -406,7 +406,7 @@ class Writer:
 
         If specified, the `transparent` and `background` parameters must
         be a tuple with three integer values for red, green, blue, or
-        a simple integer (or singleton tuple) for a greyscale image.
+        a simple integer (or singleton tuple) for a grayscale image.
 
         If specified, the `gamma` parameter must be a positive number
         (generally, a float).  A ``gAMA`` chunk will be created.  Note that
@@ -440,7 +440,7 @@ class Writer:
         """
 
         # At the moment the `planes` argument is ignored;
-        # its purpose is to act as a dummy so that
+        # its purpose is to act as a placeholder argument so that
         # ``Writer(x, y, **info)`` works, where `info` is a dictionary
         # returned by Reader.read and friends.
         # Ditto for `colormap`.
@@ -455,22 +455,22 @@ class Writer:
                 return False
 
         def check_color(c, which):
-            """Checks that a colour argument for transparent or
-            background options is the right form.  Also "corrects" bare
+            """Checks that a color argument for transparent or
+            background options is the right form. Also, "corrects" bare
             integers to 1-tuples.
             """
 
             if c is None:
                 return c
-            if greyscale:
+            if grayscale:
                 try:
                     l = len(c)
                 except TypeError:
                     c = (c,)
                 if len(c) != 1:
-                    raise ValueError(f"{which} for greyscale must be 1-tuple")
+                    raise ValueError(f"{which} for grayscale must be 1-tuple")
                 if not isinteger(c[0]):
-                    raise ValueError(f"{which} colour for greyscale must be integer")
+                    raise ValueError(f"{which} color for grayscale must be integer")
             else:
                 if not (
                     len(c) == 3
@@ -478,7 +478,7 @@ class Writer:
                     and isinteger(c[1])
                     and isinteger(c[2])
                 ):
-                    raise ValueError(f"{which} colour must be a triple of integers")
+                    raise ValueError(f"{which} color must be a triple of integers")
             return c
 
         if size:
@@ -506,7 +506,7 @@ class Writer:
             raise ValueError("width and height cannot exceed 2**32-1")
 
         if alpha and transparent is not None:
-            raise ValueError("transparent colour not allowed with alpha channel")
+            raise ValueError("transparent color not allowed with alpha channel")
 
         if bytes_per_sample is not None:
             warnings.warn(
@@ -529,18 +529,18 @@ class Writer:
                 raise ValueError("transparent and palette not compatible")
             if alpha:
                 raise ValueError("alpha and palette not compatible")
-            if greyscale:
-                raise ValueError("greyscale and palette not compatible")
+            if grayscale:
+                raise ValueError("grayscale and palette not compatible")
         else:
             # No palette, check for sBIT chunk generation.
-            if alpha or not greyscale:
+            if alpha or not grayscale:
                 if bitdepth not in (8, 16):
                     targetbitdepth = (8, 16)[bitdepth > 8]
                     self.rescale = (bitdepth, targetbitdepth)
                     bitdepth = targetbitdepth
                     del targetbitdepth
             else:
-                assert greyscale
+                assert grayscale
                 assert not alpha
                 if bitdepth not in (1, 2, 4, 8, 16):
                     if bitdepth > 8:
@@ -554,15 +554,15 @@ class Writer:
                     bitdepth = targetbitdepth
                     del targetbitdepth
 
-        if bitdepth < 8 and (alpha or not greyscale and not palette):
-            raise ValueError("bitdepth < 8 only permitted with greyscale or palette")
+        if bitdepth < 8 and (alpha or not grayscale and not palette):
+            raise ValueError("bitdepth < 8 only permitted with grayscale or palette")
         if bitdepth > 8 and palette:
             raise ValueError("bit depth must be 8 or less for images with palette")
 
         transparent = check_color(transparent, "transparent")
         background = check_color(background, "background")
 
-        # It's important that the true boolean values (greyscale, alpha,
+        # It's important that the true boolean values (grayscale, alpha,
         # colormap, interlace) are converted to bool because Iverson's
         # convention is relied upon later on.
         self.width = width
@@ -570,7 +570,7 @@ class Writer:
         self.transparent = transparent
         self.background = background
         self.gamma = gamma
-        self.greyscale = bool(greyscale)
+        self.grayscale = bool(grayscale)
         self.alpha = bool(alpha)
         self.colormap = bool(palette)
         self.bitdepth = int(bitdepth)
@@ -579,10 +579,10 @@ class Writer:
         self.interlace = bool(interlace)
         self.palette = check_palette(palette)
 
-        self.color_type = 4 * self.alpha + 2 * (not greyscale) + 1 * self.colormap
+        self.color_type = 4 * self.alpha + 2 * (not grayscale) + 1 * self.colormap
         assert self.color_type in (0, 2, 3, 4, 6)
 
-        self.color_planes = (3, 1)[self.greyscale or self.colormap]
+        self.color_planes = (3, 1)[self.grayscale or self.colormap]
         self.planes = self.color_planes + self.alpha
         # :todo: fix for bitdepth < 8
         self.psize = (self.bitdepth / 8) * self.planes
@@ -701,14 +701,14 @@ class Writer:
 
         # http://www.w3.org/TR/PNG/#11tRNS
         if self.transparent is not None:
-            if self.greyscale:
+            if self.grayscale:
                 write_chunk(outfile, "tRNS", struct.pack("!1H", *self.transparent))
             else:
                 write_chunk(outfile, "tRNS", struct.pack("!3H", *self.transparent))
 
         # http://www.w3.org/TR/PNG/#11bKGD
         if self.background is not None:
-            if self.greyscale:
+            if self.grayscale:
                 write_chunk(outfile, "bKGD", struct.pack("!1H", *self.background))
             else:
                 write_chunk(outfile, "bKGD", struct.pack("!3H", *self.background))
@@ -757,7 +757,7 @@ class Writer:
                 oldextend((int(round(factor * x)) for x in sl))
 
         # Build the first row, testing mostly to see if we need to
-        # changed the extend function to cope with NumPy integer types
+        # change the extend function to cope with NumPy integer types
         # (they cause our ordinary definition of extend to fail, so we
         # wrap it).  See
         # http://code.google.com/p/pypng/issues/detail?id=44
@@ -799,7 +799,7 @@ class Writer:
                     # print(len(data), len(compressed), file= >> sys.stderr)
                     write_chunk(outfile, "IDAT", compressed)
                 # Because of our very witty definition of ``extend``,
-                # above, we must reuse the same ``data`` object.  Hence
+                # above, we must re-use the same ``data`` object.  Hence,
                 # we use ``del`` to empty this one, rather than create a
                 # fresh one (which would be my natural FP instinct).
                 del data[:]
@@ -832,7 +832,7 @@ class Writer:
         which should be in boxed row packed format.  Each row should be
         a sequence of packed bytes.
 
-        Technically, this method does work for interlaced images but it
+        Technically, this method does work for interlaced images, but it
         is best avoided.  For interlaced images, the rows should be
         presented in the order that they appear in the file.
 
@@ -1057,9 +1057,9 @@ def filter_scanline(type, line, fo, prev=None):
             ai += 1
 
     if not prev:
-        # We're on the first line.  Some of the filters can be reduced
+        # We're on the first line. Some of the filters can be reduced
         # to simpler cases which makes handling the line "off the top"
-        # of the image simpler.  "up" becomes "none"; "paeth" becomes
+        # of the image simpler. "up" becomes "none"; "paeth" becomes
         # "left" (non-trivial, but true). "average" needs to be handled
         # specially.
         if type == 2:  # "up"
@@ -1089,31 +1089,31 @@ def from_array(a, mode=None, info={}):
     .. note :
 
       The use of the term *3-dimensional* is for marketing purposes
-      only.  It doesn't actually work.  Please bear with us.  Meanwhile
+      only.  It doesn't actually work.  Please bear with us.  Meanwhile,
       enjoy the complimentary snacks (on request) and please use a
       2-dimensional array.
 
     Unless they are specified using the *info* parameter, the PNG's
     height and width are taken from the array size.  For a 3 dimensional
     array the first axis is the height; the second axis is the width;
-    and the third axis is the channel number.  Thus an RGB image that is
+    and the third axis is the channel number.  Thus, an RGB image that is
     16 pixels high and 8 wide will use an array that is 16x8x3.  For 2
     dimensional arrays the first axis is the height, but the second axis
     is ``width*channels``, so an RGB image that is 16 pixels high and 8
     wide will use a 2-dimensional array that is 16x24 (each row will be
     8*3==24 sample values).
 
-    *mode* is a string that specifies the image colour format in a
+    *mode* is a string that specifies the image color format in a
     PIL-style mode.  It can be:
 
     ``'L'``
-      greyscale (1 channel)
+      grayscale (1 channel)
     ``'LA'``
-      greyscale with alpha (2 channel)
+      grayscale with alpha (2 channel)
     ``'RGB'``
-      colour image (3 channel)
+      color image (3 channel)
     ``'RGBA'``
-      colour image with alpha (4 channel)
+      color image with alpha (4 channel)
 
     The mode string can also specify the bit depth (overriding how this
     function normally derives the bit depth, see below).  Appending
@@ -1160,7 +1160,7 @@ def from_array(a, mode=None, info={}):
     Generally anything specified in the
     *info* dictionary will override any implicit choices that this
     function would otherwise make, but must match any explicit ones.
-    For example, if the *info* dictionary has a ``greyscale`` key then
+    For example, if the *info* dictionary has a ``grayscale`` key then
     this must be true when mode is ``'L'`` or ``'LA'`` and false when
     mode is ``'RGB'`` or ``'RGBA'``.
     """
@@ -1212,11 +1212,11 @@ def from_array(a, mode=None, info={}):
         except:
             raise Error("len(a) does not work, supply info['height'] instead.")
         info["height"] = l
-    # Colour format.
-    if "greyscale" in info:
-        if bool(info["greyscale"]) != ("L" in mode):
-            raise Error("info['greyscale'] should match mode.")
-    info["greyscale"] = "L" in mode
+    # Color format.
+    if "grayscale" in info:
+        if bool(info["grayscale"]) != ("L" in mode):
+            raise Error("info['grayscale'] should match mode.")
+    info["grayscale"] = "L" in mode
     if "alpha" in info:
         if bool(info["alpha"]) != ("A" in mode):
             raise Error("info['alpha'] should match mode.")
@@ -1271,7 +1271,7 @@ def from_array(a, mode=None, info={}):
                 bitdepth = 8 * dtype.itemsize
         info["bitdepth"] = bitdepth
 
-    for thing in "width height bitdepth greyscale alpha".split():
+    for thing in "width height bitdepth grayscale alpha".split():
         assert thing in info
     return Image(a, info)
 
@@ -1491,12 +1491,12 @@ class Reader:
             )
 
         # Filter unit.  The stride from one pixel to the corresponding
-        # byte from the previous previous.  Normally this is the pixel
+        # byte from the previous scanline.  Normally this is the pixel
         # size in bytes, but when this is smaller than 1, the previous
         # byte is used instead.
         fu = max(1, self.psize)
 
-        # For the first line of a pass, synthesize a dummy previous
+        # For the first line of a pass, synthesize a fake previous
         # line.  An alternative approach would be to observe that on the
         # first line 'up' is the same as 'null', 'paeth' is the same
         # as 'sub', with only 'average' requiring any special case.
@@ -1773,16 +1773,16 @@ class Reader:
             if self.bitdepth not in (1, 2, 4, 8, 16):
                 raise Error("invalid bit depth %d" % self.bitdepth)
             if self.color_type not in (0, 2, 3, 4, 6):
-                raise Error("invalid colour type %d" % self.color_type)
+                raise Error("invalid color type %d" % self.color_type)
             # Check indexed (palettized) images have 8 or fewer bits
-            # per pixel; check only indexed or greyscale images have
+            # per pixel; check only indexed or grayscale images have
             # fewer than 8 bits per pixel.
             if (self.color_type & 1 and self.bitdepth > 8) or (
                 self.bitdepth < 8 and self.color_type not in (0, 3)
             ):
                 raise FormatError(
                     "Illegal combination of bit depth (%d)"
-                    " and colour type (%d)."
+                    " and color type (%d)."
                     " See http://www.w3.org/TR/2003/REC-PNG-20031110/#table111 ."
                     % (self.bitdepth, self.color_type)
                 )
@@ -1804,13 +1804,13 @@ class Reader:
             # Derived values
             # http://www.w3.org/TR/PNG/#6Colour-values
             colormap = bool(self.color_type & 1)
-            greyscale = not (self.color_type & 2)
+            grayscale = not (self.color_type & 2)
             alpha = bool(self.color_type & 4)
-            color_planes = (3, 1)[greyscale or colormap]
+            color_planes = (3, 1)[grayscale or colormap]
             planes = color_planes + alpha
 
             self.colormap = colormap
-            self.greyscale = greyscale
+            self.grayscale = grayscale
             self.alpha = alpha
             self.color_planes = color_planes
             self.planes = planes
@@ -1861,7 +1861,7 @@ class Reader:
             else:
                 if self.alpha:
                     raise FormatError(
-                        "tRNS chunk is not valid with colour type %d." % self.color_type
+                        "tRNS chunk is not valid with color type %d." % self.color_type
                     )
                 try:
                     self.transparent = struct.unpack("!%dH" % self.color_planes, data)
@@ -1942,7 +1942,7 @@ class Reader:
         else:
             pixels = self.iterboxed(self.iterstraight(raw))
         meta = {}
-        for attr in "greyscale alpha planes bitdepth interlace".split():
+        for attr in "grayscale alpha planes bitdepth interlace".split():
             meta[attr] = getattr(self, attr)
         meta["size"] = (self.width, self.height)
         for attr in "gamma transparent background".split():
@@ -1975,7 +1975,7 @@ class Reader:
         chunks should have already been processed (for example, by
         calling the :meth:`preamble` method).  All the tuples are the
         same size: 3-tuples if there is no ``tRNS`` chunk, 4-tuples when
-        there is a ``tRNS`` chunk.  Assumes that the image is colour type
+        there is a ``tRNS`` chunk.  Assumes that the image is color type
         3 and therefore a ``PLTE`` chunk is required.
 
         If the `alpha` argument is ``'force'`` then an alpha channel is
@@ -1983,7 +1983,7 @@ class Reader:
         """
 
         if not self.plte:
-            raise FormatError("Required PLTE chunk is missing in colour type 3 image.")
+            raise FormatError("Required PLTE chunk is missing in color type 3 image.")
         plte = group(array("B", self.plte), 3)
         if self.trns or alpha == "force":
             trns = array("B", self.trns or "")
@@ -1995,11 +1995,11 @@ class Reader:
         """Returns the image data as a direct representation of an
         ``x * y * planes`` array.  This method is intended to remove the
         need for callers to deal with palettes and transparency
-        themselves.  Images with a palette (colour type 3)
+        themselves.  Images with a palette (color type 3)
         are converted to RGB or RGBA; images with transparency (a
         ``tRNS`` chunk) are converted to LA or RGBA as appropriate.
         When returned in this format the pixel values represent the
-        colour value directly without needing to refer to palettes or
+        color value directly without needing to refer to palettes or
         transparency information.
 
         Like the :meth:`read` method this method returns a 4-tuple:
@@ -2018,7 +2018,7 @@ class Reader:
         The *meta* dictionary that is returned reflects the `direct`
         format and not the original source image.  For example, an RGB
         source image with a ``tRNS`` chunk to represent a transparent
-        colour, will have ``planes=3`` and ``alpha=False`` for the
+        color, will have ``planes=3`` and ``alpha=False`` for the
         source image, but the *meta* dictionary returned by this method
         will have ``planes=4`` and ``alpha=True`` because an alpha
         channel is synthesized and added.
@@ -2163,8 +2163,8 @@ class Reader:
         return self._as_rescale(self.asRGBA, 8)
 
     def asRGB(self):
-        """Return image as RGB pixels.  RGB colour images are passed
-        through unchanged; greyscales are expanded into RGB
+        """Return image as RGB pixels.  RGB color images are passed
+        through unchanged; grayscales are expanded into RGB
         triplets (there is a small speed overhead for doing this).
 
         An alpha channel in the source image will raise an
@@ -2173,15 +2173,15 @@ class Reader:
         The return values are as for the :meth:`read` method
         except that the *metadata* reflect the returned pixels, not the
         source image.  In particular, for this method
-        ``metadata['greyscale']`` will be ``False``.
+        ``metadata['grayscale']`` will be ``False``.
         """
 
         width, height, pixels, meta = self.asDirect()
         if meta["alpha"]:
             raise Error("will not convert image with alpha channel to RGB")
-        if not meta["greyscale"]:
+        if not meta["grayscale"]:
             return width, height, pixels, meta
-        meta["greyscale"] = False
+        meta["grayscale"] = False
         typecode = "BH"[meta["bitdepth"] > 8]
 
         def iterrgb():
@@ -2194,17 +2194,17 @@ class Reader:
         return width, height, iterrgb(), meta
 
     def asRGBA(self):
-        """Return image as RGBA pixels.  Greyscales are expanded into
+        """Return image as RGBA pixels.  Grayscales are expanded into
         RGB triplets; an alpha channel is synthesized if necessary.
         The return values are as for the :meth:`read` method
         except that the *metadata* reflect the returned pixels, not the
         source image.  In particular, for this method
-        ``metadata['greyscale']`` will be ``False``, and
+        ``metadata['grayscale']`` will be ``False``, and
         ``metadata['alpha']`` will be ``True``.
         """
 
         width, height, pixels, meta = self.asDirect()
-        if meta["alpha"] and not meta["greyscale"]:
+        if meta["alpha"] and not meta["grayscale"]:
             return width, height, pixels, meta
         typecode = "BH"[meta["bitdepth"] > 8]
         maxval = 2 ** meta["bitdepth"] - 1
@@ -2212,7 +2212,7 @@ class Reader:
         def newarray():
             return array(typecode, [0]) * 4 * width
 
-        if meta["alpha"] and meta["greyscale"]:
+        if meta["alpha"] and meta["grayscale"]:
             # LA to RGBA
             def convert():
                 for row in pixels:
@@ -2225,7 +2225,7 @@ class Reader:
                     a[3::4] = row[1::2]
                     yield a
 
-        elif meta["greyscale"]:
+        elif meta["grayscale"]:
             # L to RGBA
             def convert():
                 for row in pixels:
@@ -2236,7 +2236,7 @@ class Reader:
                     yield a
 
         else:
-            assert not meta["alpha"] and not meta["greyscale"]
+            assert not meta["alpha"] and not meta["grayscale"]
 
             # RGB to RGBA
             def convert():
@@ -2248,7 +2248,7 @@ class Reader:
                     yield a
 
         meta["alpha"] = True
-        meta["greyscale"] = False
+        meta["grayscale"] = False
         return width, height, convert(), meta
 
 
@@ -2364,7 +2364,7 @@ class Test(unittest.TestCase):
         mask = (1 << n) - 1
         # Use small chunk_limit so that multiple chunk writing is
         # tested.  Making it a test for Issue 20.
-        w = Writer(15, 17, greyscale=True, bitdepth=n, chunk_limit=99)
+        w = Writer(15, 17, grayscale=True, bitdepth=n, chunk_limit=99)
         f = BytesIO()
         w.write_array(f, array("B", map(mask.__and__, range(1, 256))))
         r = Reader(bytes=f.getvalue())
@@ -2383,7 +2383,7 @@ class Test(unittest.TestCase):
 
     def testL2(self):
         "Also tests asRGB8."
-        w = Writer(1, 4, greyscale=True, bitdepth=2)
+        w = Writer(1, 4, grayscale=True, bitdepth=2)
         f = BytesIO()
         w.write_array(f, array("B", range(4)))
         r = Reader(bytes=f.getvalue())
@@ -2409,7 +2409,7 @@ class Test(unittest.TestCase):
         self.assertEqual(list(pixels), map(list, [a, b, b, c]))
 
     def testPtrns(self):
-        "Test colour type 3 and tRNS chunk (and 4-bit palette)."
+        "Test color type 3 and tRNS chunk (and 4-bit palette)."
         a = (50, 99, 50, 50)
         b = (200, 120, 120, 80)
         c = (255, 255, 255)
@@ -2430,8 +2430,8 @@ class Test(unittest.TestCase):
         self.assertEqual(map(list, pixels), map(list, flat))
 
     def testRGBtoRGBA(self):
-        "asRGBA8() on colour type 2 source." ""
-        # Test for Issue 26
+        "asRGBA8() on color type 2 source."
+        # Test for pygame issue 41
         r = Reader(bytes=_pngsuite["basn2c08"])
         x, y, pixels, meta = r.asRGBA8()
         # Test the pixels at row 9 columns 0 and 1.
@@ -2439,20 +2439,20 @@ class Test(unittest.TestCase):
         self.assertEqual(row9[0:8], [0xFF, 0xDF, 0xFF, 0xFF, 0xFF, 0xDE, 0xFF, 0xFF])
 
     def testLtoRGBA(self):
-        "asRGBA() on grey source." ""
-        # Test for Issue 60
+        "asRGBA() on gray source."
+        # Test for pygame issue 75
         r = Reader(bytes=_pngsuite["basi0g08"])
         x, y, pixels, meta = r.asRGBA()
         row9 = list(list(pixels)[9])
         self.assertEqual(row9[0:8], [222, 222, 222, 255, 221, 221, 221, 255])
 
     def testCtrns(self):
-        "Test colour type 2 and tRNS chunk."
-        # Test for Issue 25
+        "Test color type 2 and tRNS chunk."
+        # Test for pygame issue 40
         r = Reader(bytes=_pngsuite["tbrn2c08"])
         x, y, pixels, meta = r.asRGBA8()
         # I just happen to know that the first pixel is transparent.
-        # In particular it should be #7f7f7f00
+        # In particular, it should be #7f7f7f00
         row0 = list(pixels)[0]
         self.assertEqual(tuple(row0[0:4]), (0x7F, 0x7F, 0x7F, 0x00))
 
@@ -2486,7 +2486,7 @@ class Test(unittest.TestCase):
         # we have written is to read it back again.
 
         for name, bytes in _pngsuite.items():
-            # Only certain colour types supported for this test.
+            # Only certain color types supported for this test.
             if name[3:5] not in ["n0", "n2", "n4", "n6"]:
                 continue
             it = Reader(bytes=bytes)
@@ -2497,7 +2497,7 @@ class Test(unittest.TestCase):
                 x=x,
                 y=y,
                 bitdepth=it.bitdepth,
-                greyscale=it.greyscale,
+                grayscale=it.grayscale,
                 alpha=it.alpha,
                 transparent=it.transparent,
                 interlace=False,
@@ -2511,7 +2511,7 @@ class Test(unittest.TestCase):
                 x=x,
                 y=y,
                 bitdepth=it.bitdepth,
-                greyscale=it.greyscale,
+                grayscale=it.grayscale,
                 alpha=it.alpha,
                 transparent=it.transparent,
                 interlace=True,
@@ -2534,7 +2534,7 @@ class Test(unittest.TestCase):
         testWithIO(s, o, do)
         r = Reader(bytes=o.getvalue())
         x, y, pixels, meta = r.read()
-        self.assertTrue(r.greyscale)
+        self.assertTrue(r.grayscale)
         self.assertEqual(r.bitdepth, 2)
 
     def testPAMin(self):
@@ -2561,19 +2561,19 @@ class Test(unittest.TestCase):
         r = Reader(bytes=o.getvalue())
         x, y, pixels, meta = r.read()
         self.assertTrue(r.alpha)
-        self.assertTrue(not r.greyscale)
+        self.assertTrue(not r.grayscale)
         self.assertEqual(list(itertools.chain(*pixels)), flat)
 
     def testLA4(self):
         """Create an LA image with bitdepth 4."""
         bytes = topngbytes(
-            "la4.png", [[5, 12]], 1, 1, greyscale=True, alpha=True, bitdepth=4
+            "la4.png", [[5, 12]], 1, 1, grayscale=True, alpha=True, bitdepth=4
         )
         sbit = Reader(bytes=bytes).chunk("sBIT")[1]
         self.assertEqual(sbit, strtobytes("\x04\x04"))
 
     def testPNMsbit(self):
-        """Test that PNM files can generates sBIT chunk."""
+        """Test that PNM files can generate an sBIT chunk."""
 
         def do():
             return _main(["testPNMsbit"])
@@ -2591,7 +2591,7 @@ class Test(unittest.TestCase):
         self.assertEqual(sbit, strtobytes("\x01\x01\x01"))
 
     def testLtrns0(self):
-        """Create greyscale image with tRNS chunk."""
+        """Create grayscale image with tRNS chunk."""
         return self.helperLtrns(0)
 
     def testLtrns1(self):
@@ -2602,12 +2602,12 @@ class Test(unittest.TestCase):
         """Helper used by :meth:`testLtrns*`."""
         pixels = zip([0x00, 0x38, 0x4C, 0x54, 0x5C, 0x40, 0x38, 0x00])
         o = BytesIO()
-        w = Writer(8, 8, greyscale=True, bitdepth=1, transparent=transparent)
+        w = Writer(8, 8, grayscale=True, bitdepth=1, transparent=transparent)
         w.write_packed(o, pixels)
         r = Reader(bytes=o.getvalue())
         x, y, pixels, meta = r.asDirect()
         self.assertTrue(meta["alpha"])
-        self.assertTrue(meta["greyscale"])
+        self.assertTrue(meta["grayscale"])
         self.assertEqual(meta["bitdepth"], 1)
 
     def testWinfo(self):
@@ -2621,9 +2621,9 @@ class Test(unittest.TestCase):
     def testPackedIter(self):
         """Test iterator for row when using write_packed.
 
-        Indicative for Issue 47.
+        Indicative for pygame issue 62.
         """
-        w = Writer(16, 2, greyscale=True, alpha=False, bitdepth=1)
+        w = Writer(16, 2, grayscale=True, alpha=False, bitdepth=1)
         o = BytesIO()
         w.write_packed(
             o, [itertools.chain([0x0A], [0xAA]), itertools.chain([0x0F], [0xFF])]
@@ -2763,7 +2763,7 @@ class Test(unittest.TestCase):
 
         rows = [map(numpy.uint16, range(0, 0x10000, 0x5555))]
         b = topngbytes(
-            "numpyuint16.png", rows, 4, 1, greyscale=True, alpha=False, bitdepth=16
+            "numpyuint16.png", rows, 4, 1, grayscale=True, alpha=False, bitdepth=16
         )
 
     def testNumpyuint8(self):
@@ -2777,7 +2777,7 @@ class Test(unittest.TestCase):
 
         rows = [map(numpy.uint8, range(0, 0x100, 0x55))]
         b = topngbytes(
-            "numpyuint8.png", rows, 4, 1, greyscale=True, alpha=False, bitdepth=8
+            "numpyuint8.png", rows, 4, 1, grayscale=True, alpha=False, bitdepth=8
         )
 
     def testNumpybool(self):
@@ -2791,7 +2791,7 @@ class Test(unittest.TestCase):
 
         rows = [map(numpy.bool, [0, 1])]
         b = topngbytes(
-            "numpybool.png", rows, 2, 1, greyscale=True, alpha=False, bitdepth=1
+            "numpybool.png", rows, 2, 1, grayscale=True, alpha=False, bitdepth=1
         )
 
     def testNumpyarray(self):
@@ -2812,8 +2812,8 @@ class Test(unittest.TestCase):
 
 def _dehex(s):
     """Liberally convert from hex string to binary string."""
-    import re
     import binascii
+    import re
 
     # Remove all non-hexadecimal digits
     s = re.sub(r"[^a-fA-F\d]", "", s)
@@ -3539,7 +3539,7 @@ def test_suite(options, args):
         assert w == h
         # LAn for n < 8 is a special case for which we need to rescale
         # the data.
-        if meta["greyscale"] and meta["alpha"] and meta["bitdepth"] < 8:
+        if meta["grayscale"] and meta["alpha"] and meta["bitdepth"] < 8:
             factor = 255 // (2 ** meta["bitdepth"] - 1)
 
             def rescale(data):
@@ -3556,7 +3556,7 @@ def test_suite(options, args):
     if options.test_size:
         size = options.test_size
     options.bitdepth = options.test_depth
-    options.greyscale = bool(options.test_black)
+    options.grayscale = bool(options.test_black)
 
     kwargs = {}
     if options.test_red:
@@ -3567,10 +3567,10 @@ def test_suite(options, args):
         kwargs["blue"] = options.test_blue
     if options.test_alpha:
         kwargs["alpha"] = options.test_alpha
-    if options.greyscale:
+    if options.grayscale:
         if options.test_red or options.test_green or options.test_blue:
             raise ValueError(
-                "cannot specify colours (R, G, B) when greyscale image (black channel, K) is specified"
+                "cannot specify colors (R, G, B) when grayscale image (black channel, K) is specified"
             )
         kwargs["red"] = options.test_black
         kwargs["green"] = None
@@ -3580,7 +3580,7 @@ def test_suite(options, args):
         pixels = test_rgba(size, options.bitdepth, **kwargs)
     else:
         size, pixels, meta = pngsuite_image(args[0])
-        for k in ["bitdepth", "alpha", "greyscale"]:
+        for k in ["bitdepth", "alpha", "grayscale"]:
             setattr(options, k, meta[k])
 
     writer = Writer(
@@ -3590,7 +3590,7 @@ def test_suite(options, args):
         transparent=options.transparent,
         background=options.background,
         gamma=options.gamma,
-        greyscale=options.greyscale,
+        grayscale=options.grayscale,
         alpha=options.alpha,
         compression=options.compression,
         interlace=options.interlace,
@@ -3764,8 +3764,8 @@ def write_pnm(file, width, height, pixels, meta):
 
 def color_triple(color):
     """
-    Convert a command line colour value to a RGB triple of integers.
-    FIXME: Somewhere we need support for greyscale backgrounds etc.
+    Convert a command line color value to a RGB triple of integers.
+    FIXME: Somewhere we need support for grayscale backgrounds etc.
     """
     if color.startswith("#") and len(color) == 4:
         return (int(color[1], 16), int(color[2], 16), int(color[3], 16))
@@ -3781,8 +3781,8 @@ def _main(argv):
     """
 
     # Parse command line arguments
-    from optparse import OptionParser
     import re
+    from optparse import OptionParser
 
     version = "%prog " + re.sub(r"( ?\$|URL: |Rev:)", "", __version__)
     parser = OptionParser(version=version)
@@ -3807,7 +3807,7 @@ def _main(argv):
         action="store",
         type="string",
         metavar="color",
-        help="mark the specified colour (#RRGGBB) as transparent",
+        help="mark the specified color (#RRGGBB) as transparent",
     )
     parser.add_option(
         "-b",
@@ -3815,7 +3815,7 @@ def _main(argv):
         action="store",
         type="string",
         metavar="color",
-        help="save the specified background colour",
+        help="save the specified background color",
     )
     parser.add_option(
         "-a",
@@ -3893,7 +3893,7 @@ def _main(argv):
         action="store",
         type="string",
         metavar="pattern",
-        help="test pattern for greyscale image",
+        help="test pattern for grayscale image",
     )
     parser.add_option(
         "-d",
@@ -3953,12 +3953,12 @@ def _main(argv):
             infile, ("P5", "P6", "P7")
         )
         # When it comes to the variety of input formats, we do something
-        # rather rude.  Observe that L, LA, RGB, RGBA are the 4 colour
+        # rather rude.  Observe that L, LA, RGB, RGBA are the 4 color
         # types supported by PNG and that they correspond to 1, 2, 3, 4
         # channels respectively.  So we use the number of channels in
         # the source image to determine which one we have.  We do not
         # care about TUPLTYPE.
-        greyscale = depth <= 2
+        grayscale = depth <= 2
         pamalpha = depth in (2, 4)
         supported = (2**x - 1 for x in range(1, 17))
         try:
@@ -3971,7 +3971,7 @@ def _main(argv):
         writer = Writer(
             width,
             height,
-            greyscale=greyscale,
+            grayscale=grayscale,
             bitdepth=bitdepth,
             interlace=options.interlace,
             transparent=options.transparent,

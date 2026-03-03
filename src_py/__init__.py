@@ -23,8 +23,9 @@ to create fully featured games and multimedia programs in the python
 language. The package is highly portable, with games running on
 Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux."""
 
-import sys
 import os
+import sys
+import platform
 
 # Choose Windows display driver
 if os.name == "nt":
@@ -92,9 +93,17 @@ class MissingModule:
 from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
-from pygame.rect import Rect
 from pygame.rwobject import encode_string, encode_file_path
-import pygame.surflock
+
+import pygame.rect
+
+Rect = pygame.rect.Rect
+# FRect ported from pygame
+try:
+    FRect = pygame.rect.FRect
+except AttributeError:
+    pass
+
 import pygame.color
 
 Color = pygame.color.Color
@@ -106,7 +115,7 @@ import pygame.math
 Vector2 = pygame.math.Vector2
 Vector3 = pygame.math.Vector3
 
-__version__ = ver
+from pygame.base import __version__
 
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
@@ -129,6 +138,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.event
+    from pygame.event import Event
 except (ImportError, OSError):
     event = MissingModule("event", urgent=1)
 
@@ -139,6 +149,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.joystick
+    from pygame.joystick import Joystick
 except (ImportError, OSError):
     joystick = MissingModule("joystick", urgent=1)
 
@@ -215,6 +226,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.time
+    from pygame.time import Clock
 except (ImportError, OSError):
     time = MissingModule("time", urgent=1)
 
@@ -238,6 +250,7 @@ try:
     pygame.font.SysFont = pygame.sysfont.SysFont
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
+    from pygame.font import Font
 except (ImportError, OSError):
     font = MissingModule("font", urgent=0)
 
@@ -252,6 +265,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.mixer
+    from pygame.mixer import Sound, Channel
 except (ImportError, OSError):
     mixer = MissingModule("mixer", urgent=0)
 
@@ -274,6 +288,43 @@ try:
     import pygame.fastevent
 except (ImportError, OSError):
     fastevent = MissingModule("fastevent", urgent=0)
+
+# --- NEW MODULES PORTED FROM pygame ---
+
+try:
+    import pygame._debug
+    from pygame._debug import print_debug_info
+except (ImportError, OSError):
+    _debug = MissingModule("_debug", urgent=0)
+
+try:
+    import pygame.system
+    from pygame._data_classes import PowerState as power_state
+
+    power_state.__module__ = "pygame.system"
+    del power_state
+except (ImportError, OSError):
+    system = MissingModule("system", urgent=0)
+
+try:
+    from pygame.window import Window
+except (ImportError, OSError):
+
+    def Window(title="pygame window", size=(640, 480), position=None, **kwargs):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Window")
+
+
+try:
+    import pygame.typing
+except (ImportError, OSError):
+    typing = MissingModule("typing", urgent=0)
+
+try:
+    import pygame.geometry
+except (ImportError, OSError):
+    geometry = MissingModule("geometry", urgent=0)
+
+# --- END pygame PORTED MODULES ---
 
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
@@ -342,4 +393,4 @@ if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, MissingModule, copyreg, packager_imports
+del pygame, os, sys, platform, MissingModule, copyreg, packager_imports

@@ -1,4 +1,5 @@
 import os
+import platform
 import time
 import unittest
 
@@ -7,6 +8,7 @@ import pygame.key
 
 # keys that are not tested for const-name match
 SKIPPED_KEYS = {"K_UNKNOWN"}
+SKIPPED_KEYS_NEW = {"K_MODE"}
 
 # This is the expected compat output
 KEY_NAME_COMPAT = {
@@ -168,6 +170,7 @@ KEY_NAME_COMPAT = {
 class KeyModuleTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        pygame.quit()
         pygame.init()
 
     @classmethod
@@ -186,9 +189,10 @@ class KeyModuleTest(unittest.TestCase):
         """does it import?"""
         import pygame.key
 
-    # fixme: test_get_focused failing systematically in some linux
-    # fixme: test_get_focused failing on SDL 2.0.18 on Windows
-    @unittest.skip("flaky test, and broken on 2.0.18 windows")
+    @unittest.skipIf(
+        not ("Windows" in platform.system() or "Darwin" in platform.system()),
+        "Not windows or macOS - we skip.",
+    )
     def test_get_focused(self):
         # This test fails in SDL2 in some linux
         # This test was skipped in SDL1.
@@ -196,14 +200,14 @@ class KeyModuleTest(unittest.TestCase):
         self.assertFalse(focused)  # No window to focus
         self.assertIsInstance(focused, int)
         # Dummy video driver never gets keyboard focus.
-        if os.environ.get("SDL_VIDEODRIVER") != "dummy":
+        if os.environ.get("SDL_VIDEODRIVER") != pygame.NULL_VIDEODRIVER:
             # Positive test, fullscreen with events grabbed
             display_sizes = pygame.display.list_modes()
             if display_sizes == -1:
                 display_sizes = [(500, 500)]
             pygame.display.set_mode(size=display_sizes[-1], flags=pygame.FULLSCREEN)
             pygame.event.set_grab(True)
-            # Pump event queue to get window focus on macos
+            # Pump event queue to get window focus on macOS
             pygame.event.pump()
             focused = pygame.key.get_focused()
             self.assertIsInstance(focused, int)
@@ -234,13 +238,21 @@ class KeyModuleTest(unittest.TestCase):
         states = pygame.key.get_pressed()
         self.assertEqual(states[pygame.K_RIGHT], 0)
 
-    # def test_get_pressed_not_iter(self):
-    #     states = pygame.key.get_pressed()
-    #     with self.assertRaises(TypeError):
-    #         next(states)
-    #     with self.assertRaises(TypeError):
-    #         for k in states:
-    #             pass
+    def test_get_just_pressed(self):
+        pressed_keys = pygame.key.get_just_pressed()
+        self.assertEqual(pressed_keys[pygame.K_RIGHT], 0)
+
+    def test_get_just_released(self):
+        released_keys = pygame.key.get_just_released()
+        self.assertEqual(released_keys[pygame.K_RIGHT], 0)
+
+    def test_get_pressed_not_iter(self):
+        states = pygame.key.get_pressed()
+        with self.assertRaises(TypeError):
+            next(states)
+        with self.assertRaises(TypeError):
+            for k in states:
+                pass
 
     def test_name_and_key_code(self):
         for const_name in dir(pygame):
@@ -258,7 +270,7 @@ class KeyModuleTest(unittest.TestCase):
             const_val = getattr(pygame, const_name)
 
             # with these tests below, we also make sure that key.name and key.key_code
-            # can work together and handle each others outputs
+            # can work together and handle each other's outputs
 
             # test positional args
             self.assertEqual(pygame.key.name(const_val), expected_str_name)
@@ -276,7 +288,8 @@ class KeyModuleTest(unittest.TestCase):
             # This is a test for an implementation detail of name with use_compat=False
             # If this test breaks in the future for any key, it is safe to put skips on
             # failing keys (the implementation detail is documented as being unreliable)
-            self.assertEqual(pygame.key.key_code(alt_name), const_val)
+            if const_name not in SKIPPED_KEYS_NEW:
+                self.assertEqual(pygame.key.key_code(alt_name), const_val)
 
         self.assertRaises(TypeError, pygame.key.name, "fizzbuzz")
         self.assertRaises(TypeError, pygame.key.key_code, pygame.K_a)

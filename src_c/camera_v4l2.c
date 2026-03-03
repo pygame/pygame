@@ -188,9 +188,9 @@ v4l2_xioctl(int fd, int request, void *arg)
 {
     int r;
 
-    do
+    do {
         r = ioctl(fd, request, arg);
-    while (-1 == r && EINTR == errno);
+    } while (-1 == r && EINTR == errno);
 
     return r;
 }
@@ -203,8 +203,14 @@ int
 v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
                    SDL_Surface *surf)
 {
-    if (!surf)
+    if (!surf) {
         return 0;
+    }
+
+    PG_PixelFormat *fmt = PG_GetSurfaceFormat(surf);
+    if (!fmt) {
+        return 1;
+    }
 
     SDL_LockSurface(surf);
 
@@ -213,16 +219,15 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
             if (buffer_size >= self->size * 3) {
                 switch (self->color_out) {
                     case RGB_OUT:
-                        rgb24_to_rgb(image, surf->pixels, self->size,
-                                     surf->format);
+                        rgb24_to_rgb(image, surf->pixels, self->size, fmt);
                         break;
                     case HSV_OUT:
                         rgb_to_hsv(image, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_RGB24, surf->format);
+                                   V4L2_PIX_FMT_RGB24, fmt);
                         break;
                     case YUV_OUT:
                         rgb_to_yuv(image, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_RGB24, surf->format);
+                                   V4L2_PIX_FMT_RGB24, fmt);
                         break;
                 }
             }
@@ -235,16 +240,15 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
             if (buffer_size >= self->size * 2) {
                 switch (self->color_out) {
                     case RGB_OUT:
-                        rgb444_to_rgb(image, surf->pixels, self->size,
-                                      surf->format);
+                        rgb444_to_rgb(image, surf->pixels, self->size, fmt);
                         break;
                     case HSV_OUT:
                         rgb_to_hsv(image, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_RGB444, surf->format);
+                                   V4L2_PIX_FMT_RGB444, fmt);
                         break;
                     case YUV_OUT:
                         rgb_to_yuv(image, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_RGB444, surf->format);
+                                   V4L2_PIX_FMT_RGB444, fmt);
                         break;
                 }
             }
@@ -257,18 +261,15 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
             if (buffer_size >= self->size * 2) {
                 switch (self->color_out) {
                     case YUV_OUT:
-                        yuyv_to_yuv(image, surf->pixels, self->size,
-                                    surf->format);
+                        yuyv_to_yuv(image, surf->pixels, self->size, fmt);
                         break;
                     case RGB_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size,
-                                    surf->format);
+                        yuyv_to_rgb(image, surf->pixels, self->size, fmt);
                         break;
                     case HSV_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size,
-                                    surf->format);
+                        yuyv_to_rgb(image, surf->pixels, self->size, fmt);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_YUYV, surf->format);
+                                   V4L2_PIX_FMT_YUYV, fmt);
                         break;
                 }
             }
@@ -281,18 +282,15 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
             if (buffer_size >= self->size * 2) {
                 switch (self->color_out) {
                     case YUV_OUT:
-                        uyvy_to_yuv(image, surf->pixels, self->size,
-                                    surf->format);
+                        uyvy_to_yuv(image, surf->pixels, self->size, fmt);
                         break;
                     case RGB_OUT:
-                        uyvy_to_rgb(image, surf->pixels, self->size,
-                                    surf->format);
+                        uyvy_to_rgb(image, surf->pixels, self->size, fmt);
                         break;
                     case HSV_OUT:
-                        uyvy_to_rgb(image, surf->pixels, self->size,
-                                    surf->format);
+                        uyvy_to_rgb(image, surf->pixels, self->size, fmt);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_YUYV, surf->format);
+                                   V4L2_PIX_FMT_YUYV, fmt);
                         break;
                 }
             }
@@ -306,19 +304,19 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
                 switch (self->color_out) {
                     case RGB_OUT:
                         sbggr8_to_rgb(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         break;
                     case HSV_OUT:
                         sbggr8_to_rgb(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_SBGGR8, surf->format);
+                                   V4L2_PIX_FMT_SBGGR8, fmt);
                         break;
                     case YUV_OUT:
                         sbggr8_to_rgb(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         rgb_to_yuv(surf->pixels, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_SBGGR8, surf->format);
+                                   V4L2_PIX_FMT_SBGGR8, fmt);
                         break;
                 }
             }
@@ -332,17 +330,17 @@ v4l2_process_image(pgCameraObject *self, const void *image, int buffer_size,
                 switch (self->color_out) {
                     case YUV_OUT:
                         yuv420_to_yuv(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         break;
                     case RGB_OUT:
                         yuv420_to_rgb(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         break;
                     case HSV_OUT:
                         yuv420_to_rgb(image, surf->pixels, self->width,
-                                      self->height, surf->format);
+                                      self->height, fmt);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size,
-                                   V4L2_PIX_FMT_YUV420, surf->format);
+                                   V4L2_PIX_FMT_YUV420, fmt);
                         break;
                 }
             }
@@ -379,8 +377,9 @@ v4l2_query_buffer(pgCameraObject *self)
         }
 
         /*  is there a buffer on outgoing queue ready for us to take? */
-        if (buf.flags & V4L2_BUF_FLAG_DONE)
+        if (buf.flags & V4L2_BUF_FLAG_DONE) {
             return 1;
+        }
     }
 
     /* no buffer ready to take */
@@ -668,11 +667,13 @@ v4l2_init_device(pgCameraObject *self)
 
     /* Buggy driver paranoia. */
     min = fmt.fmt.pix.width * 2;
-    if (fmt.fmt.pix.bytesperline < min)
+    if (fmt.fmt.pix.bytesperline < min) {
         fmt.fmt.pix.bytesperline = min;
+    }
     min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
-    if (fmt.fmt.pix.sizeimage < min)
+    if (fmt.fmt.pix.sizeimage < min) {
         fmt.fmt.pix.sizeimage = min;
+    }
 
     v4l2_init_mmap(self);
 
@@ -682,8 +683,9 @@ v4l2_init_device(pgCameraObject *self)
 int
 v4l2_close_device(pgCameraObject *self)
 {
-    if (self->fd == -1)
+    if (self->fd == -1) {
         return 1;
+    }
 
     if (-1 == close(self->fd)) {
         PyErr_Format(PyExc_SystemError, "Cannot close '%s': %d, %s",

@@ -1,7 +1,7 @@
-import sys
 import ctypes
-from ctypes import *
+import sys
 import unittest
+from ctypes import *
 
 __all__ = [
     "PAI_CONTIGUOUS",

@@ -55,9 +55,22 @@
 #include <Python.h>
 
 /* version macros (defined since version 1.9.5) */
+#ifndef PG_MAJOR_VERSION
 #define PG_MAJOR_VERSION 2
+#endif
+
+#ifndef PG_MINOR_VERSION
 #define PG_MINOR_VERSION 6
+#endif
+
+#ifndef PG_PATCH_VERSION
 #define PG_PATCH_VERSION 1
+#endif
+
+#ifndef PG_VERSION_TAG
+#define PG_VERSION_TAG ""
+#endif
+
 #define PG_VERSIONNUM(MAJOR, MINOR, PATCH) \
     (1000 * (MAJOR) + 100 * (MINOR) + (PATCH))
 #define PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)                             \
@@ -87,6 +100,7 @@ typedef struct pg_bufferinfo_s {
 } pg_buffer;
 
 #include "pgimport.h"
+#include "../pgcompat_rect.h"
 
 /*
  * BASE module
@@ -97,379 +111,131 @@ typedef struct pg_bufferinfo_s {
 #define pg_RegisterQuit \
     (*(void (*)(void (*)(void)))PYGAMEAPI_GET_SLOT(base, 1))
 
-/**
- * \brief Convert number like object *obj* to C int and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
 #define pg_IntFromObj \
     (*(int (*)(PyObject *, int *))PYGAMEAPI_GET_SLOT(base, 2))
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj*
- * to C int and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
 #define pg_IntFromObjIndex \
     (*(int (*)(PyObject *, int, int *))PYGAMEAPI_GET_SLOT(base, 3))
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * int and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C integer to store the result.
- * \param val2 A pointer to the C integer to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- * \note This function will convert floats to integers.
- */
 #define pg_TwoIntsFromObj \
     (*(int (*)(PyObject *, int *, int *))PYGAMEAPI_GET_SLOT(base, 4))
 
-/**
- * \brief Convert number like object *obj* to C float and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
 #define pg_FloatFromObj \
     (*(int (*)(PyObject *, float *))PYGAMEAPI_GET_SLOT(base, 5))
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * float and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
 #define pg_FloatFromObjIndex \
     (*(int (*)(PyObject *, int, float *))PYGAMEAPI_GET_SLOT(base, 6))
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * float and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C float to store the result.
- * \param val2 A pointer to the C float to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
 #define pg_TwoFloatsFromObj \
     (*(int (*)(PyObject *, float *, float *))PYGAMEAPI_GET_SLOT(base, 7))
 
-/**
- * \brief Convert number like object *obj* to C Uint32 and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C int to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
+#define pg_DoubleFromObj \
+    (*(int (*)(PyObject *, double *))PYGAMEAPI_GET_SLOT(base, 24))
+
+#define pg_TwoDoublesFromObj \
+    (*(int (*)(PyObject *, double *, double *))PYGAMEAPI_GET_SLOT(base, 25))
+
+#define pg_TwoDoublesFromFastcallArgs                   \
+    (*(int (*)(PyObject *const *, Py_ssize_t, double *, \
+               double *))PYGAMEAPI_GET_SLOT(base, 26))
+
 #define pg_UintFromObj \
     (*(int (*)(PyObject *, Uint32 *))PYGAMEAPI_GET_SLOT(base, 8))
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * Uint32 and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C int to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
 #define pg_UintFromObjIndex \
     (*(int (*)(PyObject *, int, Uint32 *))PYGAMEAPI_GET_SLOT(base, 9))
 
-/**
- * \brief Initialize all of the pygame modules.
- * \returns 1 on success, 0 on failure with PyErr set.
- */
 #define pg_mod_autoinit (*(int (*)(const char *))PYGAMEAPI_GET_SLOT(base, 10))
 
-/**
- * \brief Quit all of the pygame modules.
- */
 #define pg_mod_autoquit (*(void (*)(const char *))PYGAMEAPI_GET_SLOT(base, 11))
 
-/**
- * \brief Convert the color represented by object *obj* into a red, green,
- * blue, alpha length 4 C array *RGBA*.
- *
- * The object must be a length 3 or 4 sequence of numbers having values between
- * 0 and 255 inclusive. For a length 3 sequence an alpha value of 255 is
- * assumed.
- *
- * \param obj The Python object to convert.
- * \param RGBA A pointer to the C array to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
 #define pg_RGBAFromObj \
     (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(base, 12))
 
-/**
- * \brief Given a Py_buffer, return a python dictionary representing the array
- * interface.
- *
- * \param view_p A pointer to the Py_buffer to convert to a dictionary.
- *
- * \returns A Python dictionary representing the array interface of the object.
- */
 #define pgBuffer_AsArrayInterface \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 13))
 
-/**
- * \brief Given a Py_buffer, return a python capsule representing the array
- * interface.
- *
- * \param view_p A pointer to the Py_buffer to convert to a capsule.
- *
- * \returns A Python capsule representing the array interface of the object.
- */
 #define pgBuffer_AsArrayStruct \
     (*(PyObject * (*)(Py_buffer *)) PYGAMEAPI_GET_SLOT(base, 14))
 
-/**
- * \brief Get a buffer object from a given Python object.
- *
- * \param obj The Python object to get the buffer from.
- * \param pg_view_p A pointer to a pg_buffer struct to store the buffer in.
- * \param flags The desired buffer access mode.
- *
- * \returns 0 on success, -1 on failure.
- *
- * \note This function attempts to get a buffer object from a given Python
- * object. If the object supports the buffer protocol, it will be used to
- * create the buffer. If not, it will try to get an array interface or
- * dictionary representation of the object and use that to create the buffer.
- * If none of these methods work, it will raise a ValueError.
- *
- */
 #define pgObject_GetBuffer \
     (*(int (*)(PyObject *, pg_buffer *, int))PYGAMEAPI_GET_SLOT(base, 15))
 
-/**
- * \brief Release a pg_buffer object.
- *
- * \param pg_view_p The pg_buffer object to release.
- *
- * \note This function releases a pg_buffer object.
- * \note some calls to this function expect this function to not clear
- * previously set errors.
- */
 #define pgBuffer_Release (*(void (*)(pg_buffer *))PYGAMEAPI_GET_SLOT(base, 16))
 
-/**
- * \brief Write the array interface dictionary buffer description *dict* into a
- * Pygame buffer description struct *pg_view_p*.
- *
- * \param pg_view_p The Pygame buffer description struct to write into.
- * \param dict The array interface dictionary to read from.
- * \param flags The PyBUF flags describing the view type requested.
- *
- * \returns 0 on success, or -1 on failure.
- */
 #define pgDict_AsBuffer \
     (*(int (*)(pg_buffer *, PyObject *, int))PYGAMEAPI_GET_SLOT(base, 17))
 
 #define pgExc_BufferError ((PyObject *)PYGAMEAPI_GET_SLOT(base, 18))
 
-/**
- * \brief Get the default SDL window created by a pygame.display.set_mode()
- * call, or *NULL*.
- *
- * \return The default window, or *NULL* if no window has been created.
- */
 #define pg_GetDefaultWindow \
     (*(SDL_Window * (*)(void)) PYGAMEAPI_GET_SLOT(base, 19))
 
-/**
- * \brief Set the default SDL window created by a pygame.display.set_mode()
- * call. The previous window, if any, is destroyed. Argument *win* may be
- * *NULL*. This function is called by pygame.display.set_mode().
- *
- * \param win The new default window. May be NULL.
- */
 #define pg_SetDefaultWindow \
     (*(void (*)(SDL_Window *))PYGAMEAPI_GET_SLOT(base, 20))
 
-/**
- * \brief Return a borrowed reference to the Pygame default window display
- * surface, or *NULL* if no default window is open.
- *
- * \return The default renderer, or *NULL* if no renderer has been created.
- */
 #define pg_GetDefaultWindowSurface \
     (*(pgSurfaceObject * (*)(void)) PYGAMEAPI_GET_SLOT(base, 21))
 
-/**
- * \brief Set the Pygame default window display surface. The previous
- * surface, if any, is destroyed. Argument *screen* may be *NULL*. This
- * function is called by pygame.display.set_mode().
- *
- * \param screen The new default window display surface. May be NULL.
- */
 #define pg_SetDefaultWindowSurface \
     (*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(base, 22))
 
-/**
- * \returns NULL if the environment variable PYGAME_BLEND_ALPHA_SDL2 is not
- * set, otherwise returns a pointer to the environment variable.
- */
 #define pg_EnvShouldBlendAlphaSDL2 \
-    (*(char *(*)(void))PYGAMEAPI_GET_SLOT(base, 23))
+    (*(int (*)(void))PYGAMEAPI_GET_SLOT(base, 23))
 
-/**
- * \brief Convert number like object *obj* to C double and in *val*.
- *
- * \param obj The Python object to convert.
- * \param val A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-#define pg_DoubleFromObj \
-    (*(int (*)(PyObject *, double *))PYGAMEAPI_GET_SLOT(base, 24))
+#define pg_GetDefaultConvertFormat \
+    (*(PG_PixelFormatEnum (*)(void))PYGAMEAPI_GET_SLOT(base, 27))
 
-/**
- * \brief Convert number like object at position *i* in sequence *obj* to C
- * double and place in argument *val*.
- *
- * \param obj The Python object to convert.
- * \param i The index of the object to convert.
- * \param val A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- *
- * \note This function will clear any Python errors.
- */
-#define pg_DoubleFromObjIndex \
-    (*(int (*)(PyObject *, int, double *))PYGAMEAPI_GET_SLOT(base, 25))
+#define pg_SetDefaultConvertFormat \
+    (*(void (*)(Uint32))PYGAMEAPI_GET_SLOT(base, 28))
 
-/**
- * \brief Convert the two number like objects in length 2 sequence *obj* to C
- * double and place in arguments *val1* and *val2*.
- *
- * \param obj The Python two element sequence object to convert.
- * \param val A pointer to the C double to store the result.
- * \param val2 A pointer to the C double to store the result.
- * \returns 1 if the conversion was successful, 0 otherwise.
- */
-#define pg_TwoDoublesFromObj \
-    (*(int (*)(PyObject *, double *, double *))PYGAMEAPI_GET_SLOT(base, 26))
+#define pgObject_getRectHelper                                               \
+    (*(PyObject * (*)(PyObject *, PyObject *const *, Py_ssize_t, PyObject *, \
+                      char *)) PYGAMEAPI_GET_SLOT(base, 29))
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
 typedef struct {
-    /**
-     * \brief The SDL rect wrapped by this object.
-     */
     PyObject_HEAD SDL_Rect r;
-    /**
-     * \brief A list of weak references to this rect.
-     */
     PyObject *weakreflist;
 } pgRectObject;
 
-/**
- * \brief Convert a pgRectObject to an SDL_Rect.
- *
- * \param obj A pgRectObject instance.
- * \returns the SDL_Rect field of *obj*, a pgRect_Type instance.
- *
- * \note SDL_Rect pgRect_AsRect(PyObject *obj)
- */
+typedef struct {
+    PyObject_HEAD SDL_FRect r;
+    PyObject *weakreflist;
+} pgFRectObject;
+
 #define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+#define pgFRect_AsRect(x) (((pgFRectObject *)x)->r)
 
 #ifndef PYGAMEAPI_RECT_INTERNAL
-
-/**
- * \brief The Pygame rectangle object type pygame.Rect.
- */
 #define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
 
-/**
- * \brief Check if *obj* is a `pygame.Rect` instance.
- *
- * \returns true if *obj* is a `pygame.Rect` instance
- */
-#define pgRect_Check(obj) ((obj)->ob_type == &pgRect_Type)
-
-/**
- * \brief Create a new `pygame.Rect` instance.
- *
- * \param r A pointer to an SDL_Rect struct.
- * \returns a new `pygame.Rect` object for the SDL_Rect *r*.
- * Returns *NULL* on error.
- *
- * \note PyObject* pgRect_New(SDL_Rect *r)
- */
+#define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
 #define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
 
-/**
- * \brief Create a new `pygame.Rect` instance from x, y, w, h.
- *
- * \param x The x coordinate of the rectangle.
- * \param y The y coordinate of the rectangle.
- * \param w The width of the rectangle.
- * \param h The height of the rectangle.
- * \returns a new `pygame.Rect` object. Returns *NULL* on error.
- *
- * \note PyObject* pgRect_New4(int x, int y, int w, int h)
- */
 #define pgRect_New4 \
     (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
 
-/**
- * \brief Convert a Python object to a `pygame.Rect` instance.
- *
- * \param obj A Python object.
- * A rectangle can be a length 4 sequence integers (x, y, w, h), or a length 2
- * sequence of position (x, y) and size (w, h), or a length 1 tuple containing
- * a rectangle representation, or have a method *rect* that returns a
- * rectangle.
- *
- * \param temp A pointer to an SDL_Rect struct to store the result in.
- * \returns a pointer to the SDL_Rect field of the `pygame.Rect` instance
- * *obj*. Returns *NULL* on error.
- *
- * \note This function will clear any Python errors.
- * \note SDL_Rect* pgRect_FromObject(PyObject *obj, SDL_Rect *temp)
- */
 #define pgRect_FromObject \
     (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
 
-/**
- * \brief Normalize a `pygame.Rect` instance. A rect with a negative size
- * (negative width and/or height) will be adjusted to have a positive size.
- *
- * \param rect A pointer to a `pygame.Rect` instance.
- * \returns *rect* normalized with positive values only.
- *
- * \note void pgRect_Normalize(SDL_Rect *rect)
- */
 #define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
+
+#define pgFRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 5))
+
+#define pgFRect_Check(x) ((x)->ob_type == &pgFRect_Type)
+#define pgFRect_New \
+    (*(PyObject * (*)(SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 6))
+
+#define pgFRect_New4 \
+    (*(PyObject * (*)(float, float, float, float)) PYGAMEAPI_GET_SLOT(rect, 7))
+
+#define pgFRect_FromObject \
+    (*(SDL_FRect * (*)(PyObject *, SDL_FRect *)) PYGAMEAPI_GET_SLOT(rect, 8))
+
+#define pgFRect_Normalize (*(void (*)(SDL_FRect *))PYGAMEAPI_GET_SLOT(rect, 9))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)
 #endif /* ~PYGAMEAPI_RECT_INTERNAL */
@@ -498,6 +264,8 @@ typedef struct pgJoystickObject {
 
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
 #define pgJoystick_New (*(PyObject * (*)(int)) PYGAMEAPI_GET_SLOT(joystick, 1))
+#define pgJoystick_GetDeviceIndexByInstanceID \
+    (*(int (*)(int))PYGAMEAPI_GET_SLOT(joystick, 2))
 
 #define import_pygame_joystick() IMPORT_PYGAME_MODULE(joystick)
 #endif
@@ -517,59 +285,28 @@ typedef struct {
     Uint32 blit_sw_A : 1;
     Uint32 blit_fill : 1;
     Uint32 video_mem;
+#if PG_SDL3
+    /* We cannot use PG_PixelFormat here because it aliases to const */
+    SDL_PixelFormatDetails *vfmt;
+    SDL_PixelFormatDetails vfmt_data;
+#else
     SDL_PixelFormat *vfmt;
     SDL_PixelFormat vfmt_data;
+#endif
     int current_w;
     int current_h;
 } pg_VideoInfo;
 
-/**
- * A pygame object that wraps an SDL_VideoInfo struct.
- * The object returned by `pygame.display.Info()`
- */
 typedef struct {
     PyObject_HEAD pg_VideoInfo info;
 } pgVidInfoObject;
 
-/**
- * \brief Convert a pgVidInfoObject to an SDL_VideoInfo.
- *
- * \note SDL_VideoInfo pgVidInfo_AsVidInfo(PyObject *obj)
- *
- * \returns the SDL_VideoInfo field of *obj*, a pgVidInfo_Type instance.
- * \param obj A pgVidInfo_Type instance.
- *
- * \note Does not check that *obj* is not `NULL` or an `pgVidInfoObject`
- * object.
- */
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
 
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
-/**
- * \brief The pgVidInfoObject object Python type.
- * \note pgVideoInfo_Type is used for the `pygame.display.Info()` object.
- */
 #define pgVidInfo_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(display, 0))
 
-/**
- * \brief Check if *obj* is a pgVidInfoObject.
- *
- * \returns true if *x* is a `pgVidInfo_Type` instance
- * \note Will return false if *x* is a subclass of `pgVidInfo_Type`.
- * \note This macro does not check that *x* is not ``NULL``.
- * \note int pgVidInfo_Check(PyObject *x)
- */
 #define pgVidInfo_Check(x) ((x)->ob_type == &pgVidInfo_Type)
-
-/**
- * \brief Create a new pgVidInfoObject.
- *
- * \param i A pointer to an SDL_VideoInfo struct.
- * \returns a new `pgVidInfoObject` object for the SDL_VideoInfo *i*.
- *
- * \note PyObject* pgVidInfo_New(SDL_VideoInfo *i)
- * \note On failure, raise a Python exception and return `NULL`.
- */
 #define pgVidInfo_New \
     (*(PyObject * (*)(pg_VideoInfo *)) PYGAMEAPI_GET_SLOT(display, 1))
 
@@ -582,107 +319,30 @@ typedef struct {
 struct pgSubSurface_Data;
 struct SDL_Surface;
 
-/**
- * \brief A pygame object that wraps an SDL_Surface. A `pygame.Surface`
- * instance.
- */
 typedef struct {
     PyObject_HEAD struct SDL_Surface *surf;
-    /**
-     * \brief If true, the surface will be freed when the python object is
-     * destroyed.
-     */
     int owner;
-    /**
-     * \brief The subsurface data for this surface (if a subsurface).
-     */
-    struct pgSubSurface_Data *subsurface;
-    /**
-     * \brief A list of weak references to this surface.
-     */
+    struct pgSubSurface_Data *subsurface; /* ptr to subsurface data (if a
+                                           * subsurface)*/
     PyObject *weakreflist;
-    /**
-     * \brief A list of locks for this surface.
-     */
     PyObject *locklist;
-    /**
-     * \brief Usually a buffer object which the surface gets its data from.
-     */
     PyObject *dependency;
 } pgSurfaceObject;
-
-/**
- * \brief Convert a `pygame.Surface` instance to an SDL_Surface.
- *
- * \param x A `pygame.Surface` instance.
- * \returns the SDL_Surface field of *x*, a `pygame.Surface` instance.
- *
- * \note SDL_Surface* pgSurface_AsSurface(PyObject *x)
- */
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
 
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
-/**
- * \brief The `pygame.Surface` object Python type.
- */
 #define pgSurface_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(surface, 0))
 
-/**
- * \brief Check if *x* is a `pygame.Surface` instance.
- *
- * \param x The object to check.
- * \returns true if *x* is a `pygame.Surface` instance
- *
- * \note Will return false if *x* is a subclass of `pygame.Surface`.
- * \note This macro does not check that *x* is not ``NULL``.
- * \note int pgSurface_Check(PyObject *x)
- */
 #define pgSurface_Check(x) \
     (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
-
-/**
- * \brief Create a new `pygame.Surface` instance.
- *
- * \param s The SDL surface to wrap in a python object.
- * \param owner If true, the surface will be freed when the python object is
- * destroyed. \returns A new new pygame surface instance for SDL surface *s*.
- * Returns *NULL* on error.
- *
- * \note pgSurfaceObject* pgSurface_New2(SDL_Surface *s, int owner)
- */
 #define pgSurface_New2                            \
     (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
          PYGAMEAPI_GET_SLOT(surface, 1))
 
-/**
- * \brief Sets the SDL surface for a `pygame.Surface` instance.
- *
- * \param self The `pygame.Surface` instance to set the surface for.
- * \param s The SDL surface to set.
- * \param owner If true, the surface will be freed when the python object is
- * destroyed. \returns 0 on success, -1 on failure.
- *
- * \note int pgSurface_SetSurface(pgSurfaceObject *self, SDL_Surface *s, int
- * owner)
- */
 #define pgSurface_SetSurface                                              \
     (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))PYGAMEAPI_GET_SLOT( \
         surface, 3))
 
-/**
- * \brief Blit one surface onto another.
- *
- * \param dstobj The destination surface.
- * \param srcobj The source surface.
- * \param dstrect The destination rectangle.
- * \param srcrect The source rectangle.
- * \param the_args The blit flags.
- * \return 0 for success, -1 or -2 for error.
- *
- * \note Is accessible through the C api.
- * \note int pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect
- * *dstrect, SDL_Rect *srcrect, int the_args)
- */
 #define pgSurface_Blit                                                       \
     (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, SDL_Rect *, SDL_Rect *, \
                int))PYGAMEAPI_GET_SLOT(surface, 2))
@@ -705,32 +365,25 @@ typedef struct {
  * auto imported/initialized by surface
  */
 #ifndef PYGAMEAPI_SURFLOCK_INTERNAL
-#define pgLifetimeLock_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(surflock, 0))
-
-#define pgLifetimeLock_Check(x) ((x)->ob_type == &pgLifetimeLock_Type)
-
 #define pgSurface_Prep(x) \
     if ((x)->subsurface)  \
-    (*(*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 1)))(x)
+    (*(*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 0)))(x)
 
 #define pgSurface_Unprep(x) \
     if ((x)->subsurface)    \
-    (*(*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 2)))(x)
+    (*(*(void (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 1)))(x)
 
 #define pgSurface_Lock \
-    (*(int (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 3))
+    (*(int (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 2))
 
 #define pgSurface_Unlock \
-    (*(int (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 4))
+    (*(int (*)(pgSurfaceObject *))PYGAMEAPI_GET_SLOT(surflock, 3))
 
 #define pgSurface_LockBy \
-    (*(int (*)(pgSurfaceObject *, PyObject *))PYGAMEAPI_GET_SLOT(surflock, 5))
+    (*(int (*)(pgSurfaceObject *, PyObject *))PYGAMEAPI_GET_SLOT(surflock, 4))
 
 #define pgSurface_UnlockBy \
-    (*(int (*)(pgSurfaceObject *, PyObject *))PYGAMEAPI_GET_SLOT(surflock, 6))
-
-#define pgSurface_LockLifetime \
-    (*(PyObject * (*)(PyObject *, PyObject *)) PYGAMEAPI_GET_SLOT(surflock, 7))
+    (*(int (*)(pgSurfaceObject *, PyObject *))PYGAMEAPI_GET_SLOT(surflock, 5))
 #endif
 
 /*
@@ -746,15 +399,25 @@ typedef struct pgEventObject pgEventObject;
 #define pgEvent_New \
     (*(PyObject * (*)(SDL_Event *)) PYGAMEAPI_GET_SLOT(event, 1))
 
-#define pgEvent_New2 \
-    (*(PyObject * (*)(int, PyObject *)) PYGAMEAPI_GET_SLOT(event, 2))
+#define pg_post_event \
+    (*(int (*)(Uint32, PyObject *))PYGAMEAPI_GET_SLOT(event, 2))
 
-#define pgEvent_FillUserEvent \
-    (*(int (*)(pgEventObject *, SDL_Event *))PYGAMEAPI_GET_SLOT(event, 3))
+#define pg_post_event_dictproxy \
+    (*(int (*)(Uint32, pgEventDictProxy *))PYGAMEAPI_GET_SLOT(event, 3))
 
 #define pg_EnableKeyRepeat (*(int (*)(int, int))PYGAMEAPI_GET_SLOT(event, 4))
 
 #define pg_GetKeyRepeat (*(void (*)(int *, int *))PYGAMEAPI_GET_SLOT(event, 5))
+
+#define pgEvent_GetKeyDownInfo (*(char *(*)(void))PYGAMEAPI_GET_SLOT(event, 6))
+
+#define pgEvent_GetKeyUpInfo (*(char *(*)(void))PYGAMEAPI_GET_SLOT(event, 7))
+
+#define pgEvent_GetMouseButtonDownInfo \
+    (*(char *(*)(void))PYGAMEAPI_GET_SLOT(event, 8))
+
+#define pgEvent_GetMouseButtonUpInfo \
+    (*(char *(*)(void))PYGAMEAPI_GET_SLOT(event, 9))
 
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event)
 #endif
@@ -780,9 +443,6 @@ typedef struct pgEventObject pgEventObject;
 #define pgRWops_FromFileObject \
     (*(SDL_RWops * (*)(PyObject *)) PYGAMEAPI_GET_SLOT(rwobject, 4))
 
-#define pgRWops_ReleaseObject \
-    (*(int (*)(SDL_RWops *))PYGAMEAPI_GET_SLOT(rwobject, 5))
-
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject)
 
 #endif
@@ -800,6 +460,34 @@ typedef struct pgEventObject pgEventObject;
 #endif /* PYGAMEAPI_PIXELARRAY_INTERNAL */
 
 /*
+ * BufferProxy module
+ */
+typedef struct {
+    PyObject_HEAD PyObject *obj; /* Wrapped object (parent)     */
+    pg_buffer *pg_view_p;        /* For array interface export  */
+    getbufferproc get_buffer;    /* pg_buffer get callback      */
+    PyObject *dict;              /* Allow arbitrary attributes  */
+    PyObject *weakrefs;          /* Reference cycles can happen */
+} pgBufferProxyObject;
+
+#ifndef PYGAMEAPI_BUFFERPROXY_INTERNAL
+#define pgBufferProxy_Type \
+    (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(bufferproxy, 0))
+
+#define pgBufferProxy_Check(x) ((x)->ob_type == &pgBufferProxy_Type)
+#define pgBufferProxy_New                         \
+    (*(PyObject * (*)(PyObject *, getbufferproc)) \
+         PYGAMEAPI_GET_SLOT(bufferproxy, 1))
+
+#define pgBufferProxy_GetParent \
+    (*(PyObject * (*)(PyObject *)) PYGAMEAPI_GET_SLOT(bufferproxy, 2))
+#define pgBufferProxy_Trip \
+    (*(int (*)(PyObject *))PYGAMEAPI_GET_SLOT(bufferproxy, 3))
+
+#define import_pygame_bufferproxy() _IMPORT_PYGAME_MODULE(bufferproxy)
+#endif /* ~PYGAMEAPI_BUFFERPROXY_INTERNAL */
+
+/*
  * Color module
  */
 typedef struct pgColorObject pgColorObject;
@@ -807,17 +495,19 @@ typedef struct pgColorObject pgColorObject;
 #ifndef PYGAMEAPI_COLOR_INTERNAL
 #define pgColor_Type (*(PyObject *)PYGAMEAPI_GET_SLOT(color, 0))
 
-#define pgColor_Check(x) ((x)->ob_type == &pgColor_Type)
+#define pgColor_CheckExact(x) ((x)->ob_type == &pgColor_Type)
 #define pgColor_New (*(PyObject * (*)(Uint8 *)) PYGAMEAPI_GET_SLOT(color, 1))
 
 #define pgColor_NewLength \
     (*(PyObject * (*)(Uint8 *, Uint8)) PYGAMEAPI_GET_SLOT(color, 3))
 
-#define pg_RGBAFromColorObj \
-    (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(color, 2))
+#define pg_RGBAFromObjEx                                                    \
+    (*(int (*)(PyObject *, Uint8 *, pgColorHandleFlags))PYGAMEAPI_GET_SLOT( \
+        color, 2))
 
-#define pg_RGBAFromFuzzyColorObj \
-    (*(int (*)(PyObject *, Uint8 *))PYGAMEAPI_GET_SLOT(color, 4))
+#define pg_MappedColorFromObj                       \
+    (*(int (*)(PyObject *, SDL_Surface *, Uint32 *, \
+               pgColorHandleFlags))PYGAMEAPI_GET_SLOT(color, 4))
 
 #define pgColor_AsArray(x) (((pgColorObject *)x)->data)
 #define pgColor_NumComponents(x) (((pgColorObject *)x)->len)
@@ -826,21 +516,73 @@ typedef struct pgColorObject pgColorObject;
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
 
 /*
- * Math module
+ * Geometry module
  */
-#ifndef PYGAMEAPI_MATH_INTERNAL
-#define pgVector2_Check(x) \
-    ((x)->ob_type == (PyTypeObject *)PYGAMEAPI_GET_SLOT(math, 0))
+#ifndef PYGAMEAPI_GEOMETRY_INTERNAL
+#define import_pygame_geometry() IMPORT_PYGAME_MODULE(geometry)
+#endif /* ~PYGAMEAPI_GEOMETRY_INTERNAL */
 
-#define pgVector3_Check(x) \
-    ((x)->ob_type == (PyTypeObject *)PYGAMEAPI_GET_SLOT(math, 1))
 /*
-#define pgVector2_New                                             \
-    (*(PyObject*(*))  \
-        PYGAMEAPI_GET_SLOT(PyGAME_C_API, 1))
-*/
-#define import_pygame_math() IMPORT_PYGAME_MODULE(math)
-#endif /* PYGAMEAPI_MATH_INTERNAL */
+ * Window module
+ */
+typedef struct {
+    PyObject_HEAD SDL_Window *_win;
+    SDL_bool _is_borrowed;
+    pgSurfaceObject *surf;
+    SDL_GLContext context;
+} pgWindowObject;
+
+#ifndef PYGAMEAPI_WINDOW_INTERNAL
+#define pgWindow_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(window, 0))
+#define pgWindow_Check(x) \
+    (PyObject_IsInstance((x), (PyObject *)&pgWindow_Type))
+#define import_pygame_window() IMPORT_PYGAME_MODULE(window)
+#endif
+
+typedef struct pgTextureObject pgTextureObject;
+
+/*
+ * Render module
+ */
+typedef struct {
+    PyObject_HEAD SDL_Renderer *renderer;
+    pgWindowObject *window;
+    pgTextureObject *target;
+    SDL_bool _is_borrowed;
+} pgRendererObject;
+
+struct pgTextureObject {
+    PyObject_HEAD SDL_Texture *texture;
+    pgRendererObject *renderer;
+    int width;
+    int height;
+    PyObject *weakreflist;
+};
+
+typedef struct {
+    PyObject_HEAD pgTextureObject *texture;
+    pgRectObject *srcrect;
+    pgColorObject *color;
+    float angle;
+    float alpha;
+    SDL_bool has_origin;
+    SDL_FPoint origin;
+    SDL_bool flip_x;
+    SDL_bool flip_y;
+    SDL_BlendMode blend_mode;
+} pgImageObject;
+
+#ifndef PYGAMEAPI_RENDER_INTERNAL
+#define pgRenderer_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(_render, 0))
+#define pgTexture_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(_render, 1))
+#define pgImage_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(_render, 2))
+#define pgRenderer_Check(x) \
+    (PyObject_IsInstance((x), (PyObject *)&pgRender_Type))
+#define pgTexture_Check(x) \
+    (PyObject_IsInstance((x), (PyObject *)&pgTexture_Type))
+#define pgImage_Check(x) (PyObject_IsInstance((x), (PyObject *)&pgImage_Type))
+#define import_pygame_render() IMPORT_PYGAME_MODULE(_render)
+#endif
 
 #define IMPORT_PYGAME_MODULE _IMPORT_PYGAME_MODULE
 
@@ -851,7 +593,6 @@ typedef struct pgColorObject pgColorObject;
 #ifdef PYGAME_H
 PYGAMEAPI_DEFINE_SLOTS(base);
 PYGAMEAPI_DEFINE_SLOTS(rect);
-PYGAMEAPI_DEFINE_SLOTS(cdrom);
 PYGAMEAPI_DEFINE_SLOTS(joystick);
 PYGAMEAPI_DEFINE_SLOTS(display);
 PYGAMEAPI_DEFINE_SLOTS(surface);
@@ -859,12 +600,15 @@ PYGAMEAPI_DEFINE_SLOTS(surflock);
 PYGAMEAPI_DEFINE_SLOTS(event);
 PYGAMEAPI_DEFINE_SLOTS(rwobject);
 PYGAMEAPI_DEFINE_SLOTS(pixelarray);
+PYGAMEAPI_DEFINE_SLOTS(bufferproxy);
 PYGAMEAPI_DEFINE_SLOTS(color);
 PYGAMEAPI_DEFINE_SLOTS(math);
-#else  /* ~PYGAME_H */
+PYGAMEAPI_DEFINE_SLOTS(window);
+PYGAMEAPI_DEFINE_SLOTS(_render);
+PYGAMEAPI_DEFINE_SLOTS(geometry);
+#else /* ~PYGAME_H */
 PYGAMEAPI_EXTERN_SLOTS(base);
 PYGAMEAPI_EXTERN_SLOTS(rect);
-PYGAMEAPI_EXTERN_SLOTS(cdrom);
 PYGAMEAPI_EXTERN_SLOTS(joystick);
 PYGAMEAPI_EXTERN_SLOTS(display);
 PYGAMEAPI_EXTERN_SLOTS(surface);
@@ -872,8 +616,13 @@ PYGAMEAPI_EXTERN_SLOTS(surflock);
 PYGAMEAPI_EXTERN_SLOTS(event);
 PYGAMEAPI_EXTERN_SLOTS(rwobject);
 PYGAMEAPI_EXTERN_SLOTS(pixelarray);
+PYGAMEAPI_EXTERN_SLOTS(bufferproxy);
 PYGAMEAPI_EXTERN_SLOTS(color);
 PYGAMEAPI_EXTERN_SLOTS(math);
+PYGAMEAPI_EXTERN_SLOTS(window);
+PYGAMEAPI_EXTERN_SLOTS(_render);
+PYGAMEAPI_EXTERN_SLOTS(geometry);
+
 #endif /* ~PYGAME_H */
 
 #endif /* PYGAME_H */
@@ -882,6 +631,13 @@ PYGAMEAPI_EXTERN_SLOTS(math);
  *  functions There seems to be no good reason to stick to macro only
  *  functions in Python 3.
  */
+
+#define SURF_INIT_CHECK(surf)                                           \
+    {                                                                   \
+        if (!surf) {                                                    \
+            return RAISE(pgExc_SDLError, "Surface is not initialized"); \
+        }                                                               \
+    }
 
 static PG_INLINE PyObject *
 pg_tuple_couple_from_values_int(int val1, int val2)
@@ -947,3 +703,91 @@ pg_tuple_triple_from_values_int(int val1, int val2, int val3)
 
     return tup;
 }
+
+static PG_INLINE PyObject *
+pg_tuple_couple_from_values_double(double val1, double val2)
+{
+    /* This function turns two input doubles into a python tuple object.
+     * Currently, 5th November 2022, this is faster than using Py_BuildValue
+     * to do the same thing.
+     */
+    PyObject *tuple = PyTuple_New(2);
+    if (!tuple) {
+        return NULL;
+    }
+
+    PyObject *tmp = PyFloat_FromDouble(val1);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 0, tmp);
+
+    tmp = PyFloat_FromDouble(val2);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 1, tmp);
+
+    return tuple;
+}
+
+static PG_INLINE PyObject *
+pg_PointList_FromArrayDouble(double const *array, int arr_length)
+{
+    if (arr_length % 2) {
+        return RAISE(PyExc_ValueError, "array length must be even");
+    }
+
+    int num_points = arr_length / 2;
+    PyObject *sequence = PyList_New(num_points);
+    if (!sequence) {
+        return NULL;
+    }
+
+    int i;
+    PyObject *point = NULL;
+    for (i = 0; i < num_points; i++) {
+        point =
+            pg_tuple_couple_from_values_double(array[i * 2], array[i * 2 + 1]);
+        if (!point) {
+            Py_DECREF(sequence);
+            return NULL;
+        }
+        PyList_SET_ITEM(sequence, i, point);
+        point = NULL;
+    }
+
+    return sequence;
+}
+
+#if PY_VERSION_HEX >= 0x030C0000
+
+#define PG_DECLARE_EXCEPTION_SAVER static PyObject *__cached_exception = NULL;
+
+#define PG_SAVE_EXCEPTION __cached_exception = PyErr_GetRaisedException();
+
+#define PG_UNSAVE_EXCEPTION                       \
+    PyErr_SetRaisedException(__cached_exception); \
+    __cached_exception = NULL;
+
+#else
+
+#define PG_DECLARE_EXCEPTION_SAVER                    \
+    static PyObject *__cached_exception_type = NULL;  \
+    static PyObject *__cached_exception_value = NULL; \
+    static PyObject *__cached_exception_traceback = NULL;
+
+#define PG_SAVE_EXCEPTION                                            \
+    PyErr_Fetch(&__cached_exception_type, &__cached_exception_value, \
+                &__cached_exception_traceback);
+
+#define PG_UNSAVE_EXCEPTION                                          \
+    PyErr_Restore(__cached_exception_type, __cached_exception_value, \
+                  __cached_exception_traceback);                     \
+    __cached_exception_type = NULL;                                  \
+    __cached_exception_value = NULL;                                 \
+    __cached_exception_traceback = NULL;
+
+#endif

@@ -30,7 +30,6 @@
 #include "structmember.h"
 #include "pgcompat.h"
 #include "doc/surface_doc.h"
-#include "pgbufferproxy.h"
 
 /* stdint.h is missing from some versions of MSVC. */
 #ifdef _MSC_VER
@@ -53,54 +52,19 @@ typedef enum {
 } SurfViewKind;
 
 /* To avoid problems with non-const Py_buffer format field */
-static char FormatUint8[] = "B";
-static char FormatUint16[] = "=H";
-static char FormatUint24[] = "3x";
-static char FormatUint32[] = "=I";
+#define FormatUint8 "B"
+#define FormatUint16 "=H"
+#define FormatUint24 "3x"
+#define FormatUint32 "=I"
 
 typedef struct pg_bufferinternal_s {
     PyObject *consumer_ref; /* A weak reference to a bufferproxy object   */
     Py_ssize_t mem[6];      /* Enough memory for dim 3 shape and strides  */
 } pg_bufferinternal;
 
-/* copy of SDL Blit mapping definitions to enable pointer casting hack
-   for checking state of the SDL_COPY_RLE_DESIRED flag */
-#define PGS_COPY_RLE_DESIRED 0x00001000
-
-typedef struct {
-    Uint8 *src;
-    int src_w, src_h;
-    int src_pitch;
-    int src_skip;
-    Uint8 *dst;
-    int dst_w, dst_h;
-    int dst_pitch;
-    int dst_skip;
-    SDL_PixelFormat *src_fmt;
-    SDL_PixelFormat *dst_fmt;
-    Uint8 *table;
-    int flags;
-    Uint32 colorkey;
-    Uint8 r, g, b, a;
-} pg_BlitInfo;
-
-typedef struct pg_BlitMap {
-    SDL_Surface *dst;
-    int identity;
-    SDL_blit blit;
-    void *data;
-    pg_BlitInfo info;
-
-    /* the version count matches the destination; mismatch indicates
-       an invalid mapping */
-    Uint32 dst_palette_version;
-    Uint32 src_palette_version;
-} pg_BlitMap;
-/* end PGS_COPY_RLE_DESIRED hack definitions */
-
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
-               SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args);
+               SDL_Rect *dstrect, SDL_Rect *srcrect, int blend_flags);
 
 /* statics */
 static pgSurfaceObject *
@@ -117,14 +81,11 @@ static void
 surface_dealloc(PyObject *self);
 static void
 surface_cleanup(pgSurfaceObject *self);
-static void
-surface_move(Uint8 *src, Uint8 *dst, int h, int span, int srcpitch,
-             int dstpitch);
 
 static PyObject *
 surf_get_at(PyObject *self, PyObject *args);
 static PyObject *
-surf_set_at(PyObject *self, PyObject *args);
+surf_set_at(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject *
 surf_get_at_mapped(PyObject *self, PyObject *args);
 static PyObject *
@@ -174,6 +135,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject *
 surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds);
@@ -192,7 +155,11 @@ surf_get_height(PyObject *self, PyObject *args);
 static PyObject *
 surf_get_pitch(PyObject *self, PyObject *args);
 static PyObject *
-surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs);
+surf_get_rect(PyObject *self, PyObject *const *args, Py_ssize_t nargs,
+              PyObject *kwnames);
+static PyObject *
+surf_get_frect(PyObject *self, PyObject *const *args, Py_ssize_t nargs,
+               PyObject *kwnames);
 static PyObject *
 surf_get_width(PyObject *self, PyObject *args);
 static PyObject *
@@ -223,6 +190,8 @@ static PyObject *
 surf_get_pixels_address(PyObject *self, PyObject *closure);
 static PyObject *
 surf_premul_alpha(pgSurfaceObject *self, PyObject *args);
+static PyObject *
+surf_premul_alpha_ip(pgSurfaceObject *self, PyObject *args);
 static int
 _view_kind(PyObject *obj, void *view_kind_vptr);
 static int
@@ -250,8 +219,6 @@ static void
 _release_buffer(Py_buffer *view_p);
 static PyObject *
 _raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
-static PyObject *
-_raise_create_surface_error(void);
 static SDL_Surface *
 pg_DisplayFormatAlpha(SDL_Surface *surface);
 static SDL_Surface *
@@ -259,124 +226,98 @@ pg_DisplayFormat(SDL_Surface *surface);
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf);
 
-#if !SDL_VERSION_ATLEAST(2, 0, 10)
-static Uint32
-pg_map_rgb(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b)
-{
-    /* SDL_MapRGB() returns wrong values for color keys
-       for indexed formats since since alpha = 0 */
-    Uint32 key;
-    if (!surf->format->palette)
-        return SDL_MapRGB(surf->format, r, g, b);
-    if (!SDL_GetColorKey(surf, &key)) {
-        Uint8 keyr, keyg, keyb;
-        SDL_GetRGB(key, surf->format, &keyr, &keyg, &keyb);
-        if (r == keyr && g == keyg && b == keyb)
-            return key;
-    }
-    else
-        SDL_ClearError();
-    return SDL_MapRGBA(surf->format, r, g, b, SDL_ALPHA_OPAQUE);
-}
-
-static Uint32
-pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-{
-    if (!surf->format->palette)
-        return SDL_MapRGBA(surf->format, r, g, b, a);
-    return pg_map_rgb(surf, r, g, b);
-}
-#else /* SDL_VERSION_ATLEAST(2, 0, 10) */
-#define pg_map_rgb(surf, r, g, b) SDL_MapRGB((surf)->format, (r), (g), (b))
-#define pg_map_rgba(surf, r, g, b, a) \
-    SDL_MapRGBA((surf)->format, (r), (g), (b), (a))
-#endif /* SDL_VERSION_ATLEAST(2, 0, 10) */
-
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
      "pixel buffer address (readonly)", NULL},
+    {"width", (getter)surf_get_width, NULL, DOC_SURFACE_WIDTH, NULL},
+    {"height", (getter)surf_get_height, NULL, DOC_SURFACE_HEIGHT, NULL},
+    {"size", (getter)surf_get_size, NULL, DOC_SURFACE_SIZE, NULL},
     {NULL, NULL, NULL, NULL, NULL}};
 
 static struct PyMethodDef surface_methods[] = {
-    {"get_at", surf_get_at, METH_VARARGS, DOC_SURFACEGETAT},
-    {"set_at", surf_set_at, METH_VARARGS, DOC_SURFACESETAT},
-    {"get_at_mapped", surf_get_at_mapped, METH_VARARGS,
-     DOC_SURFACEGETATMAPPED},
-    {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
-    {"unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB},
+    {"get_at", surf_get_at, METH_O, DOC_SURFACE_GETAT},
+    {"set_at", (PyCFunction)surf_set_at, METH_FASTCALL, DOC_SURFACE_SETAT},
+    {"get_at_mapped", surf_get_at_mapped, METH_O, DOC_SURFACE_GETATMAPPED},
+    {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACE_MAPRGB},
+    {"unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACE_UNMAPRGB},
 
-    {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
+    {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACE_GETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
-     DOC_SURFACEGETPALETTEAT},
-    {"set_palette", surf_set_palette, METH_O, DOC_SURFACESETPALETTE},
+     DOC_SURFACE_GETPALETTEAT},
+    {"set_palette", surf_set_palette, METH_O, DOC_SURFACE_SETPALETTE},
     {"set_palette_at", surf_set_palette_at, METH_VARARGS,
-     DOC_SURFACESETPALETTEAT},
+     DOC_SURFACE_SETPALETTEAT},
 
-    {"lock", surf_lock, METH_NOARGS, DOC_SURFACELOCK},
-    {"unlock", surf_unlock, METH_NOARGS, DOC_SURFACEUNLOCK},
-    {"mustlock", surf_mustlock, METH_NOARGS, DOC_SURFACEMUSTLOCK},
-    {"get_locked", surf_get_locked, METH_NOARGS, DOC_SURFACEGETLOCKED},
-    {"get_locks", surf_get_locks, METH_NOARGS, DOC_SURFACEGETLOCKS},
+    {"lock", surf_lock, METH_NOARGS, DOC_SURFACE_LOCK},
+    {"unlock", surf_unlock, METH_NOARGS, DOC_SURFACE_UNLOCK},
+    {"mustlock", surf_mustlock, METH_NOARGS, DOC_SURFACE_MUSTLOCK},
+    {"get_locked", surf_get_locked, METH_NOARGS, DOC_SURFACE_GETLOCKED},
+    {"get_locks", surf_get_locks, METH_NOARGS, DOC_SURFACE_GETLOCKS},
 
     {"set_colorkey", (PyCFunction)surf_set_colorkey, METH_VARARGS,
-     DOC_SURFACESETCOLORKEY},
+     DOC_SURFACE_SETCOLORKEY},
     {"get_colorkey", (PyCFunction)surf_get_colorkey, METH_NOARGS,
-     DOC_SURFACEGETCOLORKEY},
+     DOC_SURFACE_GETCOLORKEY},
     {"set_alpha", (PyCFunction)surf_set_alpha, METH_VARARGS,
-     DOC_SURFACESETALPHA},
+     DOC_SURFACE_SETALPHA},
     {"get_alpha", (PyCFunction)surf_get_alpha, METH_NOARGS,
-     DOC_SURFACEGETALPHA},
+     DOC_SURFACE_GETALPHA},
     {"get_blendmode", surf_get_blendmode, METH_NOARGS,
      "Return the surface's SDL 2 blend mode"},
 
-    {"copy", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACECOPY},
-    {"__copy__", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACECOPY},
-    {"convert", (PyCFunction)surf_convert, METH_VARARGS, DOC_SURFACECONVERT},
+    {"copy", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACE_COPY},
+    {"__copy__", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACE_COPY},
+    {"__deepcopy__", (PyCFunction)surf_copy, METH_O, DOC_SURFACE_COPY},
+    {"convert", (PyCFunction)surf_convert, METH_VARARGS, DOC_SURFACE_CONVERT},
     {"convert_alpha", (PyCFunction)surf_convert_alpha, METH_VARARGS,
-     DOC_SURFACECONVERTALPHA},
+     DOC_SURFACE_CONVERTALPHA},
 
-    {"set_clip", surf_set_clip, METH_VARARGS, DOC_SURFACESETCLIP},
-    {"get_clip", surf_get_clip, METH_NOARGS, DOC_SURFACEGETCLIP},
+    {"set_clip", surf_set_clip, METH_VARARGS, DOC_SURFACE_SETCLIP},
+    {"get_clip", surf_get_clip, METH_NOARGS, DOC_SURFACE_GETCLIP},
 
     {"fill", (PyCFunction)surf_fill, METH_VARARGS | METH_KEYWORDS,
-     DOC_SURFACEFILL},
+     DOC_SURFACE_FILL},
     {"blit", (PyCFunction)surf_blit, METH_VARARGS | METH_KEYWORDS,
-     DOC_SURFACEBLIT},
+     DOC_SURFACE_BLIT},
     {"blits", (PyCFunction)surf_blits, METH_VARARGS | METH_KEYWORDS,
-     DOC_SURFACEBLITS},
-
+     DOC_SURFACE_BLITS},
+    {"fblits", (PyCFunction)surf_fblits, METH_FASTCALL, DOC_SURFACE_FBLITS},
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
-     DOC_SURFACESCROLL},
+     DOC_SURFACE_SCROLL},
 
-    {"get_flags", surf_get_flags, METH_NOARGS, DOC_SURFACEGETFLAGS},
-    {"get_size", surf_get_size, METH_NOARGS, DOC_SURFACEGETSIZE},
-    {"get_width", surf_get_width, METH_NOARGS, DOC_SURFACEGETWIDTH},
-    {"get_height", surf_get_height, METH_NOARGS, DOC_SURFACEGETHEIGHT},
-    {"get_rect", (PyCFunction)surf_get_rect, METH_VARARGS | METH_KEYWORDS,
-     DOC_SURFACEGETRECT},
-    {"get_pitch", surf_get_pitch, METH_NOARGS, DOC_SURFACEGETPITCH},
-    {"get_bitsize", surf_get_bitsize, METH_NOARGS, DOC_SURFACEGETBITSIZE},
-    {"get_bytesize", surf_get_bytesize, METH_NOARGS, DOC_SURFACEGETBYTESIZE},
-    {"get_masks", surf_get_masks, METH_NOARGS, DOC_SURFACEGETMASKS},
-    {"get_shifts", surf_get_shifts, METH_NOARGS, DOC_SURFACEGETSHIFTS},
-    {"set_masks", surf_set_masks, METH_VARARGS, DOC_SURFACESETMASKS},
-    {"set_shifts", surf_set_shifts, METH_VARARGS, DOC_SURFACESETSHIFTS},
+    {"get_flags", surf_get_flags, METH_NOARGS, DOC_SURFACE_GETFLAGS},
+    {"get_size", surf_get_size, METH_NOARGS, DOC_SURFACE_GETSIZE},
+    {"get_width", surf_get_width, METH_NOARGS, DOC_SURFACE_GETWIDTH},
+    {"get_height", surf_get_height, METH_NOARGS, DOC_SURFACE_GETHEIGHT},
+    {"get_rect", (PyCFunction)surf_get_rect, METH_FASTCALL | METH_KEYWORDS,
+     DOC_SURFACE_GETRECT},
+    {"get_frect", (PyCFunction)surf_get_frect, METH_FASTCALL | METH_KEYWORDS,
+     DOC_SURFACE_GETFRECT},
+    {"get_pitch", surf_get_pitch, METH_NOARGS, DOC_SURFACE_GETPITCH},
+    {"get_bitsize", surf_get_bitsize, METH_NOARGS, DOC_SURFACE_GETBITSIZE},
+    {"get_bytesize", surf_get_bytesize, METH_NOARGS, DOC_SURFACE_GETBYTESIZE},
+    {"get_masks", surf_get_masks, METH_NOARGS, DOC_SURFACE_GETMASKS},
+    {"get_shifts", surf_get_shifts, METH_NOARGS, DOC_SURFACE_GETSHIFTS},
+    {"set_masks", surf_set_masks, METH_VARARGS, DOC_SURFACE_SETMASKS},
+    {"set_shifts", surf_set_shifts, METH_VARARGS, DOC_SURFACE_SETSHIFTS},
 
-    {"get_losses", surf_get_losses, METH_NOARGS, DOC_SURFACEGETLOSSES},
+    {"get_losses", surf_get_losses, METH_NOARGS, DOC_SURFACE_GETLOSSES},
 
-    {"subsurface", surf_subsurface, METH_VARARGS, DOC_SURFACESUBSURFACE},
-    {"get_offset", surf_get_offset, METH_NOARGS, DOC_SURFACEGETOFFSET},
+    {"subsurface", surf_subsurface, METH_VARARGS, DOC_SURFACE_SUBSURFACE},
+    {"get_offset", surf_get_offset, METH_NOARGS, DOC_SURFACE_GETOFFSET},
     {"get_abs_offset", surf_get_abs_offset, METH_NOARGS,
-     DOC_SURFACEGETABSOFFSET},
-    {"get_parent", surf_get_parent, METH_NOARGS, DOC_SURFACEGETPARENT},
+     DOC_SURFACE_GETABSOFFSET},
+    {"get_parent", surf_get_parent, METH_NOARGS, DOC_SURFACE_GETPARENT},
     {"get_abs_parent", surf_get_abs_parent, METH_NOARGS,
-     DOC_SURFACEGETABSPARENT},
+     DOC_SURFACE_GETABSPARENT},
     {"get_bounding_rect", (PyCFunction)surf_get_bounding_rect,
-     METH_VARARGS | METH_KEYWORDS, DOC_SURFACEGETBOUNDINGRECT},
-    {"get_view", surf_get_view, METH_VARARGS, DOC_SURFACEGETVIEW},
-    {"get_buffer", surf_get_buffer, METH_NOARGS, DOC_SURFACEGETBUFFER},
+     METH_VARARGS | METH_KEYWORDS, DOC_SURFACE_GETBOUNDINGRECT},
+    {"get_view", surf_get_view, METH_VARARGS, DOC_SURFACE_GETVIEW},
+    {"get_buffer", surf_get_buffer, METH_NOARGS, DOC_SURFACE_GETBUFFER},
     {"premul_alpha", (PyCFunction)surf_premul_alpha, METH_NOARGS,
-     DOC_SURFACEPREMULALPHA},
+     DOC_SURFACE_PREMULALPHA},
+    {"premul_alpha_ip", (PyCFunction)surf_premul_alpha_ip, METH_NOARGS,
+     DOC_SURFACE_PREMULALPHAIP},
 
     {NULL, NULL, 0, NULL}};
 
@@ -386,7 +327,7 @@ static PyTypeObject pgSurface_Type = {
     .tp_dealloc = surface_dealloc,
     .tp_repr = surface_str,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = DOC_PYGAMESURFACE,
+    .tp_doc = DOC_SURFACE,
     .tp_weaklistoffset = offsetof(pgSurfaceObject, weakreflist),
     .tp_methods = surface_methods,
     .tp_getset = surface_getsets,
@@ -426,13 +367,15 @@ surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner)
 {
     pgSurfaceObject *self;
 
-    if (!s)
+    if (!s) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     self = (pgSurfaceObject *)pgSurface_Type.tp_new(type, NULL, NULL);
 
-    if (pgSurface_SetSurface(self, s, owner))
+    if (pgSurface_SetSurface(self, s, owner)) {
         return NULL;
+    }
 
     return (PyObject *)self;
 }
@@ -482,8 +425,9 @@ surface_cleanup(pgSurfaceObject *self)
 static void
 surface_dealloc(PyObject *self)
 {
-    if (((pgSurfaceObject *)self)->weakreflist)
+    if (((pgSurfaceObject *)self)->weakreflist) {
         PyObject_ClearWeakRefs(self);
+    }
     surface_cleanup((pgSurfaceObject *)self);
     Py_TYPE(self)->tp_free(self);
 }
@@ -497,8 +441,37 @@ surface_str(PyObject *self)
         return PyUnicode_FromString("<Surface(Dead Display)>");
     }
 
-    return PyUnicode_FromFormat("<Surface(%dx%dx%d SW)>", surf->w, surf->h,
-                                surf->format->BitsPerPixel);
+    PyObject *colorkey = surf_get_colorkey((pgSurfaceObject *)self, NULL);
+    if (colorkey == NULL) {
+        return NULL;
+    }
+    PyObject *global_alpha = surf_get_alpha((pgSurfaceObject *)self, NULL);
+    if (global_alpha == NULL) {
+        Py_DECREF(colorkey);
+        return NULL;
+    }
+
+    // 49 is max len of format str, plus null terminator
+    char format[50] = "<Surface(%dx%dx%d";
+    if (PyObject_IsTrue(colorkey)) {
+        strcat(format, ", colorkey=%S");
+    }
+    if (PyObject_IsTrue(global_alpha)) {
+        strcat(format, ", global_alpha=%S");
+    }
+    strcat(format, ")>");
+
+    // Because PyUnicode_FromFormat ignores extra args, if we have no colorkey,
+    // but alpha, we can "move up" the global alpha to this spot No need to do
+    // this vice-versa, as it ignores extra args
+    PyObject *formatted_str = PyUnicode_FromFormat(
+        format, surf->w, surf->h, PG_SURF_BitsPerPixel(surf),
+        PyObject_IsTrue(colorkey) ? colorkey : global_alpha, global_alpha);
+
+    Py_DECREF(colorkey);
+    Py_DECREF(global_alpha);
+
+    return formatted_str;
 }
 
 static intptr_t
@@ -510,12 +483,19 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     int bpp;
     Uint32 Rmask, Gmask, Bmask, Amask;
     SDL_Surface *surface;
+
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    PG_PixelFormatEnum format = SDL_PIXELFORMAT_UNKNOWN;
+#else
     SDL_PixelFormat default_format;
+    default_format.palette = NULL;
+#endif
 
     char *kwids[] = {"size", "flags", "depth", "masks", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwids, &size, &flags,
-                                     &depth, &masks))
+                                     &depth, &masks)) {
         return -1;
+    }
 
     if (PySequence_Check(size) && PySequence_Length(size) == 2) {
         if ((!pg_IntFromObjIndex(size, 0, &width)) ||
@@ -536,10 +516,172 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    default_format.palette = NULL;
-
     surface_cleanup(self);
 
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    if (depth && masks) { /* all info supplied, most errorchecking
+                           * needed */
+        if (pgSurface_Check(depth)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "cannot pass surface for depth and color masks");
+            return -1;
+        }
+        if (!pg_IntFromObj(depth, &bpp)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "invalid bits per pixel depth argument");
+            return -1;
+        }
+        if (!PySequence_Check(masks) || PySequence_Length(masks) != 4) {
+            PyErr_SetString(PyExc_ValueError,
+                            "masks argument must be sequence of four numbers");
+            return -1;
+        }
+        if (!pg_UintFromObjIndex(masks, 0, &Rmask) ||
+            !pg_UintFromObjIndex(masks, 1, &Gmask) ||
+            !pg_UintFromObjIndex(masks, 2, &Bmask) ||
+            !pg_UintFromObjIndex(masks, 3, &Amask)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "invalid mask values in masks sequence");
+            return -1;
+        }
+
+        format = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, Amask);
+    }
+    else if (depth && PyNumber_Check(depth)) { /* use default masks */
+        if (!pg_IntFromObj(depth, &bpp)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "invalid bits per pixel depth argument");
+            return -1;
+        }
+        if (flags & PGS_SRCALPHA) {
+            switch (bpp) {
+                case 16:
+                    format = SDL_PIXELFORMAT_ARGB4444;
+                    break;
+                case 32:
+                    format = SDL_PIXELFORMAT_ARGB8888;
+                    break;
+                default:
+                    PyErr_SetString(
+                        PyExc_ValueError,
+                        "no standard masks exist for given bitdepth with "
+                        "alpha");
+                    return -1;
+            }
+        }
+        else {
+            switch (bpp) {
+                case 8:
+                    format = SDL_PIXELFORMAT_INDEX8;
+                    break;
+                case 12:
+                    format = SDL_PIXELFORMAT_XRGB4444;
+                    break;
+                case 15:
+                    format = SDL_PIXELFORMAT_XRGB1555;
+                    break;
+                case 16:
+                    format = SDL_PIXELFORMAT_RGB565;
+                    break;
+                case 24:
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                    format = SDL_PIXELFORMAT_RGB24;
+#else
+                    format = SDL_PIXELFORMAT_BGR24;
+#endif
+                    break;
+                case 32:
+                    format = SDL_PIXELFORMAT_XRGB8888;
+                    break;
+                default:
+                    PyErr_SetString(PyExc_ValueError,
+                                    "nonstandard bit depth given");
+                    return -1;
+            }
+        }
+    }
+    else { /* no depth or surface */
+        if (depth && pgSurface_Check(depth)) {
+            format = PG_SURF_FORMATENUM(((pgSurfaceObject *)depth)->surf);
+        }
+        else if (pg_GetDefaultWindowSurface()) {
+            format = PG_SURF_FORMATENUM(
+                pgSurface_AsSurface(pg_GetDefaultWindowSurface()));
+        }
+        else {
+            format = SDL_PIXELFORMAT_XRGB8888;
+        }
+
+        if (flags & PGS_SRCALPHA) {
+            switch (SDL_BITSPERPIXEL(format)) {
+                case 16:
+                    format = SDL_PIXELFORMAT_ARGB4444;
+                    break;
+                case 24:
+                    // we automatically step up to 32 if video is 24, fall
+                    // through to case below
+                case 32:
+                    format = SDL_PIXELFORMAT_ARGB8888;
+                    break;
+                default:
+                    PyErr_SetString(
+                        PyExc_ValueError,
+                        "no standard masks exist for given bitdepth with "
+                        "alpha");
+                    return -1;
+            }
+        }
+    }
+
+    if (format == SDL_PIXELFORMAT_UNKNOWN) {
+        PyErr_SetString(PyExc_ValueError, "Invalid mask values");
+        return -1;
+    }
+
+    surface = PG_CreateSurface(width, height, format);
+    if (!surface) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
+    if (!(flags & PGS_SRCALPHA)) {
+        /* We ignore the error if any. */
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+        /* When the display format has a full alpha channel (macOS right now),
+         * Surfaces may be created with an unreqested alpha channel, which
+         * could cause issues.
+         * pygame Surfaces are supposed to be (0, 0, 0, 255) by default.
+         * This is a simple fix to fill it with (0, 0, 0, 255) if necessary.
+         * See Github issue:
+         * https://github.com/pygame/pygame/issues/796
+         */
+        PG_PixelFormat *surf_format;
+        SDL_Palette *surf_palette;
+        if (!PG_GetSurfaceDetails(surface, &surf_format, &surf_palette)) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(surface);
+            return -1;
+        }
+
+        if (surf_format->Amask != 0) {
+            SDL_FillRect(surface, NULL,
+                         PG_MapRGBA(surf_format, surf_palette, 0, 0, 0, 255));
+        }
+    }
+
+    if (SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surface))) {
+        /* Give the surface something other than an all white palette.
+         *          */
+        SDL_Palette *surf_palette = SDL_CreateSurfacePalette(surface);
+        if (!PG_SetPaletteColors(surf_palette, default_palette_colors, 0,
+                                 default_palette_size - 1)) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(surface);
+            return -1;
+        }
+    }
+#else
     if (depth && masks) { /* all info supplied, most errorchecking
                            * needed */
         if (pgSurface_Check(depth)) {
@@ -575,16 +717,16 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         if (flags & PGS_SRCALPHA) {
             switch (bpp) {
                 case 16:
-                    Rmask = 0xF << 8;
-                    Gmask = 0xF << 4;
-                    Bmask = 0xF;
-                    Amask = 0xF << 12;
+                    Rmask = 0xFu << 8;
+                    Gmask = 0xFu << 4;
+                    Bmask = 0xFu;
+                    Amask = 0xFu << 12;
                     break;
                 case 32:
-                    Rmask = 0xFF << 16;
-                    Gmask = 0xFF << 8;
-                    Bmask = 0xFF;
-                    Amask = 0xFF << 24;
+                    Rmask = 0xFFu << 16;
+                    Gmask = 0xFFu << 8;
+                    Bmask = 0xFFu;
+                    Amask = 0xFFu << 24;
                     break;
                 default:
                     PyErr_SetString(
@@ -632,10 +774,12 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     }
     else { /* no depth or surface */
         SDL_PixelFormat *pix;
-        if (depth && pgSurface_Check(depth))
+        if (depth && pgSurface_Check(depth)) {
             pix = ((pgSurfaceObject *)depth)->surf->format;
-        else if (pg_GetDefaultWindowSurface())
+        }
+        else if (pg_GetDefaultWindowSurface()) {
             pix = pgSurface_AsSurface(pg_GetDefaultWindowSurface())->format;
+        }
         else {
             pix = &default_format;
             pix->BitsPerPixel = 32;
@@ -644,25 +788,25 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
             pix->Gmask = 0xFF00;
             pix->Bmask = 0xFF;
         }
-        bpp = pix->BitsPerPixel;
+        bpp = PG_FORMAT_BitsPerPixel(pix);
 
         if (flags & PGS_SRCALPHA) {
             switch (bpp) {
                 case 16:
-                    Rmask = 0xF << 8;
-                    Gmask = 0xF << 4;
-                    Bmask = 0xF;
-                    Amask = 0xF << 12;
+                    Rmask = 0xFu << 8;
+                    Gmask = 0xFu << 4;
+                    Bmask = 0xFu;
+                    Amask = 0xFu << 12;
                     break;
                 case 24:
                     bpp = 32;
                     // we automatically step up to 32 if video is 24, fall
                     // through to case below
                 case 32:
-                    Rmask = 0xFF << 16;
-                    Gmask = 0xFF << 8;
-                    Bmask = 0xFF;
-                    Amask = 0xFF << 24;
+                    Rmask = 0xFFu << 16;
+                    Gmask = 0xFFu << 8;
+                    Bmask = 0xFFu;
+                    Amask = 0xFFu << 24;
                     break;
                 default:
                     PyErr_SetString(
@@ -680,22 +824,30 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    surface = SDL_CreateRGBSurface(0, width, height, bpp, Rmask, Gmask, Bmask,
-                                   Amask);
-    if (!surface) {
-        _raise_create_surface_error();
+    Uint32 pxformat =
+        SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, Amask);
+    if (pxformat == SDL_PIXELFORMAT_UNKNOWN) {
+        PyErr_SetString(PyExc_ValueError, "Invalid mask values");
         return -1;
     }
+
+    surface = PG_CreateSurface(width, height, pxformat);
+    if (!surface) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     if (!(flags & PGS_SRCALPHA)) {
         /* We ignore the error if any. */
         SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 
-        /* When the display format has a full alpha channel (MacOS right now),
+        /* When the display format has a full alpha channel (macOS right now),
          * Surfaces may be created with an unreqested alpha channel, which
          * could cause issues.
          * pygame Surfaces are supposed to be (0, 0, 0, 255) by default.
          * This is a simple fix to fill it with (0, 0, 0, 255) if necessary.
-         * See Github issue: https://github.com/pygame/pygame/issues/1395
+         * See Github issue:
+         * https://github.com/pygame/pygame/issues/796
          */
         if (Amask != 0) {
             SDL_FillRect(surface, NULL,
@@ -703,17 +855,18 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
+    if (SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surface))) {
         /* Give the surface something other than an all white palette.
          *          */
-        if (SDL_SetPaletteColors(surface->format->palette,
+        if (!PG_SetPaletteColors(surface->format->palette,
                                  default_palette_colors, 0,
-                                 default_palette_size - 1) != 0) {
+                                 default_palette_size - 1)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(surface);
             return -1;
         }
     }
+#endif
 
     if (surface) {
         self->surf = surface;
@@ -724,54 +877,54 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyObject *
-_raise_create_surface_error(void)
-{
-    const char *msg = SDL_GetError();
-
-    if (strcmp(msg, "Unknown pixel format") == 0)
-        return RAISE(PyExc_ValueError, "Invalid mask values");
-    return RAISE(pgExc_SDLError, msg);
-}
-
 /* surface object methods */
 static PyObject *
-surf_get_at(PyObject *self, PyObject *args)
+surf_get_at(PyObject *self, PyObject *position)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = NULL;
     Uint8 *pixels = NULL;
     int x, y;
     Uint32 color;
     Uint8 *pix;
     Uint8 rgba[4] = {0, 0, 0, 255};
 
-    if (!PyArg_ParseTuple(args, "(ii)", &x, &y))
-        return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (x < 0 || x >= surf->w || y < 0 || y >= surf->h)
+    if (!pg_TwoIntsFromObj(position, &x, &y)) {
+        return RAISE(PyExc_TypeError,
+                     "position must be a sequence of two numbers");
+    }
+
+    if (x < 0 || x >= surf->w || y < 0 || y >= surf->h) {
         return RAISE(PyExc_IndexError, "pixel index out of range");
+    }
 
-    format = surf->format;
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    int bpp = PG_FORMAT_BytesPerPixel(format);
 
-    if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
+    if (bpp < 1 || bpp > 4) {
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
+    }
 
-    if (!pgSurface_Lock((pgSurfaceObject *)self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return NULL;
+    }
 
     pixels = (Uint8 *)surf->pixels;
 
-    switch (format->BytesPerPixel) {
+    switch (bpp) {
         case 1:
             color = (Uint32) * ((Uint8 *)pixels + y * surf->pitch + x);
-            SDL_GetRGB(color, format, rgba, rgba + 1, rgba + 2);
+            PG_GetRGB(color, format, palette, rgba, rgba + 1, rgba + 2);
             break;
         case 2:
             color = (Uint32) * ((Uint16 *)(pixels + y * surf->pitch) + x);
-            SDL_GetRGBA(color, format, rgba, rgba + 1, rgba + 2, rgba + 3);
+            PG_GetRGBA(color, format, palette, rgba, rgba + 1, rgba + 2,
+                       rgba + 3);
             break;
         case 3:
             pix = ((Uint8 *)(pixels + y * surf->pitch) + x * 3);
@@ -780,68 +933,77 @@ surf_get_at(PyObject *self, PyObject *args)
 #else
             color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-            SDL_GetRGB(color, format, rgba, rgba + 1, rgba + 2);
+            PG_GetRGB(color, format, palette, rgba, rgba + 1, rgba + 2);
             break;
         default: /* case 4: */
-            assert(format->BytesPerPixel == 4);
+            assert(PG_FORMAT_BytesPerPixel(format) == 4);
             color = *((Uint32 *)(pixels + y * surf->pitch) + x);
-            SDL_GetRGBA(color, format, rgba, rgba + 1, rgba + 2, rgba + 3);
+            PG_GetRGBA(color, format, palette, rgba, rgba + 1, rgba + 2,
+                       rgba + 3);
             break;
     }
-    if (!pgSurface_Unlock((pgSurfaceObject *)self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return NULL;
+    }
 
     return pgColor_New(rgba);
 }
 
 static PyObject *
-surf_set_at(PyObject *self, PyObject *args)
+surf_set_at(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = NULL;
+    SURF_INIT_CHECK(surf)
     Uint8 *pixels;
     int x, y;
     Uint32 color;
-    Uint8 rgba[4] = {0, 0, 0, 0};
     PyObject *rgba_obj;
     Uint8 *byte_buf;
 
-    if (!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
-        return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    if (nargs != 2) {
+        return PyErr_Format(PyExc_TypeError,
+                            "set_at takes exactly 2 arguments (%zd given)",
+                            nargs);
+    }
 
-    format = surf->format;
+    if (!pg_TwoIntsFromObj(args[0], &x, &y)) {
+        return RAISE(PyExc_TypeError,
+                     "position must be a sequence of two numbers");
+    }
 
-    if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
+    rgba_obj = args[1];
+
+    PG_PixelFormat *format = PG_GetSurfaceFormat(surf);
+    if (format == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    int bpp = PG_FORMAT_BytesPerPixel(format);
+
+    if (bpp < 1 || bpp > 4) {
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
+    }
 
-    if (x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
-        y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h) {
+    SDL_Rect clip_rect;
+    if (!PG_GetSurfaceClipRect(surf, &clip_rect)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (x < clip_rect.x || x >= clip_rect.x + clip_rect.w || y < clip_rect.y ||
+        y >= clip_rect.y + clip_rect.h) {
         /* out of clip area */
         Py_RETURN_NONE;
     }
 
-    if (PyLong_Check(rgba_obj)) {
-        color = (Uint32)PyLong_AsLong(rgba_obj);
-        if (PyErr_Occurred() && (Sint32)color == -1)
-            return RAISE(PyExc_TypeError, "invalid color argument");
-    }
-    else if (PyLong_Check(rgba_obj)) {
-        color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
-        if (PyErr_Occurred() && (Sint32)color == -1)
-            return RAISE(PyExc_TypeError, "invalid color argument");
-    }
-    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
-        color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return NULL; /* pg_RGBAFromFuzzyColorObj set an except for us */
-
-    if (!pgSurface_Lock((pgSurfaceObject *)self))
+    if (!pg_MappedColorFromObj(rgba_obj, surf, &color, PG_COLOR_HANDLE_ALL)) {
         return NULL;
+    }
+
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
+        return NULL;
+    }
     pixels = (Uint8 *)surf->pixels;
 
-    switch (format->BytesPerPixel) {
+    switch (bpp) {
         case 1:
             *((Uint8 *)pixels + y * surf->pitch + x) = (Uint8)color;
             break;
@@ -850,6 +1012,8 @@ surf_set_at(PyObject *self, PyObject *args)
             break;
         case 3:
             byte_buf = (Uint8 *)(pixels + y * surf->pitch) + x * 3;
+            // Shouldn't this be able to happen without awareness of shifts?
+            // mapped color -> pixel and all.
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             *(byte_buf + (format->Rshift >> 3)) =
                 (Uint8)(color >> format->Rshift);
@@ -871,40 +1035,46 @@ surf_set_at(PyObject *self, PyObject *args)
             break;
     }
 
-    if (!pgSurface_Unlock((pgSurfaceObject *)self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return NULL;
+    }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
-surf_get_at_mapped(PyObject *self, PyObject *args)
+surf_get_at_mapped(PyObject *self, PyObject *position)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = NULL;
     Uint8 *pixels = NULL;
     int x, y;
     Sint32 color;
     Uint8 *pix;
 
-    if (!PyArg_ParseTuple(args, "(ii)", &x, &y))
-        return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (x < 0 || x >= surf->w || y < 0 || y >= surf->h)
+    if (!pg_TwoIntsFromObj(position, &x, &y)) {
+        return RAISE(PyExc_TypeError,
+                     "position must be a sequence of two numbers");
+    }
+
+    if (x < 0 || x >= surf->w || y < 0 || y >= surf->h) {
         return RAISE(PyExc_IndexError, "pixel index out of range");
+    }
 
-    format = surf->format;
+    int bpp = PG_SURF_BytesPerPixel(surf);
 
-    if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
+    if (bpp < 1 || bpp > 4) {
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
+    }
 
-    if (!pgSurface_Lock((pgSurfaceObject *)self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return NULL;
+    }
 
     pixels = (Uint8 *)surf->pixels;
 
-    switch (format->BytesPerPixel) {
+    switch (bpp) {
         case 1:
             color = (Uint32) * ((Uint8 *)pixels + y * surf->pitch + x);
             break;
@@ -923,8 +1093,9 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
             color = *((Uint32 *)(pixels + y * surf->pitch) + x);
             break;
     }
-    if (!pgSurface_Unlock((pgSurfaceObject *)self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return NULL;
+    }
 
     return PyLong_FromLong((long)color);
 }
@@ -936,12 +1107,19 @@ surf_map_rgb(PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int color;
 
-    if (!pg_RGBAFromFuzzyColorObj(args, rgba))
+    if (!pg_RGBAFromObjEx(args, rgba, PG_COLOR_HANDLE_ALL)) {
         return NULL; /* Exception already set for us */
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
 
-    color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
+    SURF_INIT_CHECK(surf)
+
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    color = PG_MapRGBA(format, palette, rgba[0], rgba[1], rgba[2], rgba[3]);
     return PyLong_FromLong(color);
 }
 
@@ -957,13 +1135,19 @@ surf_unmap_rgb(PyObject *self, PyObject *arg)
         PyErr_Clear();
         return RAISE(PyExc_TypeError, "unmap_rgb expects 1 number argument");
     }
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
-        SDL_GetRGBA(col, surf->format, rgba, rgba + 1, rgba + 2, rgba + 3);
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (SDL_ISPIXELFORMAT_ALPHA(format->format)) {
+        PG_GetRGBA(col, format, palette, rgba, rgba + 1, rgba + 2, rgba + 3);
+    }
     else {
-        SDL_GetRGB(col, surf->format, rgba, rgba + 1, rgba + 2);
+        PG_GetRGB(col, format, palette, rgba, rgba + 1, rgba + 2);
         rgba[3] = 255;
     }
 
@@ -973,14 +1157,17 @@ surf_unmap_rgb(PyObject *self, PyObject *arg)
 static PyObject *
 surf_lock(PyObject *self, PyObject *_null)
 {
-    if (!pgSurface_Lock((pgSurfaceObject *)self))
+    SURF_INIT_CHECK(pgSurface_AsSurface(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 surf_unlock(PyObject *self, PyObject *_null)
 {
+    SURF_INIT_CHECK(pgSurface_AsSurface(self))
     pgSurface_Unlock((pgSurfaceObject *)self);
     Py_RETURN_NONE;
 }
@@ -989,8 +1176,7 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
     return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                            ((pgSurfaceObject *)self)->subsurface);
 }
@@ -1000,8 +1186,11 @@ surf_get_locked(PyObject *self, PyObject *_null)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
 
-    if (surf->locklist && PyList_Size(surf->locklist) > 0)
+    SURF_INIT_CHECK(surf)
+
+    if (surf->locklist && PyList_Size(surf->locklist) > 0) {
         Py_RETURN_TRUE;
+    }
     Py_RETURN_FALSE;
 }
 
@@ -1010,18 +1199,30 @@ surf_get_locks(PyObject *self, PyObject *_null)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)self;
     Py_ssize_t len, i = 0;
+    int weakref_getref_result;
     PyObject *tuple, *tmp;
-    if (!surf->locklist)
+    SURF_INIT_CHECK(pgSurface_AsSurface(self))
+    if (!surf->locklist) {
         return PyTuple_New(0);
+    }
 
     len = PyList_Size(surf->locklist);
     tuple = PyTuple_New(len);
-    if (!tuple)
+    if (!tuple) {
         return NULL;
+    }
 
     for (i = 0; i < len; i++) {
-        tmp = PyWeakref_GetObject(PyList_GetItem(surf->locklist, i));
-        Py_INCREF(tmp);
+        weakref_getref_result =
+            PyWeakref_GetRef(PyList_GetItem(surf->locklist, i), &tmp);
+        if (weakref_getref_result == -1) {  // exception already set
+            Py_DECREF(tuple);
+            return NULL;
+        }
+        if (weakref_getref_result == 0) {
+            tmp = Py_None;
+            Py_INCREF(tmp);
+        }
         PyTuple_SetItem(tuple, i, tmp);
     }
     return tuple;
@@ -1038,17 +1239,18 @@ surf_get_palette(PyObject *self, PyObject *_null)
     SDL_Color *c;
     Uint8 rgba[4] = {0, 0, 0, 255};
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    pal = surf->format->palette;
+    pal = PG_GetSurfacePalette(surf);
 
-    if (!pal)
+    if (!pal) {
         return RAISE(pgExc_SDLError, "Surface has no palette to get\n");
+    }
 
     list = PyTuple_New(pal->ncolors);
-    if (!list)
+    if (!list) {
         return NULL;
+    }
 
     for (i = 0; i < pal->ncolors; i++) {
         c = &pal->colors[i];
@@ -1076,17 +1278,19 @@ surf_get_palette_at(PyObject *self, PyObject *args)
     int _index;
     Uint8 rgba[4];
 
-    if (!PyArg_ParseTuple(args, "i", &_index))
+    if (!PyArg_ParseTuple(args, "i", &_index)) {
         return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+    SURF_INIT_CHECK(surf)
 
-    pal = surf->format->palette;
+    pal = PG_GetSurfacePalette(surf);
 
-    if (!pal)
+    if (!pal) {
         return RAISE(pgExc_SDLError, "Surface has no palette to set\n");
-    if (_index >= pal->ncolors || _index < 0)
+    }
+    if (_index >= pal->ncolors || _index < 0) {
         return RAISE(PyExc_IndexError, "index out of bounds");
+    }
 
     c = &pal->colors[_index];
     rgba[0] = c->r;
@@ -1115,19 +1319,21 @@ surf_set_palette(PyObject *self, PyObject *seq)
     Uint8 rgba[4];
     int ecode;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (!PySequence_Check(seq))
+    if (!PySequence_Check(seq)) {
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
+    }
 
-    pal = surf->format->palette;
+    pal = PG_GetSurfacePalette(surf);
 
-    if (!SDL_ISPIXELFORMAT_INDEXED(surf->format->format))
+    if (!SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surf))) {
         return RAISE(pgExc_SDLError, "Surface colors are not indexed\n");
+    }
 
-    if (!pal)
-        return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
+    if (!pal) {
+        return RAISE(pgExc_SDLError, "Surface is not palettized\n");
+    }
     old_colors = pal->colors;
 
     len = (int)MIN(pal->ncolors, PySequence_Length(seq));
@@ -1135,7 +1341,7 @@ surf_set_palette(PyObject *self, PyObject *seq)
     for (i = 0; i < len; i++) {
         item = PySequence_GetItem(seq, i);
 
-        ecode = pg_RGBAFromObj(item, rgba);
+        ecode = pg_RGBAFromObjEx(item, rgba, PG_COLOR_HANDLE_SIMPLE);
         Py_DECREF(item);
         if (!ecode) {
             return RAISE(PyExc_ValueError,
@@ -1154,9 +1360,9 @@ surf_set_palette(PyObject *self, PyObject *seq)
         colors[i].a = (unsigned char)old_colors[i].a;
     }
 
-    ecode = SDL_SetPaletteColors(pal, colors, 0, len);
-    if (ecode != 0)
+    if (!PG_SetPaletteColors(pal, colors, 0, len)) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     Py_RETURN_NONE;
 }
 
@@ -1170,29 +1376,27 @@ surf_set_palette_at(PyObject *self, PyObject *args)
     PyObject *color_obj;
     Uint8 rgba[4];
 
-    if (!PyArg_ParseTuple(args, "iO", &_index, &color_obj))
+    if (!PyArg_ParseTuple(args, "iO", &_index, &color_obj)) {
         return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+    SURF_INIT_CHECK(surf)
 
-    if (!pg_RGBAFromObj(color_obj, rgba)) {
-        return RAISE(PyExc_ValueError,
-                     "takes a sequence of integers of RGB for argument 2");
+    if (!pg_RGBAFromObjEx(color_obj, rgba, PG_COLOR_HANDLE_SIMPLE)) {
+        return NULL;
     }
 
-    if (!SDL_ISPIXELFORMAT_INDEXED(surf->format->format))
+    if (!SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surf))) {
         return RAISE(pgExc_SDLError, "Surface colors are not indexed\n");
+    }
 
-    pal = surf->format->palette;
+    pal = PG_GetSurfacePalette(surf);
 
     if (!pal) {
-        PyErr_SetString(pgExc_SDLError, "Surface is not palettized\n");
-        return NULL;
+        return RAISE(pgExc_SDLError, "Surface is not palettized\n");
     }
 
     if (_index >= pal->ncolors || _index < 0) {
-        PyErr_SetString(PyExc_IndexError, "index out of bounds");
-        return NULL;
+        return RAISE(PyExc_IndexError, "index out of bounds");
     }
 
     color.r = rgba[0];
@@ -1200,8 +1404,9 @@ surf_set_palette_at(PyObject *self, PyObject *args)
     color.b = rgba[2];
     color.a = pal->colors[_index].a; /* May be a colorkey color. */
 
-    if (SDL_SetPaletteColors(pal, &color, _index, 1) != 0)
+    if (!PG_SetPaletteColors(pal, &color, _index, 1)) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     Py_RETURN_NONE;
 }
@@ -1212,56 +1417,42 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     Uint32 flags = 0, color = 0;
     PyObject *rgba_obj = NULL;
-    Uint8 rgba[4];
-    int result;
     int hascolor = SDL_FALSE;
 
-    if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
+    if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags)) {
         return NULL;
+    }
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     if (rgba_obj && rgba_obj != Py_None) {
-        if (PyLong_Check(rgba_obj)) {
-            color = (Uint32)PyLong_AsLong(rgba_obj);
-            if (PyErr_Occurred() && (Sint32)color == -1)
-                return RAISE(PyExc_TypeError, "invalid color argument");
+        if (!pg_MappedColorFromObj(rgba_obj, surf, &color,
+                                   PG_COLOR_HANDLE_ALL)) {
+            return NULL;
         }
-        else if (PyLong_Check(rgba_obj)) {
-            color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
-            if (PyErr_Occurred() && (Sint32)color == -1)
-                return RAISE(PyExc_TypeError, "invalid color argument");
-        }
-        else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba)) {
-            if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
-                color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
-            else
-                color = pg_map_rgb(surf, rgba[0], rgba[1], rgba[2]);
-        }
-        else
-            return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
+
         hascolor = SDL_TRUE;
     }
 
     pgSurface_Prep(self);
-    result = 0;
-    if (hascolor && surf->format->BytesPerPixel == 1) {
+    bool success = true;
+    if (hascolor && PG_SURF_BytesPerPixel(surf) == 1) {
         /* For an indexed surface, remove the previous colorkey first.
          */
-        result = SDL_SetColorKey(surf, SDL_FALSE, color);
+        success = PG_SetSurfaceColorKey(surf, SDL_FALSE, color);
     }
-    if (result == 0 && hascolor) {
-        result = SDL_SetSurfaceRLE(
+    if (success && hascolor) {
+        success = PG_SetSurfaceRLE(
             surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
     }
-    if (result == 0) {
-        result = SDL_SetColorKey(surf, hascolor, color);
+    if (success) {
+        success = PG_SetSurfaceColorKey(surf, hascolor, color);
     }
     pgSurface_Unprep(self);
 
-    if (result == -1)
+    if (!success) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     Py_RETURN_NONE;
 }
@@ -1273,18 +1464,26 @@ surf_get_colorkey(pgSurfaceObject *self, PyObject *_null)
     Uint32 mapped_color;
     Uint8 r, g, b, a = 255;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (SDL_GetColorKey(surf, &mapped_color) != 0) {
-        SDL_ClearError();
+    if (!SDL_HasColorKey(surf)) {
         Py_RETURN_NONE;
     }
 
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
-        SDL_GetRGBA(mapped_color, surf->format, &r, &g, &b, &a);
-    else
-        SDL_GetRGB(mapped_color, surf->format, &r, &g, &b);
+    SDL_GetColorKey(surf, &mapped_color);
+
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (SDL_ISPIXELFORMAT_ALPHA(format->format)) {
+        PG_GetRGBA(mapped_color, format, palette, &r, &g, &b, &a);
+    }
+    else {
+        PG_GetRGB(mapped_color, format, palette, &r, &g, &b);
+    }
 
     return Py_BuildValue("(bbbb)", r, g, b, a);
 }
@@ -1296,73 +1495,79 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     Uint32 flags = 0;
     PyObject *alpha_obj = NULL, *intobj = NULL;
     Uint8 alpha;
-    int result, alphaval = 255;
-    SDL_Rect sdlrect;
-    SDL_Surface *surface;
+    int alphaval = 255;
 
-    if (!PyArg_ParseTuple(args, "|Oi", &alpha_obj, &flags))
+    if (!PyArg_ParseTuple(args, "|Oi", &alpha_obj, &flags)) {
         return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+    SURF_INIT_CHECK(surf)
 
     if (alpha_obj && alpha_obj != Py_None) {
         if (PyNumber_Check(alpha_obj) && (intobj = PyNumber_Long(alpha_obj))) {
-            if (PyLong_Check(intobj)) {
-                alphaval = (int)PyLong_AsLong(intobj);
-                Py_DECREF(intobj);
-            }
-            else
+            alphaval = (int)PyLong_AsLong(intobj);
+            Py_DECREF(intobj);
+            if (alphaval == -1 && PyErr_Occurred()) {
                 return RAISE(PyExc_TypeError, "invalid alpha argument");
+            }
         }
-        else
+        else {
             return RAISE(PyExc_TypeError, "invalid alpha argument");
+        }
 
-        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND) != 0)
+        if (!PG_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND)) {
             return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
     else {
-        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
+        if (!PG_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE)) {
             return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
 
-    if (alphaval > 255)
+    if (alphaval > 255) {
         alpha = 255;
-    else if (alphaval < 0)
+    }
+    else if (alphaval < 0) {
         alpha = 0;
-    else
+    }
+    else {
         alpha = (Uint8)alphaval;
+    }
 
-    if (alpha == 255 && (surf->format->BytesPerPixel == 1)) {
+    if (alpha == 255 && (PG_SURF_BytesPerPixel(surf) == 1)) {
         /* Can't blend with a surface alpha of 255 and 8bit surfaces */
-        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
+        if (!PG_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE)) {
             return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
     pgSurface_Prep(self);
-    result =
-        SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+    bool success =
+        PG_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
     /* HACK HACK HACK */
-    if ((surf->flags & SDL_RLEACCEL) && (!(flags & PGS_RLEACCEL))) {
+    if (SDL_MUSTLOCK(surf) && (!(flags & PGS_RLEACCEL))) {
         /* hack to strip SDL_RLEACCEL flag off surface immediately when
            it is not requested */
+        SDL_Rect sdlrect;
         sdlrect.x = 0;
         sdlrect.y = 0;
-        sdlrect.h = 0;
-        sdlrect.w = 0;
+        sdlrect.h = 1;
+        sdlrect.w = 1;
 
-        surface = SDL_CreateRGBSurface(
-            0, 1, 1, 32, surf->format->Rmask, surf->format->Gmask,
-            surf->format->Bmask, surf->format->Amask);
+        SDL_Surface *surface =
+            PG_CreateSurface(1, 1, PG_SURF_FORMATENUM(surf));
 
         SDL_LowerBlit(surf, &sdlrect, surface, &sdlrect);
         SDL_FreeSurface(surface);
     }
     /* HACK HACK HACK */
-    if (result == 0)
-        result = SDL_SetSurfaceAlphaMod(surf, alpha);
+    if (success) {
+        success = PG_SetSurfaceAlphaMod(surf, alpha);
+    }
     pgSurface_Unprep(self);
 
-    if (result == -1)
+    if (!success) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     Py_RETURN_NONE;
 }
@@ -1374,17 +1579,19 @@ surf_get_alpha(pgSurfaceObject *self, PyObject *_null)
     SDL_BlendMode mode;
     Uint8 alpha;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
+    if (!PG_GetSurfaceBlendMode(surf, &mode)) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
-    if (mode != SDL_BLENDMODE_BLEND)
+    if (mode != SDL_BLENDMODE_BLEND) {
         Py_RETURN_NONE;
+    }
 
-    if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0)
+    if (!PG_GetSurfaceAlphaMod(surf, &alpha)) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     return PyLong_FromLong(alpha);
 }
@@ -1395,11 +1602,11 @@ surf_get_blendmode(PyObject *self, PyObject *_null)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_BlendMode mode;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
+    if (!PG_GetSurfaceBlendMode(surf, &mode)) {
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     return PyLong_FromLong((long)mode);
 }
 
@@ -1410,19 +1617,16 @@ surf_copy(pgSurfaceObject *self, PyObject *_null)
     PyObject *final;
     SDL_Surface *newsurf;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    /* SDL_ConvertSurface does not work on empty surface,
-     * meaning all pixels are black (255).
-     */
     pgSurface_Prep(self);
-    newsurf = SDL_ConvertSurface(surf, surf->format, 0);
+    newsurf = PG_ConvertSurface(surf, surf->format);
     pgSurface_Unprep(self);
 
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
-    if (!final)
+    if (!final) {
         SDL_FreeSurface(newsurf);
+    }
     return final;
 }
 
@@ -1440,38 +1644,205 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     Uint8 key_r, key_g, key_b, key_a = 255;
     int has_colorkey = SDL_FALSE;
 
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
-        return RAISE(pgExc_SDLError,
-                     "cannot convert without pygame.display initialized");
-
-    if (!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
+    if (!PyArg_ParseTuple(args, "|Oi", &argobject, &flags)) {
         return NULL;
+    }
+
+    if (!argobject && !SDL_WasInit(SDL_INIT_VIDEO)) {
+        return RAISE(pgExc_SDLError,
+                     "cannot convert without format "
+                     "when pygame.display is not initialized");
+    }
+
+    SURF_INIT_CHECK(surf)
 
     pgSurface_Prep(self);
 
-    if (SDL_GetColorKey(surf, &colorkey) == 0) {
-        has_colorkey = SDL_TRUE;
-        if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
-            SDL_GetRGBA(colorkey, surf->format, &key_r, &key_g, &key_b,
-                        &key_a);
-        else
-            SDL_GetRGB(colorkey, surf->format, &key_r, &key_g, &key_b);
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    if ((has_colorkey = SDL_HasColorKey(surf))) {
+        PG_PixelFormat *surf_format;
+        SDL_Palette *surf_palette;
+        if (!PG_GetSurfaceDetails(surf, &surf_format, &surf_palette)) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+
+        SDL_GetColorKey(surf, &colorkey);
+        if (SDL_ISPIXELFORMAT_ALPHA(PG_SURF_FORMATENUM(surf))) {
+            PG_GetRGBA(colorkey, surf_format, surf_palette, &key_r, &key_g,
+                       &key_b, &key_a);
+        }
+        else {
+            PG_GetRGB(colorkey, surf_format, surf_palette, &key_r, &key_g,
+                      &key_b);
+        }
     }
 
     if (argobject) {
         if (pgSurface_Check(argobject)) {
             src = pgSurface_AsSurface(argobject);
-            if (!src)
-                return RAISE(pgExc_SDLError, "display Surface quit");
-            newsurf = SDL_ConvertSurface(surf, src->format, 0);
+            newsurf = PG_ConvertSurface(surf, src->format);
         }
         else {
             /* will be updated later, initialize to make static analyzer happy
              */
             int bpp = 0;
-            SDL_PixelFormat format;
+            SDL_Palette *palette = NULL;
+            PG_PixelFormatEnum format_enum = SDL_PIXELFORMAT_UNKNOWN;
 
-            memcpy(&format, surf->format, sizeof(format));
+            // PATH 1 = from bpp
+            if (pg_IntFromObj(argobject, &bpp)) {
+                if (flags != UINT32_MAX && flags & PGS_SRCALPHA) {
+                    switch (bpp) {
+                        case 16:
+                            format_enum = SDL_PIXELFORMAT_ARGB4444;
+                            break;
+                        case 32:
+                            format_enum = SDL_PIXELFORMAT_ARGB8888;
+                            break;
+                        default:
+                            return RAISE(PyExc_ValueError,
+                                         "no standard masks exist for given "
+                                         "bitdepth with alpha");
+                    }
+                }
+                else {
+                    switch (bpp) {
+                        case 8:
+                            format_enum = SDL_PIXELFORMAT_INDEX8;
+                            break;
+                        case 12:
+                            format_enum = SDL_PIXELFORMAT_XRGB4444;
+                            break;
+                        case 15:
+                            format_enum = SDL_PIXELFORMAT_XRGB1555;
+                            break;
+                        case 16:
+                            format_enum = SDL_PIXELFORMAT_RGB565;
+                            break;
+                        case 24:
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                            format_enum = SDL_PIXELFORMAT_RGB24;
+#else
+                            format_enum = SDL_PIXELFORMAT_BGR24;
+#endif
+                            break;
+                        case 32:
+                            format_enum = SDL_PIXELFORMAT_XRGB8888;
+                            break;
+                        default:
+                            return RAISE(PyExc_ValueError,
+                                         "nonstandard bit depth given");
+                    }
+                }
+            }
+            // PATH 2 = from masks only
+            else if (PySequence_Check(argobject) &&
+                     PySequence_Size(argobject) == 4) {
+                Uint32 Rmask, Gmask, Bmask, Amask;
+
+                if (!pg_UintFromObjIndex(argobject, 0, &Rmask) ||
+                    !pg_UintFromObjIndex(argobject, 1, &Gmask) ||
+                    !pg_UintFromObjIndex(argobject, 2, &Bmask) ||
+                    !pg_UintFromObjIndex(argobject, 3, &Amask)) {
+                    pgSurface_Unprep(self);
+                    return RAISE(PyExc_ValueError,
+                                 "invalid color masks given");
+                }
+                Uint32 mask = Rmask | Gmask | Bmask | Amask;
+
+                // This code shocked me. -Starbuck, Mar. 2025
+                // Like what if you have a hole in the mask?
+                // Like a blank alpha mask first-- it would just terminate
+                // the whole loop right?
+                // I think this whole code path should be deprecated.
+                for (bpp = 0; bpp < 32; ++bpp) {
+                    if (!(mask >> bpp)) {
+                        break;
+                    }
+                }
+
+                format_enum = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask,
+                                                         Bmask, Amask);
+            }
+            else {
+                pgSurface_Unprep(self);
+                return RAISE(
+                    PyExc_ValueError,
+                    "invalid argument specifying new format to convert to");
+            }
+
+            // If the destination format is indexed, provide a new palette or
+            // copy over existing palette.
+            if (SDL_ISPIXELFORMAT_INDEXED(format_enum)) {
+                if (SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surf))) {
+                    palette = PG_GetSurfacePalette(surf);
+                }
+                else {
+                    /* Give the surface something other than an all white
+                     * palette.
+                     */
+                    palette = SDL_AllocPalette(default_palette_size);
+                    SDL_SetPaletteColors(palette, default_palette_colors, 0,
+                                         default_palette_size);
+                }
+            }
+
+            newsurf = SDL_ConvertSurfaceAndColorspace(
+                surf, format_enum, palette, SDL_GetSurfaceColorspace(surf), 0);
+
+            // In this scenario, we allocated the palette, so we also need
+            // to remove our reference to it.
+            if (SDL_ISPIXELFORMAT_INDEXED(format_enum) &&
+                !SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surf))) {
+                SDL_FreePalette(palette);
+            }
+
+            SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+        }
+    }
+    else {
+        newsurf = pg_DisplayFormat(surf);
+        if (newsurf) {
+            SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+        }
+    }
+
+    if (newsurf == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (has_colorkey) {
+        colorkey = SDL_MapSurfaceRGBA(newsurf, key_r, key_g, key_b, key_a);
+        if (!PG_SetSurfaceColorKey(newsurf, SDL_TRUE, colorkey)) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    }
+#else
+    if ((has_colorkey = SDL_HasColorKey(surf))) {
+        SDL_GetColorKey(surf, &colorkey);
+        if (SDL_ISPIXELFORMAT_ALPHA(PG_SURF_FORMATENUM(surf))) {
+            SDL_GetRGBA(colorkey, surf->format, &key_r, &key_g, &key_b,
+                        &key_a);
+        }
+        else {
+            SDL_GetRGB(colorkey, surf->format, &key_r, &key_g, &key_b);
+        }
+    }
+
+    if (argobject) {
+        if (pgSurface_Check(argobject)) {
+            src = pgSurface_AsSurface(argobject);
+            newsurf = PG_ConvertSurface(surf, src->format);
+        }
+        else {
+            /* will be updated later, initialize to make static analyzer happy
+             */
+            int bpp = 0;
+            SDL_Palette *palette = SDL_AllocPalette(default_palette_size);
+            Uint32 format_enum = 0;
+
             if (pg_IntFromObj(argobject, &bpp)) {
                 Uint32 Rmask, Gmask, Bmask, Amask;
 
@@ -1529,28 +1900,30 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
                                          "nonstandard bit depth given");
                     }
                 }
-                format.Rmask = Rmask;
-                format.Gmask = Gmask;
-                format.Bmask = Bmask;
-                format.Amask = Amask;
+                format_enum = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask,
+                                                         Bmask, Amask);
             }
             else if (PySequence_Check(argobject) &&
                      PySequence_Size(argobject) == 4) {
-                Uint32 mask;
+                Uint32 Rmask, Gmask, Bmask, Amask;
 
-                if (!pg_UintFromObjIndex(argobject, 0, &format.Rmask) ||
-                    !pg_UintFromObjIndex(argobject, 1, &format.Gmask) ||
-                    !pg_UintFromObjIndex(argobject, 2, &format.Bmask) ||
-                    !pg_UintFromObjIndex(argobject, 3, &format.Amask)) {
+                if (!pg_UintFromObjIndex(argobject, 0, &Rmask) ||
+                    !pg_UintFromObjIndex(argobject, 1, &Gmask) ||
+                    !pg_UintFromObjIndex(argobject, 2, &Bmask) ||
+                    !pg_UintFromObjIndex(argobject, 3, &Amask)) {
                     pgSurface_Unprep(self);
                     return RAISE(PyExc_ValueError,
                                  "invalid color masks given");
                 }
-                mask =
-                    format.Rmask | format.Gmask | format.Bmask | format.Amask;
-                for (bpp = 0; bpp < 32; ++bpp)
-                    if (!(mask >> bpp))
+
+                const Uint32 mask = Rmask | Gmask | Bmask | Amask;
+                for (bpp = 0; bpp < 32; ++bpp) {
+                    if (!(mask >> bpp)) {
                         break;
+                    }
+                }
+                format_enum = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask,
+                                                         Bmask, Amask);
             }
             else {
                 pgSurface_Unprep(self);
@@ -1558,105 +1931,114 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
                     PyExc_ValueError,
                     "invalid argument specifying new format to convert to");
             }
-            format.BitsPerPixel = (Uint8)bpp;
-            format.BytesPerPixel = (bpp + 7) / 8;
-            if (format.BitsPerPixel > 8)
-                /* Allow a 8 bit source surface with an empty palette to be
-                 * converted to a format without a palette (Issue #131).
-                 * If the target format has a non-NULL palette pointer then
-                 * SDL_ConvertSurface checks that the palette is not empty--
-                 * that at least one entry is not black.
-                 */
-                format.palette = NULL;
-            newsurf = SDL_ConvertSurface(surf, &format, 0);
+            SDL_PixelFormat *format = SDL_AllocFormat(format_enum);
+            if (!format) {
+                SDL_FreePalette(palette);
+                pgSurface_Unprep(self);
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+
+            if (SDL_ISPIXELFORMAT_INDEXED(format_enum)) {
+                if (SDL_ISPIXELFORMAT_INDEXED(PG_SURF_FORMATENUM(surf))) {
+                    SDL_SetPixelFormatPalette(format, surf->format->palette);
+                }
+                else {
+                    /* Give the surface something other than an all white
+                     * palette.
+                     */
+                    SDL_SetPaletteColors(palette, default_palette_colors, 0,
+                                         default_palette_size);
+                    SDL_SetPixelFormatPalette(format, palette);
+                }
+            }
+            newsurf = PG_ConvertSurface(surf, format);
             SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+            SDL_FreeFormat(format);
+            SDL_FreePalette(palette);
         }
     }
     else {
         newsurf = pg_DisplayFormat(surf);
-        SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+        if (newsurf) {
+            SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+        }
+    }
+
+    if (newsurf == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     if (has_colorkey) {
-        colorkey = pg_map_rgba(newsurf, key_r, key_g, key_b, key_a);
-        if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
+        colorkey = SDL_MapRGBA(newsurf->format, key_r, key_g, key_b, key_a);
+        if (!PG_SetSurfaceColorKey(newsurf, SDL_TRUE, colorkey)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(newsurf);
             return NULL;
         }
     }
+#endif
 
     pgSurface_Unprep(self);
 
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
-    if (!final)
+    if (!final) {
         SDL_FreeSurface(newsurf);
+    }
     return final;
 }
 
 static SDL_Surface *
 pg_DisplayFormat(SDL_Surface *surface)
 {
-    SDL_Surface *displaysurf;
-    if (!pg_GetDefaultWindowSurface()) {
-        SDL_SetError("No video mode has been set");
+    PG_PixelFormatEnum default_format = pg_GetDefaultConvertFormat();
+    if (!default_format) {
+        SDL_SetError(
+            "No convert format has been set, try display.set_mode()"
+            " or Window.get_surface().");
         return NULL;
     }
-    displaysurf = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
-    return SDL_ConvertSurface(surface, displaysurf->format, 0);
+    return PG_ConvertSurfaceFormat(surface, default_format);
 }
 
 static SDL_Surface *
 pg_DisplayFormatAlpha(SDL_Surface *surface)
 {
-    SDL_Surface *displaysurf;
-    SDL_PixelFormat *dformat;
-    Uint32 pfe;
-    Uint32 amask = 0xff000000;
-    Uint32 rmask = 0x00ff0000;
-    Uint32 gmask = 0x0000ff00;
-    Uint32 bmask = 0x000000ff;
-
-    if (!pg_GetDefaultWindowSurface()) {
-        SDL_SetError("No video mode has been set");
+    PG_PixelFormatEnum pfe = SDL_PIXELFORMAT_ARGB8888;
+    PG_PixelFormatEnum dformat = pg_GetDefaultConvertFormat();
+    if (!dformat) {
+        SDL_SetError(
+            "No convert format has been set, try display.set_mode()"
+            " or Window.get_surface().");
         return NULL;
     }
-    displaysurf = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
-    dformat = displaysurf->format;
 
-    switch (dformat->BytesPerPixel) {
-        case 2:
-            /* same behavior as SDL1 */
-            if ((dformat->Rmask == 0x1f) &&
-                (dformat->Bmask == 0xf800 || dformat->Bmask == 0x7c00)) {
-                rmask = 0xff;
-                bmask = 0xff0000;
-            }
+    switch (dformat) {
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+        case SDL_PIXELFORMAT_XBGR1555:
+#else
+        case SDL_PIXELFORMAT_BGR555:
+#endif
+        case SDL_PIXELFORMAT_ABGR1555:
+        case SDL_PIXELFORMAT_BGR565:
+        case SDL_PIXELFORMAT_XBGR8888:
+        case SDL_PIXELFORMAT_ABGR8888:
+            pfe = SDL_PIXELFORMAT_ABGR8888;
             break;
-        case 3:
-        case 4:
-            /* keep the format if the high bits are free */
-            if ((dformat->Rmask == 0xff) && (dformat->Bmask == 0xff0000)) {
-                rmask = 0xff;
-                bmask = 0xff0000;
-            }
-            else if (dformat->Rmask == 0xff00 &&
-                     (dformat->Bmask == 0xff000000)) {
-                amask = 0x000000ff;
-                rmask = 0x0000ff00;
-                gmask = 0x00ff0000;
-                bmask = 0xff000000;
-            }
+
+        case SDL_PIXELFORMAT_BGRX8888:
+        case SDL_PIXELFORMAT_BGRA8888:
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        case SDL_PIXELFORMAT_BGR24:
+#else
+        case SDL_PIXELFORMAT_RGB24:
+#endif
+            pfe = SDL_PIXELFORMAT_BGRA8888;
             break;
-        default: /* ARGB8888 */
+
+        default:
             break;
     }
-    pfe = SDL_MasksToPixelFormatEnum(32, rmask, gmask, bmask, amask);
-    if (pfe == SDL_PIXELFORMAT_UNKNOWN) {
-        SDL_SetError("unknown pixel format");
-        return NULL;
-    }
-    return SDL_ConvertSurfaceFormat(surface, pfe, 0);
+    return PG_ConvertSurfaceFormat(surface, pfe);
 }
 
 static PyObject *
@@ -1667,26 +2049,34 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args)
     pgSurfaceObject *srcsurf = NULL;
     SDL_Surface *newsurf;
 
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
+    SURF_INIT_CHECK(surf)
+
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         return RAISE(pgExc_SDLError,
                      "cannot convert without pygame.display initialized");
+    }
 
-    if (!PyArg_ParseTuple(args, "|O!", &pgSurface_Type, &srcsurf))
+    if (!PyArg_ParseTuple(args, "|O!", &pgSurface_Type, &srcsurf)) {
         return NULL;
+    }
 
-#pragma PG_WARN("srcsurf doesn't actually do anything?")
+    if (srcsurf != NULL) {
+        if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                         "depth argument deprecated since version 2.4.0",
+                         1) == -1) {
+            return NULL;
+        }
+    }
 
-    /*if (!srcsurf) {}*/
-    /*
-     * hmm, we have to figure this out, not all depths have good
-     * support for alpha
-     */
     newsurf = pg_DisplayFormatAlpha(surf);
-    SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND);
+    if (newsurf) {
+        SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND);
+    }
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
 
-    if (!final)
+    if (!final) {
         SDL_FreeSurface(newsurf);
+    }
     return final;
 }
 
@@ -1699,8 +2089,7 @@ surf_set_clip(PyObject *self, PyObject *args)
     SDL_Rect sdlrect;
     int result;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
     if (PyTuple_Size(args)) {
         item = PyTuple_GET_ITEM(args, 0);
         if (item == Py_None && PyTuple_Size(args) == 1) {
@@ -1708,8 +2097,9 @@ surf_set_clip(PyObject *self, PyObject *args)
         }
         else {
             rect = pgRect_FromObject(args, &temp);
-            if (!rect)
+            if (!rect) {
                 return RAISE(PyExc_ValueError, "invalid rectstyle object");
+            }
             sdlrect.x = rect->x;
             sdlrect.y = rect->y;
             sdlrect.h = rect->h;
@@ -1733,9 +2123,14 @@ surf_get_clip(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return pgRect_New(&surf->clip_rect);
+    SURF_INIT_CHECK(surf)
+
+    SDL_Rect clip_rect;
+    if (!PG_GetSurfaceClipRect(surf, &clip_rect)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return pgRect_New(&clip_rect);
 }
 
 static PyObject *
@@ -1747,25 +2142,19 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     Uint32 color;
     int result;
     PyObject *rgba_obj;
-    Uint8 rgba[4];
     SDL_Rect sdlrect;
     int blendargs = 0;
 
     static char *kwids[] = {"color", "rect", "special_flags", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|Oi", kwids, &rgba_obj,
-                                     &r, &blendargs))
+                                     &r, &blendargs)) {
         return NULL;
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    }
+    SURF_INIT_CHECK(surf)
 
-    if (PyLong_Check(rgba_obj))
-        color = (Uint32)PyLong_AsLong(rgba_obj);
-    else if (PyLong_Check(rgba_obj))
-        color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
-    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
-        color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
+    if (!pg_MappedColorFromObj(rgba_obj, surf, &color, PG_COLOR_HANDLE_ALL)) {
+        return NULL;
+    }
 
     if (!r || r == Py_None) {
         rect = &temp;
@@ -1773,8 +2162,9 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         temp.w = surf->w;
         temp.h = surf->h;
     }
-    else if (!(rect = pgRect_FromObject(r, &temp)))
+    else if (!(rect = pgRect_FromObject(r, &temp))) {
         return RAISE(PyExc_ValueError, "invalid rectstyle object");
+    }
 
     /* we need a fresh copy so our Rect values don't get munged */
     if (rect != &temp) {
@@ -1782,53 +2172,33 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         rect = &temp;
     }
 
-    if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
-        sdlrect.x = sdlrect.y = 0;
-        sdlrect.w = sdlrect.h = 0;
+    // In SDL3, SDL_IntersectRect is renamed to SDL_GetRectIntersection
+    SDL_Rect surfrect = {0, 0, surf->w, surf->h};
+    if (!SDL_IntersectRect(rect, &surfrect, &sdlrect)) {
+        sdlrect.x = 0;
+        sdlrect.y = 0;
+        sdlrect.w = 0;
+        sdlrect.h = 0;
+    }
+
+    if (sdlrect.w <= 0 || sdlrect.h <= 0) {
+        return pgRect_New(&sdlrect);
+    }
+
+    if (blendargs != 0) {
+        result = surface_fill_blend(surf, &sdlrect, color, blendargs);
     }
     else {
-        sdlrect.x = rect->x;
-        sdlrect.y = rect->y;
-        sdlrect.w = rect->w;
-        sdlrect.h = rect->h;
-
-        // clip the rect to be within the surface.
-        if (sdlrect.x + sdlrect.w <= 0 || sdlrect.y + sdlrect.h <= 0) {
-            sdlrect.w = 0;
-            sdlrect.h = 0;
-        }
-
-        if (sdlrect.x < 0) {
-            sdlrect.x = 0;
-        }
-        if (sdlrect.y < 0) {
-            sdlrect.y = 0;
-        }
-
-        if (sdlrect.x + sdlrect.w > surf->w) {
-            sdlrect.w = sdlrect.w + (surf->w - (sdlrect.x + sdlrect.w));
-        }
-        if (sdlrect.y + sdlrect.h > surf->h) {
-            sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
-        }
-
-        if (sdlrect.w <= 0 || sdlrect.h <= 0) {
-            return pgRect_New(&sdlrect);
-        }
-
-        if (blendargs != 0) {
-            result = surface_fill_blend(surf, &sdlrect, color, blendargs);
-        }
-        else {
-            pgSurface_Prep(self);
-            pgSurface_Lock((pgSurfaceObject *)self);
-            result = SDL_FillRect(surf, &sdlrect, color);
-            pgSurface_Unlock((pgSurfaceObject *)self);
-            pgSurface_Unprep(self);
-        }
-        if (result == -1)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+        pgSurface_Prep(self);
+        pgSurface_Lock((pgSurfaceObject *)self);
+        result = PG_FillSurfaceRect(surf, &sdlrect, color) - 1;
+        pgSurface_Unlock((pgSurfaceObject *)self);
+        pgSurface_Unprep(self);
     }
+    if (result == -1) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
     return pgRect_New(&sdlrect);
 }
 
@@ -1837,24 +2207,29 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *src, *dest = pgSurface_AsSurface(self);
     SDL_Rect *src_rect, temp;
-    PyObject *argpos, *argrect = NULL;
+    PyObject *argpos = NULL, *argrect = NULL;
     pgSurfaceObject *srcobject;
     int dx, dy, result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0;
+    int blend_flags = 0;
 
     static char *kwids[] = {"source", "dest", "area", "special_flags", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O|Oi", kwids,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!|OOi", kwids,
                                      &pgSurface_Type, &srcobject, &argpos,
-                                     &argrect, &the_args))
+                                     &argrect, &blend_flags)) {
         return NULL;
+    }
 
     src = pgSurface_AsSurface(srcobject);
-    if (!dest || !src)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(src)
+    SURF_INIT_CHECK(dest)
 
-    if ((src_rect = pgRect_FromObject(argpos, &temp))) {
+    if (argpos == NULL) { /* dest argument is absent  */
+        dx = 0;
+        dy = 0;
+    }
+    else if ((src_rect = pgRect_FromObject(argpos, &temp))) {
         dx = src_rect->x;
         dy = src_rect->y;
     }
@@ -1862,12 +2237,14 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dx = sx;
         dy = sy;
     }
-    else
+    else {
         return RAISE(PyExc_TypeError, "invalid destination position for blit");
+    }
 
     if (argrect && argrect != Py_None) {
-        if (!(src_rect = pgRect_FromObject(argrect, &temp)))
+        if (!(src_rect = pgRect_FromObject(argrect, &temp))) {
             return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
+        }
     }
     else {
         temp.x = temp.y = 0;
@@ -1881,13 +2258,16 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     dest_rect.w = src_rect->w;
     dest_rect.h = src_rect->h;
 
-    if (!the_args)
-        the_args = 0;
+    if (!blend_flags) {
+        blend_flags = 0;
+    }
 
-    result = pgSurface_Blit(self, srcobject, &dest_rect, src_rect, the_args);
+    result =
+        pgSurface_Blit(self, srcobject, &dest_rect, src_rect, blend_flags);
 
-    if (result != 0)
+    if (result != 0) {
         return NULL;
+    }
 
     return pgRect_New(&dest_rect);
 }
@@ -1912,7 +2292,7 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int dx, dy, result;
     SDL_Rect dest_rect;
     int sx, sy;
-    int the_args = 0;
+    int blend_flags = 0;
 
     PyObject *blitsequence;
     PyObject *iterator = NULL;
@@ -1924,10 +2304,14 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     int doreturn = 1;
     int bliterrornum = 0;
     int issequence = 0;
+
     static char *kwids[] = {"blit_sequence", "doreturn", NULL};
+
+    SURF_INIT_CHECK(dest)
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwids, &blitsequence,
-                                     &doreturn))
+                                     &doreturn)) {
         return NULL;
+    }
 
     if (!PyIter_Check(blitsequence) &&
         !(issequence = PySequence_Check(blitsequence))) {
@@ -1951,8 +2335,9 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         else {
             ret = PyList_New(0);
         }
-        if (!ret)
+        if (!ret) {
             return NULL;
+        }
     }
 
     iterator = PyObject_GetIter(blitsequence);
@@ -1975,7 +2360,7 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         }
         argrect = NULL;
         special_flags = NULL;
-        the_args = 0;
+        blend_flags = 0;
 
         /* We know that there will be at least two items due to the
            conditional at the start of the loop */
@@ -2043,14 +2428,14 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         dest_rect.h = src_rect->h;
 
         if (special_flags) {
-            if (!pg_IntFromObj(special_flags, &the_args)) {
+            if (!pg_IntFromObj(special_flags, &blend_flags)) {
                 bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
                 goto bliterror;
             }
         }
 
         result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
-                                src_rect, the_args);
+                                src_rect, blend_flags);
 
         if (result != 0) {
             bliterrornum = BLITS_ERR_BLIT_FAIL;
@@ -2139,71 +2524,433 @@ bliterror:
     return RAISE(PyExc_TypeError, "Unknown error");
 }
 
+#define FBLITS_ERR_TUPLE_REQUIRED 11
+#define FBLITS_ERR_INCORRECT_ARGS_NUM 12
+#define FBLITS_ERR_FLAG_NOT_NUMERIC 13
+
+static int PG_FORCEINLINE
+_surf_fblits_item_check_and_blit(pgSurfaceObject *self, PyObject *item,
+                                 int blend_flags)
+{
+    PyObject *src_surf, *blit_pos;
+    SDL_Surface *src;
+    SDL_Rect *src_rect, temp, dest_rect;
+
+    /* Check that the item is a tuple of length 2 */
+    if (!PyTuple_Check(item) || PyTuple_GET_SIZE(item) != 2) {
+        return FBLITS_ERR_TUPLE_REQUIRED;
+    }
+
+    /* Extract the Surface and destination objects from the
+     * (Surface, dest) tuple */
+    src_surf = PyTuple_GET_ITEM(item, 0);
+    blit_pos = PyTuple_GET_ITEM(item, 1);
+
+    /* Check that the source is a Surface */
+    if (!pgSurface_Check(src_surf)) {
+        return BLITS_ERR_SOURCE_NOT_SURFACE;
+    }
+    if (!(src = pgSurface_AsSurface(src_surf))) {
+        return BLITS_ERR_SEQUENCE_SURF;
+    }
+
+    /* Try to extract a valid blit position */
+    if (pg_TwoIntsFromObj(blit_pos, &dest_rect.x, &dest_rect.y)) {
+    }
+    else if ((src_rect = pgRect_FromObject(blit_pos, &temp))) {
+        dest_rect.x = src_rect->x;
+        dest_rect.y = src_rect->y;
+    }
+    else {
+        return BLITS_ERR_INVALID_DESTINATION;
+    }
+
+    dest_rect.w = src->w;
+    dest_rect.h = src->h;
+
+    /* Perform the blit */
+    if (pgSurface_Blit(self, (pgSurfaceObject *)src_surf, &dest_rect, NULL,
+                       blend_flags)) {
+        return BLITS_ERR_BLIT_FAIL;
+    }
+
+    return 0;
+}
+
+static PyObject *
+surf_fblits(pgSurfaceObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    SDL_Surface *dest = pgSurface_AsSurface(self);
+    SURF_INIT_CHECK(dest)
+
+    PyObject *blit_sequence, *item;
+    int blend_flags = 0; /* Default flag is 0, opaque */
+    int error = 0;
+    int is_generator = 0;
+
+    if (nargs == 0 || nargs > 2) {
+        error = FBLITS_ERR_INCORRECT_ARGS_NUM;
+        goto on_error;
+    }
+    /* Get the blend flags if they are passed */
+    else if (nargs == 2) {
+        if (!PyLong_Check(args[1])) {
+            error = FBLITS_ERR_FLAG_NOT_NUMERIC;
+            goto on_error;
+        }
+        blend_flags = PyLong_AsLong(args[1]);
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+
+    blit_sequence = args[0];
+
+    /* Fast path for Lists or Tuples */
+    if (pgSequenceFast_Check(blit_sequence)) {
+        Py_ssize_t i;
+        PyObject **sequence_items = PySequence_Fast_ITEMS(blit_sequence);
+        for (i = 0; i < PySequence_Fast_GET_SIZE(blit_sequence); i++) {
+            item = sequence_items[i];
+            error = _surf_fblits_item_check_and_blit(self, item, blend_flags);
+            if (error) {
+                goto on_error;
+            }
+        }
+    }
+    /* Generator path */
+    else if (PyIter_Check(blit_sequence)) {
+        is_generator = 1;
+        while ((item = PyIter_Next(blit_sequence))) {
+            error = _surf_fblits_item_check_and_blit(self, item, blend_flags);
+            if (error) {
+                goto on_error;
+            }
+            Py_DECREF(item);
+        }
+
+        /* If the generator raises an exception */
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+    else {
+        error = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto on_error;
+    }
+
+    Py_RETURN_NONE;
+
+on_error:
+    if (is_generator) {
+        Py_XDECREF(item);
+    }
+    switch (error) {
+        case BLITS_ERR_SEQUENCE_REQUIRED:
+            return RAISE(
+                PyExc_ValueError,
+                "blit_sequence should be iterator of (Surface, dest)");
+        case BLITS_ERR_SEQUENCE_SURF:
+            return RAISE(
+                PyExc_TypeError,
+                "First element of pairs (Surface, dest) in blit_sequence "
+                "must be a Surface.");
+        case BLITS_ERR_INVALID_DESTINATION:
+            return RAISE(PyExc_TypeError,
+                         "invalid destination position for blit");
+        case BLITS_ERR_INVALID_RECT_STYLE:
+            return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
+        case BLITS_ERR_MUST_ASSIGN_NUMERIC:
+            return RAISE(PyExc_TypeError, "Must assign numeric values");
+        case BLITS_ERR_BLIT_FAIL:
+            return RAISE(
+                PyExc_TypeError,
+                "Blit failed (probably the flag used does not exist)");
+        case BLITS_ERR_PY_EXCEPTION_RAISED:
+            return NULL; /* Raising a previously set exception */
+        case BLITS_ERR_SOURCE_NOT_SURFACE:
+            return RAISE(PyExc_TypeError, "Source objects must be a Surface");
+        case FBLITS_ERR_TUPLE_REQUIRED:
+            return RAISE(
+                PyExc_ValueError,
+                "Blit_sequence item should be a tuple of (Surface, dest)");
+        case FBLITS_ERR_INCORRECT_ARGS_NUM:
+            return RAISE(PyExc_ValueError,
+                         "Incorrect number of parameters passed: need at "
+                         "least one, 2 at max");
+        case FBLITS_ERR_FLAG_NOT_NUMERIC:
+            return RAISE(PyExc_TypeError,
+                         "The special_flags parameter must be an int");
+    }
+    return RAISE(PyExc_TypeError, "Unknown error");
+}
+
+static int
+scroll_repeat(int h, int dx, int dy, int pitch, int span, int xoffset,
+              Uint8 *startsrc, Uint8 *endsrc, Uint8 *linesrc)
+{
+    if (dy != 0) {
+        int yincrease = dy > 0 ? -pitch : pitch;
+        int spanincrease = dy > 0 ? -span : span;
+        int templen = (dy > 0 ? dy * span : -dy * span);
+        int tempheight = (dy > 0 ? dy : -dy);
+        /* Create a temporary buffer to store the pixels that
+           are disappearing from the surface */
+        Uint8 *tempbuf = (Uint8 *)malloc(templen);
+        if (tempbuf == NULL) {
+            PyErr_NoMemory();
+            return -1;
+        }
+        memset(tempbuf, 0, templen);
+        Uint8 *templine = tempbuf;
+        Uint8 *tempend =
+            templine + (dy > 0 ? (dy - 1) * span : -(dy + 1) * span);
+        if (dy > 0) {
+            templine = tempend;
+        }
+        int looph = h;
+        while (looph--) {
+            // If the current line should disappear copy it to the
+            // temporary buffer
+            if ((templine <= tempend && dy < 0) ||
+                (templine >= tempbuf && dy > 0)) {
+                if (dx > 0) {
+                    memcpy(templine, linesrc + span - xoffset, xoffset);
+                    memcpy(templine + xoffset, linesrc, span - xoffset);
+                }
+                else if (dx < 0) {
+                    memcpy(templine + span + xoffset, linesrc, -xoffset);
+                    memcpy(templine, linesrc - xoffset, span + xoffset);
+                }
+                else {
+                    memcpy(templine, linesrc, span);
+                }
+                memset(linesrc, 0, span);
+                templine += spanincrease;
+            }
+            else {
+                Uint8 *pastesrc = linesrc + pitch * dy;
+                if ((dy < 0 && pastesrc >= startsrc) ||
+                    (dy > 0 && pastesrc <= endsrc)) {
+                    if (dx > 0) {
+                        memcpy(pastesrc, linesrc + span - xoffset, xoffset);
+                        memcpy(pastesrc + xoffset, linesrc, span - xoffset);
+                    }
+                    else if (dx < 0) {
+                        memcpy(pastesrc + span + xoffset, linesrc, -xoffset);
+                        memcpy(pastesrc, linesrc - xoffset, span + xoffset);
+                    }
+                    else {
+                        memcpy(pastesrc, linesrc, span);
+                    }
+                }
+            }
+            linesrc += yincrease;
+        }
+        // Copy the data of the buffer back to the original pixels to
+        // repeat
+        templine = tempbuf;
+        if (dy < 0) {
+            linesrc = startsrc + pitch * (h - tempheight);
+        }
+        else {
+            linesrc = startsrc;
+        }
+        while (tempheight--) {
+            memcpy(linesrc, templine, span);
+            linesrc += pitch;
+            templine += span;
+        }
+        free(tempbuf);
+    }
+    else {
+        // No y-shifting, the temporary buffer should only store the x loss
+        Uint8 *tempbuf = (Uint8 *)malloc((dx > 0 ? xoffset : -xoffset));
+        if (tempbuf == NULL) {
+            PyErr_NoMemory();
+            return -1;
+        }
+        while (h--) {
+            if (dx > 0) {
+                memcpy(tempbuf, linesrc + span - xoffset, xoffset);
+                memmove(linesrc + xoffset, linesrc, span - xoffset);
+                memcpy(linesrc, tempbuf, xoffset);
+            }
+            else if (dx < 0) {
+                memcpy(tempbuf, linesrc, -xoffset);
+                memmove(linesrc, linesrc - xoffset, span + xoffset);
+                memcpy(linesrc + span + xoffset, tempbuf, -xoffset);
+            }
+            linesrc += pitch;
+        }
+        free(tempbuf);
+    }
+    return 0;
+}
+
+static int
+scroll_default(int h, int dx, int dy, int pitch, int span, int xoffset,
+               Uint8 *startsrc, Uint8 *endsrc, Uint8 *linesrc, int erase)
+{
+    if (dy != 0) {
+        /* Copy the current line to a before or after position if it's
+           valid with consideration of x offset and memset to avoid
+           artifacts */
+        int yincrease = dy > 0 ? -pitch : pitch;
+        while (h--) {
+            Uint8 *pastesrc = linesrc + pitch * dy;
+            if ((dy < 0 && pastesrc >= startsrc) ||
+                (dy > 0 && pastesrc <= endsrc)) {
+                if (dx > 0) {
+                    memcpy(pastesrc + xoffset, linesrc, span - xoffset);
+                }
+                else if (dx < 0) {
+                    memcpy(pastesrc, linesrc - xoffset, span + xoffset);
+                }
+                else {
+                    memcpy(pastesrc, linesrc, span);
+                }
+                if (erase) {
+                    memset(linesrc, 0, span);
+                    // Fix the missing pixel bug
+                    if (dx < 0) {
+                        memset(pastesrc + span + xoffset, 0, -xoffset);
+                    }
+                    else if (dx > 0) {
+                        memset(pastesrc, 0, xoffset);
+                    }
+                }
+            }
+            linesrc += yincrease;
+        }
+    }
+    else {
+        // No y-shifting, we only need to move pixels on the same line
+        while (h--) {
+            if (dx > 0) {
+                memmove(linesrc + xoffset, linesrc, span - xoffset);
+                if (erase) {
+                    memset(linesrc, 0, xoffset);
+                }
+            }
+            else if (dx < 0) {
+                memmove(linesrc, linesrc - xoffset, span + xoffset);
+                if (erase) {
+                    memset(linesrc + span + xoffset, 0, -xoffset);
+                }
+            }
+            linesrc += pitch;
+        }
+    }
+    return 0;
+}
+
+static int
+scroll(SDL_Surface *surf, int dx, int dy, int x, int y, int w, int h,
+       int repeat, int erase)
+{
+    int bpp = PG_SURF_BytesPerPixel(surf);
+    int pitch = surf->pitch;
+    int span = w * bpp;
+    Uint8 *linesrc = (Uint8 *)surf->pixels + pitch * y + bpp * x;
+    Uint8 *startsrc = linesrc;
+    int xoffset = dx * bpp;
+    Uint8 *endsrc = linesrc;
+    if (dy > 0) {
+        endsrc = linesrc + pitch * (h - 1);
+        linesrc = endsrc;
+    }
+
+    if (repeat) {
+        return scroll_repeat(h, dx, dy, pitch, span, xoffset, startsrc, endsrc,
+                             linesrc);
+    }
+    else {
+        return scroll_default(h, dx, dy, pitch, span, xoffset, startsrc,
+                              endsrc, linesrc, erase);
+    }
+}
+
 static PyObject *
 surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    int dx = 0, dy = 0;
+    int dx = 0, dy = 0, scroll_flag = PGS_SCROLL_DEFAULT;
+    int erase = 0, repeat = 0;
     SDL_Surface *surf;
-    int bpp;
-    int pitch;
-    SDL_Rect *clip_rect;
-    int w, h;
-    Uint8 *src, *dst;
+    SDL_Rect work_rect;
+    int w = 0, h = 0, x = 0, y = 0;
 
-    static char *kwids[] = {"dx", "dy", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwids, &dx, &dy)) {
+    static char *kwids[] = {"dx", "dy", "scroll_flag", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwids, &dx, &dy,
+                                     &scroll_flag)) {
         return NULL;
     }
 
     surf = pgSurface_AsSurface(self);
-    if (!surf) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
+    SURF_INIT_CHECK(surf)
 
     if (dx == 0 && dy == 0) {
         Py_RETURN_NONE;
     }
 
-    clip_rect = &surf->clip_rect;
-    w = clip_rect->w;
-    h = clip_rect->h;
-    if (dx >= w || dx <= -w || dy >= h || dy <= -h) {
+    switch (scroll_flag) {
+        case PGS_SCROLL_REPEAT: {
+            repeat = 1;
+            break;
+        }
+        case PGS_SCROLL_ERASE: {
+            erase = 1;
+            break;
+        }
+        default: {
+            if (scroll_flag != PGS_SCROLL_DEFAULT) {
+                return RAISE(PyExc_ValueError, "Invalid scroll flag");
+            }
+        }
+    }
+
+    SDL_Rect clip_rect;
+    if (!PG_GetSurfaceClipRect(surf, &clip_rect)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    SDL_Rect surf_rect = {0, 0, surf->w, surf->h};
+
+    // In SDL3, SDL_IntersectRect is renamed to SDL_GetRectIntersection
+    if (!SDL_IntersectRect(&clip_rect, &surf_rect, &work_rect)) {
         Py_RETURN_NONE;
     }
+
+    w = work_rect.w;
+    h = work_rect.h;
+    x = work_rect.x;
+    y = work_rect.y;
+
+    /* If the clip rect is outside the surface fill and return
+      for scrolls without repeat. Only fill when erase is true */
+    if (!repeat) {
+        if (dx >= w || dx <= -w || dy >= h || dy <= -h) {
+            if (erase) {
+                if (!PG_FillSurfaceRect(surf, NULL, 0)) {
+                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                    return NULL;
+                }
+            }
+            Py_RETURN_NONE;
+        }
+    }
+    // Repeated scrolls are periodic so we can delete the exceeding value
+    dx = dx % w;
+    dy = dy % h;
 
     if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return NULL;
     }
 
-    bpp = surf->format->BytesPerPixel;
-    pitch = surf->pitch;
-    src = dst =
-        (Uint8 *)surf->pixels + clip_rect->y * pitch + clip_rect->x * bpp;
-    if (dx >= 0) {
-        w -= dx;
-        if (dy > 0) {
-            h -= dy;
-            dst += dy * pitch + dx * bpp;
-        }
-        else {
-            h += dy;
-            src -= dy * pitch;
-            dst += dx * bpp;
-        }
+    if (scroll(surf, dx, dy, x, y, w, h, repeat, erase) < 0) {
+        pgSurface_Unlock((pgSurfaceObject *)self);
+        return NULL;
     }
-    else {
-        w += dx;
-        if (dy > 0) {
-            h -= dy;
-            src -= dx * bpp;
-            dst += dy * pitch;
-        }
-        else {
-            h += dy;
-            src -= dy * pitch + dx * bpp;
-        }
-    }
-    surface_move(src, dst, h, w * bpp, pitch, pitch);
 
     if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return NULL;
@@ -2212,30 +2959,11 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     Py_RETURN_NONE;
 }
 
-int
-pg_HasSurfaceRLE(SDL_Surface *surface)
-{
-    pg_BlitMap *blit_map;
-    /* this is part of a hack to allow us to access
-       the COPY_RLE_DESIRED flag from pygame */
-    if (!surface) {
-        return SDL_FALSE;
-    }
-
-    blit_map = (pg_BlitMap *)surface->map;
-
-    if (!(blit_map->info.flags & PGS_COPY_RLE_DESIRED)) {
-        return SDL_FALSE;
-    }
-
-    return SDL_TRUE;
-}
-
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
 {
     SDL_BlendMode mode;
-    if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+    if (!PG_GetSurfaceBlendMode(surf, &mode)) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
@@ -2246,7 +2974,11 @@ static PyObject *
 surf_get_flags(PyObject *self, PyObject *_null)
 {
     Uint32 sdl_flags = 0;
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    SDL_WindowFlags window_flags = 0;
+#else
     Uint32 window_flags = 0;
+#endif
     Uint32 flags = 0;
     int is_alpha;
     int is_window_surf = 0;
@@ -2254,8 +2986,8 @@ surf_get_flags(PyObject *self, PyObject *_null)
 
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
+
     if (win && pg_GetDefaultWindowSurface()) {
         if (surf == pgSurface_AsSurface(pg_GetDefaultWindowSurface())) {
             is_window_surf = 1;
@@ -2263,29 +2995,40 @@ surf_get_flags(PyObject *self, PyObject *_null)
         }
     }
     sdl_flags = surf->flags;
-    if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
+    if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1) {
         return NULL;
+    }
     if (is_alpha) {
         flags |= PGS_SRCALPHA;
     }
-    if (SDL_GetColorKey(surf, NULL) == 0)
+    if (SDL_HasColorKey(surf)) {
         flags |= PGS_SRCCOLORKEY;
-    if (sdl_flags & SDL_PREALLOC)
+    }
+    if (sdl_flags & SDL_PREALLOC) {
         flags |= PGS_PREALLOC;
-    if (pg_HasSurfaceRLE(surf))
+    }
+    /* This checks if RLE was requested on the surface */
+    if (PG_SurfaceHasRLE(surf)) {
         flags |= PGS_RLEACCELOK;
-    if ((sdl_flags & SDL_RLEACCEL))
+    }
+    /* this checks if the surface actually has RLE.
+     * On SDL2: SDL_MUSTLOCK is (flags & SDL_RLEACCEL) */
+    if (SDL_MUSTLOCK(surf)) {
         flags |= PGS_RLEACCEL;
+    }
     if (is_window_surf) {
-        if (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
-            window_flags & SDL_WINDOW_FULLSCREEN)
+        if (window_flags & PG_WINDOW_FULLSCREEN_INCLUSIVE) {
             flags |= PGS_FULLSCREEN;
-        if (window_flags & SDL_WINDOW_OPENGL)
+        }
+        if (window_flags & SDL_WINDOW_OPENGL) {
             flags |= PGS_OPENGL;
-        if (window_flags & SDL_WINDOW_RESIZABLE)
+        }
+        if (window_flags & SDL_WINDOW_RESIZABLE) {
             flags |= PGS_RESIZABLE;
-        if (window_flags & SDL_WINDOW_BORDERLESS)
+        }
+        if (window_flags & SDL_WINDOW_BORDERLESS) {
             flags |= PGS_NOFRAME;
+        }
     }
 
     return PyLong_FromLong((long)flags);
@@ -2296,8 +3039,7 @@ surf_get_pitch(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
     return PyLong_FromLong(surf->pitch);
 }
 
@@ -2306,9 +3048,8 @@ surf_get_size(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return Py_BuildValue("(ii)", surf->w, surf->h);
+    SURF_INIT_CHECK(surf)
+    return pg_tuple_couple_from_values_int(surf->w, surf->h);
 }
 
 static PyObject *
@@ -2316,8 +3057,7 @@ surf_get_width(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
     return PyLong_FromLong(surf->w);
 }
 
@@ -2326,57 +3066,50 @@ surf_get_height(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
     return PyLong_FromLong(surf->h);
 }
 
 static PyObject *
-surf_get_rect(PyObject *self, PyObject *args, PyObject *kwargs)
+surf_get_rect(PyObject *self, PyObject *const *args, Py_ssize_t nargs,
+              PyObject *kwnames)
 {
-    PyObject *rect;
     SDL_Surface *surf = pgSurface_AsSurface(self);
+    SURF_INIT_CHECK(surf)
 
-    if (PyTuple_GET_SIZE(args) > 0) {
-        return RAISE(PyExc_TypeError,
-                     "get_rect only accepts keyword arguments");
-    }
+    PyObject *rect = pgRect_New4(0, 0, surf->w, surf->h);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    return pgObject_getRectHelper(rect, args, nargs, kwnames, "rect");
+}
 
-    rect = pgRect_New4(0, 0, surf->w, surf->h);
-    if (rect && kwargs) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
+static PyObject *
+surf_get_frect(PyObject *self, PyObject *const *args, Py_ssize_t nargs,
+               PyObject *kwnames)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    SURF_INIT_CHECK(surf)
 
-        while (PyDict_Next(kwargs, &pos, &key, &value)) {
-            if ((PyObject_SetAttr(rect, key, value) == -1)) {
-                Py_DECREF(rect);
-                return NULL;
-            }
-        }
-    }
-    return rect;
+    PyObject *rect = pgFRect_New4(0.f, 0.f, (float)surf->w, (float)surf->h);
+
+    return pgObject_getRectHelper(rect, args, nargs, kwnames, "frect");
 }
 
 static PyObject *
 surf_get_bitsize(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    return PyLong_FromLong(surf->format->BitsPerPixel);
+    return PyLong_FromLong(PG_SURF_BitsPerPixel(surf));
 }
 
 static PyObject *
 surf_get_bytesize(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return PyLong_FromLong(surf->format->BytesPerPixel);
+    SURF_INIT_CHECK(surf)
+
+    return PyLong_FromLong(PG_SURF_BytesPerPixel(surf));
 }
 
 static PyObject *
@@ -2384,10 +3117,15 @@ surf_get_masks(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return Py_BuildValue("(IIII)", surf->format->Rmask, surf->format->Gmask,
-                         surf->format->Bmask, surf->format->Amask);
+    SURF_INIT_CHECK(surf)
+
+    PG_PixelFormat *format = PG_GetSurfaceFormat(surf);
+    if (format == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return Py_BuildValue("(IIII)", format->Rmask, format->Gmask, format->Bmask,
+                         format->Amask);
 }
 
 static PyObject *
@@ -2401,10 +3139,15 @@ surf_get_shifts(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return Py_BuildValue("(iiii)", surf->format->Rshift, surf->format->Gshift,
-                         surf->format->Bshift, surf->format->Ashift);
+    SURF_INIT_CHECK(surf)
+
+    PG_PixelFormat *format = PG_GetSurfaceFormat(surf);
+    if (format == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return Py_BuildValue("(iiii)", format->Rshift, format->Gshift,
+                         format->Bshift, format->Ashift);
 }
 
 static PyObject *
@@ -2418,57 +3161,65 @@ surf_get_losses(PyObject *self, PyObject *_null)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    return Py_BuildValue("(iiii)", surf->format->Rloss, surf->format->Gloss,
-                         surf->format->Bloss, surf->format->Aloss);
+    SURF_INIT_CHECK(surf)
+
+    PG_PixelFormat *format = PG_GetSurfaceFormat(surf);
+    if (format == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return Py_BuildValue("(iiii)", PG_FORMAT_R_LOSS(format),
+                         PG_FORMAT_G_LOSS(format), PG_FORMAT_B_LOSS(format),
+                         PG_FORMAT_A_LOSS(format));
 }
 
 static PyObject *
 surf_subsurface(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format;
     SDL_Rect *rect, temp;
     SDL_Surface *sub;
     PyObject *subobj;
-    int pixeloffset;
-    char *startpixel;
     struct pgSubSurface_Data *data;
     Uint8 alpha;
     Uint32 colorkey;
-    int ecode;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    format = surf->format;
-    if (!(rect = pgRect_FromObject(args, &temp)))
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (!(rect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_ValueError, "invalid rectstyle argument");
+    }
     if (rect->x < 0 || rect->y < 0 || rect->x + rect->w > surf->w ||
-        rect->y + rect->h > surf->h)
+        rect->y + rect->h > surf->h) {
         return RAISE(PyExc_ValueError,
                      "subsurface rectangle outside surface area");
+    }
 
     pgSurface_Lock((pgSurfaceObject *)self);
 
-    pixeloffset = rect->x * format->BytesPerPixel + rect->y * surf->pitch;
-    startpixel = ((char *)surf->pixels) + pixeloffset;
+    char *startpixel = ((char *)surf->pixels) +
+                       rect->x * PG_FORMAT_BytesPerPixel(format) +
+                       rect->y * surf->pitch;
 
-    sub = SDL_CreateRGBSurfaceFrom(
-        startpixel, rect->w, rect->h, format->BitsPerPixel, surf->pitch,
-        format->Rmask, format->Gmask, format->Bmask, format->Amask);
+    sub = PG_CreateSurfaceFrom(rect->w, rect->h, format->format, startpixel,
+                               surf->pitch);
 
     pgSurface_Unlock((pgSurfaceObject *)self);
 
-    if (!sub)
-        return _raise_create_surface_error();
+    if (!sub) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     /* copy the colormap if we need it */
-    if (SDL_ISPIXELFORMAT_INDEXED(surf->format->format) &&
-        surf->format->palette) {
-        SDL_Color *colors = surf->format->palette->colors;
-        int ncolors = surf->format->palette->ncolors;
+    if (SDL_ISPIXELFORMAT_INDEXED(format->format) && palette) {
+        SDL_Color *colors = palette->colors;
+        int ncolors = palette->ncolors;
         SDL_Palette *pal = SDL_AllocPalette(ncolors);
 
         if (!pal) {
@@ -2476,13 +3227,13 @@ surf_subsurface(PyObject *self, PyObject *args)
             SDL_FreeSurface(sub);
             return NULL;
         }
-        if (SDL_SetPaletteColors(pal, colors, 0, ncolors) != 0) {
+        if (!PG_SetPaletteColors(pal, colors, 0, ncolors)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreePalette(pal);
             SDL_FreeSurface(sub);
             return NULL;
         }
-        if (SDL_SetSurfacePalette(sub, pal) != 0) {
+        if (!PG_SetSurfacePalette(sub, pal)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreePalette(pal);
             SDL_FreeSurface(sub);
@@ -2490,37 +3241,31 @@ surf_subsurface(PyObject *self, PyObject *args)
         }
         SDL_FreePalette(pal);
     }
-    if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0) {
+    if (!PG_GetSurfaceAlphaMod(surf, &alpha)) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         SDL_FreeSurface(sub);
         return NULL;
     }
     if (alpha != 255) {
-        if (SDL_SetSurfaceAlphaMod(sub, alpha) != 0) {
+        if (!PG_SetSurfaceAlphaMod(sub, alpha)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(sub);
             return NULL;
         }
     }
-    ecode = SDL_GetColorKey(surf, &colorkey);
-    if (ecode == 0) {
-        if (SDL_SetColorKey(sub, SDL_TRUE, colorkey) != 0) {
+    if (SDL_HasColorKey(surf)) {
+        SDL_GetColorKey(surf, &colorkey);
+        if (!PG_SetSurfaceColorKey(sub, SDL_TRUE, colorkey)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(sub);
             return NULL;
         }
-    }
-    else if (ecode == -1)
-        SDL_ClearError();
-    else {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        SDL_FreeSurface(sub);
-        return NULL;
     }
 
     data = PyMem_New(struct pgSubSurface_Data, 1);
-    if (!data)
+    if (!data) {
         return NULL;
+    }
 
     subobj = surf_subtype_new(Py_TYPE(self), sub, 1);
     if (!subobj) {
@@ -2529,7 +3274,6 @@ surf_subsurface(PyObject *self, PyObject *args)
     }
     Py_INCREF(self);
     data->owner = self;
-    data->pixeloffset = pixeloffset;
     data->offsetx = rect->x;
     data->offsety = rect->y;
     ((pgSurfaceObject *)subobj)->subsurface = data;
@@ -2543,13 +3287,13 @@ surf_get_offset(PyObject *self, PyObject *_null)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
-    if (!subdata)
-        return Py_BuildValue("(ii)", 0, 0);
-    return Py_BuildValue("(ii)", subdata->offsetx, subdata->offsety);
+    if (!subdata) {
+        return pg_tuple_couple_from_values_int(0, 0);
+    }
+    return pg_tuple_couple_from_values_int(subdata->offsetx, subdata->offsety);
 }
 
 static PyObject *
@@ -2560,12 +3304,12 @@ surf_get_abs_offset(PyObject *self, PyObject *_null)
     PyObject *owner;
     int offsetx, offsety;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
-    if (!subdata)
-        return Py_BuildValue("(ii)", 0, 0);
+    if (!subdata) {
+        return pg_tuple_couple_from_values_int(0, 0);
+    }
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     owner = subdata->owner;
@@ -2578,7 +3322,7 @@ surf_get_abs_offset(PyObject *self, PyObject *_null)
         offsetx += subdata->offsetx;
         offsety += subdata->offsety;
     }
-    return Py_BuildValue("(ii)", offsetx, offsety);
+    return pg_tuple_couple_from_values_int(offsetx, offsety);
 }
 
 static PyObject *
@@ -2587,12 +3331,12 @@ surf_get_parent(PyObject *self, PyObject *_null)
     SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
-    if (!subdata)
+    if (!subdata) {
         Py_RETURN_NONE;
+    }
 
     Py_INCREF(subdata->owner);
     return subdata->owner;
@@ -2605,8 +3349,7 @@ surf_get_abs_parent(PyObject *self, PyObject *_null)
     struct pgSubSurface_Data *subdata;
     PyObject *owner;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     if (!subdata) {
@@ -2640,7 +3383,6 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 #endif
     PyObject *rect;
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = NULL;
     Uint8 *pixels = NULL;
     Uint8 *pixel;
     int x, y;
@@ -2654,22 +3396,28 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     Uint8 keyr, keyg, keyb;
 
     char *kwids[] = {"min_alpha", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha)) {
         return RAISE(PyExc_ValueError,
                      "get_bounding_rect only accepts a single optional "
                      "min_alpha argument");
+    }
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
-    if (!pgSurface_Lock((pgSurfaceObject *)self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return RAISE(pgExc_SDLError, "could not lock surface");
+    }
 
-    format = surf->format;
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surf, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    int bpp = PG_FORMAT_BytesPerPixel(format);
 
-    if (SDL_GetColorKey(surf, &colorkey) == 0) {
-        has_colorkey = 1;
-        SDL_GetRGBA(colorkey, surf->format, &keyr, &keyg, &keyb, &a);
+    if ((has_colorkey = SDL_HasColorKey(surf))) {
+        SDL_GetColorKey(surf, &colorkey);
+        PG_GetRGBA(colorkey, format, palette, &keyr, &keyg, &keyb, &a);
     }
 
     pixels = (Uint8 *)surf->pixels;
@@ -2681,8 +3429,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     found_alpha = 0;
     for (y = max_y - 1; y >= min_y; --y) {
         for (x = min_x; x < max_x; ++x) {
-            pixel = (pixels + y * surf->pitch) + x * format->BytesPerPixel;
-            switch (format->BytesPerPixel) {
+            pixel = (pixels + y * surf->pitch) + x * bpp;
+            switch (bpp) {
                 case 1:
                     value = *pixel;
                     break;
@@ -2695,10 +3443,10 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
                     value |= pixel[BYTE2] << 16;
                     break;
                 default:
-                    assert(format->BytesPerPixel == 4);
+                    assert(bpp == 4);
                     value = *(Uint32 *)pixel;
             }
-            SDL_GetRGBA(value, surf->format, &r, &g, &b, &a);
+            PG_GetRGBA(value, format, palette, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2713,8 +3461,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     found_alpha = 0;
     for (x = max_x - 1; x >= min_x; --x) {
         for (y = min_y; y < max_y; ++y) {
-            pixel = (pixels + y * surf->pitch) + x * format->BytesPerPixel;
-            switch (format->BytesPerPixel) {
+            pixel = (pixels + y * surf->pitch) + x * bpp;
+            switch (bpp) {
                 case 1:
                     value = *pixel;
                     break;
@@ -2727,10 +3475,10 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
                     value |= pixel[BYTE2] << 16;
                     break;
                 default:
-                    assert(format->BytesPerPixel == 4);
+                    assert(bpp == 4);
                     value = *(Uint32 *)pixel;
             }
-            SDL_GetRGBA(value, surf->format, &r, &g, &b, &a);
+            PG_GetRGBA(value, format, palette, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2746,8 +3494,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     for (y = min_y; y < max_y; ++y) {
         min_y = y;
         for (x = min_x; x < max_x; ++x) {
-            pixel = (pixels + y * surf->pitch) + x * format->BytesPerPixel;
-            switch (format->BytesPerPixel) {
+            pixel = (pixels + y * surf->pitch) + x * bpp;
+            switch (bpp) {
                 case 1:
                     value = *pixel;
                     break;
@@ -2760,10 +3508,10 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
                     value |= pixel[BYTE2] << 16;
                     break;
                 default:
-                    assert(format->BytesPerPixel == 4);
+                    assert(bpp == 4);
                     value = *(Uint32 *)pixel;
             }
-            SDL_GetRGBA(value, surf->format, &r, &g, &b, &a);
+            PG_GetRGBA(value, format, palette, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2778,8 +3526,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     for (x = min_x; x < max_x; ++x) {
         min_x = x;
         for (y = min_y; y < max_y; ++y) {
-            pixel = (pixels + y * surf->pitch) + x * format->BytesPerPixel;
-            switch (format->BytesPerPixel) {
+            pixel = (pixels + y * surf->pitch) + x * bpp;
+            switch (bpp) {
                 case 1:
                     value = *pixel;
                     break;
@@ -2792,10 +3540,10 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
                     value |= pixel[BYTE2] << 16;
                     break;
                 default:
-                    assert(format->BytesPerPixel == 4);
+                    assert(bpp == 4);
                     value = *(Uint32 *)pixel;
             }
-            SDL_GetRGBA(value, surf->format, &r, &g, &b, &a);
+            PG_GetRGBA(value, format, palette, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2806,8 +3554,9 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
             break;
         }
     }
-    if (!pgSurface_Unlock((pgSurfaceObject *)self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return RAISE(pgExc_SDLError, "could not unlock surface");
+    }
 
     rect = pgRect_New4(min_x, min_y, max_x - min_x, max_y - min_y);
     return rect;
@@ -2869,7 +3618,6 @@ static PyObject *
 surf_get_view(PyObject *self, PyObject *args)
 {
     SDL_Surface *surface = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format;
     Uint32 mask = 0;
     SurfViewKind view_kind = VIEWKIND_2D;
     getbufferproc get_buffer = 0;
@@ -2878,17 +3626,21 @@ surf_get_view(PyObject *self, PyObject *args)
         return 0;
     }
 
-    if (!surface) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
+    SURF_INIT_CHECK(surface)
 
-    format = surface->format;
+    PG_PixelFormat *format;
+    SDL_Palette *palette;
+    if (!PG_GetSurfaceDetails(surface, &format, &palette)) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    int bpp = PG_FORMAT_BytesPerPixel(format);
+
     switch (view_kind) {
             /* This switch statement is exhaustive over the SurfViewKind enum
              */
 
         case VIEWKIND_0D:
-            if (surface->pitch != format->BytesPerPixel * surface->w) {
+            if (surface->pitch != bpp * surface->w) {
                 PyErr_SetString(PyExc_ValueError,
                                 "Surface data is not contiguous");
                 return 0;
@@ -2896,7 +3648,7 @@ surf_get_view(PyObject *self, PyObject *args)
             get_buffer = _get_buffer_0D;
             break;
         case VIEWKIND_1D:
-            if (surface->pitch != format->BytesPerPixel * surface->w) {
+            if (surface->pitch != bpp * surface->w) {
                 PyErr_SetString(PyExc_ValueError,
                                 "Surface data is not contiguous");
                 return 0;
@@ -2907,12 +3659,11 @@ surf_get_view(PyObject *self, PyObject *args)
             get_buffer = _get_buffer_2D;
             break;
         case VIEWKIND_3D:
-            if (format->BytesPerPixel < 3) {
-                return _raise_get_view_ndim_error(format->BytesPerPixel * 8,
-                                                  view_kind);
+            if (bpp < 3) {
+                return _raise_get_view_ndim_error(bpp * 8, view_kind);
             }
             if (format->Gmask != 0x00ff00 &&
-                (format->BytesPerPixel != 4 || format->Gmask != 0xff0000)) {
+                (bpp != 4 || format->Gmask != 0xff0000)) {
                 return RAISE(PyExc_ValueError,
                              "unsupported colormasks for 3D reference array");
             }
@@ -2970,7 +3721,7 @@ surf_get_view(PyObject *self, PyObject *args)
 #endif
     }
     assert(get_buffer);
-    return pgBufproxy_New(self, get_buffer);
+    return pgBufferProxy_New(self, get_buffer);
 }
 
 static PyObject *
@@ -2979,13 +3730,11 @@ surf_get_buffer(PyObject *self, PyObject *_null)
     SDL_Surface *surface = pgSurface_AsSurface(self);
     PyObject *proxy_obj;
 
-    if (!surface) {
-        return RAISE(pgExc_SDLError, "display Surface quit");
-    }
+    SURF_INIT_CHECK(surface)
 
-    proxy_obj = pgBufproxy_New(self, _get_buffer_0D);
+    proxy_obj = pgBufferProxy_New(self, _get_buffer_0D);
     if (proxy_obj) {
-        if (pgBufproxy_Trip(proxy_obj)) {
+        if (pgBufferProxy_Trip(proxy_obj)) {
             Py_DECREF(proxy_obj);
             proxy_obj = 0;
         }
@@ -3000,23 +3749,61 @@ surf_premul_alpha(pgSurfaceObject *self, PyObject *_null)
     PyObject *final;
     SDL_Surface *newsurf;
 
-    if (!surf)
-        return RAISE(pgExc_SDLError, "display Surface quit");
+    SURF_INIT_CHECK(surf)
 
     pgSurface_Prep(self);
     // Make a copy of the surface first
-    newsurf = SDL_ConvertSurface(surf, surf->format, 0);
-    if (premul_surf_color_by_alpha(surf, newsurf) != 0) {
-        return RAISE(PyExc_ValueError,
-                     "source surface to be alpha pre-multiplied must have "
-                     "alpha channel");
+    newsurf = PG_ConvertSurface(surf, surf->format);
+
+    if ((surf->w > 0 && surf->h > 0)) {
+        // If the surface has no pixels we don't need to premul
+        // just return the copy.
+        int result = premul_surf_color_by_alpha(surf, newsurf);
+        if (result == -1) {
+            return RAISE(PyExc_ValueError,
+                         "source surface to be alpha pre-multiplied must have "
+                         "alpha channel");
+        }
+        else if (result == -2) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
     pgSurface_Unprep(self);
 
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
-    if (!final)
+    if (!final) {
         SDL_FreeSurface(newsurf);
+    }
     return final;
+}
+
+static PyObject *
+surf_premul_alpha_ip(pgSurfaceObject *self, PyObject *_null)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    SURF_INIT_CHECK(surf)
+
+    if (!surf->w || !surf->h) {
+        Py_INCREF(self);
+        return (PyObject *)self;
+    }
+
+    pgSurface_Prep(self);
+
+    int result = premul_surf_color_by_alpha(surf, surf);
+    if (result == -1) {
+        return RAISE(PyExc_ValueError,
+                     "source surface to be alpha pre-multiplied must have "
+                     "alpha channel");
+    }
+    else if (result == -2) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    pgSurface_Unprep(self);
+
+    Py_INCREF(self);
+    return (PyObject *)self;
 }
 
 static int
@@ -3051,7 +3838,7 @@ static int
 _get_buffer_1D(PyObject *obj, Py_buffer *view_p, int flags)
 {
     SDL_Surface *surface = pgSurface_AsSurface(obj);
-    Py_ssize_t itemsize = surface->format->BytesPerPixel;
+    Py_ssize_t itemsize = PG_SURF_BytesPerPixel(surface);
 
     view_p->obj = 0;
     if (itemsize == 1) {
@@ -3109,7 +3896,7 @@ static int
 _get_buffer_2D(PyObject *obj, Py_buffer *view_p, int flags)
 {
     SDL_Surface *surface = pgSurface_AsSurface(obj);
-    int itemsize = surface->format->BytesPerPixel;
+    int itemsize = PG_SURF_BytesPerPixel(surface);
 
     view_p->obj = 0;
     if (!PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
@@ -3195,7 +3982,7 @@ static int
 _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
 {
     SDL_Surface *surface = pgSurface_AsSurface(obj);
-    int pixelsize = surface->format->BytesPerPixel;
+    int pixelsize = PG_SURF_BytesPerPixel(surface);
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
@@ -3211,6 +3998,12 @@ _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
                         "A 3D surface view is not contiguous");
         return -1;
     }
+    PG_PixelFormat *surface_format = PG_GetSurfaceFormat(surface);
+    if (surface_format == NULL) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     if (_init_buffer(obj, view_p, flags)) {
         return -1;
     }
@@ -3226,7 +4019,7 @@ _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
     view_p->shape[2] = 3;
     view_p->strides[0] = pixelsize;
     view_p->strides[1] = surface->pitch;
-    switch (surface->format->Rmask) {
+    switch (surface_format->Rmask) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         case 0xffU:
             view_p->strides[2] = 1;
@@ -3272,29 +4065,57 @@ _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
 static int
 _get_buffer_red(PyObject *obj, Py_buffer *view_p, int flags)
 {
+    PG_PixelFormat *surface_format =
+        PG_GetSurfaceFormat(pgSurface_AsSurface(obj));
+    if (surface_format == NULL) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     return _get_buffer_colorplane(obj, view_p, flags, "red",
-                                  pgSurface_AsSurface(obj)->format->Rmask);
+                                  surface_format->Rmask);
 }
 
 static int
 _get_buffer_green(PyObject *obj, Py_buffer *view_p, int flags)
 {
+    PG_PixelFormat *surface_format =
+        PG_GetSurfaceFormat(pgSurface_AsSurface(obj));
+    if (surface_format == NULL) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     return _get_buffer_colorplane(obj, view_p, flags, "green",
-                                  pgSurface_AsSurface(obj)->format->Gmask);
+                                  surface_format->Gmask);
 }
 
 static int
 _get_buffer_blue(PyObject *obj, Py_buffer *view_p, int flags)
 {
+    PG_PixelFormat *surface_format =
+        PG_GetSurfaceFormat(pgSurface_AsSurface(obj));
+    if (surface_format == NULL) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     return _get_buffer_colorplane(obj, view_p, flags, "blue",
-                                  pgSurface_AsSurface(obj)->format->Bmask);
+                                  surface_format->Bmask);
 }
 
 static int
 _get_buffer_alpha(PyObject *obj, Py_buffer *view_p, int flags)
 {
+    PG_PixelFormat *surface_format =
+        PG_GetSurfaceFormat(pgSurface_AsSurface(obj));
+    if (surface_format == NULL) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
     return _get_buffer_colorplane(obj, view_p, flags, "alpha",
-                                  pgSurface_AsSurface(obj)->format->Amask);
+                                  surface_format->Amask);
 }
 
 static int
@@ -3302,7 +4123,7 @@ _get_buffer_colorplane(PyObject *obj, Py_buffer *view_p, int flags, char *name,
                        Uint32 mask)
 {
     SDL_Surface *surface = pgSurface_AsSurface(obj);
-    int pixelsize = surface->format->BytesPerPixel;
+    int pixelsize = PG_SURF_BytesPerPixel(surface);
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
@@ -3355,8 +4176,8 @@ _get_buffer_colorplane(PyObject *obj, Py_buffer *view_p, int flags, char *name,
             /* Should not be here */
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug caught at line %i in file %s: "
-                         "unknown mask value %p. Please report",
-                         (int)__LINE__, __FILE__, (void *)mask);
+                         "unknown mask value %X. Please report",
+                         (int)__LINE__, __FILE__, mask);
             return -1;
 #endif
     }
@@ -3437,18 +4258,22 @@ _release_buffer(Py_buffer *view_p)
 {
     pg_bufferinternal *internal;
     PyObject *consumer_ref;
-    PyObject *consumer;
+    PyObject *consumer = NULL;
 
     assert(view_p && view_p->obj && view_p->internal);
     internal = (pg_bufferinternal *)view_p->internal;
     consumer_ref = internal->consumer_ref;
     assert(consumer_ref && PyWeakref_CheckRef(consumer_ref));
-    consumer = PyWeakref_GetObject(consumer_ref);
-    if (consumer) {
-        if (!pgSurface_UnlockBy((pgSurfaceObject *)view_p->obj, consumer)) {
-            PyErr_Clear();
-        }
+
+    if (PyWeakref_GetRef(consumer_ref, &consumer) != 1) {
+        PyErr_Clear();  // ignore any errors here
     }
+
+    if (!pgSurface_UnlockBy((pgSurfaceObject *)view_p->obj, consumer)) {
+        PyErr_Clear();
+    }
+    Py_XDECREF(consumer);
+
     Py_DECREF(consumer_ref);
     PyMem_Free(internal);
     Py_DECREF(view_p->obj);
@@ -3541,26 +4366,9 @@ surf_get_pixels_address(PyObject *self, PyObject *closure)
 #endif
 }
 
-static void
-surface_move(Uint8 *src, Uint8 *dst, int h, int span, int srcpitch,
-             int dstpitch)
-{
-    if (src < dst) {
-        src += (h - 1) * srcpitch;
-        dst += (h - 1) * dstpitch;
-        srcpitch = -srcpitch;
-        dstpitch = -dstpitch;
-    }
-    while (h--) {
-        memmove(dst, src, span);
-        src += srcpitch;
-        dst += dstpitch;
-    }
-}
-
 static int
 surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-                   SDL_Rect *dstrect)
+                   SDL_Rect *dstrect, SDL_Rect *clip)
 {
     Uint8 *srcpixels;
     Uint8 *dstpixels;
@@ -3569,7 +4377,6 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     int x, y;
     int w = srcrect->w, h = srcrect->h;
     int maxw, maxh;
-    SDL_Rect *clip = &dst->clip_rect;
     int span;
     int dstoffset;
 
@@ -3621,15 +4428,15 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     }
 
     srcpixels = ((Uint8 *)src->pixels + srcy * src->pitch +
-                 srcx * src->format->BytesPerPixel);
+                 srcx * PG_SURF_BytesPerPixel(src));
     dstpixels = ((Uint8 *)dst->pixels + dsty * dst->pitch +
-                 dstx * dst->format->BytesPerPixel);
+                 dstx * PG_SURF_BytesPerPixel(dst));
 
     if (dstpixels <= srcpixels) {
         return 0;
     }
 
-    span = w * src->format->BytesPerPixel;
+    span = w * PG_SURF_BytesPerPixel(src);
 
     if (dstpixels >= srcpixels + (h - 1) * src->pitch + span) {
         return 0;
@@ -3640,29 +4447,92 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     return dstoffset < span || dstoffset > src->pitch - span;
 }
 
-/**
- * \brief Blit one surface onto another.
- *
- * \param dstobj The destination surface.
- * \param srcobj The source surface.
- * \param dstrect The destination rectangle.
- * \param srcrect The source rectangle.
- * \param the_args The blit flags.
- * \return 0 for success, -1 or -2 for error.
- *
- * \note Is accessible through the C api.
- */
+int
+PG_BlitSurface(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst,
+               SDL_Rect *dstrect)
+{
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    /* SDL3 doesn't modify dstrect, so compat for that.
+     * Below logic taken from SDL2 source with slight modifications */
+    SDL_Rect r_src, r_dst;
+
+    r_src.x = 0;
+    r_src.y = 0;
+    r_src.w = src->w;
+    r_src.h = src->h;
+
+    if (dstrect) {
+        r_dst.x = dstrect->x;
+        r_dst.y = dstrect->y;
+    }
+    else {
+        r_dst.x = 0;
+        r_dst.y = 0;
+    }
+
+    /* clip the source rectangle to the source surface */
+    if (srcrect) {
+        SDL_Rect tmp;
+        if (SDL_IntersectRect(srcrect, &r_src, &tmp) == SDL_FALSE) {
+            goto end;
+        }
+
+        /* Shift dstrect, if srcrect origin has changed */
+        r_dst.x += tmp.x - srcrect->x;
+        r_dst.y += tmp.y - srcrect->y;
+
+        /* Update srcrect */
+        r_src = tmp;
+    }
+
+    /* There're no dstrect.w/h parameters. It's the same as srcrect */
+    r_dst.w = r_src.w;
+    r_dst.h = r_src.h;
+
+    /* clip the destination rectangle against the clip rectangle */
+    {
+        SDL_Rect tmp, clip_rect;
+        SDL_GetSurfaceClipRect(dst, &clip_rect);
+        if (SDL_IntersectRect(&r_dst, &clip_rect, &tmp) == SDL_FALSE) {
+            goto end;
+        }
+
+        /* Update dstrect */
+        r_dst = tmp;
+    }
+
+    if (r_dst.w > 0 && r_dst.h > 0) {
+        if (dstrect) { /* update output parameter */
+            *dstrect = r_dst;
+        }
+        return SDL_BlitSurface(src, srcrect, dst, dstrect) ? 0 : -1;
+    }
+end:
+    if (dstrect) {
+        dstrect->w = dstrect->h = 0;
+    }
+    return 0;
+#else
+    return SDL_BlitSurface(src, srcrect, dst, dstrect);
+#endif
+}
+
+/*this internal blit function is accessible through the C api*/
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
-               SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args)
+               SDL_Rect *dstrect, SDL_Rect *srcrect, int blend_flags)
 {
     SDL_Surface *src = pgSurface_AsSurface(srcobj);
     SDL_Surface *dst = pgSurface_AsSurface(dstobj);
     SDL_Surface *subsurface = NULL;
     int result, suboffsetx = 0, suboffsety = 0;
-    SDL_Rect orig_clip, sub_clip;
+    SDL_Rect orig_clip, sub_clip, dstclip;
     Uint8 alpha;
-    Uint32 key;
+
+    if (!PG_GetSurfaceClipRect(dst, &dstclip)) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return 1;
+    }
 
     /* passthrough blits to the real surface */
     if (((pgSurfaceObject *)dstobj)->subsurface) {
@@ -3683,14 +4553,6 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             suboffsety += subdata->offsety;
         }
 
-        /* Only need to check the surface at the outermost surface
-           (the non-subsurface) as a subsurface can't be the display surface
-            and only a display surface can have the SDL_Surface being NULL */
-        if (!subsurface) {
-            PyErr_SetString(pgExc_SDLError, "display Surface quit");
-            return 1;
-        }
-
         SDL_GetClipRect(subsurface, &orig_clip);
         SDL_GetClipRect(dst, &sub_clip);
         sub_clip.x += suboffsetx;
@@ -3707,49 +4569,51 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
 
     pgSurface_Prep(srcobj);
 
-    if ((the_args != 0 && the_args != PYGAME_BLEND_ALPHA_SDL2) ||
-        ((SDL_GetColorKey(src, &key) == 0 || _PgSurface_SrcAlpha(src) == 1) &&
+    if ((blend_flags != 0 && blend_flags != PYGAME_BLEND_ALPHA_SDL2) ||
+        ((SDL_HasColorKey(src) || _PgSurface_SrcAlpha(src) == 1) &&
          /* This simplification is possible because a source subsurface
             is converted to its owner with a clip rect and a dst
             subsurface cannot be blitted to its owner because the
             owner is locked.
             */
          dst->pixels == src->pixels && srcrect != NULL &&
-         surface_do_overlap(src, srcrect, dst, dstrect))) {
+         surface_do_overlap(src, srcrect, dst, dstrect, &dstclip))) {
         /* Py_BEGIN_ALLOW_THREADS */
-        result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
+        result = pygame_Blit(src, srcrect, dst, dstrect, blend_flags);
         /* Py_END_ALLOW_THREADS */
     }
     /* can't blit alpha to 8bit, crashes SDL */
-    else if (dst->format->BytesPerPixel == 1 &&
-             (SDL_ISPIXELFORMAT_ALPHA(src->format->format) ||
-              ((SDL_GetSurfaceAlphaMod(src, &alpha) == 0 && alpha != 255)))) {
+    else if (PG_SURF_BytesPerPixel(dst) == 1 &&
+             (SDL_ISPIXELFORMAT_ALPHA(PG_SURF_FORMATENUM(src)) ||
+              ((PG_GetSurfaceAlphaMod(src, &alpha) && alpha != 255)))) {
         /* Py_BEGIN_ALLOW_THREADS */
-        if (src->format->BytesPerPixel == 1) {
+        if (PG_SURF_BytesPerPixel(src) == 1) {
             result = pygame_Blit(src, srcrect, dst, dstrect, 0);
         }
         else {
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+            const SDL_PixelFormatDetails *fmt =
+                SDL_GetPixelFormatDetails(src->format);
+            src = fmt ? SDL_ConvertSurface(src,
+                                           SDL_GetPixelFormatForMasks(
+                                               fmt->bits_per_pixel, fmt->Rmask,
+                                               fmt->Gmask, fmt->Bmask, 0))
+                      : NULL;
+#else
             SDL_PixelFormat *fmt = src->format;
-            SDL_PixelFormat newfmt;
-
-            newfmt.palette = 0; /* Set NULL (or SDL gets confused) */
-            newfmt.BitsPerPixel = fmt->BitsPerPixel;
-            newfmt.BytesPerPixel = fmt->BytesPerPixel;
-            newfmt.Amask = 0;
-            newfmt.Rmask = fmt->Rmask;
-            newfmt.Gmask = fmt->Gmask;
-            newfmt.Bmask = fmt->Bmask;
-            newfmt.Ashift = 0;
-            newfmt.Rshift = fmt->Rshift;
-            newfmt.Gshift = fmt->Gshift;
-            newfmt.Bshift = fmt->Bshift;
-            newfmt.Aloss = 0;
-            newfmt.Rloss = fmt->Rloss;
-            newfmt.Gloss = fmt->Gloss;
-            newfmt.Bloss = fmt->Bloss;
-            src = SDL_ConvertSurface(src, &newfmt, 0);
+            SDL_PixelFormat *newfmt =
+                SDL_AllocFormat(SDL_MasksToPixelFormatEnum(
+                    fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, 0));
+            if (!newfmt) {
+                src = NULL;
+            }
+            else {
+                src = SDL_ConvertSurface(src, newfmt, 0);
+                SDL_FreeFormat(newfmt);
+            }
+#endif
             if (src) {
-                result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+                result = PG_BlitSurface(src, srcrect, dst, dstrect);
                 SDL_FreeSurface(src);
             }
             else {
@@ -3758,23 +4622,22 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         }
         /* Py_END_ALLOW_THREADS */
     }
-    else if (the_args != PYGAME_BLEND_ALPHA_SDL2 &&
-             !(pg_EnvShouldBlendAlphaSDL2()) &&
-             SDL_GetColorKey(src, &key) != 0 &&
-             (dst->format->BytesPerPixel == 4 ||
-              dst->format->BytesPerPixel == 2) &&
+    else if (blend_flags != PYGAME_BLEND_ALPHA_SDL2 &&
+             !(pg_EnvShouldBlendAlphaSDL2()) && !SDL_HasColorKey(src) &&
+             (PG_SURF_BytesPerPixel(dst) == 4 ||
+              PG_SURF_BytesPerPixel(dst) == 2) &&
              _PgSurface_SrcAlpha(src) &&
-             (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
-             !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
-             !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL)) {
+             (SDL_ISPIXELFORMAT_ALPHA(PG_SURF_FORMATENUM(src))) &&
+             !PG_SurfaceHasRLE(src) && !PG_SurfaceHasRLE(dst) &&
+             !SDL_MUSTLOCK(src) && !SDL_MUSTLOCK(dst)) {
         /* If we have a 32bit source surface with per pixel alpha
            and no RLE we'll use pygame_Blit so we can mimic how SDL1
             behaved */
-        result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
+        result = pygame_Blit(src, srcrect, dst, dstrect, blend_flags);
     }
     else {
         /* Py_BEGIN_ALLOW_THREADS */
-        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+        result = PG_BlitSurface(src, srcrect, dst, dstrect);
         /* Py_END_ALLOW_THREADS */
     }
 
@@ -3783,86 +4646,70 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         dstrect->x -= suboffsetx;
         dstrect->y -= suboffsety;
     }
-    else
+    else {
         pgSurface_Unprep(dstobj);
+    }
     pgSurface_Unprep(srcobj);
 
-    if (result == -1)
+    if (result == -1) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
-    if (result == -2)
+    }
+    if (result == -2) {
         PyErr_SetString(pgExc_SDLError, "Surface was lost");
+    }
 
     return result != 0;
 }
 
 static PyMethodDef _surface_methods[] = {{NULL, NULL, 0, NULL}};
 
-MODINIT_DEFINE(surface)
+int
+exec_surface(PyObject *module)
 {
-    PyObject *module, *apiobj;
-    static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
-
-    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
-                                         "surface",
-                                         DOC_PYGAMESURFACE,
-                                         -1,
-                                         _surface_methods,
-                                         NULL,
-                                         NULL,
-                                         NULL,
-                                         NULL};
-
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred()) {
-        return NULL;
+        return -1;
     }
     import_pygame_color();
     if (PyErr_Occurred()) {
-        return NULL;
+        return -1;
     }
     import_pygame_rect();
     if (PyErr_Occurred()) {
-        return NULL;
+        return -1;
     }
     import_pygame_bufferproxy();
     if (PyErr_Occurred()) {
-        return NULL;
+        return -1;
     }
     _IMPORT_PYGAME_MODULE(surflock);
     if (PyErr_Occurred()) {
-        return NULL;
+        return -1;
     }
 
     /* type preparation */
     if (PyType_Ready(&pgSurface_Type) < 0) {
-        return NULL;
+        return -1;
     }
 
-    /* create the module */
-    module = PyModule_Create(&_module);
-    if (module == NULL) {
-        return NULL;
-    }
+    PyObject *apiobj;
+    static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
+#ifndef BUILD_STATIC
     if (pg_warn_simd_at_runtime_but_uncompiled() < 0) {
-        Py_DECREF(module);
-        return NULL;
+        return -1;
     }
-    Py_INCREF(&pgSurface_Type);
-    if (PyModule_AddObject(module, "SurfaceType",
-                           (PyObject *)&pgSurface_Type)) {
-        Py_DECREF(&pgSurface_Type);
-        Py_DECREF(module);
-        return NULL;
+#endif
+    if (PyModule_AddObjectRef(module, "SurfaceType",
+                              (PyObject *)&pgSurface_Type)) {
+        return -1;
     }
 
-    Py_INCREF(&pgSurface_Type);
-    if (PyModule_AddObject(module, "Surface", (PyObject *)&pgSurface_Type)) {
-        Py_DECREF(&pgSurface_Type);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_AddObjectRef(module, "Surface",
+                              (PyObject *)&pgSurface_Type)) {
+        return -1;
     }
 
     /* export the c api */
@@ -3871,16 +4718,57 @@ MODINIT_DEFINE(surface)
     c_api[2] = pgSurface_Blit;
     c_api[3] = pgSurface_SetSurface;
     apiobj = encapsulate_api(c_api, "surface");
-    if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
-        Py_XDECREF(apiobj);
-        Py_DECREF(module);
-        return NULL;
+    if (PyModule_Add(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) < 0) {
+        return -1;
     }
-    Py_XINCREF(pgSurface_Type.tp_dict);
-    if (PyModule_AddObject(module, "_dict", pgSurface_Type.tp_dict)) {
-        Py_XDECREF(pgSurface_Type.tp_dict);
-        Py_DECREF(module);
-        return NULL;
+
+    if (PyModule_AddObjectRef(module, "_dict", pgSurface_Type.tp_dict)) {
+        return -1;
+    }
+
+    return 0;
+}
+
+MODINIT_DEFINE(surface)
+{
+#ifndef BUILD_STATIC
+    static PyModuleDef_Slot surf_slots[] = {
+        {Py_mod_exec, &exec_surface},
+#if PY_VERSION_HEX >= 0x030c0000
+        {Py_mod_multiple_interpreters,
+         Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},  // TODO: see if this can
+                                                       // be supported later
+#endif
+#if PY_VERSION_HEX >= 0x030d0000
+        {Py_mod_gil, Py_MOD_GIL_USED},  // TODO: support this later
+#endif
+        {0, NULL}};
+#endif
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "surface",
+                                         DOC_SURFACE,
+                                         0,
+                                         _surface_methods,
+#ifndef BUILD_STATIC
+                                         surf_slots,
+#else
+                                         NULL,
+#endif
+                                         NULL,
+                                         NULL,
+                                         NULL};
+#ifndef BUILD_STATIC
+    return PyModuleDef_Init(&_module);
+#else
+    // in static mode with want surface module to be ready before python types
+    // are evaluated eg pygame.surface.Surface in sprite.py
+    PyObject *module = PyModule_Create(&_module);
+    if (module) {
+        if (exec_surface(module) != 0) {
+            Py_DECREF(module);
+            return NULL;
+        }
     }
     return module;
+#endif
 }

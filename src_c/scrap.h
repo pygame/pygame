@@ -43,7 +43,7 @@
  * The supported scrap clipboard types.
  *
  * This is only relevant in a X11 environment, which supports mouse
- * selections as well. For Win32 and MacOS environments the default
+ * selections as well. For Win32 and macOS environments the default
  * clipboard is used, no matter what value is passed.
  */
 typedef enum {

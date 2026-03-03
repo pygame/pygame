@@ -28,6 +28,7 @@ _sdl2.video src_c/_sdl2/video.c src_c/pgcompat.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG) -Isrc_c
 _sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.controller_old src_c/_sdl2/controller_old.c $(SDL) $(DEBUG) -Isrc_c
 
 GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
 #GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
@@ -36,8 +37,6 @@ gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 #optional freetype module (do not break in multiple lines
 #or the configuration script will choke!)
 #_freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_render.c  src_c/freetype/ft_render_cb.c src_c/freetype/ft_layout.c src_c/freetype/ft_unicode.c src_c/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
-
-_sprite src_c/_sprite.c $(SDL) $(DEBUG)
 
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
@@ -49,18 +48,22 @@ display src_c/display.c $(SDL) $(DEBUG)
 event src_c/event.c $(SDL) $(DEBUG)
 key src_c/key.c $(SDL) $(DEBUG)
 mouse src_c/mouse.c $(SDL) $(DEBUG)
-rect src_c/rect.c $(SDL) $(DEBUG)
+rect src_c/rect.c src_c/pgcompat_rect.c $(SDL) $(DEBUG)
 rwobject src_c/rwobject.c $(SDL) $(DEBUG)
-surface src_c/surface.c src_c/alphablit.c src_c/surface_fill.c $(SDL) $(DEBUG)
+surface src_c/simd_blitters_sse2.c src_c/simd_blitters_avx2.c src_c/surface.c src_c/alphablit.c src_c/surface_fill.c src_c/simd_surface_fill_avx2.c src_c/simd_surface_fill_sse2.c $(SDL) $(DEBUG)
 surflock src_c/surflock.c $(SDL) $(DEBUG)
 time src_c/time.c $(SDL) $(DEBUG)
 joystick src_c/joystick.c $(SDL) $(DEBUG)
 draw src_c/draw.c $(SDL) $(DEBUG)
 image src_c/image.c $(SDL) $(DEBUG)
-transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
+transform src_c/simd_transform_sse2.c src_c/simd_transform_avx2.c src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
 mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
 bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
 math src_c/math.c $(SDL) $(DEBUG)
 pixelcopy src_c/pixelcopy.c $(SDL) $(DEBUG)
 newbuffer src_c/newbuffer.c $(SDL) $(DEBUG)
+system src_c/system.c $(SDL) $(DEBUG)
+window src_c/window.c $(SDL) $(DEBUG)
+_render src_c/render.c $(SDL) $(DEBUG)
+geometry src_c/geometry.c $(SDL) $(DEBUG)

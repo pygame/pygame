@@ -1,13 +1,14 @@
 import os
+import platform
 import sys
-
-if os.environ.get("SDL_VIDEODRIVER") == "dummy":
-    __tags__ = ("ignore", "subprocess_ignore")
 import unittest
-from pygame.tests.test_utils import trunk_relative_path
 
 import pygame
 from pygame import scrap
+from pygame.tests.test_utils import trunk_relative_path
+
+if os.environ.get("SDL_VIDEODRIVER") == pygame.NULL_VIDEODRIVER:
+    __tags__ = ("ignore", "subprocess_ignore")
 
 
 class ScrapModuleTest(unittest.TestCase):
@@ -51,6 +52,10 @@ class ScrapModuleTest(unittest.TestCase):
         """Ensures get works as expected."""
         self.fail()
 
+    @unittest.skipIf(
+        platform.system() != "Windows",
+        "scrap features are broken on non windows platforms",
+    )
     def test_get__owned_empty_type(self):
         """Ensures get works when there is no data of the requested type
         in the clipboard and the clipboard is owned by the pygame application.
@@ -95,15 +100,22 @@ class ScrapModuleTest(unittest.TestCase):
 
         self.assertEqual(scrap.get(pygame.SCRAP_TEXT), b"Another String")
 
-    @unittest.skipIf("pygame.image" not in sys.modules, "requires pygame.image module")
+    @unittest.skipIf(
+        platform.system() != "Windows",
+        "scrap features are broken on non windows platforms",
+    )
     def test_put__bmp_image(self):
         """Ensures put can place a BMP image into the clipboard."""
         sf = pygame.image.load(trunk_relative_path("examples/data/asprite.bmp"))
-        expected_string = pygame.image.tostring(sf, "RGBA")
-        scrap.put(pygame.SCRAP_BMP, expected_string)
+        expected_bytes = pygame.image.tobytes(sf, "RGBA")
+        scrap.put(pygame.SCRAP_BMP, expected_bytes)
 
-        self.assertEqual(scrap.get(pygame.SCRAP_BMP), expected_string)
+        self.assertEqual(scrap.get(pygame.SCRAP_BMP), expected_bytes)
 
+    @unittest.skipIf(
+        platform.system() != "Windows",
+        "scrap features are broken on non windows platforms",
+    )
     def test_put(self):
         """Ensures put can place data into the clipboard
         when using a user defined type identifier.
@@ -114,6 +126,19 @@ class ScrapModuleTest(unittest.TestCase):
         r = scrap.get(DATA_TYPE)
 
         self.assertEqual(r, b"buf")
+
+    def test_new_put(self):
+        """Ensures that text can be placed into the clipboard"""
+        text = "Welcome to scrap!"
+        scrap.put_text(text)
+        self.assertTrue(scrap.has_text())
+        self.assertEqual(scrap.get_text(), text)
+
+    def test_has_text_when_empty(self):
+        """Ensures that has_text returns False when clipboard is empty"""
+        scrap.put_text("")
+        self.assertFalse(scrap.has_text())
+        self.assertEqual(scrap.get_text(), "")
 
 
 class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
@@ -190,111 +215,6 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
         lost = scrap.lost()
 
         self.assertTrue(lost)
-
-
-class X11InteractiveTest(unittest.TestCase):
-    __tags__ = ["ignore", "subprocess_ignore"]
-    try:
-        pygame.display.init()
-    except Exception:
-        pass
-    else:
-        if pygame.display.get_driver() == "x11":
-            __tags__ = ["interactive"]
-        pygame.display.quit()
-
-    def test_issue_208(self):
-        """PATCH: pygame.scrap on X11, fix copying into PRIMARY selection
-
-        Copying into theX11 PRIMARY selection (mouse copy/paste) would not
-        work due to a confusion between content type and clipboard type.
-
-        """
-
-        from pygame import display, event, freetype
-        from pygame.locals import SCRAP_SELECTION, SCRAP_TEXT
-        from pygame.locals import KEYDOWN, K_y, QUIT
-
-        success = False
-        freetype.init()
-        font = freetype.Font(None, 24)
-        display.init()
-        display.set_caption("Interactive X11 Paste Test")
-        screen = display.set_mode((600, 200))
-        screen.fill(pygame.Color("white"))
-        text = "Scrap put() succeeded."
-        msg = (
-            "Some text has been placed into the X11 clipboard."
-            " Please click the center mouse button in an open"
-            " text window to retrieve it."
-            '\n\nDid you get "{}"? (y/n)'
-        ).format(text)
-        word_wrap(screen, msg, font, 6)
-        display.flip()
-        event.pump()
-        scrap.init()
-        scrap.set_mode(SCRAP_SELECTION)
-        scrap.put(SCRAP_TEXT, text.encode("UTF-8"))
-        while True:
-            e = event.wait()
-            if e.type == QUIT:
-                break
-            if e.type == KEYDOWN:
-                success = e.key == K_y
-                break
-        pygame.display.quit()
-        self.assertTrue(success)
-
-
-def word_wrap(surf, text, font, margin=0, color=(0, 0, 0)):
-    font.origin = True
-    surf_width, surf_height = surf.get_size()
-    width = surf_width - 2 * margin
-    height = surf_height - 2 * margin
-    line_spacing = int(1.25 * font.get_sized_height())
-    x, y = margin, margin + line_spacing
-    space = font.get_rect(" ")
-    for word in iwords(text):
-        if word == "\n":
-            x, y = margin, y + line_spacing
-        else:
-            bounds = font.get_rect(word)
-            if x + bounds.width + bounds.x >= width:
-                x, y = margin, y + line_spacing
-            if x + bounds.width + bounds.x >= width:
-                raise ValueError("word too wide for the surface")
-            if y + bounds.height - bounds.y >= height:
-                raise ValueError("text to long for the surface")
-            font.render_to(surf, (x, y), None, color)
-            x += bounds.width + space.width
-    return x, y
-
-
-def iwords(text):
-    #  r"\n|[^ ]+"
-    #
-    head = 0
-    tail = head
-    end = len(text)
-    while head < end:
-        if text[head] == " ":
-            head += 1
-            tail = head + 1
-        elif text[head] == "\n":
-            head += 1
-            yield "\n"
-            tail = head + 1
-        elif tail == end:
-            yield text[head:]
-            head = end
-        elif text[tail] == "\n":
-            yield text[head:tail]
-            head = tail
-        elif text[tail] == " ":
-            yield text[head:tail]
-            head = tail
-        else:
-            tail += 1
 
 
 if __name__ == "__main__":

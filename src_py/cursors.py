@@ -18,21 +18,57 @@
 #    Pete Shinners
 #    pete@shinners.org
 
-"""Set of cursor resources available for use. These cursors come
-in a sequence of values that are needed as the arguments for
-pygame.mouse.set_cursor(). To dereference the sequence in place
-and create the cursor in one step, call like this:
-    pygame.mouse.set_cursor(*pygame.cursors.arrow).
+"""Pygame module for cursor resources.
 
-Here is a list of available cursors:
-    arrow, diamond, ball, broken_x, tri_left, tri_right
+Pygame offers control over the system hardware cursor. Pygame supports
+black and white cursors (bitmap cursors), as well as system variant cursors and color cursors.
+You control the cursor with functions inside :mod:`pygame.mouse`.
 
-There is also a sample string cursor named 'thickarrow_strings'.
-The compile() function can convert these string cursors into cursor byte data that can be used to
-create Cursor objects.
+This cursors module contains functions for loading and decoding various
+cursor formats. These allow you to easily store your cursors in external files
+or directly as encoded python strings.
 
-Alternately, you can also create Cursor objects using surfaces or cursors constants,
-such as pygame.SYSTEM_CURSOR_ARROW.
+The module includes several standard cursors. The :func:`pygame.mouse.set_cursor()`
+function takes several arguments. All those arguments have been stored in a
+single tuple you can call like this:
+
+::
+
+   >>> pygame.mouse.set_cursor(*pygame.cursors.arrow)
+
+The following variables can be passed to ``pygame.mouse.set_cursor`` function:
+
+   * ``pygame.cursors.arrow``
+
+   * ``pygame.cursors.diamond``
+
+   * ``pygame.cursors.broken_x``
+
+   * ``pygame.cursors.tri_left``
+
+   * ``pygame.cursors.tri_right``
+
+This module also contains a few cursors as formatted strings. You'll need to
+pass these to ``pygame.cursors.compile()`` function before you can use them.
+The example call would look like this:
+
+::
+
+   >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
+   >>> pygame.mouse.set_cursor((8, 16), (0, 0), *cursor)
+
+The following strings can be converted into cursor bitmaps with
+``pygame.cursors.compile()`` :
+
+   * ``pygame.cursors.thickarrow_strings``
+
+   * ``pygame.cursors.sizer_x_strings``
+
+   * ``pygame.cursors.sizer_y_strings``
+
+   * ``pygame.cursors.sizer_xy_strings``
+
+   * ``pygame.cursor.textmarker_strings``
 """
 
 import pygame
@@ -54,21 +90,95 @@ _cursor_id_table = {
 
 
 class Cursor:
+    """Pygame object representing a cursor.
+
+    In pygame 2, there are 3 types of cursors you can create to give your
+    game that little bit of extra polish. There's **bitmap** type cursors,
+    which existed in pygame 1.x, and are compiled from a string or load from an xbm file.
+    Then there are **system** type cursors, where you choose a preset that will
+    convey the same meaning but look native across different operating systems.
+    Finally you can create a **color** cursor, which displays a pygame surface as the cursor.
+
+    **Creating a system cursor**
+
+    Choose a constant from this list, pass it into ``pygame.cursors.Cursor(constant)``,
+    and you're good to go. Be advised that not all systems support every system
+    cursor, and you may get a substitution instead. For example, on macOS,
+    WAIT/WAITARROW should show up as an arrow, and SIZENWSE/SIZENESW/SIZEALL
+    should show up as a closed hand. And on Wayland, every SIZE cursor should
+    show up as a hand.
+
+    ::
+
+       Pygame Cursor Constant           Description
+       --------------------------------------------
+       pygame.SYSTEM_CURSOR_ARROW       arrow
+       pygame.SYSTEM_CURSOR_IBEAM       i-beam
+       pygame.SYSTEM_CURSOR_WAIT        wait
+       pygame.SYSTEM_CURSOR_CROSSHAIR   crosshair
+       pygame.SYSTEM_CURSOR_WAITARROW   small wait cursor
+                                        (or wait if not available)
+       pygame.SYSTEM_CURSOR_SIZENWSE    double arrow pointing
+                                        northwest and southeast
+       pygame.SYSTEM_CURSOR_SIZENESW    double arrow pointing
+                                        northeast and southwest
+       pygame.SYSTEM_CURSOR_SIZEWE      double arrow pointing
+                                        west and east
+       pygame.SYSTEM_CURSOR_SIZENS      double arrow pointing
+                                        north and south
+       pygame.SYSTEM_CURSOR_SIZEALL     four pointed arrow pointing
+                                        north, south, east, and west
+       pygame.SYSTEM_CURSOR_NO          slashed circle or crossbones
+       pygame.SYSTEM_CURSOR_HAND        hand
+
+    **Creating a cursor without passing arguments**
+
+    In addition to the cursor constants available and described above, you can
+    also call ``pygame.cursors.Cursor()``, and your cursor is ready (doing that
+    is the same as calling ``pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW)``.
+    Doing one of those calls actually creates a system cursor using the default
+    native image.
+
+    **Creating a color cursor**
+
+    To create a color cursor, create a ``Cursor`` from a ``hotspot`` and a ``surface``.
+    ``hotspot`` are (x,y) coordinates that determine where in the cursor the exact point is.
+    The hotspot position must be within the bounds of the ``surface``.
+
+    **Creating a bitmap cursor**
+
+    When the mouse cursor is visible, it will be displayed as a black and white
+    bitmap using the given bitmask arrays. The ``size`` is a sequence containing
+    the cursor width and height. ``hotspot`` is a sequence containing the cursor
+    hotspot position.
+
+    A cursor has a width and height, but a mouse position is represented by a
+    set of point coordinates. So the value passed into the cursor ``hotspot``
+    variable helps pygame to actually determine at what exact point the cursor
+    is at.
+
+    ``xormasks`` is a sequence of bytes containing the cursor xor data masks.
+    Lastly ``andmasks``, a sequence of bytes containing the cursor bitmask data.
+    To create these variables, we can make use of the
+    :func:`pygame.cursors.compile()` function.
+
+    Width and height must be a multiple of 8, and the mask arrays must be the
+    correct size for the given width and height. Otherwise an exception is raised.
+
+    .. versionaddedold:: 2.0.1
+    """
+
     def __init__(self, *args):
-        """Cursor(size, hotspot, xormasks, andmasks) -> Cursor
-        Cursor(hotspot, Surface) -> Cursor
-        Cursor(constant) -> Cursor
-        Cursor(Cursor) -> copies the Cursor object passed as an argument
-        Cursor() -> Cursor
+        self.type = "system"
+        """Get the cursor type.
 
-        pygame object for representing cursors
+        The type will be ``"system"``, ``"bitmap"``, or ``"color"``.
+        """
+        self.data = tuple()
+        """Get the cursor data.
 
-        You can initialize a cursor from a system cursor or use the
-        constructor on an existing Cursor object, which will copy it.
-        Providing a Surface instance will render the cursor displayed
-        as that Surface when used.
-
-        These Surfaces may use other colors than black and white."""
+        Returns the data that was used to create this cursor object, wrapped up in a tuple.
+        """
         if len(args) == 0:
             self.type = "system"
             self.data = (pygame.SYSTEM_CURSOR_ARROW,)
@@ -106,12 +216,14 @@ class Cursor:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __copy__(self):
-        """Clone the current Cursor object.
-        You can do the same thing by doing Cursor(Cursor)."""
+    def copy(self):
+        """Copy the current cursor.
+
+        Returns a new Cursor object with the same data and hotspot as the original.
+        """
         return self.__class__(self)
 
-    copy = __copy__
+    __copy__ = copy
 
     def __hash__(self):
         return hash(tuple([self.type] + list(self.data)))
@@ -715,25 +827,51 @@ textmarker_strings = (
 
 
 def compile(strings, black="X", white=".", xor="o"):
-    """pygame.cursors.compile(strings, black, white, xor) -> data, mask
-    compile cursor strings into cursor data
+    """Create binary cursor data from simple strings.
 
-    This takes a set of strings with equal length and computes
-    the binary data for that cursor. The string widths must be
-    divisible by 8.
+    A sequence of strings can be used to create binary cursor data for the
+    system cursor. This returns the binary data in the form of two tuples.
+    Those can be passed as the third and fourth arguments respectively of the
+    :func:`pygame.mouse.set_cursor()` function.
 
-    The black and white arguments are single letter strings that
-    tells which characters will represent black pixels, and which
-    characters represent white pixels. All other characters are
-    considered clear.
-
-    Some systems allow you to set a special toggle color for the
-    system color, this is also called the xor color. If the system
+    If you are creating your own cursor strings, you can use any value represent
+    the black and white pixels. Some system allow you to set a special toggle
+    color for the system color, this is also called the xor color. If the system
     does not support xor cursors, that color will simply be black.
 
-    This returns a tuple containing the cursor data and cursor mask
-    data. Both these arguments are used when setting a cursor with
-    pygame.mouse.set_cursor().
+    The height must be divisible by 8. The width of the strings must all be equal
+    and be divisible by 8. If these two conditions are not met, ``ValueError`` is
+    raised.
+    An example set of cursor strings looks like this
+
+    ::
+
+        thickarrow_strings = (               #sized 24x24
+          "XX                      ",
+          "XXX                     ",
+          "XXXX                    ",
+          "XX.XX                   ",
+          "XX..XX                  ",
+          "XX...XX                 ",
+          "XX....XX                ",
+          "XX.....XX               ",
+          "XX......XX              ",
+          "XX.......XX             ",
+          "XX........XX            ",
+          "XX........XXX           ",
+          "XX......XXXXX           ",
+          "XX.XXX..XX              ",
+          "XXXX XX..XX             ",
+          "XX   XX..XX             ",
+          "     XX..XX             ",
+          "      XX..XX            ",
+          "      XX..XX            ",
+          "       XXXX             ",
+          "       XX               ",
+          "                        ",
+          "                        ",
+          "                        ")
+
     """
     # first check for consistent lengths
     size = len(strings[0]), len(strings)
@@ -773,12 +911,21 @@ def compile(strings, black="X", white=".", xor="o"):
 
 
 def load_xbm(curs, mask):
-    """pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
-    reads a pair of XBM files into set_cursor arguments
+    """Load cursor data from an XBM file.
 
-    Arguments can either be filenames or filelike objects
-    with the readlines method. Not largely tested, but
-    should work with typical XBM files.
+    This loads cursors for a simple subset of ``XBM`` files. ``XBM`` files are
+    traditionally used to store cursors on UNIX systems, they are an ASCII
+    format used to represent simple images.
+
+    Sometimes the black and white color values will be split into two separate
+    ``XBM`` files. You can pass a second maskfile argument to load the two
+    images into a single cursor.
+
+    The cursorfile and maskfile arguments can either be filenames or file-like
+    object with the readlines method.
+
+    The return value cursor_args can be passed directly to the
+    ``pygame.mouse.set_cursor()`` function.
     """
 
     def bitswap(num):

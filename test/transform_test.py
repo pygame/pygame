@@ -1,13 +1,24 @@
-import unittest
 import os
 import platform
-
-from pygame.tests import test_utils
-from pygame.tests.test_utils import example_path
+import unittest
 
 import pygame
 import pygame.transform
 from pygame.locals import *
+from pygame.tests import test_utils
+from pygame.tests.test_utils import example_path
+
+
+def surfaces_have_same_pixels(surf1, surf2):
+    if surf1.get_size() != surf2.get_size():
+        return False
+
+    for row in range(surf1.get_height()):
+        for col in range(surf1.get_width()):
+            if surf1.get_at((col, row)) != surf2.get_at((col, row)):
+                return False
+
+    return True
 
 
 def show_image(s, images=[]):
@@ -48,7 +59,7 @@ def threshold(
     diff_color=(0, 0, 0),
     change_return=True,
 ):
-    """given the color it makes return_surf only have areas with the given colour."""
+    """given the color it makes return_surf only have areas with the given color."""
 
     width, height = surf.get_width(), surf.get_height()
 
@@ -81,6 +92,84 @@ def threshold(
     return similar
 
 
+def rgb_to_hsl(rgb):
+    r, g, b = rgb
+    r, g, b = r / 255.0, g / 255.0, b / 255.0
+    max_color = max(r, g, b)
+    min_color = min(r, g, b)
+    l = (max_color + min_color) / 2
+    if max_color == min_color:
+        s = h = 0
+    else:
+        if l < 0.5:
+            s = (max_color - min_color) / (max_color + min_color)
+        else:
+            s = (max_color - min_color) / (2.0 - max_color - min_color)
+        if r == max_color:
+            h = (g - b) / (max_color - min_color)
+        elif g == max_color:
+            h = 2.0 + (b - r) / (max_color - min_color)
+        else:
+            h = 4.0 + (r - g) / (max_color - min_color)
+    h /= 6.0
+    h %= 1
+    return h, s, l
+
+
+def hsl_to_rgb(hsl):
+    h, s, l = hsl
+    if s == 0:
+        r = g = b = l
+    else:
+
+        def hue_to_rgb(p, q, t):
+            if t < 0:
+                t += 1
+            if t > 1:
+                t -= 1
+            if t < 1 / 6:
+                return p + (q - p) * 6 * t
+            if t < 1 / 2:
+                return q
+            if t < 2 / 3:
+                return p + (q - p) * (2 / 3 - t) * 6
+            return p
+
+        q = l * (1 + s) if l < 0.5 else l + s - l * s
+        p = 2 * l - q
+        r = hue_to_rgb(p, q, h + 1 / 3)
+        g = hue_to_rgb(p, q, h)
+        b = hue_to_rgb(p, q, h - 1 / 3)
+
+    return int(r * 255), int(g * 255), int(b * 255)
+
+
+def modify_hsl(h, s, l, dh, ds, dl):
+    if dh:
+        h += dh
+        if h > 1:
+            h -= 1
+        elif h < 0:
+            h += 1
+    if ds:
+        s *= 1 + ds
+        if s > 1:
+            s = 1
+        elif s < 0:
+            s = 0
+    if dl:
+        if dl > 0:
+            l = l * (1 - dl) + dl
+        else:
+            l = l * (1 + dl)
+        if l > 1:
+            l = 1
+        elif l < 0:
+            l = 0
+
+    return h, s, l
+
+
 class TransformModuleTest(unittest.TestCase):
     def test_scale__alpha(self):
         """see if set_alpha information is kept."""
@@ -96,10 +185,48 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s.get_alpha(), s3.get_alpha())
         self.assertEqual(s.get_alpha(), s2.get_alpha())
 
+    def test_scale__palette(self):
+        """see if palette information from source is kept.
+
+        Test for newsurf_fromsurf regression reported in
+        https://github.com/pygame/pygame/issues/3463"""
+
+        s = pygame.Surface((32, 32), depth=8)
+        s.fill("red", [0, 0, 32, 16])
+        s.fill("purple", [0, 16, 32, 16])
+        self.assertTrue(len(s.get_palette()) > 0)
+
+        s2 = pygame.transform.scale(s, (64, 64))
+        self.assertEqual(s.get_palette()[0], s2.get_palette()[0])
+        self.assertEqual(s.get_at_mapped((0, 0)), s2.get_at_mapped((0, 0)))
+        self.assertEqual(s.get_at_mapped((0, 17)), s2.get_at_mapped((0, 35)))
+
+        # Also test with a custom palette to make sure the output doesn't just
+        # have a default palette.
+        s = pygame.Surface((32, 32), depth=8)
+        s.set_palette(
+            [
+                pygame.Color("red"),
+                pygame.Color("purple"),
+                pygame.Color("gold"),
+                pygame.Color("blue"),
+                pygame.Color("lightgreen"),
+            ]
+        )
+        s.fill("red", [0, 0, 32, 16])
+        s.fill("purple", [0, 16, 32, 16])
+        self.assertTrue(len(s.get_palette()) > 0)
+
+        s2 = pygame.transform.scale(s, (64, 64))
+        self.assertEqual(s.get_palette()[0], s2.get_palette()[0])
+        self.assertEqual(s.get_palette(), s2.get_palette())
+        self.assertEqual(s.get_at_mapped((0, 0)), s2.get_at_mapped((0, 0)))
+        self.assertEqual(s.get_at_mapped((0, 17)), s2.get_at_mapped((0, 35)))
+
     def test_scale__destination(self):
         """see if the destination surface can be passed in to use."""
 
-        s = pygame.Surface((32, 32))
+        s = pygame.Surface((32, 32), depth=32)
         s2 = pygame.transform.scale(s, (64, 64))
         s3 = s2.copy()
 
@@ -119,6 +246,18 @@ class TransformModuleTest(unittest.TestCase):
 
         # the wrong size surface is past in.  Should raise an error.
         self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33, 64), s3)
+
+        alpha_surf = pygame.Surface((64, 64), pygame.SRCALPHA)
+        pygame.transform.scale(alpha_surf, (32, 32), s)
+
+        alpha_surf_weird = pygame.Surface(
+            (64, 64), pygame.SRCALPHA, 32, (0xFF000000, 0xFF0000, 0xFF00, 0xFF)
+        )
+        assert alpha_surf_weird.get_shifts() != alpha_surf.get_shifts()
+
+        self.assertRaises(
+            ValueError, pygame.transform.scale, alpha_surf_weird, (32, 32), s
+        )
 
     def test_scale__vector2(self):
         s = pygame.Surface((32, 32))
@@ -162,10 +301,24 @@ class TransformModuleTest(unittest.TestCase):
         s = pygame.Surface((32, 32))
         s.fill((255, 0, 0))
 
-        s2 = pygame.transform.grayscale(s)
-        self.assertEqual(pygame.transform.average_color(s2)[0], 76)
-        self.assertEqual(pygame.transform.average_color(s2)[1], 76)
-        self.assertEqual(pygame.transform.average_color(s2)[2], 76)
+        gray_red = pygame.transform.grayscale(s)
+        self.assertEqual(pygame.transform.average_color(gray_red)[0], 76)
+        self.assertEqual(pygame.transform.average_color(gray_red)[1], 76)
+        self.assertEqual(pygame.transform.average_color(gray_red)[2], 76)
+
+        green_surf = pygame.Surface((32, 32))
+        green_surf.fill((0, 255, 0))
+        gray_green = pygame.transform.grayscale(green_surf)
+        self.assertEqual(pygame.transform.average_color(gray_green)[0], 150)
+        self.assertEqual(pygame.transform.average_color(gray_green)[1], 150)
+        self.assertEqual(pygame.transform.average_color(gray_green)[2], 150)
+
+        blue_surf = pygame.Surface((32, 32))
+        blue_surf.fill((0, 0, 255))
+        blue_green = pygame.transform.grayscale(blue_surf)
+        self.assertEqual(pygame.transform.average_color(blue_green)[0], 29)
+        self.assertEqual(pygame.transform.average_color(blue_green)[1], 29)
+        self.assertEqual(pygame.transform.average_color(blue_green)[2], 29)
 
         dest = pygame.Surface((32, 32), depth=32)
         pygame.transform.grayscale(s, dest)
@@ -176,16 +329,16 @@ class TransformModuleTest(unittest.TestCase):
         dest = pygame.Surface((32, 32), depth=32)
         s.fill((34, 12, 65))
         pygame.transform.grayscale(s, dest)
-        self.assertEqual(pygame.transform.average_color(dest)[0], 24)
-        self.assertEqual(pygame.transform.average_color(dest)[1], 24)
-        self.assertEqual(pygame.transform.average_color(dest)[2], 24)
+        self.assertEqual(pygame.transform.average_color(dest)[0], 27)
+        self.assertEqual(pygame.transform.average_color(dest)[1], 27)
+        self.assertEqual(pygame.transform.average_color(dest)[2], 27)
 
         dest = pygame.Surface((32, 32), depth=32)
         s.fill((123, 123, 123))
         pygame.transform.grayscale(s, dest)
-        self.assertIn(pygame.transform.average_color(dest)[0], [123, 122])
-        self.assertIn(pygame.transform.average_color(dest)[1], [123, 122])
-        self.assertIn(pygame.transform.average_color(dest)[2], [123, 122])
+        self.assertIn(pygame.transform.average_color(dest)[0], [124, 122])
+        self.assertIn(pygame.transform.average_color(dest)[1], [124, 122])
+        self.assertIn(pygame.transform.average_color(dest)[2], [124, 122])
 
         s = pygame.Surface((32, 32), depth=24)
         s.fill((255, 0, 0))
@@ -202,6 +355,235 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(pygame.transform.average_color(dest)[0], 72)
         self.assertEqual(pygame.transform.average_color(dest)[1], 76)
         self.assertEqual(pygame.transform.average_color(dest)[2], 72)
+
+        super_surf = pygame.Surface((64, 64), depth=32)
+        super_surf.fill((255, 255, 255))
+        super_surf.fill((255, 0, 0), pygame.Rect(0, 0, 32, 32))
+        sub_surf = super_surf.subsurface(pygame.Rect(0, 0, 32, 32))
+
+        gray_sub_surf = pygame.transform.grayscale(sub_surf)
+        self.assertEqual(pygame.transform.average_color(gray_sub_surf)[0], 76)
+        self.assertEqual(pygame.transform.average_color(gray_sub_surf)[0], 76)
+        self.assertEqual(pygame.transform.average_color(gray_sub_surf)[0], 76)
+
+    def test_hsl_args(self):
+        """Ensures transform.hsl() correctly handles incorrect arguments"""
+        s = pygame.Surface((32, 32))
+        invalid_surf_args = [
+            None,
+            1,
+            0,
+            1.0,
+            0.0,
+            "1",
+            [],
+            {},
+            set(),
+            True,
+            False,
+        ]
+        invalid_hsl_args = [
+            None,
+            "1",
+            [],
+            {},
+            set(),
+        ]
+        invalid_sl_argsv = [
+            -2,
+            -2.0,
+            2,
+            2.0,
+        ]
+
+        for arg in invalid_surf_args:
+            with self.assertRaises(TypeError):
+                pygame.transform.hsl(arg, 0)
+            with self.assertRaises(TypeError):
+                pygame.transform.hsl(s, 0, 0, 0, arg)
+        for arg in invalid_hsl_args:
+            with self.assertRaises(TypeError):
+                pygame.transform.hsl(s, arg)
+            with self.assertRaises(TypeError):
+                pygame.transform.hsl(s, 0, arg)
+            with self.assertRaises(TypeError):
+                pygame.transform.hsl(s, 0, 0, arg)
+        for arg in invalid_sl_argsv:
+            with self.assertRaises(ValueError):
+                pygame.transform.hsl(s, 0, arg)
+            with self.assertRaises(ValueError):
+                pygame.transform.hsl(s, 0, 0, arg)
+
+        # different sized surfaces
+        s2 = pygame.Surface((31, 32))
+        with self.assertRaises(ValueError):
+            pygame.transform.hsl(s, 0, dest_surface=s2)
+
+        # different depths
+        s2 = pygame.Surface((32, 32), depth=16)
+        s3 = pygame.Surface((32, 32), depth=24)
+
+        with self.assertRaises(ValueError):
+            pygame.transform.hsl(s, 0, dest_surface=s2)
+        with self.assertRaises(ValueError):
+            pygame.transform.hsl(s, 0, dest_surface=s3)
+
+    def test_hsl_return_value(self):
+        """Ensures transform.hsl() returns a Surface"""
+        sources = [pygame.Surface((32, 32), depth=d) for d in [16, 24, 32]]
+        destinations = [pygame.Surface((32, 32), depth=d) for d in [16, 24, 32]]
+
+        hsl = pygame.transform.hsl
+
+        for src, dst in zip(sources, destinations):
+            # test that the return value is a surface
+            self.assertIsInstance(hsl(src, 1), pygame.Surface)
+            self.assertIsInstance(hsl(src, 1, 0.2), pygame.Surface)
+            self.assertIsInstance(hsl(src, 1, 0.2, 0.2), pygame.Surface)
+
+            # test that the return value is a surface when a destination surface is given
+            self.assertIsInstance(hsl(src, 1, dest_surface=dst), pygame.Surface)
+            self.assertIsInstance(hsl(src, 1, 0.2, dest_surface=dst), pygame.Surface)
+            self.assertIsInstance(
+                hsl(src, 1, 0.2, 0.2, dest_surface=dst), pygame.Surface
+            )
+
+            # test that the destination surface is returned
+            self.assertIs(hsl(src, 1, dest_surface=dst), dst)
+            self.assertIs(hsl(src, 1, 0.2, dest_surface=dst), dst)
+            self.assertIs(hsl(src, 1, 0.2, 0.12, dest_surface=dst), dst)
+
+            # test that the returned surface isn't the source surface
+            self.assertIsNot(hsl(src, 1), src)
+            self.assertIsNot(hsl(src, 1, 0.2), src)
+            self.assertIsNot(hsl(src, 1, 0.2, 0.2), src)
+
+    def test_hsl(self):
+        """Ensures the hsl() function works correctly, meaning it correctly
+        modifies the hue, saturation, and lightness of a surface."""
+        surf = pygame.Surface((1, 1))
+        dest = pygame.Surface((1, 1))
+        colors = [
+            (0, 0, 0),
+            (255, 255, 255),
+            (255, 0, 0),
+            (0, 255, 0),
+            (0, 0, 255),
+            (127, 127, 127),
+            (11, 23, 34),
+            (1, 0, 1),
+        ]
+
+        for color in colors:
+            for h in range(0, 360, 10):
+                for s in range(0, 100, 10):
+                    for l in range(0, 100, 10):
+                        surf.fill(color)
+                        ns = s / 100.0
+                        nl = l / 100.0
+
+                        hsl_surf = pygame.transform.hsl(surf, h, ns, nl)
+                        pygame.transform.hsl(surf, h, ns, nl, dest_surface=dest)
+
+                        nh = h / 360.0
+                        modified_hsl = modify_hsl(*rgb_to_hsl(color), nh, ns, nl)
+                        expected_rgb = hsl_to_rgb(modified_hsl)
+
+                        # without destination
+                        actual_rgb = hsl_surf.get_at((0, 0)).rgb
+                        for v1, v2 in zip(expected_rgb, actual_rgb):
+                            self.assertAlmostEqual(v1, v2, delta=1)
+
+                        # with destination
+                        actual_rgb = dest.get_at((0, 0)).rgb
+                        for v1, v2 in zip(expected_rgb, actual_rgb):
+                            self.assertAlmostEqual(v1, v2, delta=1)
+
+        surf = pygame.Surface((1, 1), flags=pygame.SRCALPHA)
+        dest = pygame.Surface((1, 1), flags=pygame.SRCALPHA)
+
+        alpha_colors = [
+            (0, 0, 0, 0),
+            (255, 255, 255, 255),
+            (255, 0, 0, 255),
+            (0, 255, 0, 255),
+            (0, 0, 255, 255),
+            (127, 127, 127, 127),
+            (11, 23, 34, 255),
+            (1, 0, 1, 255),
+        ]
+
+        for color in alpha_colors:
+            c_a = color[3]
+            for h in range(0, 360, 10):
+                for s in range(0, 100, 10):
+                    for l in range(0, 100, 10):
+                        surf.fill(color)
+                        ns = s / 100.0
+                        nl = l / 100.0
+
+                        hsl_surf = pygame.transform.hsl(surf, h, ns, nl)
+                        pygame.transform.hsl(surf, h, ns, nl, dest_surface=dest)
+
+                        nh = h / 360.0
+                        modified_hsl = modify_hsl(*rgb_to_hsl(color[:3]), nh, ns, nl)
+                        expected_rgb = hsl_to_rgb(modified_hsl)
+
+                        # without destination
+                        actual_color = hsl_surf.get_at((0, 0))
+                        actual_rgb = actual_color.rgb
+                        for v1, v2 in zip(expected_rgb, actual_rgb):
+                            self.assertAlmostEqual(v1, v2, delta=1)
+                        self.assertEqual(c_a, actual_color.a)
+
+                        # with destination
+                        actual_color = dest.get_at((0, 0))
+                        actual_rgb = actual_color.rgb
+                        for v1, v2 in zip(expected_rgb, actual_rgb):
+                            self.assertAlmostEqual(v1, v2, delta=1)
+                        self.assertEqual(c_a, actual_color.a)
+
+    def test_solid_overlay(self):
+        test_surface = pygame.Surface((20, 20), pygame.SRCALPHA)
+        test_surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(test_surface, (0, 0, 0), (10, 10, 10, 10))
+
+        surface = pygame.Surface((20, 20), pygame.SRCALPHA)
+        surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(surface, (255, 0, 0), (10, 10, 10, 10))
+
+        surface = pygame.transform.solid_overlay(surface, (0, 0, 0))
+
+        for x in range(20):
+            for y in range(20):
+                self.assertEqual(surface.get_at((x, y)), test_surface.get_at((x, y)))
+
+        pygame.transform.solid_overlay(surface, (0, 0, 0), surface)
+
+        for x in range(20):
+            for y in range(20):
+                self.assertEqual(surface.get_at((x, y)), test_surface.get_at((x, y)))
+
+        test_surface.fill((0, 0, 0, 0))
+        pygame.draw.polygon(test_surface, (200, 100, 50), [(0, 0), (4, 4), (4, 2)])
+
+        surface.fill((0, 0, 0, 0))
+        pygame.draw.polygon(surface, (255, 0, 0), [(0, 0), (4, 4), (4, 2)])
+        surface = pygame.transform.solid_overlay(surface, (200, 100, 50))
+
+        for x in range(20):
+            for y in range(20):
+                self.assertEqual(surface.get_at((x, y)), test_surface.get_at((x, y)))
+
+    def test_grayscale_simd_assumptions(self):
+        # The grayscale SIMD algorithm relies on the destination surface pitch
+        # being exactly width * 4 (4 bytes per pixel), for maximum speed.
+        # This test is here to make sure that assumption is always true.
+        widths = [1, 5, 6, 23, 54, 233]
+        for width in widths:
+            self.assertEqual(
+                pygame.Surface((width, 1), depth=32).get_pitch(), width * 4
+            )
 
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
@@ -814,6 +1196,13 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(dest_surface.get_size(), expected_size)
         self.assertEqual(dest_surface.get_flags(), expected_flags)
 
+    def test_threshold_all_color_types(self):
+        s1 = pygame.Surface((32, 32), SRCALPHA, 32)
+        s2 = pygame.Surface((32, 32), SRCALPHA, 32)
+
+        for color in [(0, 255, 0), (255, 0, 0, 0), 0, "blue", pygame.Color("#FFFFFF")]:
+            pygame.transform.threshold(s1, s2, color, color, color)
+
     def test_laplacian(self):
         """ """
 
@@ -1110,6 +1499,39 @@ class TransformModuleTest(unittest.TestCase):
         for pt, color in gradient:
             self.assertTrue(s.get_at(pt) == color)
 
+    def test_rotate_after_convert_regression(self):
+        # Tests a regression found from https://github.com/pygame/pygame/pull/3314
+        # Reported in https://github.com/pygame/pygame/issues/3463
+
+        pygame.display.set_mode((1, 1))
+
+        output1 = pygame.transform.rotate(
+            pygame.image.load(
+                os.path.join(
+                    os.path.abspath(os.path.dirname(__file__)),
+                    "../examples/data/alien1.png",
+                )
+            ).convert_alpha(),
+            180,
+        )
+        output2 = pygame.transform.rotate(
+            pygame.image.load(
+                os.path.join(
+                    os.path.abspath(os.path.dirname(__file__)),
+                    "../examples/data/alien1.png",
+                )
+            ),
+            180,
+        ).convert_alpha()
+
+        for x in range(50):
+            for y in range(50):
+                color1 = pygame.Color(output1.get_at((x, y)))
+                color2 = pygame.Color(output2.get_at((x, y)))
+                self.assertEqual(color1, color2)
+
+        pygame.quit()
+
     def test_scale2x(self):
         # __doc__ (as of 2008-06-25) for pygame.transform.scale2x:
 
@@ -1128,6 +1550,10 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s2.get_rect().size, (64, 64))
 
     def test_scale2xraw(self):
+        # Even though transform.scale no longer has a special
+        # case for 2x upscaling, this test validates that the behavior
+        # is preserved.
+
         w, h = 32, 32
         s = pygame.Surface((w, h), pygame.SRCALPHA, 32)
         s.fill((0, 0, 0))
@@ -1144,7 +1570,7 @@ class TransformModuleTest(unittest.TestCase):
 
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.assertTrue(filter_type in ["GENERIC", "MMX", "SSE"])
+        self.assertTrue(filter_type in ["GENERIC", "MMX", "SSE", "SSE2", "NEON"])
         # It would be nice to test if a non-generic type corresponds to an x86
         # processor. But there is no simple test for this. platform.machine()
         # returns process version specific information, like 'i686'.
@@ -1176,8 +1602,9 @@ class TransformModuleTest(unittest.TestCase):
             pygame.transform.set_smoothscale_backend(1)
 
         self.assertRaises(TypeError, change)
+
         # Unsupported type, if possible.
-        if original_type != "SSE":
+        if original_type == "GENERIC":
 
             def change():
                 pygame.transform.set_smoothscale_backend("SSE")
@@ -1186,6 +1613,14 @@ class TransformModuleTest(unittest.TestCase):
         # Should be back where we started.
         filter_type = pygame.transform.get_smoothscale_backend()
         self.assertEqual(filter_type, original_type)
+
+        try:
+            with self.assertWarns(DeprecationWarning):
+                pygame.transform.set_smoothscale_backend("MMX")
+            with self.assertWarns(DeprecationWarning):
+                pygame.transform.set_smoothscale_backend("SSE")
+        except ValueError:
+            pass  # Backends not supported on this CPU, also valid
 
     def test_chop(self):
         original_surface = pygame.Surface((20, 20))
@@ -1271,6 +1706,105 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s1.get_rect(), pygame.Rect(0, 0, 0, 0))
         self.assertEqual(s2.get_rect(), pygame.Rect(0, 0, 0, 0))
 
+    def test_rotozoom_keeps_colorkey(self):
+        image = pygame.Surface((64, 64))
+        image.set_colorkey("black")
+        pygame.draw.circle(image, "red", (32, 32), 32, width=0)
+
+        no_rot = pygame.transform.rotozoom(image, 0, 1.1)
+        self.assertEqual(image.get_colorkey(), no_rot.get_colorkey())
+
+        with_rot = pygame.transform.rotozoom(image, 5, 1.1)
+        self.assertEqual(image.get_colorkey(), with_rot.get_colorkey())
+
+    def test_invert(self):
+        surface = pygame.Surface((10, 10), depth=32)
+
+        surface.fill((255, 0, 0))
+        surface = pygame.transform.invert(surface)
+        self.assertEqual(surface.get_at((4, 4)), (0, 255, 255, 255))
+
+        surface.fill((200, 0, 45))
+        surface = pygame.transform.invert(surface)
+        self.assertEqual(surface.get_at((4, 4)), (55, 255, 210, 255))
+
+        surface.fill((38, 201, 12))
+        surface = pygame.transform.invert(surface)
+        self.assertEqual(surface.get_at((4, 4)), (217, 54, 243, 255))
+
+        surface.fill((39, 210, 30))
+        surface = pygame.transform.invert(surface)
+        self.assertEqual(surface.get_at((4, 4)), (216, 45, 225, 255))
+
+        surface.fill((255, 0, 0))
+        pygame.transform.invert(surface, surface)
+        self.assertEqual(surface.get_at((4, 4)), (0, 255, 255, 255))
+
+        surface.fill((200, 0, 45))
+        pygame.transform.invert(surface, surface)
+        self.assertEqual(surface.get_at((4, 4)), (55, 255, 210, 255))
+
+        surface.fill((38, 201, 12))
+        pygame.transform.invert(surface, surface)
+        self.assertEqual(surface.get_at((4, 4)), (217, 54, 243, 255))
+
+        surface.fill((39, 210, 30))
+        pygame.transform.invert(surface, surface)
+        self.assertEqual(surface.get_at((4, 4)), (216, 45, 225, 255))
+
+        self.assertRaises(
+            ValueError, pygame.transform.invert, surface, pygame.Surface((100, 100))
+        )
+        self.assertRaises(
+            ValueError, pygame.transform.invert, surface, pygame.Surface((5, 5))
+        )
+        self.assertRaises(
+            ValueError,
+            pygame.transform.invert,
+            surface,
+            pygame.Surface((10, 10), depth=24),
+        )
+        self.assertRaises(
+            ValueError,
+            pygame.transform.invert,
+            surface,
+            pygame.Surface((10, 10), depth=16),
+        )
+        self.assertRaises(
+            ValueError,
+            pygame.transform.invert,
+            surface,
+            pygame.Surface((10, 10), depth=8),
+        )
+
+    def test_invert__palette(self):
+        """see if palette information from source is kept.
+
+        Test for newsurf_fromsurf regression reported in
+        https://github.com/pygame/pygame/issues/3463"""
+
+        s = pygame.Surface((32, 32), depth=8)
+        s.set_palette([pygame.Color("orange") for _ in range(256)])
+        s.set_palette(
+            [
+                pygame.Color("red"),
+                pygame.Color("purple"),
+                pygame.Color("gold"),
+                pygame.Color("blue"),
+                pygame.Color("lightgreen"),
+            ]
+        )
+        s.fill("red", [0, 0, 32, 16])
+        s.fill("blue", [0, 16, 32, 16])
+        self.assertTrue(len(s.get_palette()) > 0)
+
+        s2 = pygame.transform.invert(s)
+        self.assertEqual(s.get_palette()[0], s2.get_palette()[0])
+        self.assertEqual(s.get_palette(), s2.get_palette())
+
+        self.assertEqual(s2.get_at((0, 0)), pygame.Color("lightgreen"))
+        self.assertEqual(s2.get_at((0, 17)), pygame.Color("gold"))
+
     def test_smoothscale(self):
         """Tests the stated boundaries, sizing, and color blending of smoothscale function"""
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
@@ -1337,6 +1871,42 @@ class TransformModuleTest(unittest.TestCase):
             )
             self.assertEqual(smaller_surface.get_size(), (k, 1))
 
+    def test_pixelate(self):
+        """Test pygame.transform.pixelate"""
+        # test that pixelating the original with a pixel_size of 1 yields the original back
+        data_fname = example_path("data")
+        path = os.path.join(data_fname, "alien3.png")
+        image = pygame.image.load(path)  # Get an indexed surface.
+
+        no_change = pygame.transform.pixelate(image, 1)
+
+        self.assertTrue(surfaces_have_same_pixels(image, no_change))
+
+        # test that pixelating a square image with a pixel_size equal to the side length
+        # yields a surface of a single color, which is the average of the surf
+        square = pygame.transform.scale(image, (50, 50))
+        square_pixelated = pygame.transform.pixelate(square, 50)
+        square_resized = pygame.transform.scale(
+            pygame.transform.scale(square, (1, 1)), square.get_size()
+        )
+
+        self.assertTrue(surfaces_have_same_pixels(square_pixelated, square_resized))
+
+        # test a variety of arguments raise an exception
+        for arg in (0, -1):
+            with self.assertRaises(ValueError, msg=f"Running with pixel_size = {arg}"):
+                pygame.transform.pixelate(image, arg)
+
+        for arg in (-1_000_000_000_000_000_000, 1_000_000_000_000_000_000):
+            with self.assertRaises(
+                OverflowError, msg=f"Running with pixel_size = {arg}"
+            ):
+                pygame.transform.pixelate(image, arg)
+
+        for arg in ("one", 1.0, None):
+            with self.assertRaises(TypeError, msg=f"Running with pixel_size = {arg}"):
+                pygame.transform.pixelate(image, arg)
+
 
 class TransformDisplayModuleTest(unittest.TestCase):
     def setUp(self):
@@ -1346,9 +1916,146 @@ class TransformDisplayModuleTest(unittest.TestCase):
     def tearDown(self):
         pygame.display.quit()
 
+    def test_blur_indexed_surface(self):
+        data_fname = example_path("data")
+        path = os.path.join(data_fname, "alien3.png")
+        sf = pygame.image.load(path)  # Get an indexed surface.
+
+        self.assertRaises(ValueError, lambda: pygame.transform.box_blur(sf, 10))
+        self.assertRaises(ValueError, lambda: pygame.transform.gaussian_blur(sf, 10))
+
+    def test_blur_in_place(self):
+        # When source and destination surfaces are the same,
+        # A ValueError should be raised.
+
+        data_fname = example_path("data")
+        path = os.path.join(data_fname, "peppers3.tif")
+        sf = pygame.image.load(path)
+        sub1 = sf.subsurface((0, 0, 128, 128))
+        sub2 = sf.subsurface((20, 20, 128, 128))
+
+        self.assertRaises(
+            ValueError, lambda: pygame.transform.box_blur(sf, 10, dest_surface=sf)
+        )
+        self.assertRaises(
+            ValueError, lambda: pygame.transform.box_blur(sub1, 10, dest_surface=sub2)
+        )
+        self.assertRaises(
+            ValueError, lambda: pygame.transform.gaussian_blur(sf, 10, dest_surface=sf)
+        )
+        self.assertRaises(
+            ValueError,
+            lambda: pygame.transform.gaussian_blur(sub1, 10, dest_surface=sub2),
+        )
+
+    def test_box_blur(self):
+        data1 = {
+            (1, 29): (67, 58, 26, 255),
+            (47, 66): (132, 124, 60, 255),
+            (84, 103): (139, 87, 51, 255),
+            (131, 140): (159, 133, 74, 255),
+            (158, 177): (161, 164, 81, 255),
+            (195, 214): (168, 137, 71, 255),
+            (232, 251): (130, 122, 67, 255),
+            (269, 280): (122, 159, 96, 255),
+            (306, 325): (113, 156, 84, 255),
+            (353, 362): (114, 152, 74, 255),
+            (380, 399): (107, 123, 58, 255),
+            (417, 436): (123, 90, 53, 255),
+            (458, 473): (146, 68, 52, 255),
+            (491, 510): (65, 36, 29, 255),
+        }
+        data2 = {
+            (1, 29): (67, 58, 26, 255),
+            (47, 66): (132, 124, 60, 255),
+            (84, 103): (139, 87, 51, 255),
+            (131, 140): (159, 133, 74, 255),
+            (158, 177): (161, 164, 81, 255),
+            (195, 214): (168, 137, 71, 255),
+            (232, 251): (130, 122, 67, 255),
+            (269, 280): (122, 159, 96, 255),
+            (306, 325): (113, 156, 84, 255),
+            (353, 362): (114, 152, 74, 255),
+            (380, 399): (107, 123, 58, 255),
+            (417, 436): (123, 90, 53, 255),
+            (458, 473): (146, 68, 52, 255),
+            (491, 510): (65, 36, 29, 255),
+        }
+
+        data_fname = example_path("data")
+        path = os.path.join(data_fname, "peppers3.tif")
+        sf = pygame.image.load(path).convert()
+
+        sf_b1 = pygame.transform.box_blur(sf, 50)
+        for pos in data1:
+            self.assertTrue(sf_b1.get_at(pos) == data1[pos])
+
+        sf_b2 = pygame.transform.box_blur(sf, 50, repeat_edge_pixels=False)
+        for pos in data2:
+            self.assertTrue(sf_b2.get_at(pos) == data2[pos])
+
+    def test_gaussian_blur(self):
+        data1 = {
+            (10, 49): (74, 67, 32, 255),
+            (47, 66): (112, 93, 47, 255),
+            (84, 103): (141, 104, 57, 255),
+            (121, 140): (153, 118, 64, 255),
+            (148, 177): (161, 140, 73, 255),
+            (195, 214): (162, 137, 72, 255),
+            (232, 21): (124, 50, 35, 255),
+            (269, 288): (123, 146, 83, 255),
+            (306, 325): (118, 154, 85, 255),
+            (343, 362): (114, 141, 73, 255),
+            (384, 379): (114, 116, 61, 255),
+            (417, 436): (121, 78, 47, 255),
+            (454, 473): (107, 54, 39, 255),
+            (491, 510): (57, 28, 22, 255),
+        }
+        data2 = {
+            (10, 49): (74, 67, 32, 255),
+            (47, 66): (112, 93, 47, 255),
+            (84, 103): (141, 104, 57, 255),
+            (121, 140): (153, 118, 64, 255),
+            (148, 177): (161, 140, 73, 255),
+            (195, 214): (162, 137, 72, 255),
+            (232, 21): (124, 50, 35, 255),
+            (269, 288): (123, 146, 83, 255),
+            (306, 325): (118, 154, 85, 255),
+            (343, 362): (114, 141, 73, 255),
+            (384, 379): (114, 116, 61, 255),
+            (417, 436): (121, 78, 47, 255),
+            (454, 473): (107, 54, 39, 255),
+            (491, 510): (57, 28, 22, 255),
+        }
+
+        data_fname = example_path("data")
+        path = os.path.join(data_fname, "peppers3.tif")
+        sf = pygame.image.load(path).convert()
+
+        sf_b1 = pygame.transform.gaussian_blur(sf, 50)
+        for pos in data1:
+            self.assertTrue(sf_b1.get_at(pos) == data1[pos])
+
+        sf_b2 = pygame.transform.gaussian_blur(sf, 50, repeat_edge_pixels=False)
+        for pos in data2:
+            self.assertTrue(sf_b2.get_at(pos) == data2[pos])
+
+    def test_blur_zero_size_surface(self):
+        surface = pygame.Surface((0, 0))
+        self.assertEqual(pygame.transform.box_blur(surface, 3).get_size(), (0, 0))
+        self.assertEqual(pygame.transform.gaussian_blur(surface, 3).get_size(), (0, 0))
+
+        surface = pygame.Surface((20, 0))
+        self.assertEqual(pygame.transform.box_blur(surface, 3).get_size(), (20, 0))
+        self.assertEqual(pygame.transform.gaussian_blur(surface, 3).get_size(), (20, 0))
+
+        surface = pygame.Surface((0, 20))
+        self.assertEqual(pygame.transform.box_blur(surface, 3).get_size(), (0, 20))
+        self.assertEqual(pygame.transform.gaussian_blur(surface, 3).get_size(), (0, 20))
+
     def test_flip(self):
         """honors the set_color key on the returned surface from flip."""
-        image_loaded = pygame.image.load(example_path("data/chimp.png"))
+        image_loaded = pygame.image.load(example_path("data/chimp.webp"))
 
         image = pygame.Surface(image_loaded.get_size(), 0, 32)
         image.blit(image_loaded, (0, 0))
@@ -1392,7 +2099,7 @@ class TransformDisplayModuleTest(unittest.TestCase):
 
     def test_flip_alpha(self):
         """returns a surface with the same properties as the input."""
-        image_loaded = pygame.image.load(example_path("data/chimp.png"))
+        image_loaded = pygame.image.load(example_path("data/chimp.webp"))
 
         image_alpha = pygame.Surface(image_loaded.get_size(), pygame.SRCALPHA, 32)
         image_alpha.blit(image_loaded, (0, 0))
@@ -1414,6 +2121,22 @@ class TransformDisplayModuleTest(unittest.TestCase):
         surf2.blit(image_alpha, (0, 0))
         self.assertEqual(surf.get_at((0, 0)), surf2.get_at((0, 0)))
         self.assertEqual(surf2.get_at((0, 0)), (255, 0, 0, 255))
+
+    def test_unwanted_rle_not_added(self):
+        surf = pygame.Surface((16, 16))
+        surf.fill((255, 0, 0))
+        surf.set_colorkey((0, 0, 0))
+        surf.set_alpha(64)
+
+        #  scale it to the same size (size doesn't matter here)
+        scaled_surf = pygame.transform.scale(surf, (16, 16))
+        pygame.Surface((100, 100)).blit(scaled_surf, (0, 0))
+
+        self.assertEqual(
+            surf.get_flags() & pygame.RLEACCEL,
+            scaled_surf.get_flags() & pygame.RLEACCEL,
+        )
+        self.assertEqual(scaled_surf.get_at((8, 8)), (255, 0, 0, 255))
 
 
 if __name__ == "__main__":

@@ -23,80 +23,31 @@ typedef uint32_t Uint32;
 typedef uint8_t Uint8;
 #endif /* no SDL */
 
-#if defined(SDL_VERSION_ATLEAST)
+/* SDL_VERSION_ATLEAST is in every supported SDL version, but the code gets a
+ * warning without this check here, which is very weird. */
+#ifdef SDL_VERSION_ATLEAST
 
-#ifndef SDL_WINDOW_VULKAN
-#define SDL_WINDOW_VULKAN 0
+// SDL does not provide endian independent names for 32 bit formats without
+// alpha channels the way they do for ones with alpha channels.
+// E.g. SDL_PIXELFORMAT_RGBA32. This macro allows us the convenience of the
+// endian independent name.
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define PG_PIXELFORMAT_RGBX32 SDL_PIXELFORMAT_XBGR8888
+#else
+#define PG_PIXELFORMAT_RGBX32 SDL_PIXELFORMAT_RGBX8888
 #endif
 
-#ifndef SDL_WINDOW_ALWAYS_ON_TOP
-#define SDL_WINDOW_ALWAYS_ON_TOP 0
-#endif
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+#define PG_GetTicks SDL_GetTicks64
+#else
+#define PG_GetTicks SDL_GetTicks
+#endif /* SDL_VERSION_ATLEAST(2, 0, 18) */
 
-#ifndef SDL_WINDOW_SKIP_TASKBAR
-#define SDL_WINDOW_SKIP_TASKBAR 0
-#endif
-
-#ifndef SDL_WINDOW_UTILITY
-#define SDL_WINDOW_UTILITY 0
-#endif
-
-#ifndef SDL_WINDOW_TOOLTIP
-#define SDL_WINDOW_TOOLTIP 0
-#endif
-
-#ifndef SDL_WINDOW_POPUP_MENU
-#define SDL_WINDOW_POPUP_MENU 0
-#endif
-
-#ifndef SDL_WINDOW_INPUT_GRABBED
-#define SDL_WINDOW_INPUT_GRABBED 0
-#endif
-
-#ifndef SDL_WINDOW_INPUT_FOCUS
-#define SDL_WINDOW_INPUT_FOCUS 0
-#endif
-
-#ifndef SDL_WINDOW_MOUSE_FOCUS
-#define SDL_WINDOW_MOUSE_FOCUS 0
-#endif
-
-#ifndef SDL_WINDOW_FOREIGN
-#define SDL_WINDOW_FOREIGN 0
-#endif
-
-#ifndef SDL_WINDOW_ALLOW_HIGHDPI
-#define SDL_WINDOW_ALLOW_HIGHDPI 0
-#endif
-
-#ifndef SDL_WINDOW_MOUSE_CAPTURE
-#define SDL_WINDOW_MOUSE_CAPTURE 0
-#endif
-
-#ifndef SDL_WINDOW_ALWAYS_ON_TOP
-#define SDL_WINDOW_ALWAYS_ON_TOP 0
-#endif
-
-#ifndef SDL_WINDOW_SKIP_TASKBAR
-#define SDL_WINDOW_SKIP_TASKBAR 0
-#endif
-
-#ifndef SDL_WINDOW_UTILITY
-#define SDL_WINDOW_UTILITY 0
-#endif
-
-#ifndef SDL_WINDOW_TOOLTIP
-#define SDL_WINDOW_TOOLTIP 0
-#endif
-
-#ifndef SDL_WINDOW_POPUP_MENU
-#define SDL_WINDOW_POPUP_MENU 0
-#endif
+#endif /* defined(SDL_VERSION_ATLEAST) */
 
 #ifndef SDL_MOUSEWHEEL_FLIPPED
 #define NO_SDL_MOUSEWHEEL_FLIPPED
 #endif
-
-#endif /* defined(SDL_VERSION_ATLEAST) */
 
 #endif /* ~defined(PGCOMPAT_H) */

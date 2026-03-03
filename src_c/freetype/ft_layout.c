@@ -33,7 +33,7 @@
 #define FX16_WIDE_FACTOR (FX16_ONE / 12)
 
 #define SLANT_FACTOR 0.22
-static FT_Matrix slant_matrix = {FX16_ONE, (FT_Fixed)(SLANT_FACTOR *FX16_ONE),
+static FT_Matrix slant_matrix = {FX16_ONE, (FT_Fixed)(SLANT_FACTOR * FX16_ONE),
                                  0, FX16_ONE};
 
 static FT_Matrix unit_matrix = {FX16_ONE, 0, 0, FX16_ONE};
@@ -525,8 +525,9 @@ _PGFT_LoadGlyph(FontGlyph *glyph, GlyphIndex_t id, const FontRenderMode *mode,
      * Load the glyph into the glyph slot
      */
     if (FT_Load_Glyph(context->font, id, (FT_Int)load_flags) ||
-        FT_Get_Glyph(context->font->glyph, &image))
+        FT_Get_Glyph(context->font->glyph, &image)) {
         goto cleanup;
+    }
 
     /*
      * Perform any outline transformations
@@ -539,8 +540,10 @@ _PGFT_LoadGlyph(FontGlyph *glyph, GlyphIndex_t id, const FontRenderMode *mode,
 
         bold_str = FX16_CEIL_TO_FX6(mode->strength * x_ppem);
         FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &before);
-        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
+        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline,
+                                bold_str)) {
             goto cleanup;
+        }
         FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &after);
         strong_delta.x +=
             ((after.xMax - after.xMin) - (before.xMax - before.xMin));

@@ -3,8 +3,6 @@ import unittest
 import pygame
 from pygame.locals import *
 
-from time import time
-
 
 class BlitTest(unittest.TestCase):
     def test_SRCALPHA(self):
@@ -73,21 +71,7 @@ class BlitTest(unittest.TestCase):
         s.blit(d, (0, 0), None, BLEND_SUB)
         self.assertEqual(s.get_at((0, 0))[0], 0)
 
-
-class BlitsTest(unittest.TestCase):
-    """Tests for pygame.Surface.blits"""
-
-    def setUp(self):
-        self.NUM_SURFS = 255
-        self.PRINT_TIMING = 0
-        self.dst = pygame.Surface((self.NUM_SURFS * 10, 10), SRCALPHA, 32)
-        self.dst.fill((230, 230, 230))
-        self.blit_list = self.make_blit_list(self.NUM_SURFS)
-
     def make_blit_list(self, num_surfs):
-        """Generate a list of tuples representing surfaces and destinations
-        for blitting"""
-
         blit_list = []
         for i in range(num_surfs):
             dest = (i * 10, 0)
@@ -97,95 +81,172 @@ class BlitsTest(unittest.TestCase):
             blit_list.append((surf, dest))
         return blit_list
 
-    def custom_blits(self, blit_list):
-        """Custom blits method that manually iterates over the blit_list and blits
-        each surface onto the destination."""
+    def test_blits(self):
+        NUM_SURFS = 255
+        PRINT_TIMING = 0
+        dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
+        dst.fill((230, 230, 230))
+        blit_list = self.make_blit_list(NUM_SURFS)
 
-        for surface, dest in blit_list:
-            self.dst.blit(surface, dest)
+        def blits(blit_list):
+            for surface, dest in blit_list:
+                dst.blit(surface, dest)
 
-    def test_custom_blits_performance(self):
-        """Checks time performance of the custom blits method"""
+        from time import time
 
         t0 = time()
-        results = self.custom_blits(self.blit_list)
+        results = blits(blit_list)
         t1 = time()
-        if self.PRINT_TIMING:
+        if PRINT_TIMING:
             print(f"python blits: {t1 - t0}")
 
-    def test_blits_performance(self):
-        """Checks time performance of blits"""
-
+        dst.fill((230, 230, 230))
         t0 = time()
-        results = self.dst.blits(self.blit_list)
+        results = dst.blits(blit_list)
         t1 = time()
-        if self.PRINT_TIMING:
-            print(f"Surface.blits: {t1 - t0}")
+        if PRINT_TIMING:
+            print(f"Surface.blits :{t1 - t0}")
 
-        # Measure time performance of blits with doreturn=0
-        t0 = time()
-        results = self.dst.blits(self.blit_list, doreturn=0)
-        t1 = time()
-        if self.PRINT_TIMING:
-            print(f"Surface.blits doreturn=0: {t1 - t0}")
-
-        # Measure time performance of blits using a generator
-        t0 = time()
-        results = self.dst.blits(((surf, dest) for surf, dest in self.blit_list))
-        t1 = time()
-        if self.PRINT_TIMING:
-            print(f"Surface.blits generator: {t1 - t0}")
-
-    def test_blits_correctness(self):
-        """Checks the correctness of the colors on the destination
-        after blitting and tests that the length of the results list
-        matches the number of surfaces blitted."""
-
-        results = self.dst.blits(self.blit_list)
-        for i in range(self.NUM_SURFS):
+        # check if we blit all the different colors in the correct spots.
+        for i in range(NUM_SURFS):
             color = (i * 1, i * 1, i * 1)
-            self.assertEqual(self.dst.get_at((i * 10, 0)), color)
-            self.assertEqual(self.dst.get_at(((i * 10) + 5, 5)), color)
+            self.assertEqual(dst.get_at((i * 10, 0)), color)
+            self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
 
-        self.assertEqual(len(results), self.NUM_SURFS)
+        self.assertEqual(len(results), NUM_SURFS)
 
-    def test_blits_doreturn(self):
-        """Tests that when doreturn=0, it returns None"""
-
-        results = self.dst.blits(self.blit_list, doreturn=0)
+        t0 = time()
+        results = dst.blits(blit_list, doreturn=0)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.blits doreturn=0: {t1 - t0}")
         self.assertEqual(results, None)
 
-    def test_blits_not_sequence(self):
-        """Tests that calling blits with an invalid non-sequence None argument
-        raises a ValueError."""
+        t0 = time()
+        results = dst.blits(((surf, dest) for surf, dest in blit_list))
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.blits generator: {t1 - t0}")
 
+    def test_fblits(self):
+        NUM_SURFS = 255
+        PRINT_TIMING = 0
+        dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
+        dst.fill((230, 230, 230))
+        blit_list = self.make_blit_list(NUM_SURFS)
+
+        def blits(blit_list):
+            for surface, dest in blit_list:
+                dst.blit(surface, dest)
+
+        from time import time
+
+        # tests for number of parameters
+        self.assertRaises(ValueError, dst.fblits)  # no params
+
+        # tests for the blit_sequence parameter
+        self.assertRaises(ValueError, dst.fblits, [-1])
+        self.assertRaises(ValueError, dst.fblits, (-1,))
+        self.assertRaises(ValueError, dst.fblits, "str")
+        self.assertRaises(ValueError, dst.fblits, 1)
+
+        # tests for the special_flags parameter
+        self.assertRaises(TypeError, dst.fblits, blit_list, -999)  # not impl. flag
+        self.assertRaises(TypeError, dst.fblits, blit_list, 12.245)  # float flag
+        self.assertRaises(TypeError, dst.fblits, blit_list, None)
+        self.assertRaises(TypeError, dst.fblits, blit_list, [])
+        self.assertRaises(TypeError, dst.fblits, blit_list, ())
+        self.assertRaises(TypeError, dst.fblits, blit_list, "str")
+        self.assertRaises(TypeError, dst.fblits, blit_list, "str")
+
+        # tests for return value
+        self.assertEqual(dst.fblits(blit_list, 0), None)
+        self.assertEqual(dst.fblits(blit_list, 1), dst.blits(blit_list, doreturn=0))
+
+        # make sure this doesn't segfault
+        dst.fblits((dst, dst.get_rect().topleft) for _ in range(1))
+
+        t0 = time()
+        results = blits(blit_list)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"python blits: {t1 - t0}")
+
+        dst.fill((230, 230, 230))
+        t0 = time()
+        dst.fblits(blit_list, 0)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.fblits :{t1 - t0}")
+
+        # check if we blit all the different colors in the correct spots.
+        for i in range(NUM_SURFS):
+            color = (i * 1, i * 1, i * 1)
+            self.assertEqual(dst.get_at((i * 10, 0)), color)
+            self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
+
+        t0 = time()
+        result = dst.fblits(blit_list)
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.fblits: {t1 - t0}")
+        self.assertEqual(result, None)
+
+        t0 = time()
+        dst.fblits(((surf, dest) for surf, dest in blit_list))
+        t1 = time()
+        if PRINT_TIMING:
+            print(f"Surface.fblits generator: {t1 - t0}")
+
+    def test_fblits_not_sequence(self):
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        with self.assertRaises(ValueError):
-            dst.blits(None)
+        self.assertRaises(ValueError, dst.fblits, None)
+
+    def test_fblits_wrong_length(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(
+            ValueError, dst.fblits, [pygame.Surface((10, 10), SRCALPHA, 32)]
+        )
+
+    def test_fblits_bad_surf_args(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(TypeError, dst.fblits, [(None, None)])
+
+    def test_fblits_bad_dest(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(
+            TypeError, dst.fblits, [(pygame.Surface((10, 10), SRCALPHA, 32), None)]
+        )
+
+    def test_fblits_generator_exception(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        exc_type = Exception
+
+        def generate_exception():
+            yield pygame.Surface((10, 10)), (0, 0)
+            raise exc_type
+
+        self.assertRaises(exc_type, dst.fblits, generate_exception())
+
+    def test_blits_not_sequence(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(ValueError, dst.blits, None)
 
     def test_blits_wrong_length(self):
-        """Tests that calling blits with an invalid sequence containing a single surface
-        (without a destination) raises a ValueError."""
-
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        with self.assertRaises(ValueError):
-            dst.blits([pygame.Surface((10, 10), SRCALPHA, 32)])
+        self.assertRaises(
+            ValueError, dst.blits, [pygame.Surface((10, 10), SRCALPHA, 32)]
+        )
 
     def test_blits_bad_surf_args(self):
-        """Tests that calling blits with a sequence containing an invalid tuple of
-        None arguments raises a TypeError."""
-
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        with self.assertRaises(TypeError):
-            dst.blits([(None, None)])
+        self.assertRaises(TypeError, dst.blits, [(None, None)])
 
     def test_blits_bad_dest(self):
-        """Tests that calling blits with a sequence containing an invalid tuple with a
-        destination of None raises a TypeError."""
-
         dst = pygame.Surface((100, 10), SRCALPHA, 32)
-        with self.assertRaises(TypeError):
-            dst.blits([(pygame.Surface((10, 10), SRCALPHA, 32), None)])
+        self.assertRaises(
+            TypeError, dst.blits, [(pygame.Surface((10, 10), SRCALPHA, 32), None)]
+        )
 
 
 if __name__ == "__main__":

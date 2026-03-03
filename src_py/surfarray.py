@@ -37,23 +37,21 @@ to as 3D arrays, and the last index is 0 for red, 1 for green, and 2 for
 blue.
 """
 
+import warnings  # will be removed in the future
 
-from pygame.pixelcopy import (
-    array_to_surface,
-    surface_to_array,
-    map_array as pix_map_array,
-    make_surface as pix_make_surface,
-)
 import numpy
 from numpy import (
     array as numpy_array,
     empty as numpy_empty,
-    uint32 as numpy_uint32,
     ndarray as numpy_ndarray,
+    uint32 as numpy_uint32,
 )
-
-import warnings  # will be removed in the future
-
+from pygame.pixelcopy import (
+    array_to_surface,
+    make_surface as pix_make_surface,
+    map_array as pix_map_array,
+    surface_to_array,
+)
 
 # float96 not available on all numpy versions.
 numpy_floats = [
@@ -61,7 +59,7 @@ numpy_floats = [
     for type_name in "float32 float64 float96".split()
     if hasattr(numpy, type_name)
 ]
-# Added below due to deprecation of numpy.float. See issue #2814
+# Added below due to deprecation of numpy.float. See pygame issue #1440
 numpy_floats.append(float)
 
 # Pixel sizes corresponding to NumPy supported integer sizes, and therefore
@@ -97,7 +95,7 @@ __all__ = [
 def blit_array(surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
 
-    Blit directly from a array values.
+    Blit directly from an array of values.
 
     Directly copy values from an array into a Surface. This is faster than
     converting the array into a Surface and blitting. The array must be the
@@ -386,9 +384,9 @@ def map_array(surface, array):
     format to control the conversion.
 
     Note: arrays do not need to be 3D, as long as the minor axis has
-    three elements giving the component colours, any array shape can be
-    used (for example, a single colour can be mapped, or an array of
-    colours). The array shape is limited to eleven dimensions maximum,
+    three elements giving the component colors, any array shape can be
+    used (for example, a single color can be mapped, or an array of
+    colors). The array shape is limited to eleven dimensions maximum,
     including the three element minor axis.
     """
     if array.ndim == 0:

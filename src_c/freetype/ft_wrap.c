@@ -38,7 +38,8 @@ ft_wrap_quit(pgFontObject *);
  *
  *********************************************************/
 void
-_PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id){
+_PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
+{
 #undef __FTERRORS_H__
 #define FT_ERRORDEF(e, v, s) {e, s},
 #define FT_ERROR_START_LIST {
@@ -48,37 +49,37 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id){
     }                     \
     }                     \
     ;
-    static const struct {int err_code;
-const char *err_msg;
-}
-ft_errors[] =
+    static const struct {
+        int err_code;
+        const char *err_msg;
+    } ft_errors[] =
 #include FT_ERRORS_H
 
-    const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
-int i;
-const char *ft_msg;
+        const int maxlen = (int)(sizeof(ft->_error_msg)) - 1;
+    int i;
+    const char *ft_msg;
 
-ft_msg = 0;
-for (i = 0; ft_errors[i].err_msg; ++i) {
-    if (error_id == ft_errors[i].err_code) {
-        ft_msg = ft_errors[i].err_msg;
-        break;
+    ft_msg = 0;
+    for (i = 0; ft_errors[i].err_msg; ++i) {
+        if (error_id == ft_errors[i].err_code) {
+            ft_msg = ft_errors[i].err_msg;
+            break;
+        }
     }
-}
 
-if (error_id && ft_msg) {
-    int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg), "%.*s: %s",
-                            maxlen - 3, error_msg, ft_msg);
-    if (ret >= 0) {
-        /* return after successfully copying full or truncated error.
-         * If ret < 0, PyOS_snprintf failed so try to strncpy error
-         * message */
-        return;
+    if (error_id && ft_msg) {
+        int ret = PyOS_snprintf(ft->_error_msg, sizeof(ft->_error_msg),
+                                "%.*s: %s", maxlen - 3, error_msg, ft_msg);
+        if (ret >= 0) {
+            /* return after successfully copying full or truncated error.
+             * If ret < 0, PyOS_snprintf failed so try to strncpy error
+             * message */
+            return;
+        }
     }
-}
 
-strncpy(ft->_error_msg, error_msg, maxlen);
-ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
+    strncpy(ft->_error_msg, error_msg, maxlen);
+    ft->_error_msg[maxlen] = '\0'; /* in case of message truncation */
 }
 
 const char *
@@ -152,6 +153,19 @@ _PGFT_Font_GetName(FreeTypeInstance *ft, pgFontObject *fontobj)
         return 0;
     }
     return font->family_name ? font->family_name : "";
+}
+
+const char *
+_PGFT_Font_GetStyleName(FreeTypeInstance *ft, pgFontObject *fontobj)
+{
+    FT_Face font;
+    font = _PGFT_GetFont(ft, fontobj);
+
+    if (!font) {
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
+        return 0;
+    }
+    return font->style_name ? font->style_name : "";
 }
 
 /* All the font metric functions raise an exception and return 0 on an error.
@@ -264,8 +278,9 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Fixed underline_size;
 
     font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
-    if (!font_text)
+    if (!font_text) {
         goto error;
+    }
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
                            &underline_top, &underline_size);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
@@ -388,12 +403,11 @@ ft_wrap_init(FreeTypeInstance *ft, pgFontObject *fontobj)
     }
     fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
 
-    fontobj->_internals = _PGFT_malloc(sizeof(FontInternals));
+    fontobj->_internals = _PGFT_calloc(1, sizeof(FontInternals));
     if (!fontobj->_internals) {
         PyErr_NoMemory();
         return -1;
     }
-    memset(fontobj->_internals, 0x0, sizeof(FontInternals));
 
     if (_PGFT_LayoutInit(ft, fontobj)) {
         _PGFT_free(fontobj->_internals);
@@ -461,10 +475,15 @@ RWops_read(FT_Stream stream, unsigned long offset, unsigned char *buffer,
     src = (SDL_RWops *)stream->descriptor.pointer;
     SDL_RWseek(src, (int)offset, SEEK_SET);
 
-    if (count == 0)
+    if (count == 0) {
         return 0;
+    }
 
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+    return (unsigned long)SDL_ReadIO(src, buffer, count);
+#else
     return (unsigned long)SDL_RWread(src, buffer, 1, (int)count);
+#endif
 }
 
 int
@@ -480,12 +499,11 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
         return -1;
     }
 
-    stream = _PGFT_malloc(sizeof(*stream));
+    stream = _PGFT_calloc(1, sizeof(*stream));
     if (!stream) {
         PyErr_NoMemory();
         return -1;
     }
-    memset(stream, 0, sizeof(*stream));
     stream->read = RWops_read;
     stream->descriptor.pointer = src;
     stream->pos = (unsigned long)position;
@@ -501,16 +519,18 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
 SDL_RWops *
 _PGFT_GetRWops(pgFontObject *fontobj)
 {
-    if (fontobj->id.open_args.flags == FT_OPEN_STREAM)
+    if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
         return fontobj->id.open_args.stream->descriptor.pointer;
+    }
     return NULL;
 }
 
 void
 _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
 {
-    if (fontobj->id.open_args.flags == 0)
+    if (fontobj->id.open_args.flags == 0) {
         return;
+    }
 
     if (ft) {
         FTC_Manager_RemoveFaceID(ft->cache_manager,
@@ -589,17 +609,21 @@ error_cleanup:
 void
 _PGFT_Quit(FreeTypeInstance *ft)
 {
-    if (!ft)
+    if (!ft) {
         return;
+    }
 
-    if (--ft->ref_count != 0)
+    if (--ft->ref_count != 0) {
         return;
+    }
 
-    if (ft->cache_manager)
+    if (ft->cache_manager) {
         FTC_Manager_Done(ft->cache_manager);
+    }
 
-    if (ft->library)
+    if (ft->library) {
         FT_Done_FreeType(ft->library);
+    }
 
     _PGFT_free(ft);
 }

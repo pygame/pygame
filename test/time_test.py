@@ -1,14 +1,17 @@
-import os
-import platform
-import unittest
-import pygame
 import time
+import unittest
+
+import pygame
 
 Clock = pygame.time.Clock
 
 
 class ClockTypeTest(unittest.TestCase):
     __tags__ = ["timing"]
+
+    def test_clock_alias(self):
+        """Check if pygame.Clock is present and the correct type."""
+        self.assertIs(pygame.Clock, pygame.time.Clock)
 
     def test_construction(self):
         """Ensure a Clock object can be created"""
@@ -65,10 +68,6 @@ class ClockTypeTest(unittest.TestCase):
             c2 = c.get_time()
             self.assertAlmostEqual(c1, c2, delta=delta)
 
-    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
-    @unittest.skipIf(
-        os.environ.get("CI", None), "CI can have variable time slices, slow."
-    )
     def test_get_time(self):
         # Testing parameters
         delay = 0.1  # seconds
@@ -99,10 +98,6 @@ class ClockTypeTest(unittest.TestCase):
             )  #'time' module elapsed time converted to milliseconds
             self.assertAlmostEqual(d0, c1, delta=delta)
 
-    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
-    @unittest.skipIf(
-        os.environ.get("CI", None), "CI can have variable time slices, slow."
-    )
     def test_tick(self):
         """Tests time.Clock.tick()"""
         """
@@ -113,8 +108,7 @@ class ClockTypeTest(unittest.TestCase):
         """
 
         # Adjust this value to increase the acceptable sleep jitter
-        epsilon = 5  # 1.5
-
+        epsilon = 1.5
         # Adjust this value to increase the acceptable locked frame-rate jitter
         epsilon2 = 0.3
         # adjust this value to increase the acceptable frame-rate margin
@@ -250,10 +244,121 @@ class ClockTypeTest(unittest.TestCase):
 class TimeModuleTest(unittest.TestCase):
     __tags__ = ["timing"]
 
-    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
-    @unittest.skipIf(
-        os.environ.get("CI", None), "CI can have variable time slices, slow."
-    )
+    def test_multiple_timers(self):
+        """
+        Test for multiple timers running together, test repeat and dict
+        posting, test per event timing too
+        """
+        pygame.init()
+        # other timers in background should not affect current timer
+        # test different kinds of timers simultaneously. Test repeat, early
+        # stop with repeat, and stopping timers running on infinite loops.
+        # test dict and no dict posting
+        events_tests_dict = {
+            # each value here is like
+            # (delay time(ms), event dict, set repeat, early repeat stop)
+            pygame.event.custom_type(): (20, {}, 3, None),
+            pygame.event.custom_type(): (13, {1: 2, 3: 1}, 1, None),
+            pygame.event.custom_type(): (30, {"attr1": 10}, 5, 5),
+            pygame.event.custom_type(): (15, {"foo": "bar", "spam": "eggs"}, 10, 8),
+            pygame.event.custom_type(): (16, {}, None, 4),
+            pygame.event.custom_type(): (12, {"test": 42.26}, None, 6),
+            pygame.event.custom_type(): (10, {"foo": "spam", "bar": "eggs"}, None, 8),
+        }
+
+        times = {k: 0.0 for k in events_tests_dict}
+        counts = {k: 0 for k in events_tests_dict}
+
+        # post events, note start times
+        for event, (delay, attrs, repeat, _) in events_tests_dict.items():
+            if repeat is None:
+                pygame.time.set_timer(pygame.event.Event(event, attrs), delay)
+            else:
+                pygame.time.set_timer(pygame.event.Event(event, attrs), delay, repeat)
+            times[event] = time.perf_counter()
+
+        # run for 500ms
+        loop_start = time.perf_counter()
+        while time.perf_counter() < loop_start + 0.5:
+            for event in pygame.event.get():
+                if event.type in events_tests_dict:
+                    now_time = time.perf_counter()
+                    set_time, set_dict, repeat, stop = events_tests_dict[event.type]
+                    # measure time for each event, should almost match expected time
+                    self.assertAlmostEqual(
+                        (now_time - times[event.type]) * 1000, set_time, delta=4
+                    )
+
+                    # the dict attribute should be the same reference, if it exists
+                    self.assertIs(event.dict, set_dict)
+
+                    times[event.type] = now_time
+                    counts[event.type] += 1
+                    if counts[event.type] == stop:
+                        # stop event
+                        pygame.time.set_timer(event.type, 0)
+
+                    # assert extra events are not created
+                    if stop is None:
+                        if counts[event.type] > repeat:
+                            self.fail("got more events than expected with repeat")
+                    else:
+                        if counts[event.type] > stop:
+                            self.fail("got more events, timer stop did not work")
+
+        # assert events don't come in after the stipulated time
+        time.sleep(0.5)
+        for event in pygame.event.get():
+            self.assertNotIn(event.type, events_tests_dict)
+
+        for event_type, (_, _, repeat, stop) in events_tests_dict.items():
+            # recheck that the counts exactly match, and we don't have lesser
+            # events than expected
+            if stop is not None:
+                self.assertEqual(stop, counts[event_type])
+            else:
+                self.assertEqual(repeat, counts[event_type])
+
+        pygame.quit()
+
+    def test_timer_wrong_args(self):
+        for out_of_range_val in (-1, -10, pygame.NUMEVENTS, pygame.NUMEVENTS + 1):
+            self.assertRaises(ValueError, pygame.time.set_timer, out_of_range_val, 10)
+            self.assertRaises(
+                ValueError, pygame.time.set_timer, event=out_of_range_val, millis=10
+            )
+
+        for incorrect_type in ("string", 4 + 3j, [1, 2, 3], {"a": "b"}):
+            self.assertRaises(TypeError, pygame.time.set_timer, incorrect_type, 15)
+            self.assertRaises(
+                TypeError, pygame.time.set_timer, event=incorrect_type, millis=15
+            )
+
+    def test_timer_common_reference(self):
+        pygame.init()
+        pygame.event.get()  # empty queue
+        for event in (
+            pygame.event.Event(pygame.event.custom_type(), attr=(1, 2, 3, 4)),
+            pygame.event.Event(pygame.event.custom_type(), dict={"test": "yes"}),
+            pygame.event.Event(pygame.event.custom_type()),
+            pygame.event.custom_type(),
+        ):
+            pygame.time.set_timer(event, 1, loops=2)
+            time.sleep(0.005)
+            events = pygame.event.get(pump=False)
+            self.assertEqual(len(events), 2)
+
+            if isinstance(event, int):
+                for ev in events:
+                    self.assertEqual(ev.type, event)
+                    self.assertEqual(ev.dict, {})
+                self.assertIsNot(events[0].dict, events[1].dict)
+            else:
+                for ev in events:
+                    self.assertEqual(ev.type, event.type)
+                    self.assertIs(ev.dict, event.dict)
+        pygame.quit()
+
     def test_delay(self):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
@@ -285,10 +390,6 @@ class TimeModuleTest(unittest.TestCase):
             # Assert almost equality of the ticking time and time difference
             self.assertAlmostEqual(ticks_diff, time_diff, delta=delta)
 
-    @unittest.skipIf(platform.machine() == "s390x", "Fails on s390x")
-    @unittest.skipIf(
-        os.environ.get("CI", None), "CI can have variable time slices, slow."
-    )
     def test_set_timer(self):
         """Tests time.set_timer()"""
         """
@@ -376,7 +477,7 @@ class TimeModuleTest(unittest.TestCase):
         self._type_error_checks(pygame.time.wait)
 
     def _wait_delay_check(self, func_to_check, millis, iterations, delta):
-        """ "
+        """
         call func_to_check(millis) "iterations" times and check each time if
         function "waited" for given millisecond (+- delta). At the end, take
         average time for each call (whole_duration/iterations), which should

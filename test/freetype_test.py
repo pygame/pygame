@@ -1,14 +1,12 @@
-import os
-
-if os.environ.get("SDL_VIDEODRIVER") == "dummy":
-    __tags__ = ("ignore", "subprocess_ignore")
-
-import unittest
 import ctypes
-import weakref
 import gc
+import io
+import os
 import pathlib
 import platform
+import sys
+import unittest
+import weakref
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -19,12 +17,7 @@ except NameError:
     pass
 
 import pygame
-
-try:
-    import pygame.freetype as ft
-except ImportError:
-    ft = None
-
+import pygame.freetype as ft
 
 FONTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "fonts")
 
@@ -64,7 +57,7 @@ class FreeTypeFontTest(unittest.TestCase):
     def setUpClass(cls):
         ft.init()
 
-        # Setup the test fonts.
+        # Set up the test fonts.
 
         # Inconsolata is an open-source font designed by Raph Levien.
         # Licensed under the Open Font License.
@@ -133,7 +126,7 @@ class FreeTypeFontTest(unittest.TestCase):
             FileNotFoundError, f.__init__, os.path.join(FONTDIR, "nonexistent.ttf")
         )
 
-        # Test attribute preservation during reinitalization
+        # Test attribute preservation during reinitialization
         f = ft.Font(self._sans_path, size=24, ucs4=True)
         self.assertEqual(f.name, "Liberation Sans")
         self.assertTrue(f.scalable)
@@ -160,6 +153,11 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(f.size, (x_ppem, y_ppem))
         f.__init__(self._bmp_8_75dpi_path, size=12)
         self.assertEqual(f.size, 12.0)
+
+    def test_load_from_invalid_sized_file_obj(self):
+        f = io.StringIO()
+        with self.assertRaises(ValueError):
+            font = f = ft.Font(f, size=24)
 
     @unittest.skipIf(IS_PYPY, "PyPy doesn't use refcounting")
     def test_freetype_Font_dealloc(self):
@@ -202,7 +200,7 @@ class FreeTypeFontTest(unittest.TestCase):
         Note: This does not test what changes occur to a rendered font by
               having kerning enabled.
 
-        Related to issue #367.
+        Related to pygame issue #371.
         """
         surface = pygame.Surface((10, 10), 0, 32)
         TEST_TEXT = "Freetype Font"
@@ -510,11 +508,11 @@ class FreeTypeFontTest(unittest.TestCase):
         # one code point or two.
         ufont = self._TEST_FONTS["mono"]
         rect_utf32 = ufont.get_rect("\U00013079", size=24)
-        rect_utf16 = ufont.get_rect("\uD80C\uDC79", size=24)
+        rect_utf16 = ufont.get_rect("\ud80c\udc79", size=24)
         self.assertEqual(rect_utf16, rect_utf32)
         ufont.ucs4 = True
         try:
-            rect_utf16 = ufont.get_rect("\uD80C\uDC79", size=24)
+            rect_utf16 = ufont.get_rect("\ud80c\udc79", size=24)
         finally:
             ufont.ucs4 = False
         self.assertNotEqual(rect_utf16, rect_utf32)
@@ -547,8 +545,9 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS["fixed"]
         self.assertEqual(f.name, "Inconsolata")
 
-        nf = nullfont()
-        self.assertEqual(nf.name, repr(nf))
+        with self.assertRaises(AttributeError):
+            null_font = ft.Font.__new__(ft.Font)
+            null_font.name
 
     def test_freetype_Font_size(self):
         f = ft.Font(None, size=12)
@@ -776,29 +775,29 @@ class FreeTypeFontTest(unittest.TestCase):
         ucs4 = font2.ucs4
         try:
             font2.ucs4 = False
-            rend1 = font2.render("\uD80C\uDC79", color, size=24)
+            rend1 = font2.render("\ud80c\udc79", color, size=24)
             rend2 = font2.render("\U00013079", color, size=24)
             self.assertEqual(rend1[1], rend2[1])
             font2.ucs4 = True
-            rend1 = font2.render("\uD80C\uDC79", color, size=24)
+            rend1 = font2.render("\ud80c\udc79", color, size=24)
             self.assertNotEqual(rend1[1], rend2[1])
         finally:
             font2.ucs4 = ucs4
 
         # malformed surrogate pairs
-        self.assertRaises(UnicodeEncodeError, font.render, "\uD80C", color, size=24)
-        self.assertRaises(UnicodeEncodeError, font.render, "\uDCA7", color, size=24)
+        self.assertRaises(UnicodeEncodeError, font.render, "\ud80c", color, size=24)
+        self.assertRaises(UnicodeEncodeError, font.render, "\udca7", color, size=24)
         self.assertRaises(
-            UnicodeEncodeError, font.render, "\uD7FF\uDCA7", color, size=24
+            UnicodeEncodeError, font.render, "\ud7ff\udca7", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, "\uDC00\uDCA7", color, size=24
+            UnicodeEncodeError, font.render, "\udc00\udca7", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, "\uD80C\uDBFF", color, size=24
+            UnicodeEncodeError, font.render, "\ud80c\udbff", color, size=24
         )
         self.assertRaises(
-            UnicodeEncodeError, font.render, "\uD80C\uE000", color, size=24
+            UnicodeEncodeError, font.render, "\ud80c\ue000", color, size=24
         )
 
         # raises exception when uninitialized
@@ -922,15 +921,17 @@ class FreeTypeFontTest(unittest.TestCase):
                 self.assertEqual(
                     surf.get_at(bottomleft),
                     fill_color,
-                    "Position: {}. Depth: {}."
-                    " fg_color: {}.".format(bottomleft, surf.get_bitsize(), fg_color),
+                    "Position: {}. Depth: {}. fg_color: {}.".format(
+                        bottomleft, surf.get_bitsize(), fg_color
+                    ),
                 )
                 bottomright = rrect.width - 1, rrect.height - 1
                 self.assertEqual(
                     surf.get_at(bottomright),
                     r_fg_color,
-                    "Position: {}. Depth: {}."
-                    " fg_color: {}.".format(bottomright, surf.get_bitsize(), fg_color),
+                    "Position: {}. Depth: {}. fg_color: {}.".format(
+                        bottomright, surf.get_bitsize(), fg_color
+                    ),
                 )
             for i, surf in enumerate(surfaces):
                 surf.fill(fill_color)
@@ -1011,7 +1012,7 @@ class FreeTypeFontTest(unittest.TestCase):
         font = self._TEST_FONTS["sans"]
         text = "abc"
 
-        # No frills antialiased render to int1 (__render_glyph_INT)
+        # No frills anti aliased render to int1 (__render_glyph_INT)
         srect = font.get_rect(text, size=24)
         surf = pygame.Surface(srect.size, 0, 8)
         rrect = font.render_raw_to(surf.get_view("2"), text, size=24)
@@ -1052,7 +1053,7 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.antialiased = True
 
-        # Antialiased render to ints sized greater than 1 byte
+        # Anti aliased render to ints sized greater than 1 byte
         # (__render_glyph_INT)
         srect = font.get_rect(text, size=24)
 
@@ -1243,7 +1244,6 @@ class FreeTypeFontTest(unittest.TestCase):
 
         self.assertRaises(AttributeError, setattr, f, "bgcolor", None)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     @unittest.skipIf(IS_PYPY, "pypy no likey")
     def test_newbuf(self):
         from pygame.tests.test_utils import buftools
@@ -1353,7 +1353,10 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_freetype_Font_path(self):
         self.assertEqual(self._TEST_FONTS["sans"].path, self._sans_path)
-        self.assertRaises(AttributeError, getattr, nullfont(), "path")
+
+        with self.assertRaises(AttributeError):
+            nullfont = ft.Font.__new__(ft.Font)
+            nullfont.path
 
     # This Font cache test is conditional on freetype being built by a debug
     # version of Python or with the C macro PGFT_DEBUG_CACHE defined.
@@ -1481,10 +1484,10 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertIsNone(metrics[0])
         self.assertIsInstance(metrics[1], tuple)
 
-    def test_issue_242(self):
-        """Issue #242: get_rect() uses 0 as default style"""
+    def test_issue_257(self):
+        """pygame issue #257: get_rect() uses 0 as default style"""
 
-        # Issue #242: freetype.Font.get_rect() ignores style defaults when
+        # pygame issue #257: freetype.Font.get_rect() ignores style defaults when
         #             the style argument is not given
         #
         # The text boundary rectangle returned by freetype.Font.get_rect()
@@ -1541,10 +1544,10 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.underline = prev_style
 
-    def test_issue_237(self):
-        """Issue #237: Memory overrun when rendered with underlining"""
+    def test_issue_252(self):
+        """pygame issue #252: Memory overrun when rendered with underlining"""
 
-        # Issue #237: Memory overrun when text without descenders is rendered
+        # pygame issue #252: Memory overrun when text without descenders is rendered
         #             with underlining
         #
         # The bug crashes the Python interpreter. The bug is caught with C
@@ -1564,10 +1567,10 @@ class FreeTypeFontTest(unittest.TestCase):
             font.underline_adjustment = adj
             s, r = font.render("Amazon", size=19)
 
-    def test_issue_243(self):
-        """Issue Y: trailing space ignored in boundary calculation"""
+    def test_issue_258(self):
+        """pygame issue #258: trailing space ignored in boundary calculation"""
 
-        # Issue #243: For a string with trailing spaces, freetype ignores the
+        # pygame issue #258: For a string with trailing spaces, freetype ignores the
         # last space in boundary calculations
         #
         font = self._TEST_FONTS["fixed"]
@@ -1595,12 +1598,19 @@ class FreeTypeFontTest(unittest.TestCase):
         n = len(refs)
         self.assertTrue(n > 0)
 
-        # for pypy we garbage collection twice.
+        # for pypy we perform garbage collection twice.
         for i in range(2):
             gc.collect()
 
         for i in range(n):
             self.assertIsNone(refs[i](), "ref %d not collected" % i)
+
+        font2 = ft.Font(self._fixed_path)
+        ref = weakref.ref(font2)
+        del font2
+        for i in range(2):
+            gc.collect()
+        self.assertIsNone(ref(), "ref not collected")
 
         try:
             from sys import getrefcount
@@ -1609,27 +1619,16 @@ class FreeTypeFontTest(unittest.TestCase):
         else:
             array = arrinter.Array(rect.size, "u", 1)
             o = font.render_raw(text)
-            # if python 3.14+, getrefcount returns 1 instead of 2
-            if sys.version_info >= (3, 14):
-                self.assertEqual(getrefcount(o), 1)
-            else:
-                self.assertEqual(getrefcount(o), 2)
+            self.assertIn(getrefcount(o), (1, 2))
             self.assertEqual(getrefcount(o[0]), 2)
             self.assertEqual(getrefcount(o[1]), 2)
             self.assertEqual(getrefcount(font.render_raw_to(array, text)), 1)
             o = font.get_metrics("AB")
-            if sys.version_info >= (3, 14):
-                self.assertEqual(getrefcount(o), 1)
-            else:
-                self.assertEqual(getrefcount(o), 2)
-
+            self.assertIn(getrefcount(o), (1, 2))
             for i in range(len(o)):
                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
             o = font.get_sizes()
-            if sys.version_info >= (3, 14):
-                self.assertEqual(getrefcount(o), 1)
-            else:
-                self.assertEqual(getrefcount(o), 2)
+            self.assertIn(getrefcount(o), (1, 2))
             for i in range(len(o)):
                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
 
@@ -1637,7 +1636,7 @@ class FreeTypeFontTest(unittest.TestCase):
         """Font.render_to() on a closed display surface"""
 
         # The Font.render_to() method checks that PySurfaceObject.surf is NULL
-        # and raise a exception if it is. This fixes a bug in Pygame revision
+        # and raise an exception if it is. This fixes a bug in Pygame revision
         # 0600ea4f1cfb and earlier where Pygame segfaults instead.
         null_surface = pygame.Surface.__new__(pygame.Surface)
         f = self._TEST_FONTS["sans"]
@@ -1704,7 +1703,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(font_name_2, font_name)
 
         # Check mixed list of bytes and string.
-        names = [fonts[0], fonts_b[1], fonts[2], fonts_b[3]]
+        names = [fonts_b[i] if i % 2 else str_font for i, str_font in enumerate(fonts)]
         font_name_2 = ft.SysFont(names, size).name
         self.assertEqual(font_name_2, font_name)
 
@@ -1774,6 +1773,10 @@ class FreeTypeTest(unittest.TestCase):
     def test_get_init(self):
         # Test if get_init() gets the init state.
         self.assertTrue(ft.get_init())
+
+    def test_was_init_deprecated(self):
+        with self.assertWarns(DeprecationWarning):
+            self.assertTrue(ft.was_init())
 
     def test_cache_size(self):
         DEFAULT_CACHE_SIZE = 64

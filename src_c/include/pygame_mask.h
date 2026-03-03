@@ -29,17 +29,4 @@ typedef struct {
 
 #define pgMask_AsBitmap(x) (((pgMaskObject *)x)->mask)
 
-#ifndef PYGAMEAPI_MASK_INTERNAL
-
-#include "pgimport.h"
-
-PYGAMEAPI_DEFINE_SLOTS(mask);
-
-#define pgMask_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(mask, 0))
-#define pgMask_Check(x) ((x)->ob_type == &pgMask_Type)
-
-#define import_pygame_mask() _IMPORT_PYGAME_MODULE(mask)
-
-#endif /* ~PYGAMEAPI_MASK_INTERNAL */
-
 #endif /* ~PGMASK_H */
