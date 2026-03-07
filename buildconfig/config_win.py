@@ -346,6 +346,8 @@ class DependencyGroup:
                     ))
                     vstools.dump_def(d.lib_dir, def_file=def_file)
                     vstools.lib_from_def(def_file)
+                    # Always set lib_dir so the build can continue even if
+                    # MSVC tools were unavailable and no .lib was generated.
                     d.link.lib_dir = os.path.dirname(d.lib_dir)
                     d.link.libs[0] = basename
                     d.link.configure()
