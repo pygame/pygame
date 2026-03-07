@@ -76,6 +76,37 @@ import re
 import sys
 import os
 
+# Python 3.12+ removed distutils. Shim it from setuptools before any import tries to use it.
+import sys as _sys
+if _sys.version_info >= (3, 12):
+    try:
+        import distutils as _distutils_check  # noqa: F401
+    except ImportError:
+        try:
+            import setuptools._distutils as _distutils_shim
+            import importlib as _il
+            _sys.modules.setdefault('distutils', _distutils_shim)
+            for _sub in [
+                'core', 'cmd', 'log', 'util', 'errors', 'dep_util', 'file_util',
+                'dir_util', 'dist', 'version', 'extension', 'ccompiler', 'sysconfig',
+                'spawn', 'command', 'command.build', 'command.build_clib',
+                'command.build_ext', 'command.build_py', 'command.install',
+                'command.install_data', 'command.install_headers',
+                'command.install_lib', 'command.sdist', 'msvccompiler',
+            ]:
+                try:
+                    _sys.modules.setdefault(
+                        f'distutils.{_sub}',
+                        _il.import_module(f'setuptools._distutils.{_sub}')
+                    )
+                except ImportError:
+                    pass
+        except ImportError:
+            raise SystemExit(
+                "Python 3.12+ requires setuptools>=59 for the distutils shim.\n"
+                "Run: pip install --upgrade setuptools"
+            )
+
 # just import these always and fail early if not present
 from setuptools import setup
 import distutils
