@@ -21,25 +21,45 @@ __all__ = ["getResource"]
 import sys
 import os
 
-try:
-    from pkg_resources import resource_stream, resource_exists
-except ImportError:
+if sys.version_info >= (3, 9):
+    import importlib.resources as importlib_resources
 
-    def resource_exists(_package_or_requirement, _resource_name):
+    def resource_exists(package_or_requirement, resource_name):
         """
-        A stub for when we fail to import this function.
+        Check if a resource exists within a package using importlib.resources.
+        Available for Python 3.9+.
+        :return: True if the resource exists, False otherwise
+        """
+        return     importlib_resources.files(package_or_requirement).joinpath(resource_name).is_file()
 
-        :return: Always returns False
+    def resource_stream(package_or_requirement, resource_name):
         """
-        return False
+        Return a readable file-like object (opened in binary mode) for the
+        given resource, using importlib.resources.
+        Available for Python 3.9+.
+        """
+        ref = importlib_resources.files(package_or_requirement).joinpath(resource_name)
+        return ref.open('rb')
 
-    def resource_stream(_package_of_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
+else:
+    # Python < 3.9 : keep pkg_resources for compatibility
+    try:
+        from pkg_resources import resource_stream, resource_exists
+    except ImportError:
+        def resource_exists(_package_or_requirement, _resource_name):
+            """
+            A stub for when we fail to import this function.
+            :return: Always returns False
+            """
+            return False
 
-        Always raises a NotImplementedError when called.
-        """
-        raise NotImplementedError
+        def resource_stream(_package_or_requirement, _resource_name):
+            """
+            A stub for when we fail to import this function.
+            Always raises a NotImplementedError when called.
+            """
+            raise NotImplementedError
+
 
 
 def getResource(identifier, pkgname=__name__):

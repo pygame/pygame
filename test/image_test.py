@@ -32,7 +32,7 @@ def test_magic(f, magic_hexes):
 class ImageModuleTest(unittest.TestCase):
     def testLoadIcon(self):
         """see if we can load the pygame icon."""
-        f = pygame.pkgdata.getResource("pygame_icon.bmp")
+        f = pygame.pkgdata.getResource("pygame_icon.bmp", "pygame")
         self.assertEqual(f.mode, "rb")
 
         surf = pygame.image.load_basic(f)
@@ -1162,7 +1162,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(s.get_at((0, 0)), (255, 255, 255, 255))
 
         # test loading from io.BufferedReader
-        f = pygame.pkgdata.getResource("pygame_icon.bmp")
+        f = pygame.pkgdata.getResource("pygame_icon.bmp", "pygame")
         self.assertEqual(f.mode, "rb")
 
         surf = pygame.image.load_basic(f)
