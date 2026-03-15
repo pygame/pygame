@@ -503,3 +503,122 @@ By default, when the window is not in focus, input devices do not get
 updated. However, using this environment variable it is possible to get
 joystick updates even when the window is in the background. Must be set
 before calling :func:`pygame.init()` or :func:`pygame.joystick.init()`.
+import pygame
+import sys
+import random
+
+pygame.init()
+
+# màn hình
+WIDTH = 900
+HEIGHT = 500
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Mini Mario Game")
+
+clock = pygame.time.Clock()
+
+# màu
+WHITE = (255,255,255)
+RED = (220,0,0)
+GREEN = (0,200,0)
+BROWN = (139,69,19)
+BLACK = (0,0,0)
+
+# mario
+mario = pygame.Rect(100,300,40,50)
+vel_y = 0
+gravity = 0.8
+jump_power = -15
+
+# mặt đất
+ground = pygame.Rect(0,450,WIDTH,50)
+
+# platform
+platforms = [
+    pygame.Rect(250,350,120,20),
+    pygame.Rect(450,300,120,20),
+    pygame.Rect(650,250,120,20)
+]
+
+# quái Goomba
+enemy = pygame.Rect(600,410,40,40)
+enemy_dir = 3
+
+score = 0
+font = pygame.font.SysFont(None,40)
+
+running = True
+
+while running:
+
+    clock.tick(60)
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    keys = pygame.key.get_pressed()
+
+    # di chuyển
+    if keys[pygame.K_LEFT]:
+        mario.x -= 5
+    if keys[pygame.K_RIGHT]:
+        mario.x += 5
+
+    # nhảy
+    if keys[pygame.K_SPACE] and mario.bottom >= ground.top:
+        vel_y = jump_power
+
+    # trọng lực
+    vel_y += gravity
+    mario.y += vel_y
+
+    # va chạm mặt đất
+    if mario.colliderect(ground):
+        mario.bottom = ground.top
+        vel_y = 0
+
+    # va chạm platform
+    for p in platforms:
+        if mario.colliderect(p) and vel_y > 0:
+            mario.bottom = p.top
+            vel_y = 0
+
+    # di chuyển quái
+    enemy.x += enemy_dir
+
+    if enemy.left <= 0 or enemy.right >= WIDTH:
+        enemy_dir *= -1
+
+    # va chạm quái
+    if mario.colliderect(enemy):
+        if vel_y > 0:
+            score += 1
+            enemy.x = random.randint(300,800)
+            mario.y -= 20
+        else:
+            print("Game Over")
+            running = False
+
+    # vẽ mặt đất
+    pygame.draw.rect(screen,GREEN,ground)
+
+    # vẽ platform
+    for p in platforms:
+        pygame.draw.rect(screen,BROWN,p)
+
+    # vẽ mario
+    pygame.draw.rect(screen,RED,mario)
+
+    # vẽ quái
+    pygame.draw.rect(screen,BLACK,enemy)
+
+    # điểm
+    score_text = font.render("Score: "+str(score),True,BLACK)
+    screen.blit(score_text,(20,20))
+
+    pygame.display.update()
+
+pygame.quit()
+sys.exit()
