@@ -23,6 +23,234 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 
 
 class SurfaceTypeTest(unittest.TestCase):
+    def test_get_at_rejects_invalid_keyword_usage(self):
+        surf = pygame.Surface((10, 10))
+
+        # bad type for pos
+        with self.assertRaises(TypeError):
+             surf.get_at(pos="abc")
+ 
+        # much arguments
+        with self.assertRaises(TypeError):
+             surf.get_at((1, 2), pos=(3, 4))
+
+    def test_get_at_accepts_keywords(self):
+        surf = pygame.Surface((10, 10))
+        surf.fill((10, 20, 30))
+
+        # classic call without keyword
+        c1 = surf.get_at((1, 2))
+
+        # call with keyword
+        c2 = surf.get_at(pos=(1, 2))
+
+        self.assertEqual(c1, c2)
+        self.assertEqual(c1, pygame.Color(10, 20, 30))
+
+    def test_set_at_accepts_keywords(self):
+        surf = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+
+        surf.set_at((1, 2), (10, 20, 30, 40))
+        c1 = surf.get_at((1, 2))
+
+        surf.set_at(pos=(3, 4), color=(1, 2, 3, 4))
+        c2 = surf.get_at((3, 4))
+
+        self.assertEqual(c1, pygame.Color(10, 20, 30, 40))
+        self.assertEqual(c2, pygame.Color(1, 2, 3, 4))
+
+    def test_set_at_rejects_invalid_keyword_usage(self):
+        surf = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+
+        # bad type for pos
+        with self.assertRaises(TypeError):
+            surf.set_at(pos="abc", color=(1, 2, 3))
+
+        # much arguments (pos gave two time)
+        with self.assertRaises(TypeError):
+           surf.set_at((1, 2), pos=(3, 4), color=(1, 2, 3))
+
+    def test_get_at_mapped_accepts_keywords(self):
+         surf = pygame.Surface((10, 10), 0, 32)
+         surf.fill((10, 20, 30, 255))
+
+         v1 = surf.get_at_mapped((1, 2))
+         v2 = surf.get_at_mapped(pos=(1, 2))
+
+    def test_get_at_mapped_rejects_invalid_keyword_usage(self):
+         surf = pygame.Surface((10, 10), 0, 32)
+
+         with self.assertRaises(TypeError):
+            surf.get_at_mapped(pos="abc")
+
+         with self.assertRaises(TypeError):
+            surf.get_at_mapped((1, 2), pos=(3, 4))
+    
+    def test_get_palette_at_accepts_keywords(self):
+         surf = pygame.Surface((1, 1), 0, 8)  # surface palettized
+         surf.set_palette([(10, 20, 30)])
+
+         c1 = surf.get_palette_at(0)
+         c2 = surf.get_palette_at(index=0)
+
+         self.assertEqual(c1, c2)
+         self.assertEqual(c1, pygame.Color(10, 20, 30))
+
+    def test_get_palette_at_rejects_invalid_keyword_usage(self):
+         surf = pygame.Surface((1, 1), 0, 8)
+         surf.set_palette([(10, 20, 30)])
+       
+         with self.assertRaises(TypeError):
+             surf.get_palette_at(index="abc")
+
+         with self.assertRaises(TypeError):
+            surf.get_palette_at(0, index=1)
+     
+
+    def test_set_palette_at_accepts_keywords(self):
+         surf = pygame.Surface((8, 8), depth=8)  # palettized
+
+         surf.set_palette_at(0, (10, 20, 30))
+         surf.set_palette_at(index=1, color=(40, 50, 60))
+
+         self.assertEqual(surf.get_palette_at(0), pygame.Color(10, 20, 30))
+         self.assertEqual(surf.get_palette_at(1), pygame.Color(40, 50, 60))
+
+
+    def test_set_palette_at_rejects_invalid_keyword_usage(self):
+         surf = pygame.Surface((8, 8), depth=8)
+   
+         with self.assertRaises((TypeError, ValueError)):
+             surf.set_palette_at(index="abc", color=(1, 2, 3))
+
+         with self.assertRaises((TypeError, ValueError)):
+             surf.set_palette_at(index=0, color="abc")
+
+         with self.assertRaises(TypeError):
+             surf.set_palette_at(0, (1, 2, 3), index=1)
+    def test_set_colorkey_accepts_keywords(self):
+        s = pygame.Surface((10, 10))
+
+        s.set_colorkey((1, 2, 3))
+        ck1 = s.get_colorkey()
+
+        s.set_colorkey(color=(1, 2, 3))
+        ck2 = s.get_colorkey()
+
+        self.assertEqual(ck1, ck2)
+
+    def test_set_colorkey_rejects_invalid_keyword_usage(self):
+        s = pygame.Surface((10, 10))
+
+        with self.assertRaises(TypeError):
+            s.set_colorkey(color={"abc":"abc"})     # bad type
+
+        with self.assertRaises(TypeError):
+            s.set_colorkey((1, 2, 3), color=(4, 5, 6))  # double positional+keyword
+
+        with self.assertRaises(TypeError):
+            s.set_colorkey(flags="abc")     # flags must be an int
+    
+    
+    def test_set_alpha_accepts_keywords(self):
+        s = pygame.Surface((10, 10))
+
+        s.set_alpha(123)
+        a1 = s.get_alpha()
+
+        s.set_alpha(alpha=123)
+        a2 = s.get_alpha()
+
+        self.assertEqual(a1, a2)
+
+    def test_set_alpha_rejects_invalid_keyword_usage(self):
+        s = pygame.Surface((10, 10))
+
+        with self.assertRaises(TypeError):
+            s.set_alpha(alpha="abc")
+
+        with self.assertRaises(TypeError):
+            s.set_alpha(10, alpha=20)  # double positional + keyword
+
+        with self.assertRaises(TypeError):
+            s.set_alpha(flags="abc")
+
+    def test_convert_accepts_keywords(self):
+        s = pygame.Surface((10, 10))
+        other = pygame.Surface((10, 10), flags=pygame.SRCALPHA, depth=32)
+       
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((1, 1))
+
+            # classic call
+            c1 = s.convert(other)
+
+            # keyword call
+            c2 = s.convert(surface=other)
+
+            self.assertEqual(c1.get_bitsize(), c2.get_bitsize())
+
+        finally:
+            pygame.display.quit()
+
+    def test_convert_rejects_invalid_keyword_usage(self):
+       s = pygame.Surface((10, 10))
+
+       pygame.display.init()
+
+       with self.assertRaises(ValueError):
+           s.convert(surface="abc")
+
+       with self.assertRaises(TypeError):
+           s.convert(flags="abc")
+
+       with self.assertRaises(TypeError):
+           s.convert(pouet=123)  # unknow keyword
+
+       with self.assertRaises(TypeError):
+           s.convert(pygame.Surface((10, 10)), surface=pygame.Surface((10, 10)))
+    
+    def test_convert_alpha_accepts_keywords(self):
+       s = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+       other = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+        
+       pygame.display.init()
+       try:
+           pygame.display.set_mode((1, 1))
+           
+           # classic call
+           c1 = s.convert_alpha(other)
+
+           # keyword call
+           c2 = s.convert_alpha(surface=other)
+
+           self.assertEqual(c1.get_bitsize(), c2.get_bitsize())
+       finally:
+           pygame.display.quit()
+
+       
+
+    def test_convert_alpha_rejects_invalid_keyword_usage(self):
+        s = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+        
+        pygame.display.init()
+
+        try: 
+            other = pygame.Surface((10, 10))
+
+            with self.assertRaises(TypeError):
+             s.convert_alpha(surface="abc")
+
+            with self.assertRaises(TypeError):
+             s.convert_alpha(pouet=123)
+
+            with self.assertRaises(TypeError):
+             s.convert_alpha(other=pygame.Surface((10, 10)), surface=other)
+       
+        finally:
+            pygame.display.quit()
+
     def test_surface__pixel_format_as_surface_subclass(self):
         """Ensure a subclassed surface can be used for pixel format
         when creating a new surface."""
@@ -231,7 +459,7 @@ class SurfaceTypeTest(unittest.TestCase):
         color = (25, 25, 25, 25)
         fill_rect = pygame.Rect(0, 0, 16, 16)
         s1 = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
-        s1.fill(color, fill_rect)
+        s1.fill(color=color, rect=fill_rect)
 
         for pt in test_utils.rect_area_pts(fill_rect):
             self.assertEqual(s1.get_at(pt), color)
@@ -249,7 +477,12 @@ class SurfaceTypeTest(unittest.TestCase):
         blit_surf.set_colorkey((255, 0, 255), pygame.RLEACCEL)
         self.assertTrue(blit_surf.get_flags() & pygame.RLEACCELOK)
         surf.blit(blit_surf, (0, 0))
-        blit_surf.fill(color)
+        # old test
+        #blit_surf.fill(color)
+
+         # Test with keywords
+        blit_surf.fill(color=color)
+
         self.assertEqual(
             blit_surf.mustlock(), (blit_surf.get_flags() & pygame.RLEACCEL) != 0
         )
