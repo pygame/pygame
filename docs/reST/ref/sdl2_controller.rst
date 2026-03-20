@@ -9,7 +9,14 @@
 | :sl:`Pygame module to work with controllers.`
 
 .. note::
-   Use import pygame._sdl2.controller before using this module.
+   This module requires an explicit import before use, unlike ``pygame.joystick``
+   which is available after ``import pygame``. You must import it separately::
+
+      import pygame._sdl2.controller
+
+   Then initialize it before using any controller functions::
+
+      pygame._sdl2.controller.init()
 
 This module offers control over common controller types like the dualshock 4 or
 the xbox 360 controllers: They have two analog sticks, two triggers, two shoulder buttons,
