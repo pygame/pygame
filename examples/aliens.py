@@ -129,7 +129,7 @@ class Alien(pg.sprite.Sprite):
         self.rect.move_ip(self.facing, 0)
         if not SCREENRECT.contains(self.rect):
             self.facing = -self.facing
-            self.rect.top = self.rect.bottom + 1
+            self.rect.move_ip(0, self.rect.height // 2)
             self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
         self.image = self.images[self.frame // self.animcycle % 3]
@@ -239,6 +239,9 @@ def main(winstyle=0):
         print("Warning, no sound")
         pg.mixer = None
 
+    global SCORE
+    SCORE = 0
+
     fullscreen = False
     # Set the display mode
     winstyle = 0  # |FULLSCREEN
@@ -287,9 +290,9 @@ def main(winstyle=0):
     # Create Some Starting Values
     alienreload = ALIEN_RELOAD
     clock = pg.time.Clock()
+    fire_key_pressed = False
 
     # initialize our starting sprites
-    global SCORE
     player = Player(all)
     Alien(
         aliens, all, lastalien
@@ -307,22 +310,14 @@ def main(winstyle=0):
                 return
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_f:
-                    if not fullscreen:
-                        print("Changing to FULLSCREEN")
-                        screen_backup = screen.copy()
-                        screen = pg.display.set_mode(
-                            SCREENRECT.size, winstyle | pg.FULLSCREEN, bestdepth
-                        )
-                        screen.blit(screen_backup, (0, 0))
-                    else:
-                        print("Changing to windowed mode")
-                        screen_backup = screen.copy()
-                        screen = pg.display.set_mode(
-                            SCREENRECT.size, winstyle, bestdepth
-                        )
-                        screen.blit(screen_backup, (0, 0))
-                    pg.display.flip()
+                    print("Toggling fullscreen")
+                    pg.display.toggle_fullscreen()
                     fullscreen = not fullscreen
+                if event.key == pg.K_SPACE:
+                    fire_key_pressed = True
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_SPACE:
+                    fire_key_pressed = False
 
         keystate = pg.key.get_pressed()
 
@@ -335,12 +330,11 @@ def main(winstyle=0):
         # handle player input
         direction = keystate[pg.K_RIGHT] - keystate[pg.K_LEFT]
         player.move(direction)
-        firing = keystate[pg.K_SPACE]
-        if not player.reloading and firing and len(shots) < MAX_SHOTS:
+        if not player.reloading and fire_key_pressed and len(shots) < MAX_SHOTS:
             Shot(player.gunpos(), shots, all)
             if pg.mixer and shoot_sound is not None:
                 shoot_sound.play()
-        player.reloading = firing
+        player.reloading = fire_key_pressed
 
         # Create new alien
         if alienreload:
@@ -350,7 +344,7 @@ def main(winstyle=0):
             alienreload = ALIEN_RELOAD
 
         # Drop bombs
-        if lastalien and not int(random.random() * BOMB_ODDS):
+        if lastalien.sprite is not None and not int(random.random() * BOMB_ODDS):
             Bomb(lastalien.sprite, all, bombs, all)
 
         # Detect collisions between aliens and players.
@@ -387,6 +381,14 @@ def main(winstyle=0):
     if pg.mixer:
         pg.mixer.music.fadeout(1000)
     pg.time.wait(1000)
+
+    all.empty()
+    aliens.empty()
+    shots.empty()
+    bombs.empty()
+
+    if pg.mixer:
+        pg.mixer.stop()
 
 
 # call the "main" function if running this script
