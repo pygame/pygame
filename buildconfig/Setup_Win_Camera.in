@@ -1,1 +1,1 @@
-_camera src_c/_camera.c $(SDL) $(DEBUG)
+_camera src_c/_camera.c $(SDL) $(DEBUG) mf.lib mfplat.lib mfreadwrite.lib mfuuid.lib ole32.lib oleaut32.lib

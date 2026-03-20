@@ -34,6 +34,7 @@
  * YUV, and HSV.
  */
 
+#define COBJMACROS
 #include "camera.h"
 #include "pgcompat.h"
 
@@ -44,6 +45,192 @@
     #define V4L2_PIX_FMT_RGB444 1
 #endif
 */
+#if defined(_WIN32)
+#ifndef COBJMACROS
+#  define COBJMACROS   /* C-style COM macros: IMFAttributes_SetGUID(...) */
+#endif
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <mferror.h>
+
+#pragma comment(lib, "mf.lib")
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "mfreadwrite.lib")
+#pragma comment(lib, "mfuuid.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "oleaut32.lib")
+
+/* ── Windows helper: enumerate cameras ───────────────────────────────────── */
+static char **
+windows_list_cameras(int *num_devices)
+{
+    HRESULT         hr;
+    IMFAttributes  *pAttributes = NULL;
+    IMFActivate   **ppDevices   = NULL;
+    UINT32          count = 0;
+    char          **devices = NULL;
+    UINT32          i;
+
+    *num_devices = 0;
+
+    hr = MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
+    if (FAILED(hr)) return NULL;
+
+    hr = MFCreateAttributes(&pAttributes, 1);
+    if (FAILED(hr)) goto cleanup_mf;
+
+    hr = IMFAttributes_SetGUID(pAttributes,
+            &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
+            &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+    if (FAILED(hr)) goto cleanup_attr;
+
+    hr = MFEnumDeviceSources(pAttributes, &ppDevices, &count);
+    if (FAILED(hr) || count == 0) goto cleanup_attr;
+
+    devices = (char **)malloc(count * sizeof(char *));
+    if (!devices) goto cleanup_devices;
+
+    for (i = 0; i < count; i++) {
+        WCHAR *szName = NULL; UINT32 cch = 0; int mbLen;
+        hr = IMFActivate_GetAllocatedString(ppDevices[i],
+                &MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, &szName, &cch);
+        if (FAILED(hr) || !szName) {
+            devices[i] = _strdup("Unknown Camera");
+        } else {
+            mbLen = WideCharToMultiByte(CP_UTF8,0,szName,-1,NULL,0,NULL,NULL);
+            devices[i] = (char *)malloc(mbLen);
+            if (devices[i])
+                WideCharToMultiByte(CP_UTF8,0,szName,-1,devices[i],mbLen,NULL,NULL);
+            else
+                devices[i] = _strdup("Unknown Camera");
+            CoTaskMemFree(szName);
+        }
+        IMFActivate_Release(ppDevices[i]);
+        (*num_devices)++;
+    }
+
+cleanup_devices: CoTaskMemFree(ppDevices);
+cleanup_attr:    IMFAttributes_Release(pAttributes);
+cleanup_mf:      MFShutdown();
+    return devices;
+}
+
+/* ── Windows helper: open camera ─────────────────────────────────────────── */
+static int
+windows_open_device(pgCameraObject *self)
+{
+    HRESULT         hr;
+    IMFAttributes  *pAttributes = NULL;
+    IMFActivate   **ppDevices   = NULL;
+    UINT32          count = 0, k;
+    int             ret = 0;
+
+    hr = MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
+    if (FAILED(hr)) {
+        PyErr_SetString(PyExc_RuntimeError,
+            "Failed to initialize Windows Media Foundation"); return 0;
+    }
+
+    hr = MFCreateAttributes(&pAttributes, 1);
+    if (FAILED(hr)) { PyErr_SetString(PyExc_RuntimeError,"MFCreateAttributes failed"); goto err; }
+
+    hr = IMFAttributes_SetGUID(pAttributes,
+            &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
+            &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+    if (FAILED(hr)) { PyErr_SetString(PyExc_RuntimeError,"SetGUID failed"); goto err; }
+
+    hr = MFEnumDeviceSources(pAttributes, &ppDevices, &count);
+    if (FAILED(hr) || count == 0) {
+        PyErr_SetString(PyExc_RuntimeError,"No camera found"); goto err; }
+
+    if ((UINT32)self->device_index >= count) {
+        PyErr_Format(PyExc_ValueError,
+            "Camera index %d out of range (%u found)", self->device_index, count);
+        goto err;
+    }
+
+    hr = IMFActivate_ActivateObject(ppDevices[self->device_index],
+            &IID_IMFMediaSource, (void **)&self->win_source);
+    if (FAILED(hr)) {
+        PyErr_SetString(PyExc_RuntimeError,"Failed to activate camera (may be in use)");
+        goto err;
+    }
+
+    hr = MFCreateSourceReaderFromMediaSource(self->win_source, NULL, &self->win_reader);
+    if (FAILED(hr)) {
+        PyErr_SetString(PyExc_RuntimeError,"Failed to create MF SourceReader");
+        IMFMediaSource_Shutdown(self->win_source);
+        IMFMediaSource_Release(self->win_source);
+        self->win_source = NULL;
+        goto err;
+    }
+    {
+        IMFMediaType *pType = NULL;
+        MFCreateMediaType(&pType);
+        IMFMediaType_SetGUID(pType, &MF_MT_MAJOR_TYPE, &MFMediaType_Video);
+        IMFMediaType_SetGUID(pType, &MF_MT_SUBTYPE, &MFVideoFormat_UYVY);
+        IMFSourceReader_SetCurrentMediaType(
+            self->win_reader,
+            (DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
+            NULL,
+            pType);
+        IMFMediaType_Release(pType);
+    }
+    ret = 1;
+
+err:
+    if (ppDevices) { for (k=0;k<count;k++) IMFActivate_Release(ppDevices[k]); CoTaskMemFree(ppDevices); }
+    if (pAttributes) IMFAttributes_Release(pAttributes);
+    if (!ret) MFShutdown();
+    return ret;
+}
+
+/* ── Windows helper: close camera ────────────────────────────────────────── */
+static void
+windows_close_device(pgCameraObject *self)
+{
+    if (self->win_reader) { IMFSourceReader_Release(self->win_reader); self->win_reader = NULL; }
+    if (self->win_source) { IMFMediaSource_Shutdown(self->win_source); IMFMediaSource_Release(self->win_source); self->win_source = NULL; }
+    MFShutdown();
+}
+
+/* ── Windows helper: read one frame ──────────────────────────────────────── */
+static int
+windows_read_frame(pgCameraObject *self, SDL_Surface *dst)
+{
+    HRESULT hr; DWORD idx, flags; LONGLONG ts;
+    IMFSample *pS = NULL; IMFMediaBuffer *pB = NULL;
+    BYTE *pD = NULL; DWORD dLen = 0;
+    int ret = 0, attempts = 0;
+
+    while (attempts < 10) {
+        pS = NULL;
+        hr = IMFSourceReader_ReadSample(self->win_reader,
+            MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &idx, &flags, &ts, &pS);
+        if (FAILED(hr)) return 0;
+        if (flags & MF_SOURCE_READERF_ERROR) return 0;
+        if (flags & MF_SOURCE_READERF_ENDOFSTREAM) return 0;
+        if (pS) break;
+        attempts++;
+    }
+    if (!pS) return 0;
+
+    if (SUCCEEDED(IMFSample_ConvertToContiguousBuffer(pS, &pB))) {
+        if (SUCCEEDED(IMFMediaBuffer_Lock(pB, &pD, NULL, &dLen))) {
+            SDL_LockSurface(dst);
+            uyvy_to_rgb(pD, dst->pixels, dst->w * dst->h, dst->format);
+            SDL_UnlockSurface(dst);
+            IMFMediaBuffer_Unlock(pB);
+            ret = 1;
+        }
+        IMFMediaBuffer_Release(pB);
+    }
+    IMFSample_Release(pS);
+    return ret;
+}
+
+#endif /* _WIN32 */
 
 /* functions available to pygame users */
 PyObject *
@@ -157,7 +344,7 @@ surf_colorspace(PyObject *self, PyObject *arg)
 PyObject *
 list_cameras(PyObject *self, PyObject *_null)
 {
-#if defined(__unix__)
+#if defined(__unix__) || defined(__WIN32__)
     PyObject *ret_list;
     PyObject *string;
     char **devices;
@@ -167,6 +354,10 @@ list_cameras(PyObject *self, PyObject *_null)
      * of now, and an empty list is being returned by this function */
 #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
+#elif defined(__WIN32__)
+    devices = windows_list_cameras(&num_devices);
+#endif
+
     ret_list = PyList_New(num_devices);
     if (!ret_list) {
         goto error;
@@ -174,7 +365,7 @@ list_cameras(PyObject *self, PyObject *_null)
 
     for (i = 0; i < num_devices; i++) {
         string = PyUnicode_FromString(devices[i]);
-#endif
+
         if (!string) {
             goto error;
         }
@@ -193,9 +384,8 @@ error:
     free(devices);
     Py_XDECREF(ret_list);
     return NULL;
-
 #else
-    Py_RETURN_NONE;
+    return PyList_New(0);
 #endif
 }
 
@@ -219,6 +409,9 @@ camera_start(pgCameraObject *self, PyObject *_null)
             return NULL;
         }
     }
+#elif defined(__WIN32__)
+    if (!windows_open_device(self)) return NULL;
+    self->camera_type = CAM_MSMF;
 #endif
     Py_RETURN_NONE;
 }
@@ -234,6 +427,8 @@ camera_stop(pgCameraObject *self, PyObject *_null)
         return NULL;
     if (v4l2_close_device(self) == 0)
         return NULL;
+#elif defined(__WIN32__)
+    windows_close_device(self);
 #endif
     Py_RETURN_NONE;
 }
@@ -257,6 +452,9 @@ camera_get_controls(pgCameraObject *self, PyObject *_null)
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
+#elif defined(__WIN32__)
+    return Py_BuildValue("(NNN)",PyBool_FromLong(self->hflip),
+        PyBool_FromLong(self->vflip),PyLong_FromLong(self->brightness));
 #endif
     Py_RETURN_NONE;
 }
@@ -291,6 +489,13 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     return Py_BuildValue("(NNN)", PyBool_FromLong(self->hflip),
                          PyBool_FromLong(self->vflip),
                          PyLong_FromLong(self->brightness));
+#elif defined(__WIN32__)
+    int hflip=self->hflip,vflip=self->vflip,brightness=self->brightness;
+    char *kwids[]={"hflip","vflip","brightness",NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg,kwds,"|iii",kwids,&hflip,&vflip,&brightness)) return NULL;
+    self->hflip=hflip; self->vflip=vflip; self->brightness=brightness;
+    return Py_BuildValue("(NNN)",PyBool_FromLong(self->hflip),
+        PyBool_FromLong(self->vflip),PyLong_FromLong(self->brightness));
 #endif
     Py_RETURN_NONE;
 }
@@ -299,7 +504,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 PyObject *
 camera_get_size(pgCameraObject *self, PyObject *_null)
 {
-#if defined(__unix__)
+#if defined(__unix__) || defined(__WIN32__)
     return Py_BuildValue("(ii)", self->width, self->height);
 #endif
     Py_RETURN_NONE;
@@ -365,6 +570,20 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
     else {
         return (PyObject *)pgSurface_New(surf);
     }
+#elif defined(__WIN32__)
+    SDL_Surface *surf=NULL; pgSurfaceObject *surfobj=NULL;
+    if (!PyArg_ParseTuple(arg,"|O!",&pgSurface_Type,&surfobj)) return NULL;
+    surf = surfobj ? pgSurface_AsSurface(surfobj)
+                   : SDL_CreateRGBSurface(0,self->width,self->height,24,0xFF<<16,0xFF<<8,0xFF,0);
+    if (!surf) return NULL;
+    if (surf->w!=self->width||surf->h!=self->height)
+        return RAISE(PyExc_ValueError,"Destination surface not the correct width or height.");
+    if (!self->win_reader)
+        return RAISE(PyExc_RuntimeError,"Camera not started. Call start() first.");
+    if (!windows_read_frame(self,surf))
+        return RAISE(PyExc_SystemError,"Failed to read frame from camera");
+    if (surfobj) { Py_INCREF(surfobj); return (PyObject*)surfobj; }
+    return (PyObject*)pgSurface_New(surf);
 
 #endif
     Py_RETURN_NONE;
@@ -376,6 +595,32 @@ camera_get_raw(pgCameraObject *self, PyObject *_null)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);
+#elif defined(__WIN32__)
+    HRESULT hr; DWORD idx,flags; LONGLONG ts;
+    IMFSample *pS=NULL; IMFMediaBuffer *pB=NULL; BYTE *pD=NULL; DWORD dLen=0;
+    PyObject *result=NULL;
+    if (!self->win_reader)
+        return RAISE(PyExc_RuntimeError,"Camera not started. Call start() first.");
+    int attempts = 0;
+    while (attempts < 10) {
+        pS = NULL;
+        hr = IMFSourceReader_ReadSample(self->win_reader,
+            MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &idx, &flags, &ts, &pS);
+        if (FAILED(hr) || (flags & MF_SOURCE_READERF_ERROR)) 
+            return RAISE(PyExc_SystemError, "Failed to read raw frame");
+        if (pS) break;
+        attempts++;
+    }
+    if (!pS) return RAISE(PyExc_SystemError, "Failed to read raw frame");
+    if (SUCCEEDED(IMFSample_ConvertToContiguousBuffer(pS,&pB))) {
+        if (SUCCEEDED(IMFMediaBuffer_Lock(pB,&pD,NULL,&dLen))) {
+            result=PyBytes_FromStringAndSize((char*)pD,dLen);
+            IMFMediaBuffer_Unlock(pB);
+        }
+        IMFMediaBuffer_Release(pB);
+    }
+    IMFSample_Release(pS);
+    return result ? result : RAISE(PyExc_SystemError,"Raw frame read error");
 #endif
     Py_RETURN_NONE;
 }
@@ -1692,6 +1937,10 @@ PyMethodDef cameraobj_builtins[] = {
 void
 camera_dealloc(PyObject *self)
 {
+#if defined(__WIN32__)
+    pgCameraObject *cam=(pgCameraObject*)self;
+    if (cam->win_reader||cam->win_source) windows_close_device(cam);
+#endif
     free(((pgCameraObject *)self)->device_name);
     PyObject_Free(self);
 }
@@ -1748,6 +1997,46 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
     self->brightness = 0;
     self->fd = -1;
 
+    return 0;
+#elif defined(__WIN32__)
+    int w=DEFAULT_WIDTH,h=DEFAULT_HEIGHT;
+    int device_index=0;
+    char *color=NULL;
+    PyObject *device_arg = NULL;
+    if (!PyArg_ParseTuple(arg, "O|(ii)s", &device_arg, &w, &h, &color))
+        return -1;
+    if (PyLong_Check(device_arg)) {
+        device_index = (int)PyLong_AsLong(device_arg);
+    }
+    else if (PyUnicode_Check(device_arg)) {
+        device_index = 0;
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Camera device must be int or str");
+        return -1;
+    }
+    self->device_name = _strdup("_msmf");
+    if (!self->device_name) {
+        PyErr_NoMemory();
+        return -1;
+    }
+    self->device_index = device_index;
+    self->win_source   = NULL;
+    self->win_reader   = NULL;
+    self->camera_type  = 0;
+    if (color) {
+        if (!strcmp(color, "YUV"))       self->color_out = YUV_OUT;
+        else if (!strcmp(color, "HSV"))  self->color_out = HSV_OUT;
+        else                             self->color_out = RGB_OUT;
+    }
+    else {
+        self->color_out = RGB_OUT;
+    }
+    self->width      = w;
+    self->height     = h;
+    self->hflip      = 0;
+    self->vflip      = 0;
+    self->brightness = 0;
     return 0;
 #else
     PyErr_SetString(PyExc_RuntimeError,

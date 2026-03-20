@@ -103,6 +103,7 @@
 #define CAM_V4L \
     1 /* deprecated. the incomplete support in pygame was removed */
 #define CAM_V4L2 2
+#define CAM_MSMF 3
 
 struct buffer {
     void *start;
@@ -143,6 +144,11 @@ typedef struct pgCameraObject {
     int vflip;
     int brightness;
     int fd;
+#if defined(__WIN32__)
+    IMFMediaSource  *win_source;
+    IMFSourceReader *win_reader;
+    int              device_index;
+#endif
 } pgCameraObject;
 #endif
 
