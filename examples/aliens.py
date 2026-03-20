@@ -42,6 +42,7 @@ BOMB_ODDS = 60  # chances a new bomb will drop
 ALIEN_RELOAD = 12  # frames between new aliens
 SCREENRECT = pg.Rect(0, 0, 640, 480)
 SCORE = 0
+SCORE_LOCK = None  # threading lock for score synchronization
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -129,7 +130,8 @@ class Alien(pg.sprite.Sprite):
         self.rect.move_ip(self.facing, 0)
         if not SCREENRECT.contains(self.rect):
             self.facing = -self.facing
-            self.rect.top = self.rect.bottom + 1
+            self.rect.move_ip(self.facing, 0)
+            self.rect.top = self.rect.top + 1
             self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
         self.image = self.images[self.frame // self.animcycle % 3]
@@ -219,8 +221,19 @@ class Score(pg.sprite.Sprite):
         self.font.set_italic(1)
         self.color = "white"
         self.lastscore = -1
+        self._score = 0  # local score copy for thread safety
         self.update()
         self.rect = self.image.get_rect().move(10, 450)
+
+    def add_score(self, points):
+        """Thread-safe score addition."""
+        global SCORE
+        if SCORE_LOCK is not None:
+            with SCORE_LOCK:
+                SCORE = SCORE + points
+        else:
+            SCORE = SCORE + points
+        self._score = SCORE
 
     def update(self, *args, **kwargs):
         """We only update the score in update() when it has changed."""
@@ -289,13 +302,23 @@ def main(winstyle=0):
     clock = pg.time.Clock()
 
     # initialize our starting sprites
-    global SCORE
+    global SCORE, SCORE_LOCK
+    SCORE = 0
+    # Initialize score lock for thread safety
+    try:
+        import threading
+        SCORE_LOCK = threading.Lock()
+    except ImportError:
+        SCORE_LOCK = None
+
     player = Player(all)
     Alien(
         aliens, all, lastalien
     )  # note, this 'lives' because it goes into a sprite group
+    score_sprite = None
     if pg.font:
-        all.add(Score(all))
+        score_sprite = Score(all)
+        all.add(score_sprite)
 
     # Run our main loop whilst the player is alive.
     while player.alive():
@@ -304,7 +327,19 @@ def main(winstyle=0):
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-                return
+                # If in fullscreen, switch to windowed mode first
+                if fullscreen:
+                    print("Changing to windowed mode")
+                    screen_backup = screen.copy()
+                    screen = pg.display.set_mode(
+                        SCREENRECT.size, winstyle, bestdepth
+                    )
+                    screen.blit(screen_backup, (0, 0))
+                    pg.display.flip()
+                    fullscreen = False
+                    pg.event.clear()
+                else:
+                    return
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_f:
                     if not fullscreen:
@@ -314,6 +349,7 @@ def main(winstyle=0):
                             SCREENRECT.size, winstyle | pg.FULLSCREEN, bestdepth
                         )
                         screen.blit(screen_backup, (0, 0))
+                        pg.display.flip()
                     else:
                         print("Changing to windowed mode")
                         screen_backup = screen.copy()
@@ -321,8 +357,10 @@ def main(winstyle=0):
                             SCREENRECT.size, winstyle, bestdepth
                         )
                         screen.blit(screen_backup, (0, 0))
-                    pg.display.flip()
+                        pg.display.flip()
                     fullscreen = not fullscreen
+                    # Clear event queue to prevent event buildup during mode switch
+                    pg.event.clear()
 
         keystate = pg.key.get_pressed()
 
@@ -336,11 +374,13 @@ def main(winstyle=0):
         direction = keystate[pg.K_RIGHT] - keystate[pg.K_LEFT]
         player.move(direction)
         firing = keystate[pg.K_SPACE]
-        if not player.reloading and firing and len(shots) < MAX_SHOTS:
+        if firing and len(shots) < MAX_SHOTS and not player.reloading:
             Shot(player.gunpos(), shots, all)
             if pg.mixer and shoot_sound is not None:
                 shoot_sound.play()
-        player.reloading = firing
+            player.reloading = True
+        elif not firing:
+            player.reloading = False
 
         # Create new alien
         if alienreload:
@@ -349,8 +389,8 @@ def main(winstyle=0):
             Alien(aliens, all, lastalien)
             alienreload = ALIEN_RELOAD
 
-        # Drop bombs
-        if lastalien and not int(random.random() * BOMB_ODDS):
+        # Drop bombs - check if lastalien has a valid sprite
+        if lastalien.sprite is not None and not int(random.random() * BOMB_ODDS):
             Bomb(lastalien.sprite, all, bombs, all)
 
         # Detect collisions between aliens and players.
@@ -359,7 +399,8 @@ def main(winstyle=0):
                 boom_sound.play()
             Explosion(alien, all)
             Explosion(player, all)
-            SCORE = SCORE + 1
+            if score_sprite:
+                score_sprite.add_score(1)
             player.kill()
 
         # See if shots hit the aliens.
@@ -367,7 +408,8 @@ def main(winstyle=0):
             if pg.mixer and boom_sound is not None:
                 boom_sound.play()
             Explosion(alien, all)
-            SCORE = SCORE + 1
+            if score_sprite:
+                score_sprite.add_score(1)
 
         # See if alien bombs hit the player.
         for bomb in pg.sprite.spritecollide(player, bombs, 1):
@@ -387,6 +429,13 @@ def main(winstyle=0):
     if pg.mixer:
         pg.mixer.music.fadeout(1000)
     pg.time.wait(1000)
+
+    # Clean up sprite groups to release resources
+    all.empty()
+    aliens.empty()
+    shots.empty()
+    bombs.empty()
+    lastalien.empty()
 
 
 # call the "main" function if running this script
