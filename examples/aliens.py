@@ -41,7 +41,6 @@ ALIEN_ODDS = 22  # chances a new alien appears
 BOMB_ODDS = 60  # chances a new bomb will drop
 ALIEN_RELOAD = 12  # frames between new aliens
 SCREENRECT = pg.Rect(0, 0, 640, 480)
-SCORE = 0
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -127,10 +126,15 @@ class Alien(pg.sprite.Sprite):
 
     def update(self, *args, **kwargs):
         self.rect.move_ip(self.facing, 0)
-        if not SCREENRECT.contains(self.rect):
-            self.facing = -self.facing
+        if self.rect.left <= SCREENRECT.left:
+            self.facing = abs(self.facing)
+            self.rect.left = SCREENRECT.left
             self.rect.top = self.rect.bottom + 1
-            self.rect = self.rect.clamp(SCREENRECT)
+        elif self.rect.right >= SCREENRECT.right:
+            self.facing = -abs(self.facing)
+            self.rect.right = SCREENRECT.right
+            self.rect.top = self.rect.bottom + 1
+        self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
         self.image = self.images[self.frame // self.animcycle % 3]
 
@@ -172,6 +176,7 @@ class Shot(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, *groups)
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=pos)
+        self.first_frame = True
 
     def update(self, *args, **kwargs):
         """called every time around the game loop.
@@ -179,8 +184,9 @@ class Shot(pg.sprite.Sprite):
         Every tick we move the shot upwards.
         """
         self.rect.move_ip(0, self.speed)
-        if self.rect.top <= 0:
+        if not self.first_frame and self.rect.top <= 0:
             self.kill()
+        self.first_frame = False
 
 
 class Bomb(pg.sprite.Sprite):
@@ -213,20 +219,22 @@ class Bomb(pg.sprite.Sprite):
 class Score(pg.sprite.Sprite):
     """to keep track of the score."""
 
-    def __init__(self, *groups):
+    def __init__(self, score_ref, *groups):
         pg.sprite.Sprite.__init__(self, *groups)
         self.font = pg.font.Font(None, 20)
         self.font.set_italic(1)
         self.color = "white"
+        self.score_ref = score_ref
         self.lastscore = -1
         self.update()
         self.rect = self.image.get_rect().move(10, 450)
 
     def update(self, *args, **kwargs):
         """We only update the score in update() when it has changed."""
-        if SCORE != self.lastscore:
-            self.lastscore = SCORE
-            msg = f"Score: {SCORE}"
+        current_score = self.score_ref["value"]
+        if current_score != self.lastscore:
+            self.lastscore = current_score
+            msg = f"Score: {current_score}"
             self.image = self.font.render(msg, 0, self.color)
 
 
@@ -289,13 +297,13 @@ def main(winstyle=0):
     clock = pg.time.Clock()
 
     # initialize our starting sprites
-    global SCORE
+    game_score = {"value": 0}
     player = Player(all)
     Alien(
         aliens, all, lastalien
     )  # note, this 'lives' because it goes into a sprite group
     if pg.font:
-        all.add(Score(all))
+        all.add(Score(game_score, all))
 
     # Run our main loop whilst the player is alive.
     while player.alive():
@@ -323,6 +331,7 @@ def main(winstyle=0):
                         screen.blit(screen_backup, (0, 0))
                     pg.display.flip()
                     fullscreen = not fullscreen
+                    pg.mouse.set_visible(False)
 
         keystate = pg.key.get_pressed()
 
@@ -350,7 +359,7 @@ def main(winstyle=0):
             alienreload = ALIEN_RELOAD
 
         # Drop bombs
-        if lastalien and not int(random.random() * BOMB_ODDS):
+        if lastalien.sprite and not int(random.random() * BOMB_ODDS):
             Bomb(lastalien.sprite, all, bombs, all)
 
         # Detect collisions between aliens and players.
@@ -359,7 +368,7 @@ def main(winstyle=0):
                 boom_sound.play()
             Explosion(alien, all)
             Explosion(player, all)
-            SCORE = SCORE + 1
+            game_score["value"] += 1
             player.kill()
 
         # See if shots hit the aliens.
@@ -367,7 +376,7 @@ def main(winstyle=0):
             if pg.mixer and boom_sound is not None:
                 boom_sound.play()
             Explosion(alien, all)
-            SCORE = SCORE + 1
+            game_score["value"] += 1
 
         # See if alien bombs hit the player.
         for bomb in pg.sprite.spritecollide(player, bombs, 1):
@@ -387,6 +396,12 @@ def main(winstyle=0):
     if pg.mixer:
         pg.mixer.music.fadeout(1000)
     pg.time.wait(1000)
+    # 释放所有精灵资源
+    all.empty()
+    aliens.empty()
+    shots.empty()
+    bombs.empty()
+    lastalien.empty()
 
 
 # call the "main" function if running this script
