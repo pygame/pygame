@@ -211,3 +211,65 @@ Reference
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
 .. _LGPL License: LGPL.txt
+import pygame
+import math
+
+pygame.init()
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
+
+G = 0.1  # gravitational constant (scaled)
+
+class Body:
+    def __init__(self, x, y, mass, color):
+        self.x = x
+        self.y = y
+        self.mass = mass
+        self.color = color
+        self.vx = 0
+        self.vy = 0
+
+    def update(self, bodies):
+        for other in bodies:
+            if other is self:
+                continue
+            dx = other.x - self.x
+            dy = other.y - self.y
+            dist = math.sqrt(dx**2 + dy**2) + 0.1
+
+            force = G * self.mass * other.mass / dist**2
+            self.vx += force * dx / dist / self.mass
+            self.vy += force * dy / dist / self.mass
+
+        self.x += self.vx
+        self.y += self.vy
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), int(self.mass))
+
+bodies = [
+    Body(400, 300, 20, (255, 255, 0)),  # star
+    Body(500, 300, 5, (0, 100, 255)),   # planet
+]
+
+bodies[1].vy = -2  # give orbit velocity
+
+running = True
+while running:
+    screen.fill((0, 0, 0))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    for body in bodies:
+        body.update(bodies)
+
+    for body in bodies:
+        body.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
