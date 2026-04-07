@@ -1,0 +1,27 @@
+import pygame
+
+# Inicializar ventana
+pygame.init()
+screen = pygame.display.set_mode((600, 400))
+pygame.display.set_caption("Mini Cubos estilo Minecraft")
+
+# Colores
+GREEN = (34, 139, 34)
+BROWN = (139, 69, 19)
+
+# Dibujar un bloque
+def draw_block(x, y, color):
+    pygame.draw.rect(screen, color, (x, y, 40, 40))
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    screen.fill((135, 206, 235))  # cielo azul
+    draw_block(100, 300, GREEN)   # césped
+    draw_block(100, 340, BROWN)   # tierra
+    pygame.display.flip()
+
+pygame.quit()
