@@ -2005,6 +2005,10 @@ camera_init(pgCameraObject *self, PyObject *arg, PyObject *kwargs)
     PyObject *device_arg = NULL;
     if (!PyArg_ParseTuple(arg, "O|(ii)s", &device_arg, &w, &h, &color))
         return -1;
+    if (!device_arg) {
+    PyErr_SetString(PyExc_TypeError, "Camera device argument is required");
+    return -1;
+}
     if (PyLong_Check(device_arg)) {
         device_index = (int)PyLong_AsLong(device_arg);
     }
