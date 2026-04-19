@@ -23,18 +23,14 @@ import os
 import sys
 import warnings
 from os.path import basename, dirname, exists, join, splitext
+from typing import Dict, Optional, Tuple
 
 from pygame.font import Font
 
-if sys.platform != "emscripten":
-    if os.name == "nt":
-        import winreg as _winreg
-    import subprocess
-
 
 OpenType_extensions = frozenset((".ttf", ".ttc", ".otf"))
-Sysfonts = {}
-Sysalias = {}
+Sysfonts: Dict[str, Dict[Tuple[bool, bool], str]] = {}
+Sysalias: Dict[str, str] = {}
 
 is_init = False
 
@@ -54,6 +50,7 @@ def _addfont(name, bold, italic, font, fontdict):
 
 def initsysfonts_win32():
     """initialize fonts dictionary on Windows"""
+    import winreg as _winreg
 
     fontdir = join(os.environ.get("WINDIR", "C:\\Windows"), "Fonts")
     fonts = {}
@@ -203,6 +200,8 @@ def initsysfonts_darwin():
 # read the fonts on unix
 def initsysfonts_unix(path="fc-list"):
     """use the fc-list from fontconfig to get a list of fonts"""
+    import subprocess
+
     fonts = {}
 
     if sys.platform == "emscripten":

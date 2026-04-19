@@ -1309,6 +1309,10 @@ image_frombuffer(PyObject *self, PyObject *arg)
     if (!surf)
         return RAISE(pgExc_SDLError, SDL_GetError());
     surfobj = (pgSurfaceObject *)pgSurface_New(surf);
+    if (!surfobj) {
+        SDL_FreeSurface(surf);
+        return NULL;
+    }
     Py_INCREF(buffer);
     surfobj->dependency = buffer;
     return (PyObject *)surfobj;
