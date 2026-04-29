@@ -211,3 +211,7 @@ Reference
 .. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
 .. _LGPL License: LGPL.txt
+
+
+
+Love
