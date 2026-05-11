@@ -317,7 +317,7 @@ def __rect_reduce(r):
     return __rect_constructor, (r.x, r.y, r.w, r.h)
 
 
-copyreg.pickle(Rect, __rect_reduce, __rect_constructor)
+copyreg.pickle(Rect, __rect_reduce, __rect_constructor)  # type: ignore[arg-type]
 
 
 # make Colors pickleable
@@ -330,7 +330,7 @@ def __color_reduce(c):
     return __color_constructor, (c.r, c.g, c.b, c.a)
 
 
-copyreg.pickle(Color, __color_reduce, __color_constructor)
+copyreg.pickle(Color, __color_reduce, __color_constructor)  # type: ignore[arg-type]
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:

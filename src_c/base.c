@@ -348,12 +348,45 @@ pg_init(PyObject *self, PyObject *_null)
         NULL};
 
     /*nice to initialize timer, so startup time will reflec pg_init() time*/
+    /* Phase 1F (Self-Healing 2026-05-05) — emit a warning when
+     * the top-level SDL_Init fails. This is non-fatal because
+     * each pygame submodule (display, joystick, mixer, time)
+     * lazily inits its own subsystem via SDL_InitSubSystem on
+     * first use. But silently swallowing the SDL error here
+     * meant operators saw no diagnostic when SDL_Init genuinely
+     * failed — cryptic submodule failures later instead of a
+     * clear "SDL_Init: <reason>" warning at startup.
+     *
+     * SDL_GetError() is captured into a stack-local buffer
+     * before the warning emit so the message survives any
+     * intervening SDL calls in PyErr_WarnEx. */
 #if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
     pg_sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD | SDL_INIT_TIMER |
                                SDL_INIT_NOPARACHUTE) == 0;
 #else
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
+    if (!pg_sdl_was_init) {
+        /* Snapshot the SDL error before any further SDL call
+         * could clobber the thread-local error string. */
+        char sdl_err_snapshot[512];
+        const char *sdl_err = SDL_GetError();
+        if (sdl_err && sdl_err[0]) {
+            SDL_strlcpy(sdl_err_snapshot, sdl_err,
+                        sizeof(sdl_err_snapshot));
+        }
+        else {
+            SDL_strlcpy(sdl_err_snapshot, "(no SDL error message available)",
+                        sizeof(sdl_err_snapshot));
+        }
+        /* PyErr_WarnEx returns -1 on warning-as-error; silently
+         * ignored here because the original swallowing behavior
+         * never raised, and turning startup into a hard error
+         * would be a behavior change beyond Phase 1F scope. */
+        PyErr_WarnEx(PyExc_RuntimeWarning,
+                     sdl_err_snapshot, 1);
+        PyErr_Clear();
+    }
 
     pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
 

@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/reST/_static/pygame_logo.svg
+.. image:: https://raw.githubusercontent.com/hrabanazviking/pygame/refs/heads/main/pygame_viking_edition_logo1.png
   :alt: pygame
   :target: https://www.pygame.org/
 
@@ -264,3 +264,11 @@ See docs/licenses for licenses of dependencies.
 .. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
 .. _docs page: https://www.pygame.org/docs/
 .. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
+
+---
+
+.. image:: https://raw.githubusercontent.com/hrabanazviking/pygame/refs/heads/main/IMG_0407.jpeg
+  :alt: RuneForgeAI
+  :target: https://github.com/hrabanazviking/RuneForgeAI
+
+---

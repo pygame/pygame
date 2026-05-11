@@ -430,9 +430,13 @@ surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner)
         return RAISE(pgExc_SDLError, SDL_GetError());
 
     self = (pgSurfaceObject *)pgSurface_Type.tp_new(type, NULL, NULL);
-
-    if (pgSurface_SetSurface(self, s, owner))
+    if (!self)
         return NULL;
+
+    if (pgSurface_SetSurface(self, s, owner)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     return (PyObject *)self;
 }

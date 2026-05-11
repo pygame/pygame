@@ -190,6 +190,15 @@ pg_display_quit(PyObject *self, PyObject *_null)
     pg_mod_autoquit(IMPPREFIX "event");
     pg_mod_autoquit(IMPPREFIX "time");
 
+    if (pg_texture) {
+        SDL_DestroyTexture(pg_texture);
+        pg_texture = NULL;
+    }
+    if (pg_renderer) {
+        SDL_DestroyRenderer(pg_renderer);
+        pg_renderer = NULL;
+    }
+
     if (SDL_WasInit(SDL_INIT_VIDEO)) {
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
     }
@@ -297,11 +306,11 @@ pg_vidinfo_getattr(PyObject *self, char *name)
     else if (!strcmp(name, "blit_hw_A"))
         return PyLong_FromLong(info->blit_hw_A);
     else if (!strcmp(name, "blit_sw"))
-        return PyLong_FromLong(info->blit_hw);
+        return PyLong_FromLong(info->blit_sw);
     else if (!strcmp(name, "blit_sw_CC"))
-        return PyLong_FromLong(info->blit_hw_CC);
+        return PyLong_FromLong(info->blit_sw_CC);
     else if (!strcmp(name, "blit_sw_A"))
-        return PyLong_FromLong(info->blit_hw_A);
+        return PyLong_FromLong(info->blit_sw_A);
     else if (!strcmp(name, "blit_fill"))
         return PyLong_FromLong(info->blit_fill);
     else if (!strcmp(name, "video_mem"))
@@ -593,7 +602,7 @@ pg_get_surface(PyObject *self, PyObject *_null)
     else {
         SDL_Surface *sdl_surface = SDL_GetWindowSurface(win);
         pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
-        if (sdl_surface != old_surface->surf) {
+        if (old_surface == NULL || sdl_surface != old_surface->surf) {
             pgSurfaceObject *new_surface =
                 (pgSurfaceObject *)pgSurface_New2(sdl_surface, SDL_FALSE);
             if (!new_surface)
@@ -716,6 +725,9 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
         if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
             GL_glViewport_Func p_glViewport =
                 (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
+            if (!p_glViewport) {
+                return 0;
+            }
             int wnew = event->window.data1;
             int hnew = event->window.data2;
             SDL_GL_MakeCurrent(pygame_window, state->gl_context);
@@ -743,7 +755,7 @@ pg_ResizeEventWatch(void *userdata, SDL_Event *event)
         if (window == pygame_window) {
             SDL_Surface *sdl_surface = SDL_GetWindowSurface(window);
             pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
-            if (sdl_surface != old_surface->surf) {
+            if (old_surface != NULL && sdl_surface != old_surface->surf) {
                 old_surface->surf = sdl_surface;
             }
         }
@@ -1250,6 +1262,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     pg_texture = SDL_CreateTexture(
                         pg_renderer, SDL_PIXELFORMAT_ARGB8888,
                         SDL_TEXTUREACCESS_STREAMING, w, h);
+                    if (!pg_texture) {
+                        _display_state_cleanup(state);
+                        SDL_DestroyRenderer(pg_renderer);
+                        pg_renderer = NULL;
+                        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                        goto DESTROY_WINDOW;
+                    }
                 }
                 surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
                                             0xff << 16, 0xff << 8, 0xff, 0);
@@ -1333,6 +1352,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
 DESTROY_WINDOW:
 
+    if (pg_texture) {
+        SDL_DestroyTexture(pg_texture);
+        pg_texture = NULL;
+    }
+    if (pg_renderer) {
+        SDL_DestroyRenderer(pg_renderer);
+        pg_renderer = NULL;
+    }
     if (win == pg_GetDefaultWindow())
         pg_SetDefaultWindow(NULL);
     else if (win)
