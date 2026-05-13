@@ -123,7 +123,7 @@ if os.environ.get('PYGAME_DETECT_AVX2', '') != '':
                     # filename is found, no need to search any further
                     break
 
-        distutils.ccompiler.spawn(cmd, dry_run=self.dry_run, **kwargs)
+        distutils.spawn.spawn(cmd, **kwargs)
 
     distutils.ccompiler.CCompiler.__spawn = distutils.ccompiler.CCompiler.spawn
     distutils.ccompiler.CCompiler.spawn = spawn
