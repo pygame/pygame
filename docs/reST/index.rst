@@ -1,3 +1,88 @@
+mport React, { useEffect, useRef, useState } from "react";
+      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) e.preventDefault();
+      if (!started) resetGame();
+      else if (gameOver && e.code === "Space") resetGame();
+    };
+    const handleUp = (e) => {
+      keysRef.current[e.code] = false;
+    };
+    window.addEventListener("keydown", handleDown);
+    window.addEventListener("keyup", handleUp);
+    return () => {
+      window.removeEventListener("keydown", handleDown);
+      window.removeEventListener("keyup", handleUp);
+      cancelAnimationFrame(animationRef.current);
+    };
+  }, [started, gameOver]);
+
+  useEffect(() => {
+    if (started && !gameOver) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = requestAnimationFrame(updateAndDraw);
+    }
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [started, gameOver]);
+
+  return (
+    <div className="min-h-screen bg-emerald-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-5xl rounded-2xl shadow-xl border-emerald-200">
+        <CardContent className="p-5">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-emerald-900">Monkey Banana Run</h1>
+              <p className="text-emerald-700">Jump over rocks and collect bananas.</p>
+            </div>
+            <div className="flex gap-3 items-center">
+              <div className="px-4 py-2 rounded-xl bg-white shadow text-emerald-900 font-semibold">Score: {score}</div>
+              <div className="px-4 py-2 rounded-xl bg-white shadow text-yellow-700 font-semibold">🍌 {bananas}</div>
+              <Button onClick={resetGame} className="rounded-xl bg-emerald-700 hover:bg-emerald-800">
+                {started ? "Restart" : "Start"}
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl shadow-inner border-4 border-emerald-300 bg-sky-100">
+            <canvas
+              ref={canvasRef}
+              width={WIDTH}
+              height={HEIGHT}
+              onMouseDown={() => (started && !gameOver ? jump() : resetGame())}
+              className="w-full cursor-pointer block"
+            />
+
+            {!started && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/25 text-white text-center p-6">
+                <div className="bg-black/45 rounded-2xl p-6">
+                  <h2 className="text-3xl font-bold mb-2">Ready?</h2>
+                  <p className="mb-4">Press Space / ↑ / W or click to jump.</p>
+                  <Button onClick={resetGame} className="rounded-xl bg-yellow-500 hover:bg-yellow-600 text-black">
+                    Play Game
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {gameOver && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-center p-6">
+                <div className="bg-slate-950/80 rounded-2xl p-6 shadow-2xl">
+                  <h2 className="text-4xl font-bold mb-2">Game Over</h2>
+                  <p className="text-lg mb-4">Final Score: {score} | Bananas: {bananas}</p>
+                  <Button onClick={resetGame} className="rounded-xl bg-yellow-500 hover:bg-yellow-600 text-black">
+                    Play Again
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <p className="mt-4 text-sm text-emerald-700 text-center">
+            Controls: Space / Arrow Up / W / Mouse click / Tap screen
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 Pygame Front Page
 =================
 
