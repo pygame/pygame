@@ -16,9 +16,12 @@ class CameraModuleTest(unittest.TestCase):
     )
     def test_camera(self):
         cameras = pygame.camera.list_cameras()
-
-        if len(cameras) == 0:
-            self.skipTest("No cameras found")
+        try:
+            if len(cameras) == 0:
+                self.skipTest("No cameras found")
+        except TypeError:
+            if cameras == None:
+                self.skipTest("No cameras found")
 
         cam = pygame.camera.Camera(cameras[0], (640, 480))
         cam.start()
