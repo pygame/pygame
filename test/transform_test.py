@@ -143,6 +143,11 @@ class TransformModuleTest(unittest.TestCase):
         s2 = pygame.transform.scale_by(s, factor=(2.0, 1.5))
         self.assertEqual((64, 48), s2.get_size())
 
+        # Test rounding bug (Issue #4294)
+        s3 = pygame.Surface((1468, 200))
+        s4 = pygame.transform.scale_by(s3, 240 / 1468)
+        self.assertEqual(240, s4.get_width())
+
         dest = pygame.Surface((64, 48))
         pygame.transform.scale_by(s, (2.0, 1.5), dest_surface=dest)
 
@@ -154,6 +159,11 @@ class TransformModuleTest(unittest.TestCase):
 
         s2 = pygame.transform.smoothscale_by(s, factor=(2.0, 1.5))
         self.assertEqual((64, 48), s2.get_size())
+
+        # Test rounding bug (Issue #4294)
+        s3 = pygame.Surface((1468, 200))
+        s4 = pygame.transform.smoothscale_by(s3, 240 / 1468)
+        self.assertEqual(240, s4.get_width())
 
         dest = pygame.Surface((64, 48))
         pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
