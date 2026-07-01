@@ -3,7 +3,14 @@ import re
 try:
     from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 except ImportError:
-    from setuptools._distutils.msvccompiler import MSVCCompiler, get_build_architecture
+    try:
+        from setuptools._distutils._msvccompiler import MSVCCompiler
+    except ImportError:
+        from setuptools._distutils.msvccompiler import MSVCCompiler
+
+    import platform
+    def get_build_architecture():
+        return "x64" if platform.machine().endswith("64") else "x86"
 import subprocess
 import os
 
