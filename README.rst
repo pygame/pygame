@@ -1,3 +1,172 @@
+import pygame
+import random
+import sys
+
+# পাইগেম শুরু করা
+pygame.init()
+
+# স্ক্রিনের সাইজ নির্ধারণ
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 400
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Zombie Chase: Infinite Run")
+
+# রঙের কোড
+WHITE = (255, 255, 255)
+GRAY = (50, 50, 50)
+RED = (200, 30, 30)
+GREEN = (30, 200, 30)
+BLACK = (0, 0, 0)
+
+# ক্লক সেটআপ (এফপিএস নিয়ন্ত্রণের জন্য)
+clock = pygame.time.Clock()
+FPS = 60
+
+# প্লেয়ার (মানুষ) ক্লাস
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((40, 60))
+        self.image.fill(GREEN)  # মানুষটিকে সবুজ ব্লকে দেখানো হয়েছে
+        self.rect = self.image.get_rect()
+        self.rect.x = 200
+        self.rect.y = SCREEN_HEIGHT - 110
+        self.gravity = 1
+        self.jump_speed = -16
+        self.velocity_y = 0
+        self.is_jumping = False
+
+    def handle_jump(self):
+        if not self.is_jumping:
+            self.velocity_y = self.jump_speed
+            self.is_jumping = True
+
+    def update(self):
+        # গ্র্যাভিটি বা অভিকর্ষ বল প্রয়োগ
+        self.velocity_y += self.gravity
+        self.rect.y += self.velocity_y
+
+        # মাটিতে ল্যান্ড করা নিশ্চিত করা
+        floor_level = SCREEN_HEIGHT - 110
+        if self.rect.y >= floor_level:
+            self.rect.y = floor_level
+            self.velocity_y = 0
+            self.is_jumping = False
+
+# জম্বি ক্লাস (প্লেয়ারের পেছনে থাকবে, কখনো ছুঁতে পারবে না)
+class Zombie(pygame.sprite.Sprite):
+    def __init__(self, x_offset):
+        super().__init__()
+        self.image = pygame.Surface((35, 55))
+        self.image.fill(RED)  # জম্বি লাল ব্লকে দেখানো হয়েছে
+        self.rect = self.image.get_rect()
+        self.rect.x = x_offset
+        self.rect.y = SCREEN_HEIGHT - 105
+
+# বাধা (Obstacle) ক্লাস
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.width = random.choice([20, 30, 40])
+        self.height = random.choice([30, 50, 65])
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(BLACK)  # বাধা কালো ব্লকে দেখানো হয়েছে
+        self.rect = self.image.get_rect()
+        self.rect.x = SCREEN_WIDTH + random.randint(100, 300)
+        self.rect.y = SCREEN_HEIGHT - 50 - self.height
+
+    def update(self, speed):
+        self.rect.x -= speed
+        # স্ক্রিনের বাইরে চলে গেলে মুছে ফেলা
+        if self.rect.x < -self.width:
+            self.kill()
+
+# গেমের মূল ফাংশন
+def main():
+    player = Player()
+    player_group = pygame.sprite.GroupSingle(player)
+
+    # পেছনে অসংখ্য জম্বি তৈরি (তারা প্লেয়ারের পেছনে তাড়া করবে কিন্তু ছুঁতে পারবে না)
+    zombie_group = pygame.sprite.Group()
+    for i in range(15):
+        zombie = Zombie(random.randint(10, 120))
+        zombie_group.add(zombie)
+
+    obstacle_group = pygame.sprite.Group()
+
+    score = 0
+    game_speed = 6
+    font = pygame.font.SysFont("Arial", 24)
+    game_over_font = pygame.font.SysFont("Arial", 48)
+
+    # বাধা তৈরির টাইমার
+    obstacle_timer = pygame.USEREVENT + 1
+    pygame.time.set_timer(obstacle_timer, 1500)
+
+    running = True
+    game_over = False
+
+    while running:
+        # ইভেন্ট হ্যান্ডলিং
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == obstacle_timer and not game_over:
+                # নতুন বাধা তৈরি
+                obstacle_group.add(Obstacle())
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:  # স্পেসবার চেপে লাফানো
+                    if game_over:
+                        # গেম ওভার হলে স্পেস টিপলে আবার নতুন করে শুরু হবে
+                        main()
+                    else:
+                        player.handle_jump()
+
+        if not game_over:
+            # আপডেট
+            player_group.update()
+            obstacle_group.update(game_speed)
+
+            # স্কোর এবং স্পিড বৃদ্ধি
+            score += 1
+            if score % 500 == 0:
+                game_speed += 1
+
+            # কলিশন চেক (মানুষটি যদি বাধার সাথে ধাক্কা খায় তবে সে থেমে যাবে)
+            if pygame.sprite.spritecollide(player, obstacle_group, False):
+                game_over = True
+
+        # ড্রয়িং (স্ক্রিনে সবকিছু দেখানো)
+        screen.fill(WHITE)
+
+        # মাটি তৈরি করা
+        pygame.draw.rect(screen, GRAY, (0, SCREEN_HEIGHT - 50, SCREEN_WIDTH, 50))
+
+        # অবজেক্টগুলো স্ক্রিনে আঁকা
+        zombie_group.draw(screen)
+        player_group.draw(screen)
+        obstacle_group.draw(screen)
+
+        # স্কোর প্রদর্শন
+        score_surface = font.render(f"Score: {score // 10}", True, BLACK)
+        screen.blit(score_surface, (10, 10))
+
+        # গেম ওভার স্ক্রিন (মানুষটি থেমে গেলে জম্বিরা তাকে ধরে ফেলবে)
+        if game_over:
+            over_surface = game_over_font.render("GAME OVER - Zombies Caught You!", True, RED)
+            restart_surface = font.render("Press SPACE to Restart", True, BLACK)
+            screen.blit(over_surface, (100, SCREEN_HEIGHT // 2 - 30))
+            screen.blit(restart_surface, (300, SCREEN_HEIGHT // 2 + 30))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+if __name__ == "__main__":
+    main()
 .. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/reST/_static/pygame_logo.svg
   :alt: pygame
   :target: https://www.pygame.org/
