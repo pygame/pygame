@@ -1,266 +1,161 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/reST/_static/pygame_logo.svg
-  :alt: pygame
-  :target: https://www.pygame.org/
-
-
-|AppVeyorBuild| |PyPiVersion| |PyPiLicense|
-|Python3| |GithubCommits| |BlackFormatBadge|
-
-Pygame_ is a free and open-source cross-platform library
-for the development of multimedia applications like video games using Python.
-It uses the `Simple DirectMedia Layer library`_ and several other
-popular libraries to abstract the most common functions, making writing
-these programs a more intuitive task.
-
-`We need your help`_ to make pygame the best it can be!
-New contributors are welcome.
-
-
-Installation
-------------
-
-Before installing pygame, you must check that Python is installed
-on your machine. To find out, open a command prompt (if you have
-Windows) or a terminal (if you have MacOS or Linux) and type this:
-::
-
-   python --version
-
-
-If a message such as "Python 3.8.10" appears, it means that Python
-is correctly installed. If an error message appears, it means that
-it is not installed yet. You must then go to the `official website
-<https://www.python.org/downloads/>`_ to download it.
-
-Once Python is installed, you have to perform a final check: you have
-to see if pip is installed. Generally, pip is pre-installed with
-Python but we are never sure. Same as for Python, type the following
-command:
-::
-
-   pip --version
-
-
-If a message such as "pip 20.0.2 from /usr/lib/python3/dist-packages/pip
-(python 3.8)" appears, you are ready to install pygame! To install
-it, enter this command:
-::
-
-   pip install pygame
-
-Once pygame is installed, quickly test your library by entering the following
-command, which opens one of the many example games that comes pre-installed: 
-::
-
-	python3 -m pygame.examples.aliens
-
-
-If this doesn’t work, the `Getting Started 
-<https://www.pygame.org/wiki/GettingStarted/>`_ section of the official 
-website has more information for platform specific issues, such as adding
-python to your machine’s PATH settings
-
-
-Help
-----
-
-If you are just getting started with pygame, you should be able to
-get started fairly quickly.  Pygame comes with many tutorials and
-introductions.  There is also full reference documentation for the
-entire library. Browse the documentation on the `docs page`_. You
-can also browse the documentation locally by running
-``python -m pygame.docs`` in your terminal. If the docs aren't found
-locally, it'll launch the online website instead.
-
-The online documentation stays up to date with the development version
-of pygame on GitHub.  This may be a bit newer than the version of pygame
-you are using. To upgrade to the latest full release, run
-``pip install pygame --upgrade`` in your terminal.
-
-Best of all, the examples directory has many playable small programs
-which can get you started playing with the code right away.
-
-
-Features
-----------
-
-Pygame is a powerful library for game development, offering a wide
-range of features to simplify your coding journey. Let's delve into
-what pygame has to offer:
-
-Graphics - With pygame, creating dynamic and engaging graphics has
-never been easier. The library provides simple yet effective tools for
-2D graphics and animation, including support for images, rectangles,
-and polygon shapes. Whether you're a seasoned game developer or just
-starting out, pygame has you covered.
-
-Sound - Pygame also includes support for playing and manipulating sound
-and music, making it easy to add sound effects and background music to
-your games. With support for WAV, MP3, and OGG file formats, you have
-plenty of options to choose from.
-
-Input - Pygame provides intuitive functions for handling keyboard, mouse,
-and joystick input, allowing you to quickly and easily implement player
-controls in your games. No more struggling with complex input code, pygame
-makes it simple.
-
-Game Development - Lastly, pygame provides a comprehensive suite of tools
-and features specifically designed for game development. From collision
-detection to sprite management, pygame has everything you need to create
-exciting and engaging games. Whether you're building a platformer, puzzle
-game, or anything in between, pygame has you covered.
-
-
-Building From Source
---------------------
-
-If you want to use features that are currently in development,
-or you want to contribute to pygame, you will need to build pygame
-locally from its source code, rather than pip installing it.
-
-Installing from source is fairly automated. The most work will
-involve compiling and installing all the pygame dependencies.  Once
-that is done, run the ``setup.py`` script which will attempt to
-auto-configure, build, and install pygame.
-
-Much more information about installing and compiling is available
-on the `Compilation wiki page`_.
-
-Contribute
-----------
-
-* `Documentation Contributions <https://github.com/pygame/pygame/tree/main/docs>`_ - Guidelines for contributing to the main documentations
-* `Writing your first unit test <http://renesd.blogspot.com/2019/11/draft-2-of-lets-write-unit-test.html>`_ - Step by step guide on how to write your first unit test in Python for Pygame.
-* `How to Hack Pygame <https://www.pygame.org/wiki/Hacking>`_ - Information on hacking, developing, and modifying Pygame
-* `Issue Tracker for beginners <https://github.com/pygame/pygame/labels/good%20first%20issue>`_ - A way for beginners to contribute to the project
-* `Bugs & Patches <https://www.pygame.org/wiki/patchesandbugs>`_ - Report bugs
-* `Communication tools <https://www.pygame.org/wiki/info>`_ - More information and ways to get in touch with the Pygame team
-
-
-Credits
--------
-
-Thanks to everyone who has helped contribute to this library.
-Special thanks are also in order.
-
-* Marcus Von Appen: many changes, and fixes, 1.7.1+ freebsd maintainer
-* Lenard Lindstrom: the 1.8+ windows maintainer, many changes, and fixes
-* Brian Fisher for svn auto builder, bug tracker and many contributions
-* Rene Dudfield: many changes, and fixes, 1.7+ release manager/maintainer
-* Phil Hassey for his work on the pygame.org website
-* DR0ID for his work on the sprite module
-* Richard Goedeken for his smoothscale function
-* Ulf Ekström for his pixel perfect collision detection code
-* Pete Shinners: original author
-* David Clark for filling the right-hand-man position
-* Ed Boraas and Francis Irving: Debian packages
-* Maxim Sobolev: FreeBSD packaging
-* Bob Ippolito: MacOS and OS X porting (much work!)
-* Jan Ekhol, Ray Kelm, and Peter Nicolai: putting up with early design ideas
-* Nat Pryce for starting our unit tests
-* Dan Richter for documentation work
-* TheCorruptor for his incredible logos and graphics
-* Nicholas Dudfield: many test improvements
-* Alex Folkner for pygame-ctypes
-
-Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
-Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
-Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Herve Cauwelier,
-James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
-Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
-Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan,
-Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
-Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
-Cambell Barton.
-
-And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
-Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck,
-Michael Benfield, David Lau
-
-There's many more folks out there who've submitted helpful ideas, kept
-this project going, and basically made our life easier.  Thanks!
-
-Many thank you's for people making documentation comments, and adding to the
-pygame.org wiki.
-
-Also many thanks for people creating games and putting them on the
-pygame.org website for others to learn from and enjoy.
-
-Lots of thanks to James Paige for hosting the pygame bugzilla.
-
-Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
-excellent hosting.
-
-Dependencies
-------------
-
-Pygame is obviously strongly dependent on SDL and Python.  It also
-links to and embeds several other smaller libraries.  The font
-module relies on SDL_ttf, which is dependent on freetype.  The mixer
-(and mixer.music) modules depend on SDL_mixer.  The image module
-depends on SDL_image, which also can use libjpeg and libpng.  The
-transform module has an embedded version of SDL_rotozoom for its
-own rotozoom function.  The surfarray module requires the Python
-NumPy package for its multidimensional numeric arrays.
-Dependency versions:
-
-
-+----------+------------------------+
-| CPython  | >= 3.6 (Or use PyPy3)  |
-+----------+------------------------+
-| SDL      | >= 2.0.8               |
-+----------+------------------------+
-| SDL_mixer| >= 2.0.0               |
-+----------+------------------------+
-| SDL_image| >= 2.0.2               |
-+----------+------------------------+
-| SDL_ttf  | >= 2.0.11              |
-+----------+------------------------+
-| SDL_gfx  | (Optional, vendored in)|
-+----------+------------------------+
-| NumPy    | >= 1.6.2 (Optional)    |
-+----------+------------------------+
-
-
-
-License
--------
-
-This library is distributed under `GNU LGPL version 2.1`_, which can
-be found in the file ``docs/LGPL.txt``.  We reserve the right to place
-future versions of this library under a different license.
-
-This basically means you can use pygame in any project you want,
-but if you make any changes or additions to pygame itself, those
-must be released with a compatible license (preferably submitted
-back to the pygame project).  Closed source and commercial games are fine.
-
-The programs in the ``examples`` subdirectory are in the public domain.
-
-See docs/licenses for licenses of dependencies.
-
-
-.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
-   :target: https://ci.appveyor.com/project/pygame/pygame
-
-.. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
-   :target: https://pypi.python.org/pypi/pygame
-
-.. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
-   :target: https://pypi.python.org/pypi/pygame
-
-.. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
-
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.1.2.svg
-   :target: https://github.com/pygame/pygame/compare/2.1.2...main
-
-.. |BlackFormatBadge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-
-.. _pygame: https://www.pygame.org
-.. _Simple DirectMedia Layer library: https://www.libsdl.org
-.. _We need your help: https://www.pygame.org/contribute.html
-.. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
-.. _docs page: https://www.pygame.org/docs/
-.. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Spartan Campus Explorer - MSU</title>
+    <style>
+        body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; }
+        canvas { image-rendering: pixelated; border: 4px solid #8B0000; max-width:100%; }
+        #instructions { position:absolute; top:10px; left:10px; color:white; background:rgba(0,0,0,0.7); padding:10px; border-radius:8px; font-size:14px; }
+    </style>
+</head>
+<body>
+    <canvas id="game" width="800" height="600"></canvas>
+    <div id="instructions">
+        Arrow keys or WASD to move<br>
+        Collect items • Visit stadiums & Crunchy's!<br>
+        <span style="color:#FFD700">Go Green!</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        
+        const WIDTH = 800;
+        const HEIGHT = 600;
+        let player = { x: 400, y: 300, size: 30, speed: 5 };
+        
+        const buildings = [
+            {x:80, y:80, w:130, h:90},
+            {x:280, y:40, w:140, h:110},
+            {x:520, y:180, w:110, h:130},
+            {x:120, y:320, w:90, h:140}
+        ];
+        
+        const venues = [
+            {x:450, y:30, w:180, h:120, name: "SPARTAN STADIUM", color: "#006400"},
+            {x:50, y:480, w:140, h:90, name: "BRESLIN CENTER", color: "#8B0000"},
+            {x:580, y:420, w:130, h:100, name: "MUNN ARENA", color: "#8B0000"},
+            {x:320, y:380, w:110, h:70, name: "CRUNCHY'S", color: "#FF4500"}
+        ];
+        
+        let collectibles = [];
+        for(let i = 0; i < 12; i++) {
+            collectibles.push({
+                x: Math.random() * (WIDTH - 60) + 30,
+                y: Math.random() * (HEIGHT - 60) + 30,
+                type: ['book','helmet','apple','ball'][Math.floor(Math.random()*4)],
+                size: 22
+            });
+        }
+        
+        let score = 0;
+        let collected = 0;
+        const total = collectibles.length;
+        
+        const keys = {};
+        
+        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        
+        function update() {
+            if (keys['arrowleft'] || keys['a']) player.x -= player.speed;
+            if (keys['arrowright'] || keys['d']) player.x += player.speed;
+            if (keys['arrowup'] || keys['w']) player.y -= player.speed;
+            if (keys['arrowdown'] || keys['s']) player.y += player.speed;
+            
+            player.x = Math.max(0, Math.min(WIDTH - player.size, player.x));
+            player.y = Math.max(0, Math.min(HEIGHT - player.size, player.y));
+            
+            for(let i = collectibles.length - 1; i >= 0; i--) {
+                const c = collectibles[i];
+                if (Math.hypot(player.x + player.size/2 - c.x, player.y + player.size/2 - c.y) < 25) {
+                    collectibles.splice(i, 1);
+                    score += 10;
+                    collected++;
+                }
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 240, WIDTH, 110);
+            ctx.fillRect(340, 0, 90, HEIGHT);
+            
+            ctx.fillStyle = '#4682B4';
+            buildings.forEach(b => {
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+                ctx.strokeStyle = '#8B0000';
+                ctx.lineWidth = 5;
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
+            });
+            
+            venues.forEach(v => {
+                ctx.fillStyle = v.color;
+                ctx.fillRect(v.x, v.y, v.w, v.h);
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 6;
+                ctx.strokeRect(v.x, v.y, v.w, v.h);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(v.name, v.x + 10, v.y + 22);
+            });
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(player.x + player.size/2, player.y + player.size/2, player.size/2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#8B0000';
+            ctx.fillRect(player.x + 8, player.y + 12, player.size - 16, 14);
+            
+            collectibles.forEach(c => {
+                if (c.type === 'book') {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(c.x, c.y, 22, 28);
+                } else if (c.type === 'helmet') {
+                    ctx.fillStyle = '#8B0000';
+                    ctx.beginPath();
+                    ctx.arc(c.x+11, c.y+11, 13, 0, Math.PI*2);
+                    ctx.fill();
+                } else if (c.type === 'ball') {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(c.x+11, c.y+11, 11, 0, Math.PI*2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#FF0000';
+                    ctx.beginPath();
+                    ctx.arc(c.x+11, c.y+11, 12, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            });
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText(`Score: ${score}   Items: ${collected}/${total}`, 20, 35);
+            
+            if (collected >= total) {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText("🏆 MSU CAMPUS CONQUERED!", 110, 280);
+                ctx.font = 'bold 26px Arial';
+                ctx.fillText("Go Green! 🟢", 310, 330);
+            }
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        gameLoop();
+    </script>
+</body>
+</html>
