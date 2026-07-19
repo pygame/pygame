@@ -431,7 +431,7 @@ if AUTO_CONFIG:
 
     try:
         buildconfig.config.main(AUTO_CONFIG)
-    except:
+    except Exception:
         compilation_help()
         raise
     if '-config' in sys.argv:
@@ -453,7 +453,7 @@ else:
     # get compile info for all extensions
     try:
         extensions = read_setup_file('Setup')
-    except:
+    except Exception:
         print("""Error with the "Setup" file,
     perhaps make a clean copy from "Setup.in".""")
         compilation_help()
@@ -990,6 +990,6 @@ PACKAGEDATA.update(EXTRAS)
 
 try:
     setup(**PACKAGEDATA)
-except:
+except Exception:
     compilation_help()
     raise
