@@ -66,7 +66,7 @@ METADATA = {
         "Operating System :: Unix",
         "Operating System :: MacOS",
     ],
-    "python_requires": '>=3.6',
+    "python_requires": '>=3.6,<3.12',
 }
 
 import re
