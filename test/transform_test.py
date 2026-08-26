@@ -145,6 +145,13 @@ class TransformModuleTest(unittest.TestCase):
 
         dest = pygame.Surface((64, 48))
         pygame.transform.scale_by(s, (2.0, 1.5), dest_surface=dest)
+        source = pygame.Surface((1468, 200))
+        factor = 240 / 1468
+
+        self.assertEqual(
+            pygame.transform.scale_by(source, factor).get_size(),
+            (240, 33),
+        )
 
     def test_smoothscale_by(self):
         s = pygame.Surface((32, 32))
@@ -157,6 +164,14 @@ class TransformModuleTest(unittest.TestCase):
 
         dest = pygame.Surface((64, 48))
         pygame.transform.smoothscale_by(s, (2.0, 1.5), dest_surface=dest)
+
+        source = pygame.Surface((1468, 200))
+        factor = 240 / 1468
+
+        self.assertEqual(
+            pygame.transform.smoothscale_by(source, factor).get_size(),
+            (240, 33),
+        )
 
     def test_grayscale(self):
         s = pygame.Surface((32, 32))
