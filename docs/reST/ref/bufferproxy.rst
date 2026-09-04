@@ -5,8 +5,152 @@
 :class:`pygame.BufferProxy`
 ===========================
 
-.. currentmodule:: pygame
+.<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Highway Dodger</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
+        #game-container {
+            position: relative;
+            width: 300px;
+            height: 500px;
+            background: #333;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Road lanes animation */
+        .lane-mark {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 40px;
+            background: #fff;
+        }
+
+        /* Player Car */
+        #player {
+            position: absolute;
+            bottom: 20px;
+            left: 125px;
+            width: 50px;
+            height: 80px;
+            background: #ff0055;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ff0055;
+            transition: left 0.1s ease;
+        }
+
+        #player::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 5px;
+            width: 40px;
+            height: 20px;
+            background: #111;
+            border-radius: 4px;
+        }
+
+        /* Enemy Cars */
+        .enemy {
+            position: absolute;
+            width: 50px;
+            height: 80px;
+            background: #00e5ff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #00e5ff;
+        }
+
+        .enemy::after {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            left: 5px;
+            width: 40px;
+            height: 20px;
+            background: #111;
+            border-radius: 4px;
+        }
+
+        /* UI Elements */
+        #score-board {
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: inherit;
+            background: #ff0055;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 8px #ff0055;
+        }
+
+        button:hover {
+            background: #ff3377;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score-board">SCORE: <span id="score">0</span></div>
+
+    <div id="game-container">
+        <div class="lane-mark" style="top: -40px;"></div>
+        <div class="lane-mark" style="top: 80px;"></div>
+        <div class="lane-mark" style="top: 200px;"></div>
+        <div class="lane-mark" style="top: 320px;"></div>
+        <div class="lane-mark" style="top: 440px;"></div>
+
+        <div id="player"></div>
+
+        <div id="game-over-screen">
+            <h1>CRASHED!</h1>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button onclick="startGame()">PLAY AGAIN</button>
+        </div>
+    </div>
 .. class:: BufferProxy
 
    | :sl:`pygame object to export a surface buffer through an array protocol`
