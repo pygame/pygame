@@ -6,6 +6,25 @@ Named Colors
 .. raw:: html
 
     <style>
+    .color-list-columns {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 6em;
+    }
+
+    .color-column {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .color-column .rubric {
+        text-align: center;
+        font-size: 1.35em;
+        font-weight: bold;
+        margin-top: 0;
+        margin-bottom: 1em;
+    }
     .aliceblue {background-color: #f0f8ff; color: #f0f8ff;}
     .antiquewhite {background-color: #faebd7; color: #faebd7;}
     .antiquewhite1 {background-color: #ffefdb; color: #ffefdb;}
@@ -1343,672 +1362,1353 @@ Named Colors
 .. role:: yellow4
 .. role:: yellowgreen
 
-==========================  ======================================================================================================
-Name                        Color
-==========================  ======================================================================================================
-``aliceblue``               :aliceblue:`████████`
-``antiquewhite``            :antiquewhite:`████████`
-``antiquewhite1``           :antiquewhite1:`████████`
-``antiquewhite2``           :antiquewhite2:`████████`
-``antiquewhite3``           :antiquewhite3:`████████`
-``antiquewhite4``           :antiquewhite4:`████████`
-``aqua``                    :aqua:`████████`
-``aquamarine``              :aquamarine:`████████`
-``aquamarine1``             :aquamarine1:`████████`
-``aquamarine2``             :aquamarine2:`████████`
-``aquamarine3``             :aquamarine3:`████████`
-``aquamarine4``             :aquamarine4:`████████`
-``azure``                   :azure:`████████`
-``azure1``                  :azure1:`████████`
-``azure2``                  :azure2:`████████`
-``azure3``                  :azure3:`████████`
-``azure4``                  :azure4:`████████`
-``beige``                   :beige:`████████`
-``bisque``                  :bisque:`████████`
-``bisque1``                 :bisque1:`████████`
-``bisque2``                 :bisque2:`████████`
-``bisque3``                 :bisque3:`████████`
-``bisque4``                 :bisque4:`████████`
-``black``                   :black:`████████`
-``blanchedalmond``          :blanchedalmond:`████████`
-``blue``                    :blue:`████████`
-``blue1``                   :blue1:`████████`
-``blue2``                   :blue2:`████████`
-``blue3``                   :blue3:`████████`
-``blue4``                   :blue4:`████████`
-``blueviolet``              :blueviolet:`████████`
-``brown``                   :brown:`████████`
-``brown1``                  :brown1:`████████`
-``brown2``                  :brown2:`████████`
-``brown3``                  :brown3:`████████`
-``brown4``                  :brown4:`████████`
-``burlywood``               :burlywood:`████████`
-``burlywood1``              :burlywood1:`████████`
-``burlywood2``              :burlywood2:`████████`
-``burlywood3``              :burlywood3:`████████`
-``burlywood4``              :burlywood4:`████████`
-``cadetblue``               :cadetblue:`████████`
-``cadetblue1``              :cadetblue1:`████████`
-``cadetblue2``              :cadetblue2:`████████`
-``cadetblue3``              :cadetblue3:`████████`
-``cadetblue4``              :cadetblue4:`████████`
-``chartreuse``              :chartreuse:`████████`
-``chartreuse1``             :chartreuse1:`████████`
-``chartreuse2``             :chartreuse2:`████████`
-``chartreuse3``             :chartreuse3:`████████`
-``chartreuse4``             :chartreuse4:`████████`
-``chocolate``               :chocolate:`████████`
-``chocolate1``              :chocolate1:`████████`
-``chocolate2``              :chocolate2:`████████`
-``chocolate3``              :chocolate3:`████████`
-``chocolate4``              :chocolate4:`████████`
-``coral``                   :coral:`████████`
-``coral1``                  :coral1:`████████`
-``coral2``                  :coral2:`████████`
-``coral3``                  :coral3:`████████`
-``coral4``                  :coral4:`████████`
-``cornflowerblue``          :cornflowerblue:`████████`
-``cornsilk``                :cornsilk:`████████`
-``cornsilk1``               :cornsilk1:`████████`
-``cornsilk2``               :cornsilk2:`████████`
-``cornsilk3``               :cornsilk3:`████████`
-``cornsilk4``               :cornsilk4:`████████`
-``crimson``                 :crimson:`████████`
-``cyan``                    :cyan:`████████`
-``cyan1``                   :cyan1:`████████`
-``cyan2``                   :cyan2:`████████`
-``cyan3``                   :cyan3:`████████`
-``cyan4``                   :cyan4:`████████`
-``darkblue``                :darkblue:`████████`
-``darkcyan``                :darkcyan:`████████`
-``darkgoldenrod``           :darkgoldenrod:`████████`
-``darkgoldenrod1``          :darkgoldenrod1:`████████`
-``darkgoldenrod2``          :darkgoldenrod2:`████████`
-``darkgoldenrod3``          :darkgoldenrod3:`████████`
-``darkgoldenrod4``          :darkgoldenrod4:`████████`
-``darkgray``                :darkgray:`████████`
-``darkgreen``               :darkgreen:`████████`
-``darkgrey``                :darkgrey:`████████`
-``darkkhaki``               :darkkhaki:`████████`
-``darkmagenta``             :darkmagenta:`████████`
-``darkolivegreen``          :darkolivegreen:`████████`
-``darkolivegreen1``         :darkolivegreen1:`████████`
-``darkolivegreen2``         :darkolivegreen2:`████████`
-``darkolivegreen3``         :darkolivegreen3:`████████`
-``darkolivegreen4``         :darkolivegreen4:`████████`
-``darkorange``              :darkorange:`████████`
-``darkorange1``             :darkorange1:`████████`
-``darkorange2``             :darkorange2:`████████`
-``darkorange3``             :darkorange3:`████████`
-``darkorange4``             :darkorange4:`████████`
-``darkorchid``              :darkorchid:`████████`
-``darkorchid1``             :darkorchid1:`████████`
-``darkorchid2``             :darkorchid2:`████████`
-``darkorchid3``             :darkorchid3:`████████`
-``darkorchid4``             :darkorchid4:`████████`
-``darkred``                 :darkred:`████████`
-``darksalmon``              :darksalmon:`████████`
-``darkseagreen``            :darkseagreen:`████████`
-``darkseagreen1``           :darkseagreen1:`████████`
-``darkseagreen2``           :darkseagreen2:`████████`
-``darkseagreen3``           :darkseagreen3:`████████`
-``darkseagreen4``           :darkseagreen4:`████████`
-``darkslateblue``           :darkslateblue:`████████`
-``darkslategray``           :darkslategray:`████████`
-``darkslategray1``          :darkslategray1:`████████`
-``darkslategray2``          :darkslategray2:`████████`
-``darkslategray3``          :darkslategray3:`████████`
-``darkslategray4``          :darkslategray4:`████████`
-``darkslategrey``           :darkslategrey:`████████`
-``darkturquoise``           :darkturquoise:`████████`
-``darkviolet``              :darkviolet:`████████`
-``deeppink``                :deeppink:`████████`
-``deeppink1``               :deeppink1:`████████`
-``deeppink2``               :deeppink2:`████████`
-``deeppink3``               :deeppink3:`████████`
-``deeppink4``               :deeppink4:`████████`
-``deepskyblue``             :deepskyblue:`████████`
-``deepskyblue1``            :deepskyblue1:`████████`
-``deepskyblue2``            :deepskyblue2:`████████`
-``deepskyblue3``            :deepskyblue3:`████████`
-``deepskyblue4``            :deepskyblue4:`████████`
-``dimgray``                 :dimgray:`████████`
-``dimgrey``                 :dimgrey:`████████`
-``dodgerblue``              :dodgerblue:`████████`
-``dodgerblue1``             :dodgerblue1:`████████`
-``dodgerblue2``             :dodgerblue2:`████████`
-``dodgerblue3``             :dodgerblue3:`████████`
-``dodgerblue4``             :dodgerblue4:`████████`
-``firebrick``               :firebrick:`████████`
-``firebrick1``              :firebrick1:`████████`
-``firebrick2``              :firebrick2:`████████`
-``firebrick3``              :firebrick3:`████████`
-``firebrick4``              :firebrick4:`████████`
-``floralwhite``             :floralwhite:`████████`
-``forestgreen``             :forestgreen:`████████`
-``fuchsia``                 :fuchsia:`████████`
-``gainsboro``               :gainsboro:`████████`
-``ghostwhite``              :ghostwhite:`████████`
-``gold``                    :gold:`████████`
-``gold1``                   :gold1:`████████`
-``gold2``                   :gold2:`████████`
-``gold3``                   :gold3:`████████`
-``gold4``                   :gold4:`████████`
-``goldenrod``               :goldenrod:`████████`
-``goldenrod1``              :goldenrod1:`████████`
-``goldenrod2``              :goldenrod2:`████████`
-``goldenrod3``              :goldenrod3:`████████`
-``goldenrod4``              :goldenrod4:`████████`
-``gray``                    :gray:`████████`
-``gray0``                   :gray0:`████████`
-``gray1``                   :gray1:`████████`
-``gray2``                   :gray2:`████████`
-``gray3``                   :gray3:`████████`
-``gray4``                   :gray4:`████████`
-``gray5``                   :gray5:`████████`
-``gray6``                   :gray6:`████████`
-``gray7``                   :gray7:`████████`
-``gray8``                   :gray8:`████████`
-``gray9``                   :gray9:`████████`
-``gray10``                  :gray10:`████████`
-``gray11``                  :gray11:`████████`
-``gray12``                  :gray12:`████████`
-``gray13``                  :gray13:`████████`
-``gray14``                  :gray14:`████████`
-``gray15``                  :gray15:`████████`
-``gray16``                  :gray16:`████████`
-``gray17``                  :gray17:`████████`
-``gray18``                  :gray18:`████████`
-``gray19``                  :gray19:`████████`
-``gray20``                  :gray20:`████████`
-``gray21``                  :gray21:`████████`
-``gray22``                  :gray22:`████████`
-``gray23``                  :gray23:`████████`
-``gray24``                  :gray24:`████████`
-``gray25``                  :gray25:`████████`
-``gray26``                  :gray26:`████████`
-``gray27``                  :gray27:`████████`
-``gray28``                  :gray28:`████████`
-``gray29``                  :gray29:`████████`
-``gray30``                  :gray30:`████████`
-``gray31``                  :gray31:`████████`
-``gray32``                  :gray32:`████████`
-``gray33``                  :gray33:`████████`
-``gray34``                  :gray34:`████████`
-``gray35``                  :gray35:`████████`
-``gray36``                  :gray36:`████████`
-``gray37``                  :gray37:`████████`
-``gray38``                  :gray38:`████████`
-``gray39``                  :gray39:`████████`
-``gray40``                  :gray40:`████████`
-``gray41``                  :gray41:`████████`
-``gray42``                  :gray42:`████████`
-``gray43``                  :gray43:`████████`
-``gray44``                  :gray44:`████████`
-``gray45``                  :gray45:`████████`
-``gray46``                  :gray46:`████████`
-``gray47``                  :gray47:`████████`
-``gray48``                  :gray48:`████████`
-``gray49``                  :gray49:`████████`
-``gray50``                  :gray50:`████████`
-``gray51``                  :gray51:`████████`
-``gray52``                  :gray52:`████████`
-``gray53``                  :gray53:`████████`
-``gray54``                  :gray54:`████████`
-``gray55``                  :gray55:`████████`
-``gray56``                  :gray56:`████████`
-``gray57``                  :gray57:`████████`
-``gray58``                  :gray58:`████████`
-``gray59``                  :gray59:`████████`
-``gray60``                  :gray60:`████████`
-``gray61``                  :gray61:`████████`
-``gray62``                  :gray62:`████████`
-``gray63``                  :gray63:`████████`
-``gray64``                  :gray64:`████████`
-``gray65``                  :gray65:`████████`
-``gray66``                  :gray66:`████████`
-``gray67``                  :gray67:`████████`
-``gray68``                  :gray68:`████████`
-``gray69``                  :gray69:`████████`
-``gray70``                  :gray70:`████████`
-``gray71``                  :gray71:`████████`
-``gray72``                  :gray72:`████████`
-``gray73``                  :gray73:`████████`
-``gray74``                  :gray74:`████████`
-``gray75``                  :gray75:`████████`
-``gray76``                  :gray76:`████████`
-``gray77``                  :gray77:`████████`
-``gray78``                  :gray78:`████████`
-``gray79``                  :gray79:`████████`
-``gray80``                  :gray80:`████████`
-``gray81``                  :gray81:`████████`
-``gray82``                  :gray82:`████████`
-``gray83``                  :gray83:`████████`
-``gray84``                  :gray84:`████████`
-``gray85``                  :gray85:`████████`
-``gray86``                  :gray86:`████████`
-``gray87``                  :gray87:`████████`
-``gray88``                  :gray88:`████████`
-``gray89``                  :gray89:`████████`
-``gray90``                  :gray90:`████████`
-``gray91``                  :gray91:`████████`
-``gray92``                  :gray92:`████████`
-``gray93``                  :gray93:`████████`
-``gray94``                  :gray94:`████████`
-``gray95``                  :gray95:`████████`
-``gray96``                  :gray96:`████████`
-``gray97``                  :gray97:`████████`
-``gray98``                  :gray98:`████████`
-``gray99``                  :gray99:`████████`
-``gray100``                 :gray100:`████████`
-``green``                   :green:`████████`
-``green1``                  :green1:`████████`
-``green2``                  :green2:`████████`
-``green3``                  :green3:`████████`
-``green4``                  :green4:`████████`
-``greenyellow``             :greenyellow:`████████`
-``grey``                    :grey:`████████`
-``grey0``                   :grey0:`████████`
-``grey1``                   :grey1:`████████`
-``grey2``                   :grey2:`████████`
-``grey3``                   :grey3:`████████`
-``grey4``                   :grey4:`████████`
-``grey5``                   :grey5:`████████`
-``grey6``                   :grey6:`████████`
-``grey7``                   :grey7:`████████`
-``grey8``                   :grey8:`████████`
-``grey9``                   :grey9:`████████`
-``grey10``                  :grey10:`████████`
-``grey11``                  :grey11:`████████`
-``grey12``                  :grey12:`████████`
-``grey13``                  :grey13:`████████`
-``grey14``                  :grey14:`████████`
-``grey15``                  :grey15:`████████`
-``grey16``                  :grey16:`████████`
-``grey17``                  :grey17:`████████`
-``grey18``                  :grey18:`████████`
-``grey19``                  :grey19:`████████`
-``grey20``                  :grey20:`████████`
-``grey21``                  :grey21:`████████`
-``grey22``                  :grey22:`████████`
-``grey23``                  :grey23:`████████`
-``grey24``                  :grey24:`████████`
-``grey25``                  :grey25:`████████`
-``grey26``                  :grey26:`████████`
-``grey27``                  :grey27:`████████`
-``grey28``                  :grey28:`████████`
-``grey29``                  :grey29:`████████`
-``grey30``                  :grey30:`████████`
-``grey31``                  :grey31:`████████`
-``grey32``                  :grey32:`████████`
-``grey33``                  :grey33:`████████`
-``grey34``                  :grey34:`████████`
-``grey35``                  :grey35:`████████`
-``grey36``                  :grey36:`████████`
-``grey37``                  :grey37:`████████`
-``grey38``                  :grey38:`████████`
-``grey39``                  :grey39:`████████`
-``grey40``                  :grey40:`████████`
-``grey41``                  :grey41:`████████`
-``grey42``                  :grey42:`████████`
-``grey43``                  :grey43:`████████`
-``grey44``                  :grey44:`████████`
-``grey45``                  :grey45:`████████`
-``grey46``                  :grey46:`████████`
-``grey47``                  :grey47:`████████`
-``grey48``                  :grey48:`████████`
-``grey49``                  :grey49:`████████`
-``grey50``                  :grey50:`████████`
-``grey51``                  :grey51:`████████`
-``grey52``                  :grey52:`████████`
-``grey53``                  :grey53:`████████`
-``grey54``                  :grey54:`████████`
-``grey55``                  :grey55:`████████`
-``grey56``                  :grey56:`████████`
-``grey57``                  :grey57:`████████`
-``grey58``                  :grey58:`████████`
-``grey59``                  :grey59:`████████`
-``grey60``                  :grey60:`████████`
-``grey61``                  :grey61:`████████`
-``grey62``                  :grey62:`████████`
-``grey63``                  :grey63:`████████`
-``grey64``                  :grey64:`████████`
-``grey65``                  :grey65:`████████`
-``grey66``                  :grey66:`████████`
-``grey67``                  :grey67:`████████`
-``grey68``                  :grey68:`████████`
-``grey69``                  :grey69:`████████`
-``grey70``                  :grey70:`████████`
-``grey71``                  :grey71:`████████`
-``grey72``                  :grey72:`████████`
-``grey73``                  :grey73:`████████`
-``grey74``                  :grey74:`████████`
-``grey75``                  :grey75:`████████`
-``grey76``                  :grey76:`████████`
-``grey77``                  :grey77:`████████`
-``grey78``                  :grey78:`████████`
-``grey79``                  :grey79:`████████`
-``grey80``                  :grey80:`████████`
-``grey81``                  :grey81:`████████`
-``grey82``                  :grey82:`████████`
-``grey83``                  :grey83:`████████`
-``grey84``                  :grey84:`████████`
-``grey85``                  :grey85:`████████`
-``grey86``                  :grey86:`████████`
-``grey87``                  :grey87:`████████`
-``grey88``                  :grey88:`████████`
-``grey89``                  :grey89:`████████`
-``grey90``                  :grey90:`████████`
-``grey91``                  :grey91:`████████`
-``grey92``                  :grey92:`████████`
-``grey93``                  :grey93:`████████`
-``grey94``                  :grey94:`████████`
-``grey95``                  :grey95:`████████`
-``grey96``                  :grey96:`████████`
-``grey97``                  :grey97:`████████`
-``grey98``                  :grey98:`████████`
-``grey99``                  :grey99:`████████`
-``grey100``                 :grey100:`████████`
-``honeydew``                :honeydew:`████████`
-``honeydew1``               :honeydew1:`████████`
-``honeydew2``               :honeydew2:`████████`
-``honeydew3``               :honeydew3:`████████`
-``honeydew4``               :honeydew4:`████████`
-``hotpink``                 :hotpink:`████████`
-``hotpink1``                :hotpink1:`████████`
-``hotpink2``                :hotpink2:`████████`
-``hotpink3``                :hotpink3:`████████`
-``hotpink4``                :hotpink4:`████████`
-``indianred``               :indianred:`████████`
-``indianred1``              :indianred1:`████████`
-``indianred2``              :indianred2:`████████`
-``indianred3``              :indianred3:`████████`
-``indianred4``              :indianred4:`████████`
-``indigo``                  :indigo:`████████`
-``ivory``                   :ivory:`████████`
-``ivory1``                  :ivory1:`████████`
-``ivory2``                  :ivory2:`████████`
-``ivory3``                  :ivory3:`████████`
-``ivory4``                  :ivory4:`████████`
-``khaki``                   :khaki:`████████`
-``khaki1``                  :khaki1:`████████`
-``khaki2``                  :khaki2:`████████`
-``khaki3``                  :khaki3:`████████`
-``khaki4``                  :khaki4:`████████`
-``lavender``                :lavender:`████████`
-``lavenderblush``           :lavenderblush:`████████`
-``lavenderblush1``          :lavenderblush1:`████████`
-``lavenderblush2``          :lavenderblush2:`████████`
-``lavenderblush3``          :lavenderblush3:`████████`
-``lavenderblush4``          :lavenderblush4:`████████`
-``lawngreen``               :lawngreen:`████████`
-``lemonchiffon``            :lemonchiffon:`████████`
-``lemonchiffon1``           :lemonchiffon1:`████████`
-``lemonchiffon2``           :lemonchiffon2:`████████`
-``lemonchiffon3``           :lemonchiffon3:`████████`
-``lemonchiffon4``           :lemonchiffon4:`████████`
-``lightblue``               :lightblue:`████████`
-``lightblue1``              :lightblue1:`████████`
-``lightblue2``              :lightblue2:`████████`
-``lightblue3``              :lightblue3:`████████`
-``lightblue4``              :lightblue4:`████████`
-``lightcoral``              :lightcoral:`████████`
-``lightcyan``               :lightcyan:`████████`
-``lightcyan1``              :lightcyan1:`████████`
-``lightcyan2``              :lightcyan2:`████████`
-``lightcyan3``              :lightcyan3:`████████`
-``lightcyan4``              :lightcyan4:`████████`
-``lightgoldenrod``          :lightgoldenrod:`████████`
-``lightgoldenrod1``         :lightgoldenrod1:`████████`
-``lightgoldenrod2``         :lightgoldenrod2:`████████`
-``lightgoldenrod3``         :lightgoldenrod3:`████████`
-``lightgoldenrod4``         :lightgoldenrod4:`████████`
-``lightgoldenrodyellow``    :lightgoldenrodyellow:`████████`
-``lightgray``               :lightgray:`████████`
-``lightgreen``              :lightgreen:`████████`
-``lightgrey``               :lightgrey:`████████`
-``lightpink``               :lightpink:`████████`
-``lightpink1``              :lightpink1:`████████`
-``lightpink2``              :lightpink2:`████████`
-``lightpink3``              :lightpink3:`████████`
-``lightpink4``              :lightpink4:`████████`
-``lightsalmon``             :lightsalmon:`████████`
-``lightsalmon1``            :lightsalmon1:`████████`
-``lightsalmon2``            :lightsalmon2:`████████`
-``lightsalmon3``            :lightsalmon3:`████████`
-``lightsalmon4``            :lightsalmon4:`████████`
-``lightseagreen``           :lightseagreen:`████████`
-``lightskyblue``            :lightskyblue:`████████`
-``lightskyblue1``           :lightskyblue1:`████████`
-``lightskyblue2``           :lightskyblue2:`████████`
-``lightskyblue3``           :lightskyblue3:`████████`
-``lightskyblue4``           :lightskyblue4:`████████`
-``lightslateblue``          :lightslateblue:`████████`
-``lightslategray``          :lightslategray:`████████`
-``lightslategrey``          :lightslategrey:`████████`
-``lightsteelblue``          :lightsteelblue:`████████`
-``lightsteelblue1``         :lightsteelblue1:`████████`
-``lightsteelblue2``         :lightsteelblue2:`████████`
-``lightsteelblue3``         :lightsteelblue3:`████████`
-``lightsteelblue4``         :lightsteelblue4:`████████`
-``lightyellow``             :lightyellow:`████████`
-``lightyellow1``            :lightyellow1:`████████`
-``lightyellow2``            :lightyellow2:`████████`
-``lightyellow3``            :lightyellow3:`████████`
-``lightyellow4``            :lightyellow4:`████████`
-``lime``                    :lime:`████████`
-``limegreen``               :limegreen:`████████`
-``linen``                   :linen:`████████`
-``magenta``                 :magenta:`████████`
-``magenta1``                :magenta1:`████████`
-``magenta2``                :magenta2:`████████`
-``magenta3``                :magenta3:`████████`
-``magenta4``                :magenta4:`████████`
-``maroon``                  :maroon:`████████`
-``maroon1``                 :maroon1:`████████`
-``maroon2``                 :maroon2:`████████`
-``maroon3``                 :maroon3:`████████`
-``maroon4``                 :maroon4:`████████`
-``mediumaquamarine``        :mediumaquamarine:`████████`
-``mediumblue``              :mediumblue:`████████`
-``mediumorchid``            :mediumorchid:`████████`
-``mediumorchid1``           :mediumorchid1:`████████`
-``mediumorchid2``           :mediumorchid2:`████████`
-``mediumorchid3``           :mediumorchid3:`████████`
-``mediumorchid4``           :mediumorchid4:`████████`
-``mediumpurple``            :mediumpurple:`████████`
-``mediumpurple1``           :mediumpurple1:`████████`
-``mediumpurple2``           :mediumpurple2:`████████`
-``mediumpurple3``           :mediumpurple3:`████████`
-``mediumpurple4``           :mediumpurple4:`████████`
-``mediumseagreen``          :mediumseagreen:`████████`
-``mediumslateblue``         :mediumslateblue:`████████`
-``mediumspringgreen``       :mediumspringgreen:`████████`
-``mediumturquoise``         :mediumturquoise:`████████`
-``mediumvioletred``         :mediumvioletred:`████████`
-``midnightblue``            :midnightblue:`████████`
-``mintcream``               :mintcream:`████████`
-``mistyrose``               :mistyrose:`████████`
-``mistyrose1``              :mistyrose1:`████████`
-``mistyrose2``              :mistyrose2:`████████`
-``mistyrose3``              :mistyrose3:`████████`
-``mistyrose4``              :mistyrose4:`████████`
-``moccasin``                :moccasin:`████████`
-``navajowhite``             :navajowhite:`████████`
-``navajowhite1``            :navajowhite1:`████████`
-``navajowhite2``            :navajowhite2:`████████`
-``navajowhite3``            :navajowhite3:`████████`
-``navajowhite4``            :navajowhite4:`████████`
-``navy``                    :navy:`████████`
-``navyblue``                :navyblue:`████████`
-``oldlace``                 :oldlace:`████████`
-``olive``                   :olive:`████████`
-``olivedrab``               :olivedrab:`████████`
-``olivedrab1``              :olivedrab1:`████████`
-``olivedrab2``              :olivedrab2:`████████`
-``olivedrab3``              :olivedrab3:`████████`
-``olivedrab4``              :olivedrab4:`████████`
-``orange``                  :orange:`████████`
-``orange1``                 :orange1:`████████`
-``orange2``                 :orange2:`████████`
-``orange3``                 :orange3:`████████`
-``orange4``                 :orange4:`████████`
-``orangered``               :orangered:`████████`
-``orangered1``              :orangered1:`████████`
-``orangered2``              :orangered2:`████████`
-``orangered3``              :orangered3:`████████`
-``orangered4``              :orangered4:`████████`
-``orchid``                  :orchid:`████████`
-``orchid1``                 :orchid1:`████████`
-``orchid2``                 :orchid2:`████████`
-``orchid3``                 :orchid3:`████████`
-``orchid4``                 :orchid4:`████████`
-``palegoldenrod``           :palegoldenrod:`████████`
-``palegreen``               :palegreen:`████████`
-``palegreen1``              :palegreen1:`████████`
-``palegreen2``              :palegreen2:`████████`
-``palegreen3``              :palegreen3:`████████`
-``palegreen4``              :palegreen4:`████████`
-``paleturquoise``           :paleturquoise:`████████`
-``paleturquoise1``          :paleturquoise1:`████████`
-``paleturquoise2``          :paleturquoise2:`████████`
-``paleturquoise3``          :paleturquoise3:`████████`
-``paleturquoise4``          :paleturquoise4:`████████`
-``palevioletred``           :palevioletred:`████████`
-``palevioletred1``          :palevioletred1:`████████`
-``palevioletred2``          :palevioletred2:`████████`
-``palevioletred3``          :palevioletred3:`████████`
-``palevioletred4``          :palevioletred4:`████████`
-``papayawhip``              :papayawhip:`████████`
-``peachpuff``               :peachpuff:`████████`
-``peachpuff1``              :peachpuff1:`████████`
-``peachpuff2``              :peachpuff2:`████████`
-``peachpuff3``              :peachpuff3:`████████`
-``peachpuff4``              :peachpuff4:`████████`
-``peru``                    :peru:`████████`
-``pink``                    :pink:`████████`
-``pink1``                   :pink1:`████████`
-``pink2``                   :pink2:`████████`
-``pink3``                   :pink3:`████████`
-``pink4``                   :pink4:`████████`
-``plum``                    :plum:`████████`
-``plum1``                   :plum1:`████████`
-``plum2``                   :plum2:`████████`
-``plum3``                   :plum3:`████████`
-``plum4``                   :plum4:`████████`
-``powderblue``              :powderblue:`████████`
-``purple``                  :purple:`████████`
-``purple1``                 :purple1:`████████`
-``purple2``                 :purple2:`████████`
-``purple3``                 :purple3:`████████`
-``purple4``                 :purple4:`████████`
-``red``                     :red:`████████`
-``red1``                    :red1:`████████`
-``red2``                    :red2:`████████`
-``red3``                    :red3:`████████`
-``red4``                    :red4:`████████`
-``rosybrown``               :rosybrown:`████████`
-``rosybrown1``              :rosybrown1:`████████`
-``rosybrown2``              :rosybrown2:`████████`
-``rosybrown3``              :rosybrown3:`████████`
-``rosybrown4``              :rosybrown4:`████████`
-``royalblue``               :royalblue:`████████`
-``royalblue1``              :royalblue1:`████████`
-``royalblue2``              :royalblue2:`████████`
-``royalblue3``              :royalblue3:`████████`
-``royalblue4``              :royalblue4:`████████`
-``saddlebrown``             :saddlebrown:`████████`
-``salmon``                  :salmon:`████████`
-``salmon1``                 :salmon1:`████████`
-``salmon2``                 :salmon2:`████████`
-``salmon3``                 :salmon3:`████████`
-``salmon4``                 :salmon4:`████████`
-``sandybrown``              :sandybrown:`████████`
-``seagreen``                :seagreen:`████████`
-``seagreen1``               :seagreen1:`████████`
-``seagreen2``               :seagreen2:`████████`
-``seagreen3``               :seagreen3:`████████`
-``seagreen4``               :seagreen4:`████████`
-``seashell``                :seashell:`████████`
-``seashell1``               :seashell1:`████████`
-``seashell2``               :seashell2:`████████`
-``seashell3``               :seashell3:`████████`
-``seashell4``               :seashell4:`████████`
-``sienna``                  :sienna:`████████`
-``sienna1``                 :sienna1:`████████`
-``sienna2``                 :sienna2:`████████`
-``sienna3``                 :sienna3:`████████`
-``sienna4``                 :sienna4:`████████`
-``silver``                  :silver:`████████`
-``skyblue``                 :skyblue:`████████`
-``skyblue1``                :skyblue1:`████████`
-``skyblue2``                :skyblue2:`████████`
-``skyblue3``                :skyblue3:`████████`
-``skyblue4``                :skyblue4:`████████`
-``slateblue``               :slateblue:`████████`
-``slateblue1``              :slateblue1:`████████`
-``slateblue2``              :slateblue2:`████████`
-``slateblue3``              :slateblue3:`████████`
-``slateblue4``              :slateblue4:`████████`
-``slategray``               :slategray:`████████`
-``slategray1``              :slategray1:`████████`
-``slategray2``              :slategray2:`████████`
-``slategray3``              :slategray3:`████████`
-``slategray4``              :slategray4:`████████`
-``slategrey``               :slategrey:`████████`
-``snow``                    :snow:`████████`
-``snow1``                   :snow1:`████████`
-``snow2``                   :snow2:`████████`
-``snow3``                   :snow3:`████████`
-``snow4``                   :snow4:`████████`
-``springgreen``             :springgreen:`████████`
-``springgreen1``            :springgreen1:`████████`
-``springgreen2``            :springgreen2:`████████`
-``springgreen3``            :springgreen3:`████████`
-``springgreen4``            :springgreen4:`████████`
-``steelblue``               :steelblue:`████████`
-``steelblue1``              :steelblue1:`████████`
-``steelblue2``              :steelblue2:`████████`
-``steelblue3``              :steelblue3:`████████`
-``steelblue4``              :steelblue4:`████████`
-``tan``                     :tan:`████████`
-``tan1``                    :tan1:`████████`
-``tan2``                    :tan2:`████████`
-``tan3``                    :tan3:`████████`
-``tan4``                    :tan4:`████████`
-``teal``                    :teal:`████████`
-``thistle``                 :thistle:`████████`
-``thistle1``                :thistle1:`████████`
-``thistle2``                :thistle2:`████████`
-``thistle3``                :thistle3:`████████`
-``thistle4``                :thistle4:`████████`
-``tomato``                  :tomato:`████████`
-``tomato1``                 :tomato1:`████████`
-``tomato2``                 :tomato2:`████████`
-``tomato3``                 :tomato3:`████████`
-``tomato4``                 :tomato4:`████████`
-``turquoise``               :turquoise:`████████`
-``turquoise1``              :turquoise1:`████████`
-``turquoise2``              :turquoise2:`████████`
-``turquoise3``              :turquoise3:`████████`
-``turquoise4``              :turquoise4:`████████`
-``violet``                  :violet:`████████`
-``violetred``               :violetred:`████████`
-``violetred1``              :violetred1:`████████`
-``violetred2``              :violetred2:`████████`
-``violetred3``              :violetred3:`████████`
-``violetred4``              :violetred4:`████████`
-``wheat``                   :wheat:`████████`
-``wheat1``                  :wheat1:`████████`
-``wheat2``                  :wheat2:`████████`
-``wheat3``                  :wheat3:`████████`
-``wheat4``                  :wheat4:`████████`
-``white``                   :white:`████████`
-``whitesmoke``              :whitesmoke:`████████`
-``yellow``                  :yellow:`████████`
-``yellow1``                 :yellow1:`████████`
-``yellow2``                 :yellow2:`████████`
-``yellow3``                 :yellow3:`████████`
-``yellow4``                 :yellow4:`████████`
-``yellowgreen``             :yellowgreen:`████████`
-==========================  ======================================================================================================
+
+
+.. container:: color-list-columns
+
+    .. container:: color-column
+
+        .. rubric:: Alphabetical
+
+        ==========================  ==========================
+        Name                        Color
+        ==========================  ==========================
+        ``aliceblue``               :aliceblue:`████████`
+        ``antiquewhite``            :antiquewhite:`████████`
+        ``antiquewhite1``           :antiquewhite1:`████████`
+        ``antiquewhite2``           :antiquewhite2:`████████`
+        ``antiquewhite3``           :antiquewhite3:`████████`
+        ``antiquewhite4``           :antiquewhite4:`████████`
+        ``aqua``                    :aqua:`████████`
+        ``aquamarine``              :aquamarine:`████████`
+        ``aquamarine1``             :aquamarine1:`████████`
+        ``aquamarine2``             :aquamarine2:`████████`
+        ``aquamarine3``             :aquamarine3:`████████`
+        ``aquamarine4``             :aquamarine4:`████████`
+        ``azure``                   :azure:`████████`
+        ``azure1``                  :azure1:`████████`
+        ``azure2``                  :azure2:`████████`
+        ``azure3``                  :azure3:`████████`
+        ``azure4``                  :azure4:`████████`
+        ``beige``                   :beige:`████████`
+        ``bisque``                  :bisque:`████████`
+        ``bisque1``                 :bisque1:`████████`
+        ``bisque2``                 :bisque2:`████████`
+        ``bisque3``                 :bisque3:`████████`
+        ``bisque4``                 :bisque4:`████████`
+        ``black``                   :black:`████████`
+        ``blanchedalmond``          :blanchedalmond:`████████`
+        ``blue``                    :blue:`████████`
+        ``blue1``                   :blue1:`████████`
+        ``blue2``                   :blue2:`████████`
+        ``blue3``                   :blue3:`████████`
+        ``blue4``                   :blue4:`████████`
+        ``blueviolet``              :blueviolet:`████████`
+        ``brown``                   :brown:`████████`
+        ``brown1``                  :brown1:`████████`
+        ``brown2``                  :brown2:`████████`
+        ``brown3``                  :brown3:`████████`
+        ``brown4``                  :brown4:`████████`
+        ``burlywood``               :burlywood:`████████`
+        ``burlywood1``              :burlywood1:`████████`
+        ``burlywood2``              :burlywood2:`████████`
+        ``burlywood3``              :burlywood3:`████████`
+        ``burlywood4``              :burlywood4:`████████`
+        ``cadetblue``               :cadetblue:`████████`
+        ``cadetblue1``              :cadetblue1:`████████`
+        ``cadetblue2``              :cadetblue2:`████████`
+        ``cadetblue3``              :cadetblue3:`████████`
+        ``cadetblue4``              :cadetblue4:`████████`
+        ``chartreuse``              :chartreuse:`████████`
+        ``chartreuse1``             :chartreuse1:`████████`
+        ``chartreuse2``             :chartreuse2:`████████`
+        ``chartreuse3``             :chartreuse3:`████████`
+        ``chartreuse4``             :chartreuse4:`████████`
+        ``chocolate``               :chocolate:`████████`
+        ``chocolate1``              :chocolate1:`████████`
+        ``chocolate2``              :chocolate2:`████████`
+        ``chocolate3``              :chocolate3:`████████`
+        ``chocolate4``              :chocolate4:`████████`
+        ``coral``                   :coral:`████████`
+        ``coral1``                  :coral1:`████████`
+        ``coral2``                  :coral2:`████████`
+        ``coral3``                  :coral3:`████████`
+        ``coral4``                  :coral4:`████████`
+        ``cornflowerblue``          :cornflowerblue:`████████`
+        ``cornsilk``                :cornsilk:`████████`
+        ``cornsilk1``               :cornsilk1:`████████`
+        ``cornsilk2``               :cornsilk2:`████████`
+        ``cornsilk3``               :cornsilk3:`████████`
+        ``cornsilk4``               :cornsilk4:`████████`
+        ``crimson``                 :crimson:`████████`
+        ``cyan``                    :cyan:`████████`
+        ``cyan1``                   :cyan1:`████████`
+        ``cyan2``                   :cyan2:`████████`
+        ``cyan3``                   :cyan3:`████████`
+        ``cyan4``                   :cyan4:`████████`
+        ``darkblue``                :darkblue:`████████`
+        ``darkcyan``                :darkcyan:`████████`
+        ``darkgoldenrod``           :darkgoldenrod:`████████`
+        ``darkgoldenrod1``          :darkgoldenrod1:`████████`
+        ``darkgoldenrod2``          :darkgoldenrod2:`████████`
+        ``darkgoldenrod3``          :darkgoldenrod3:`████████`
+        ``darkgoldenrod4``          :darkgoldenrod4:`████████`
+        ``darkgray``                :darkgray:`████████`
+        ``darkgreen``               :darkgreen:`████████`
+        ``darkgrey``                :darkgrey:`████████`
+        ``darkkhaki``               :darkkhaki:`████████`
+        ``darkmagenta``             :darkmagenta:`████████`
+        ``darkolivegreen``          :darkolivegreen:`████████`
+        ``darkolivegreen1``         :darkolivegreen1:`████████`
+        ``darkolivegreen2``         :darkolivegreen2:`████████`
+        ``darkolivegreen3``         :darkolivegreen3:`████████`
+        ``darkolivegreen4``         :darkolivegreen4:`████████`
+        ``darkorange``              :darkorange:`████████`
+        ``darkorange1``             :darkorange1:`████████`
+        ``darkorange2``             :darkorange2:`████████`
+        ``darkorange3``             :darkorange3:`████████`
+        ``darkorange4``             :darkorange4:`████████`
+        ``darkorchid``              :darkorchid:`████████`
+        ``darkorchid1``             :darkorchid1:`████████`
+        ``darkorchid2``             :darkorchid2:`████████`
+        ``darkorchid3``             :darkorchid3:`████████`
+        ``darkorchid4``             :darkorchid4:`████████`
+        ``darkred``                 :darkred:`████████`
+        ``darksalmon``              :darksalmon:`████████`
+        ``darkseagreen``            :darkseagreen:`████████`
+        ``darkseagreen1``           :darkseagreen1:`████████`
+        ``darkseagreen2``           :darkseagreen2:`████████`
+        ``darkseagreen3``           :darkseagreen3:`████████`
+        ``darkseagreen4``           :darkseagreen4:`████████`
+        ``darkslateblue``           :darkslateblue:`████████`
+        ``darkslategray``           :darkslategray:`████████`
+        ``darkslategray1``          :darkslategray1:`████████`
+        ``darkslategray2``          :darkslategray2:`████████`
+        ``darkslategray3``          :darkslategray3:`████████`
+        ``darkslategray4``          :darkslategray4:`████████`
+        ``darkslategrey``           :darkslategrey:`████████`
+        ``darkturquoise``           :darkturquoise:`████████`
+        ``darkviolet``              :darkviolet:`████████`
+        ``deeppink``                :deeppink:`████████`
+        ``deeppink1``               :deeppink1:`████████`
+        ``deeppink2``               :deeppink2:`████████`
+        ``deeppink3``               :deeppink3:`████████`
+        ``deeppink4``               :deeppink4:`████████`
+        ``deepskyblue``             :deepskyblue:`████████`
+        ``deepskyblue1``            :deepskyblue1:`████████`
+        ``deepskyblue2``            :deepskyblue2:`████████`
+        ``deepskyblue3``            :deepskyblue3:`████████`
+        ``deepskyblue4``            :deepskyblue4:`████████`
+        ``dimgray``                 :dimgray:`████████`
+        ``dimgrey``                 :dimgrey:`████████`
+        ``dodgerblue``              :dodgerblue:`████████`
+        ``dodgerblue1``             :dodgerblue1:`████████`
+        ``dodgerblue2``             :dodgerblue2:`████████`
+        ``dodgerblue3``             :dodgerblue3:`████████`
+        ``dodgerblue4``             :dodgerblue4:`████████`
+        ``firebrick``               :firebrick:`████████`
+        ``firebrick1``              :firebrick1:`████████`
+        ``firebrick2``              :firebrick2:`████████`
+        ``firebrick3``              :firebrick3:`████████`
+        ``firebrick4``              :firebrick4:`████████`
+        ``floralwhite``             :floralwhite:`████████`
+        ``forestgreen``             :forestgreen:`████████`
+        ``fuchsia``                 :fuchsia:`████████`
+        ``gainsboro``               :gainsboro:`████████`
+        ``ghostwhite``              :ghostwhite:`████████`
+        ``gold``                    :gold:`████████`
+        ``gold1``                   :gold1:`████████`
+        ``gold2``                   :gold2:`████████`
+        ``gold3``                   :gold3:`████████`
+        ``gold4``                   :gold4:`████████`
+        ``goldenrod``               :goldenrod:`████████`
+        ``goldenrod1``              :goldenrod1:`████████`
+        ``goldenrod2``              :goldenrod2:`████████`
+        ``goldenrod3``              :goldenrod3:`████████`
+        ``goldenrod4``              :goldenrod4:`████████`
+        ``gray``                    :gray:`████████`
+        ``gray0``                   :gray0:`████████`
+        ``gray1``                   :gray1:`████████`
+        ``gray2``                   :gray2:`████████`
+        ``gray3``                   :gray3:`████████`
+        ``gray4``                   :gray4:`████████`
+        ``gray5``                   :gray5:`████████`
+        ``gray6``                   :gray6:`████████`
+        ``gray7``                   :gray7:`████████`
+        ``gray8``                   :gray8:`████████`
+        ``gray9``                   :gray9:`████████`
+        ``gray10``                  :gray10:`████████`
+        ``gray11``                  :gray11:`████████`
+        ``gray12``                  :gray12:`████████`
+        ``gray13``                  :gray13:`████████`
+        ``gray14``                  :gray14:`████████`
+        ``gray15``                  :gray15:`████████`
+        ``gray16``                  :gray16:`████████`
+        ``gray17``                  :gray17:`████████`
+        ``gray18``                  :gray18:`████████`
+        ``gray19``                  :gray19:`████████`
+        ``gray20``                  :gray20:`████████`
+        ``gray21``                  :gray21:`████████`
+        ``gray22``                  :gray22:`████████`
+        ``gray23``                  :gray23:`████████`
+        ``gray24``                  :gray24:`████████`
+        ``gray25``                  :gray25:`████████`
+        ``gray26``                  :gray26:`████████`
+        ``gray27``                  :gray27:`████████`
+        ``gray28``                  :gray28:`████████`
+        ``gray29``                  :gray29:`████████`
+        ``gray30``                  :gray30:`████████`
+        ``gray31``                  :gray31:`████████`
+        ``gray32``                  :gray32:`████████`
+        ``gray33``                  :gray33:`████████`
+        ``gray34``                  :gray34:`████████`
+        ``gray35``                  :gray35:`████████`
+        ``gray36``                  :gray36:`████████`
+        ``gray37``                  :gray37:`████████`
+        ``gray38``                  :gray38:`████████`
+        ``gray39``                  :gray39:`████████`
+        ``gray40``                  :gray40:`████████`
+        ``gray41``                  :gray41:`████████`
+        ``gray42``                  :gray42:`████████`
+        ``gray43``                  :gray43:`████████`
+        ``gray44``                  :gray44:`████████`
+        ``gray45``                  :gray45:`████████`
+        ``gray46``                  :gray46:`████████`
+        ``gray47``                  :gray47:`████████`
+        ``gray48``                  :gray48:`████████`
+        ``gray49``                  :gray49:`████████`
+        ``gray50``                  :gray50:`████████`
+        ``gray51``                  :gray51:`████████`
+        ``gray52``                  :gray52:`████████`
+        ``gray53``                  :gray53:`████████`
+        ``gray54``                  :gray54:`████████`
+        ``gray55``                  :gray55:`████████`
+        ``gray56``                  :gray56:`████████`
+        ``gray57``                  :gray57:`████████`
+        ``gray58``                  :gray58:`████████`
+        ``gray59``                  :gray59:`████████`
+        ``gray60``                  :gray60:`████████`
+        ``gray61``                  :gray61:`████████`
+        ``gray62``                  :gray62:`████████`
+        ``gray63``                  :gray63:`████████`
+        ``gray64``                  :gray64:`████████`
+        ``gray65``                  :gray65:`████████`
+        ``gray66``                  :gray66:`████████`
+        ``gray67``                  :gray67:`████████`
+        ``gray68``                  :gray68:`████████`
+        ``gray69``                  :gray69:`████████`
+        ``gray70``                  :gray70:`████████`
+        ``gray71``                  :gray71:`████████`
+        ``gray72``                  :gray72:`████████`
+        ``gray73``                  :gray73:`████████`
+        ``gray74``                  :gray74:`████████`
+        ``gray75``                  :gray75:`████████`
+        ``gray76``                  :gray76:`████████`
+        ``gray77``                  :gray77:`████████`
+        ``gray78``                  :gray78:`████████`
+        ``gray79``                  :gray79:`████████`
+        ``gray80``                  :gray80:`████████`
+        ``gray81``                  :gray81:`████████`
+        ``gray82``                  :gray82:`████████`
+        ``gray83``                  :gray83:`████████`
+        ``gray84``                  :gray84:`████████`
+        ``gray85``                  :gray85:`████████`
+        ``gray86``                  :gray86:`████████`
+        ``gray87``                  :gray87:`████████`
+        ``gray88``                  :gray88:`████████`
+        ``gray89``                  :gray89:`████████`
+        ``gray90``                  :gray90:`████████`
+        ``gray91``                  :gray91:`████████`
+        ``gray92``                  :gray92:`████████`
+        ``gray93``                  :gray93:`████████`
+        ``gray94``                  :gray94:`████████`
+        ``gray95``                  :gray95:`████████`
+        ``gray96``                  :gray96:`████████`
+        ``gray97``                  :gray97:`████████`
+        ``gray98``                  :gray98:`████████`
+        ``gray99``                  :gray99:`████████`
+        ``gray100``                 :gray100:`████████`
+        ``green``                   :green:`████████`
+        ``green1``                  :green1:`████████`
+        ``green2``                  :green2:`████████`
+        ``green3``                  :green3:`████████`
+        ``green4``                  :green4:`████████`
+        ``greenyellow``             :greenyellow:`████████`
+        ``grey``                    :grey:`████████`
+        ``grey0``                   :grey0:`████████`
+        ``grey1``                   :grey1:`████████`
+        ``grey2``                   :grey2:`████████`
+        ``grey3``                   :grey3:`████████`
+        ``grey4``                   :grey4:`████████`
+        ``grey5``                   :grey5:`████████`
+        ``grey6``                   :grey6:`████████`
+        ``grey7``                   :grey7:`████████`
+        ``grey8``                   :grey8:`████████`
+        ``grey9``                   :grey9:`████████`
+        ``grey10``                  :grey10:`████████`
+        ``grey11``                  :grey11:`████████`
+        ``grey12``                  :grey12:`████████`
+        ``grey13``                  :grey13:`████████`
+        ``grey14``                  :grey14:`████████`
+        ``grey15``                  :grey15:`████████`
+        ``grey16``                  :grey16:`████████`
+        ``grey17``                  :grey17:`████████`
+        ``grey18``                  :grey18:`████████`
+        ``grey19``                  :grey19:`████████`
+        ``grey20``                  :grey20:`████████`
+        ``grey21``                  :grey21:`████████`
+        ``grey22``                  :grey22:`████████`
+        ``grey23``                  :grey23:`████████`
+        ``grey24``                  :grey24:`████████`
+        ``grey25``                  :grey25:`████████`
+        ``grey26``                  :grey26:`████████`
+        ``grey27``                  :grey27:`████████`
+        ``grey28``                  :grey28:`████████`
+        ``grey29``                  :grey29:`████████`
+        ``grey30``                  :grey30:`████████`
+        ``grey31``                  :grey31:`████████`
+        ``grey32``                  :grey32:`████████`
+        ``grey33``                  :grey33:`████████`
+        ``grey34``                  :grey34:`████████`
+        ``grey35``                  :grey35:`████████`
+        ``grey36``                  :grey36:`████████`
+        ``grey37``                  :grey37:`████████`
+        ``grey38``                  :grey38:`████████`
+        ``grey39``                  :grey39:`████████`
+        ``grey40``                  :grey40:`████████`
+        ``grey41``                  :grey41:`████████`
+        ``grey42``                  :grey42:`████████`
+        ``grey43``                  :grey43:`████████`
+        ``grey44``                  :grey44:`████████`
+        ``grey45``                  :grey45:`████████`
+        ``grey46``                  :grey46:`████████`
+        ``grey47``                  :grey47:`████████`
+        ``grey48``                  :grey48:`████████`
+        ``grey49``                  :grey49:`████████`
+        ``grey50``                  :grey50:`████████`
+        ``grey51``                  :grey51:`████████`
+        ``grey52``                  :grey52:`████████`
+        ``grey53``                  :grey53:`████████`
+        ``grey54``                  :grey54:`████████`
+        ``grey55``                  :grey55:`████████`
+        ``grey56``                  :grey56:`████████`
+        ``grey57``                  :grey57:`████████`
+        ``grey58``                  :grey58:`████████`
+        ``grey59``                  :grey59:`████████`
+        ``grey60``                  :grey60:`████████`
+        ``grey61``                  :grey61:`████████`
+        ``grey62``                  :grey62:`████████`
+        ``grey63``                  :grey63:`████████`
+        ``grey64``                  :grey64:`████████`
+        ``grey65``                  :grey65:`████████`
+        ``grey66``                  :grey66:`████████`
+        ``grey67``                  :grey67:`████████`
+        ``grey68``                  :grey68:`████████`
+        ``grey69``                  :grey69:`████████`
+        ``grey70``                  :grey70:`████████`
+        ``grey71``                  :grey71:`████████`
+        ``grey72``                  :grey72:`████████`
+        ``grey73``                  :grey73:`████████`
+        ``grey74``                  :grey74:`████████`
+        ``grey75``                  :grey75:`████████`
+        ``grey76``                  :grey76:`████████`
+        ``grey77``                  :grey77:`████████`
+        ``grey78``                  :grey78:`████████`
+        ``grey79``                  :grey79:`████████`
+        ``grey80``                  :grey80:`████████`
+        ``grey81``                  :grey81:`████████`
+        ``grey82``                  :grey82:`████████`
+        ``grey83``                  :grey83:`████████`
+        ``grey84``                  :grey84:`████████`
+        ``grey85``                  :grey85:`████████`
+        ``grey86``                  :grey86:`████████`
+        ``grey87``                  :grey87:`████████`
+        ``grey88``                  :grey88:`████████`
+        ``grey89``                  :grey89:`████████`
+        ``grey90``                  :grey90:`████████`
+        ``grey91``                  :grey91:`████████`
+        ``grey92``                  :grey92:`████████`
+        ``grey93``                  :grey93:`████████`
+        ``grey94``                  :grey94:`████████`
+        ``grey95``                  :grey95:`████████`
+        ``grey96``                  :grey96:`████████`
+        ``grey97``                  :grey97:`████████`
+        ``grey98``                  :grey98:`████████`
+        ``grey99``                  :grey99:`████████`
+        ``grey100``                 :grey100:`████████`
+        ``honeydew``                :honeydew:`████████`
+        ``honeydew1``               :honeydew1:`████████`
+        ``honeydew2``               :honeydew2:`████████`
+        ``honeydew3``               :honeydew3:`████████`
+        ``honeydew4``               :honeydew4:`████████`
+        ``hotpink``                 :hotpink:`████████`
+        ``hotpink1``                :hotpink1:`████████`
+        ``hotpink2``                :hotpink2:`████████`
+        ``hotpink3``                :hotpink3:`████████`
+        ``hotpink4``                :hotpink4:`████████`
+        ``indianred``               :indianred:`████████`
+        ``indianred1``              :indianred1:`████████`
+        ``indianred2``              :indianred2:`████████`
+        ``indianred3``              :indianred3:`████████`
+        ``indianred4``              :indianred4:`████████`
+        ``indigo``                  :indigo:`████████`
+        ``ivory``                   :ivory:`████████`
+        ``ivory1``                  :ivory1:`████████`
+        ``ivory2``                  :ivory2:`████████`
+        ``ivory3``                  :ivory3:`████████`
+        ``ivory4``                  :ivory4:`████████`
+        ``khaki``                   :khaki:`████████`
+        ``khaki1``                  :khaki1:`████████`
+        ``khaki2``                  :khaki2:`████████`
+        ``khaki3``                  :khaki3:`████████`
+        ``khaki4``                  :khaki4:`████████`
+        ``lavender``                :lavender:`████████`
+        ``lavenderblush``           :lavenderblush:`████████`
+        ``lavenderblush1``          :lavenderblush1:`████████`
+        ``lavenderblush2``          :lavenderblush2:`████████`
+        ``lavenderblush3``          :lavenderblush3:`████████`
+        ``lavenderblush4``          :lavenderblush4:`████████`
+        ``lawngreen``               :lawngreen:`████████`
+        ``lemonchiffon``            :lemonchiffon:`████████`
+        ``lemonchiffon1``           :lemonchiffon1:`████████`
+        ``lemonchiffon2``           :lemonchiffon2:`████████`
+        ``lemonchiffon3``           :lemonchiffon3:`████████`
+        ``lemonchiffon4``           :lemonchiffon4:`████████`
+        ``lightblue``               :lightblue:`████████`
+        ``lightblue1``              :lightblue1:`████████`
+        ``lightblue2``              :lightblue2:`████████`
+        ``lightblue3``              :lightblue3:`████████`
+        ``lightblue4``              :lightblue4:`████████`
+        ``lightcoral``              :lightcoral:`████████`
+        ``lightcyan``               :lightcyan:`████████`
+        ``lightcyan1``              :lightcyan1:`████████`
+        ``lightcyan2``              :lightcyan2:`████████`
+        ``lightcyan3``              :lightcyan3:`████████`
+        ``lightcyan4``              :lightcyan4:`████████`
+        ``lightgoldenrod``          :lightgoldenrod:`████████`
+        ``lightgoldenrod1``         :lightgoldenrod1:`████████`
+        ``lightgoldenrod2``         :lightgoldenrod2:`████████`
+        ``lightgoldenrod3``         :lightgoldenrod3:`████████`
+        ``lightgoldenrod4``         :lightgoldenrod4:`████████`
+        ``lightgoldenrodyellow``    :lightgoldenrodyellow:`████████`
+        ``lightgray``               :lightgray:`████████`
+        ``lightgreen``              :lightgreen:`████████`
+        ``lightgrey``               :lightgrey:`████████`
+        ``lightpink``               :lightpink:`████████`
+        ``lightpink1``              :lightpink1:`████████`
+        ``lightpink2``              :lightpink2:`████████`
+        ``lightpink3``              :lightpink3:`████████`
+        ``lightpink4``              :lightpink4:`████████`
+        ``lightsalmon``             :lightsalmon:`████████`
+        ``lightsalmon1``            :lightsalmon1:`████████`
+        ``lightsalmon2``            :lightsalmon2:`████████`
+        ``lightsalmon3``            :lightsalmon3:`████████`
+        ``lightsalmon4``            :lightsalmon4:`████████`
+        ``lightseagreen``           :lightseagreen:`████████`
+        ``lightskyblue``            :lightskyblue:`████████`
+        ``lightskyblue1``           :lightskyblue1:`████████`
+        ``lightskyblue2``           :lightskyblue2:`████████`
+        ``lightskyblue3``           :lightskyblue3:`████████`
+        ``lightskyblue4``           :lightskyblue4:`████████`
+        ``lightslateblue``          :lightslateblue:`████████`
+        ``lightslategray``          :lightslategray:`████████`
+        ``lightslategrey``          :lightslategrey:`████████`
+        ``lightsteelblue``          :lightsteelblue:`████████`
+        ``lightsteelblue1``         :lightsteelblue1:`████████`
+        ``lightsteelblue2``         :lightsteelblue2:`████████`
+        ``lightsteelblue3``         :lightsteelblue3:`████████`
+        ``lightsteelblue4``         :lightsteelblue4:`████████`
+        ``lightyellow``             :lightyellow:`████████`
+        ``lightyellow1``            :lightyellow1:`████████`
+        ``lightyellow2``            :lightyellow2:`████████`
+        ``lightyellow3``            :lightyellow3:`████████`
+        ``lightyellow4``            :lightyellow4:`████████`
+        ``lime``                    :lime:`████████`
+        ``limegreen``               :limegreen:`████████`
+        ``linen``                   :linen:`████████`
+        ``magenta``                 :magenta:`████████`
+        ``magenta1``                :magenta1:`████████`
+        ``magenta2``                :magenta2:`████████`
+        ``magenta3``                :magenta3:`████████`
+        ``magenta4``                :magenta4:`████████`
+        ``maroon``                  :maroon:`████████`
+        ``maroon1``                 :maroon1:`████████`
+        ``maroon2``                 :maroon2:`████████`
+        ``maroon3``                 :maroon3:`████████`
+        ``maroon4``                 :maroon4:`████████`
+        ``mediumaquamarine``        :mediumaquamarine:`████████`
+        ``mediumblue``              :mediumblue:`████████`
+        ``mediumorchid``            :mediumorchid:`████████`
+        ``mediumorchid1``           :mediumorchid1:`████████`
+        ``mediumorchid2``           :mediumorchid2:`████████`
+        ``mediumorchid3``           :mediumorchid3:`████████`
+        ``mediumorchid4``           :mediumorchid4:`████████`
+        ``mediumpurple``            :mediumpurple:`████████`
+        ``mediumpurple1``           :mediumpurple1:`████████`
+        ``mediumpurple2``           :mediumpurple2:`████████`
+        ``mediumpurple3``           :mediumpurple3:`████████`
+        ``mediumpurple4``           :mediumpurple4:`████████`
+        ``mediumseagreen``          :mediumseagreen:`████████`
+        ``mediumslateblue``         :mediumslateblue:`████████`
+        ``mediumspringgreen``       :mediumspringgreen:`████████`
+        ``mediumturquoise``         :mediumturquoise:`████████`
+        ``mediumvioletred``         :mediumvioletred:`████████`
+        ``midnightblue``            :midnightblue:`████████`
+        ``mintcream``               :mintcream:`████████`
+        ``mistyrose``               :mistyrose:`████████`
+        ``mistyrose1``              :mistyrose1:`████████`
+        ``mistyrose2``              :mistyrose2:`████████`
+        ``mistyrose3``              :mistyrose3:`████████`
+        ``mistyrose4``              :mistyrose4:`████████`
+        ``moccasin``                :moccasin:`████████`
+        ``navajowhite``             :navajowhite:`████████`
+        ``navajowhite1``            :navajowhite1:`████████`
+        ``navajowhite2``            :navajowhite2:`████████`
+        ``navajowhite3``            :navajowhite3:`████████`
+        ``navajowhite4``            :navajowhite4:`████████`
+        ``navy``                    :navy:`████████`
+        ``navyblue``                :navyblue:`████████`
+        ``oldlace``                 :oldlace:`████████`
+        ``olive``                   :olive:`████████`
+        ``olivedrab``               :olivedrab:`████████`
+        ``olivedrab1``              :olivedrab1:`████████`
+        ``olivedrab2``              :olivedrab2:`████████`
+        ``olivedrab3``              :olivedrab3:`████████`
+        ``olivedrab4``              :olivedrab4:`████████`
+        ``orange``                  :orange:`████████`
+        ``orange1``                 :orange1:`████████`
+        ``orange2``                 :orange2:`████████`
+        ``orange3``                 :orange3:`████████`
+        ``orange4``                 :orange4:`████████`
+        ``orangered``               :orangered:`████████`
+        ``orangered1``              :orangered1:`████████`
+        ``orangered2``              :orangered2:`████████`
+        ``orangered3``              :orangered3:`████████`
+        ``orangered4``              :orangered4:`████████`
+        ``orchid``                  :orchid:`████████`
+        ``orchid1``                 :orchid1:`████████`
+        ``orchid2``                 :orchid2:`████████`
+        ``orchid3``                 :orchid3:`████████`
+        ``orchid4``                 :orchid4:`████████`
+        ``palegoldenrod``           :palegoldenrod:`████████`
+        ``palegreen``               :palegreen:`████████`
+        ``palegreen1``              :palegreen1:`████████`
+        ``palegreen2``              :palegreen2:`████████`
+        ``palegreen3``              :palegreen3:`████████`
+        ``palegreen4``              :palegreen4:`████████`
+        ``paleturquoise``           :paleturquoise:`████████`
+        ``paleturquoise1``          :paleturquoise1:`████████`
+        ``paleturquoise2``          :paleturquoise2:`████████`
+        ``paleturquoise3``          :paleturquoise3:`████████`
+        ``paleturquoise4``          :paleturquoise4:`████████`
+        ``palevioletred``           :palevioletred:`████████`
+        ``palevioletred1``          :palevioletred1:`████████`
+        ``palevioletred2``          :palevioletred2:`████████`
+        ``palevioletred3``          :palevioletred3:`████████`
+        ``palevioletred4``          :palevioletred4:`████████`
+        ``papayawhip``              :papayawhip:`████████`
+        ``peachpuff``               :peachpuff:`████████`
+        ``peachpuff1``              :peachpuff1:`████████`
+        ``peachpuff2``              :peachpuff2:`████████`
+        ``peachpuff3``              :peachpuff3:`████████`
+        ``peachpuff4``              :peachpuff4:`████████`
+        ``peru``                    :peru:`████████`
+        ``pink``                    :pink:`████████`
+        ``pink1``                   :pink1:`████████`
+        ``pink2``                   :pink2:`████████`
+        ``pink3``                   :pink3:`████████`
+        ``pink4``                   :pink4:`████████`
+        ``plum``                    :plum:`████████`
+        ``plum1``                   :plum1:`████████`
+        ``plum2``                   :plum2:`████████`
+        ``plum3``                   :plum3:`████████`
+        ``plum4``                   :plum4:`████████`
+        ``powderblue``              :powderblue:`████████`
+        ``purple``                  :purple:`████████`
+        ``purple1``                 :purple1:`████████`
+        ``purple2``                 :purple2:`████████`
+        ``purple3``                 :purple3:`████████`
+        ``purple4``                 :purple4:`████████`
+        ``red``                     :red:`████████`
+        ``red1``                    :red1:`████████`
+        ``red2``                    :red2:`████████`
+        ``red3``                    :red3:`████████`
+        ``red4``                    :red4:`████████`
+        ``rosybrown``               :rosybrown:`████████`
+        ``rosybrown1``              :rosybrown1:`████████`
+        ``rosybrown2``              :rosybrown2:`████████`
+        ``rosybrown3``              :rosybrown3:`████████`
+        ``rosybrown4``              :rosybrown4:`████████`
+        ``royalblue``               :royalblue:`████████`
+        ``royalblue1``              :royalblue1:`████████`
+        ``royalblue2``              :royalblue2:`████████`
+        ``royalblue3``              :royalblue3:`████████`
+        ``royalblue4``              :royalblue4:`████████`
+        ``saddlebrown``             :saddlebrown:`████████`
+        ``salmon``                  :salmon:`████████`
+        ``salmon1``                 :salmon1:`████████`
+        ``salmon2``                 :salmon2:`████████`
+        ``salmon3``                 :salmon3:`████████`
+        ``salmon4``                 :salmon4:`████████`
+        ``sandybrown``              :sandybrown:`████████`
+        ``seagreen``                :seagreen:`████████`
+        ``seagreen1``               :seagreen1:`████████`
+        ``seagreen2``               :seagreen2:`████████`
+        ``seagreen3``               :seagreen3:`████████`
+        ``seagreen4``               :seagreen4:`████████`
+        ``seashell``                :seashell:`████████`
+        ``seashell1``               :seashell1:`████████`
+        ``seashell2``               :seashell2:`████████`
+        ``seashell3``               :seashell3:`████████`
+        ``seashell4``               :seashell4:`████████`
+        ``sienna``                  :sienna:`████████`
+        ``sienna1``                 :sienna1:`████████`
+        ``sienna2``                 :sienna2:`████████`
+        ``sienna3``                 :sienna3:`████████`
+        ``sienna4``                 :sienna4:`████████`
+        ``silver``                  :silver:`████████`
+        ``skyblue``                 :skyblue:`████████`
+        ``skyblue1``                :skyblue1:`████████`
+        ``skyblue2``                :skyblue2:`████████`
+        ``skyblue3``                :skyblue3:`████████`
+        ``skyblue4``                :skyblue4:`████████`
+        ``slateblue``               :slateblue:`████████`
+        ``slateblue1``              :slateblue1:`████████`
+        ``slateblue2``              :slateblue2:`████████`
+        ``slateblue3``              :slateblue3:`████████`
+        ``slateblue4``              :slateblue4:`████████`
+        ``slategray``               :slategray:`████████`
+        ``slategray1``              :slategray1:`████████`
+        ``slategray2``              :slategray2:`████████`
+        ``slategray3``              :slategray3:`████████`
+        ``slategray4``              :slategray4:`████████`
+        ``slategrey``               :slategrey:`████████`
+        ``snow``                    :snow:`████████`
+        ``snow1``                   :snow1:`████████`
+        ``snow2``                   :snow2:`████████`
+        ``snow3``                   :snow3:`████████`
+        ``snow4``                   :snow4:`████████`
+        ``springgreen``             :springgreen:`████████`
+        ``springgreen1``            :springgreen1:`████████`
+        ``springgreen2``            :springgreen2:`████████`
+        ``springgreen3``            :springgreen3:`████████`
+        ``springgreen4``            :springgreen4:`████████`
+        ``steelblue``               :steelblue:`████████`
+        ``steelblue1``              :steelblue1:`████████`
+        ``steelblue2``              :steelblue2:`████████`
+        ``steelblue3``              :steelblue3:`████████`
+        ``steelblue4``              :steelblue4:`████████`
+        ``tan``                     :tan:`████████`
+        ``tan1``                    :tan1:`████████`
+        ``tan2``                    :tan2:`████████`
+        ``tan3``                    :tan3:`████████`
+        ``tan4``                    :tan4:`████████`
+        ``teal``                    :teal:`████████`
+        ``thistle``                 :thistle:`████████`
+        ``thistle1``                :thistle1:`████████`
+        ``thistle2``                :thistle2:`████████`
+        ``thistle3``                :thistle3:`████████`
+        ``thistle4``                :thistle4:`████████`
+        ``tomato``                  :tomato:`████████`
+        ``tomato1``                 :tomato1:`████████`
+        ``tomato2``                 :tomato2:`████████`
+        ``tomato3``                 :tomato3:`████████`
+        ``tomato4``                 :tomato4:`████████`
+        ``turquoise``               :turquoise:`████████`
+        ``turquoise1``              :turquoise1:`████████`
+        ``turquoise2``              :turquoise2:`████████`
+        ``turquoise3``              :turquoise3:`████████`
+        ``turquoise4``              :turquoise4:`████████`
+        ``violet``                  :violet:`████████`
+        ``violetred``               :violetred:`████████`
+        ``violetred1``              :violetred1:`████████`
+        ``violetred2``              :violetred2:`████████`
+        ``violetred3``              :violetred3:`████████`
+        ``violetred4``              :violetred4:`████████`
+        ``wheat``                   :wheat:`████████`
+        ``wheat1``                  :wheat1:`████████`
+        ``wheat2``                  :wheat2:`████████`
+        ``wheat3``                  :wheat3:`████████`
+        ``wheat4``                  :wheat4:`████████`
+        ``white``                   :white:`████████`
+        ``whitesmoke``              :whitesmoke:`████████`
+        ``yellow``                  :yellow:`████████`
+        ``yellow1``                 :yellow1:`████████`
+        ``yellow2``                 :yellow2:`████████`
+        ``yellow3``                 :yellow3:`████████`
+        ``yellow4``                 :yellow4:`████████`
+        ``yellowgreen``             :yellowgreen:`████████`
+        ==========================  ==========================
+    .. container:: color-column
+    
+        .. rubric:: Sorted by RGBA
+
+        ==========================  ==========================
+        Name                        Color
+        ==========================  ==========================
+        ``black``                   :black:`████████`
+        ``gray0``                   :gray0:`████████`
+        ``grey0``                   :grey0:`████████`
+        ``navy``                    :navy:`████████`
+        ``navyblue``                :navyblue:`████████`
+        ``blue4``                   :blue4:`████████`
+        ``darkblue``                :darkblue:`████████`
+        ``blue3``                   :blue3:`████████`
+        ``mediumblue``              :mediumblue:`████████`
+        ``blue2``                   :blue2:`████████`
+        ``blue``                    :blue:`████████`
+        ``blue1``                   :blue1:`████████`
+        ``darkgreen``               :darkgreen:`████████`
+        ``deepskyblue4``            :deepskyblue4:`████████`
+        ``teal``                    :teal:`████████`
+        ``turquoise4``              :turquoise4:`████████`
+        ``green4``                  :green4:`████████`
+        ``springgreen4``            :springgreen4:`████████`
+        ``cyan4``                   :cyan4:`████████`
+        ``darkcyan``                :darkcyan:`████████`
+        ``deepskyblue3``            :deepskyblue3:`████████`
+        ``deepskyblue2``            :deepskyblue2:`████████`
+        ``deepskyblue``             :deepskyblue:`████████`
+        ``deepskyblue1``            :deepskyblue1:`████████`
+        ``turquoise3``              :turquoise3:`████████`
+        ``green3``                  :green3:`████████`
+        ``springgreen3``            :springgreen3:`████████`
+        ``cyan3``                   :cyan3:`████████`
+        ``darkturquoise``           :darkturquoise:`████████`
+        ``turquoise2``              :turquoise2:`████████`
+        ``green2``                  :green2:`████████`
+        ``springgreen2``            :springgreen2:`████████`
+        ``cyan2``                   :cyan2:`████████`
+        ``turquoise1``              :turquoise1:`████████`
+        ``mediumspringgreen``       :mediumspringgreen:`████████`
+        ``green``                   :green:`████████`
+        ``green1``                  :green1:`████████`
+        ``lime``                    :lime:`████████`
+        ``springgreen``             :springgreen:`████████`
+        ``springgreen1``            :springgreen1:`████████`
+        ``aqua``                    :aqua:`████████`
+        ``cyan``                    :cyan:`████████`
+        ``cyan1``                   :cyan1:`████████`
+        ``gray1``                   :gray1:`████████`
+        ``grey1``                   :grey1:`████████`
+        ``gray2``                   :gray2:`████████`
+        ``grey2``                   :grey2:`████████`
+        ``gray3``                   :gray3:`████████`
+        ``grey3``                   :grey3:`████████`
+        ``gray4``                   :gray4:`████████`
+        ``grey4``                   :grey4:`████████`
+        ``gray5``                   :gray5:`████████`
+        ``grey5``                   :grey5:`████████`
+        ``gray6``                   :gray6:`████████`
+        ``grey6``                   :grey6:`████████`
+        ``dodgerblue4``             :dodgerblue4:`████████`
+        ``gray7``                   :gray7:`████████`
+        ``grey7``                   :grey7:`████████`
+        ``gray8``                   :gray8:`████████`
+        ``grey8``                   :grey8:`████████`
+        ``gray9``                   :gray9:`████████`
+        ``grey9``                   :grey9:`████████`
+        ``dodgerblue3``             :dodgerblue3:`████████`
+        ``midnightblue``            :midnightblue:`████████`
+        ``gray10``                  :gray10:`████████`
+        ``grey10``                  :grey10:`████████`
+        ``gray11``                  :gray11:`████████`
+        ``grey11``                  :grey11:`████████`
+        ``dodgerblue2``             :dodgerblue2:`████████`
+        ``dodgerblue``              :dodgerblue:`████████`
+        ``dodgerblue1``             :dodgerblue1:`████████`
+        ``gray12``                  :gray12:`████████`
+        ``grey12``                  :grey12:`████████`
+        ``lightseagreen``           :lightseagreen:`████████`
+        ``gray13``                  :gray13:`████████`
+        ``grey13``                  :grey13:`████████`
+        ``forestgreen``             :forestgreen:`████████`
+        ``gray14``                  :gray14:`████████`
+        ``grey14``                  :grey14:`████████`
+        ``gray15``                  :gray15:`████████`
+        ``grey15``                  :grey15:`████████`
+        ``royalblue4``              :royalblue4:`████████`
+        ``gray16``                  :gray16:`████████`
+        ``grey16``                  :grey16:`████████`
+        ``gray17``                  :gray17:`████████`
+        ``grey17``                  :grey17:`████████`
+        ``gray18``                  :gray18:`████████`
+        ``grey18``                  :grey18:`████████`
+        ``seagreen``                :seagreen:`████████`
+        ``seagreen4``               :seagreen4:`████████`
+        ``darkslategray``           :darkslategray:`████████`
+        ``darkslategrey``           :darkslategrey:`████████`
+        ``gray19``                  :gray19:`████████`
+        ``grey19``                  :grey19:`████████`
+        ``limegreen``               :limegreen:`████████`
+        ``gray20``                  :gray20:`████████`
+        ``grey20``                  :grey20:`████████`
+        ``gray21``                  :gray21:`████████`
+        ``grey21``                  :grey21:`████████`
+        ``steelblue4``              :steelblue4:`████████`
+        ``gray22``                  :gray22:`████████`
+        ``grey22``                  :grey22:`████████`
+        ``royalblue3``              :royalblue3:`████████`
+        ``gray23``                  :gray23:`████████`
+        ``grey23``                  :grey23:`████████`
+        ``mediumseagreen``          :mediumseagreen:`████████`
+        ``gray24``                  :gray24:`████████`
+        ``grey24``                  :grey24:`████████`
+        ``gray25``                  :gray25:`████████`
+        ``grey25``                  :grey25:`████████`
+        ``turquoise``               :turquoise:`████████`
+        ``royalblue``               :royalblue:`████████`
+        ``gray26``                  :gray26:`████████`
+        ``grey26``                  :grey26:`████████`
+        ``royalblue2``              :royalblue2:`████████`
+        ``seagreen3``               :seagreen3:`████████`
+        ``gray27``                  :gray27:`████████`
+        ``grey27``                  :grey27:`████████`
+        ``chartreuse4``             :chartreuse4:`████████`
+        ``aquamarine4``             :aquamarine4:`████████`
+        ``steelblue``               :steelblue:`████████`
+        ``slateblue4``              :slateblue4:`████████`
+        ``gray28``                  :gray28:`████████`
+        ``grey28``                  :grey28:`████████`
+        ``darkslateblue``           :darkslateblue:`████████`
+        ``royalblue1``              :royalblue1:`████████`
+        ``mediumturquoise``         :mediumturquoise:`████████`
+        ``gray29``                  :gray29:`████████`
+        ``grey29``                  :grey29:`████████`
+        ``skyblue4``                :skyblue4:`████████`
+        ``indigo``                  :indigo:`████████`
+        ``gray30``                  :gray30:`████████`
+        ``grey30``                  :grey30:`████████`
+        ``seagreen2``               :seagreen2:`████████`
+        ``gray31``                  :gray31:`████████`
+        ``grey31``                  :grey31:`████████`
+        ``steelblue3``              :steelblue3:`████████`
+        ``gray32``                  :gray32:`████████`
+        ``grey32``                  :grey32:`████████`
+        ``darkslategray4``          :darkslategray4:`████████`
+        ``cadetblue4``              :cadetblue4:`████████`
+        ``gray33``                  :gray33:`████████`
+        ``grey33``                  :grey33:`████████`
+        ``palegreen4``              :palegreen4:`████████`
+        ``seagreen1``               :seagreen1:`████████`
+        ``purple4``                 :purple4:`████████`
+        ``darkolivegreen``          :darkolivegreen:`████████`
+        ``gray34``                  :gray34:`████████`
+        ``grey34``                  :grey34:`████████`
+        ``gray35``                  :gray35:`████████`
+        ``grey35``                  :grey35:`████████`
+        ``gray36``                  :gray36:`████████`
+        ``grey36``                  :grey36:`████████`
+        ``steelblue2``              :steelblue2:`████████`
+        ``mediumpurple4``           :mediumpurple4:`████████`
+        ``gray37``                  :gray37:`████████`
+        ``grey37``                  :grey37:`████████`
+        ``cadetblue``               :cadetblue:`████████`
+        ``lightskyblue4``           :lightskyblue4:`████████`
+        ``gray38``                  :gray38:`████████`
+        ``grey38``                  :grey38:`████████`
+        ``gray39``                  :gray39:`████████`
+        ``grey39``                  :grey39:`████████`
+        ``steelblue1``              :steelblue1:`████████`
+        ``cornflowerblue``          :cornflowerblue:`████████`
+        ``gray40``                  :gray40:`████████`
+        ``grey40``                  :grey40:`████████`
+        ``paleturquoise4``          :paleturquoise4:`████████`
+        ``chartreuse3``             :chartreuse3:`████████`
+        ``aquamarine3``             :aquamarine3:`████████`
+        ``mediumaquamarine``        :mediumaquamarine:`████████`
+        ``darkorchid4``             :darkorchid4:`████████`
+        ``lightblue4``              :lightblue4:`████████`
+        ``slateblue3``              :slateblue3:`████████`
+        ``dimgray``                 :dimgray:`████████`
+        ``dimgrey``                 :dimgrey:`████████`
+        ``gray41``                  :gray41:`████████`
+        ``grey41``                  :grey41:`████████`
+        ``olivedrab4``              :olivedrab4:`████████`
+        ``darkseagreen4``           :darkseagreen4:`████████`
+        ``slateblue``               :slateblue:`████████`
+        ``gray42``                  :gray42:`████████`
+        ``grey42``                  :grey42:`████████`
+        ``olivedrab``               :olivedrab:`████████`
+        ``slategray4``              :slategray4:`████████`
+        ``skyblue3``                :skyblue3:`████████`
+        ``gray43``                  :gray43:`████████`
+        ``grey43``                  :grey43:`████████`
+        ``lightsteelblue4``         :lightsteelblue4:`████████`
+        ``darkolivegreen4``         :darkolivegreen4:`████████`
+        ``gray44``                  :gray44:`████████`
+        ``grey44``                  :grey44:`████████`
+        ``slategray``               :slategray:`████████`
+        ``slategrey``               :slategrey:`████████`
+        ``gray45``                  :gray45:`████████`
+        ``grey45``                  :grey45:`████████`
+        ``gray46``                  :gray46:`████████`
+        ``grey46``                  :grey46:`████████`
+        ``chartreuse2``             :chartreuse2:`████████`
+        ``aquamarine2``             :aquamarine2:`████████`
+        ``lightslategray``          :lightslategray:`████████`
+        ``lightslategrey``          :lightslategrey:`████████`
+        ``gray47``                  :gray47:`████████`
+        ``grey47``                  :grey47:`████████`
+        ``darkslategray3``          :darkslategray3:`████████`
+        ``mediumorchid4``           :mediumorchid4:`████████`
+        ``slateblue2``              :slateblue2:`████████`
+        ``gray48``                  :gray48:`████████`
+        ``grey48``                  :grey48:`████████`
+        ``lightcyan4``              :lightcyan4:`████████`
+        ``cadetblue3``              :cadetblue3:`████████`
+        ``mediumslateblue``         :mediumslateblue:`████████`
+        ``palegreen3``              :palegreen3:`████████`
+        ``lawngreen``               :lawngreen:`████████`
+        ``purple3``                 :purple3:`████████`
+        ``gray49``                  :gray49:`████████`
+        ``grey49``                  :grey49:`████████`
+        ``skyblue2``                :skyblue2:`████████`
+        ``gray50``                  :gray50:`████████`
+        ``grey50``                  :grey50:`████████`
+        ``chartreuse``              :chartreuse:`████████`
+        ``chartreuse1``             :chartreuse1:`████████`
+        ``aquamarine``              :aquamarine:`████████`
+        ``aquamarine1``             :aquamarine1:`████████`
+        ``olive``                   :olive:`████████`
+        ``gray51``                  :gray51:`████████`
+        ``grey51``                  :grey51:`████████`
+        ``slateblue1``              :slateblue1:`████████`
+        ``honeydew4``               :honeydew4:`████████`
+        ``azure4``                  :azure4:`████████`
+        ``lightslateblue``          :lightslateblue:`████████`
+        ``gray52``                  :gray52:`████████`
+        ``grey52``                  :grey52:`████████`
+        ``gray53``                  :gray53:`████████`
+        ``grey53``                  :grey53:`████████`
+        ``skyblue``                 :skyblue:`████████`
+        ``lightskyblue``            :lightskyblue:`████████`
+        ``skyblue1``                :skyblue1:`████████`
+        ``mediumpurple3``           :mediumpurple3:`████████`
+        ``blueviolet``              :blueviolet:`████████`
+        ``gray54``                  :gray54:`████████`
+        ``grey54``                  :grey54:`████████`
+        ``darkred``                 :darkred:`████████`
+        ``red4``                    :red4:`████████`
+        ``darkmagenta``             :darkmagenta:`████████`
+        ``magenta4``                :magenta4:`████████`
+        ``deeppink4``               :deeppink4:`████████`
+        ``firebrick4``              :firebrick4:`████████`
+        ``maroon4``                 :maroon4:`████████`
+        ``violetred4``              :violetred4:`████████`
+        ``brown4``                  :brown4:`████████`
+        ``orangered4``              :orangered4:`████████`
+        ``tomato4``                 :tomato4:`████████`
+        ``indianred4``              :indianred4:`████████`
+        ``hotpink4``                :hotpink4:`████████`
+        ``coral4``                  :coral4:`████████`
+        ``darkorange4``             :darkorange4:`████████`
+        ``chocolate4``              :chocolate4:`████████`
+        ``saddlebrown``             :saddlebrown:`████████`
+        ``sienna4``                 :sienna4:`████████`
+        ``palevioletred4``          :palevioletred4:`████████`
+        ``orchid4``                 :orchid4:`████████`
+        ``salmon4``                 :salmon4:`████████`
+        ``lightsalmon4``            :lightsalmon4:`████████`
+        ``orange4``                 :orange4:`████████`
+        ``tan4``                    :tan4:`████████`
+        ``lightpink4``              :lightpink4:`████████`
+        ``pink4``                   :pink4:`████████`
+        ``darkgoldenrod4``          :darkgoldenrod4:`████████`
+        ``plum4``                   :plum4:`████████`
+        ``goldenrod4``              :goldenrod4:`████████`
+        ``rosybrown4``              :rosybrown4:`████████`
+        ``burlywood4``              :burlywood4:`████████`
+        ``gold4``                   :gold4:`████████`
+        ``peachpuff4``              :peachpuff4:`████████`
+        ``navajowhite4``            :navajowhite4:`████████`
+        ``thistle4``                :thistle4:`████████`
+        ``bisque4``                 :bisque4:`████████`
+        ``mistyrose4``              :mistyrose4:`████████`
+        ``wheat4``                  :wheat4:`████████`
+        ``lightgoldenrod4``         :lightgoldenrod4:`████████`
+        ``antiquewhite4``           :antiquewhite4:`████████`
+        ``lavenderblush4``          :lavenderblush4:`████████`
+        ``khaki4``                  :khaki4:`████████`
+        ``seashell4``               :seashell4:`████████`
+        ``cornsilk4``               :cornsilk4:`████████`
+        ``lemonchiffon4``           :lemonchiffon4:`████████`
+        ``snow4``                   :snow4:`████████`
+        ``yellow4``                 :yellow4:`████████`
+        ``lightyellow4``            :lightyellow4:`████████`
+        ``ivory4``                  :ivory4:`████████`
+        ``gray55``                  :gray55:`████████`
+        ``grey55``                  :grey55:`████████`
+        ``lightskyblue3``           :lightskyblue3:`████████`
+        ``darkslategray2``          :darkslategray2:`████████`
+        ``cadetblue2``              :cadetblue2:`████████`
+        ``gray56``                  :gray56:`████████`
+        ``grey56``                  :grey56:`████████`
+        ``darkseagreen``            :darkseagreen:`████████`
+        ``lightgreen``              :lightgreen:`████████`
+        ``palegreen2``              :palegreen2:`████████`
+        ``purple2``                 :purple2:`████████`
+        ``gray57``                  :gray57:`████████`
+        ``grey57``                  :grey57:`████████`
+        ``mediumpurple``            :mediumpurple:`████████`
+        ``darkviolet``              :darkviolet:`████████`
+        ``gray58``                  :gray58:`████████`
+        ``grey58``                  :grey58:`████████`
+        ``gray59``                  :gray59:`████████`
+        ``grey59``                  :grey59:`████████`
+        ``paleturquoise3``          :paleturquoise3:`████████`
+        ``darkslategray1``          :darkslategray1:`████████`
+        ``cadetblue1``              :cadetblue1:`████████`
+        ``palegreen``               :palegreen:`████████`
+        ``darkorchid``              :darkorchid:`████████`
+        ``gray60``                  :gray60:`████████`
+        ``grey60``                  :grey60:`████████`
+        ``darkorchid3``             :darkorchid3:`████████`
+        ``lightblue3``              :lightblue3:`████████`
+        ``olivedrab3``              :olivedrab3:`████████`
+        ``yellowgreen``             :yellowgreen:`████████`
+        ``palegreen1``              :palegreen1:`████████`
+        ``purple1``                 :purple1:`████████`
+        ``darkseagreen3``           :darkseagreen3:`████████`
+        ``gray61``                  :gray61:`████████`
+        ``grey61``                  :grey61:`████████`
+        ``gray62``                  :gray62:`████████`
+        ``grey62``                  :grey62:`████████`
+        ``mediumpurple2``           :mediumpurple2:`████████`
+        ``slategray3``              :slategray3:`████████`
+        ``purple``                  :purple:`████████`
+        ``sienna``                  :sienna:`████████`
+        ``gray63``                  :gray63:`████████`
+        ``grey63``                  :grey63:`████████`
+        ``lightsteelblue3``         :lightsteelblue3:`████████`
+        ``darkolivegreen3``         :darkolivegreen3:`████████`
+        ``gray64``                  :gray64:`████████`
+        ``grey64``                  :grey64:`████████`
+        ``lightskyblue2``           :lightskyblue2:`████████`
+        ``brown``                   :brown:`████████`
+        ``gray65``                  :gray65:`████████`
+        ``grey65``                  :grey65:`████████`
+        ``gray66``                  :gray66:`████████`
+        ``grey66``                  :grey66:`████████`
+        ``darkgray``                :darkgray:`████████`
+        ``darkgrey``                :darkgrey:`████████`
+        ``mediumpurple1``           :mediumpurple1:`████████`
+        ``gray67``                  :gray67:`████████`
+        ``grey67``                  :grey67:`████████`
+        ``gray68``                  :gray68:`████████`
+        ``grey68``                  :grey68:`████████`
+        ``lightblue``               :lightblue:`████████`
+        ``greenyellow``             :greenyellow:`████████`
+        ``paleturquoise2``          :paleturquoise2:`████████`
+        ``paleturquoise``           :paleturquoise:`████████`
+        ``maroon``                  :maroon:`████████`
+        ``gray69``                  :gray69:`████████`
+        ``grey69``                  :grey69:`████████`
+        ``lightsteelblue``          :lightsteelblue:`████████`
+        ``powderblue``              :powderblue:`████████`
+        ``lightskyblue1``           :lightskyblue1:`████████`
+        ``firebrick``               :firebrick:`████████`
+        ``darkorchid2``             :darkorchid2:`████████`
+        ``lightblue2``              :lightblue2:`████████`
+        ``gray70``                  :gray70:`████████`
+        ``grey70``                  :grey70:`████████`
+        ``olivedrab2``              :olivedrab2:`████████`
+        ``mediumorchid3``           :mediumorchid3:`████████`
+        ``lightcyan3``              :lightcyan3:`████████`
+        ``darkseagreen2``           :darkseagreen2:`████████`
+        ``gray71``                  :gray71:`████████`
+        ``grey71``                  :grey71:`████████`
+        ``darkgoldenrod``           :darkgoldenrod:`████████`
+        ``gray72``                  :gray72:`████████`
+        ``grey72``                  :grey72:`████████`
+        ``slategray2``              :slategray2:`████████`
+        ``mediumorchid``            :mediumorchid:`████████`
+        ``gray73``                  :gray73:`████████`
+        ``grey73``                  :grey73:`████████`
+        ``paleturquoise1``          :paleturquoise1:`████████`
+        ``rosybrown``               :rosybrown:`████████`
+        ``lightsteelblue2``         :lightsteelblue2:`████████`
+        ``darkolivegreen2``         :darkolivegreen2:`████████`
+        ``darkkhaki``               :darkkhaki:`████████`
+        ``gray74``                  :gray74:`████████`
+        ``grey74``                  :grey74:`████████`
+        ``gray``                    :gray:`████████`
+        ``grey``                    :grey:`████████`
+        ``darkorchid1``             :darkorchid1:`████████`
+        ``gray75``                  :gray75:`████████`
+        ``grey75``                  :grey75:`████████`
+        ``lightblue1``              :lightblue1:`████████`
+        ``silver``                  :silver:`████████`
+        ``olivedrab1``              :olivedrab1:`████████`
+        ``honeydew3``               :honeydew3:`████████`
+        ``azure3``                  :azure3:`████████`
+        ``darkseagreen1``           :darkseagreen1:`████████`
+        ``gray76``                  :gray76:`████████`
+        ``grey76``                  :grey76:`████████`
+        ``gray77``                  :gray77:`████████`
+        ``grey77``                  :grey77:`████████`
+        ``slategray1``              :slategray1:`████████`
+        ``mediumvioletred``         :mediumvioletred:`████████`
+        ``gray78``                  :gray78:`████████`
+        ``grey78``                  :grey78:`████████`
+        ``gray79``                  :gray79:`████████`
+        ``grey79``                  :grey79:`████████`
+        ``lightsteelblue1``         :lightsteelblue1:`████████`
+        ``darkolivegreen1``         :darkolivegreen1:`████████`
+        ``gray80``                  :gray80:`████████`
+        ``grey80``                  :grey80:`████████`
+        ``red3``                    :red3:`████████`
+        ``magenta3``                :magenta3:`████████`
+        ``deeppink3``               :deeppink3:`████████`
+        ``firebrick3``              :firebrick3:`████████`
+        ``maroon3``                 :maroon3:`████████`
+        ``violetred3``              :violetred3:`████████`
+        ``brown3``                  :brown3:`████████`
+        ``orangered3``              :orangered3:`████████`
+        ``tomato3``                 :tomato3:`████████`
+        ``indianred3``              :indianred3:`████████`
+        ``coral3``                  :coral3:`████████`
+        ``indianred``               :indianred:`████████`
+        ``hotpink3``                :hotpink3:`████████`
+        ``darkorange3``             :darkorange3:`████████`
+        ``chocolate3``              :chocolate3:`████████`
+        ``sienna3``                 :sienna3:`████████`
+        ``palevioletred3``          :palevioletred3:`████████`
+        ``orchid3``                 :orchid3:`████████`
+        ``salmon3``                 :salmon3:`████████`
+        ``lightsalmon3``            :lightsalmon3:`████████`
+        ``orange3``                 :orange3:`████████`
+        ``peru``                    :peru:`████████`
+        ``tan3``                    :tan3:`████████`
+        ``lightpink3``              :lightpink3:`████████`
+        ``pink3``                   :pink3:`████████`
+        ``darkgoldenrod3``          :darkgoldenrod3:`████████`
+        ``plum3``                   :plum3:`████████`
+        ``goldenrod3``              :goldenrod3:`████████`
+        ``rosybrown3``              :rosybrown3:`████████`
+        ``burlywood3``              :burlywood3:`████████`
+        ``gold3``                   :gold3:`████████`
+        ``peachpuff3``              :peachpuff3:`████████`
+        ``navajowhite3``            :navajowhite3:`████████`
+        ``thistle3``                :thistle3:`████████`
+        ``bisque3``                 :bisque3:`████████`
+        ``mistyrose3``              :mistyrose3:`████████`
+        ``wheat3``                  :wheat3:`████████`
+        ``lightgoldenrod3``         :lightgoldenrod3:`████████`
+        ``antiquewhite3``           :antiquewhite3:`████████`
+        ``lavenderblush3``          :lavenderblush3:`████████`
+        ``seashell3``               :seashell3:`████████`
+        ``khaki3``                  :khaki3:`████████`
+        ``cornsilk3``               :cornsilk3:`████████`
+        ``lemonchiffon3``           :lemonchiffon3:`████████`
+        ``snow3``                   :snow3:`████████`
+        ``yellow3``                 :yellow3:`████████`
+        ``lightyellow3``            :lightyellow3:`████████`
+        ``ivory3``                  :ivory3:`████████`
+        ``gray81``                  :gray81:`████████`
+        ``grey81``                  :grey81:`████████`
+        ``violetred``               :violetred:`████████`
+        ``mediumorchid2``           :mediumorchid2:`████████`
+        ``gray82``                  :gray82:`████████`
+        ``grey82``                  :grey82:`████████`
+        ``lightcyan2``              :lightcyan2:`████████`
+        ``chocolate``               :chocolate:`████████`
+        ``tan``                     :tan:`████████`
+        ``lightgray``               :lightgray:`████████`
+        ``lightgrey``               :lightgrey:`████████`
+        ``gray83``                  :gray83:`████████`
+        ``grey83``                  :grey83:`████████`
+        ``gray84``                  :gray84:`████████`
+        ``grey84``                  :grey84:`████████`
+        ``thistle``                 :thistle:`████████`
+        ``gray85``                  :gray85:`████████`
+        ``grey85``                  :grey85:`████████`
+        ``orchid``                  :orchid:`████████`
+        ``goldenrod``               :goldenrod:`████████`
+        ``palevioletred``           :palevioletred:`████████`
+        ``gray86``                  :gray86:`████████`
+        ``grey86``                  :grey86:`████████`
+        ``crimson``                 :crimson:`████████`
+        ``gainsboro``               :gainsboro:`████████`
+        ``plum``                    :plum:`████████`
+        ``burlywood``               :burlywood:`████████`
+        ``gray87``                  :gray87:`████████`
+        ``grey87``                  :grey87:`████████`
+        ``mediumorchid1``           :mediumorchid1:`████████`
+        ``gray88``                  :gray88:`████████`
+        ``grey88``                  :grey88:`████████`
+        ``honeydew2``               :honeydew2:`████████`
+        ``azure2``                  :azure2:`████████`
+        ``lightcyan``               :lightcyan:`████████`
+        ``lightcyan1``              :lightcyan1:`████████`
+        ``gray89``                  :gray89:`████████`
+        ``grey89``                  :grey89:`████████`
+        ``gray90``                  :gray90:`████████`
+        ``grey90``                  :grey90:`████████`
+        ``lavender``                :lavender:`████████`
+        ``gray91``                  :gray91:`████████`
+        ``grey91``                  :grey91:`████████`
+        ``darksalmon``              :darksalmon:`████████`
+        ``gray92``                  :gray92:`████████`
+        ``grey92``                  :grey92:`████████`
+        ``gray93``                  :gray93:`████████`
+        ``grey93``                  :grey93:`████████`
+        ``red2``                    :red2:`████████`
+        ``magenta2``                :magenta2:`████████`
+        ``deeppink2``               :deeppink2:`████████`
+        ``firebrick2``              :firebrick2:`████████`
+        ``maroon2``                 :maroon2:`████████`
+        ``violetred2``              :violetred2:`████████`
+        ``brown2``                  :brown2:`████████`
+        ``orangered2``              :orangered2:`████████`
+        ``tomato2``                 :tomato2:`████████`
+        ``indianred2``              :indianred2:`████████`
+        ``coral2``                  :coral2:`████████`
+        ``hotpink2``                :hotpink2:`████████`
+        ``darkorange2``             :darkorange2:`████████`
+        ``chocolate2``              :chocolate2:`████████`
+        ``sienna2``                 :sienna2:`████████`
+        ``palevioletred2``          :palevioletred2:`████████`
+        ``orchid2``                 :orchid2:`████████`
+        ``salmon2``                 :salmon2:`████████`
+        ``violet``                  :violet:`████████`
+        ``lightsalmon2``            :lightsalmon2:`████████`
+        ``orange2``                 :orange2:`████████`
+        ``tan2``                    :tan2:`████████`
+        ``lightpink2``              :lightpink2:`████████`
+        ``pink2``                   :pink2:`████████`
+        ``darkgoldenrod2``          :darkgoldenrod2:`████████`
+        ``plum2``                   :plum2:`████████`
+        ``goldenrod2``              :goldenrod2:`████████`
+        ``rosybrown2``              :rosybrown2:`████████`
+        ``burlywood2``              :burlywood2:`████████`
+        ``gold2``                   :gold2:`████████`
+        ``peachpuff2``              :peachpuff2:`████████`
+        ``navajowhite2``            :navajowhite2:`████████`
+        ``thistle2``                :thistle2:`████████`
+        ``bisque2``                 :bisque2:`████████`
+        ``mistyrose2``              :mistyrose2:`████████`
+        ``wheat2``                  :wheat2:`████████`
+        ``lightgoldenrod2``         :lightgoldenrod2:`████████`
+        ``lightgoldenrod``          :lightgoldenrod:`████████`
+        ``antiquewhite2``           :antiquewhite2:`████████`
+        ``lavenderblush2``          :lavenderblush2:`████████`
+        ``seashell2``               :seashell2:`████████`
+        ``khaki2``                  :khaki2:`████████`
+        ``palegoldenrod``           :palegoldenrod:`████████`
+        ``cornsilk2``               :cornsilk2:`████████`
+        ``lemonchiffon2``           :lemonchiffon2:`████████`
+        ``snow2``                   :snow2:`████████`
+        ``yellow2``                 :yellow2:`████████`
+        ``lightyellow2``            :lightyellow2:`████████`
+        ``ivory2``                  :ivory2:`████████`
+        ``lightcoral``              :lightcoral:`████████`
+        ``khaki``                   :khaki:`████████`
+        ``gray94``                  :gray94:`████████`
+        ``grey94``                  :grey94:`████████`
+        ``aliceblue``               :aliceblue:`████████`
+        ``honeydew``                :honeydew:`████████`
+        ``honeydew1``               :honeydew1:`████████`
+        ``azure``                   :azure:`████████`
+        ``azure1``                  :azure1:`████████`
+        ``gray95``                  :gray95:`████████`
+        ``grey95``                  :grey95:`████████`
+        ``sandybrown``              :sandybrown:`████████`
+        ``wheat``                   :wheat:`████████`
+        ``beige``                   :beige:`████████`
+        ``gray96``                  :gray96:`████████`
+        ``grey96``                  :grey96:`████████`
+        ``whitesmoke``              :whitesmoke:`████████`
+        ``mintcream``               :mintcream:`████████`
+        ``gray97``                  :gray97:`████████`
+        ``grey97``                  :grey97:`████████`
+        ``ghostwhite``              :ghostwhite:`████████`
+        ``salmon``                  :salmon:`████████`
+        ``antiquewhite``            :antiquewhite:`████████`
+        ``linen``                   :linen:`████████`
+        ``lightgoldenrodyellow``    :lightgoldenrodyellow:`████████`
+        ``gray98``                  :gray98:`████████`
+        ``grey98``                  :grey98:`████████`
+        ``gray99``                  :gray99:`████████`
+        ``grey99``                  :grey99:`████████`
+        ``oldlace``                 :oldlace:`████████`
+        ``red``                     :red:`████████`
+        ``red1``                    :red1:`████████`
+        ``fuchsia``                 :fuchsia:`████████`
+        ``magenta``                 :magenta:`████████`
+        ``magenta1``                :magenta1:`████████`
+        ``deeppink``                :deeppink:`████████`
+        ``deeppink1``               :deeppink1:`████████`
+        ``firebrick1``              :firebrick1:`████████`
+        ``maroon1``                 :maroon1:`████████`
+        ``violetred1``              :violetred1:`████████`
+        ``brown1``                  :brown1:`████████`
+        ``orangered``               :orangered:`████████`
+        ``orangered1``              :orangered1:`████████`
+        ``tomato``                  :tomato:`████████`
+        ``tomato1``                 :tomato1:`████████`
+        ``hotpink``                 :hotpink:`████████`
+        ``indianred1``              :indianred1:`████████`
+        ``hotpink1``                :hotpink1:`████████`
+        ``coral1``                  :coral1:`████████`
+        ``darkorange1``             :darkorange1:`████████`
+        ``chocolate1``              :chocolate1:`████████`
+        ``coral``                   :coral:`████████`
+        ``sienna1``                 :sienna1:`████████`
+        ``palevioletred1``          :palevioletred1:`████████`
+        ``orchid1``                 :orchid1:`████████`
+        ``darkorange``              :darkorange:`████████`
+        ``salmon1``                 :salmon1:`████████`
+        ``lightsalmon``             :lightsalmon:`████████`
+        ``lightsalmon1``            :lightsalmon1:`████████`
+        ``orange``                  :orange:`████████`
+        ``orange1``                 :orange1:`████████`
+        ``tan1``                    :tan1:`████████`
+        ``lightpink1``              :lightpink1:`████████`
+        ``pink1``                   :pink1:`████████`
+        ``lightpink``               :lightpink:`████████`
+        ``darkgoldenrod1``          :darkgoldenrod1:`████████`
+        ``plum1``                   :plum1:`████████`
+        ``pink``                    :pink:`████████`
+        ``goldenrod1``              :goldenrod1:`████████`
+        ``rosybrown1``              :rosybrown1:`████████`
+        ``burlywood1``              :burlywood1:`████████`
+        ``gold``                    :gold:`████████`
+        ``gold1``                   :gold1:`████████`
+        ``peachpuff``               :peachpuff:`████████`
+        ``peachpuff1``              :peachpuff1:`████████`
+        ``navajowhite``             :navajowhite:`████████`
+        ``navajowhite1``            :navajowhite1:`████████`
+        ``thistle1``                :thistle1:`████████`
+        ``moccasin``                :moccasin:`████████`
+        ``bisque``                  :bisque:`████████`
+        ``bisque1``                 :bisque1:`████████`
+        ``mistyrose``               :mistyrose:`████████`
+        ``mistyrose1``              :mistyrose1:`████████`
+        ``wheat1``                  :wheat1:`████████`
+        ``blanchedalmond``          :blanchedalmond:`████████`
+        ``lightgoldenrod1``         :lightgoldenrod1:`████████`
+        ``papayawhip``              :papayawhip:`████████`
+        ``antiquewhite1``           :antiquewhite1:`████████`
+        ``lavenderblush``           :lavenderblush:`████████`
+        ``lavenderblush1``          :lavenderblush1:`████████`
+        ``seashell``                :seashell:`████████`
+        ``seashell1``               :seashell1:`████████`
+        ``khaki1``                  :khaki1:`████████`
+        ``cornsilk``                :cornsilk:`████████`
+        ``cornsilk1``               :cornsilk1:`████████`
+        ``lemonchiffon``            :lemonchiffon:`████████`
+        ``lemonchiffon1``           :lemonchiffon1:`████████`
+        ``floralwhite``             :floralwhite:`████████`
+        ``snow``                    :snow:`████████`
+        ``snow1``                   :snow1:`████████`
+        ``yellow``                  :yellow:`████████`
+        ``yellow1``                 :yellow1:`████████`
+        ``lightyellow``             :lightyellow:`████████`
+        ``lightyellow1``            :lightyellow1:`████████`
+        ``ivory``                   :ivory:`████████`
+        ``ivory1``                  :ivory1:`████████`
+        ``gray100``                 :gray100:`████████`
+        ``grey100``                 :grey100:`████████`
+        ``white``                   :white:`████████`
+        ==========================  ==========================
