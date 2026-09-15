@@ -1,3 +1,136 @@
+import pygame
+import random
+import sys
+
+# Inisialisasi Pygame
+pygame.init()
+
+# Konstanta Layar & Warna
+WIDTH, HEIGHT = 800, 400
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Spongebob Indonesia Run")
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+YELLOW = (240, 200, 0)
+RED = (200, 50, 50)
+SKY_BLUE = (135, 206, 235)
+BROWN = (139, 69, 19)
+
+FPS = 60
+clock = pygame.time.Clock()
+
+# Karakter Spongebob
+class Player:
+    def __init__(self):
+        self.x = 80
+        self.y = 300
+        self.width = 40
+        self.height = 50
+        self.vel_y = 0
+        self.is_jumping = False
+        self.gravity = 0.8
+
+    def jump(self):
+        if not self.is_jumping:
+            self.vel_y = -14
+            self.is_jumping = True
+
+    def update(self):
+        self.vel_y += self.gravity
+        self.y += self.vel_y
+
+        # Batas tanah
+        if self.y >= 300:
+            self.y = 300
+            self.is_jumping = False
+
+    def draw(self):
+        # Menggunakan bentuk sederhana (Kotak Kuning)
+        pygame.draw.rect(SCREEN, YELLOW, (self.x, self.y, self.width, self.height))
+        # Mata Spongebob
+        pygame.draw.circle(SCREEN, WHITE, (self.x + 12, self.y + 15), 6)
+        pygame.draw.circle(SCREEN, WHITE, (self.x + 28, self.y + 15), 6)
+
+# Rintangan (Lubang/Bus/Batu)
+class Obstacle:
+    def __init__(self, speed):
+        self.x = WIDTH
+        self.width = random.choice([30, 50])
+        self.height = random.choice([40, 60])
+        self.y = 350 - self.height
+        self.speed = speed
+
+    def update(self):
+        self.x -= self.speed
+
+    def draw(self):
+        pygame.draw.rect(SCREEN, RED, (self.x, self.y, self.width, self.height))
+
+def main():
+    player = Player()
+    obstacles = []
+    spawn_timer = 0
+    game_speed = 6
+    score = 0
+    font = pygame.font.SysFont("Arial", 24)
+    running = True
+
+    while running:
+        clock.tick(FPS)
+        SCREEN.fill(SKY_BLUE)
+
+        # Gambar Jalanan
+        pygame.draw.rect(SCREEN, BROWN, (0, 350, WIDTH, 50))
+
+        # Event Handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE or event.key == pygame.K_UP:
+                    player.jump()
+
+        # Update Player
+        player.update()
+        player.draw()
+
+        # Spawn Rintangan
+        spawn_timer += 1
+        if spawn_timer > random.randint(60, 110):
+            obstacles.append(Obstacle(game_speed))
+            spawn_timer = 0
+
+        # Update & Cek Tabrakan Rintangan
+        for obstacle in list(obstacles):
+            obstacle.update()
+            obstacle.draw()
+
+            # Deteksi Tabrakan (Hitbox)
+            player_rect = pygame.Rect(player.x, player.y, player.width, player.height)
+            obstacle_rect = pygame.Rect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
+
+            if player_rect.colliderect(obstacle_rect):
+                print(f"Game Over! Skor Akhir: {score}")
+                running = False
+
+            # Hapus rintangan keluar layar & tambah skor
+            if obstacle.x + obstacle.width < 0:
+                obstacles.remove(obstacle)
+                score += 10
+                if score % 50 == 0:
+                    game_speed += 0.5  # Makin lama makin cepat
+
+        # Tampilkan Skor
+        score_text = font.render(f"Skor: {score}", True, BLACK)
+        SCREEN.blit(score_text, (20, 20))
+
+        pygame.display.update()
+
+if __name__ == "__main__":
+    main()
 Pygame Front Page
 =================
 
