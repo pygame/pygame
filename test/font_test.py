@@ -4,6 +4,8 @@ import os
 import unittest
 import pathlib
 import platform
+import subprocess
+import textwrap
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
@@ -217,6 +219,113 @@ class FontModuleTest(unittest.TestCase):
         pygame_font.init()
         del font
         gc.collect()
+
+    @unittest.skipIf(
+        sys.platform == "emscripten", "subprocess/threading unavailable on Emscripten"
+    )
+    def test_font_open_and_quit_thread_safe(self):
+        if pygame_font.__name__ != "pygame.font":
+            self.skipTest("pygame.ftfont does not use SDL_ttf font lifecycle")
+
+        font_path = os.path.join(FONTDIR, "test_sans.ttf")
+        child_code = textwrap.dedent(
+            """
+            import gc
+            import io
+            import sys
+            import threading
+
+            from pygame import font as pygame_font
+
+            with open(sys.argv[1], "rb") as font_file:
+                font_data = font_file.read()
+
+            read_entered = threading.Event()
+            quit_started = threading.Event()
+            errors = []
+            fonts = []
+            close_states = []
+
+            class BlockingFontStream(io.BytesIO):
+                def __init__(self, data):
+                    super().__init__(data)
+                    self.blocked_once = False
+
+                def read(self, size=-1):
+                    if not self.blocked_once:
+                        self.blocked_once = True
+                        read_entered.set()
+                        if not quit_started.wait(5):
+                            raise RuntimeError("quit thread did not start")
+                    return super().read(size)
+
+                def close(self):
+                    close_states.append(pygame_font.get_init())
+                    super().close()
+
+            stream = BlockingFontStream(font_data)
+            pygame_font.init()
+
+            def open_font():
+                try:
+                    fonts.append(pygame_font.Font(stream, 20))
+                except BaseException as exc:
+                    errors.append(("open", repr(exc)))
+
+            def quit_font():
+                try:
+                    if not read_entered.wait(5):
+                        raise RuntimeError("font read callback did not start")
+                    quit_started.set()
+                    pygame_font.quit()
+                except BaseException as exc:
+                    errors.append(("quit", repr(exc)))
+
+            open_thread = threading.Thread(target=open_font)
+            quit_thread = threading.Thread(target=quit_font)
+            open_thread.start()
+            quit_thread.start()
+            open_thread.join(10)
+            quit_thread.join(10)
+
+            if open_thread.is_alive() or quit_thread.is_alive():
+                raise RuntimeError("font lifecycle threads deadlocked")
+            if errors:
+                raise RuntimeError(errors)
+            if len(fonts) != 1:
+                raise RuntimeError("font construction did not complete")
+            if pygame_font.get_init():
+                raise RuntimeError("font module should be quit")
+
+            pygame_font.init()
+            font = fonts.pop()
+            del font
+            gc.collect()
+
+            if not stream.closed:
+                raise RuntimeError("font stream was not closed")
+            if close_states != [True]:
+                raise RuntimeError(f"unexpected close callback state: {close_states!r}")
+
+            pygame_font.quit()
+            """
+        )
+
+        try:
+            result = subprocess.run(
+                [sys.executable, "-c", child_code, font_path],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            self.fail("font open/quit subprocess deadlocked")
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
 
     def test_quit(self):
         pygame_font.quit()

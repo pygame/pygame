@@ -61,6 +61,11 @@ PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static unsigned int current_ttf_generation = 0;
+#ifndef __EMSCRIPTEN__
+static SDL_mutex *pg_font_lifecycle_mutex = NULL;
+static SDL_SpinLock pg_font_lifecycle_mutex_init_lock = 0;
+#endif
+
 #if defined(BUILD_STATIC)
 // SDL_Init + TTF_Init()  are made in main before CPython process the module
 // inittab so the emscripten handler knows it will use SDL2 next cycle.
@@ -73,6 +78,24 @@ static const char resourcefunc_name[] = "getResource";
 static const char font_defaultname[] = "freesansbold.ttf";
 
 static const int font_defaultsize = 12;
+
+static int
+pg_font_lifecycle_lock(void)
+{
+#ifndef __EMSCRIPTEN__
+    return SDL_LockMutex(pg_font_lifecycle_mutex);
+#else
+    return 0;
+#endif
+}
+
+static void
+pg_font_lifecycle_unlock(void)
+{
+#ifndef __EMSCRIPTEN__
+    SDL_UnlockMutex(pg_font_lifecycle_mutex);
+#endif
+}
 
 /*
  */
@@ -156,30 +179,72 @@ font_resource(const char *filename)
 static PyObject *
 fontmodule_init(PyObject *self, PyObject *_null)
 {
-    if (!font_initialized) {
-        if (TTF_Init())
-            return RAISE(pgExc_SDLError, SDL_GetError());
+    int lock_result;
+    int init_result = 0;
 
-        font_initialized = 1;
+    Py_BEGIN_ALLOW_THREADS;
+    lock_result = pg_font_lifecycle_lock();
+    if (lock_result == 0) {
+        if (!font_initialized) {
+            init_result = TTF_Init();
+            if (!init_result) {
+                font_initialized = 1;
+            }
+        }
+        pg_font_lifecycle_unlock();
     }
+    Py_END_ALLOW_THREADS;
+
+    if (lock_result < 0 || init_result) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 fontmodule_quit(PyObject *self, PyObject *_null)
 {
-    if (font_initialized) {
-        TTF_Quit();
-        font_initialized = 0;
-        current_ttf_generation++;
+    int lock_result;
+
+    Py_BEGIN_ALLOW_THREADS;
+    lock_result = pg_font_lifecycle_lock();
+    if (lock_result == 0) {
+        if (font_initialized) {
+            TTF_Quit();
+            font_initialized = 0;
+            current_ttf_generation++;
+        }
+        pg_font_lifecycle_unlock();
     }
+    Py_END_ALLOW_THREADS;
+
+    if (lock_result < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_font_get_init(PyObject *self, PyObject *_null)
 {
-    return PyBool_FromLong(font_initialized);
+    int lock_result;
+    int initialized = 0;
+
+    Py_BEGIN_ALLOW_THREADS;
+    lock_result = pg_font_lifecycle_lock();
+    if (lock_result == 0) {
+        initialized = font_initialized;
+        pg_font_lifecycle_unlock();
+    }
+    Py_END_ALLOW_THREADS;
+
+    if (lock_result < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return PyBool_FromLong(initialized);
 }
 
 /* font object methods */
@@ -709,15 +774,30 @@ static void
 font_dealloc(PyFontObject *self)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    if (font && font_initialized) {
-        if (self->ttf_init_generation != current_ttf_generation) {
-            // Since TTF_Font is a private structure
-            // it's impossible to access face field in a common way.
-            long **face_pp = (long **)font;
-            *face_pp = NULL;
+    int lock_result = 0;
+
+    self->font = NULL;
+    if (font) {
+        Py_BEGIN_ALLOW_THREADS;
+        lock_result = pg_font_lifecycle_lock();
+        if (lock_result == 0) {
+            if (font_initialized) {
+                if (self->ttf_init_generation != current_ttf_generation) {
+                    // Since TTF_Font is a private structure
+                    // it's impossible to access face field in a common way.
+                    long **face_pp = (long **)font;
+                    *face_pp = NULL;
+                }
+                TTF_CloseFont(font);
+            }
+            pg_font_lifecycle_unlock();
         }
-        TTF_CloseFont(font);
-        self->font = NULL;
+        Py_END_ALLOW_THREADS;
+    }
+
+    if (lock_result < 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        PyErr_WriteUnraisable((PyObject *)self);
     }
 
     if (self->weakreflist)
@@ -732,6 +812,10 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     TTF_Font *font = NULL;
     PyObject *obj = Py_None;
     SDL_RWops *rw;
+    int lock_result;
+    int initialized = 0;
+    int open_allowed = 0;
+    unsigned int ttf_generation = 0;
 
     static char *kwlist[] = {"font", "size", NULL};
 
@@ -741,7 +825,19 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (!font_initialized) {
+    Py_BEGIN_ALLOW_THREADS;
+    lock_result = pg_font_lifecycle_lock();
+    if (lock_result == 0) {
+        initialized = font_initialized;
+        pg_font_lifecycle_unlock();
+    }
+    Py_END_ALLOW_THREADS;
+
+    if (lock_result < 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    if (!initialized) {
         PyErr_SetString(pgExc_SDLError, "font not initialized");
         return -1;
     }
@@ -802,13 +898,35 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     if (fontsize <= 1)
         fontsize = 1;
 
+    lock_result = 0;
     Py_BEGIN_ALLOW_THREADS;
-    font = TTF_OpenFontRW(rw, 1, fontsize);
+    lock_result = pg_font_lifecycle_lock();
+    if (lock_result == 0) {
+        if (font_initialized) {
+            open_allowed = 1;
+            font = TTF_OpenFontRW(rw, 1, fontsize);
+            ttf_generation = current_ttf_generation;
+        }
+        pg_font_lifecycle_unlock();
+    }
     Py_END_ALLOW_THREADS;
+
+    if (lock_result < 0 || !open_allowed) {
+        SDL_RWclose(rw);
+        Py_DECREF(obj);
+        if (lock_result < 0) {
+            PyErr_SetString(pgExc_SDLError,
+                            "could not lock font lifecycle mutex");
+        }
+        else {
+            PyErr_SetString(pgExc_SDLError, "font not initialized");
+        }
+        return -1;
+    }
 
     Py_DECREF(obj);
     self->font = font;
-    self->ttf_init_generation = current_ttf_generation;
+    self->ttf_init_generation = ttf_generation;
 
     return 0;
 
@@ -908,6 +1026,20 @@ MODINIT_DEFINE(font)
     if (PyErr_Occurred()) {
         return NULL;
     }
+
+#ifndef __EMSCRIPTEN__
+    SDL_AtomicLock(&pg_font_lifecycle_mutex_init_lock);
+    if (!pg_font_lifecycle_mutex) {
+        pg_font_lifecycle_mutex = SDL_CreateMutex();
+    }
+    SDL_AtomicUnlock(&pg_font_lifecycle_mutex_init_lock);
+
+    if (!pg_font_lifecycle_mutex) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return NULL;
+    }
+#endif
+
     import_pygame_color();
     if (PyErr_Occurred()) {
         return NULL;
