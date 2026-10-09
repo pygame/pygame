@@ -1,5 +1,18 @@
 {%- extends "!layout.html" %}
 
+{%- block extrahead %}
+<script>
+  (function() {
+    var theme = localStorage.getItem('pygame-theme');
+    if (!theme) {
+      theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+{{ super() }}
+{%- endblock %}
+
 {%- if not theme_relbar %}
 {%-   block relbar1 %}{# Do not want bar across the top #}{% endblock %}
 {%- endif %}
@@ -7,88 +20,180 @@
 {#- Classic header with Snakey on the left, page links on the right.
  #}
 {%- macro header() %}
-  <div class="header">
-	<div class="flex-container">
-	<div class="logo">
-	  <a href="{{ theme_home_uri }}">
-	    <img src="{{logo_url}}" alt="logo image"/>
-	  </a>
-	  <h5>pygame documentation</h5>
-	</div>
-	<div class="pagelinks">
-	  <div class="top">
-	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
-	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
-	    <a href="{{ pathto('genindex') }}">Reference Index</a>
-
-        <form action="{{ pathto('search') }}" method="get" style="display:inline;float:right;">
-          <input name="q" value="" type="text">
-          <input value="search" type="submit">
-        </form>
-	  </div>
-	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+  <header class="header">
+    <div class="header-container">
+      <div class="header-top">
+        <div class="logo">
+          <a href="{{ pathto(master_doc) }}">
+            <img src="{{logo_url}}" alt="pygame logo"/>
+            <span class="logo-title">pygame</span>
+            <span class="logo-badge">docs</span>
+          </a>
+        </div>
+        <nav class="header-nav">
+          <a href="{{ pathto(master_doc) }}">Home</a>
+          <a href="{{ pathto(master_doc) }}">Help Contents</a>
+          <a href="{{ pathto('genindex') }}">Reference Index</a>
+        </nav>
+        <div class="header-right">
+          <div class="header-search">
+            <form action="{{ pathto('search') }}" method="get">
+              <input name="q" value="" type="text" placeholder="Search docs..." aria-label="Search docs">
+              <button type="submit" aria-label="Search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+            </form>
+          </div>
+          <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+            <svg class="theme-icon theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="theme-icon theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
 {#-
-
-We render three sets of items based on how useful to most apps.
-
+We render two tab panels: Learn (Tutorials & Examples) and Reference (Core, Advanced, Other).
 #}
 {%- set basic = ['Color', 'display', 'draw', 'event', 'font', 'image', 'key', 'locals', 'mixer', 'mouse', 'music', 'pygame', 'Rect', 'Surface', 'time'] %}
 {%- set advanced = ['BufferProxy', 'freetype', 'gfxdraw', 'midi', 'PixelArray', 'pixelcopy', 'sndarray', 'surfarray', 'cursors', 'joystick', 'mask', 'math', 'sprite', 'transform'] %}
-{%- set hidden = ['Overlay', 'cdrom', 'sdl2_video', 'sdl2_controller'] %}
-{%-   if pyg_sections %}
-	  <p class="bottom"><strong>Most useful stuff</strong>:
-{%      set sep = joiner(" | \n") %}
-{%-     for section in pyg_sections %}
-{%-       set docname = section['docname'] %}
-{%-       set simpledocname = docname.split('/')[-1] %}
-{%-       set name = section['fullname'].split('.')[-1] %}
-{%-       set uri = pathto(docname, 1) + file_suffix -%}
-{%-       if name|lower != simpledocname %}
-{%-         set uri = uri + '#' + section['refid'] %}
-{%-       endif %}
-{%-       if name in basic %}
-{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
-{%-       endif %}
-{%-     endfor %}
-	  </p>
+{%- set hidden = ['Overlay', 'cdrom', 'sdl2_video', 'sdl2_controller', 'examples'] %}
+      <div class="header-modules">
+        <div class="header-nav-tabs" role="tablist">
+          <button type="button" class="nav-tab active" data-tab="learn" role="tab" aria-selected="true" id="tab-btn-learn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 1-4 4v14a3 3 0 0 0 3-3h7z"></path></svg>
+            {%- if language == 'es' %}Aprender y Ejemplos{%- else %}Learn &amp; Examples{%- endif %}
+          </button>
+          <button type="button" class="nav-tab" data-tab="reference" role="tab" aria-selected="false" id="tab-btn-reference">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            {%- if language == 'es' %}Referencia API{%- else %}API Reference{%- endif %}
+          </button>
+        </div>
 
-	  <p class="bottom"><strong>Advanced stuff</strong>:
-{%      set sep = joiner(" | \n") %}
-{%-     for section in pyg_sections %}
-{%-       set docname = section['docname'] %}
-{%-       set simpledocname = docname.split('/')[-1] %}
-{%-       set name = section['fullname'].split('.')[-1] %}
-{%-       set uri = pathto(docname, 1) + file_suffix -%}
-{%-       if name|lower != simpledocname %}
-{%-         set uri = uri + '#' + section['refid'] %}
-{%-       endif %}
-{%-       if name in advanced %}
-{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
-{%-       endif %}
-{%-     endfor %}
-	  </p>
+        <div class="header-tab-panel active" id="tab-panel-learn" role="tabpanel" aria-labelledby="tab-btn-learn">
+          <div class="module-group">
+            <span class="group-title">{%- if language == 'es' %}Tutoriales{%- else %}Tutorials{%- endif %}</span>
+            <div class="group-links">
+{%- if language == 'es' %}
+              <a href="{{ pathto('tutorials/IniciarImportar.html', 1) }}" class="module-chip{% if pagename == 'tutorials/IniciarImportar' %} active{% endif %}">Iniciar e Importar</a>
+              <a href="{{ pathto('tutorials/MoverImagen.html', 1) }}" class="module-chip{% if pagename == 'tutorials/MoverImagen' %} active{% endif %}">Mover Imagen</a>
+              <a href="{{ pathto('tutorials/ChimpanceLineaporLinea.html', 1) }}" class="module-chip{% if pagename == 'tutorials/ChimpanceLineaporLinea' %} active{% endif %}">Chimpancé</a>
+              <a href="{{ pathto('tutorials/CrearJuegos.html', 1) }}" class="module-chip{% if pagename == 'tutorials/CrearJuegos' %} active{% endif %}">Crear Juegos</a>
+              <a href="{{ pathto('tutorials/SpriteIntro.html', 1) }}" class="module-chip{% if pagename == 'tutorials/SpriteIntro' %} active{% endif %}">Sprites</a>
+              <a href="{{ pathto('tutorials/SurfarrayIntro.html', 1) }}" class="module-chip{% if pagename == 'tutorials/SurfarrayIntro' %} active{% endif %}">Surfarray</a>
+              <a href="{{ pathto('tutorials/CamaraIntro.html', 1) }}" class="module-chip{% if pagename == 'tutorials/CamaraIntro' %} active{% endif %}">Cámara</a>
+              <a href="{{ pathto('tutorials/GuiaNewbie.html', 1) }}" class="module-chip{% if pagename == 'tutorials/GuiaNewbie' %} active{% endif %}">Guía Newbie</a>
+{%- else %}
+              <a href="{{ pathto('tut/PygameIntro.html', 1) }}" class="module-chip{% if pagename == 'tut/PygameIntro' %} active{% endif %}">Intro</a>
+              <a href="{{ pathto('tut/ImportInit.html', 1) }}" class="module-chip{% if pagename == 'tut/ImportInit' %} active{% endif %}">Import &amp; Init</a>
+              <a href="{{ pathto('tut/MoveIt.html', 1) }}" class="module-chip{% if pagename == 'tut/MoveIt' %} active{% endif %}">Move Image</a>
+              <a href="{{ pathto('tut/ChimpLineByLine.html', 1) }}" class="module-chip{% if pagename == 'tut/ChimpLineByLine' %} active{% endif %}">Chimp Tutorial</a>
+              <a href="{{ pathto('tut/MakeGames.html', 1) }}" class="module-chip{% if pagename == 'tut/MakeGames' %} active{% endif %}">Make Games</a>
+              <a href="{{ pathto('tut/SpriteIntro.html', 1) }}" class="module-chip{% if pagename == 'tut/SpriteIntro' %} active{% endif %}">Sprites</a>
+              <a href="{{ pathto('tut/SurfarrayIntro.html', 1) }}" class="module-chip{% if pagename == 'tut/SurfarrayIntro' %} active{% endif %}">Surfarray</a>
+              <a href="{{ pathto('tut/CameraIntro.html', 1) }}" class="module-chip{% if pagename == 'tut/CameraIntro' %} active{% endif %}">Camera</a>
+              <a href="{{ pathto('tut/newbieguide.html', 1) }}" class="module-chip{% if pagename == 'tut/newbieguide' %} active{% endif %}">Newbie Guide</a>
+{%- endif %}
+            </div>
+          </div>
 
-	  <p class="bottom"><strong>Other</strong>:
-{%      set sep = joiner(" | \n") %}
-{%-     for section in pyg_sections %}
-{%-       set docname = section['docname'] %}
-{%-       set simpledocname = docname.split('/')[-1] %}
-{%-       set name = section['fullname'].split('.')[-1] %}
-{%-       set uri = pathto(docname, 1) + file_suffix -%}
-{%-       if name|lower != simpledocname %}
-{%-         set uri = uri + '#' + section['refid'] %}
-{%-       endif %}
-{%-       if name not in basic and name not in advanced and name not in hidden %}
-{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
-{%-       endif %}
-{%-     endfor %}
-	  </p>
+          <div class="module-group">
+            <span class="group-title">{%- if language == 'es' %}Ejemplos{%- else %}Examples{%- endif %}</span>
+            <div class="group-links">
+{%- if language == 'es' %}
+  {%- set ex_doc = pathto('../ref/examples.html', 1) %}
+{%- else %}
+  {%- set ex_doc = pathto('ref/examples.html', 1) %}
+{%- endif %}
+{%- set ex_base = '' if ex_doc == '#' else ex_doc %}
+              <a href="{{ ex_doc }}" class="module-chip" id="chip-overview-all">{%- if language == 'es' %}Todos los ejemplos{%- else %}Overview (All){%- endif %}</a>
+              <a href="{{ ex_base }}#pygame.examples.aliens.main" class="module-chip">aliens</a>
+              <a href="{{ ex_base }}#pygame.examples.chimp.main" class="module-chip">chimp</a>
+              <a href="{{ ex_base }}#pygame.examples.stars.main" class="module-chip">stars</a>
+              <a href="{{ ex_base }}#pygame.examples.moveit.main" class="module-chip">moveit</a>
+              <a href="{{ ex_base }}#pygame.examples.liquid.main" class="module-chip">liquid</a>
+              <a href="{{ ex_base }}#pygame.examples.glcube.main" class="module-chip">glcube</a>
+              <a href="{{ ex_base }}#pygame.examples.sound.main" class="module-chip">sound</a>
+              <a href="{{ ex_base }}#pygame.examples.mask.main" class="module-chip">mask</a>
+              <a href="{{ ex_base }}#pygame.examples.scaletest.main" class="module-chip">scaletest</a>
+              <a href="{{ ex_base }}#pygame.examples.eventlist.main" class="module-chip">eventlist</a>
+            </div>
+          </div>
+        </div>
 
+        <div class="header-tab-panel" id="tab-panel-reference" role="tabpanel" aria-labelledby="tab-btn-reference">
+{%- if pyg_sections %}
+          <div class="module-group">
+            <span class="group-title">Core</span>
+            <div class="group-links">
+{%-   for section in pyg_sections %}
+{%-     set docname = section['docname'] %}
+{%-     set simpledocname = docname.split('/')[-1] %}
+{%-     set name = section['fullname'].split('.')[-1] %}
+{%-     set uri = pathto(docname, 1) + file_suffix -%}
+{%-     if name|lower != simpledocname %}
+{%-       set uri = uri + '#' + section['refid'] %}
+{%-     endif %}
+{%-     if name in basic %}
+              <a href="{{ uri }}" class="module-chip{% if docname == pagename %} active{% endif %}">{{ name }}</a>
+{%-     endif %}
+{%-   endfor %}
+            </div>
+          </div>
 
-{%-   endif  %}
-</div>
-</div>
-  </div>
+          <div class="module-group">
+            <span class="group-title">Advanced</span>
+            <div class="group-links">
+{%-   for section in pyg_sections %}
+{%-     set docname = section['docname'] %}
+{%-     set simpledocname = docname.split('/')[-1] %}
+{%-     set name = section['fullname'].split('.')[-1] %}
+{%-     set uri = pathto(docname, 1) + file_suffix -%}
+{%-     if name|lower != simpledocname %}
+{%-       set uri = uri + '#' + section['refid'] %}
+{%-     endif %}
+{%-     if name in advanced %}
+              <a href="{{ uri }}" class="module-chip{% if docname == pagename %} active{% endif %}">{{ name }}</a>
+{%-     endif %}
+{%-   endfor %}
+            </div>
+          </div>
+
+          <div class="module-group">
+            <span class="group-title">Other</span>
+            <div class="group-links">
+{%-   for section in pyg_sections %}
+{%-     set docname = section['docname'] %}
+{%-     set simpledocname = docname.split('/')[-1] %}
+{%-     set name = section['fullname'].split('.')[-1] %}
+{%-     set uri = pathto(docname, 1) + file_suffix -%}
+{%-     if name|lower != simpledocname %}
+{%-       set uri = uri + '#' + section['refid'] %}
+{%-     endif %}
+{%-     if name not in basic and name not in advanced and name not in hidden %}
+              <a href="{{ uri }}" class="module-chip{% if docname == pagename %} active{% endif %}">{{ name }}</a>
+{%-     endif %}
+{%-   endfor %}
+            </div>
+          </div>
+{%- endif %}
+        </div>
+      </div>
+    </div>
+  </header>
 {%- endmacro %}
 
 {%- block body %}
