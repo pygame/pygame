@@ -1,4 +1,6 @@
 import collections
+import concurrent.futures
+import threading
 import time
 import unittest
 import os
@@ -255,6 +257,41 @@ class EventCustomTypeTest(unittest.TestCase):
         queue = pygame.event.get(atype)
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0].type, atype)
+
+    def test_custom_type__thread_safe(self):
+        """Concurrent custom_type() calls must not return duplicate types."""
+        worker_count = 16
+        start = pygame.USEREVENT + 1
+        expected = set(range(start, pygame.NUMEVENTS))
+        barrier = threading.Barrier(worker_count)
+
+        def allocate_one():
+            try:
+                return pygame.event.custom_type()
+            except pygame.error:
+                return None
+
+        def allocate_until_exhausted():
+            barrier.wait()
+            allocated = []
+            while True:
+                event_type = allocate_one()
+                if event_type is None:
+                    return allocated
+                allocated.append(event_type)
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=worker_count
+        ) as executor:
+            futures = [
+                executor.submit(allocate_until_exhausted) for _ in range(worker_count)
+            ]
+            allocated = [
+                event_type for future in futures for event_type in future.result()
+            ]
+
+        self.assertEqual(set(allocated), expected)
+        self.assertEqual(len(allocated), len(expected))
 
     def test_custom_type__end_boundary(self):
         """Ensure custom_type() raises error when no more custom types.
