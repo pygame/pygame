@@ -63,6 +63,15 @@ static PyObject *joy_instance_map = NULL;
 static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
 static int _pg_event_is_init = 0;
 
+#ifdef Py_GIL_DISABLED
+static PyMutex _pg_event_state_mutex = {0};
+#define PG_LOCK_EVENT_STATE() PyMutex_Lock(&_pg_event_state_mutex)
+#define PG_UNLOCK_EVENT_STATE() PyMutex_Unlock(&_pg_event_state_mutex)
+#else
+#define PG_LOCK_EVENT_STATE()
+#define PG_UNLOCK_EVENT_STATE()
+#endif
+
 /* Length of our unicode string in bytes. We need 1 to 3 bytes to store
  * our unicode data, so we use a length of 4, to include the NULL byte
  * at the end as well */
@@ -621,6 +630,7 @@ pg_GetKeyRepeat(int *delay, int *interval)
 static PyObject *
 pgEvent_AutoQuit(PyObject *self, PyObject *_null)
 {
+    PG_LOCK_EVENT_STATE();
     if (_pg_event_is_init) {
         PG_LOCK_EVFILTER_MUTEX
         if (_pg_repeat_timer) {
@@ -635,12 +645,14 @@ pgEvent_AutoQuit(PyObject *self, PyObject *_null)
         _custom_event = _PGE_CUSTOM_EVENT_INIT;
     }
     _pg_event_is_init = 0;
+    PG_UNLOCK_EVENT_STATE();
     Py_RETURN_NONE;
 }
 
 static PyObject *
 pgEvent_AutoInit(PyObject *self, PyObject *_null)
 {
+    PG_LOCK_EVENT_STATE();
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
@@ -648,13 +660,16 @@ pgEvent_AutoInit(PyObject *self, PyObject *_null)
         if (!pg_evfilter_mutex) {
             /* Create mutex only if it has not been created already */
             pg_evfilter_mutex = SDL_CreateMutex();
-            if (!pg_evfilter_mutex)
+            if (!pg_evfilter_mutex) {
+                PG_UNLOCK_EVENT_STATE();
                 return RAISE(pgExc_SDLError, SDL_GetError());
+            }
         }
 #endif
         SDL_SetEventFilter(pg_event_filter, NULL);
     }
     _pg_event_is_init = 1;
+    PG_UNLOCK_EVENT_STATE();
     Py_RETURN_NONE;
 }
 
@@ -874,16 +889,28 @@ _joy_map_add(int device_index)
 PyObject *
 _joy_map_instance(int instance_id)
 {
-    PyObject *v, *k = PyLong_FromLong(instance_id);
+    PyObject *v = NULL, *k = PyLong_FromLong(instance_id);
     if (!k) {
         Py_RETURN_NONE;
     }
+#ifdef Py_GIL_DISABLED
+    int found = PyDict_GetItemRef(joy_instance_map, k, &v);
+    if (found < 0) {
+        Py_DECREF(k);
+        return NULL;
+    }
+    if (found) {
+        Py_DECREF(k);
+        return v;
+    }
+#else
     v = PyDict_GetItem(joy_instance_map, k);
     if (v) {
         Py_DECREF(k);
         Py_INCREF(v);
         return v;
     }
+#endif
     return k;
 }
 
@@ -2245,11 +2272,17 @@ pg_event_get_blocked(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *_null)
 {
+    PyObject *result;
+
+    PG_LOCK_EVENT_STATE();
     if (_custom_event < PG_NUMEVENTS)
-        return PyLong_FromLong(_custom_event++);
+        result = PyLong_FromLong(_custom_event++);
     else
-        return RAISE(pgExc_SDLError,
-                     "pygame.event.custom_type made too many event types.");
+        result = RAISE(pgExc_SDLError,
+                       "pygame.event.custom_type made too many event types.");
+    PG_UNLOCK_EVENT_STATE();
+
+    return result;
 }
 
 static PyMethodDef _event_methods[] = {
