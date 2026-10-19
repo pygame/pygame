@@ -1,0 +1,75 @@
+class Player:
+    def __init__(self, x, y):
+        self.x = float(x)
+        self.y = float(y)
+        self.size = 40
+        self.speed = 450.0  # Пікселів за секунду (через DT)
+        self.hp = 100.0
+        self.max_hp = 100.0
+        self.color = (52, 152, 219) # Синій Тимко
+
+    def handle_input(self, dt):
+        keys = pygame.key.get_pressed()
+        
+        # Рух по горизонталі
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.x -= self.speed * dt
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.x += self.speed * dt
+
+        # Обмеження стінами кімнати (біля дверей)
+        if self.x < LEFT_DOOR_X: self.x = LEFT_DOOR_X
+        if self.x > RIGHT_DOOR_X - self.size: self.x = RIGHT_DOOR_X - self.size
+
+    def draw(self, surface):
+        # Малюємо синій квадрат Тимка
+        pygame.draw.rect(surface, self.color, (int(self.x), int(self.y), self.size, self.size))
+        
+        bar_w, bar_h = 50, 6
+        x_bar = int(self.x) - (bar_w - self.size) // 2
+        y_bar = int(self.y) - 15
+        
+        current_bar_w = int((self.hp / self.max_hp) * bar_w)
+        # Червона підкладка
+        pygame.draw.rect(surface, (200, 50, 50), (x_bar, y_bar, bar_w, bar_h))
+        # Зелене здоров'я
+        pygame.draw.rect(surface, (50, 200, 50), (x_bar, y_bar, current_bar_w, bar_h))
+        name_text = small_font.render("Тимко", True, self.color)
+        surface.blit(name_text, (int(self.x) + 2, int(self.y) + self.size + 5))
+timko = Player(400, 350)
+left_monster = Nightmare("left")
+right_monster = Nightmare("right")
+
+time_survived = 0.0
+game_over = False
+victory = False
+
+running = True
+while running:
+    # Розрахунок Delta Time (просування кадру)
+    dt = clock.tick(60) / 1000.0
+
+    # Системні події (закриття, рестарт)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        
+        if event.type == pygame.KEYDOWN:
+            if (game_over or victory) and event.key == pygame.K_r:
+                # Повний перезапуск
+                timko = Player(400, 350)
+                left_monster = Nightmare("left")
+                right_monster = Nightmare("right")
+                time_survived = 0.0
+                game_over = False
+                victory = False
+if not game_over and not victory:
+        time_survived += dt
+        
+        if time_survived >= 60.0:
+            victory = True
+
+        # Зчитування F4 (Ліхтарик)
+        keys = pygame.key.get_pressed()
+        flashlight_active = keys[pygame.K_F4
+screen.fill((15, 15, 22))
