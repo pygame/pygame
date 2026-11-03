@@ -1,6 +1,7 @@
 import os
 import sys
 import platform
+import subprocess
 import unittest
 import time
 
@@ -393,6 +394,35 @@ class MixerMusicModuleTest(unittest.TestCase):
         self.assertTrue(before - 1 <= after <= before + 1)
 
         pygame.mixer.music.stop()
+
+    def test_unpause_before_playback(self):
+        # Use a fresh process so no earlier test has initialized music timing.
+        code = """
+import pygame
+pygame.mixer.init()
+assert pygame.mixer.music.get_pos() == -1
+pygame.mixer.music.unpause()
+assert pygame.mixer.music.get_pos() == -1
+pygame.mixer.music.pause()
+pygame.mixer.music.unpause()
+assert pygame.mixer.music.get_pos() == -1
+pygame.mixer.quit()
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unpause_after_stop(self):
+        self.music_load("ogg")
+        pygame.mixer.music.play()
+        pygame.mixer.music.stop()
+        self.assertEqual(pygame.mixer.music.get_pos(), -1)
+        pygame.mixer.music.unpause()
+        self.assertEqual(pygame.mixer.music.get_pos(), -1)
 
     def test_set_volume(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_volume:

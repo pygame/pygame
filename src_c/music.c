@@ -195,8 +195,10 @@ music_unpause(PyObject *self, PyObject *_null)
     MIXER_INIT_CHECK();
 
     Mix_ResumeMusic();
-    /* need to set pos_time for the adjusted time spent paused*/
-    music_pos_time = SDL_GetTicks();
+    /* Adjust for time spent paused only if playback has started. */
+    if (music_pos_time >= 0) {
+        music_pos_time = SDL_GetTicks();
+    }
     Py_RETURN_NONE;
 }
 
