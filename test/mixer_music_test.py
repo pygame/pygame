@@ -412,8 +412,9 @@ pygame.mixer.quit()
             [sys.executable, "-c", code],
             # The parent may hold the real device or disk driver's output open.
             env=dict(os.environ, SDL_AUDIODRIVER="dummy"),
-            capture_output=True,
-            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
             timeout=10,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
