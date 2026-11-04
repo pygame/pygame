@@ -145,7 +145,6 @@ cdef class Sprite:
     cdef dict __dict__
 
     def __cinit__(self):
-        self.__dict__ = {}
         self.__g = set() # The groups the sprite is in
 
     def __init__(self, *groups):
