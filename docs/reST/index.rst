@@ -36,7 +36,7 @@ section below, check out a video tutorial (`I'm a fan of this one
 <https://www.youtube.com/watch?v=AY9MnQ4x3zk>`_), or reference the API
 documentation by module.
 
-Documents
+Docs
 ---------
 
 `Readme`_
