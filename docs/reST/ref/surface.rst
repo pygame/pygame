@@ -200,6 +200,10 @@
       As with :meth:`convert()` the returned surface has the same class as
       the converted surface.
 
+      .. note:: The optional ``Surface`` argument is currently accepted but
+         ignored. The result is the same as calling ``convert_alpha()`` with no
+         argument.
+
       .. ## Surface.convert_alpha ##
 
    .. method:: copy
