@@ -699,7 +699,8 @@ Sprites are not thread safe. So lock them yourself if using threads.
    attribute of each Sprite.
 
    The dokill argument is a bool. If set to True, all Sprites that collide will
-   be removed from the Group.
+   be killed, meaning they are removed from every Group they belong to (see
+   :meth:`Sprite.kill`), not only from the ``group`` argument.
 
    The collided argument is a callback function used to calculate if two
    sprites are colliding. it should take two sprites as values, and return a
@@ -859,8 +860,9 @@ Sprites are not thread safe. So lock them yourself if using threads.
    Every Sprite inside group1 is added to the return dictionary. The value for
    each item is the list of Sprites in group2 that intersect.
 
-   If either dokill argument is True, the colliding Sprites will be removed
-   from their respective Group.
+   If either dokill argument is True, the colliding Sprites will be killed,
+   meaning they are removed from every Group they belong to (see
+   :meth:`Sprite.kill`), not only from their respective Group.
 
    The collided argument is a callback function used to calculate if two sprites are
    colliding. It should take two sprites as values and return a bool value
