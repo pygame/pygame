@@ -188,7 +188,9 @@ Sprites are not thread safe. So lock them yourself if using threads.
    ::
 
        normally 1, if set to 0 it will not be repainted
-       (you must set it dirty too to be erased from screen)
+       (assigning to visible also sets dirty to 1, unless dirty is already 2,
+       so the sprite is erased from the screen on the next draw; this happens
+       even if the new value is the same as the old one)
 
    layer = 0
 
