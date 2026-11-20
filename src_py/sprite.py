@@ -281,9 +281,10 @@ class DirtySprite(Sprite):
         left corner (0, 0) of self.image.
 
     visible = 1
-        Normally this is 1. If set to 0, it will not be repainted. (If you
-        change visible to 1, you must set dirty to 1 for it to be erased from
-        the screen.)
+        Normally this is 1. If set to 0, it will not be repainted. (Assigning
+        to visible also sets dirty to 1, unless dirty is already 2, so the
+        sprite is erased from the screen on the next draw. This happens even
+        if the new value is the same as the old one.)
 
     _layer = 0
         0 is the default value but this is able to be set differently
