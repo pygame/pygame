@@ -1737,6 +1737,36 @@ class GeneralSurfaceTests(unittest.TestCase):
         finally:
             pygame.display.quit()
 
+    def test_convert_alpha__surface_argument_is_ignored(self):
+        """Ensure the optional Surface argument does not change the result
+        of convert_alpha (see issue #599)."""
+        format_surfaces = (
+            pygame.Surface((5, 5), 0, 8),
+            pygame.Surface((5, 5), 0, 16),
+            pygame.Surface((5, 5), 0, 24),
+            pygame.Surface((5, 5), SRCALPHA, 32),
+        )
+
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((60, 60))
+
+            surface = pygame.Surface((23, 17), 0, 24)
+            surface.fill((10, 20, 30))
+            expected = surface.convert_alpha()
+
+            for format_surface in format_surfaces:
+                with self.subTest(bitsize=format_surface.get_bitsize()):
+                    result = surface.convert_alpha(format_surface)
+
+                    self.assertEqual(result.get_size(), expected.get_size())
+                    self.assertEqual(result.get_bitsize(), expected.get_bitsize())
+                    self.assertEqual(result.get_masks(), expected.get_masks())
+                    self.assertEqual(result.get_flags(), expected.get_flags())
+                    self.assertEqual(result.get_at((0, 0)), expected.get_at((0, 0)))
+        finally:
+            pygame.display.quit()
+
     def test_get_abs_offset(self):
         pygame.display.init()
         try:
