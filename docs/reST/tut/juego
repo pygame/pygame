@@ -1,0 +1,56 @@
+import random
+import pygame
+
+pygame.init()
+
+ANCHO, ALTO = 400, 500
+TAM = 20  # tamaño de cada píxel en pantalla
+pantalla = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Atrapa los píxeles")
+reloj = pygame.time.Clock()
+fuente = pygame.font.SysFont(None, 36)
+
+jugador = pygame.Rect(ANCHO // 2, ALTO - 40, 60, 20)
+pixeles = []  # rectángulos que caen
+puntos = 0
+velocidad = 4
+
+corriendo = True
+while corriendo:
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            corriendo = False
+
+    # 1. Leer el teclado y mover la barra
+    teclas = pygame.key.get_pressed()
+    if teclas[pygame.K_LEFT] and jugador.left > 0:
+        jugador.x -= 7
+    if teclas[pygame.K_RIGHT] and jugador.right < ANCHO:
+        jugador.x += 7
+
+    # 2. A veces aparece un píxel nuevo arriba
+    if random.random() < 0.03:
+        x = random.randrange(0, ANCHO - TAM, TAM)
+        pixeles.append(pygame.Rect(x, 0, TAM, TAM))
+
+    # 3. Mover los píxeles y revisar si chocan con la barra
+    for p in pixeles[:]:
+        p.y += velocidad
+        if p.colliderect(jugador):
+            pixeles.remove(p)
+            puntos += 1
+        elif p.top > ALTO:
+            pixeles.remove(p)
+
+    # 4. Dibujar todo
+    pantalla.fill((20, 20, 40))
+    pygame.draw.rect(pantalla, (0, 200, 255), jugador)
+    for p in pixeles:
+        pygame.draw.rect(pantalla, (255, 220, 0), p)
+    texto = fuente.render(f"Puntos: {puntos}", True, (255, 255, 255))
+    pantalla.blit(texto, (10, 10))
+
+    pygame.display.flip()
+    reloj.tick(60)  # 60 vueltas por segundo
+
+pygame.quit()
