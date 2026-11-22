@@ -1,0 +1,85 @@
+import random
+import pygame
+
+pygame.init()
+
+ANCHO, ALTO = 400, 500
+TAM = 20
+pantalla = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Atrapa los píxeles")
+reloj = pygame.time.Clock()
+fuente = pygame.font.SysFont(None, 36)
+fuente_grande = pygame.font.SysFont(None, 60)
+
+def nuevo_juego():
+    return {
+        "jugador": pygame.Rect(ANCHO // 2 - 30, ALTO - 40, 60, 20),
+        "pixeles": [],
+        "puntos": 0,
+        "vidas": 3,
+        "velocidad": 4,
+    }
+
+estado = nuevo_juego()
+corriendo = True
+terminado = False
+
+while corriendo:
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            corriendo = False
+        if evento.type == pygame.KEYDOWN and evento.key == pygame.K_r and terminado:
+            estado = nuevo_juego()
+            terminado = False
+
+    if not terminado:
+        jugador = estado["jugador"]
+        pixeles = estado["pixeles"]
+
+        # 1. Mover la barra y no dejarla salir de la pantalla
+        teclas = pygame.key.get_pressed()
+        if teclas[pygame.K_LEFT]:
+            jugador.x -= 7
+        if teclas[pygame.K_RIGHT]:
+            jugador.x += 7
+        jugador.clamp_ip(pantalla.get_rect())
+
+        # 2. A veces aparece un píxel nuevo arriba
+        if random.random() < 0.03:
+            x = random.randrange(0, ANCHO - TAM, TAM)
+            pixeles.append(pygame.Rect(x, 0, TAM, TAM))
+
+        # 3. Mover los píxeles, contar puntos y quitar vidas
+        for p in pixeles[:]:
+            p.y += estado["velocidad"]
+            if p.colliderect(jugador):
+                pixeles.remove(p)
+                estado["puntos"] += 1
+                if estado["puntos"] % 10 == 0:
+                    estado["velocidad"] += 1
+            elif p.top > ALTO:
+                pixeles.remove(p)
+                estado["vidas"] -= 1
+                if estado["vidas"] == 0:
+                    terminado = True
+                    break
+
+    # 4. Dibujar todo
+    pantalla.fill((20, 20, 40))
+    pygame.draw.rect(pantalla, (0, 200, 255), estado["jugador"])
+    for p in estado["pixeles"]:
+        pygame.draw.rect(pantalla, (255, 220, 0), p)
+
+    marcador = f"Puntos: {estado['puntos']}   Vidas: {estado['vidas']}"
+    pantalla.blit(fuente.render(marcador, True, (255, 255, 255)), (10, 10))
+
+    if terminado:
+        msg = fuente_grande.render("GAME OVER", True, (255, 80, 80))
+        pantalla.blit(msg, msg.get_rect(center=(ANCHO // 2, ALTO // 2)))
+        aviso = fuente.render("R para reiniciar", True, (255, 255, 255))
+        pantalla.blit(aviso, aviso.get_rect(center=(ANCHO // 2, ALTO // 2 + 50)))
+
+    pygame.display.flip()
+    reloj.tick(60)
+
+pygame.quit()
