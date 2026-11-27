@@ -53,3 +53,29 @@ src_c/_sdl2/video.c
 src_c/_sprite.c
 src_c/pypm.c
 
+
+# --- user-data guard (Volmarr ecosystem law, 2026-11-26: user data is never committed) ---
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+credentials.*
+*secret*
+*.token
+intake.token
+.vault_key
+vault.json.enc
+vault_meta.json
+.kista/
+*.db
+*.sqlite
+*.sqlite3
+chat-logs/
+chat_logs/
+transcripts/
+sessions/
+saves/
+*.log
