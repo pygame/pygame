@@ -18,28 +18,15 @@ object (such as StringIO).
 """
 
 __all__ = ["getResource"]
-import sys
+import io
 import os
+import posixpath
+import sys
 
 try:
-    from pkg_resources import resource_stream, resource_exists
+    import importlib.resources as _importlib_resources
 except ImportError:
-
-    def resource_exists(_package_or_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
-
-        :return: Always returns False
-        """
-        return False
-
-    def resource_stream(_package_of_requirement, _resource_name):
-        """
-        A stub for when we fail to import this function.
-
-        Always raises a NotImplementedError when called.
-        """
-        raise NotImplementedError
+    _importlib_resources = None
 
 
 def getResource(identifier, pkgname=__name__):
@@ -58,19 +45,48 @@ def getResource(identifier, pkgname=__name__):
     rather than use it as a file-like object.  For example, you may
     be handing data off to a C API.
     """
-
-    # When pyinstaller (or similar tools) are used, resource_exists may raise
-    # NotImplemented error
-    try:
-        if resource_exists(pkgname, identifier):
-            return resource_stream(pkgname, identifier)
-    except NotImplementedError:
-        pass
-
     mod = sys.modules[pkgname]
+
+    if _importlib_resources is not None and not os.path.isabs(identifier):
+        anchor = mod.__package__ or pkgname
+        norm_id = posixpath.normpath(identifier.replace("\\", "/"))
+        parts = [p for p in norm_id.split("/") if p and p != "."]
+        if parts and ".." not in parts and not norm_id.startswith("/"):
+            if hasattr(_importlib_resources, "files"):
+                try:
+                    res = _importlib_resources.files(anchor).joinpath(*parts)
+                    if res.is_file():
+                        if isinstance(res, os.PathLike):
+                            return res.open("rb")
+                        return io.BytesIO(res.read_bytes())
+                except (
+                    ImportError,
+                    NotImplementedError,
+                    AttributeError,
+                    TypeError,
+                    ValueError,
+                ):
+                    pass
+            elif (
+                len(parts) == 1
+                and hasattr(_importlib_resources, "is_resource")
+                and hasattr(_importlib_resources, "open_binary")
+            ):
+                try:
+                    if _importlib_resources.is_resource(anchor, parts[0]):
+                        return _importlib_resources.open_binary(anchor, parts[0])
+                except (
+                    ImportError,
+                    NotImplementedError,
+                    AttributeError,
+                    TypeError,
+                    ValueError,
+                ):
+                    pass
+
     path_to_file = getattr(mod, "__file__", None)
     if path_to_file is None:
-        raise OSError(f"{repr(mod)} has no __file__!")
+        raise OSError(f"{mod!r} has no __file__!")
     path = os.path.join(os.path.dirname(path_to_file), identifier)
 
     # pylint: disable=consider-using-with
