@@ -982,8 +982,13 @@ surf_rotozoom(PyObject *self, PyObject *args, PyObject *kwargs)
         surf32 = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 32,
                                       0x000000ff, 0x0000ff00, 0x00ff0000,
                                       0xff000000);
-        SDL_BlitSurface(surf, NULL, surf32, NULL);
+        if (surf32) {
+            SDL_BlitSurface(surf, NULL, surf32, NULL);
+        }
         Py_END_ALLOW_THREADS;
+        if (!surf32) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
 
     Py_BEGIN_ALLOW_THREADS;
